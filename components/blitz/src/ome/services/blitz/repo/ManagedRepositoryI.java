@@ -219,17 +219,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return proc.getProxy();
     }
 
-    protected void append(StringBuilder stacks, StringBuilder message,
-            Throwable err) {
-        if (err != null) {
-            message.append("=========================");
-            message.append(err.toString());
-            message.append(err.getMessage());
-            stacks.append("==========================");
-            stacks.append(stackTraceAsString(err));
-        }
-    }
-
     /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/".
