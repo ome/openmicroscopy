@@ -60,6 +60,7 @@
 	<property name="common.comp"    value="${components.dir}/common"/>
 	<property name="server.comp"    value="${components.dir}/server"/>
 	<property name="nio.comp"       value="${components.dir}/romio"/>
+	<property name="romio.comp"     value="${components.dir}/romio"/>
 	<property name="render.comp"    value="${components.dir}/rendering"/>
 	<property name="import.comp"    value="${components.dir}/importer"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>

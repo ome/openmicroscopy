@@ -119,12 +119,24 @@ if __name__ == "__main__":
         del os.environ['CLASSPATH']
 
     try:
-        if len(args) > 0 and args[0] == "-perf":
-            args.pop(0)
-            A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split() + args
-            java_omero(A)
-        else:
-            java_omero(args)
+        additions = []
+        while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp"):
+            if args[0] == "-perf":
+                args.pop(0)
+                A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
+                additions.extend(A)
+            elif args[0] == "-py":
+                args.pop(0)
+                F = os.path.sep.join(["components","tools","OmeroPy","build.xml"])
+                A = ["-f", F]
+                additions.extend(A)
+            elif args[0] == "-cpp":
+                args.pop(0)
+                F = os.path.sep.join(["components","tools","OmeroCpp","build.xml"])
+                A = ["-f", F]
+                additions.extend(A)
+        args = additions + args
+        java_omero(args)
         notification(""" Finished: %s """ % " ".join(args), 0)
     except KeyboardInterrupt:
         sys.stderr.write("\nCancelled by user\n")
