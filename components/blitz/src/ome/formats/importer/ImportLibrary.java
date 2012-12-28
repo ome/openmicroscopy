@@ -110,35 +110,6 @@ public class ImportLibrary implements IObservable
     }
 
     //
-    // Delegation methods
-    //
-
-    public long getExperimenterID()
-    {
-        return store.getExperimenterID();
-    }
-
-    public InstanceProvider getInstanceProvider()
-    {
-        return store.getInstanceProvider();
-    }
-
-    /**
-     * Prepares the metadata store using existing metadata that has been
-     * pre-registered by OMERO.fs. The expected graph should be fully loaded:
-     * <ul>
-     *   <li>Image</li>
-     *   <li>Pixels</li>
-     * </ul>
-     * @param existingMetadata Map of imageIndex or series vs. populated Image
-     * source graph with the fetched objects defined above.
-     */
-    public void prepare(Map<Integer, Image> existingMetadata)
-    {
-        store.prepare(existingMetadata);
-    }
-
-    //
     // Observable methods
     //
 
