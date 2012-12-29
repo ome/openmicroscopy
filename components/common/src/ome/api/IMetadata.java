@@ -236,7 +236,28 @@ public interface IMetadata
      * @param userID   The identifier of the user.
      * @return See above.
      */
-    public Set<IObject> loadAnnotationsUsedNotOwned(@NotNull Class annotationType, 
+    public Set<IObject> loadAnnotationsUsedNotOwned(@NotNull Class annotationType,
     		long userID);
+    
+    /**
+     * Loads the annotations of a given type.
+     * 
+     * @param type      The type of annotations to load.
+     * @param include   The collection of name space, one of the constants
+     *                  defined by this class.
+     * @param exclude   The collection of name space, one of the constants
+     *                  defined by this class.
+     * @param rootNodeType The type of objects the annotations are linked to.
+     * @param rootNodeIds The objects' identifiers.
+     * @param options   The POJO options.
+     * @return A collection of found annotations.
+     */
+    public <A extends Annotation> Map<Long, Set<A>> loadSpecifiedAnnotationsLinkedTo(
+    		@NotNull Class type,
+    		@Validate(String.class) Set<String> include,
+    		@Validate(String.class) Set<String> exclude,
+    		@NotNull Class rootNodeType,
+    		@NotNull @Validate(Long.class) Set<Long> rootNodeIds,
+    		Parameters options);
     
 }
