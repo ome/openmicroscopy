@@ -656,9 +656,10 @@ public class MetadataImpl
     		@NotNull Class type, Set<String> include, Set<String> exclude,
     		 Parameters options)
     {
-    	List<A> list = (List<A>) getAnnotation(type, include, exclude, options);
+    	List<IObject> list = getAnnotation(type, include, exclude, options);
+    	Iterator<IObject> i;
     	if (FILE_TYPE.equals(type.getName()) && list != null) {
-    		Iterator<A> i = list.iterator();
+    		i = list.iterator();
     		FileAnnotation fa;
     		OriginalFile of;
     		List<Annotation> toRemove = new ArrayList<Annotation>();
@@ -673,8 +674,12 @@ public class MetadataImpl
     		if (toRemove.size() > 0) list.removeAll(toRemove);
     	}
     	if (list == null) return new HashSet<A>();
-    	
-    	return new HashSet<A>(list);
+    	Set<A> set = new HashSet<A>(list.size());
+    	i = list.iterator();
+    	while (i.hasNext()) {
+			set.add((A) i.next());
+		}
+    	return set;
     }
     
     /**
