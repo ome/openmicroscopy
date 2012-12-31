@@ -462,25 +462,27 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
     def setUp(self):
         super(RepositoryApiBaseTest, self).setUp()
         self.toDelete = []
-        self.repoindex = 1
+        self.repoclass = "Repository"
+        self.reponame = "omero.data"
         self.loginmethod = self.loginAsAdmin
 
     def tearDown(self):
         if self.toDelete:
             self.loginAsAdmin()
             if hasattr(self, 'gateway'):
-                sr = self.gateway.getSharedResources()
-                repositories = sr.repositories()
-                for repo, name in self.toDelete:
-                    repository = repositories.proxies[repo]
+                for repoclass, reponame, name in self.toDelete:
+                    repository, description = views.get_repository(self.gateway, repoclass, reponame)
                     try:
                         repository.delete(name)
                     except Exception, ex:
-                        print "\nCould not clean up %s in repository %d" % (name, repo)
+                        print "\nCould not clean up %s in repository %s (Reason: %s)" % (name, repo, ex)
                 self.toDelete = []
             else:
                 print "\nNeed to cleanup files, but don't have gateway"
         super(RepositoryApiBaseTest, self).tearDown()
+
+    def deleteLater(self, filename, repoclass=None, reponame=None):
+        self.toDelete.append((repoclass or self.repoclass, reponame or self.reponame, filename))
 
 
 class RepositoryApiTest(RepositoryApiBaseTest):
@@ -498,19 +500,21 @@ class RepositoryApiTest(RepositoryApiBaseTest):
     def testRepository(self):
         self.loginmethod()
         r = fakeRequest()
-        v = views.repository(r, index=1, server_id=1, conn=self.gateway, _internal=True)
+        v = views.repository(r, klass="Repository", name='omero.data', server_id=1, conn=self.gateway, _internal=True)
         self.assertTrue('"name": "omero.data"' in v)
         self.assertTrue('"type": "OriginalFile"' in v)
-        v = views.repository(r, index=2, server_id=1, conn=self.gateway, _internal=True)
+        v = views.repository(r, klass="ManagedRepository", server_id=1, conn=self.gateway, _internal=True)
         self.assertTrue('"name": "ManagedRepository"' in v)
         self.assertTrue('"type": "OriginalFile"' in v)
 
     def testRepositoryUploadDownload(self):
-        self.toDelete.append((self.repoindex, 'test'))
+        NAME = 'test%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
 
         self.loginmethod()
         view = views.repository_upload()
-        viewargs = dict(index=self.repoindex, filepath='test', server_id=1,
+        viewargs = dict(klass=self.repoclass, name=self.reponame,
+                        filepath=NAME, server_id=1,
                         conn=self.gateway, _internal=True)
 
         r = fakeRequest(QUERY_STRING='uploads')
@@ -547,24 +551,25 @@ class RepositoryApiTest(RepositoryApiBaseTest):
         r = fakeRequest()
         viewargs['filepath'] = None
         v = views.repository_listfiles(r, **viewargs)
-        self.assertTrue('"name": "test"' in v)
+        self.assertTrue('"name": "%s"' % NAME in v)
         self.assertTrue('"size": 6' in v)
         self.assertTrue('"mtime": ' in v)
         
         mtime = None
         for metadata in simplejson.loads(v)['result']:
-            if metadata['name'] == 'test':
+            if metadata['name'] == NAME:
                 mtime = metadata['mtime']
                 break
         self.assertTrue(mtime)
         self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
 
     def testRepositoryMkdir(self):
-        self.toDelete.append((1, 'testRepositoryMkdir'))
+        NAME = 'testdir%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
 
         self.loginmethod()
         r = fakeRequest(REQUEST_METHOD='POST', body='')
-        v = views.repository_makedir(r, dirpath='testRepositoryMkdir', index=self.repoindex,
+        v = views.repository_makedir(r, dirpath=NAME, klass=self.repoclass,
                                      server_id=1, conn=self.gateway, _internal=True)
         self.assertTrue('"bad": "false"' in v)
 
@@ -577,7 +582,8 @@ class ManagedRepositoryApiTest(RepositoryApiTest):
 
     def setUp(self):
         super(ManagedRepositoryApiTest, self).setUp()
-        self.repoindex = 2
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
 
 
 class RepositoryApiAsAuthorTest(RepositoryApiTest):
@@ -599,7 +605,8 @@ class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
 
     def setUp(self):
         super(ManagedRepositoryApiAsAuthorTest, self).setUp()
-        self.repoindex = 2
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
         self.loginmethod = self.loginAsAuthor
 
 
@@ -609,15 +616,14 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
     """
 
     def _getrepo(self):
-        sr = self.gateway.getSharedResources()
-        repositories = sr.repositories()
-        return (repositories.proxies[self.repoindex],
-                repositories.descriptions[self.repoindex])
+        return views.get_repository(self.gateway, self.repoclass)
 
-    def setUp(self, repoindex=None):
+    def setUp(self, repoclass=None, reponame=''):
         super(RepositoryApiPermissionsTest, self).setUp()
-        if repoindex is not None:
-            self.repoindex = repoindex
+        if repoclass is not None:
+            self.repoclass = repoclass
+        if reponame != '':
+            self.reponame = reponame
         self.FILENAME = 'RepositoryApiPermissionsTest'
         self.loginAsAdmin()
         repository, repodesc = self._getrepo()
@@ -631,12 +637,20 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
         repository.delete(self.FILENAME)
         super(RepositoryApiPermissionsTest, self).tearDown()
 
-    def testFileAccess(self):
-        self.loginAsUser()
+    def testFileAccessAsAdmin(self):
+        self.loginAsAdmin()
         repository, repodesc = self._getrepo()
         targetfile = repository.file(self.FILENAME, 'r')
         filesize = targetfile.size()
         self.assertEqual(6, filesize)
+
+    def testFileAccessAsUser(self):
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+        #targetfile = repository.file(self.FILENAME, 'r')
+        #filesize = targetfile.size()
+        #self.assertEqual(6, filesize)
 
     def _test(self):
         print "\nUser"
@@ -671,7 +685,7 @@ class ManagedRepositoryApiPermissionsTest(RepositoryApiPermissionsTest):
     """
 
     def setUp(self):
-        super(ManagedRepositoryApiPermissionsTest, self).setUp(repoindex=2)
+        super(ManagedRepositoryApiPermissionsTest, self).setUp(repoclass="ManagedRepository", reponame=None)
 
     def testFileAccess(self):
         self.loginAsUser()
@@ -694,7 +708,7 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
     """
     
     def setUp(self):
-        super(ManagedRepositoryApiListTest, self).setUp(repoindex=2)
+        super(ManagedRepositoryApiListTest, self).setUp(repoclass="ManagedRepository", reponame=None)
         self.FILENAME_USER = 'RepositoryApiPermissionsTest_User'
         self.loginAsUser()
         repository, repodesc = self._getrepo()
@@ -715,8 +729,9 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
         root = os.path.join(unwrap(repository.root().path), name)
         self.assertTrue(repository.fileExists(root))
         files = repository.list(root)
+        files = [f.strip('/') for f in files]
         self.assertIn(self.FILENAME, files)
-        self.assertIn(self.FILENAME_USER, files)
+        self.assertNotIn(self.FILENAME_USER, files)
 
     def testFileListAsUser(self):
         self.loginAsUser()
@@ -725,5 +740,6 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
         root = os.path.join(unwrap(repository.root().path), name)
         self.assertTrue(repository.fileExists(root))
         files = repository.list(root)
+        files = [f.strip('/') for f in files]
         self.assertNotIn(self.FILENAME, files)
         self.assertIn(self.FILENAME_USER, files)
