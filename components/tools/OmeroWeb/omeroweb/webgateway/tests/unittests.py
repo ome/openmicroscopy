@@ -571,8 +571,25 @@ class RepositoryApiTest(RepositoryApiBaseTest):
         r = fakeRequest(REQUEST_METHOD='POST', body='')
         v = views.repository_makedir(r, dirpath=NAME, klass=self.repoclass,
                                      server_id=1, conn=self.gateway, _internal=True)
-        self.assertTrue('"bad": "false"' in v)
+        self.assertTrue('"bad": "false"' in v, msg='Returned: %s' % v)
 
+        if self.repoclass == 'Repository':
+            # TODO: the following file listing tests fail for Repository
+            return
+
+        r = fakeRequest()
+        v = views.repository_list(r, klass=self.repoclass, name=self.reponame,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        self.assertIn('/' + NAME, result)
+
+        r = fakeRequest()
+        v = views.repository_listfiles(r, klass=self.repoclass, name=self.reponame,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        self.assertTrue(any(entry['name'] == NAME for entry in result))
 
 class ManagedRepositoryApiTest(RepositoryApiTest):
     """
