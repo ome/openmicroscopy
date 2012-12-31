@@ -142,24 +142,25 @@ public class MetadataImpl
     		Set<Long> rootNodeIds, Parameters options)
     {
 		StringBuilder sb = new StringBuilder();
-		if (Image.class.getName().equals(rootType)) {
-			sb.append("select l from ImageAnnotationLink as l ");
-		} else if (Dataset.class.getName().equals(rootType)) {
-			sb.append("select l from DatasetAnnotationLink as l ");
-		} else if (Project.class.getName().equals(rootType)) {
-			sb.append("select l from ProjectAnnotationLink as l ");
-		} else if (Screen.class.getName().equals(rootType)) {
-			sb.append("select l from ScreenAnnotationLink as l ");
-		} else if (Plate.class.getName().equals(rootType)) {
-			sb.append("select l from PlateAnnotationLink as l ");
-		} else if (PlateAcquisition.class.getName().equals(rootType)) {
-			sb.append("select l from PlateAcquisitionAnnotationLink as l ");
-		} else if (Well.class.getName().equals(rootType)) {
-			sb.append("select l from WellAnnotationLink as l ");
-		}
-		if (rootType == null) {
+		if (rootType == null)
 			sb.append("select ann from Annotation as ann ");
-		} else {
+		else if (Image.class.getName().equals(rootType.getName()))
+			sb.append("select l from ImageAnnotationLink as l ");
+		else if (Dataset.class.getName().equals(rootType.getName()))
+			sb.append("select l from DatasetAnnotationLink as l ");
+		else if (Project.class.getName().equals(rootType.getName()))
+			sb.append("select l from ProjectAnnotationLink as l ");
+		else if (Screen.class.getName().equals(rootType.getName()))
+			sb.append("select l from ScreenAnnotationLink as l ");
+		else if (Plate.class.getName().equals(rootType.getName()))
+			sb.append("select l from PlateAnnotationLink as l ");
+		else if (PlateAcquisition.class.getName().equals(rootType.getName()))
+			sb.append("select l from PlateAcquisitionAnnotationLink as l ");
+		else if (Well.class.getName().equals(rootType.getName()))
+			sb.append("select l from WellAnnotationLink as l ");
+
+		if (rootType != null) {
+			sb.append("left outer join fetch l.parent ");
 			sb.append("left outer join fetch l.child as ann ");
 		}
     	
@@ -184,7 +185,7 @@ public class MetadataImpl
     	}
     	
     	if (rootNodeIds != null && rootNodeIds.size() > 0) {
-    		sb.append(" and l.parent.id in (:rootNodeIds))");
+    		sb.append(" and l.parent.id in (:rootNodeIds)");
     		param.addSet("rootNodeIds", rootNodeIds);
     	}
     	return iQuery.findAllByQuery(sb.toString(), param);
