@@ -1785,7 +1785,7 @@ def su (request, user, conn=None, **kwargs):
     conn.seppuku()
     return True
 
-def get_repository(conn, klass):
+def get_repository(conn, klass, name=None):
     klass = '%sPrx' % klass
     klass = getattr(omero.grid, klass)
     sr = conn.getSharedResources()
@@ -1794,8 +1794,11 @@ def get_repository(conn, klass):
         repository = klass.checkedCast(proxy)
         if repository is not None:
             description = repositories.descriptions[index]
-            return (repository, description)
-    raise AttributError('Repository of type %s unavailable' % klass)
+            if name is None or name == description.name.val:
+                return (repository, description)
+    raise AttributeError(
+        'Repository of type %s with optional name %s unavailable' %
+        (klass, name))
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
     """
@@ -1974,26 +1977,27 @@ def repositories(request, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository(request, klass, conn=None, **kwargs):
+def repository(request, klass, name=None, conn=None, **kwargs):
     """
     Returns a repository and its root property
     """
-    repository, description = get_repository(conn, klass)
+    repository, description = get_repository(conn, klass, name)
     return dict(repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal(),
                 root=unwrap(repository.root().path))
 
 
 @login_required()
 @jsonp
-def repository_list(request, klass, filepath=None, conn=None, **kwargs):
+def repository_list(request, klass, name=None, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files in a repository.  If filepath is not specified,
     returns files at the top level of the repository, otherwise files within
     the specified filepath
     """
-    repository, description = get_repository(conn, klass)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), name)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
+    repository, description = get_repository(conn, klass, name)
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+    root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
     if repository.fileExists(root):
@@ -2005,15 +2009,16 @@ def repository_list(request, klass, filepath=None, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_listfiles(request, klass, filepath=None, conn=None, **kwargs):
+def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **kwargs):
     """
     Returns a list of files and some of their metadata in a repository.
     If filepath is not specified, returns files at the top level of the
     repository, otherwise files within the specified filepath
     """
-    repository, description = get_repository(conn, klass)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), name)
+    conn.SERVICE_OPTS.setOmeroGroup(-1)
+    repository, description = get_repository(conn, klass, name)
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+    root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
 
@@ -2021,23 +2026,24 @@ def repository_listfiles(request, klass, filepath=None, conn=None, **kwargs):
         w = OriginalFileWrapper(conn=conn, obj=f)
         return w.simpleMarshal()
 
-    if repository.fileExists(root):
+    try:
         result = [_getFile(f) for f in repository.listFiles(root)]
         result = [f for f in result if not f.get('name', '').startswith('.')]
-    else:
+    except: # listFiles failed, likely because root does not exist
         result = []
+        raise
     return dict(result=result)
 
 
 @login_required()
 @jsonp
-def repository_sha(request, klass, filepath, conn=None, **kwargs):
+def repository_sha(request, klass, name=None, filepath=None, conn=None, **kwargs):
     """
     json method: Returns the sha1 checksum of the specified file
     """
-    repository, description = get_repository(conn, klass)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    repository, description = get_repository(conn, klass, name)
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+    fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
 
     try:
         sourcefile = repository.file(fullpath, 'r')
@@ -2054,16 +2060,16 @@ def repository_sha(request, klass, filepath, conn=None, **kwargs):
 @require_POST
 @login_required()
 @jsonp
-def repository_delete(request, klass, filepath, conn=None, **kwargs):
+def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwargs):
     """
     json method: Deletes the specified file or directory
     """
-    repository, description = get_repository(conn, klass)
+    repository, description = get_repository(conn, klass, name)
     todelete = []
 
-    path, name = os.path.split(filepath)
+    path, fname = os.path.split(filepath)
     path += '/' if path != '' else ''
-    obj = conn.getObject('OriginalFile', attributes=dict(name=name, path='/'+path))
+    obj = conn.getObject('OriginalFile', attributes=dict(name=fname, path='/'+path))
     if obj:
         todelete.append(obj.id)
         # recursively collect all file IDs below the given path
@@ -2072,7 +2078,7 @@ def repository_delete(request, klass, filepath, conn=None, **kwargs):
                 for f in repository.listFiles(path):
                     todelete.append(f.id.val)
                     _delete(f.path.val[1:] + f.name.val)
-        _delete(path + name)
+        _delete(path + fname)
 
     # Delete objects in database
     if todelete:
@@ -2093,11 +2099,11 @@ def repository_delete(request, klass, filepath, conn=None, **kwargs):
 
 @login_required()
 @jsonp
-def repository_root(request, klass, conn=None, **kwargs):
+def repository_root(request, klass, name=None, conn=None, **kwargs):
     """
     Returns the root and name property of a repository
     """
-    repository, description = get_repository(conn, klass)
+    repository, description = get_repository(conn, klass, name)
     return dict(root=unwrap(repository.root().path),
                 name=OriginalFileWrapper(conn=conn, obj=description).getName())
 
@@ -2105,16 +2111,16 @@ def repository_root(request, klass, conn=None, **kwargs):
 @require_POST
 @login_required()
 @jsonp
-def repository_makedir(request, klass, dirpath, conn=None, **kwargs):
+def repository_makedir(request, klass, name=None, dirpath=None, conn=None, **kwargs):
     """
     Creates a directory in a repository
     """
-    repository, description = get_repository(conn, klass)
+    repository, description = get_repository(conn, klass, name)
     root = unwrap(repository.root().path)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
 
     try:
-        path = os.path.join(root, name, dirpath)
+        path = os.path.join(root, fwname, dirpath)
         rdict = {'bad': 'false'}
         force = request.GET.get('force', 'false')
         if force == 'true' and repository.fileExists(path):
@@ -2140,14 +2146,14 @@ def iterate_content(source, start, end):
 
 
 @login_required(doConnectionCleanup=False)
-def repository_download(request, klass, filepath, conn=None, **kwargs):
+def repository_download(request, klass, name=None, filepath=None, conn=None, **kwargs):
     """
     Downloads a file from a repository.  Supports the HTTP_RANGE header to
     perform partial downloads or download continuation
     """
-    repository, description = get_repository(conn, klass)
-    name = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+    repository, description = get_repository(conn, klass, name)
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+    fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
 
     try:
         sourcefile = repository.file(fullpath, 'r')
@@ -2259,11 +2265,11 @@ def process_request(require_uploadId):
         @login_required_no_redirect()
         @jsonp
         @uncloak_self
-        def decorated(self, request, klass, filepath, conn, **kwargs):
+        def decorated(self, request, klass, name=None, filepath=None, conn=None, **kwargs):
 
-            repository, description = get_repository(conn, klass)
-            name = OriginalFileWrapper(conn=conn, obj=description).getName()
-            fullpath = os.path.join(unwrap(repository.root().path), name, filepath)
+            repository, description = get_repository(conn, klass, name)
+            fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+            fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
 
             objectname = os.path.basename(fullpath)
             uploadId = request.GET.get('uploadId')

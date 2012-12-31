@@ -44,52 +44,52 @@ repositories = (r'^repositories/$', 'webgateway.views.repositories')
 json method: Returns a list of repositories
 """
 
-repository = (r'^repositories/(?P<klass>\w+)/$', 'webgateway.views.repository')
+repository = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/$', 'webgateway.views.repository')
 """
 json method: Returns a repository and its root property
 """
 
-repository_list = (r'^repositories/(?P<klass>\w+)/list/(?P<filepath>.+)?$', 'webgateway.views.repository_list')
+repository_list = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/list/(?P<filepath>.+)?$', 'webgateway.views.repository_list')
 """
 json method: Returns a list of files in a repository.  If filepath is not specified,
 returns files at the top level of the repository, otherwise files within
 the specified filepath
 """
 
-repository_listfiles = (r'^repositories/(?P<klass>\w+)/listfiles/(?P<filepath>.+)?$', 'webgateway.views.repository_listfiles')
+repository_listfiles = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/listfiles/(?P<filepath>.+)?$', 'webgateway.views.repository_listfiles')
 """
 json method: Returns a list of files and some of their metadata in a repository.
 If filepath is not specified, returns files at the top level of the
 repository, otherwise files within the specified filepath
 """
 
-repository_sha = (r'^repositories/(?P<klass>\w+)/sha/(?P<filepath>.+)$', 'webgateway.views.repository_sha')
+repository_sha = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/sha/(?P<filepath>.+)$', 'webgateway.views.repository_sha')
 """
 json method: Returns the sha1 checksum of the specified file
 """
 
-repository_delete = (r'^repositories/(?P<klass>\w+)/delete/(?P<filepath>.+)$', 'webgateway.views.repository_delete')
+repository_delete = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete/(?P<filepath>.+)$', 'webgateway.views.repository_delete')
 """
 json method: Delete specified file or directory
 """
 
-repository_root = (r'^repositories/(?P<klass>\w+)/root/$', 'webgateway.views.repository_root')
+repository_root = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/root/$', 'webgateway.views.repository_root')
 """
 json method: Returns the root and name property of a repository
 """
 
-repository_makedir = (r'^repositories/(?P<klass>\w+)/makedir/(?P<dirpath>.+)$', 'webgateway.views.repository_makedir')
+repository_makedir = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/makedir/(?P<dirpath>.+)$', 'webgateway.views.repository_makedir')
 """
 json method: Creates a directory in a repository
 """
 
-repository_download = (r'^repositories/(?P<klass>\w+)/download/(?P<filepath>.+)$', 'webgateway.views.repository_download')
+repository_download = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/download/(?P<filepath>.+)$', 'webgateway.views.repository_download')
 """
 Downloads a file from a repository.  Supports the HTTP_RANGE header to
 perform partial downloads or download continuation
 """
 
-repository_upload = (r'^repositories/(?P<klass>\w+)/upload/(?P<filepath>.+)$', repository_upload.as_view())
+repository_upload = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/upload/(?P<filepath>.+)$', repository_upload.as_view())
 """
 json method: Upload a file into a repository using multi-part upload.  Modeled on
 the Amazon S3 MPU calls.
