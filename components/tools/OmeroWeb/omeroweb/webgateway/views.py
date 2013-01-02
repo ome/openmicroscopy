@@ -2162,8 +2162,11 @@ def repository_download(request, klass, name=None, filepath=None, conn=None, **k
     fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
     fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
 
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
+
     try:
-        sourcefile = repository.file(fullpath, 'r')
+        sourcefile = repository.file(fullpath, 'r', ctx)
     except InternalException:
         raise Http404()
 
