@@ -717,7 +717,7 @@ class ManagedRepositoryApiPermissionsTest(RepositoryApiPermissionsTest):
         self.assertEqual(6, filesize)
 
 
-class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
+class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
     """
     If admin and user create a file each in ManagedRepository, admin should
     see both but user should only see own file. Also, repository.list()
@@ -725,7 +725,7 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
     """
     
     def setUp(self):
-        super(ManagedRepositoryApiListTest, self).setUp(repoclass="ManagedRepository", reponame=None)
+        super(ManagedRepositoryApiCrossGroupTest, self).setUp(repoclass="ManagedRepository", reponame=None)
         self.FILENAME_USER = 'RepositoryApiPermissionsTest_User'
         self.loginAsUser()
         repository, repodesc = self._getrepo()
@@ -737,7 +737,7 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
         self.loginAsUser()
         repository, repodesc = self._getrepo()
         repository.delete(self.FILENAME_USER)
-        super(ManagedRepositoryApiListTest, self).tearDown()
+        super(ManagedRepositoryApiCrossGroupTest, self).tearDown()
 
     def testListAsAdmin(self):
         self.loginAsAdmin()
@@ -782,3 +782,10 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
         files = [f.get('name') for f in result]
         self.assertNotIn(self.FILENAME, files)
         self.assertIn(self.FILENAME_USER, files)
+
+    def testSha(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_sha(r, self.repoclass, filepath=self.FILENAME_USER,
+                                 server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('{"sha": "25577cfc23d0e779241727f063b0648ad451360c"}', v)
