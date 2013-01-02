@@ -7,9 +7,19 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+
+import platform
+import locale
 import unittest
 import integration.library as lib
 import omero
+
+from omero.callbacks import CmdCallbackI
+from omero.cmd import ERR
+from omero.rtypes import rbool
+from omero.rtypes import rstring
+from omero.util.temp_files import create_path
+from omero_version import omero_version
 
 
 class AbstractRepoTest(lib.ITest):
@@ -348,6 +358,94 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         except omero.SecurityViolation:
             pass
         self.assertRead(mrepo2, filename, ofile, self.all(client2))
+
+
+class TestPythonImporter(AbstractRepoTest):
+
+    def create_test_dir(self):
+        folder = create_path(folder=True)
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
+        return folder
+
+    def create_fileset(self, folder):
+        fileset = omero.model.FilesetI()
+        for f in folder.files():
+            entry = omero.model.FilesetEntryI()
+            entry.setClientPath(rstring(f.abspath()))
+            fileset.addFilesetEntry(entry)
+
+        # Fill BF info
+        system, node, release, version, machine, processor = platform.uname()
+        try:
+            preferred_locale = locale.getdefaultlocale()[0]
+        except:
+            preferred_locale = "Unknown"
+
+        clientVersionInfo = omero.model.FilesetVersionInfoI()
+        clientVersionInfo.setBioformatsReader(rstring("DirectoryReader"))
+        clientVersionInfo.setBioformatsVersion(rstring("Unknown"))
+        clientVersionInfo.setOmeroVersion(rstring(omero_version));
+        clientVersionInfo.setOsArchitecture(rstring(machine))
+        clientVersionInfo.setOsName(rstring(system))
+        clientVersionInfo.setOsVersion(rstring(release))
+        clientVersionInfo.setLocale(rstring(preferred_locale))
+
+        upload = omero.model.UploadJobI()
+        upload.setVersionInfo(clientVersionInfo)
+        fileset.linkJob(upload)
+        return fileset
+
+    def create_settings(self):
+        settings = omero.grid.ImportSettings()
+        settings.doThumbnails = rbool(True)
+        settings.userSpecifiedTarget = None
+        settings.userSpecifiedName = None
+        settings.userSpecifiedDescription = None
+        settings.userSpecifiedAnnotationList = None
+        settings.userSpecifiedPixels = None
+        return settings
+
+    def upload_folder(self, proc, folder):
+        ret_val = []
+        for i, fobj in enumerate(folder.files()):  # Assuming same order
+            rfs = proc.getUploader(i)
+            try:
+                f = fobj.open()
+                try:
+                    offset = 0
+                    block = []
+                    rfs.write(block, offset, len(block)) # Touch
+                    while True:
+                        block = f.read(1000*1000)
+                        if not block:
+                            break
+                        rfs.write(block, offset, len(block))
+                        offset += len(block)
+                    ret_val.append(self.client.sha1(fobj.abspath()))
+                finally:
+                    f.close()
+            finally:
+                rfs.close()
+        return ret_val
+
+    def testSimpleImport(self):
+        client = self.new_client()
+        mrepo = self.getManagedRepo(client)
+        folder = self.create_test_dir()
+        fileset = self.create_fileset(folder)
+        settings = self.create_settings()
+
+        proc = mrepo.prepareImport(fileset, settings)
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        cb = CmdCallbackI(client, handle)
+        cb.loop(5, 500)
+        rsp = cb.getResponse()
+        if isinstance(rsp, ERR):
+            self.fail(rsp)
+        else:
+            self.assertEquals(1, len(rsp.pixels))
 
 
 if __name__ == '__main__':

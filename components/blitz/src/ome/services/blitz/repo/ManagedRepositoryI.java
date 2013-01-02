@@ -133,6 +133,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
             throw new omero.ApiUsageException(null, null, "No paths provided");
         }
 
+        if (settings == null) {
+            settings = new ImportSettings(); // All defaults.
+        }
+
         final List<String> paths = new ArrayList<String>();
         for (FilesetEntry entry : fs.copyUsedFiles()) {
             paths.add(entry.getClientPath().getValue());
