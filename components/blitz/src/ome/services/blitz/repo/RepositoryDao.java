@@ -1,7 +1,10 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
+
+import Ice.Current;
 
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
@@ -89,6 +92,15 @@ public interface RepositoryDao {
      */
     Fileset saveFileset(String repoUuid, Fileset fs, List<CheckedPath> paths,
             Ice.Current current) throws ServerError;
+
+    /**
+     * Load filesets by id.
+     * @param ids
+     * @param current
+     * @return
+     */
+    List<Fileset> loadFilesets(List<Long> ids, Ice.Current current)
+            throws ServerError;
 
     /**
      * Register an OriginalFile object

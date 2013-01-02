@@ -17,7 +17,7 @@
  */
 package ome.services.blitz.repo;
 
-import static org.apache.commons.io.FilenameUtils.concat;
+import static omero.rtypes.rstring;
 import static org.apache.commons.io.FilenameUtils.normalize;
 
 import java.io.File;
@@ -26,34 +26,26 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import Ice.Current;
 
-import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
-import ome.services.blitz.fire.Registry;
-import ome.system.Principal;
+import ome.services.blitz.impl.ServiceFactoryI;
 
 import omero.ServerError;
-import omero.api.ServiceFactoryPrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
-import omero.grid.ImportRequest;
 import omero.grid.ImportSettings;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
@@ -67,14 +59,11 @@ import omero.model.Job;
 import omero.model.MetadataImportJob;
 import omero.model.MetadataImportJobI;
 import omero.model.OriginalFile;
-import omero.model.Pixels;
 import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
 import omero.sys.EventContext;
-
-import static omero.rtypes.rstring;
 
 /**
  * Extension of the PublicRepository API which onle manages files
@@ -91,6 +80,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     private final String template;
 
+    private final ProcessContainer processes;
+
     /**
      * Fields used in date-time calculations.
      */
@@ -100,9 +91,21 @@ public class ManagedRepositoryI extends PublicRepositoryI
         DATE_FORMAT = new DateFormatSymbols();
     }
 
+    /**
+     * Creates a {@link ProcessContainer} internally that will not be managed
+     * by background threads. Used primarily during testing.
+     * @param template
+     * @param dao
+     */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
+        this(template, dao, new ProcessContainer());
+    }
+
+    public ManagedRepositoryI(String template, RepositoryDao dao,
+            ProcessContainer processes) throws Exception {
         super(dao);
         this.template = template;
+        this.processes = processes;
         log.info("Repository template: " + this.template);
     }
 
@@ -152,6 +155,36 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
 
         return createImportProcess(fs, location, settings, __current);
+    }
+
+    public List<ImportProcessPrx> listImports(Ice.Current __current) throws omero.ServerError {
+
+        final List<Long> filesetIds = new ArrayList<Long>();
+        final List<ImportProcessPrx> proxies = new ArrayList<ImportProcessPrx>();
+        final EventContext ec = repositoryDao.getEventContext(__current);
+        final List<ProcessContainer.Process> ps
+            = processes.listProcesses(ec.memberOfGroups);
+
+        for (final ProcessContainer.Process p : ps) {
+            filesetIds.add(p.getFileset().getId().getValue());
+        }
+
+        final List<Fileset> filesets
+            = repositoryDao.loadFilesets(filesetIds, __current);
+
+        for (Fileset fs : filesets) {
+            if (!fs.getDetails().getPermissions().canEdit()) {
+                filesetIds.remove(fs.getId().getValue());
+            }
+        }
+
+        for (final ProcessContainer.Process p : ps) {
+            if (filesetIds.contains(p.getFileset().getId())) {
+                proxies.add(p.getProxy());
+            }
+        }
+
+        return proxies;
     }
 
     //
@@ -214,8 +247,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, __current);
+        // Since the fileset saved validly, we create a session for the user
+        // and return the process.
+
         final ManagedImportProcessI proc = new ManagedImportProcessI(this, managedFs,
                 location, settings, __current);
+        processes.addProcess(proc);
         return proc.getProxy();
     }
 
@@ -348,7 +385,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      *          prefix, e.g. "/OMERO/ManagedRepo")
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
-     * @return {@link Import} instance with the suggested new basePath in the
+     * @return {@link ImportLocation} instance with the suggested new basePath in the
      *          case of conflicts.
      */
     protected ImportLocation suggestOnConflict(String trueRoot, String relPath,

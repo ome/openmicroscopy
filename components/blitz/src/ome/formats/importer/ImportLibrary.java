@@ -349,7 +349,7 @@ public class ImportLibrary implements IObservable
                 container.getUsedFiles(), proc);
 
         // At this point the import is running, one handle after the next.
-        final List<HandlePrx> handles = proc.verifyUpload(hashes);
+        final HandlePrx handle = proc.verifyUpload(hashes);
 
         // Adapter which should be used for callbacks. This is more
         // complicated than it needs to be at the moment. We're only sure that
@@ -361,33 +361,30 @@ public class ImportLibrary implements IObservable
         final String category = omero.client.getRouter(ic).getCategoryForClient();
 
         List<Pixels> pixList = null;
-        for (HandlePrx handle : handles) {
-            @SuppressWarnings("serial")
-            final CmdCallbackI cb = new CmdCallbackI(oa, category, handle) {
-                public void step(int step, int total, Ice.Current current) {
-                    notifyObservers(new ImportEvent.PROGRESS_EVENT(
-                            0, container.getFile().getAbsolutePath(),
-                            null, null, 0, null, step, total));
-                }
-            };
-            cb.loop(60*60, 1000); // Wait 1 hr per step.
-            Response rsp = cb.getResponse();
-            if (rsp instanceof ERR) {
-                final ERR err = (ERR) rsp;
-                final RuntimeException rt = new RuntimeException(String.format(
-                        "Failure response on import!\n" +
-                        "Category: %s\n" +
-                        "Name: %s\n" +
-                        "Parameters: %s\n", err.category, err.name,
-                        err.parameters));
-                notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                        container.getFile().getAbsolutePath(), rt,
-                        container.getUsedFiles(), container.getReader()));
-                throw rt;
-            } else if (rsp instanceof ImportResponse) {
-                pixList = ((ImportResponse) rsp).pixels;
+        @SuppressWarnings("serial")
+        final CmdCallbackI cb = new CmdCallbackI(oa, category, handle) {
+            public void step(int step, int total, Ice.Current current) {
+                notifyObservers(new ImportEvent.PROGRESS_EVENT(
+                        0, container.getFile().getAbsolutePath(),
+                        null, null, 0, null, step, total));
             }
-
+        };
+        cb.loop(60*60, 1000); // Wait 1 hr per step.
+        Response rsp = cb.getResponse();
+        if (rsp instanceof ERR) {
+            final ERR err = (ERR) rsp;
+            final RuntimeException rt = new RuntimeException(String.format(
+                    "Failure response on import!\n" +
+                    "Category: %s\n" +
+                    "Name: %s\n" +
+                    "Parameters: %s\n", err.category, err.name,
+                    err.parameters));
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    container.getFile().getAbsolutePath(), rt,
+                    container.getUsedFiles(), container.getReader()));
+            throw rt;
+        } else if (rsp instanceof ImportResponse) {
+            pixList = ((ImportResponse) rsp).pixels;
         }
 
         if (pixList == null) {

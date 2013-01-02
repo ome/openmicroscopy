@@ -3,10 +3,13 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -289,6 +292,31 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Fileset> loadFilesets(final List<Long> ids,
+            final Ice.Current current) throws ServerError {
+
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<Fileset>(); // EARLY EXIT
+        }
+
+        final IceMapper mapper = new IceMapper();
+
+        try {
+            return (List<Fileset>) mapper.map((ome.model.fs.Fileset)
+                    executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(
+                    this, "loadFilesets", ids) {
+                @Transactional(readOnly = true)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    return sf.getQueryService().findAllByQuery(
+                            "select fs from Fileset fs where fs.id in (:ids)",
+                            new Parameters().addIds(ids));
+                }}));
+        } catch (Exception e) {
+            throw (ServerError) mapper.handleException(e, executor.getContext());
+        }
+    }
     public OriginalFile register(final String repoUuid, final CheckedPath checked,
             final String mimetype, final Ice.Current current) throws ServerError {
 

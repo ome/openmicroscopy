@@ -17,7 +17,6 @@
  */
 package ome.services.blitz.repo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,7 +33,6 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.AMD_Session_submit;
-import omero.cmd.HandleI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -45,8 +43,6 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
-import omero.model.Job;
-import omero.model.Pixels;
 import omero.util.IceMapper;
 
 /**
@@ -57,7 +53,8 @@ import omero.util.IceMapper;
  * @since 4.5
  */
 public class ManagedImportProcessI extends AbstractAmdServant
-    implements _ImportProcessOperations, ServiceFactoryAware {
+    implements _ImportProcessOperations, ServiceFactoryAware,
+                ProcessContainer.Process {
 
     private final static Log log = LogFactory.getLog(ManagedImportProcessI.class);
 
@@ -129,17 +126,6 @@ public class ManagedImportProcessI extends AbstractAmdServant
     private final ImportLocation location;
 
     /**
-     * List of handles which will be processed here.
-     */
-    private final List<HandlePrx> handles = new ArrayList<HandlePrx>();
-
-    /**
-     * {@link CheckedPath} for the first used files entry in {@link #fs} which
-     * will be passed to the importMetadata method.
-     */
-    private final CheckedPath target;
-
-    /**
      * SessionI/ServiceFactoryI that this process is running in.
      */
     private/* final */ServiceFactoryI sf;
@@ -155,6 +141,11 @@ public class ManagedImportProcessI extends AbstractAmdServant
      */
     private ConcurrentHashMap<Integer, UploadState> uploaders
         = new ConcurrentHashMap<Integer, UploadState>();
+
+    /**
+     * Handle which is the initial first step of import.
+     */
+    private HandlePrx handle;
 
     /**
      * Create and register a servant for servicing the import process
@@ -175,7 +166,6 @@ public class ManagedImportProcessI extends AbstractAmdServant
         this.settings = settings;
         this.location = location;
         this.current = __current;
-        this.target = repo.checkPath(location.usedFiles.get(0), __current);
         this.proxy = registerProxy(__current);
         setApplicationContext(repo.context);
         // TODO: The above could be moved to SessionI.internalServantConfig as
@@ -193,7 +183,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
      * i.e. who's responsible for closing them and removing them from the
      * adapter.
      */
-    protected ImportProcessPrx registerProxy(Ice.Current current) throws ServerError {
+    protected ImportProcessPrx registerProxy(Ice.Current ignore) throws ServerError {
         _ImportProcessTie tie = new _ImportProcessTie(this);
         Ice.Current adjustedCurr = repo.makeAdjustedCurrent(current);
         Ice.ObjectPrx prx = repo.registerServant(tie, this, adjustedCurr);
@@ -204,11 +194,30 @@ public class ManagedImportProcessI extends AbstractAmdServant
         return this.proxy;
     }
 
+    public Fileset getFileset() {
+        return this.fs;
+    }
+
     //
-    // INTERFACE METHODS
+    // ProcessContainer INTERFACE METHODS
     //
 
-    public RawFileStorePrx getUploader(int i, Current __current)
+    public long getGroup() {
+        return fs.getDetails().getGroup().getId().getValue();
+    }
+
+    public void ping() {
+        throw new RuntimeException("NYI");
+    }
+
+    public void shutdown() {
+        throw new RuntimeException("NYI");
+    }
+    //
+    // ICE INTERFACE METHODS
+    //
+
+    public RawFileStorePrx getUploader(int i, Current ignore)
             throws ServerError {
 
         UploadState state = uploaders.get(i);
@@ -219,7 +228,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         final String path = location.usedFiles.get(i);
 
         boolean success = false;
-        RawFileStorePrx prx = repo.file(path, "rw", __current);
+        RawFileStorePrx prx = repo.file(path, "rw", this.current);
         try {
             state = new UploadState(prx); // Overwrite
             if (uploaders.putIfAbsent(i, state) != null) {
@@ -242,7 +251,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         }
     }
 
-    public List<HandlePrx> verifyUpload(List<String> hashes, Current __current)
+    public HandlePrx verifyUpload(List<String> hashes, Current ignore)
             throws ServerError {
 
         final int size = fs.sizeOfUsedFiles();
@@ -257,7 +266,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
 
         for (int i = 0; i < size; i++) {
             String usedFile = location.usedFiles.get(i);
-            CheckedPath cp = repo.checkPath(usedFile, __current);
+            CheckedPath cp = repo.checkPath(usedFile, this.current);
             String client = hashes.get(i);
             String server = cp.sha1();
             if (!server.equals(client)) {
@@ -271,36 +280,34 @@ public class ManagedImportProcessI extends AbstractAmdServant
         // i==0 is the upload job which is implicit.
         FilesetJobLink link = fs.getFilesetJobLink(0);
         repo.repositoryDao.updateJob(link.getChild(),
-                "Finished", "Finished", __current);
+                "Finished", "Finished", this.current);
 
-        String reqId = ImportRequest.ice_staticId();
-        ObjectFactory of = __current.adapter.getCommunicator().findObjectFactory(reqId);
-        for (int i = 1; i < fs.sizeOfJobLinks(); i++) {
-            link = fs.getFilesetJobLink(i);
-            final AMD_submit submit = new AMD_submit();
-
-            final ImportRequest req = (ImportRequest) of.create(reqId);
-            req.activity = link;
-            req.location = location;
-            req.settings = settings;
-            sf.submit_async(submit, req, __current);
-            if (submit.ex != null) {
-                IceMapper mapper = new IceMapper();
-                throw mapper.handleServerError(submit.ex, repo.context);
-            } else if (submit.ret == null) {
-                throw new omero.InternalException(null, null,
-                        "No handle proxy found for: " + req);
-            }
-            handles.add(submit.ret);
+        // Now move on to the metadata import.
+        link = fs.getFilesetJobLink(1);
+        final String reqId = ImportRequest.ice_staticId();
+        final ObjectFactory of = this.current.adapter.getCommunicator().findObjectFactory(reqId);
+        final AMD_submit submit = new AMD_submit();
+        final ImportRequest req = (ImportRequest) of.create(reqId);
+        req.activity = link;
+        req.location = location;
+        req.settings = settings;
+        sf.submit_async(submit, req, this.current);
+        if (submit.ex != null) {
+            IceMapper mapper = new IceMapper();
+            throw mapper.handleServerError(submit.ex, repo.context);
+        } else if (submit.ret == null) {
+            throw new omero.InternalException(null, null,
+                    "No handle proxy found for: " + req);
         }
-        return handles;
+        this.handle = submit.ret;
+        return submit.ret;
     }
 
     //
     // GETTERS
     //
 
-    public long getUploadOffset(int i, Current __current) throws ServerError {
+    public long getUploadOffset(int i, Current ignore) throws ServerError {
         UploadState state = uploaders.get(i);
         if (state == null) {
             return 0;
@@ -308,36 +315,8 @@ public class ManagedImportProcessI extends AbstractAmdServant
         return state.offset;
     }
 
-    public String getSession(Current __current) throws ServerError {
-        return null; // TODO
-    }
-
-    public ImportLocation getLocation(Current __current) throws ServerError {
-        return location;
-    }
-
-    public ImportSettings getSettings(Current __current) throws ServerError {
-        return settings;
-    }
-
-    public HandlePrx getCurrentActivity(Current __current)
-            throws ServerError {
-        return null; // TODO
-    }
-
-    public boolean pauseImport(boolean _wait, Current __current)
-            throws ServerError {
-        throw new ServerError(null, null, "NYI");
-    }
-
-    public void resumeImport(Ice.Current __current)
-            throws ServerError {
-        throw new omero.InternalException(null, null, "NYI"); // FIXME
-    }
-
-    public void cancelImport(Ice.Current __current)
-            throws ServerError {
-        throw new omero.InternalException(null, null, "NYI"); // FIXME
+    public HandlePrx getHandle(Ice.Current ignore) {
+        return handle;
     }
 
     //

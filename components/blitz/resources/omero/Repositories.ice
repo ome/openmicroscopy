@@ -234,39 +234,11 @@ module omero {
             /**
              * Step 2: Passes a set of client-side calculated hashes to the server
              * for verifying that all of the files were correctly uploaded. If this
-             * passes then [omero::cmd::Handle*] proxies are returned, each of which
-             * represents a step of the import. Each will be run in turn. Calling
-             * [pauseImport] will prevent the next step from completing, but it's
-             * not possible to pause the running activity.
+             * passes then a [omero::cmd::Handle*] proxy is returned, which completes
+             * all the necessary import steps. A successful import will return an
+             * [ImportResponse]. Otherwise, some [omero::cmd::ERR] will be returned.
              **/
-             omero::cmd::HandleList verifyUpload(omero::api::StringSet hash) throws ServerError;
-
-            // what happens if close is called on this instance?
-            // permit skipVerification()?
-            // Get pixels here or on the cmd/status objects
-            // What happens if there's not a thread for the session heartbeat?
-            //    single heartbeat for all of the managedrepo, or endless sessions?
-
-            /**
-             * Pauses future activities from starting. If one is running,
-             * the argument will determine whether to wait for the current
-             * activity to finish. If the activity is taking too long, an
-             * [omero::LockTimeout] will be thrown. If pausing is otherwise
-             * unsuccessful, then a false will be returned.
-             **/
-            bool pauseImport(bool wait) throws ServerError;
-
-            /**
-             * Further import actions should be resumed.
-             **/
-            void resumeImport() throws ServerError;
-
-            /**
-             * If the user wishes to cancel the import, then this method should be
-             * called in order to delete any dangling files and free up
-             * resources.
-             **/
-            void cancelImport() throws ServerError;
+             omero::cmd::Handle* verifyUpload(omero::api::StringSet hash) throws ServerError;
 
             //
             // INTROSPECTION
@@ -279,35 +251,18 @@ module omero {
              long getUploadOffset(int i) throws ServerError;
 
             /**
-             * Returns the session that the import is taking part in.
+             * Reacquire the handle which was returned by
+             * [verifyUpload]. This is useful in case a new
+             * client is re-attaching to a running import.
+             * From the [omero::cmd::Handle] instance, the
+             * original [ImportRequest] can also be found.
              **/
-             string getSession() throws ServerError;
-
-            /**
-             * Defines what the server knows about the files to be
-             * uploaded, where they are going, etc.
-             **/
-             ImportLocation getLocation() throws ServerError;
-
-            /**
-             * Returns the original settings that were set
-             * on creating the process
-             **/
-             ImportSettings getSettings() throws ServerError;
-
-            /**
-             * Once all the uploads have been taken care of
-             * the server will begin the process of importing
-             * the data and performing other activities like
-             * thumbnailing, etc. This returns the current
-             * step of the import.
-             *
-             * Might be null if no activity is currently running.
-             * See [pauseImport].
-             **/
-             omero::cmd::Handle* getCurrentActivity() throws ServerError;
+             omero::cmd::Handle* getHandle() throws ServerError;
 
         };
+
+        ["java:type:java.util.ArrayList<omero.grid.ImportProcessPrx>:java.util.List<omero.grid.ImportProcessPrx>"]
+            sequence<ImportProcess*> ImportProcessList;
 
         /**
          * Command object which will be used to create
@@ -317,24 +272,37 @@ module omero {
         class ImportRequest extends omero::cmd::Request {
 
             /**
+             * Repository which is responsible for this import.
+             * All files which are uploaded will be available
+             * from it.
+             **/
+             ManagedRepository* repo;
+
+            /**
              * Proxy of the process which this request
-             * will be running in.
+             * will be running in. This value will be
+             * filled in for possible later re-use, but
+             * is not read by the server.
              **/
             ImportProcess* process;
 
             /**
              * Activity that this will be filling
-             * out in the database.
+             * out in the database. This always points to a
+             * [omero::model::MetadataImportJob] which is the
+             * first server-side phase after the [omero::model::UploadJob].
              **/
             omero::model::FilesetJobLink activity;
 
             /**
-             *
+             * [ImportSettings] which are provided by the
+             * client on the call to [ManagedRepository::prepareImport].
              **/
              ImportSettings settings;
 
             /**
-             *
+             * [ImportLocation] which is calculated during
+             * the call to [ManagedRepository::prepareImport].
              **/
              ImportLocation location;
 
@@ -348,7 +316,16 @@ module omero {
          * overall best strategy.
          **/
         class ImportResponse extends ::omero::cmd::Response {
+
             omero::api::PixelsList pixels;
+
+            /**
+             * Top-level OME-XML objects which are created
+             * during the import. This will not contain any
+             * pixels which were imported, but images, plates,
+             * etc. which may be useful for user feedback.
+             **/
+            omero::api::IObjectList objects;
         };
 
 
@@ -366,6 +343,15 @@ module omero {
              * may be created for the current session.
              **/
             ImportProcess* prepareImport(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+
+            /**
+             * List imports that are currently running in this importer.
+             * These will be limited based on user/group membership for
+             * the [omero::model::Fileset] object which is being created
+             * by the import. If the user has write permissions for the
+             * fileset, then the import will be included.
+             **/
+            ImportProcessList listImports() throws ServerError;
 
            /**
              * Create an OriginalFile object to represent an uploaded file.
