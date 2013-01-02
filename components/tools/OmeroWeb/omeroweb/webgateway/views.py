@@ -1994,14 +1994,16 @@ def repository_list(request, klass, name=None, filepath=None, conn=None, **kwarg
     returns files at the top level of the repository, otherwise files within
     the specified filepath
     """
-    conn.SERVICE_OPTS.setOmeroGroup(-1)
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
     fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
     root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
     if repository.fileExists(root):
-        result = [f for f in repository.list(root) if not f.startswith('.')]
+        result = [f for f in repository.list(root, ctx)
+                  if not f.startswith('.')]
     else:
         result = []
     return dict(result=result)
@@ -2015,7 +2017,8 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     If filepath is not specified, returns files at the top level of the
     repository, otherwise files within the specified filepath
     """
-    conn.SERVICE_OPTS.setOmeroGroup(-1)
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
     fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
     root = os.path.join(unwrap(repository.root().path), fwname)
@@ -2027,7 +2030,7 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
         return w.simpleMarshal()
 
     try:
-        result = [_getFile(f) for f in repository.listFiles(root)]
+        result = [_getFile(f) for f in repository.listFiles(root, ctx)]
         result = [f for f in result if not f.get('name', '').startswith('.')]
     except: # listFiles failed, likely because root does not exist
         result = []
