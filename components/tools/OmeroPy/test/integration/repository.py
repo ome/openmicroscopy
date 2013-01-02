@@ -39,8 +39,9 @@ class TestRepository(AbstractRepoTest):
 
     def testBasicUsage(self):
 
-        test_file = "FIXME.dv"
-        remote_file = "/root/dir1/test.dv"
+        test_file = __file__
+        remote_base = "./%s/dir1" % self.uuid()
+        remote_file = "%s/test.dv" % remote_base
 
         write_start = time.time()
 
@@ -53,66 +54,33 @@ class TestRepository(AbstractRepoTest):
 
         # This is a write-only (no read, no config)
         # version of this service.
-        if False:
-            rawFileStore = repoPrx.write(remote_file)
+        repoPrx.makeDir(remote_base, True)
+        rawFileStore = repoPrx.file(remote_file, "rw")
+        block_size = 1000*1000
+        try:
+            offset = 0
+            file = open(test_file,"rb")
             try:
-                offset = 0
-                file = open(test_file,"rb")
-                try:
-                    while True:
-                        block = file.read(block_size)
-                        if not block:
-                            break
-                        rawFileStore.write(block, offset, len(block))
-                        offset += len(block)
-                finally:
-                    file.close()
+                while True:
+                    block = file.read(block_size)
+                    if not block:
+                        break
+                    rawFileStore.write(block, offset, len(block))
+                    offset += len(block)
+                ofile = rawFileStore.save()
             finally:
-                rawFileStore.close()
-
-            write_end = time.time()
-
-            # Check the SHA1
-            file = repoPrx.load(remote_file)
-            sha1_remote = file.sha1.val
-            sha1_local = self.client.sha1(test_file)
-
-
-        self.fail("HOW ARE WE CHECKING SHA1 HERE")
-
-
-        read_start = time.time()
-
-        #
-        # Raw pixels
-        #
-        rawPixelsStore = repoPrx.pixels(remote_file)
-        try:
-            pass
+                file.close()
         finally:
-            rawPixelsStore.close()
+            rawFileStore.close()
 
-        read_end = time.time()
+        write_end = time.time()
 
-        #
-        # Rendering
-        #
+        # Check the SHA1
+        sha1_remote = ofile.sha1.val
+        sha1_local = self.client.sha1(test_file)
+        self.assertEquals(sha1_remote, sha1_local)
 
-        renderingEngine = repoPrx.render(remote_file)
-        try:
-            planeDef = omero.romio.PlaneDef()
-            planeDef.z = 0
-            planeDef.t = 0
-            rgbBuffer = renderingEngine.render(planeDef)
-        finally:
-            renderingEngine.close()
-
-        thumbnailStore = repoPrx.thumbs(remote_file)
-        thumbnailStore.close()
-        rawFileStore = repoPrx.read(remote_file)
-        rawFileStore.close()
-        repoPrx.rename(remote_file, remote_file + ".old")
-        repoPrx.delete(remote_file + ".old")
+        # Pixels and Thumbs now requires a proper import.
 
     def testSanityCheckRepos(self):
         # Repos should behave sensibly when it comes
@@ -136,13 +104,13 @@ class TestRepository(AbstractRepoTest):
                     else:
                         self.assertEquals(a.val, b.val)
 
-    def testManagedRepo(self):
+    def testManagedRepoAsPubliRepo(self):
         mrepo = self.getManagedRepo(self.client)
 
         # Create a file in the repo
-        path = mrepo.getCurrentRepoDir(["testManagedRepo.txt"])[0]
-        base = os.path.dirname(path)
-        mrepo.makeDir(base)
+        base = self.uuid()
+        path = base + "/testManagedRepo.txt"
+        mrepo.makeDir(base, True)
         rfs = mrepo.file(path, "rw")
         rfs.write("hi".encode("utf-8"), 0, 2)
         rfs.close()
@@ -278,7 +246,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
 
-        mrepo1.makeDir(dirname)
+        mrepo1.makeDir(dirname, True)
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
@@ -298,7 +266,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwr---")
 
-        mrepo1.makeDir(dirname)
+        mrepo1.makeDir(dirname, True)
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
@@ -320,7 +288,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwrw--")
 
-        mrepo1.makeDir(dirname)
+        mrepo1.makeDir(dirname, True)
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
@@ -342,7 +310,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwra--")
 
-        mrepo1.makeDir(dirname)
+        mrepo1.makeDir(dirname, True)
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
@@ -373,7 +341,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         mrepo1 = self.getManagedRepo(client1)
         mrepo2 = self.getManagedRepo(client2)
 
-        mrepo1.makeDir(dirname)
+        mrepo1.makeDir(dirname, True)
         ofile = self.createFile(mrepo1, filename)
 
         self.assertRead(mrepo1, filename, ofile)
