@@ -2044,12 +2044,14 @@ def repository_sha(request, klass, name=None, filepath=None, conn=None, **kwargs
     """
     json method: Returns the sha1 checksum of the specified file
     """
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
     fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
     fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
 
     try:
-        sourcefile = repository.file(fullpath, 'r')
+        sourcefile = repository.file(fullpath, 'r', ctx)
     except InternalException:
         raise Http404()
 
