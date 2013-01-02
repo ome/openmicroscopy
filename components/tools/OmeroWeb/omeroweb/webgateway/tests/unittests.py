@@ -739,24 +739,46 @@ class ManagedRepositoryApiListTest(RepositoryApiPermissionsTest):
         repository.delete(self.FILENAME_USER)
         super(ManagedRepositoryApiListTest, self).tearDown()
 
-    def testFileListAsAdmin(self):
+    def testListAsAdmin(self):
         self.loginAsAdmin()
-        repository, repodesc = self._getrepo()
-        name = OriginalFileWrapper(conn=self.gateway, obj=repodesc).getName()
-        root = os.path.join(unwrap(repository.root().path), name)
-        self.assertTrue(repository.fileExists(root))
-        files = repository.list(root)
-        files = [f.strip('/') for f in files]
+        r = fakeRequest()
+        v = views.repository_list(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
         self.assertIn(self.FILENAME, files)
-        self.assertNotIn(self.FILENAME_USER, files)
+        self.assertIn(self.FILENAME_USER, files)
 
-    def testFileListAsUser(self):
+    def testListAsUser(self):
         self.loginAsUser()
-        repository, repodesc = self._getrepo()
-        name = OriginalFileWrapper(conn=self.gateway, obj=repodesc).getName()
-        root = os.path.join(unwrap(repository.root().path), name)
-        self.assertTrue(repository.fileExists(root))
-        files = repository.list(root)
-        files = [f.strip('/') for f in files]
+        r = fakeRequest()
+        v = views.repository_list(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertNotIn(self.FILENAME, files)
+        self.assertIn(self.FILENAME_USER, files)
+
+    def testListFilesAsAdmin(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_listfiles(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
+        self.assertIn(self.FILENAME, files)
+        self.assertIn(self.FILENAME_USER, files)
+
+    def testListFilesAsUser(self):
+        self.loginAsUser()
+        r = fakeRequest()
+        v = views.repository_listfiles(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
         self.assertNotIn(self.FILENAME, files)
         self.assertIn(self.FILENAME_USER, files)
