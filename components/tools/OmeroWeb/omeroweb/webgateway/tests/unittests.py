@@ -820,3 +820,12 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
         self.assertNotIn(self.FILENAME_USER_DELTEST, files)
+
+    def testDownload(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_download(r, filepath=self.FILENAME_USER,
+                                    klass=self.repoclass,
+                                    server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('DEF456', v.content)
