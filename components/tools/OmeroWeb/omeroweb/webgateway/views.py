@@ -2006,7 +2006,7 @@ def repository_list(request, klass, name=None, filepath=None, conn=None, **kwarg
     root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
-    if repository.fileExists(root):
+    if repository.fileExists(root, ctx):
         result = [f for f in repository.list(root, ctx)
                   if not f.startswith('.')]
     else:
@@ -2074,6 +2074,8 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     """
     json method: Deletes the specified file or directory
     """
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
+    ctx = conn.SERVICE_OPTS.copy()
     repository, description = get_repository(conn, klass, name)
     todelete = []
 
@@ -2084,8 +2086,8 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         todelete.append(obj.id)
         # recursively collect all file IDs below the given path
         def _delete(path):
-            if repository.fileExists(path):
-                for f in repository.listFiles(path):
+            if repository.fileExists(path, ctx):
+                for f in repository.listFiles(path, ctx):
                     todelete.append(f.id.val)
                     _delete(f.path.val[1:] + f.name.val)
         _delete(path + fname)
@@ -2099,7 +2101,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
             handle.close()
     # Delete files on disk
     try:
-        repository.delete(filepath)
+        repository.delete(filepath, ctx)
     except:
         pass
 

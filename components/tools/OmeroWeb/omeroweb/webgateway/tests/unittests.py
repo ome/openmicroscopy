@@ -727,11 +727,15 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
     def setUp(self):
         super(ManagedRepositoryApiCrossGroupTest, self).setUp(repoclass="ManagedRepository", reponame=None)
         self.FILENAME_USER = 'RepositoryApiPermissionsTest_User'
+        self.FILENAME_USER_DELTEST = 'RepositoryApiPermissionsTest_User2'
         self.loginAsUser()
         repository, repodesc = self._getrepo()
         targetfile = repository.file(self.FILENAME_USER, 'rw')
         targetfile.truncate(0)
         targetfile.write('DEF456', 0, 6)
+        targetfile = repository.file(self.FILENAME_USER_DELTEST, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('GHI789', 0, 6)
 
     def tearDown(self):
         self.loginAsUser()
@@ -789,3 +793,30 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         v = views.repository_sha(r, self.repoclass, filepath=self.FILENAME_USER,
                                  server_id=1, conn=self.gateway, _internal=True)
         self.assertEqual('{"sha": "25577cfc23d0e779241727f063b0648ad451360c"}', v)
+
+    def testDelete(self):
+        self.loginAsAdmin()
+
+        r = fakeRequest()
+        v = views.repository_list(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertIn(self.FILENAME_USER_DELTEST, files)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='')
+        v = views.repository_delete(r, filepath=self.FILENAME_USER_DELTEST,
+                                    klass=self.repoclass,
+                                    server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"matched_ids": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['matched_ids']
+        self.assertEqual(1, len(result))
+
+        r = fakeRequest()
+        v = views.repository_list(r, dirpath='', klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertNotIn(self.FILENAME_USER_DELTEST, files)
