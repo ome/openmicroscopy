@@ -7,10 +7,10 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time, os
+import unittest
 import integration.library as lib
 import omero
-from omero.rtypes import *
+
 
 class AbstractRepoTest(lib.ITest):
 
@@ -26,7 +26,8 @@ class AbstractRepoTest(lib.ITest):
         prx = None
         found = False
         for prx in repoMap.proxies:
-            if not prx: continue
+            if not prx:
+                continue
             prx = omero.grid.ManagedRepositoryPrx.checkedCast(prx)
             if prx:
                 found = True
@@ -43,14 +44,12 @@ class TestRepository(AbstractRepoTest):
         remote_base = "./%s/dir1" % self.uuid()
         remote_file = "%s/test.dv" % remote_base
 
-        write_start = time.time()
-
         repoMap = self.client.sf.sharedResources().repositories()
-        self.assert_( len(repoMap.descriptions) > 1 )
-        self.assert_( len(repoMap.proxies) > 1 )
+        self.assert_(len(repoMap.descriptions) > 1)
+        self.assert_(len(repoMap.proxies) > 1)
 
         repoPrx = repoMap.proxies[0]
-        self.assert_( repoPrx ) # Could be None
+        self.assert_(repoPrx)  # Could be None
 
         # This is a write-only (no read, no config)
         # version of this service.
@@ -59,7 +58,7 @@ class TestRepository(AbstractRepoTest):
         block_size = 1000*1000
         try:
             offset = 0
-            file = open(test_file,"rb")
+            file = open(test_file, "rb")
             try:
                 while True:
                     block = file.read(block_size)
@@ -73,8 +72,6 @@ class TestRepository(AbstractRepoTest):
         finally:
             rawFileStore.close()
 
-        write_end = time.time()
-
         # Check the SHA1
         sha1_remote = ofile.sha1.val
         sha1_local = self.client.sha1(test_file)
@@ -87,15 +84,12 @@ class TestRepository(AbstractRepoTest):
         # to listing their path and objects as well
         # as what items they return.
         repoMap = self.client.sf.sharedResources().repositories()
-        managed = None
-        public = None
-        script = None
         for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
             if prx:
                 root = prx.root()
                 assert ".omero" not in prx.list(root.path.val + root.name.val)
-                assert ".omero" not in \
-                        [x.name.val for x in prx.listFiles(root.path.val + root.name.val)]
+                for x in prx.listFiles(root.path.val + root.name.val):
+                    assert ".omero" != x.name.val
                 for x in ("id", "path", "name"):
                     a = getattr(obj, x)
                     b = getattr(root, x)
@@ -128,6 +122,7 @@ class TestRepository(AbstractRepoTest):
         rfs.setFileId(obj.id.val)
         self.assertEquals("hi", unicode(rfs.read(0, 2), "utf-8"))
         rfs.close()
+
 
 class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
@@ -172,7 +167,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         def _nowrite(rfs):
             try:
                 self.assertRaises(omero.SecurityViolation,
-                    rfs.write, "bye", 0, 3)
+                                  rfs.write, "bye", 0, 3)
                 self.assertEquals("hi", rfs.read(0, 2))
             finally:
                 rfs.close()
@@ -185,7 +180,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         # Can't even acquire a writeable-rfs.
         self.assertRaises(omero.SecurityViolation,
-            mrepo2.file, filename, "rw")
+                          mrepo2.file, filename, "rw")
 
     def assertDirWrite(self, mrepo2, dirname):
         self.createFile(mrepo2, dirname+"/file2.txt")
@@ -194,13 +189,13 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         # Also check that it's not possible to write
         # in someone elses directory.
         self.assertRaises(omero.SecurityViolation,
-            self.createFile, mrepo2, dirname+"/file2.txt")
+                          self.createFile, mrepo2, dirname+"/file2.txt")
 
     def assertNoRead(self, mrepo2, filename, ofile):
         self.assertRaises(omero.SecurityViolation,
-            mrepo2.fileById, ofile.id.val)
+                          mrepo2.fileById, ofile.id.val)
         self.assertRaises(omero.SecurityViolation,
-            mrepo2.file, filename, "r")
+                          mrepo2.file, filename, "r")
 
     def assertRead(self, mrepo2, filename, ofile, ctx=None):
         def _read(rfs):
@@ -208,7 +203,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
                 self.assertEquals("hi", rfs.read(0, 2))
             finally:
                 rfs.close()
-
 
         rfs = mrepo2.fileById(ofile.id.val, ctx)
         _read(rfs)
@@ -220,7 +214,8 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertEquals(["/"+uuid], mrepo1.list("."))
         self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
         self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
-        self.assertEquals(["/"+uuid+"/b/c/file.txt"], mrepo1.list(uuid+"/b/c/"))
+        self.assertEquals(["/"+uuid+"/b/c/file.txt"],
+                          mrepo1.list(uuid+"/b/c/"))
 
     def testTopPrivateGroup(self):
 
@@ -256,7 +251,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         self.assertNoRead(mrepo2, filename, ofile)
         self.assertRaises(omero.SecurityViolation,
-            mrepo2.listFiles, dirname)
+                          mrepo2.listFiles, dirname)
 
     def testDirReadOnlyGroup(self):
 
