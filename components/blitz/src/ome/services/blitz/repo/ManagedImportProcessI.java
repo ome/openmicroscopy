@@ -121,7 +121,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
 
     /**
      * The import location as defined by the managed repository during
-     * prepareImport. Never null.
+     * importFileset. Never null.
      */
     private final ImportLocation location;
 

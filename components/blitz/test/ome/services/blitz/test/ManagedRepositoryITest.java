@@ -136,7 +136,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         Fileset fs = new FilesetI();
         ic.fillData(new ImportConfig(), settings, fs);
 
-        ImportProcessPrx i = repo.prepareImport(fs, settings, curr());
+        ImportProcessPrx i = repo.importFileset(fs, settings, curr());
         assertNotNull(i);
 
         upload(i.getUploader(0));

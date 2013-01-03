@@ -80,10 +80,10 @@ public class ImportLibrary implements IObservable
 
     /** The class used to identify the dataset target.*/
     private static final String DATASET_CLASS = "omero.model.Dataset";
-    
+
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
-    
+
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
@@ -140,7 +140,7 @@ public class ImportLibrary implements IObservable
 
     /**
      * Primary user method for importing a number
-     * 
+     *
      * @param config The configuration information.
      * @param candidates Hosts information about the files to import.
      */
@@ -213,7 +213,7 @@ public class ImportLibrary implements IObservable
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs);
-        return repo.prepareImport(fs, settings);
+        return repo.importFileset(fs, settings);
 
     }
 

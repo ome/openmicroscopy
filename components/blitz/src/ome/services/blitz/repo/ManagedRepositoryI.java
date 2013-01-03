@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.services.blitz.impl.ServiceFactoryI;
 
 import omero.ServerError;
@@ -51,9 +52,11 @@ import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
+import omero.model.FilesetI;
 import omero.model.FilesetJobLink;
 import omero.model.FilesetVersionInfo;
 import omero.model.FilesetVersionInfoI;
+import omero.model.IObject;
 import omero.model.IndexingJobI;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
@@ -126,7 +129,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      *
      * @FIXME For the moment only the top-level directory is being incremented.
      */
-    public ImportProcessPrx prepareImport(Fileset fs, ImportSettings settings,
+    public ImportProcessPrx importFileset(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
 
         if (fs == null || fs.sizeOfUsedFiles() < 1) {
@@ -159,6 +162,25 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
 
         return createImportProcess(fs, location, settings, __current);
+    }
+
+    public ImportProcessPrx importPaths(List<String> paths,
+            Ice.Current __current) throws ServerError {
+
+        if (paths == null || paths.size() < 1) {
+            throw new omero.ApiUsageException(null, null, "No paths provided");
+        }
+
+        final ImportContainer container = new ImportContainer(
+                null /*file*/, null /*target*/, null /*userPixels*/,
+                "Unknown" /*reader*/, paths.toArray(new String[0]),
+                false /*spw*/);
+
+        final ImportSettings settings = new ImportSettings();
+        final Fileset fs = new FilesetI();
+        container.fillData(new ImportConfig(), settings, fs);
+
+        return importFileset(fs, settings, __current);
     }
 
     public List<ImportProcessPrx> listImports(Ice.Current __current) throws omero.ServerError {

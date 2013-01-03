@@ -429,14 +429,26 @@ class TestPythonImporter(AbstractRepoTest):
                 rfs.close()
         return ret_val
 
-    def testSimpleImport(self):
+    def testImportFileset(self):
         client = self.new_client()
         mrepo = self.getManagedRepo(client)
         folder = self.create_test_dir()
         fileset = self.create_fileset(folder)
         settings = self.create_settings()
 
-        proc = mrepo.prepareImport(fileset, settings)
+        proc = mrepo.importFileset(fileset, settings)
+        self.assertImport(client, proc, folder)
+
+    def testImportPaths(self):
+        client = self.new_client()
+        mrepo = self.getManagedRepo(client)
+        folder = self.create_test_dir()
+        paths = folder.files()
+
+        proc = mrepo.importPaths(paths)
+        self.assertImport(client, proc, folder)
+
+    def assertImport(self, client, proc, folder):
         hashes = self.upload_folder(proc, folder)
         handle = proc.verifyUpload(hashes)
         cb = CmdCallbackI(client, handle)
@@ -446,7 +458,6 @@ class TestPythonImporter(AbstractRepoTest):
             self.fail(rsp)
         else:
             self.assertEquals(1, len(rsp.pixels))
-
 
 if __name__ == '__main__':
     unittest.main()

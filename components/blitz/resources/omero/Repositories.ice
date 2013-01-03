@@ -296,13 +296,13 @@ module omero {
 
             /**
              * [ImportSettings] which are provided by the
-             * client on the call to [ManagedRepository::prepareImport].
+             * client on the call to [ManagedRepository::importFileset].
              **/
              ImportSettings settings;
 
             /**
              * [ImportLocation] which is calculated during
-             * the call to [ManagedRepository::prepareImport].
+             * the call to [ManagedRepository::importFileset].
              **/
              ImportLocation location;
 
@@ -342,7 +342,17 @@ module omero {
              * overwritten or interfering with one another, a new directory
              * may be created for the current session.
              **/
-            ImportProcess* prepareImport(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+            ImportProcess* importFileset(omero::model::Fileset fs, ImportSettings settings) throws ServerError;
+
+            /**
+             * For clients without access to Bio-Formats, the simplified
+             * []importPaths] method allows passing solely the absolute
+             * path of the files to be uploaded (no directories) and all
+             * configuration happens server-side. Much of the functionality
+             * provided via [omero::model::Fileset] and [omero::grid::ImportSettings]
+             * is of course lost.
+             **/
+            ImportProcess* importPaths(omero::api::StringSet filePaths) throws ServerError;
 
             /**
              * List imports that are currently running in this importer.

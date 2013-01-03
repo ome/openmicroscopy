@@ -55,8 +55,8 @@ public class ImportContainer
     private IObject target;
 
 	public ImportContainer(File file,
-			IObject target,
-			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
+            IObject target,
+            Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
 		this.target = target;

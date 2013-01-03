@@ -26,14 +26,14 @@ import omero.grid.RepositoryPrx;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 
-/** 
+/**
 * Collections of tests for the <code>ManagedRepository</code> service.
 *
 * @author Colin Blackburn &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:c.blackburn@dundee.ac.uk">c.blackburn@dundee.ac.uk</a>
 */
 @Test(groups = {"integration", "fs"})
-public class ManagedRepositoryTest 
+public class ManagedRepositoryTest
    extends AbstractServerTest
 {
 
@@ -67,7 +67,7 @@ public class ManagedRepositoryTest
 	 */
 	void assertFileExists(String message, String path)
 	        throws ServerError
-	{   
+	{
 	    assertTrue(message + path, repo.fileExists(path));
 	}
 
@@ -77,9 +77,9 @@ public class ManagedRepositoryTest
 	 */
 	void assertFileDoesNotExist(String message, String path)
 	        throws ServerError
-	{  
+	{
 	    assertFalse(message + path, repo.fileExists(path));
-	}  
+	}
 
 	/**
 	 * Construct a path from its elements
@@ -96,7 +96,7 @@ public class ManagedRepositoryTest
 	}
 
 	// Primarily to get code compiling during the major refactoring
-	ImportLocation prepareImport(List<String> srcPaths) {
+	ImportLocation importFileset(List<String> srcPaths) {
 	    fail("NYI");
 	    return null;
 	}
@@ -128,30 +128,30 @@ public class ManagedRepositoryTest
 	    srcPaths.add(buildPath(src));
 	    String[] dest = {uniquePath, file1};
 	    destPath = buildPath(dest);
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 		assertContains(data.usedFiles.get(0), destPath);
 		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-        
+
         // Different file that should go in existing directory
 	    src[1] = file2;
 	    srcPaths.set(0, buildPath(src));
 	    dest[1] = file2;
 	    destPath = buildPath(dest);
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 		assertContains(data.usedFiles.get(0), destPath);
 		touch(uploadUsedFile(data, data.usedFiles.get(0)));
 
         // Same file that should go in new directory
 	    dest[0] = uniquePath + "-1";
 	    destPath = buildPath(dest);
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 		assertContains(data.usedFiles.get(0), destPath);
 		touch(uploadUsedFile(data, data.usedFiles.get(0)));
 
         // Same file again that should go in new directory
 	    dest[0] = uniquePath + "-2";
 	    destPath = buildPath(dest);
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 		assertContains(data.usedFiles.get(0), destPath);
 	}
 
@@ -162,9 +162,9 @@ public class ManagedRepositoryTest
 	 * @throws Exception Thrown if an error occurred.
 	 */
 	@Test
-	public void testGetCurrentRepoDirMultipleFiles() 
+	public void testGetCurrentRepoDirMultipleFiles()
 	        throws Exception
-	{   
+	{
 	    List<String> srcPaths = new ArrayList<String>();
 	    List<String> destPaths = new ArrayList<String>();
 
@@ -183,7 +183,7 @@ public class ManagedRepositoryTest
 	    destPaths.add(buildPath(dest));
 	    dest[1] = file2;
 	    destPaths.add(buildPath(dest));
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -200,7 +200,7 @@ public class ManagedRepositoryTest
 	    destPaths.set(0, buildPath(dest));
 	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -217,7 +217,7 @@ public class ManagedRepositoryTest
 	    destPaths.set(0, buildPath(dest));
 	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -230,7 +230,7 @@ public class ManagedRepositoryTest
 	    destPaths.set(0, buildPath(dest));
 	    dest[1] = file4;
 	    destPaths.set(1, buildPath(dest));
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -275,7 +275,7 @@ public class ManagedRepositoryTest
 	    dest[2] = subSubDir;
 	    dest = (String[]) ArrayUtils.add(dest,file3);
 	    destPaths.add(buildPath(dest));
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -292,7 +292,7 @@ public class ManagedRepositoryTest
 	    dest2[2] = subSubDir;
 	    dest2 = (String[]) ArrayUtils.add(dest2,file3);
 	    destPaths.add(buildPath(dest2));
-	    data = prepareImport(srcPaths);
+	    data = importFileset(srcPaths);
 	    assertTrue(data.usedFiles.size()==destPaths.size());
 	    for (int i=0; i<data.usedFiles.size(); i++) {
             assertContains(data.usedFiles.get(i), destPaths.get(i));
@@ -315,7 +315,7 @@ public class ManagedRepositoryTest
 
 	    String[] src = {uniquePath, file1};
 	    srcPaths.add(buildPath(src));
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 		touch(uploadUsedFile(data, data.usedFiles.get(0)));
 		for (String path : data.usedFiles) {
 		    assertFileExists("Upload failed. File does not exist: ", path);
@@ -344,7 +344,7 @@ public class ManagedRepositoryTest
 	    srcPaths.add(buildPath(src));
 	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 		for (String path : data.usedFiles) {
 		    touch(uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
@@ -373,7 +373,7 @@ public class ManagedRepositoryTest
 	    srcPaths.add(buildPath(src));
 	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 		touch(uploadUsedFile(data, data.usedFiles.get(0)));
 		assertFileExists("Upload failed. File does not exist: ", data.usedFiles.get(0));
 		assertFileDoesNotExist("Something wrong. File does exist!: ", data.usedFiles.get(1));
@@ -411,7 +411,7 @@ public class ManagedRepositoryTest
 	    src = (String[]) ArrayUtils.add(src,file3);
 	    srcPaths.add(buildPath(src));
 
-	    ImportLocation data = prepareImport(srcPaths);
+	    ImportLocation data = importFileset(srcPaths);
 		for (String path : data.usedFiles) {
 		    touch(uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
@@ -440,7 +440,7 @@ public class ManagedRepositoryTest
 	    srcPaths.add(buildPath(src));
 	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    ImportLocation data1 = prepareImport(srcPaths);
+	    ImportLocation data1 = importFileset(srcPaths);
 
 	    srcPaths.clear();
 	    file1 = UUID.randomUUID().toString() + ".dv";
@@ -449,7 +449,7 @@ public class ManagedRepositoryTest
 	    srcPaths.add(buildPath(src));
 	    src[1] = file2;
 	    srcPaths.add(buildPath(src));
-	    ImportLocation data2 = prepareImport(srcPaths);
+	    ImportLocation data2 = importFileset(srcPaths);
 
 		for (String path : data1.usedFiles) {
 		    touch(uploadUsedFile(data1, path));
