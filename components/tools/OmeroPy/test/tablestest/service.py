@@ -266,6 +266,27 @@ class TestTables(lib.ITest):
         # Load the group explicitly
         sr.openTable(ofile, {"omero.group":gid1})
 
+    def test10049openTableUnreadable(self):
+        """
+        Fail nicely when openTable is passed an OriginalFile that isn't
+        readable by the current user
+        """
+        # Create a user in one group and a table.
+        group1 = self.new_group()
+        client1 = self.new_client(group1)
+        sr1 = client1.sf.sharedResources()
+        table = sr1.newTable(1, "/test")
+        self.assert_( table )
+        ofile = table.getOriginalFile()
+
+        # Create a second user and try to open the table
+        group2 = self.new_group()
+        client2 = self.new_client(group2)
+        sr2 = client2.sf.sharedResources()
+
+        self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
+
+
 def test_suite():
     return 1
 
