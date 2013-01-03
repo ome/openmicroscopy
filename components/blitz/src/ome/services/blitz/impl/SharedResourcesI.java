@@ -333,16 +333,29 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
         }
 
-        sf.executor.execute(__current.ctx, sf.principal, new Executor.SimpleWork(this,
-                "checkOriginalFilePermissions", file.getId().getValue()) {
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getQueryService().get(
-                        ome.model.core.OriginalFile.class,
-                        file.getId().getValue());
-
+        try {
+            sf.executor.execute(__current.ctx, sf.principal,
+                new Executor.SimpleWork(this,
+                    "checkOriginalFilePermissions", file.getId().getValue()) {
+                    @Transactional(readOnly = true)
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        return sf.getQueryService().get(
+                            ome.model.core.OriginalFile.class,
+                                file.getId().getValue());
+                    }
+                });
+        } catch (Exception e) {
+            IceMapper mapper = new IceMapper();
+            UserException ue = mapper.handleException(e, this.ctx);
+            if (ue instanceof ServerError) {
+                throw (ServerError) ue;
+            } else { // This may not be necessary
+                InternalException ie = new InternalException();
+                ie.initCause(e);
+                IceMapper.fillServerError(ie, e);
+                throw ie;
             }
-        });
+        }
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();
