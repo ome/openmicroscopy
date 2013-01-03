@@ -470,11 +470,14 @@ public interface Editor
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
 
 	/**
-	 * Saves the selected images as <code>JPEG</code>.
+	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code>
+	 * or <code>TIFF</code>.
 	 * 
 	 * @param folder The folder to save.
+	 * @param format The format to use.
+	 * @see org.openmicroscopy.shoola.env.data.model.FigureParam
 	 */
-	public void saveAs(File folder);
+	public void saveAs(File folder, int format);
 
 	/** 
 	 * Invokes when the user has switched group.
