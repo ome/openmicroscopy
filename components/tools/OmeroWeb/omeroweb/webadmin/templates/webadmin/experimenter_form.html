@@ -73,6 +73,13 @@
             $("#id_default_group").selectOptions(selected.value, true);
         };
 
+        // Since we want to disable removal of 'system' group (id=0) from chosen, this hides the 'X'
+        var hideSystemGroupX = function() {
+            var optText = $("#id_other_groups").find("option[value=0]").text(),
+                $system_li = $("#id_other_groups_chzn").find("span:contains('"+optText+"')").parent();
+            $system_li.find('a').hide();
+        }
+
         $("#id_other_groups").chosen({placeholder_text:'Choose one or more groups'}).change(function(evt, data) {
             if (data && data.deselected) {
                 if (data.deselected === "0") {
@@ -89,8 +96,11 @@
                     $("input[name='administrator']").attr('checked', true);
                 }
                 $("li.search-choice").click(selectDefaultGroup);
+                // In case we've added the system group:
+                hideSystemGroupX();
             }
         });
+        hideSystemGroupX();
 
         $("input[name='administrator']").click( function(evt) {
             evt.stopPropagation();
