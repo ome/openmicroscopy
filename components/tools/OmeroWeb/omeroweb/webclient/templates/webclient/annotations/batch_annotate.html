@@ -227,13 +227,13 @@
                 $("#tags_container").on("click", ".removeTag", function(event){
                     var url = $(this).attr('url'),
                         parents = '{{ link_string }}';  // E.g image-123|image-456
-                    OME.removeItem(event, ".tag", url, parents);
+                    OME.removeItem(event, ".tag", url, parents, {{ index }});
                     return false;
                 });
                 $("#fileanns_container").on("click", ".removeFile", function(event) {
                     var url = $(this).attr('href'),
                         parents = '{{ link_string }}';  // E.g image-123|image-456
-                    OME.removeItem(event, ".file_ann_wrapper", url, parents);
+                    OME.removeItem(event, ".file_ann_wrapper", url, parents, {{ index }});
                     return false;
                 });
 
