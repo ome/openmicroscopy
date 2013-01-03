@@ -1758,7 +1758,9 @@ public class MetadataServiceTest
     }
     
     /**
-     * Tests the retrieval of a specified xml annotation linked to an image.
+     * Tests the retrieval of specified xml annotations linked to an image.
+     * The one annotation has its ns set to <code>modulo</code> ns
+     * the other one does not.
      * @throws Exception Thrown if an error occurred.
      */
     @Test

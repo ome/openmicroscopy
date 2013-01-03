@@ -132,8 +132,8 @@ public class MetadataImpl
 	 * @param type    The type of annotation to retrieve.
 	 * @param include The collection of name spaces to include.
 	 * @param exclude The collection of name spaces to exclude.
-	 * @param rootType The type of objects the annotations are linked.
-	 * @param ids The annotations' identifiers.
+	 * @param rootType The type of objects the annotations are linked to.
+	 * @param rootNodeIds The identifiers of the objects.
 	 * @param options The options if any.
 	 * @return See above.
 	 */

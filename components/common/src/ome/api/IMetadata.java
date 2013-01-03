@@ -240,7 +240,7 @@ public interface IMetadata
     		long userID);
     
     /**
-     * Loads the annotations of a given type.
+     * Loads the annotations of a given type linked to the specified objects.
      * 
      * @param type      The type of annotations to load.
      * @param include   The collection of name space, one of the constants
@@ -248,7 +248,7 @@ public interface IMetadata
      * @param exclude   The collection of name space, one of the constants
      *                  defined by this class.
      * @param rootNodeType The type of objects the annotations are linked to.
-     * @param rootNodeIds The objects' identifiers.
+     * @param rootNodeIds The identifiers of the objects.
      * @param options   The POJO options.
      * @return A collection of found annotations.
      */
