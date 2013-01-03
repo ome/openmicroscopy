@@ -102,6 +102,7 @@ import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Collections of tests for the <code>IMetadata</code> service.
@@ -1631,4 +1632,68 @@ public class MetadataServiceTest
         		data2.getId().getValue());
     }
     
+    /**
+     * Tests the retrieval of a specified xml annotation linked to an image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToImageWithModuloNS()
+    	throws Exception
+    {
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	
+    	XmlAnnotation data1 = new XmlAnnotationI();
+    	data1.setTextValue(omero.rtypes.rstring("with modulo ns"));
+    	data1.setNs(omero.rtypes.rstring(XMLAnnotationData.MODULO_NS));
+    	data1 = (XmlAnnotation) iUpdate.saveAndReturnObject(data1);
+    	ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) img1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        
+        XmlAnnotation data2 = new XmlAnnotationI();
+        data2.setTextValue(omero.rtypes.rstring("w/o modulo ns"));
+        data2 = (XmlAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) img1.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        Parameters param = new Parameters();
+        List<String> include = Arrays.asList(XMLAnnotationData.MODULO_NS);
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		XmlAnnotation.class.getName(), include, exclude,
+        		Image.class.getName(), Arrays.asList(img1.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 1);
+        List<Annotation> result = map.get(img1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        
+        //now exclude ns
+        include = new ArrayList<String>();
+        exclude = Arrays.asList(XMLAnnotationData.MODULO_NS);
+        
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		XmlAnnotation.class.getName(), include, exclude,
+        		Image.class.getName(), Arrays.asList(img1.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 1);
+        result = map.get(img1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
 }
