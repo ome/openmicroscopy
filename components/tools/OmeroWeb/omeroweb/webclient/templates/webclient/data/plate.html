@@ -121,7 +121,7 @@
                     if (selected_wells.length > 0) {
                         handleClickSelection(undefined, selected_wells.children("img"));
                         $selected = $('td.ui-selected', wpv.self);
-                        well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
                 });
             {% endif %}
