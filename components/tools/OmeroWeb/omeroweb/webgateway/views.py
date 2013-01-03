@@ -2081,8 +2081,8 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
 
     path, fname = os.path.split(filepath)
     path += '/' if path != '' else ''
-    obj = conn.getObject('OriginalFile', attributes=dict(name=fname, path='/'+path))
-    if obj:
+    objs = conn.getObjects('OriginalFile', attributes=dict(name=fname, path='/'+path))
+    for obj in objs:
         todelete.append(obj.id)
         # recursively collect all file IDs below the given path
         def _delete(path):
