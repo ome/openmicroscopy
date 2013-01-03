@@ -1532,7 +1532,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parents.split('|'))
+            manager.remove(parents.split('|'), index)
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
