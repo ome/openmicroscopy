@@ -33,7 +33,7 @@ import pojos.GroupData;
  */
 class NullImportSettings extends ImportLocationSettings {
 
-	/** Local constant to specifiy an unknown data type*/
+	/** Local constant to specify an unknown data type*/
 	private static final int UNKNOWN_DATA_TYPE = -1;
 
 	/**
