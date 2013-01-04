@@ -421,18 +421,11 @@
         <div id="general_tab" class="right_tab_inner" >
            
 		    {% if manager.image %}            
-            {% if manager.image.canEdit %}
-				<div class="data_heading" id="imagename-{{ manager.image.id }}">
-					<h1>
-						<span id="imagename-{{ manager.image.id }}-name" style="word-wrap: break-word;">{{ manager.image.name }}</span>
-					</h1>
-					<button class="btn silver btn_edit" alt="e" title="edit">
-						<span></span>
-					</button>
-					
-				</div>{% else %}
-				
-				<h1 style="word-wrap: break-word;">{{ manager.image.name }}</h1>{% endif %}
+
+            <!-- Image Name -->
+            {% with obj=manager.image nameText=manager.image.name %}
+                {% include "webclient/annotations/includes/name.html" %}
+            {% endwith %}
             
             
             <div style="position:relative">
@@ -524,30 +517,11 @@
 
             {% else %}
                 {% if manager.dataset %}
-                {% if manager.dataset.canEdit %}
 
-				<!-- Dataset Name - Dataset Level -->
-				<div class="data_heading" id="datasetname-{{ manager.dataset.id }}">
-					
-					<h1>
-						<p id="datasetname-{{ manager.dataset.id }}-name" style="word-wrap: break-word;">{{ manager.dataset.name }}</p>
-					</h1>
-					
-					<button class="btn silver btn_edit" alt="e" title="edit">
-						<span></span>
-					</button>
-					
-				</div>
-				
-				{% else %}
-					
-					<h1 style="word-wrap: break-word;">
-						{{ manager.dataset.name }}
-					</h1>
-					
-					
-					
-					{% endif %}
+                <!-- Dataset Name -->
+                {% with obj=manager.dataset nameText=manager.dataset.name %}
+                    {% include "webclient/annotations/includes/name.html" %}
+                {% endwith %}
 
                 <h2 class="data_heading_id">
                     Dataset ID: <strong>{{ manager.dataset.id }}</strong>
@@ -584,22 +558,11 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    {% if manager.project.canEdit %}
-					
-					
-					<!-- Project Name - Project Level -->
-					<div id="projectname-{{ manager.project.id }}" class="data_heading">
-						<h1>
-							<p id="projectname-{{ manager.project.id }}-name" style="word-wrap: break-word;">{{ manager.project.name }}</p>
-						</h1>
-						
-						<button class="btn silver btn_edit" alt="e" title="edit">
-							<span></span>
-						</button>
-					</div>
-					{% else %}
-					
-					<h1 style="word-wrap: break-word;">{{ manager.project.name }}</h1>{% endif %}
+
+                    <!-- Project Name -->
+                    {% with obj=manager.project nameText=manager.project.name %}
+                        {% include "webclient/annotations/includes/name.html" %}
+                    {% endwith %}
                     
                     <h2 class="data_heading_id">
                         Project ID: <strong>{{ manager.project.id }}</strong>
@@ -638,20 +601,12 @@
             {% endif %}
             
             {% if manager.well %}            
-            {% if manager.well.getWellSample.image.canEdit %}
-			
-			<div id="wellname-{{ manager.well.id }}" class="data_heading">
-				<h1>
-					<p id="wellname-{{ manager.well.id }}-name" style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</p>
-				</h1>
-				<button class="btn silver btn_edit" alt="e" title="edit">
-					<span></span>
-				</button>
-			</div>
-			{% else %}
-			
-			<h1 style="word-wrap: break-word;">{{ manager.well.getWellSample.image.name }}</h1>{% endif %}
-                   
+
+            <!-- Image (in WellSample) Description -->
+            {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
+                {% include "webclient/annotations/includes/name.html" %}
+            {% endwith %}
+
             <h2 class="data_heading_id">
                 Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong>
                 <!-- open well-link -->
@@ -684,18 +639,11 @@
 
             {% else %}
                 {% if manager.acquisition %}
-                {% if manager.acquisition.canEdit %}
-				<div id="acquisitionname-{{ manager.acquisition.id }}" class="data_heading">
-					<h1>
-						<p id="acquisitionname-{{ manager.acquisition.id }}-name" style="word-wrap: break-word;">{{ manager.acquisition.name }}</p>
-					</h1>
-					<button class="btn silver btn_edit" alt="e" title="edit">
-						<span></span>
-					</button>
-				</div>
-				{% else %}
-				
-				<h1 style="word-wrap: break-word;">{{ manager.acquisition.name }}</h1>{% endif %}
+
+                <!-- Acquisition Name -->
+                {% with obj=manager.acquisition nameText=manager.acquisition.name %}
+                    {% include "webclient/annotations/includes/name.html" %}
+                {% endwith %}
                 
                 <h2 class="data_heading_id">
                     Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong>
@@ -734,20 +682,12 @@
                 </table>
                 {% else %}
                     {% if manager.plate %}
-                    {% if manager.plate.canEdit %}<div class="data_heading" id="platename-{{ manager.plate.id }}">
-						<h1>
-							<p id="platename-{{ manager.plate.id }}-name" style="word-wrap: break-word;">{{ manager.plate.name }}</p>
-						</h1>
-						<button class="btn silver btn_edit" alt="e" title="edit">
-							<span></span>
-						</button>
-						</div>
-						{% else %}
-						
-						<h1 style="word-wrap: break-word;">{{ manager.plate.name }}</h1>{% endif %}
-              
-			  		  
-			  
+
+                    <!-- Plate Name -->
+                    {% with obj=manager.plate nameText=manager.plate.name %}
+                        {% include "webclient/annotations/includes/name.html" %}
+                    {% endwith %}
+
                     <h2 class="data_heading_id">
                         Plate ID: <strong>{{ manager.plate.id }}</strong>
                         <!-- open link -->
@@ -786,19 +726,12 @@
                     </table>
                     {% else %}
                         {% if manager.screen %}
-                        {% if manager.screen.canEdit %}
-						<div class="data_heading" id="screenname-{{ manager.screen.id }}">
-							<h1>
-								<p id="screenname-{{ manager.screen.id }}-name" style="word-wrap: break-word;">{{ manager.screen.name }}</p>
-							</h1>	
-							<button class="btn silver btn_edit" alt="e" title="edit">
-								<span></span>
-							</button>
-						</div>
-						{% else %}
-						
-						<h1 style="word-wrap: break-word;">{{ manager.screen.name }}</h1>{% endif %}
-            
+
+                        <!-- Screen Name -->
+                        {% with obj=manager.screen nameText=manager.screen.name %}
+                            {% include "webclient/annotations/includes/name.html" %}
+                        {% endwith %}
+
                         <h2 class="data_heading_id">
                             Screen ID: <strong>{{ manager.screen.id }}</strong>
                             <!-- open link -->
@@ -1085,16 +1018,12 @@
 
         {% if manager.tag %}
             <div id="general_tab" class="right_tab_inner" >
-                {% if manager.tag.canEdit %}
-				<div class="data_heading" id="tagname-{{ manager.tag.id }}">
-					<h1>
-						<p id="tagname-{{ manager.tag.id }}-name" style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>
-					</h1>
-					<button class="btn silver btn_edit" alt="e" title="edit">
-						<span></span>
-					</button>
-				</div>{% else %}<p style="word-wrap: break-word;">{{ manager.tag.getValue }}</p>{% endif %}
-        
+
+                <!-- Tag TextValue -->
+                {% with obj=manager.tag nameText=manager.tag.getValue %}
+                    {% include "webclient/annotations/includes/name.html" %}
+                {% endwith %}
+
                 <h2 class="data_heading_id">
                     Tag ID: <strong>{{ manager.tag.id }}</strong>
                     <!-- open-tag link -->
@@ -1110,7 +1039,7 @@
 				<hr/>
 
                 <!-- Tag Description -->
-                {% with obj=manager.image %}
+                {% with obj=manager.tag %}
                     {% include "webclient/annotations/includes/description.html" %}
                 {% endwith %}
         

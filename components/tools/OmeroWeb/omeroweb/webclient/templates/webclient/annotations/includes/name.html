@@ -18,20 +18,17 @@
 -->
 {% endcomment %}
 
-
-<div class="description">
-    {% if obj.canEdit %}
-        <div class="data_heading" id="{{ manager.obj_type }}description-{{ manager.obj_id }}">
-            <p>
-                <span id="{{ manager.obj_type }}description-{{ manager.obj_id }}-description">
-                    {{ obj.description|default:"Add Description"|linebreaksbr}}
-                </span>
-                <button class="btn silver btn_edit" alt="e" title="edit">
-                    <span></span>
-                </button>
-            </p>
-        </div>
-    {% else %}
-        <span id='image_desc'>{{ obj.description|default:""|linebreaksbr }} </span>
-    {% endif %}
-</div>
+{% if obj.canEdit %}
+    <div class="data_heading" id="{{ manager.obj_type }}name-{{ manager.obj_id }}">
+        <h1>
+            <span id="{{ manager.obj_type }}name-{{ manager.obj_id }}-name" style="word-wrap: break-word;">
+                {{ nameText }}
+            </span>
+        </h1>
+        <button class="btn silver btn_edit" alt="e" title="edit">
+            <span></span>
+        </button>
+    </div>
+{% else %}
+    <h1 style="word-wrap: break-word;">{{ nameText }}</h1>
+{% endif %}
