@@ -89,7 +89,7 @@
                 elm.bind('click', function(event){
                     handleClickSelection(event);
                     var $selected = $('td.ui-selected', wpv.self);
-                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}'); // ome.webclient.actions.js
+                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}'); // ome.webclient.actions.js
                 }).bind('dblclick', function(){
                     OME.openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
@@ -100,7 +100,7 @@
                 distance: 2,
                 stop: function(){  
                     var $selected = $('td.ui-selected', this);
-                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.plate.getPermsCss }}');
+                    OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                 },
                 start: function(){
                 }
