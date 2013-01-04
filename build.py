@@ -107,6 +107,46 @@ def choose_omero_version():
         sys.exit(1)
 
 
+def handle_tools(args):
+    additions = []
+    while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp"):
+        if args[0] == "-perf":
+            args.pop(0)
+            A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
+            additions.extend(A)
+        elif args[0] == "-py":
+            args.pop(0)
+            F = os.path.sep.join(["components","tools","OmeroPy","build.xml"])
+            A = ["-f", F]
+            additions.extend(A)
+        elif args[0] == "-cpp":
+            args.pop(0)
+            F = os.path.sep.join(["components","tools","OmeroCpp","build.xml"])
+            A = ["-f", F]
+            additions.extend(A)
+    return additions + args
+
+
+def handle_relative(args):
+    """
+    If no other specific file has been requested,
+    then use whatever relative path is needed to
+    specify build.xml in the local directory.
+
+    Regardless, os.chdir is called to the top.
+    """
+    additions = []
+    this = os.path.abspath(__file__)
+    this_dir = os.path.abspath(os.path.join(this, os.pardir))
+    cwd = os.path.abspath(os.getcwd())
+    os.chdir(this_dir)
+    if "-f" not in args:
+        build_xml = os.path.join(cwd, "build.xml")
+        if os.path.exists(build_xml):
+            additions.append("-f")
+            additions.append(build_xml)
+    return additions + args
+
 if __name__ == "__main__":
     #
     # use java_omero which will specially configure the build system.
@@ -119,23 +159,8 @@ if __name__ == "__main__":
         del os.environ['CLASSPATH']
 
     try:
-        additions = []
-        while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp"):
-            if args[0] == "-perf":
-                args.pop(0)
-                A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
-                additions.extend(A)
-            elif args[0] == "-py":
-                args.pop(0)
-                F = os.path.sep.join(["components","tools","OmeroPy","build.xml"])
-                A = ["-f", F]
-                additions.extend(A)
-            elif args[0] == "-cpp":
-                args.pop(0)
-                F = os.path.sep.join(["components","tools","OmeroCpp","build.xml"])
-                A = ["-f", F]
-                additions.extend(A)
-        args = additions + args
+        args = handle_tools(args)
+        args = handle_relative(args)
         java_omero(args)
         notification(""" Finished: %s """ % " ".join(args), 0)
     except KeyboardInterrupt:
