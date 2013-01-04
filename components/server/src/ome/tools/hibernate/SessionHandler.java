@@ -19,6 +19,7 @@ import ome.api.StatefulServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -93,7 +94,12 @@ public class SessionHandler implements MethodInterceptor,
 
     private final static Log log = LogFactory.getLog(SessionHandler.class);
 
-    private final Map<Object, SessionStatus> sessions = Collections
+    /**
+     * Access to this collection should only be performed by the protected
+     * methods on this class in order to guarantee the semantics in
+     * {@link #getThis(MethodInvocation)}.
+     */
+    private final Map<Object, SessionStatus> __sessions = Collections
             .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
 
     private OmeroContext ctx;
@@ -135,6 +141,33 @@ public class SessionHandler implements MethodInterceptor,
         this.ctx = (OmeroContext) applicationContext;
     }
 
+    //
+    // LOOKUP METHODS
+    //
+    protected Object getThis(MethodInvocation invocation) {
+        Object obj = invocation.getThis();
+        if (obj instanceof Executor.StatefulWork) {
+            obj = ((Executor.StatefulWork) obj).getThis();
+        }
+        return obj;
+    }
+
+    protected void putStatus(MethodInvocation invocation, SessionStatus status) {
+        __sessions.put(getThis(invocation), status);
+    }
+
+    private SessionStatus getStatus(MethodInvocation invocation) {
+        return __sessions.get(getThis(invocation));
+    }
+
+    protected SessionStatus removeStatus(final MethodInvocation invocation) {
+        return __sessions.remove(getThis(invocation));
+    }
+
+    //
+    // THREAD METHODS
+    //
+
     public void cleanThread() {
         if (TransactionSynchronizationManager.hasResource(factory)) {
             SessionHolder holder = (SessionHolder) TransactionSynchronizationManager
@@ -154,9 +187,12 @@ public class SessionHandler implements MethodInterceptor,
      * based on the type of service.
      */
     public Object invoke(final MethodInvocation invocation) throws Throwable {
+
+        Object obj = getThis(invocation);
+
         // Stateless; normal semantics.
-        if (!StatefulServiceInterface.class.isAssignableFrom(invocation
-                .getThis().getClass())) {
+        if (!StatefulServiceInterface.class.isAssignableFrom(
+                obj.getClass())) {
             throw new InternalException(
                     "Stateless service configured as stateful.");
         }
@@ -192,11 +228,11 @@ public class SessionHandler implements MethodInterceptor,
                             invocation.getThis()) {
                         @Override
                         public void close() {
-                            SessionStatus status = sessions.remove(invocation
-                                    .getThis());
+                            SessionStatus status = removeStatus(invocation);
                             status.session.disconnect();
                             status.session.close();
                         }
+
                     });
                 } else {
                     if (status != null) {
@@ -227,7 +263,7 @@ public class SessionHandler implements MethodInterceptor,
     private SessionStatus newOrRestoredSession(MethodInvocation invocation)
             throws HibernateException {
 
-        SessionStatus status = sessions.get(invocation.getThis());
+        SessionStatus status = getStatus(invocation);
         Session previousSession = nullOrSessionBoundToThread();
 
         // a session is currently running.
@@ -249,7 +285,7 @@ public class SessionHandler implements MethodInterceptor,
         else if (status == null || !status.session.isOpen()) {
             Session currentSession = acquireAndBindSession();
             status = new SessionStatus(currentSession);
-            sessions.put(invocation.getThis(), status);
+            putStatus(invocation, status);
         }
 
         // the session bound to This is already currently being called. abort!

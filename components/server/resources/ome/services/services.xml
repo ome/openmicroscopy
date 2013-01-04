@@ -32,7 +32,7 @@
   Possibilities are: tracing, logging, security, transactions, etc.
 -->
 
-    <bean id="executorInterceptors" class="java.util.ArrayList">
+    <bean id="statelessInterceptors" class="java.util.ArrayList">
         <constructor-arg>
             <list>
                 <value>serviceHandler</value>
@@ -43,7 +43,20 @@
             </list>
         </constructor-arg>
     </bean>
-    
+
+
+    <bean id="statefulInterceptors" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <value>serviceHandler</value>
+                <value>proxyHandler</value>
+                <value>transactionHandler</value>
+                <value>sessionHandler</value>
+                <value>eventHandler</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean id="selfManagingService" abstract="true"
         class="org.springframework.aop.framework.ProxyFactoryBean">
         <description>
@@ -62,29 +75,14 @@
     
 	<bean id="managedService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames">
-            <list>
-                <value>serviceHandler</value>
-                <value>proxyHandler</value>
-                <value>transactionHandler</value>
-                <value>hibernateHandler</value>
-                <value>eventHandler</value>
-            </list>
-		</property>
+		<property name="interceptorNames" ref="statelessInterceptors"/>
 	</bean>
 
 	<bean id="managedStatefulService" abstract="true"
 		class="org.springframework.aop.framework.ProxyFactoryBean">
-		<property name="interceptorNames">
-			<list>
-				<value>serviceHandler</value>
-				<value>proxyHandler</value>
-				<value>transactionHandler</value>
-				<value>sessionHandler</value>
-				<value>eventHandler</value>
-			</list>
-		</property>
+		<property name="interceptorNames" ref="statefulInterceptors"/>
 	</bean>
+
 	<bean
 		       id="serviceHandler"
 		    class="ome.services.util.ServiceHandler"
@@ -150,7 +148,20 @@
   <bean id="executor" class="ome.services.util.Executor$Impl">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="omeroSessionFactory"/>
-    <constructor-arg ref="executorInterceptors"/>
+    <constructor-arg ref="statelessInterceptors"/>
+    <constructor-arg ref="simpleSqlAction"/>
+    <constructor-arg ref="taskExecutor"/>
+  </bean>
+
+  <bean id="statefulExecutor" class="ome.services.util.Executor$Impl">
+    <description>
+        Highly specialized adaptation of the regular "executor" bean in
+        order to allow working on stateful service implementations between
+        transactions.
+    </description>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="omeroSessionFactory"/>
+    <constructor-arg ref="statefulInterceptors"/>
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="taskExecutor"/>
   </bean>

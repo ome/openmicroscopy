@@ -7,14 +7,22 @@
 
 package ome.services.blitz.fire;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+
+import Glacier2.CannotCreateSessionException;
+import Glacier2.StringSetPrx;
 
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
@@ -30,28 +38,16 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.util.messages.MessageException;
+
 import omero.ApiUsageException;
 import omero.WrappedCreateSessionException;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api._ServiceFactoryTie;
 import omero.cmd.SessionI;
-import omero.constants.CLIENTUUID;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 import omero.constants.topics.HEARTBEAT;
-import omero.util.CloseableServant;
 import omero.util.ServantHolder;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
-import Glacier2.CannotCreateSessionException;
-import Glacier2.StringSetPrx;
 
 /**
  * Central login logic for all OMERO.blitz clients. It is required to create a
@@ -298,9 +294,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 Ice.Identity id = getServiceFactoryIdentity(curr);
                 ServiceFactoryI sf = getServiceFactory(id);
                 if (sf != null) {
-                    Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
-                    msg.setProxy(sf.registerServant(newId, msg.getServant()));
-                    msg.setHolder(sf.holder);
+                    final Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
+                    final Ice.Object servant = msg.getServant();
+                    sf.configureServant(servant); // Sets holder
+                    msg.setProxy(sf.registerServant(newId, servant));
                 }
             } else if (event instanceof DestroySessionMessage) {
                 DestroySessionMessage msg = (DestroySessionMessage) event;

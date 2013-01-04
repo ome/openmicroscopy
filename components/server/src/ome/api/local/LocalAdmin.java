@@ -94,4 +94,11 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * will be applied as simply the session context.
      */
     EventContext getEventContextQuiet();
+
+    /**
+     * Companion to {@link IAdmin#canUpdate(IObject)} but not yet remotely
+     * accessible.
+     * @param obj Not null.
+     */
+    boolean canAnnotate(IObject obj);
 }

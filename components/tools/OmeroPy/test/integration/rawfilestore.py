@@ -17,18 +17,24 @@ from omero.util.concurrency import get_event
 
 class TestRFS(lib.ITest):
 
-    def file(self):
+    def file(self, client=None):
+        if client is None:
+            client = self.client
+        update = client.sf.getUpdateService()
         ofile = omero.model.OriginalFileI()
         ofile.mimetype = rstring("application/octet-stream")
         ofile.name = rstring("test")
         ofile.path = rstring("/tmp/test")
         ofile.sha1 = rstring("")
         ofile.size = rlong(-1)
-        ofile = self.update.saveAndReturnObject(ofile)
+        ofile = update.saveAndReturnObject(ofile)
         return ofile
 
-    def check_file(self, ofile):
-        ofile = self.query.get("OriginalFile", ofile.id.val)
+    def check_file(self, ofile, client=None):
+        if client is None:
+            client = self.client
+        query = client.sf.getQueryService()
+        ofile = query.get("OriginalFile", ofile.id.val)
         self.assert_(ofile.size.val != -1)
         self.assert_(ofile.sha1.val != "")
 
@@ -66,6 +72,36 @@ class TestRFS(lib.ITest):
         rfs.close()
         ofile2 = self.query.get("OriginalFile", ofile.id.val)
         self.assertEquals(ofile.details.updateEvent.id.val, ofile2.details.updateEvent.id.val)
+
+    def testNoWrite(self):
+
+        group = self.new_group(perms="rwr---")
+        client1 = self.new_client(group=group)
+        client2 = self.new_client(group=group)
+
+        ofile = self.file(client=client1)
+        rfs = client1.sf.createRawFileStore()
+        rfs.setFileId(ofile.id.val)
+        rfs.write("0123", 0, 4)
+        rfs.close()
+        self.check_file(ofile, client=client1)
+
+        rfs = client2.sf.createRawFileStore()
+        rfs.setFileId(ofile.id.val)
+        try:
+            rfs.write("3210", 0, 4)
+            fail("Require security vio")
+        except:
+            pass
+        rfs.close()
+        self.check_file(ofile, client=client2)
+
+        rfs = client1.sf.createRawFileStore()
+        rfs.setFileId(ofile.id.val)
+        buf = rfs.read(0, 4)
+        rfs.close()
+        self.assertEquals("0123", buf)
+
 
 if __name__ == '__main__':
     unittest.main()

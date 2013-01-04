@@ -31,6 +31,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import ome.util.Utils;
 import ome.services.util.Executor;
+import ome.system.Principal;
 
 import omero.ValidationException;
 import omero.model.OriginalFile;
@@ -57,6 +58,7 @@ public class CheckedPath {
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
+    protected Long id;
     protected String sha1;
     protected String mime;
 
@@ -139,6 +141,14 @@ public class CheckedPath {
     // Public methods (mutable state)
     //
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String sha1() {
         if (sha1 == null) {
             sha1 = Utils.bytesToHex(Utils.pathToSha1(normPath));
@@ -210,38 +220,20 @@ public class CheckedPath {
         return this.file.isDirectory();
     }
 
-    public CheckedPath mustDB() {
-        return this;
+    /**
+     * Assuming this is a directory, return relative path plus name with a final
+     * slash.
+     */
+    protected String getDirname() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getRelativePath());
+        sb.append(getName());
+        sb.append("/");
+        return sb.toString();
     }
 
-    /**
-     * Create an OriginalFile object corresponding to a File object
-     * using the user supplied mimetype string
-     *
-     * @param f
-     *            A File object.
-     * @param mimetype
-     *            Mimetype as an RString
-     * @return An OriginalFile object
-     *
-     * TODO populate more attribute fields than the few set here?
-     */
-    public OriginalFile createOriginalFile(omero.RString mimetype) {
-        OriginalFile ofile = new OriginalFileI();
-        ofile.setName(rstring(file.getName()));
-        // This first case deals with registering the repos themselves.
-        if (isRoot) {
-            ofile.setPath(rstring(file.getParent()));
-        } else { // Path should be relative to root?
-            ofile.setPath(rstring(getRelativePath(file)));
-        }
-        ofile.setSha1(rstring(sha1()));
-        ofile.setMimetype(mimetype);
-        ofile.setMtime(rtime(this.file.lastModified()));
-        ofile.setSize(rlong(this.file.length()));
-        // atime/ctime??
-
-        return ofile;
+    protected String getName() {
+        return file.getName();
     }
 
     protected String getRelativePath() {
@@ -249,10 +241,27 @@ public class CheckedPath {
     }
 
     protected String getRelativePath(File f) {
-        String path = f.getParent()
+
+        String path = null;
+        if (isRoot) {
+            path = file.getParentFile().getAbsolutePath() + "/";
+        } else {
+            path = f.getParent()
                 .substring(root.file.getAbsolutePath().length(), f.getParent().length());
+        }
+
         // The parent doesn't contain a trailing slash.
         path = path + "/";
         return path;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("(");
+        sb.append(getRelativePath()); // Has slash.
+        sb.append(getName());
+        sb.append(")");
+        return sb.toString();
     }
 }

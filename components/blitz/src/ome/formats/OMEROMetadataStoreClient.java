@@ -2206,6 +2206,20 @@ public class OMEROMetadataStoreClient
         IObjectContainer ioc = getIObjectContainer(OriginalFile.class, indexes);
 		ofile.setMimetype(toRType(formatString));
         ioc.sourceObject = ofile;
+        if (ofile.sizeOfPixelsFileMaps() < 0) { // Required for handleReference
+            try {
+                OriginalFile toCopy = (OriginalFile) iQuery.findByQuery
+                    ("select o from OriginalFile o " +
+                    		"left outer join fetch o.pixelsFileMaps " +
+                    		"where o.id = :id",
+                    		new ParametersI().addId(ofile.getId().getValue()));
+                ofile.reloadPixelsFileMaps(toCopy);
+                ofile.getDetails().setUpdateEvent(null); // Optimistic lock
+            } catch (ServerError se) {
+                throw new RuntimeException(se);
+            }
+                    
+        }
 		return ofile;
     }
 

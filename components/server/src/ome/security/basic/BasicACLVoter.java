@@ -204,6 +204,12 @@ public class BasicACLVoter implements ACLVoter {
                 + "created through privileged APIs.");
     }
 
+    public boolean allowAnnotate(IObject iObject, Details trustedDetails) {
+        EventContext c = currentUser.current();
+        return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
+            c.getCurrentGroupPermissions(), Scope.ANNOTATE);
+    }
+
     public boolean allowUpdate(IObject iObject, Details trustedDetails) {
         EventContext c = currentUser.current();
         return 1 == allowUpdateOrDelete(c, iObject, trustedDetails,
