@@ -346,7 +346,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param importDataType The id of the data type (Screen/Project)
 	 */
 	private void switchToDataType(int importDataType) {
-		disableInput();
+		setInputsEnabled();
 		
 		switch(importDataType)
 		{
@@ -359,7 +359,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				this.tabbedPane.setSelectedComponent(screenPanel);
 		}
 		
-		enableInput();
+		setInputsEnabled();
 	}
 
 	/**
@@ -746,7 +746,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 
 			if(newDataObject != null) {
-				disableInput();
+				setInputsEnabled(false);
 				
 				EditorDialog editor = new EditorDialog(owner,
 						newDataObject, false);
@@ -754,7 +754,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				editor.setModal(true);
 				UIUtilities.centerAndShow(editor);
 				
-				enableInput();
+				setInputsEnabled(true);
 			}
 		} catch (NumberFormatException nfe) {
 		}
@@ -1297,7 +1297,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		if(ie.getStateChange() == ItemEvent.SELECTED)
 		{
-			disableInput();
+			setInputsEnabled(false);
 			
 			if(source == groupsBox) {
 				switchToSelectedGroup();
@@ -1305,7 +1305,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				populateDatasetsBox();
 			}
 			
-			enableInput();
+			setInputsEnabled(true);
 		}
 	}
 
@@ -1318,25 +1318,18 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox.setSelectedItem(group);
 	}
 	
-	private void disableInput()
+	/**
+	 * Enables or disables the user input controls
+	 * @param isEnabled Whether to enable or disable the controls
+	 */
+	private void setInputsEnabled(boolean isEnabled)
 	{
-		projectsBox.setEnabled(false);
-		datasetsBox.setEnabled(false);
-		screensBox.setEnabled(false);
+		projectsBox.setEnabled(isEnabled);
+		datasetsBox.setEnabled(isEnabled);
+		screensBox.setEnabled(isEnabled);
 
-		newProjectButton.setEnabled(false);
-		newDatasetButton.setEnabled(false);
-		newScreenButton.setEnabled(false);
-	}
-	
-	private void enableInput()
-	{
-		projectsBox.setEnabled(true);
-		datasetsBox.setEnabled(true);
-		screensBox.setEnabled(true);
-
-		newProjectButton.setEnabled(true);
-		newDatasetButton.setEnabled(true);
-		newScreenButton.setEnabled(true);
+		newProjectButton.setEnabled(isEnabled);
+		newDatasetButton.setEnabled(isEnabled);
+		newScreenButton.setEnabled(isEnabled);
 	}
 }
