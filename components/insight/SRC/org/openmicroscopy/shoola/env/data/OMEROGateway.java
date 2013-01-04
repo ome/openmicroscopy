@@ -6489,9 +6489,12 @@ class OMEROGateway
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
-        config.targetClass.set(container.getClass().getSimpleName());
-        config.targetId.set(container.getId().getValue());
-        ic.setTarget(container);
+        if (container != null) {
+        	 config.targetClass.set(container.getClass().getSimpleName());
+             config.targetId.set(container.getId().getValue());
+             ic.setTarget(container);
+        }
+       
         ic.setUserPixels(object.getPixelsSize());
         return importImageNew(ctx,
                 config, ic ,status, close, hcs);
