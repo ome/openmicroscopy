@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -36,6 +38,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -59,6 +63,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
+import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.util.filter.file.CppFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -186,13 +191,32 @@ class ToolBar
     				""+EditorControl.EXPORT_AS_OMETIFF);
     		exportAsOmeTiffItem.setEnabled(!model.isLargeImage());
     		saveAsMenu.add(exportAsOmeTiffItem);
-    		JMenuItem item = new JMenuItem(icons.getIcon(
-    				IconManager.SAVE_AS));
-    		item.setText("Save as JPEG...");
-    		item.setToolTipText("Save the images at full size as JPEG.");
-    		item.addActionListener(controller);
-    		item.setActionCommand(""+EditorControl.SAVE_AS);
-    		saveAsMenu.add(item);
+    		JMenu menu = new JMenu();
+    		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
+    		menu.setText("Save as...");
+    		menu.setToolTipText("Save the images at full size as JPEG. PNG or" +
+    				"Tiff.");
+    		ActionListener l = new ActionListener() {
+				
+				
+				public void actionPerformed(ActionEvent e) {
+					int index = Integer.parseInt(e.getActionCommand());
+					controller.saveAs(index);
+				}
+			};
+			Map<Integer, String> formats = FigureParam.FORMATS;
+			Entry<Integer, String> e;
+			Iterator<Entry<Integer, String>> i = formats.entrySet().iterator();
+			JMenuItem item;
+			while (i.hasNext()) {
+				e = i.next();
+				item = new JMenuItem();
+				item.setText(e.getValue());
+				item.addActionListener(l);
+				item.setActionCommand(""+e.getKey());
+				menu.add(item);
+			}
+    		saveAsMenu.add(menu);
     		setRootObject();
     	}
     	return saveAsMenu;
