@@ -141,6 +141,7 @@ public class ImportException
 	public int getStatus()
 	{
 		Throwable cause = getCause();
+		if (cause == null) return status;
 		if (cause instanceof UnsupportedCompressionException) {
 			return COMPRESSION;
 		} else if (cause instanceof FormatException) {
