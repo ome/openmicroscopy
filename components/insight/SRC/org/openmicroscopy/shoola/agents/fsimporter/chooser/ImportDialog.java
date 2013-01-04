@@ -141,13 +141,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	// Command Ids
 	/** Action id indicating to import the selected files. */
-	private static final int CMD_IMPORT = 0;
+	private static final int CMD_IMPORT = 1;
 
 	/** Action id indicating to close the dialog. */
-	private static final int CMD_CLOSE = 1;
-
-	/** Action id indicating to refresh the file view. */
-	private static final int CMD_REFRESH = 2;
+	private static final int CMD_CLOSE = 2;
 
 	/** Action id indicating to reset the names. */
 	private static final int CMD_RESET = 3;
@@ -159,10 +156,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private static final int CMD_TAG = 5;
 
 	/** Action id indicating to refresh the file chooser. */
-	private static final int CMD_REFRESH_FILES = 8;
+	private static final int CMD_REFRESH_FILES = 6;
 
 	/** Action id indicating to select the Project/Dataset or Screen. */
-	private static final int CMD_CANCEL_ALL_IMPORT = 9;
+	private static final int CMD_CANCEL_ALL_IMPORT = 7;
 
 	// String constants
 
@@ -356,6 +353,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * The dialog to allow for the user to select the import location.
 	 */
 	private LocationDialog locationDialog;
+
+	/** Stores the currently active file filter */
+	private FileFilter currentFilter;
 
 	/** Adds the files to the selection. */
 	private void addFiles(ImportLocationSettings importSettings) {
@@ -1367,7 +1367,12 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		
 		if (filters != null && filters.length > 0)
-			chooser.setFileFilter(filters[0]);
+		{
+			if(currentFilter == null)
+				currentFilter = filters[0];
+			
+			chooser.setFileFilter(currentFilter);
+		}
 		
 		locationDialog.reset(this.selectedContainer, this.type, this.objects, 
 				currentGroupId);
@@ -1562,10 +1567,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				firePropertyChange(CANCEL_SELECTION_PROPERTY,
 						Boolean.valueOf(false), Boolean.valueOf(true));
 				break;
-			case CMD_REFRESH:
-				chooser.rescanCurrentDirectory();
-				chooser.repaint();
-				break;
 			case CMD_RESET:
 				partialName.setSelected(false);
 				table.resetFilesName();
@@ -1579,6 +1580,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				break;
 			case CMD_REFRESH_FILES:
 				refreshLocation = false;
+				currentFilter = chooser.getFileFilter();
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
 				firePropertyChange(REFRESH_LOCATION_PROPERTY, -1, getType());
