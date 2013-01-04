@@ -91,7 +91,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
         @Override
         public ImportLocation suggestOnConflict(String trueRoot, String relPath,
-                String basePath, List<String> paths, Ice.Current curr) throws omero.ApiUsageException {
+                String basePath, List<String> paths, Ice.Current curr) throws omero.ServerError {
             return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
         }
 

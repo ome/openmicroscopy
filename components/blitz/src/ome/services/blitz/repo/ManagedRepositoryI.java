@@ -384,11 +384,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
             int version = 0;
             dir = FilenameUtils.concat(dir, parts[i]);
             while (version < 10000) { // Seems a sensible limit.
+                String attempt = dir;
                 if (version != 0) {
-                    dir = dir+"__"+version;
+                    attempt = dir+"__"+version;
                 }
                 try {
-                    makeDir(dir, false, curr);
+                    makeDir(attempt, false, curr);
+                    dir = attempt;
                     break;
                 }
                 catch (omero.ServerError e) {
@@ -416,7 +418,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected ImportLocation suggestOnConflict(String trueRoot, String relPath,
             String basePath, List<String> paths, Ice.Current __current)
-            throws omero.ApiUsageException {
+            throws omero.ServerError {
 
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
@@ -476,6 +478,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
                 continue;
             }
+        }
+
+
+        // Assuming we reach here, then we need to make
+        // sure that the directory exists since the call
+        // to saveFileset() requires the parent dirs to
+        // exist.
+        for (CheckedPath checked : data.checkedPaths) {
+            makeDir("./"+checked.getRelativePath(), true, __current);
         }
 
         return data;
