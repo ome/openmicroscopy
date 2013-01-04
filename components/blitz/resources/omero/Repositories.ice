@@ -122,10 +122,10 @@ module omero {
         };
 
         /**
-         * Returned by [ManagedRepository::prepareUpload] with
+         * Returned by [ManagedRepository::importFileset] with
          * the information needed to proceed with an FS import.
          * For the examples that follow, assume that the used
-         * files passed to prepareUpload were:
+         * files passed to importFileset were:
          *
          * <pre>
          *  /Users/jack/Documents/Data/Experiment-1/1.dv
@@ -153,7 +153,7 @@ module omero {
              * Parsed string names which should be used by the
              * clients during upload. This array will be of the
              * same length as the argument passed to
-             * [ManagedRepository::prepareUpload] but will have
+             * [ManagedRepository::importFileset] but will have
              * shortened paths.
              *
              * <pre>
@@ -234,7 +234,7 @@ module omero {
             /**
              * Step 2: Passes a set of client-side calculated hashes to the server
              * for verifying that all of the files were correctly uploaded. If this
-             * passes then a [omero::cmd::Handle*] proxy is returned, which completes
+             * passes then a [omero::cmd::Handle] proxy is returned, which completes
              * all the necessary import steps. A successful import will return an
              * [ImportResponse]. Otherwise, some [omero::cmd::ERR] will be returned.
              **/
@@ -266,7 +266,7 @@ module omero {
 
         /**
          * Command object which will be used to create
-         * the [omero::cmd::Handle*] instances passed
+         * the [omero::cmd::Handle] instances passed
          * back by the [ImportProcess].
          **/
         class ImportRequest extends omero::cmd::Request {
@@ -346,7 +346,7 @@ module omero {
 
             /**
              * For clients without access to Bio-Formats, the simplified
-             * []importPaths] method allows passing solely the absolute
+             * [importPaths] method allows passing solely the absolute
              * path of the files to be uploaded (no directories) and all
              * configuration happens server-side. Much of the functionality
              * provided via [omero::model::Fileset] and [omero::grid::ImportSettings]
