@@ -39,6 +39,8 @@ from omero_version import ice_compatibility
 try:
     import win32service
     import win32evtlogutil
+    import win32api
+    import win32security
     has_win32 = True
 except ImportError:
     has_win32 = False
@@ -390,17 +392,28 @@ Examples:
                    "DisplayName=", svc_name,
                    "start=","auto"]
 
-                # By default: "NT Authority\LocalService"
-                if user:
-                    user = self.ctx.input("User account:", False)
+                # By default: "NT Authority\Local System"
                 if not user:
-                    user = self.ctx.initData().properties.getProperty("omero.windows.user")
+                    try:
+                        user = config.as_map()["omero.windows.user"]
+                    except KeyError:
+                        user = ""
                 if len(user) > 0:
+                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                    if not "\\" in user:
+                        computername = win32api.GetComputerName()
+                        user = "\\".join([computername, user])
                     command.append("obj=")
                     command.append(user)
-                    self.ctx.out(self.ctx.popen(["ntrights","+r","SeServiceLogonRight","-u",user]).communicate()[0]) # popen
-                    pasw = self.ctx.initData().properties.getProperty("omero.windows.pass")
-                    pasw = self._ask_for_password(" for service user: %s" % user, pasw)
+                    self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
+                    policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
+                    sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
+                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
+                    win32security.LsaClose(policy_handle)
+                    try:
+                        pasw = config.as_map()["omero.windows.pass"]
+                    except KeyError:
+                        pasw = self._ask_for_password(" for service user \"%s\"" % user)
                     command.append("password=")
                     command.append(pasw)
                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
@@ -835,7 +848,7 @@ OMERO Diagnostics %s
 
         var = self.ctx.dir / 'var'
         if not os.path.exists(var):
-            print "Creating directory %s" % var
+            self.ctx.out("Creating directory %s" % var)
             os.makedirs(var, 0700)
         else:
             self.can_access(var, mask)
