@@ -504,20 +504,9 @@
 				  
 				  
 			<!-- Image Description -->	    
-            <div class="description">
-                {% if manager.image.canEdit %}
-					<div class="data_heading" id="imagedescription-{{ manager.image.id }}">
-						<p>
-						<span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default:"Add Description"|linebreaksbr}}</span>
-						<button class="btn silver btn_edit" alt="e" title="edit">
-							<span></span>
-						</button>
-						</p>
-					</div>
-					
-					{% else %}
-					<span id='image_desc'>{{ manager.image.description|default:""|linebreaksbr }} </span>{% endif %}
-            </div>
+            {% with obj=manager.image %}
+                {% include "webclient/annotations/includes/description.html" %}
+            {% endwith %}
 			
 			
 			
@@ -575,21 +564,9 @@
 				<hr/>
 				
 				<!-- Dataset Description -->
-                <div class="description">
-                    {% if manager.dataset.canEdit %}
-					<div class="data_heading" id="datasetdescription-{{ manager.dataset.id }}">
-						<p>
-							<span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default:"Add Description"|linebreaksbr}}</span>
-						    <button class="btn silver btn_edit" alt="e" title="edit">
-    							<span></span>
-    						</button>
-						</p>
-
-					</div>
-					{% else %}
-					<span id='dataset_desc'>{{ manager.dataset.description|default:""|linebreaksbr }}</span>
-					{% endif %}
-                </div>
+                {% with obj=manager.dataset %}
+                    {% include "webclient/annotations/includes/description.html" %}
+                {% endwith %}
                 
                 <table>
                     <tr>
@@ -637,23 +614,10 @@
         			</h2>
 					<hr/>
 					
-					<!--Project Description -->
-					<div class="description">
-                        {% if manager.project.canEdit %}
-						<div class="data_heading" id="projectdescription-{{ manager.project.id }}">
-						    <p>                          
-						        <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default:"Add Description"|linebreaksbr}}
-						        </span>
-						        <button class="btn silver btn_edit" alt="e" title="edit">
-        							<span></span>
-        						</button>
-						    </p>
-						</div>
-					    {% else %}
-					    
-					    <span id='project_desc'>{{ manager.project.description|default:""|linebreaksbr }}</span>
-					    {% endif %}
-                    </div>
+                    <!--Project Description -->
+                    {% with obj=manager.project %}
+                        {% include "webclient/annotations/includes/description.html" %}
+                    {% endwith %}
                     
                     <table>
                         <tr>
@@ -708,21 +672,10 @@
 			
 			<hr/>
 			
-            <div class="description">
-                {% if manager.well.getWellSample.image.canEdit %}
-                <div class="data_heading" id="welldescription-{{ manager.well.id }}">
-                    <p>
-                        <span id="welldescription-{{ manager.well.id }}-description">{{ manager.well.getWellSample.image.description|default:"Add Description"|linebreaksbr}}</span>
-                        <button class="btn silver btn_edit" alt="e" title="edit">
-							<span></span>
-						</button>
-                    </p>
-                </div>
-                {% else %}
-                
-                <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaksbr }}</span>
-                {% endif %}
-            </div>
+                        <!-- Image (in WellSample) Description -->
+            {% with obj=manager.well.getWellSample.image %}
+                {% include "webclient/annotations/includes/description.html" %}
+            {% endwith %}
 
             <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
             {% with image=manager.well.getWellSample.image %}
@@ -758,22 +711,10 @@
                 
 				<hr/>
 				
-                <div class="description">
-                    {% if manager.acquisition.canEdit %}
-                    <div class="data_heading" id="acquisitiondescription-{{ manager.acquisition.id }}">
-                        <p>
-                            <span id="acquisitiondescription-{{ manager.acquisition.id }}-description">{{ manager.acquisition.description|default:" Add Description"|linebreaksbr}}</span>
-                            <button class="btn silver btn_edit" alt="e" title="edit">
-    							<span></span>
-    						</button>
-                        </p>
-                        
-                    </div>
-                {% else %}
-                
-                    <span id='acquisition_desc'>{{ manager.acquisition.description|default:""|linebreaksbr }}</span>
-                {% endif %}
-                </div>
+                <!-- Acquisition Description -->
+                {% with obj=manager.acquisition %}
+                    {% include "webclient/annotations/includes/description.html" %}
+                {% endwith %}
                 
                 <table>
                     <tr>
@@ -821,22 +762,12 @@
 					
 					<hr/>
 					
-                    <div class="description">
-                        {% if manager.plate.canEdit %}
-                        <div class="data_heading" id="platedescription-{{ manager.plate.id }}">
-                            <p>
-                                <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default:"Add Description"|linebreaksbr}}</span>
-                                <button class="btn silver btn_edit" alt="e" title="edit">
-        							<span></span>
-        						</button>
-                                
-                            </p>
-                            
-                    </div>
-                    {% else %}
-                    
-                    <span id='plate_desc'>{{ manager.plate.description|default:""|linebreaksbr }}</span>{% endif %}
-                    </div>
+                    <!-- Plate Description -->
+                    {% with obj=manager.plate %}
+                        {% include "webclient/annotations/includes/description.html" %}
+                    {% endwith %}
+
+
                     <table>
                         <tr>
                             <th>Owner:</th>
@@ -882,24 +813,12 @@
 							
 						<hr/>	
 							
-  						 <div class="description">
-                            {% if manager.screen.canEdit %}
-                            
-                            <div class="data_heading" id="screendescription-{{ manager.screen.id }}">
-                                <p>
-                                    <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default:"Add Description"|linebreaksbr}}</span>
-                                    <button class="btn silver btn_edit" alt="e" title="edit">
-            							<span></span>
-            						</button>
-                                </p>
-                                
-                            </div>
-                            {% else %}
-                            
-                            <span id='screen_desc'>{{ manager.screen.description|default:""|linebreaksbr }}</span>
-                            {% endif %}
-                            
-                        </div>
+
+                        <!-- Screen Description -->
+                        {% with obj=manager.screen %}
+                            {% include "webclient/annotations/includes/description.html" %}
+                        {% endwith %}
+
                         <table>
                             <tr>
                                 <th>Owner:</th>
@@ -1190,21 +1109,10 @@
 
 				<hr/>
 
-                <div class="description">
-                    {% if manager.tag.canEdit %}
-                    <div class="data_heading" id="tagdescription-{{ manager.tag.id }}">
-                        <p>
-                            <span id="tagdescription-{{ manager.tag.id }}-description">{{ manager.tag.description|default:"Add Description"|linebreaksbr}}</span>
-                            <button class="btn silver btn_edit" alt="e" title="edit">
-    							<span></span>
-    						</button>
-                        </p>
-                    </div>
-                    
-                    {% else %}
-                    
-                    <span id='tag_desc'>{{ manager.tag.description|default:""|linebreaksbr }}</span>{% endif %}
-                </div>
+                <!-- Tag Description -->
+                {% with obj=manager.image %}
+                    {% include "webclient/annotations/includes/description.html" %}
+                {% endwith %}
         
                 <table>
                     <tr>
