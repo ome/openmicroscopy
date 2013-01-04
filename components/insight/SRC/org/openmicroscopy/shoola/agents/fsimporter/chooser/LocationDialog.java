@@ -346,6 +346,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param importDataType The id of the data type (Screen/Project)
 	 */
 	private void switchToDataType(int importDataType) {
+		disableInput();
+		
 		switch(importDataType)
 		{
 			case Importer.PROJECT_TYPE:
@@ -356,6 +358,8 @@ class LocationDialog extends JDialog implements ActionListener,
 				currentScreens = objects;
 				this.tabbedPane.setSelectedComponent(screenPanel);
 		}
+		
+		enableInput();
 	}
 
 	/**
@@ -742,11 +746,15 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 
 			if(newDataObject != null) {
+				disableInput();
+				
 				EditorDialog editor = new EditorDialog(owner,
 						newDataObject, false);
 				editor.addPropertyChangeListener(this);
 				editor.setModal(true);
 				UIUtilities.centerAndShow(editor);
+				
+				enableInput();
 			}
 		} catch (NumberFormatException nfe) {
 		}
@@ -1181,7 +1189,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 		}
 
-
 		populateWithItemsAndTooltips(projectsBox, finalList, null, 
 				selectedNode);
 		
@@ -1290,11 +1297,15 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		if(ie.getStateChange() == ItemEvent.SELECTED)
 		{
+			disableInput();
+			
 			if(source == groupsBox) {
 				switchToSelectedGroup();
 			} else if (source == projectsBox) {
 				populateDatasetsBox();
 			}
+			
+			enableInput();
 		}
 	}
 
@@ -1305,5 +1316,27 @@ class LocationDialog extends JDialog implements ActionListener,
 	void setSelectedGroup(GroupData group) {
 		this.currentGroup = group;
 		groupsBox.setSelectedItem(group);
+	}
+	
+	private void disableInput()
+	{
+		projectsBox.setEnabled(false);
+		datasetsBox.setEnabled(false);
+		screensBox.setEnabled(false);
+
+		newProjectButton.setEnabled(false);
+		newDatasetButton.setEnabled(false);
+		newScreenButton.setEnabled(false);
+	}
+	
+	private void enableInput()
+	{
+		projectsBox.setEnabled(true);
+		datasetsBox.setEnabled(true);
+		screensBox.setEnabled(true);
+
+		newProjectButton.setEnabled(true);
+		newDatasetButton.setEnabled(true);
+		newScreenButton.setEnabled(true);
 	}
 }
