@@ -109,6 +109,9 @@
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
+                                                if ($(this).val().length === 0) {
+                                                    $(this).val("Add Description");     // Reset to placeholder text
+                                                }
                                                 $("#"+field_id+"-"+$(this).attr('name')).html($(this).val().replace(/\n/g, "<br />"));
                                             }
                                         }); // this.each
