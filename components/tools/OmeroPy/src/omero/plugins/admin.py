@@ -392,23 +392,28 @@ Examples:
                    "DisplayName=", svc_name,
                    "start=","auto"]
 
-                # By default: "NT Authority\LocalService"
-                if user:
-                    user = self.ctx.input("User account:", False)
+                # By default: "NT Authority\Local System"
                 if not user:
-                    user = config.as_map()["omero.windows.user"]
+                    try:
+                        user = config.as_map()["omero.windows.user"]
+                    except KeyError:
+                        user = ""
                 if len(user) > 0:
+                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                    if not "\\" in user:
+                        computername = win32api.GetComputerName()
+                        user = "\\".join([computername, user])
                     command.append("obj=")
                     command.append(user)
-                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
-                    self.ctx.out("Granting SeServiceLogonRight to service user: %s" % user)
+                    self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
                     policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
                     sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
-                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight'), 1)
+                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
                     win32security.LsaClose(policy_handle)
-                    pasw = config.as_map()["omero.windows.pass"]
-                    if not pasw:
-                        pasw = self._ask_for_password(" for service user: %s" % user, pasw)
+                    try:
+                        pasw = config.as_map()["omero.windows.pass"]
+                    except KeyError:
+                        pasw = self._ask_for_password(" for service user \"%s\"" % user)
                     command.append("password=")
                     command.append(pasw)
                 self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
