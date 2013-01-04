@@ -232,7 +232,6 @@ public class ImportLibrary implements IObservable
      */
     public List<String> uploadFilesToRepository(
             final String[] srcFiles, final ImportProcessPrx proc)
-            throws ServerError
     {
 
         final MessageDigest md = Utils.newSha1MessageDigest();
@@ -240,67 +239,103 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
         final int fileTotal = srcFiles.length;
 
-        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                null, 0, fileTotal, null, null, null));
-
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
-
-            md.reset();
-
-            File file = new File(srcFiles[i]);
-            long length = file.length();
-            FileInputStream stream = null;
-            RawFileStorePrx rawFileStore = null;
             try {
-                stream = new FileInputStream(file);
-                rawFileStore = proc.getUploader(i);
-                int rlen = 0;
-                long offset = 0;
-
-                // "touch" the file otherwise zero-length files
-                rawFileStore.write(new byte[0], offset, 0);
-                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
-
-                while (stream.available() != 0) {
-                    rlen = stream.read(buf);
-                    md.update(buf, 0, rlen);
-                    rawFileStore.write(buf, offset, rlen);
-                    offset += rlen;
-                    notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                            file.getAbsolutePath(), i, fileTotal, offset, length, null));
-                }
-
-                byte[] digest = md.digest();
-                checksums.add(Utils.bytesToHex(digest));
-
-                OriginalFile ofile = rawFileStore.save();
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("%s/%s id=%s",
-                            ofile.getPath().getValue(),
-                            ofile.getName().getValue(),
-                            ofile.getId().getValue()));
-                    log.debug(String.format("checksums: client=%s,server=%s",
-                            checksums.get(i), ofile.getSha1().getValue()));
-                }
-                notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
-            }
-            catch (Exception e) {
-                notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
-                        file.getAbsolutePath(), i, fileTotal, null, null, e));
-                log.error("I/O or server error uploading file.", e);
+                checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+            } catch (ServerError e) {
+                log.error("Server error uploading file.", e);
+                break;
+            } catch (IOException e) {
+                log.error("I/O error uploading file.", e);
                 break;
             }
-            finally {
-                cleanupUpload(rawFileStore, stream);
-            }
         }
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, fileTotal, fileTotal, null, null, null));
-
         return checksums;
+    }
+
+    public String uploadFile(final ImportProcessPrx proc,
+            final String[] srcFiles, int index) throws ServerError, IOException
+    {
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        return uploadFile(proc, srcFiles, index, md, buf);
+    }
+
+    public String uploadFile(final ImportProcessPrx proc,
+            final String[] srcFiles, final int index,
+            final MessageDigest md, final byte[] buf)
+            throws ServerError, IOException {
+
+            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                    null, 0, srcFiles.length, null, null, null));
+
+        md.reset();
+
+        String digestString = null;
+        File file = new File(srcFiles[index]);
+        long length = file.length();
+        FileInputStream stream = null;
+        RawFileStorePrx rawFileStore = null;
+        try {
+            stream = new FileInputStream(file);
+            rawFileStore = proc.getUploader(index);
+            int rlen = 0;
+            long offset = 0;
+
+            // "touch" the file otherwise zero-length files
+            rawFileStore.write(new byte[0], offset, 0);
+            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    offset, length, null));
+
+            while (stream.available() != 0) {
+                rlen = stream.read(buf);
+                md.update(buf, 0, rlen);
+                rawFileStore.write(buf, offset, rlen);
+                offset += rlen;
+                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                        file.getAbsolutePath(), index, srcFiles.length,
+                        offset, length, null));
+            }
+
+            byte[] digest = md.digest();
+            digestString = Utils.bytesToHex(digest);
+
+            OriginalFile ofile = rawFileStore.save();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s/%s id=%s",
+                        ofile.getPath().getValue(),
+                        ofile.getName().getValue(),
+                        ofile.getId().getValue()));
+                log.debug(String.format("checksums: client=%s,server=%s",
+                        digestString, ofile.getSha1().getValue()));
+            }
+            notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    offset, length, null));
+
+        }
+        catch (IOException e) {
+            notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, null, e));
+            throw e;
+        }
+        catch (ServerError e) {
+            notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, null, e));
+            throw e;
+        }
+        finally {
+            cleanupUpload(rawFileStore, stream);
+        }
+
+        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
+                null, index, srcFiles.length, null, null, null));
+
+        return digestString;
     }
 
     private void cleanupUpload(RawFileStorePrx rawFileStore,
@@ -345,12 +380,28 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException, Throwable
     {
         final ImportProcessPrx proc = createImport(container);
-        final List<String> hashes = uploadFilesToRepository(
-                container.getUsedFiles(), proc);
+        final String[] srcFiles = container.getUsedFiles();
+        final List<String> checksums = new ArrayList<String>();
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
 
-        // At this point the import is running, one handle after the next.
-        final HandlePrx handle = proc.verifyUpload(hashes);
+        for (int i = 0; i < srcFiles.length; i++) {
+            checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+        }
 
+        // At this point the import is running, check handle for number of
+        // steps.
+        final HandlePrx handle = proc.verifyUpload(checksums);
+        final CmdCallbackI cb = createCallback(proc, handle, container);
+        cb.loop(60*60, 1000); // Wait 1 hr per step.
+        final ImportResponse rsp = getImportResponse(cb, container);
+        return rsp.pixels;
+    }
+
+    @SuppressWarnings("serial")
+    public CmdCallbackI createCallback(ImportProcessPrx proc, HandlePrx handle,
+            final ImportContainer container) throws ServerError
+    {
         // Adapter which should be used for callbacks. This is more
         // complicated than it needs to be at the moment. We're only sure that
         // the OMSClient has a ServiceFactory (and not necessarily a client)
@@ -360,17 +411,27 @@ public class ImportLibrary implements IObservable
         final Ice.Communicator ic = oa.getCommunicator();
         final String category = omero.client.getRouter(ic).getCategoryForClient();
 
-        List<Pixels> pixList = null;
-        @SuppressWarnings("serial")
-        final CmdCallbackI cb = new CmdCallbackI(oa, category, handle) {
+        return new CmdCallbackI(oa, category, handle) {
             public void step(int step, int total, Ice.Current current) {
                 notifyObservers(new ImportEvent.PROGRESS_EVENT(
                         0, container.getFile().getAbsolutePath(),
                         null, null, 0, null, step, total));
             }
         };
-        cb.loop(60*60, 1000); // Wait 1 hr per step.
+    }
+
+    /**
+     * Returns a non-null {@link ImportResponse} or throws notifies observers
+     * and throws a {@link RuntimeException}.
+     * @param cb
+     * @param container
+     * @return
+     */
+    public ImportResponse getImportResponse(CmdCallbackI cb,
+            final ImportContainer container)
+    {
         Response rsp = cb.getResponse();
+        ImportResponse rv = null;
         if (rsp instanceof ERR) {
             final ERR err = (ERR) rsp;
             final RuntimeException rt = new RuntimeException(String.format(
@@ -384,11 +445,12 @@ public class ImportLibrary implements IObservable
                     container.getUsedFiles(), container.getReader()));
             throw rt;
         } else if (rsp instanceof ImportResponse) {
-            pixList = ((ImportResponse) rsp).pixels;
+            rv = (ImportResponse) rsp;
         }
 
-        if (pixList == null) {
-            final RuntimeException rt = new RuntimeException("No pixels");
+        if (rv == null) {
+            final RuntimeException rt
+                = new RuntimeException("Unknown response: " + rsp);
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                     container.getFile().getAbsolutePath(), rt,
                     container.getUsedFiles(), container.getReader()));
@@ -396,10 +458,10 @@ public class ImportLibrary implements IObservable
         }
 
         notifyObservers(new ImportEvent.IMPORT_DONE(
-                index, container.getFile().getAbsolutePath(),
-                null, null, 0, null, pixList));
+                0, container.getFile().getAbsolutePath(),
+                null, null, 0, null, rv.pixels));
 
-        return pixList;
+        return rv;
     }
 
     // ~ Helpers
