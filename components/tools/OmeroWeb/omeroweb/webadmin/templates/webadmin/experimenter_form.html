@@ -117,6 +117,7 @@
             $("#id_other_groups").trigger("liszt:updated");
             $("li.search-choice").click(selectDefaultGroup);
             highlightDefault();
+            hideSystemGroupX();
         });
 
         $("li.search-choice").click(function(evt) {
