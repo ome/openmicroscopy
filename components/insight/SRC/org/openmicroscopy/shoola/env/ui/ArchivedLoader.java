@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * Loads archived image.
+ * Loads the image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,7 +73,7 @@ public class ArchivedLoader
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to download the archived image", 
+    	activity.notifyError("Unable to download the image", 
 				message, ex);
     }
     
@@ -105,8 +105,7 @@ public class ArchivedLoader
      */
     public void load()
     {
-    	long id = image.getDefaultPixels().getId();
-    	handle = mhView.loadArchivedImage(ctx, id, folderPath, this);
+    	handle = mhView.loadArchivedImage(ctx, image.getId(), folderPath, this);
     }
     
     /**
