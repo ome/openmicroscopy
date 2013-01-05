@@ -300,12 +300,12 @@ public interface MetadataHandlerView
 	 * Loads the archived files related to the specified image.
 	 * 
 	 * @param ctx The security context.
-	 * @param pixelsID The id of the pixels set related to the image.
-	 * @param location The location where to store the archived files
+	 * @param imageID The id of the pixels set related to the image.
+	 * @param location The location where to store the files.
 	 * @param observer	Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadArchivedImage(SecurityContext ctx, long pixelsID,
+	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
 		String location, AgentEventListener observer);
 	
 	/**
@@ -315,7 +315,7 @@ public interface MetadataHandlerView
 	 * @param nodeType			The type of node.
 	 * @param nodeIds			The collection of nodes to filter.
 	 * @param annotationType 	The type of annotation to filter by.
-	 * @param terms				The terms to filter by.		
+	 * @param terms				The terms to filter by.
 	 * @param userID			The ID of the user.
 	 * @param observer			Call-back handler.
      * @return A handle that can be used to cancel the call.
