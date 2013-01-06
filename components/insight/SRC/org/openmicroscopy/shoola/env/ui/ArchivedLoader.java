@@ -143,7 +143,6 @@ public class ArchivedLoader
     				activity.endActivity(files.size());
     			}
     		}
-    			
     	}
     }
     
