@@ -1747,8 +1747,7 @@ public class OMEROMetadataStore
     					getUniqueLightSettings(lightSettings, lc));
     			lc.setDetectorSettings(
     					getUniqueDetectorSettings(detectorSettings, lc));
-    			channel.setLogicalChannel(
-    					getUniqueLogicalChannel(logicalChannels, lc));
+					channel.setLogicalChannel(lc);
     		}
     	}
     	log.info("Unique objective settings: " + objectiveSettings.size());
