@@ -29,9 +29,13 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 
 /** 
  * Downloads the image file(s).
@@ -113,9 +117,20 @@ public class DownloadArchivedActivity
 	{
 		//review
 		type.setText(DESCRIPTION_END);
-		int v = (Integer) result;
+		List files = (List) result;
+		int v = files.size();
 		String value = null;
-		if (v > 1)
+		if (v == 1) {
+			//Check extension
+			File f = (File) files.get(0);
+			String name = f.getName();
+			if (!name.equals(parameters.getImage().getName()) && 
+				(name.endsWith(OMETIFFFilter.OME_TIF) ||
+				name.endsWith(OMETIFFFilter.OME_TIFF))) {
+				value = "Original Image not available, downloaded as OME-TIFF " +
+						"in "+parameters.getLocation();
+			}
+		} else if (v > 1)
 			value ="All "+v+" files downloaded in "+parameters.getLocation();
 		if (value != null)
 			messageLabel.setText(value);
