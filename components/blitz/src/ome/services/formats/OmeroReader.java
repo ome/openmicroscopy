@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import loci.common.RandomAccessInputStream;
+import loci.formats.CoreMetadata;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
 import loci.formats.FormatTools;
@@ -124,17 +125,18 @@ public class OmeroReader extends FormatReader {
 
         String ptype = pix.getPixelsType().getValue().getValue();
         String dorder = pix.getDimensionOrder().getValue().getValue();
-        
-        core[0].sizeX = sizeX;
-        core[0].sizeY = sizeY;
-        core[0].sizeZ = sizeZ;
-        core[0].sizeC = sizeC;
-        core[0].sizeT = sizeT;
-        core[0].rgb = false;
-        core[0].littleEndian = false;
-        core[0].dimensionOrder = dorder;
-        core[0].imageCount = planes;
-        core[0].pixelType = FormatTools.pixelTypeFromString(ptype);
+        CoreMetadata ms0 = core.get(0);
+
+        ms0.sizeX = sizeX;
+        ms0.sizeY = sizeY;
+        ms0.sizeZ = sizeZ;
+        ms0.sizeC = sizeC;
+        ms0.sizeT = sizeT;
+        ms0.rgb = false;
+        ms0.littleEndian = false;
+        ms0.dimensionOrder = dorder;
+        ms0.imageCount = planes;
+        ms0.pixelType = FormatTools.pixelTypeFromString(ptype);
 
         double px = pix.getSizeX().getValue();
         double py = pix.getSizeY().getValue();
