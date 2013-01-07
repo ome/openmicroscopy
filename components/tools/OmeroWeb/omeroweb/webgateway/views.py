@@ -2034,7 +2034,7 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
         result = [f for f in result if not f.get('name', '').startswith('.')]
     except: # listFiles failed, likely because root does not exist
         result = []
-        raise
+        logger.error(traceback.format_exc())
     return dict(result=result)
 
 
