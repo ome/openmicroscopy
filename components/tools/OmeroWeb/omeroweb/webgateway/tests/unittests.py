@@ -463,8 +463,22 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
         super(RepositoryApiBaseTest, self).setUp()
         self.toDelete = []
         self.repoclass = "Repository"
-        self.reponame = "omero.data"
+        # set up reponame to be retrieved dynamically later on, unless
+        # it gets overridden in the meantime
+        self._reponame = "*"
         self.loginmethod = self.loginAsAdmin
+
+    def _setRepoName(self, val):
+        self._reponame = val
+
+    def _getRepoName(self):
+        if self._reponame == "*":
+            if not self.gateway:
+                self.loginAsAdmin()
+            self._reponame = os.path.split(self.gateway.getConfigService().getConfigValue("omero.data.dir"))[1]
+        return self._reponame
+
+    reponame = property(_getRepoName, _setRepoName)
 
     def tearDown(self):
         if self.toDelete:
@@ -500,11 +514,9 @@ class RepositoryApiTest(RepositoryApiBaseTest):
     def testRepository(self):
         self.loginmethod()
         r = fakeRequest()
-        v = views.repository(r, klass="Repository", name='omero.data', server_id=1, conn=self.gateway, _internal=True)
-        self.assertTrue('"name": "omero.data"' in v)
-        self.assertTrue('"type": "OriginalFile"' in v)
-        v = views.repository(r, klass="ManagedRepository", server_id=1, conn=self.gateway, _internal=True)
-        self.assertTrue('"name": "ManagedRepository"' in v)
+        v = views.repository(r, klass=self.repoclass, name=self.reponame, server_id=1, conn=self.gateway, _internal=True)
+        check = '"name": "%s"' % self.reponame if self.reponame else self.repoclass
+        self.assertTrue(check in v, "Did not find %s in %s" % (check, v))
         self.assertTrue('"type": "OriginalFile"' in v)
 
     def testRepositoryUploadDownload(self):
@@ -611,6 +623,9 @@ class RepositoryApiAsAuthorTest(RepositoryApiTest):
 
     def setUp(self):
         super(RepositoryApiAsAuthorTest, self).setUp()
+        # pre-fetch reponame, otherwise a security exception
+        # occurs when reponame is fetched with author login
+        reponame = self.reponame
         self.loginmethod = self.loginAsAuthor
 
 
