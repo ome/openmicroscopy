@@ -582,7 +582,7 @@ class RepositoryApiTest(RepositoryApiBaseTest):
                                   server_id=1, conn=self.gateway, _internal=True)
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
-        self.assertIn('/' + NAME, result)
+        self.assertTrue(('/' + NAME) in result)
 
         r = fakeRequest()
         v = views.repository_listfiles(r, klass=self.repoclass, name=self.reponame,
@@ -751,8 +751,8 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertIn(self.FILENAME, files)
-        self.assertIn(self.FILENAME_USER, files)
+        self.assertTrue(self.FILENAME in files)
+        self.assertTrue(self.FILENAME_USER in files)
 
     def testListAsUser(self):
         self.loginAsUser()
@@ -762,8 +762,8 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertNotIn(self.FILENAME, files)
-        self.assertIn(self.FILENAME_USER, files)
+        self.assertFalse(self.FILENAME in files)
+        self.assertTrue(self.FILENAME_USER in files)
 
     def testListFilesAsAdmin(self):
         self.loginAsAdmin()
@@ -773,8 +773,8 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.get('name') for f in result]
-        self.assertIn(self.FILENAME, files)
-        self.assertIn(self.FILENAME_USER, files)
+        self.assertTrue(self.FILENAME in files)
+        self.assertTrue(self.FILENAME_USER in files)
 
     def testListFilesAsUser(self):
         self.loginAsUser()
@@ -784,8 +784,8 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.get('name') for f in result]
-        self.assertNotIn(self.FILENAME, files)
-        self.assertIn(self.FILENAME_USER, files)
+        self.assertFalse(self.FILENAME in files)
+        self.assertTrue(self.FILENAME_USER in files)
 
     def testSha(self):
         self.loginAsAdmin()
@@ -803,7 +803,7 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertIn(self.FILENAME_USER_DELTEST, files)
+        self.assertTrue(self.FILENAME_USER_DELTEST in files)
 
         r = fakeRequest(REQUEST_METHOD='POST', body='')
         v = views.repository_delete(r, filepath=self.FILENAME_USER_DELTEST,
@@ -819,7 +819,7 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertNotIn(self.FILENAME_USER_DELTEST, files)
+        self.assertFalse(self.FILENAME_USER_DELTEST in files)
 
     def testDownload(self):
         self.loginAsAdmin()
