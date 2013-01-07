@@ -889,7 +889,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		populateWithItemsAndTooltips(projectsBox, sorter.sort(projects), 
 				defaultNode, newProjectNode, this);
-
+		
 		repaint();
 	}
 
@@ -944,6 +944,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		populateWithItemsAndTooltips(screensBox, sorter.sort(screens), 
 				defaultNode, newScreenNode);
+		
 		repaint();
 	}
 
@@ -1011,7 +1012,7 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Returns the currently selected group in the Group selection box.
-	 * @return The currently selected group in the Group ComboBox
+	 * @return see above.
 	 */
 	private GroupData getSelectedGroup() {
 		JComboBoxImageObject selectedEntry =
