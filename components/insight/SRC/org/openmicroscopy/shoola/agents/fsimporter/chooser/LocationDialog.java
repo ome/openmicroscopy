@@ -346,7 +346,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param importDataType The id of the data type (Screen/Project)
 	 */
 	private void switchToDataType(int importDataType) {
-		setInputsEnabled();
+		setInputsEnabled(false);
 		
 		switch(importDataType)
 		{
@@ -359,7 +359,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				this.tabbedPane.setSelectedComponent(screenPanel);
 		}
 		
-		setInputsEnabled();
+		setInputsEnabled(true);
 	}
 
 	/**
