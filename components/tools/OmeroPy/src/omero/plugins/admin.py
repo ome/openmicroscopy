@@ -729,6 +729,21 @@ OMERO Diagnostics %s
                         self.ctx.out(io2[0].strip())
                     else:
                         self.ctx.err("UNKNOWN!")
+        if self._isWindows():
+            # Print the OMERO server Windows service details
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            services = win32service.EnumServicesStatus(hscm)
+            omesvcs = tuple((sname, fname) for sname,fname,status in services if "OMERO" in fname)
+            for sname,fname in omesvcs:
+                item("Server", fname)
+                hsc = win32service.OpenService(hscm, sname, win32service.SC_MANAGER_ALL_ACCESS)
+                logonuser = win32service.QueryServiceConfig(hsc)[7]
+                if win32service.QueryServiceStatus(hsc)[1] == win32service.SERVICE_RUNNING:
+                    self.ctx.out("active (running as %s)" % logonuser)
+                else:
+                    self.ctx.out("inactive")
+                win32service.CloseServiceHandle(hsc)
+            win32service.CloseServiceHandle(hscm)
 
             # List SSL & TCP ports of deployed applications
             self.ctx.out("")
