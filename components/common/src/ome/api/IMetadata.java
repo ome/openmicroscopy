@@ -134,14 +134,14 @@ public interface IMetadata
             @Validate(Long.class) Set<Long> annotatorIds, Parameters options);
     
     /**
-     * Loads the annotations of a given type.
+     * Loads all the annotations of a given type.
+     * It is possible to filter the annotations by including or excluding name
+     * spaces set on the annotations.
      * 
-     * @param type      The type of annotations to load.
-     * @param include   The collection of name space, one of the constants 
-     * 					defined by this class.
-     * @param exclude   The collection of name space, one of the constants 
-     * 					defined by this class.
-     * @param options	The POJO options.
+     * @param type The type of annotations to load.
+     * @param include Include the annotations with the specified name spaces.
+     * @param exclude   Exclude the annotations with the specified name spaces.
+     * @param options The POJO options.
      * @return A collection of found annotations.
      */
     public <A extends Annotation> Set<A> loadSpecifiedAnnotations(
@@ -241,12 +241,21 @@ public interface IMetadata
     
     /**
      * Loads the annotations of a given type linked to the specified objects.
+     * It is possible to filter the annotations by including or excluding name
+     * spaces set on the annotations.
+     * 
+     * This method looks for the annotations that have been attached to each of
+     * the specified objects. It then maps each <code>rootNodeId</code> onto
+     * the set of annotations that were found for that node. If no
+     * annotations were found for that node, the map will not contain an entry
+     * for that node. Otherwise it will be a <code>Set</code>
+     * containing {@link Annotation} objects.
+     * The <code>rootNodeType</code> supported are:
+     * Project, Dataset, Image, Pixels, Screen, Plate, PlateAcquisition, Well.
      * 
      * @param type      The type of annotations to load.
-     * @param include   The collection of name space, one of the constants
-     *                  defined by this class.
-     * @param exclude   The collection of name space, one of the constants
-     *                  defined by this class.
+     * @param include Include the annotations with the specified name spaces.
+     * @param exclude   Exclude the annotations with the specified name spaces.
      * @param rootNodeType The type of objects the annotations are linked to.
      * @param rootNodeIds The identifiers of the objects.
      * @param options   The POJO options.
