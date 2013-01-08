@@ -1,0 +1,458 @@
+{% extends "webgateway/core_html.html" %}
+{% load i18n %}
+
+{% comment %}
+<!--
+  Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+{% comment %}
+<!--
+    This page displays a UI for Split View Figure
+-->
+{% endcomment %}
+
+{% block title %}
+    Run Split View Figure
+{% endblock %}
+
+
+
+{% block script %}
+    {{ block.super }}
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    {% include "webgateway/base/includes/script_src_popup.html" %}
+    {% include "webgateway/base/includes/jquery-ui.html" %}
+    <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
+    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            setupAjaxError("{% url fsend %}");      // just in case!
+
+            $('#script_form').ajaxForm({
+                success: function(data) {
+                    window.opener.showActivities();
+                    self.close();
+                }
+            });
+
+
+            var $channelNamesMap = $("#channelNamesMap"),
+                $figure_table = $("#figure_table"),
+                $columnNames = $(".split_column .channel_name", $figure_table),
+                $mergedNames = $("div.merged_name", $figure_table),
+                $splitIndexes = $("input[name='Split_Indexes']");
+
+            var updateChannelNames = function() {
+                // Update Channel-Names map index:Name
+                var activeCs = [],
+                    cNames = [];
+                $("#split_channels input[type=checkbox]").each(function(i) {
+                    var cName = $('input[type=text]', $(this).parent()).val(),
+                        idx = parseInt( $(this).attr('name') );
+                    cNames.push(cName);
+                    if ($(this).is(":checked")) {
+                        activeCs.push(idx);
+                    }
+                });
+                $('input[name=Channel_Names_value]', $channelNamesMap).each(function(c){
+                    $(this).val( cNames[c] );
+                });
+                // Update Split Indexes
+                $splitIndexes.val(activeCs.join(","));
+                // Update Figure - channels on/off
+                $figure_table.find('tr').each(function(){
+                    $(this).find('td.split_column').each(function(c) {
+                        if (activeCs.indexOf(c) > -1) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                });
+                // Update Figure - channel Names
+                $columnNames.each(function(i){  // Column names
+                    $(this).text(cNames[i]);
+                });
+                $mergedNames.each(function(i){  // Merged names
+                    $(this).text(cNames[i]);
+                });
+
+            }
+            // Add / Remove Channels
+            $("#split_channels input[type=checkbox]").click(updateChannelNames);
+            // Renaming Channels
+            $("#split_channels input[type=text]").keyup(updateChannelNames);
+
+            var $mergecColoursMap = $("#mergedColoursMap");
+            var updateMergedChannels = function() {
+                // Update Merged-Colours map index:colourInt
+                $mergecColoursMap.empty();
+                var mergedCs = [],
+                    mergedColurs = [];
+                $("#merged_channels input[type=checkbox]:checked").each(function(){
+                    var colourInt = $(this).attr('value'),
+                        idx = parseInt( $(this).attr('name') ),
+                        html = "<input type='text' name='Merged_Colours_key' value='"+idx+"' />" +
+                            "<input type='text' name='Merged_Colours_value' value='"+colourInt+"'/>";
+                    mergedCs.push(idx+1);   // Use 1-based Channel idx for rendering
+                    $(html).appendTo($mergecColoursMap);
+                });
+                // Update url of merged panels in Figure
+                $(".merged_column img").each(function(){
+                    // remember original src
+                    var $this = $(this);
+                    if (typeof $this.data('src') === 'undefined') {
+                        $this.data('src', $this.attr('src'));
+                    }
+                    var newSrc = $this.data('src') + "?c=" + mergedCs.join(",");
+                    $this.attr('src', newSrc);
+                });
+                // Merged Channel names
+                $mergedNames.each(function(i) {
+                    if (mergedCs.indexOf(i+1) > -1) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+
+            };
+            // When merged channels are toggled
+            $("#merged_channels input[type=checkbox]").click(updateMergedChannels);
+
+            var $splitPanelsGrey = $("input[name=Split_Panels_Grey]");
+            var updateGrey = function() {
+                var grey = $splitPanelsGrey.is(":checked");
+                $columnNames.each(function(){
+                    var $this = $(this);
+                    // Note the original color if we haven't done so already
+                    if (typeof $this.data('color') === 'undefined') {
+                        $this.data('color', $this.css('color'));
+                    }
+                    // Apply color or black to column Names
+                    if (grey) {
+                        $this.css('color', $this.data('color'));
+                    } else {
+                        $this.css('color', 'rgb(0,0,0)');
+                    }
+                });
+                // Update url of split panels in Figure
+                $(".split_column img").each(function(){
+                    // remember original src
+                    var $this = $(this),
+                        flag = grey ? "g" : "c";
+                    if (typeof $this.data('src') === 'undefined') {
+                        $this.data('src', $this.attr('src'));
+                    }
+                    var newSrc = $this.data('src') + "&m=" + flag;
+                    $this.attr('src', newSrc);
+                });
+            };
+            // Update grey on checkbox click
+            $splitPanelsGrey.click(updateGrey);
+
+            // Merged names
+            $("input[name=Merged_Names]").click(function(){
+                if ( $(this).is(":checked") ) {
+                    $("#merged_label").hide();
+                    $("#merged_names").show();
+                } else {
+                    $("#merged_label").show();
+                    $("#merged_names").hide();
+                }
+            });
+
+            $("#zRangeSlider").slider();
+
+            // Lets sync everything to start with:
+            updateChannelNames();
+            updateMergedChannels();
+            updateGrey();
+
+        });
+    </script>
+
+
+    <style type="text/css">
+    .img_panel {
+        <!--[if lte IE 8]>
+            width: 120px;
+        <![endif]-->
+        max-width: 120px;
+        max-height: 120px;
+        
+        border-width: 0px;
+        margin: 5px;
+    }
+    .toggle_channel {
+        padding:4px; margin:2px; padding-left:6px; border-radius: 6px;
+    }
+    .toggle_channel input[type=text] {
+        font-size:10px;
+        border:solid white 1px;
+        opacity:0.8;
+    }
+    #figure_table {
+        margin-left:auto;
+        margin-right:auto;
+        background: #fff;
+    }
+    #zRangeSlider {
+        border: 1px solid #aaa;
+        height: 6px;
+        width: 220px;
+    }
+    #zRangeSlider .ui-slider-handle {
+        border: 1px solid #aaa;
+        background: #727C86;
+        border-radius: 3px;
+    }
+    </style>
+
+{% endblock %}
+
+
+{% block body %}
+    <h1>Split View Figure</h1>
+
+
+
+
+<form method="post" action="{% url script_run script_id %}">
+
+    <div style="margin-left:auto; margin-right:auto; width:500px">
+
+        <span title="File name of the figure to save.">
+            Figure Name:
+            <input type="text" name="Figure_Name"  value="Split_View_Figure"  />
+        </span>
+
+        <span title="Format to save image">
+            Format:
+            <select name="Format">
+                <option value="JPEG"  selected="True"  >JPEG</option>
+                <option value="PNG"  >PNG</option>
+                <option value="TIFF"  >TIFF</option>
+            </select>
+        </span>
+
+        <hr/>
+
+        <span title="Scale bar size in microns. Only shown if image has pixel-size info.">
+            Show Scalebar:
+            <input type="checkbox" id="enableScalebar" />
+            Length (microns):
+            <input type="text" name="Scalebar" class="number" size="5"/>
+        </span>
+
+        <span class="param" title="The colour of the scalebar.">
+            Overlay Colour:
+            <!-- drop-down list of enums -->
+            <select name="Overlay_Colour">
+                <option value="Blue"  >Blue</option>
+                <option value="Gray"  >Gray</option>
+                <option value="Indigo"  >Indigo</option>
+                <option value="Yellow"  >Yellow</option>
+                <option value="Green"  >Green</option>
+                <option value="Violet"  >Violet</option>
+                <option value="Orange"  >Orange</option>
+                <option value="Black"  >Black</option>
+                <option value="White"  selected="True"  >White</option>
+                <option value="Red"  >Red</option>
+            </select>
+        </span>
+
+
+        <!-- Z - section-->
+        <hr />
+        <h2>Z section selection</h2>
+
+        Last Viewed:
+        <input type="radio" name="projection" value="last_viewed" />
+        Z Projection:
+        <input type="radio" name="projection" value="z_projection" />
+
+
+        <div class="param" title="Algorithum for projection. Only used if a Z-range is chosen below">
+            Intensity:
+            <select name="Algorithm">
+                <option value="Maximum Intensity"  selected="True"  >Maximum Intensity</option>
+                <option value="Mean Intensity"  >Mean Intensity</option>
+            </select>
+        </div>
+
+        <div class="param" title="The Z increment for projection.">
+            Every n-th slice:
+            <input type="text" name="Stepping" class="number" size="2" value="1"  />
+        </div>
+
+        <div style="float:left">Z sections range:</div>
+        <div style="position:relative; height:40px; width:220px; margin-left:20px; float:left">
+            <div id="zRangeSlider"></div>
+
+            <div style="position:absolute; bottom:0px; left:0px">
+                Start: <input type="text" name="Z_Start" class="number" value="1" size="2"/>
+            </div>
+            <div style="position:absolute; bottom:0px; right:0px">
+                End: <input type="text" name="Z_End" class="number" value="{{ image.getSizeZ }}"  size="2"/>
+            </div>
+        </div>
+        <div style="clear:both"></div>
+
+
+        <!-- Channels -->
+        <hr />
+        <h2>Channels selection</h2>
+
+
+        Channel Names:
+        <div id="channelNamesMap" title="Map of index: channel name for all channels">
+            {% for c in channels %}
+                <input type="text" name="Channel_Names_key" value="{{ forloop.counter0 }}"/>
+                <input type="text" name="Channel_Names_value" value="{{ c.getLabel }}"/>
+            {% endfor %}
+        </div>
+
+
+        <div title="List of the channels in the split view">
+            Split Indexes:
+            <input type="text" name="Split_Indexes"  />
+        </div>
+
+
+        Merged Colours
+        <div id="mergedColoursMap" title="Map of index:int colours for each merged channel">
+            {% for c in channels %}
+                <input type="text" name="Merged_Colours_key" value="{{ forloop.counter0 }}"/>
+                <input type="text" name="Merged_Colours_value" value="{{ c.getColor.getInt }}"/>
+            {% endfor %}
+        </div>
+
+
+        <div class="param" title="The max width of each image panel. Default is first image width">
+            Width:
+            <input type="text" name="Width" class="number"  />
+            <span style="color: #666"> Min: 1 </span>
+        </div>
+
+
+        <div class="param" title="The max height of each image panel. Default is first image height">
+            Height:
+            <input type="text" name="Height" class="number"  />
+            <span style="color: #666"> Min: 1 </span>
+        </div>
+
+    </div>
+
+
+<!------------------- Custom Controls - NOT part of submitted <form> ------------>
+    <table cellspacing='3' style="margin-left:auto; margin-right:auto">
+        <tr>
+            <td></td>
+            <td colspan="{{ channels|length }}" align="center">
+                <div title="If true, all split panels are greyscale">
+                    Split Panels Grey:
+                    <input type="checkbox" name="Split_Panels_Grey"  />
+                </div>
+            </td>
+            <td align="center">
+                <div style="height:20px" title="If true, label the merged panel with channel names. Otherwise label with &#39;Merged&#39;">
+                    Merged Names: <input type="checkbox" name="Merged_Names"  checked="True"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td title="Label images with Image name (default) or datasets or tags" valign="bottom">
+                <select name="Image_Labels" style="margin-right:20px">
+                    <option value="Image Name"  selected="True"  >Image Name</option>
+                    <option value="Datasets"  >Datasets</option>
+                    <option value="Tags"  >Tags</option>
+                </select>
+            </td>
+        {% for c in channels %}
+            <td id="split_channels" valign="bottom">
+                <div class="toggle_channel" style="background:#{{c.getColor.getHtml}}">
+                    <input type="text" size='10' name="{{ forloop.counter0 }}cName" value="{{ c.getLabel }}" />
+                    <input type="checkbox" name="{{ forloop.counter0 }}cActive" checked="true" />
+                </div>
+            </td>
+        {% endfor %}
+            <td align="center" valign="bottom">
+                <table style="padding-left:10px">
+                    <tr><td width="15"> </td>
+                        {% for c in channels %}
+                            <td>
+                                <div id="merged_channels" class="toggle_channel" style="background:#{{c.getColor.getHtml}}">
+                                    <input type="checkbox" name="{{ forloop.counter0 }}cMerged" 
+                                        {% if c.isActive %}checked="true"{% endif %} value="{{c.getColor.getInt}}"/>
+                                </div>
+                            </td> 
+                        {% endfor %}
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</form>
+
+
+<!---------------------------- FIGURE PREVIEW ---------------------->
+<hr>
+
+<table id="figure_table">
+    <tr>
+        <td></td>
+        {% for c in channels %}
+            <td class="split_column" align="center" valign='bottom' style="vertical-align: bottom">
+                <span class="channel_name" style="color:#{{c.getColor.getHtml}}">
+                    {{ c.getLabel }}
+                </span>
+            </td>
+        {% endfor %}
+        <td align="center" id="merged_names">
+            {% for c in channels %}
+                <div class="merged_name" style="color:#{{c.getColor.getHtml}}">{{ c.getLabel }}</div>
+            {% endfor %}
+        </td>
+        <!-- show this <td> OR merged_names -->
+        <td align="center" id="merged_label" style="display:none">
+            Merged
+        </div>
+
+    </tr>
+    {% for iid in imageIds %}
+    <tr>
+        <td>{{ image.getName }}</td>
+        {% for ch in channels %}
+        <td class="split_column">
+            <img class='img_panel' 
+            src="{% url web_render_image iid %}?c={{ forloop.counter }}" />
+        </td>
+        {% endfor %}
+        <td class="merged_column">
+            <img class='img_panel' 
+            src="{% url web_render_image iid %}" />
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

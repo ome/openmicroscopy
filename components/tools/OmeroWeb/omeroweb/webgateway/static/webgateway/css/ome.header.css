@@ -228,7 +228,11 @@
 		#launch_basket  a{
 			background: url(../img/icon_basket.png) center center no-repeat;
 		}
-	
+
+		#figScriptButton{
+			background: url(../img/icon_script.png) center center no-repeat;
+		}
+
 		#scriptButton{
 			background: url(../img/icon_script.png) center center no-repeat;
 		}
