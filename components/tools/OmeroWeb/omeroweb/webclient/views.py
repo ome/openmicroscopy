@@ -2386,6 +2386,43 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
+
+@login_required()
+@render_response()
+def figure_script(request, scriptName, conn=None, **kwargs):
+    """
+    Show a UI for running figure scripts
+    """
+
+    imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
+    if imageIds is None:
+        return HttpResponse("Need to specify Images as /?Image=1,2")
+    try:
+        imageIds = [long(i) for i in imageIds.split(",")]
+    except Exception, e:
+        return HttpResponse("Need to specify Images as /?Image=1,2")
+
+    images = list( conn.getObjects("Image", imageIds) )
+    if len(images) == 0:
+        raise Http404("No Images found with IDs %s" % imageIds)
+
+    # 'images' list is not sorted. Only use it for validating imageIds
+    validIds = [img.getId() for img in images]
+    imageIds = [iid for iid in imageIds if iid in validIds]
+
+    image = conn.getObject("Image", imageIds[0])
+    channels = image.getChannels()
+
+    scriptService = conn.getScriptService()
+    scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
+    script_id = scriptService.getScriptID(scriptPath);
+    if (script_id < 0):
+        raise AttributeError("No script found for path '%s'" % scriptPath)
+
+    return {"template": "webclient/scripts/split_view_figure.html", "script_id": script_id,
+        "image": image, "imageIds": imageIds, "channels": channels}
+
+
 @login_required()
 def chgrp(request, conn=None, **kwargs):
     """
