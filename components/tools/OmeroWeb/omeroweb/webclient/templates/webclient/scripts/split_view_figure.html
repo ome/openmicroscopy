@@ -56,6 +56,7 @@
         
         border-width: 0px;
         margin: 5px;
+        vertical-align:middle;
     }
     .toggle_channel {
         padding:4px; margin:2px; padding-left:6px; border-radius: 6px;
@@ -105,6 +106,10 @@
         border-top: 1px solid #aaa;
         font-size: 120%;
     }
+    .zsection {
+        margin-left:25px;
+        padding:3px;
+    }
     </style>
 
 {% endblock %}
@@ -145,9 +150,9 @@
 
         <span title="Scale bar size in microns. Only shown if image has pixel-size info.">
             Show Scalebar:
-            <input type="checkbox" id="enableScalebar" />
+            <input type="checkbox" id="enableScalebar"/>
             Length (microns):
-            <input type="text" name="Scalebar" class="number" size="5"/>
+            <input type="text" name="Scalebar" disabled="disabled" class="number" size="5" value="5"/>
         </span>
 
         <span class="param" title="The colour of the scalebar.">
@@ -182,36 +187,37 @@
 
         <!-- Z - section-->
         <hr />
-        <h2>Z section selection</h2>
-
-        Last Viewed:
-        <input type="radio" name="projection" value="last_viewed" />
+        Z section:  Last Viewed:
+        <input type="radio" name="zProjection" value="last_viewed" checked="true" />
         Z Projection:
-        <input type="radio" name="projection" value="z_projection" />
+        <input type="radio" name="zProjection" value="z_projection" />
 
-
-        <div class="param" title="Algorithum for projection. Only used if a Z-range is chosen below">
+        <div style="clear:both"></div>
+        <div style="float:left" class="zsection">
             Intensity:
-            <select name="Algorithm">
+            <select name="Algorithm" disabled="disabled">
                 <option value="Maximum Intensity"  selected="True"  >Maximum Intensity</option>
                 <option value="Mean Intensity"  >Mean Intensity</option>
             </select>
         </div>
 
-        <div class="param" title="The Z increment for projection.">
+        <div title="The Z increment for projection." class="zsection">
             Every n-th slice:
-            <input type="text" name="Stepping" class="number" size="2" value="1"  />
+            <input type="text" name="Stepping" class="number" size="2" value="1" disabled="disabled"/>
         </div>
+        <div style="clear:both"></div>
 
-        <div style="float:left">Z sections range:</div>
-        <div style="position:relative; height:40px; width:150px; margin-left:20px; float:left">
-            <div id="zRangeSlider"></div>
+        <div class="zsection">
+            <div style="float:left">Z sections range:</div>
+            <div style="position:relative; height:40px; width:150px; margin-left:20px; float:left">
+                <div id="zRangeSlider"></div>
 
-            <div style="position:absolute; bottom:0px; left:0px">
-                Start: <input type="text" name="Z_Start" class="number" value="1" size="2"/>
-            </div>
-            <div style="position:absolute; bottom:0px; right:0px">
-                End: <input type="text" name="Z_End" class="number" value="{{ image.getSizeZ }}"  size="2"/>
+                <div style="position:absolute; bottom:0px; left:0px">
+                    Start: <input type="text" name="Z_Start" class="number" value="1" size="2" disabled="disabled"/>
+                </div>
+                <div style="position:absolute; bottom:0px; right:0px">
+                    End: <input type="text" name="Z_End" class="number" value="{{ image.getSizeZ }}" size="2" disabled="disabled"/>
+                </div>
             </div>
         </div>
 
@@ -332,18 +338,36 @@
         </div>
 
     </tr>
-    {% for iid in imageIds %}
+    {% for imdData in imgDict %}
     <tr>
-        <td>{{ image.getName }}</td>
+        <td class="rowLabel">
+            <div class="imgName">
+                {{ imdData.name }}
+            </div>
+            <div class="imgTags" style="display:none">
+                {% for t in imdData.tags %}
+                    <div>{{ t }}</div>
+                {% endfor %}
+            </div>
+            <div class="imgDatasets" style="display:none">
+                {% for d in imdData.datasets %}
+                    <div>{{ d }}</div>
+                {% endfor %}
+            </div>
+        </td>
         {% for ch in channels %}
         <td class="split_column">
-            <img colIdx="{{ forloop.counter0 }}" class='img_panel' 
-            src="{% url web_render_image iid %}?c={{ forloop.counter }}" />
+            <div>
+                <img colIdx="{{ forloop.counter0 }}" class='img_panel' 
+                    src="{% url web_render_image imdData.id %}?c={{ forloop.counter }}" />
+            </div>
         </td>
         {% endfor %}
         <td class="merged_column">
-            <img class='img_panel' 
-            src="{% url web_render_image iid %}" />
+            <div>
+                <img class='img_panel' 
+                    src="{% url web_render_image imdData.id %}" />
+            </div>
         </td>
     </tr>
     {% endfor %}
