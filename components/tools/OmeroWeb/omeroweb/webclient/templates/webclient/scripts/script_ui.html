@@ -132,8 +132,9 @@
                 var $keyInput = $newRow.find('input:eq(0)');
                 var $valueInput = $newRow.find('input:eq(1)');
                 // give the new inputs unique names, based on number of key:value pairs
-                $keyInput.attr('name', $keyInput.attr('name')+rowCount);
-                $valueInput.attr('name', $valueInput.attr('name')+rowCount);
+                // E.g. name='Channel_Names_key0' -> 'Channel_Names_key1'
+                $keyInput.attr('name', $keyInput.attr('name').slice(0,-1)+rowCount);
+                $valueInput.attr('name', $valueInput.attr('name').slice(0,-1)+rowCount);
                 $keyInput.attr('value', "");
                 $valueInput.attr('value', "");
                 $keyValueTable.append($newRow);
