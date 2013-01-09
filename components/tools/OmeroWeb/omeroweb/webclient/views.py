@@ -2407,10 +2407,24 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         raise Http404("No Images found with IDs %s" % imageIds)
 
     # 'images' list is not sorted. Only use it for validating imageIds
-    validIds = [img.getId() for img in images]
-    imageIds = [iid for iid in imageIds if iid in validIds]
+    validImages = {}
+    for img in images:
+        validImages[img.getId()] = img
+    imageIds = [iid for iid in imageIds if iid in validImages]
 
-    image = conn.getObject("Image", imageIds[0])
+    # Lookup Tags & Datasets (for row labels)
+    imgDict = []    # A list of data about each image.
+    for iId in imageIds:
+        data = {'id':iId}
+        img = validImages[iId]
+        data['name'] = img.getName()
+        tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+        data['tags'] = tags
+        data['datasets'] = [d.getName() for d in img.listParents()]
+        imgDict.append(data)
+
+    # Use the first image as a reference
+    image = validImages[imageIds[0]]
     channels = image.getChannels()
 
     scriptService = conn.getScriptService()
@@ -2421,8 +2435,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     idString = ",".join( [str(i) for i in imageIds] )
 
+
+
     return {"template": "webclient/scripts/split_view_figure.html", "scriptId": scriptId,
-        "image": image, "imageIds": imageIds, "idString":idString, "channels": channels}
+        "image": image, "imgDict": imgDict, "idString":idString, "channels": channels, "tags": tags}
 
 
 @login_required()

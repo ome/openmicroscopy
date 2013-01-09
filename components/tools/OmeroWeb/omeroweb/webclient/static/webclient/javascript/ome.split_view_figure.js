@@ -32,6 +32,15 @@ $(document).ready(function() {
     // We use these controls to update the paramter fields themselves,
     // as well as updating the Figure preview.
 
+    $("#enableScalebar").click(function(){
+        var enabled = $(this).is(":checked");
+        if (enabled) {
+            $("input[name=Scalebar]").removeAttr("disabled").focus();
+        } else {
+            $("input[name=Scalebar]").attr("disabled", "disabled");
+        }
+    });
+
     var $channelNamesMap = $("#channelNamesMap"),
         $figure_table = $("#figure_table"),
         $columnNames = $(".split_column .channel_name", $figure_table),
@@ -168,7 +177,63 @@ $(document).ready(function() {
         }
     });
 
-    $("#zRangeSlider").slider();
+
+    // Z selection. 
+    // NB: We disable Z-projection by clearing the zStart and zEnd fields.
+    var $zRangeSlider = $("#zRangeSlider"),
+        $zStart = $("input[name=Z_Start]"),
+        $zEnd = $("input[name=Z_End]"),
+        zMin = parseInt($zStart.val(), 10),
+        zMax = parseInt($zEnd.val(), 10),
+        $algorithm = $("select[name=Algorithm]"),
+        $stepping = $("input[name=Stepping]");
+    $zRangeSlider.slider({
+        range: true,
+        min: zMin,
+        max: zMax,
+        values: [ zMin, zMax ],
+        slide: function( event, ui ) {
+            $zStart.val(ui.values[ 0 ]);
+            $zEnd.val(ui.values[ 1 ]);
+        }
+    }).slider( "disable" );     // enable if user chooses zProjection
+    $("input[name=zProjection]").click(function(){
+        if($(this).attr('value') === "z_projection"){
+            $zRangeSlider.slider( "enable" );
+            $zStart.removeAttr("disabled");
+            $zEnd.removeAttr("disabled");
+            $algorithm.removeAttr("disabled");
+            $stepping.removeAttr("disabled");
+        } else {
+            $zRangeSlider.slider( "disable" );
+            $zStart.attr("disabled", "disabled");
+            $zEnd.attr("disabled", "disabled");
+            $algorithm.attr("disabled", "disabled");
+            $stepping.attr("disabled", "disabled");
+        }
+    });
+    // Don't allow users to type values here
+    $zStart.keydown(function(){ return false; });
+    $zEnd.keydown(function(){ return false; });
+
+
+    // Image Labels
+    var $Image_Labels = $("select[name=Image_Labels]"),
+        $rowLabels = $(".rowLabel>div"),
+        $imgName = $("div.imgName"),
+        $imgTags = $("div.imgTags"),
+        $imgDatasets = $("div.imgDatasets");
+    $Image_Labels.change(function(){
+        var labels = $(this).val();
+        $rowLabels.hide(); // hide all then show one...
+        if (labels == "Image Name") {
+            $imgName.show();
+        } else if (labels == "Datasets") {
+            $imgDatasets.show();
+        } else if (labels == "Tags") {
+            $imgTags.show();
+        }
+    });
 
     // Lets sync everything to start with:
     updateChannelNames();
