@@ -959,7 +959,7 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove( self, parents ):
+    def remove( self, parents, index):
         """
         Removes the current object (file, tag, comment, dataset, plate, image) from it's parents by
         manually deleting the link.
@@ -973,6 +973,10 @@ class BaseContainer(BaseController):
             parentId = long(parent[1])
             if dtype == "acquisition":
                 dtype = "PlateAcquisition"
+            if dtype == "well":
+                dtype = "Image"
+                w = self.conn.getObject("Well", parentId)
+                parentId = w.getWellSample(index=index).image().getId()
             if self.tag:
                 for al in self.tag.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():
