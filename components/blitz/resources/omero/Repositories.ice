@@ -365,11 +365,6 @@ module omero {
              **/
             ImportProcessList listImports() throws ServerError;
 
-           /**
-             * Create an OriginalFile object to represent an uploaded file.
-             **/
-            omero::model::OriginalFile createOriginalFile(string path) throws ServerError;
-
         };
 
         /**
