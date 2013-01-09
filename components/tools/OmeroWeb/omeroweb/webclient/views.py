@@ -2419,8 +2419,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     if (script_id < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
+    idString = ",".join( [str(i) for i in imageIds] )
+
     return {"template": "webclient/scripts/split_view_figure.html", "script_id": script_id,
-        "image": image, "imageIds": imageIds, "channels": channels}
+        "image": image, "imageIds": imageIds, "idString":idString, "channels": channels}
 
 
 @login_required()
