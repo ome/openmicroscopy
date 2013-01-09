@@ -90,7 +90,9 @@ module omero {
             omero::api::RawFileStore* fileById(long id) throws ServerError;
 
             /**
-             * Returns true if the file or path exists within the repository
+             * Returns true if the file or path exists within the repository.
+             * In other words, if a call on `dirname path` to [listFiles] would
+             * return an object for this path.
              **/
             bool fileExists(string path) throws ServerError;
 

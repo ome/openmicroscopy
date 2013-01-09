@@ -149,6 +149,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     // Path-based Interface methods
     //
 
+    public boolean fileExists(String path, Current __current) throws ServerError {
+        CheckedPath checked = checkPath(path, __current);
+        final OriginalFile ofile =
+                repositoryDao.findRepoFile(repoUuid, checked, null, __current);
+        return (ofile != null);
+    }
+
     public List<String> list(String path, Current __current) throws ServerError {
         List<OriginalFile> ofiles = listFiles(path, __current);
         List<String> contents = new ArrayList<String>();
@@ -221,21 +228,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public String mimetype(String path, Current __current) throws ServerError {
         return checkPath(path, __current).mustExist().getMimetype();
-    }
-
-    /**
-     * Return true if a file exists in the repository.
-     *
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return The existence of the file
-     *
-     */
-    public boolean fileExists(String path, Current __current) throws ServerError {
-        File file = checkPath(path, __current).file;
-        return file.exists();
     }
 
     /**

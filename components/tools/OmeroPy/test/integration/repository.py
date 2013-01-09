@@ -134,6 +134,32 @@ class TestRepository(AbstractRepoTest):
         rfs.close()
 
 
+class TestFileExists(AbstractRepoTest):
+    # Note: difficult to test the case where the file exists
+    # but is not in the database, since we cannot assume local
+    # access to the FS. Long-term the only solution is likely
+    # to launch our own FS instance locally.
+
+    def testFileExistsForDirectory(self):
+        mrepo = self.getManagedRepo(self.client)
+        base = "./" + self.uuid()
+        self.assertFalse(mrepo.fileExists(base))
+        mrepo.makeDir(base, True)
+        self.assertTrue(mrepo.fileExists(base))
+
+    def testFileExistsForFile(self):
+        mrepo = self.getManagedRepo(self.client)
+        base = "./" + self.uuid()
+        file = base + "/myfile.txt"
+        self.assertFalse(mrepo.fileExists(file))
+        mrepo.makeDir(base, True)
+        self.assertFalse(mrepo.fileExists(file))
+        rfs = mrepo.file(file, "rw")
+        rfs.write("hi".encode("utf-8"), 0, 2)
+        rfs.close()
+        self.assertTrue(mrepo.fileExists(file))
+
+
 class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
     def setup2RepoUsers(self, perms="rw----"):
