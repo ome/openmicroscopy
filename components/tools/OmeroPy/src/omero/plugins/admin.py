@@ -261,18 +261,7 @@ Examples:
             self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
 
         def _query_service(self, svc_name):
-            """
-            Query the service
-            Required to check the stdout since
-            rcode is not non-0
-            """
-            command = ["sc", "query", svc_name]
-            popen = self.ctx.popen(command) # popen
-            output = popen.communicate()[0]
-            if 0 <= output.find("1060"):
-                return "DOESNOTEXIST"
-            else:
-                return output
+            self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
 
     #
     # End Windows Methods
@@ -414,9 +403,9 @@ Examples:
                 else:
                     pasw = None
 
+                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
                 try:
                     self.ctx.out("Installing %s Windows service." % svc_name)
-                    hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
                     hs = win32service.CreateService(hscm, svc_name, svc_name, win32service.SERVICE_ALL_ACCESS,
                             win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_DEMAND_START,
                             win32service.SERVICE_ERROR_NORMAL, binpath, None, 0, None, user, pasw)
@@ -430,16 +419,15 @@ Examples:
                 self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
 
             # Finally, try to start the service - delete if startup fails
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
-                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
                 hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
-                try:
-                    win32service.StartService(hs, None)
-                    self.ctx.out("%s service startup successful." % svc_name)
-                except pywintypes.error, details:
-                    self.ctx.out("%s service startup failed: %s - %s" % (svc_name, details[0], details[2]))
-                    win32service.DeleteService(hs)
-                    self.ctx.die(202, "%s service deleted." % svc_name)
+                win32service.StartService(hs, None)
+                self.ctx.out("Starting %s Windows service." % svc_name)
+            except pywintypes.error, details:
+                self.ctx.out("%s service startup failed: (%s) %s" % (svc_name, details[0], details[2]))
+                win32service.DeleteService(hs)
+                self.ctx.die(202, "%s service deleted." % svc_name)
             finally:
                 win32service.CloseServiceHandle(hs)
                 win32service.CloseServiceHandle(hscm)
@@ -579,8 +567,8 @@ Examples:
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
                 self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
-                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
                 hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
                 win32service.ControlService(hs, win32service.SERVICE_CONTROL_STOP)
                 win32service.DeleteService(hs)
