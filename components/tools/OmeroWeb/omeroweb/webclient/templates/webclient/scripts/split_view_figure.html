@@ -44,6 +44,9 @@
 
 
     <style type="text/css">
+    body {
+        font-size: 70% !important;
+    }
     .img_panel {
         <!--[if lte IE 8]>
             width: 120px;
@@ -65,6 +68,8 @@
     #figure_table {
         margin-left:auto;
         margin-right:auto;
+        margin-top: 10px;
+        padding: 5px;
         background: #fff;
     }
     #zRangeSlider {
@@ -77,6 +82,29 @@
         background: #727C86;
         border-radius: 3px;
     }
+    #script_header {
+
+    }
+    div.header {
+        background: #ddd; 
+        position:fixed; 
+        top:0px; left:0px; right:0px;
+        padding: 7px;
+        border-bottom: 1px solid #aaa;
+        font-size: 120%;
+        height: 50px;
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
+    }
+    div.footer {
+        background: #ddd; 
+        position:fixed; 
+        bottom:0px; left:0px; right:0px;
+        padding: 7px;
+        border-top: 1px solid #aaa;
+        font-size: 120%;
+    }
     </style>
 
 {% endblock %}
@@ -84,13 +112,18 @@
 
 {% block body %}
 
-<form id="script_form" method="post" action="{% url script_run script_id %}">
+
+<div class="header"
+
+    <h1>Create Split View Figure</h1>
+
+</div>
+
+<div style="position: absolute; top:50px; left:0px; right:0px; bottom:40px; overflow:auto">
+
+<form id="script_form" method="post" action="{% url script_run scriptId %}">
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
-
-        <h1>Create Split View Figure</h1>
-
-        <hr/>
 
         <input type="text" name="IDs" value="{{ idString }}" style="display:none">
 
@@ -182,17 +215,13 @@
             </div>
         </div>
 
-        <div style="float:right; height:40px; position:relative">
-            <input type="submit" value="Create Figure" style="position:absolute; bottom:0px; right:0px"/>
-        </div>
-
         <div style="clear:both"></div>
 
 
         <hr />
 
-        <!-- Channel Parameters: These are updated by Javascript based on Customized controls below -->
-        <div>
+        <!-- Hidden Channel Parameters: These are updated by Javascript based on Customized controls below -->
+        <div style="display:none">
 
             Channel Names:
             <div id="channelNamesMap" title="Map of index: channel name for all channels">
@@ -268,11 +297,19 @@
         </tr>
     </table>
 
+
+    <div class="footer">
+        <div style="float:right">
+            <a href="#" onClick="self.close()">Cancel</a>
+            <input id="submit" type="submit" value="Create Figure" />
+        </div>
+        <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
+    </div>
+
 </form>
 
 
 <!---------------------------- FIGURE PREVIEW ---------------------->
-<hr>
 
 <table id="figure_table">
     <tr>
@@ -312,4 +349,5 @@
     {% endfor %}
 </table>
 
+</div>
 {% endblock %}

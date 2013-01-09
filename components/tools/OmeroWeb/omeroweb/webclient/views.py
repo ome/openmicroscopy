@@ -2415,13 +2415,13 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     scriptService = conn.getScriptService()
     scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
-    script_id = scriptService.getScriptID(scriptPath);
-    if (script_id < 0):
+    scriptId = scriptService.getScriptID(scriptPath);
+    if (scriptId < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
     idString = ",".join( [str(i) for i in imageIds] )
 
-    return {"template": "webclient/scripts/split_view_figure.html", "script_id": script_id,
+    return {"template": "webclient/scripts/split_view_figure.html", "scriptId": scriptId,
         "image": image, "imageIds": imageIds, "idString":idString, "channels": channels}
 
 
