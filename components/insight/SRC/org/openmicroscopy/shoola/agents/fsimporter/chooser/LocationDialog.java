@@ -38,6 +38,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -306,6 +308,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** The Screen panel */
 	private JPanel screenPanel;
 	
+	private List<ProjectData> availableProjects = new ArrayList<ProjectData>();
+	private List<ScreenData> availableScreens = new ArrayList<ScreenData>();
+	private Hashtable<ProjectData, List<DatasetData>> availableDatasets = new Hashtable<ProjectData, List<DatasetData>>();
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -330,14 +336,20 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.importDataType = importDataType;
 		this.objects = objects;
 		this.groups = groups;
-		this.currentGroup = findGroupWithId(groups, currentGroupId);
+		this.currentGroup = findWithId(groups, currentGroupId);
 		
 		setModal(true);
 		setTitle(TEXT_TITLE);
 		
-		initComponents();
+		initUIComponents();
 		buildGUI();
-		
+		loadData(objects);
+		populateUIWithData();
+	}
+
+	private void populateUIWithData() {
+		populateGroupBox(groups, currentGroup);
+		populateLocationComboBoxes();
 		switchToDataType(importDataType);
 	}
 
@@ -363,19 +375,18 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Scans the groups provided and returns the Group with matching id.
+	 * Scans the DataObjects provided and returns the Object with matching id.
 	 * <null> if not found
-	 * @param groups The available groups.
-	 * @param currentGroupIdThe if of the current group.
-	 * @return Finds the group in the list with the id provided, 
-	 * 		<null> if not found.
+	 * @param dataObjects The list of DataObjects.
+	 * @param id The id of the object ot find.
+	 * @return The DataObject in the list with matching id, <null> if not found.
 	 */
-	private GroupData findGroupWithId(Collection<GroupData> groups,
-			long currentGroupId) {
+	private <T extends DataObject> T findWithId(Collection<T> dataObjects,
+			long id) {
 		
-		for (GroupData group : groups) {
-			if(group.getId() == currentGroupId)
-				return group;
+		for (T dataObject : dataObjects) {
+			if(dataObject.getId() == id)
+				return dataObject;
 		}
 		
 		return null;
@@ -384,7 +395,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * Initialises the UI components of the dialog.
 	 */
-	private void initComponents() {
+	private void initUIComponents() {
 		sorter = new ViewerSorter();
 
 		// main components
@@ -403,10 +414,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		projectsBox.addItemListener(this);
 
 		datasetsBox = new JComboBox();
-
-		populateGroupBox(groups, currentGroup);
-		
-		populateLocationComboBoxes();
 
 		// main location panel buttons
 		newProjectButton = new JButton(TEXT_NEW);
@@ -1020,6 +1027,51 @@ class LocationDialog extends JDialog implements ActionListener,
 		return (GroupData) selectedEntry.getData();
 	}
 
+
+
+	private void loadData(Collection<TreeImageDisplay> treeNodes) {
+		if (objects != null && objects.size() > 0) {
+
+			List<DatasetData> orphanDatasets = new ArrayList<DatasetData>();
+			
+			for (TreeImageDisplay treeNode : treeNodes) {
+				Object userObject = treeNode.getUserObject();
+				
+				if(userObject instanceof ProjectData)
+				{
+					ProjectData project = (ProjectData) userObject;
+					availableProjects.add(project);
+					Enumeration iterator = treeNode.children();
+
+					List<DatasetData> projectDatasets = new ArrayList<DatasetData>();
+					
+					while(iterator.hasMoreElements())
+					{
+						TreeImageDisplay datasetNode = (TreeImageDisplay)iterator.nextElement();
+						DatasetData dataset = (DatasetData) datasetNode.getUserObject();
+						projectDatasets.add(dataset);
+					}
+					availableDatasets.put(project, projectDatasets);
+				}
+				
+				if(userObject instanceof ScreenData)
+				{
+					ScreenData screen = (ScreenData) userObject;
+					availableScreens.add(screen);
+				}
+				
+				if(userObject instanceof DatasetData)
+				{
+					DatasetData dataset = (DatasetData) userObject;
+					orphanDatasets.add(dataset);
+				}
+				
+			}
+
+			availableDatasets.put(null, orphanDatasets);
+		}
+	}
+	
 	/**
 	 * Populates the selection boxes with the currently selected data.
 	 */
@@ -1252,7 +1304,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
 		this.groups = availableGroups;
-		this.currentGroup = findGroupWithId(availableGroups, currentGroupId);
+		this.currentGroup = findWithId(availableGroups, currentGroupId);
 		
 		populateGroupBox(groups, currentGroup);
 		populateLocationComboBoxes();
