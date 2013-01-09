@@ -2487,8 +2487,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
             continue
         
         if pclass.__name__ == 'RMapI':
-            keyName = "%s_key" % key
-            valueName = "%s_value" % key
+            keyName = "%s_key0" % key
+            valueName = "%s_value0" % key
             row = 0
             paramMap = {}
             while keyName in request.POST:
