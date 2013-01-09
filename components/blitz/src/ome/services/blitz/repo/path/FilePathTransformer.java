@@ -22,7 +22,10 @@ package ome.services.blitz.repo.path;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -122,6 +125,31 @@ public class FilePathTransformer {
 		int depth;
 		for (depth = 1; !isDepthSufficient(files, depth); depth++);
 		return depth;
+	}
+	
+	/**
+	 * Get the files that are too similarly named.
+	 * @param files a set of files
+	 * @return the files grouped by those to which they are too similar,
+	 * or <code>null</code> if all the files are named sufficiently distinctly
+	 * @throws IOException if the absolute path of any of the {@link java.io.File}s could not be found
+	 */
+	public Set<Set<File>> getTooSimilarFiles(Set<File> files) throws IOException {
+		final Map<String, Set<File>> filesByFsFile = new HashMap<String, Set<File>>();
+		for (final File file : files) {
+			final String path = getFsFileFromClientFile(file, Integer.MAX_VALUE).toString().toLowerCase();
+			Set<File> similarFiles = filesByFsFile.get(path);
+			if (similarFiles == null) {
+				similarFiles = new HashSet<File>();
+				filesByFsFile.put(path, similarFiles);
+			}
+			similarFiles.add(file);
+		}
+		final Set<Set<File>> tooSimilarFiles = new HashSet<Set<File>>();
+		for (final Set<File> similarFiles : filesByFsFile.values())
+			if (similarFiles.size() > 1)
+				tooSimilarFiles.add(similarFiles);
+		return tooSimilarFiles.isEmpty() ? null : tooSimilarFiles;
 	}
 	
 	/* -- SPRING-BASED SETUP -- */

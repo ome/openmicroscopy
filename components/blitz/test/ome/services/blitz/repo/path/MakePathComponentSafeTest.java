@@ -241,7 +241,7 @@ public class MakePathComponentSafeTest {
 		}
 		tempDir.delete();
 	}
-	
+
 	@Test
 	public void testSanitizedUnsafeNameSafety() throws IOException {
 		final File tempDir = createTempDir();
@@ -250,6 +250,12 @@ public class MakePathComponentSafeTest {
 			final File safeFile = new File(tempDir, safeName);
 			testDataStorage(safeFile, safeName);
 		}
+		tempDir.delete();
+	}
+	
+	@Test
+	public void testSanitizedUnsafePrefixSafety() throws IOException {
+		final File tempDir = createTempDir();
 		for (final String unsafePrefix : MakePathComponentSafe.unsafePrefixes) {
 			final String unsafeName = unsafePrefix + MakePathComponentSafe.safeCharacter + "unsafe";
 			final String safeName = sanitizer.apply(unsafeName);
@@ -260,6 +266,12 @@ public class MakePathComponentSafeTest {
 			final File safeFile = new File(tempDir, safeName);
 			testDataStorage(safeFile, safeName);
 		}
+		tempDir.delete();
+	}
+	
+	@Test
+	public void testSanitizedUnsafeSuffixSafety() throws IOException {
+		final File tempDir = createTempDir();
 		for (final String unsafeSuffix : MakePathComponentSafe.unsafeSuffixes) {
 			final String unsafeName = "unsafe" + MakePathComponentSafe.safeCharacter + unsafeSuffix;
 			final String safeName = sanitizer.apply(unsafeName);
@@ -271,5 +283,13 @@ public class MakePathComponentSafeTest {
 			testDataStorage(safeFile, safeName);
 		}
 		tempDir.delete();
+	}
+	
+	@Test
+	public void testSensitiveNameSafety() {
+		// Leica OME
+		final String sensitiveName = "{Group}GroupData.xml";
+		Assert.assertEquals(sanitizer.apply(sensitiveName), sensitiveName,
+				"sensitive names should not be changed by sanitization");
 	}
 }

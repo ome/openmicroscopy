@@ -227,6 +227,37 @@ public class FilePathTransformerTest {
 				"relative path may only be within parent directory");
 	}
 	
+	@Test
+	public void testFilesDistinct() throws IOException {
+		final Set<File> files = new HashSet<File>();
+		files.add(componentsToFile("a"));
+		files.add(componentsToFile("abc"));
+		files.add(componentsToFile("a", "b", "c"));
+		files.add(componentsToFile("b", "c", "a"));
+		Assert.assertNull(fpt.getTooSimilarFiles(files),
+				"sufficiently distinct file-paths should be permitted");
+	}
+	
+	@Test
+	public void testFilesSameSanitized() throws IOException {
+		final Set<File> similar1 = new HashSet<File>();
+		similar1.add(componentsToFile("abc"));
+		similar1.add(componentsToFile("ABC"));
+		final Set<File> similar2 = new HashSet<File>();
+		similar2.add(componentsToFile("a:"));
+		similar2.add(componentsToFile("A;"));
+		final Set<Set<File>> similarFileGroups = new HashSet<Set<File>>();
+		similarFileGroups.add(similar1);
+		similarFileGroups.add(similar2);
+		final Set<File> files = new HashSet<File>();
+		files.addAll(similar1);
+		files.addAll(similar2);
+		files.add(componentsToFile("a", "b", "c"));
+		files.add(componentsToFile("b", "c", "a"));
+		Assert.assertEquals(fpt.getTooSimilarFiles(files), similarFileGroups,
+				"unexpected similar file groups");
+	}
+
 	@AfterClass
 	public void tearDown() {
 		fpt.baseDirFile.delete();
