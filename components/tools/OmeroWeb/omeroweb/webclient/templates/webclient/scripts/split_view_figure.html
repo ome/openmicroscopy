@@ -192,31 +192,32 @@
         Z Projection:
         <input type="radio" name="zProjection" value="z_projection" />
 
-        <div style="clear:both"></div>
-        <div style="float:left" class="zsection">
-            Intensity:
-            <select name="Algorithm" disabled="disabled">
-                <option value="Maximum Intensity"  selected="True"  >Maximum Intensity</option>
-                <option value="Mean Intensity"  >Mean Intensity</option>
-            </select>
-        </div>
+        <div id="zProjectionControls" style="display:none">
+            <div style="float:left" class="zsection">
+                Intensity:
+                <select name="Algorithm" disabled="disabled">
+                    <option value="Maximum Intensity"  selected="True"  >Maximum Intensity</option>
+                    <option value="Mean Intensity"  >Mean Intensity</option>
+                </select>
+            </div>
 
-        <div title="The Z increment for projection." class="zsection">
-            Every n-th slice:
-            <input type="text" name="Stepping" class="number" size="2" value="1" disabled="disabled"/>
-        </div>
-        <div style="clear:both"></div>
+            <div title="The Z increment for projection." class="zsection">
+                Every n-th slice:
+                <input type="text" name="Stepping" class="number" size="2" value="1" disabled="disabled"/>
+            </div>
+            <div style="clear:both"></div>
 
-        <div class="zsection">
-            <div style="float:left">Z sections range:</div>
-            <div style="position:relative; height:40px; width:150px; margin-left:20px; float:left">
-                <div id="zRangeSlider"></div>
+            <div class="zsection">
+                <div style="float:left">Z sections range:</div>
+                <div style="position:relative; height:40px; width:150px; margin-left:20px; float:left">
+                    <div id="zRangeSlider"></div>
 
-                <div style="position:absolute; bottom:0px; left:0px">
-                    Start: <input type="text" name="Z_Start" class="number" value="1" size="2" disabled="disabled"/>
-                </div>
-                <div style="position:absolute; bottom:0px; right:0px">
-                    End: <input type="text" name="Z_End" class="number" value="{{ image.getSizeZ }}" size="2" disabled="disabled"/>
+                    <div style="position:absolute; bottom:0px; left:0px">
+                        Start: <input type="text" name="Z_Start" class="number" value="1" size="2" disabled="disabled"/>
+                    </div>
+                    <div style="position:absolute; bottom:0px; right:0px">
+                        End: <input type="text" name="Z_End" class="number" value="{{ image.getSizeZ }}" size="2" disabled="disabled"/>
+                    </div>
                 </div>
             </div>
         </div>
