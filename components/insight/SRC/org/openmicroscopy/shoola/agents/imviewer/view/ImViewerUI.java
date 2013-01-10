@@ -2644,10 +2644,6 @@ class ImViewerUI
 		if (model.isBigImage()) index = model.getSelectedResolutionLevel();
 		setMagnificationStatus(model.getZoomFactor(), index);
 		controlPane.resetZoomValues();
-		if (model.isBigImage()) {
-			tabs.remove(ImViewer.GRID_INDEX);
-			tabs.remove(ImViewer.PROJECTION_INDEX);
-		}
 	}
 	
 	/** Sets the image data.*/
