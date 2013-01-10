@@ -39,7 +39,11 @@ $(document).ready(function(){
         $(this).css('visibility', 'hidden');
     });
 
-    $("#figScriptList li a").click(openScriptWindow);
+    $("#figScriptList li a").click(function(event){
+        openScriptWindow(event, 800, 600);
+        event.preventDefault();
+        return false;
+    });
 
 });
 

@@ -230,7 +230,7 @@
 		}
 
 		#figScriptButton{
-			background: url(../img/icon_script.png) center center no-repeat;
+			background: url(../img/icon_figure_scripts.png) center center no-repeat;
 		}
 
 		#scriptButton{
@@ -464,8 +464,13 @@
 				position:relative;
 			}
 				
-			.dropdown > li > a {
+			.dropdown > li > a.menuItem {
 				background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
+			}
+
+			/* This menu only has single level - remove '>' from menu items */
+			#figScriptList > li > a {
+				background:url(../img/spacer.png) 90% center no-repeat !important;
 			}
 			
 			.dropdown > li:hover > a {

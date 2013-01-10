@@ -44,9 +44,9 @@ OME.openPopup = function(url) {
 };
 
 
-OME.openCenteredWindow = function(url) {
-    var width = 550;
-    var height = 600;
+OME.openCenteredWindow = function(url, w, h) {
+    var width = w ? +w : 550;
+    var height = h ? +h : 600;
     var left = parseInt((screen.availWidth/2) - (width/2), 10);
     var top = 0;
     var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
