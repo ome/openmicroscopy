@@ -139,19 +139,19 @@
                 $("#comments_container").on("click", ".removeComment", function(event){
                     var url = $(this).attr('url');
                     OME.removeItem(event, ".ann_comment_wrapper", 
-                        url, $.trim($("#object-id").text()), {{ index }});
+                        url, $.trim($("#object-id").text()), {{ index|default:"0" }});
                     return false;
                 });
                 $("#tags_container").on("click", ".removeTag", function(event){
                     var url = $(this).attr('url');
                     OME.removeItem(event, ".tag_annotation_wrapper", url, 
-                        $.trim($("#object-id").text()), {{ index }});
+                        $.trim($("#object-id").text()), {{ index|default:"0" }});
                     return false;
                 });
                 $("#fileanns_container").on("click", ".removeFile", function(event) {
                     var url = $(this).attr('href');
                     OME.removeItem(event, ".file_ann_wrapper", url, 
-                        $.trim($("#object-id").text()), {{ index }});
+                        $.trim($("#object-id").text()), {{ index|default:"0" }});
                     return false;
                 });
                 
@@ -428,41 +428,8 @@
             {% endwith %}
             
             
-            <div style="position:relative">
-                <h2 class="data_heading_id" id='image_id' style="float:left">
-                    Image ID: <strong>{{ manager.image.id }}</strong>
-                </h2>
 
-                <!-- open-image link -->
-                <button id="show_link_btn" class="btn silver btn_link" title="Link to this Image">
-                    <span></span>
-                </button>
-                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                    <input type="text" size="30">
-                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                </div>
-                
-                <!-- download options -->
-                <span id="download_dropdown">
-                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Image as...">
-                        <span></span>
-                    </button>
-                    <ul class="dropdown">
-                        {% if manager.image.countArchivedFiles %}
-                            <li>
-                                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
-    title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
-                                    Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
-                            </li>
-                        {% endif %}
-                        <li>
-                            <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
-                                title="Create OME-TIFF File for Download">OME-TIFF</a>
-                        </li>
-                        <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
-                    </ul>
-                </span>
-            </div>
+            {% include "webclient/annotations/includes/toolbar.html" %}
 
             <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
@@ -523,17 +490,9 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-                <h2 class="data_heading_id">
-                    Dataset ID: <strong>{{ manager.dataset.id }}</strong>
-                    <!-- open-dataset link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Dataset">
-    					<span></span>
-    				</button>
-    				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-    				    <input type="text" size="30">
-    				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-    				</div>
-                </h2>    
+
+                {% include "webclient/annotations/includes/toolbar.html" %}
+
                 
 				<hr/>
 				
@@ -564,17 +523,9 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
                     
-                    <h2 class="data_heading_id">
-                        Project ID: <strong>{{ manager.project.id }}</strong>
-                        <!-- open link -->
-                        <button id="show_link_btn" class="btn silver btn_link" title="Link to this Project">
-        					<span></span>
-        				</button>
-        				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-        				    <input type="text" size="30">
-        				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-        				</div>
-        			</h2>
+
+                    {% include "webclient/annotations/includes/toolbar.html" %}
+
 					<hr/>
 					
                     <!--Project Description -->
@@ -607,17 +558,10 @@
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
-            <h2 class="data_heading_id">
-                Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong> Well ID: <strong>{{ manager.well.id }}</strong>
-                <!-- open well-link -->
-                <button id="show_link_btn" class="btn silver btn_link" title="Link to this Well">
-                    <span></span>
-                </button>
-                <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                    <input type="text" size="30">
-                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                </div>
-            </h2>
+                   
+
+            {% include "webclient/annotations/includes/toolbar.html" %}
+
             
 			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
 				<span>
@@ -645,17 +589,9 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
                 
-                <h2 class="data_heading_id">
-                    Plate acquisition ID: <strong>{{ manager.acquisition.id }}</strong>
-                    <!-- open link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Acquisition">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
+
+                {% include "webclient/annotations/includes/toolbar.html" %}
+
                 
 				<hr/>
 				
@@ -688,17 +624,12 @@
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
 
-                    <h2 class="data_heading_id">
-                        Plate ID: <strong>{{ manager.plate.id }}</strong>
-                        <!-- open link -->
-                        <button id="show_link_btn" class="btn silver btn_link" title="Link to this Plate">
-        					<span></span>
-        				</button>
-        				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-        				    <input type="text" size="30">
-        				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-        				</div>
-                    </h2>
+
+              
+			  		  
+			  
+                        {% include "webclient/annotations/includes/toolbar.html" %}
+
 					
 					<hr/>
 					
@@ -732,17 +663,10 @@
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
 
-                        <h2 class="data_heading_id">
-                            Screen ID: <strong>{{ manager.screen.id }}</strong>
-                            <!-- open link -->
-                            <button id="show_link_btn" class="btn silver btn_link" title="Link to this Screen">
-            					<span></span>
-            				</button>
-            				<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-            				    <input type="text" size="30">
-            				    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-            				</div>
-                        </h2>
+            
+
+                        {% include "webclient/annotations/includes/toolbar.html" %}
+
 							
 						<hr/>	
 							
@@ -1024,17 +948,9 @@
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
-                <h2 class="data_heading_id">
-                    Tag ID: <strong>{{ manager.tag.id }}</strong>
-                    <!-- open-tag link -->
-                    <button id="show_link_btn" class="btn silver btn_link" title="Link to this Dataset">
-                        <span></span>
-                    </button>
-                    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-                        <input type="text" size="30">
-                        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                    </div>
-                </h2>
+        
+
+                {% include "webclient/annotations/includes/toolbar.html" %}
 
 				<hr/>
 
