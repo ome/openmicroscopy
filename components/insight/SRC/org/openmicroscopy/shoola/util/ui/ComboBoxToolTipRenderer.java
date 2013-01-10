@@ -37,14 +37,13 @@ import javax.swing.JList;
 public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 	List<String> tooltips;
 
-	@Override
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
 
 		JComponent comp = (JComponent) super.getListCellRendererComponent(list,
 				value, index, isSelected, cellHasFocus);
 
-		if (-1 < index && value != null && tooltips != null
+		if (index > -1 && value != null && tooltips != null
 				&& tooltips.size() > index) {
 			list.setToolTipText(tooltips.get(index));
 		}
