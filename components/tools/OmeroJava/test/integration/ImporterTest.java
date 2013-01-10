@@ -162,7 +162,7 @@ public class ImporterTest
 	private void validateObjective(Objective objective, 
 			ome.xml.model.Objective xml)
 	{
-		assertEquals(objective.getManufacturer().getValue(), 
+		assertEquals(objective.getManufacturer().getValue(),
 				xml.getManufacturer());
 		assertEquals(objective.getModel().getValue(), 
 				xml.getModel());
@@ -178,9 +178,9 @@ public class ImporterTest
 				xml.getImmersion().getValue());
 		assertEquals(objective.getIris().getValue(), 
 				xml.getIris().booleanValue());
-		assertEquals(objective.getLensNA().getValue(), 
+		assertEquals(objective.getLensNA().getValue(),
 				xml.getLensNA().doubleValue());
-		assertEquals(objective.getNominalMagnification().getValue(), 
+		assertEquals(objective.getNominalMagnification().getValue(),
 				xml.getNominalMagnification().getValue().intValue());
 		assertEquals(objective.getWorkingDistance().getValue(), 
 				xml.getWorkingDistance());
@@ -226,7 +226,7 @@ public class ImporterTest
 		assertEquals(arc.getLotNumber().getValue(), 
 				xml.getLotNumber());
 		assertEquals(arc.getPower().getValue(), xml.getPower());
-		assertEquals(arc.getType().getValue().getValue(), 
+		assertEquals(arc.getType().getValue().getValue(),
 				XMLMockObjects.ARC_TYPE.getValue());
 	}
 	
