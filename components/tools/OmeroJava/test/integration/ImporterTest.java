@@ -41,6 +41,7 @@ import omero.model.DatasetImageLink;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
+import omero.model.Ellipse;
 import omero.model.Experiment;
 import omero.model.ExperimenterGroup;
 import omero.model.Filament;
@@ -55,8 +56,10 @@ import omero.model.LightEmittingDiode;
 import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
+import omero.model.Line;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
+import omero.model.Mask;
 import omero.model.MicrobeamManipulation;
 import omero.model.Microscope;
 import omero.model.Objective;
@@ -65,7 +68,10 @@ import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
+import omero.model.Point;
+import omero.model.Polyline;
 import omero.model.Reagent;
+import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.Shape;
@@ -1089,15 +1095,30 @@ public class ImporterTest
 		Iterator<Roi> i = rois.iterator();
 		Roi roi;
 		List<Shape> shapes;
+		Iterator<Shape> j;
+		Shape shape;
+		int count;
 		while (i.hasNext()) {
+			count = 0;
 			roi = i.next();
 			shapes = roi.copyShapes();
 			assertNotNull(shapes);
 			assertEquals(shapes.size(), XMLMockObjects.SHAPES.length);
+			//Check if the shape are of the supported types.
+			
+			j = shapes.iterator();
+			while (j.hasNext()) {
+				shape = j.next();
+				if (shape instanceof Rect || shape instanceof Line ||
+					shape instanceof Ellipse || shape instanceof Polyline ||
+					shape instanceof Mask || shape instanceof Point)
+					count++;
+			}
+			assertEquals(count, XMLMockObjects.SHAPES.length);
 		}
 		delete(p);
 	}
-	
+
 	/**
      * Tests the import of an OME-XML file with a fully populated plate.
      * @throws Exception Thrown if an error occurred.
