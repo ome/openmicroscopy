@@ -2222,8 +2222,12 @@ public class UIUtilities
     {
     	if (ex == null) return "";
     	if (n <= 0) n = MAX_LINES_EXCEPTION;
-    	ex.printStackTrace();
-   		String s = UIUtilities.printErrorText(ex.getCause());
+    	//ex.printStackTrace();
+    	String s;
+    	if (ex.getCause() != null) {
+    		s = UIUtilities.printErrorText(ex.getCause());
+    	} else s = UIUtilities.printErrorText(ex);
+   		
    		String[] values = s.split("\n");
    		//Display the first 20 lines
    		String[] lines = values;
