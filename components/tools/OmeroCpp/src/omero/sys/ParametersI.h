@@ -10,7 +10,12 @@
 #define OMERO_SYS_PARAMETERSI_H
 
 #include <omero/System.h>
-#include <IceUtil/Handle.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <Ice/Config.h>
 #include <iostream>
 #include <string>
@@ -29,7 +34,22 @@ namespace omero {
     namespace sys {
 
         class OMERO_API ParametersI; // Forward
+
+	/**
+	 * Ice versions 3.4.x and 3.5beta have a bug preventing the
+	 * use of IceUtil::Handle (generated classes such as
+	 * omero::sys::Parameters are derived from both
+	 * IceUtil::Shared and IceInternal::GCShared which both
+	 * provide __incRef() and __decRef() and so the Handle class
+	 * can't call them without causing a compilation failure.
+	 * Until this is fixed, using the internal handle type is a
+	 * workaround.
+	 */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<ParametersI> ParametersIPtr;
+#else
         typedef IceUtil::Handle<ParametersI> ParametersIPtr;
+#endif
 
         /*
          * Helper subclass of omero::sys::Parameters for simplifying method
