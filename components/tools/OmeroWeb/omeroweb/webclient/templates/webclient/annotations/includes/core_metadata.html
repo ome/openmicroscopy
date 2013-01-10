@@ -1,0 +1,104 @@
+{% comment %}
+<!--
+  Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+<table class="core_metadata">
+    <tr>
+        <th>Owner:</th>
+        <td id='owner_fullname'>{{ image.getOwner.getFullName }}</td>
+    </tr>
+    <tr>
+        <th>Acquisition Date:</th>
+        <td id='acqu_date'>{{ image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+    </tr>
+    <tr>
+        <th>Imported Date:</th>
+        <td id='import_date'>{{ image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+    </tr>
+    <tr>
+        <th>Dimensions (XY):</th>
+        <td id='dims_xy'>{{ image.getSizeX }} x {{ image.getSizeY }}</td>
+    </tr>
+    <tr>
+        <th>Pixels Type:</th>
+        <td id='pixels_type'>{{ image.getPixelsType }}</td>
+    </tr>
+    <tr>
+        <th>Pixels Size (XYZ) (&#181m):</th>
+        <td id='pixels_size'>
+            <div class='tooltip'>{{ image.getPixelSizeX|floatformat:4 }} x {{ image.getPixelSizeY|floatformat:4 }} 
+                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ|floatformat:4 }} {% endif %}
+            </div>
+            <span class="tooltip_html" style='display:none'>{{ image.getPixelSizeX }} x {{ image.getPixelSizeY }}
+                {% if image.getPixelSizeZ %} x {{ image.getPixelSizeZ }} {% endif %}
+            </span>
+        </td>
+    </tr>
+    <tr>
+        <th>Z-sections/Timepoints:</th>
+        <td id='dims_zt'>{{ image.getSizeZ }} x {{ image.getSizeT }}</td>
+    </tr>
+    <tr>
+        <th>Channels:</th>
+        <td id='channel_names'>
+            <div>
+                {% if image.getChannels %}
+                    <div id="channel_names_display">
+                    {% for c in image.getChannels %}{% if not forloop.first %}, {% endif %}<span>{{ c.getLabel }}</span>{% endfor %}
+                    </div>
+                    <!-- form for editing channel names (initially hidden)-->
+                    <form action="{% url edit_channel_names image.id %}" method="POST" id="channel_names_edit" style="display:none">
+                        {% for c in image.getChannels %}
+                            <input type="text" name="channel{{ forloop.counter0 }}" value="{{ c.getLabel }}" size=20/><br/>
+                        {% endfor %}
+                        <!-- hidden input for 'apply to dataset' options -->
+                        <input type="text" name="parentId" size=5 style="display:none" />
+                        <!-- buttons -->
+                        <span class="originalButtons">
+                            <button name="save" type="submit" value="save" title="Save Channel Names">Save</button>
+                            <button name="apply" title="Save and apply to all Images">Apply to All</button>
+                        </span>
+                        <span class="confirmButtons" style="display:none">
+                            <div>Update channel names for all Images 
+                                in the <span class="ptype"></span>? <br />This cannot be undone.</div>
+                            <button name="confirm_apply" type="submit" value="apply" title="Save and apply to all Images">OK</button>
+                        </span>
+                        <button type="reset" name="cancel" title="Cancel">Cancel</button>
+                    </form>
+                    {% if image.canEdit %}
+                        <button class="btn silver btn_edit" alt="e" title="Edit Channel Names">
+                            <span></span>
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <span class="error">No channel specified</span>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% if manager.well %}
+    <tr>
+        <th>Status:</th>
+        <td id='well_status'>
+            {{ manager.well.status|default:"None" }}
+        </td>
+    </tr>
+    {% endif %}
+</table>
