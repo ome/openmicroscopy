@@ -92,6 +92,12 @@ DECLARATION BLOCK:
 [$hdr] \#include <omero/model/DetailsI.h>
 [$hdr] \#include <omero/model/${Pojo}.h>
 [$hdr] \#include <omero/templates.h>
+[$hdr] \#include <IceUtil/Config.h>
+[$hdr] \#if ICE_INT_VERSION / 100 >= 304
+[$hdr] #   include <Ice/Handle.h>
+[$hdr] \#else
+[$hdr] #   include <IceUtil/Handle.h>
+[$hdr] #endif
 
 [$hdr] #ifndef OMERO_API
 [$hdr] #   ifdef OMERO_API_EXPORTS
@@ -1992,7 +1998,11 @@ END DECLARATION BLOCK:
 
 [$jav] }
 [$hdr]  };
-[$hdr]  typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
+[$hdr] \#if ICE_INT_VERSION / 100 >= 304
+[$hdr]   typedef IceInternal::Handle<${PojoI}> ${PojoI}Ptr;
+[$hdr] \#else
+[$hdr]   typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
+[$hdr] #endif
 [$hdr]
 
 [$cpp]}}
