@@ -178,9 +178,10 @@ $(document).ready(function() {
     });
 
 
-    // Z selection. 
+    // Z selection.
     // NB: We disable Z-projection by clearing the zStart and zEnd fields.
     var $zRangeSlider = $("#zRangeSlider"),
+        $zProjectionControls = $("#zProjectionControls"),
         $zStart = $("input[name=Z_Start]"),
         $zEnd = $("input[name=Z_End]"),
         zMin = parseInt($zStart.val(), 10),
@@ -200,11 +201,13 @@ $(document).ready(function() {
     $("input[name=zProjection]").click(function(){
         if($(this).attr('value') === "z_projection"){
             $zRangeSlider.slider( "enable" );
+            $zProjectionControls.show();
             $zStart.removeAttr("disabled");
             $zEnd.removeAttr("disabled");
             $algorithm.removeAttr("disabled");
             $stepping.removeAttr("disabled");
         } else {
+            $zProjectionControls.hide();
             $zRangeSlider.slider( "disable" );
             $zStart.attr("disabled", "disabled");
             $zEnd.attr("disabled", "disabled");
