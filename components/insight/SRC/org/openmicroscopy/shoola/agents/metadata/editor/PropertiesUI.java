@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -132,13 +133,25 @@ class PropertiesUI
     /** Action ID indicating to edit the description.*/
     private static final int	EDIT_DESC = 1;
     
+    /** Action ID indicating to edit the channels.*/
+    private static final int	EDIT_CHANNEL = 2;
+    
+    /** Text indicating to edit the name.*/
+    private static final String EDIT_NAME_TEXT = "Edit the name";
+    
+    /** Text indicating to edit the description.*/
+    private static final String EDIT_DESC_TEXT = "Edit the description.";
+    
+    /**Text indicating to edit the channels.*/
+    private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
+    
     /** The default height of the description.*/
     private static final int HEIGHT = 60;
     
     /** Button to edit the name. */
 	private JButton				editName;
 	
-	/** Button to add documents. */
+	/** Button to edit the description. */
 	private JButton				editDescription;
 	
     /** The name before possible modification.*/
@@ -212,6 +225,10 @@ class PropertiesUI
 	
 	/** Flag indicating that the name is editable mode or not.*/
 	private boolean editableName;
+	
+	/** Button to edit the channels. */
+	private JButton editChannel;
+	
 	
 	/** Initializes the components composing this display. */
     private void initComponents()
@@ -306,21 +323,31 @@ class PropertiesUI
     	
     	IconManager icons = IconManager.getInstance();
 		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
-		editName.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(editName);
-		editName.setBackground(UIUtilities.BACKGROUND_COLOR);
-		editName.setToolTipText("Edit the name.");
-		editName.addActionListener(this);
-		editName.setActionCommand(""+EDIT_NAME);
+		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
 		editDescription = new JButton(icons.getIcon(IconManager.EDIT_12));
-		editDescription.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(editDescription);
-		editDescription.setBackground(UIUtilities.BACKGROUND_COLOR);
-		editDescription.setToolTipText("Edit the description.");
-		editDescription.addActionListener(this);
-		editDescription.setActionCommand(""+EDIT_DESC);
+		formatButton(editDescription, EDIT_DESC_TEXT, EDIT_DESC);
+		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
+		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
+		
 		descriptionPane.setEnabled(false);
     }   
+    
+    /**
+     * Formats the specified button.
+     * 
+     * @param button The button to handle.
+     * @param text The tool tip text.
+     * @param actionID The action command id.
+     */
+    private void formatButton(JButton button, String text, int actionID)
+    {
+    	button.setOpaque(false);
+		UIUtilities.unifiedButtonLookAndFeel(button);
+		button.setBackground(UIUtilities.BACKGROUND_COLOR);
+		button.setToolTipText(text);
+		button.addActionListener(this);
+		button.setActionCommand(""+actionID);
+    }
     
     /**
      * Lays out the plate fields.
@@ -684,7 +711,12 @@ class PropertiesUI
     		c.gridx = 0;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
-        	content.add(channelsArea, c);
+        	JPanel channels = new JPanel();
+        	channels.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	channels.setLayout(new FlowLayout(FlowLayout.LEFT));
+        	channels.add(editChannel);
+        	channels.add(channelsArea);
+        	content.add(channels, c);
     	}
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -1383,6 +1415,9 @@ class PropertiesUI
 			case EDIT_DESC:
 				editField(descriptionPanel, descriptionPane, editDescription,
 						!descriptionPane.isEnabled());
+				break;
+			case EDIT_CHANNEL:
+				
 		}
 	}
 	
