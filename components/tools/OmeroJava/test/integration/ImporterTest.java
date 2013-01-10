@@ -164,7 +164,7 @@ public class ImporterTest
 	private void validateObjective(Objective objective, 
 			ome.xml.model.Objective xml)
 	{
-		assertEquals(objective.getManufacturer().getValue(), 
+		assertEquals(objective.getManufacturer().getValue(),
 				xml.getManufacturer());
 		assertEquals(objective.getModel().getValue(), 
 				xml.getModel());
@@ -174,15 +174,15 @@ public class ImporterTest
 				xml.getLotNumber());
 		assertEquals(objective.getCalibratedMagnification().getValue(), 
 				xml.getCalibratedMagnification().doubleValue());
-		assertTrue(objective.getCorrection().getValue().getValue().equals( 
-				xml.getCorrection().getValue()));
-		assertTrue(objective.getImmersion().getValue().getValue().equals(  
+		assertEquals(objective.getCorrection().getValue().getValue(),
+				xml.getCorrection().getValue());
+		assertTrue(objective.getImmersion().getValue().getValue().equals(
 				xml.getImmersion().getValue()));
-		assertEquals(objective.getIris().getValue(), 
+		assertEquals(objective.getIris().getValue(),
 				xml.getIris().booleanValue());
-		assertEquals(objective.getLensNA().getValue(), 
+		assertEquals(objective.getLensNA().getValue(),
 				xml.getLensNA().doubleValue());
-		assertEquals(objective.getNominalMagnification().getValue(), 
+		assertEquals(objective.getNominalMagnification().getValue(),
 				xml.getNominalMagnification().getValue().intValue());
 		assertEquals(objective.getWorkingDistance().getValue(), 
 				xml.getWorkingDistance());
@@ -228,8 +228,8 @@ public class ImporterTest
 		assertEquals(arc.getLotNumber().getValue(), 
 				xml.getLotNumber());
 		assertEquals(arc.getPower().getValue(), xml.getPower());
-		assertTrue(arc.getType().getValue().getValue().equals(
-				XMLMockObjects.ARC_TYPE.getValue()));
+		assertEquals(arc.getType().getValue().getValue(),
+				XMLMockObjects.ARC_TYPE.getValue());
 	}
 	
 	/**
@@ -247,8 +247,8 @@ public class ImporterTest
 				xml.getSerialNumber());
 		assertEquals(laser.getLotNumber().getValue(), xml.getLotNumber());
 		assertEquals(laser.getPower().getValue(), xml.getPower());
-		assertTrue(laser.getType().getValue().getValue().equals(
-				XMLMockObjects.LASER_TYPE.getValue()));
+		assertEquals(laser.getType().getValue().getValue(),
+				XMLMockObjects.LASER_TYPE.getValue());
 	}
 	
 	/**
@@ -268,8 +268,8 @@ public class ImporterTest
 		assertEquals(filament.getLotNumber().getValue(), 
 				xml.getLotNumber());
 		assertEquals(filament.getPower().getValue(), xml.getPower());
-		assertTrue(filament.getType().getValue().getValue().equals(
-				XMLMockObjects.FILAMENT_TYPE.getValue()));
+		assertEquals(filament.getType().getValue().getValue(),
+				XMLMockObjects.FILAMENT_TYPE.getValue());
 	}
 	
 	/**
@@ -289,8 +289,8 @@ public class ImporterTest
 				xml.getLotNumber());
 		assertEquals(filter.getSerialNumber().getValue(), 
 				xml.getSerialNumber());
-		assertTrue(filter.getType().getValue().getValue().equals( 
-				xml.getType().getValue()));
+		assertEquals(filter.getType().getValue().getValue(),
+				xml.getType().getValue());
 		TransmittanceRange tr = filter.getTransmittanceRange();
 		ome.xml.model.TransmittanceRange xmlTr = xml.getTransmittanceRange();
 		assertEquals(tr.getCutIn().getValue(), 
@@ -699,7 +699,7 @@ public class ImporterTest
 			}
 			fail("Cannot import the following formats:"+s);
 		}
-		assertTrue("File Imported", failures.size() == 0);
+		assertEquals(failures.size(), 0);
 	}
 	
 	/**
@@ -726,15 +726,15 @@ public class ImporterTest
 		int size = 
 			XMLMockObjects.SIZE_Z*XMLMockObjects.SIZE_C*XMLMockObjects.SIZE_T;
 		//test the pixels
-		assertTrue(p.getSizeX().getValue() == XMLMockObjects.SIZE_X);
-		assertTrue(p.getSizeY().getValue() == XMLMockObjects.SIZE_Y);
-		assertTrue(p.getSizeZ().getValue() == XMLMockObjects.SIZE_Z);
-		assertTrue(p.getSizeC().getValue() == XMLMockObjects.SIZE_C);
-		assertTrue(p.getSizeT().getValue() == XMLMockObjects.SIZE_T);
-		assertTrue(p.getPixelsType().getValue().getValue().equals(
-				XMLMockObjects.PIXEL_TYPE.getValue()));
-		assertTrue(p.getDimensionOrder().getValue().getValue().equals(
-				XMLMockObjects.DIMENSION_ORDER.getValue()));
+		assertEquals(p.getSizeX().getValue(), XMLMockObjects.SIZE_X.intValue());
+		assertEquals(p.getSizeY().getValue(), XMLMockObjects.SIZE_Y.intValue());
+		assertEquals(p.getSizeZ().getValue(), XMLMockObjects.SIZE_Z.intValue());
+		assertEquals(p.getSizeC().getValue(), XMLMockObjects.SIZE_C.intValue());
+		assertEquals(p.getSizeT().getValue(), XMLMockObjects.SIZE_T.intValue());
+		assertEquals(p.getPixelsType().getValue().getValue(),
+				XMLMockObjects.PIXEL_TYPE.getValue());
+		assertEquals(p.getDimensionOrder().getValue().getValue(),
+				XMLMockObjects.DIMENSION_ORDER.getValue());
 		//Check the plane info
 		
 		String sql = "select p from PlaneInfo as p where pixels.id = :pid";
@@ -759,7 +759,7 @@ public class ImporterTest
 				}
 			}
 		}
-		assertTrue(found == size);
+		assertEquals(found, size);
 		delete(p);
 	}
 	
@@ -1085,7 +1085,7 @@ public class ImporterTest
 		assertNotNull(r);
 		List<Roi> rois = r.rois;
 		assertNotNull(rois);
-		assertTrue(rois.size() == XMLMockObjects.SIZE_C);
+		assertEquals(rois.size(), XMLMockObjects.SIZE_C.intValue());
 		Iterator<Roi> i = rois.iterator();
 		Roi roi;
 		List<Shape> shapes;
@@ -1093,7 +1093,7 @@ public class ImporterTest
 			roi = i.next();
 			shapes = roi.copyShapes();
 			assertNotNull(shapes);
-			assertTrue(shapes.size() == XMLMockObjects.SHAPES.length);
+			assertEquals(shapes.size(), XMLMockObjects.SHAPES.length);
 		}
 		delete(p);
 	}
