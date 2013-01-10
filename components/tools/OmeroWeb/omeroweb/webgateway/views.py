@@ -1785,6 +1785,9 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     Example:  /annotations/Plate.wells/1/
               retrieves annotations for plate that contains well with
               identifier 1
+    Example:  /annotations/Screen.plateLinks.child.wells/22/
+              retrieves annotations for screen that contains plate with
+              well with identifier 22
 
     @param request:     http request.
     @param objtype:     Type of target object, or type of target object followed
@@ -1900,6 +1903,9 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     Example:  /table/Plate.wells/1/query/?query=*
               queries bulk annotations table for plate that contains well with
               identifier 1
+    Example:  /table/Screen.plateLinks.child.wells/22/query/?query=Well-22
+              queries bulk annotations table for screen that contains plate with
+              well with identifier 22
 
     @param request:     http request.
     @param objtype:     Type of target object, or type of target object followed
