@@ -41,8 +41,8 @@
 
     {% if manager.image %}
     <!-- download options -->
-    <span id="download_dropdown">
-        <button id="show_download_dropdown" class="btn silver btn_download" title="Download Image as...">
+    <div class="toolbar_dropdown">
+        <button class="btn silver btn_download" title="Download Image as...">
             <span></span>
         </button>
         <ul class="dropdown">
@@ -59,7 +59,12 @@
             </li>
             <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
         </ul>
-    </span>
+    </div>
     {% endif %}
+
+
+    <!-- Publishing Options (Figure Scripts) -->
+    {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+
 </div>
 <div style="clear:both"></div>
