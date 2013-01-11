@@ -38,11 +38,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -971,8 +968,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		availableProjects.add(newProjectNode);
 		availableDatasets.put(newProjectNode, newDatasets);
 		
-		displayItemsWithTooltips(projectsBox, sorter.sort(availableProjects), 
-				newProjectNode, this);
+		displayItemsWithTooltips(projectsBox, availableProjects, newProjectNode, this);
 		displayItemsWithTooltips(datasetsBox, newDatasets);
 		
 		repaint();
@@ -1071,7 +1067,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		availableScreens.add(newScreenNode);
 		
-		displayItemsWithTooltips(screensBox, sorter.sort(availableScreens), 
+		displayItemsWithTooltips(screensBox, availableScreens, 
 				newScreenNode, null);
 		
 		repaint();
@@ -1149,20 +1145,18 @@ class LocationDialog extends JDialog implements ActionListener,
 				{
 					DataNode project = new DataNode((ProjectData) userObject);
 					availableProjects.add(project);
-					
-					@SuppressWarnings("rawtypes")
-					Enumeration iterator = treeNode.children();
-	
+
 					List<DataNode> projectDatasets = new ArrayList<DataNode>();
 					projectDatasets.add(new DataNode(DataNode.createDefaultDataset()));
 					
-					while(iterator.hasMoreElements())
-					{
-						TreeImageDisplay datasetNode = (TreeImageDisplay)iterator.nextElement();
+					List<TreeImageDisplay> children = (List<TreeImageDisplay>) treeNode.getChildrenDisplay();
+	
+					for (Object child : children) {
+						TreeImageDisplay datasetNode = (TreeImageDisplay) child;
 						DataNode dataset = new DataNode((DatasetData) datasetNode.getUserObject());
 						projectDatasets.add(dataset);
 					}
-					availableDatasets.put(project, projectDatasets);
+					availableDatasets.put(project, sort(projectDatasets));
 				}
 				
 				if(userObject instanceof ScreenData)
@@ -1179,7 +1173,15 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 		}
 
-		availableDatasets.put(defaultProject, orphanDatasets);
+		availableDatasets.put(defaultProject, sort(orphanDatasets));
+		
+		availableProjects = sort(availableProjects);
+		availableScreens = sort(availableScreens);
+	}
+	
+	private <T> List<T> sort(List<T> list)
+	{
+		return (List<T>) sorter.sort(list);
 	}
 	/**
 	 * Populates the selection boxes with the currently selected data.
@@ -1212,10 +1214,8 @@ class LocationDialog extends JDialog implements ActionListener,
 					}
 				}
 				
-				displayItemsWithTooltips(projectsBox, 
-						sorter.sort(availableProjects), selectedProject, this);
-				displayItemsWithTooltips(datasetsBox, 
-						sorter.sort(availableDatasets.get(selectedProject)), selectedDataset);
+				displayItemsWithTooltips(projectsBox, availableProjects, selectedProject, this);
+				displayItemsWithTooltips(datasetsBox, availableDatasets.get(selectedProject), selectedDataset);
 				break;
 				
 			case  Importer.SCREEN_TYPE:
@@ -1227,7 +1227,7 @@ class LocationDialog extends JDialog implements ActionListener,
 					selectedScreen = findDataNode(hostObject, availableScreens, ScreenData.class);
 				}
 				
-				displayItemsWithTooltips(screensBox, sorter.sort(availableScreens), selectedScreen);
+				displayItemsWithTooltips(screensBox, availableScreens, selectedScreen);
 				break;
 		}
 	}
