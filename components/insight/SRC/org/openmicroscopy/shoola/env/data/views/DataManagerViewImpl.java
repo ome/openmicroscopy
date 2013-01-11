@@ -55,6 +55,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.RepositoriesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -320,6 +322,18 @@ class DataManagerViewImpl
 		BatchCallTree cmd = new PixelsDataLoader(ctx, pixelsID,
 				PixelsDataLoader.SIZE);
 		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#saveChannelData(SecurityContext, List, List,
+	 * AgentEventListener)
+	 */
+	public CallHandle saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects,
+			AgentEventListener channelDataSaver) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

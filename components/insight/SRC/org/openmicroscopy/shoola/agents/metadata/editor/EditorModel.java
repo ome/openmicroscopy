@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
@@ -2563,6 +2564,30 @@ class EditorModel
 			}
 			parent.saveData(object, list, metadata, data, asynch);
 		}
+	}
+	
+	/**
+	 * Updates the specified channels. If <code>applyToAll</code> is
+	 * <code>true</code>, the channels of all the images in the dataset or
+	 * the plate will be updated,
+	 * 
+	 * @param channels The channels to update.
+	 * @param applyToAll Pass <code>true</code> to update the channels of all
+	 *                   the images in the dataset or the plate.
+	 *                   Pass <code>false</code> to only update the image.
+	 */
+	void fireChannelsSaving(List<ChannelData> channels, boolean applyToAll)
+	{
+		DataObject object = null;
+		if (applyToAll) {
+			if (!(parentRefObject instanceof DatasetData ||
+					parentRefObject instanceof PlateData))
+				return;
+			object = (DataObject) parentRefObject;
+		}
+		ChannelDataSaver loader = new ChannelDataSaver(component,
+				getSecurityContext(), channels, object);
+		loader.load();
 	}
 	
 	/**

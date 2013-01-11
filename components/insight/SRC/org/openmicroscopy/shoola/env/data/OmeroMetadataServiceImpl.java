@@ -2009,5 +2009,17 @@ class OmeroMetadataServiceImpl
 		}
 		return nodes;
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#saveChannelData(SecurityContext, List, List)
+	 */
+	public Map<Integer, ChannelData> saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
