@@ -313,25 +313,23 @@ class LocationDialog extends JDialog implements ActionListener,
 	private Map<DataNode, List<DataNode>> datasets = 
 			new Hashtable<DataNode, List<DataNode>>();
 
+	/** The currently selected Project */
 	private DataNode currentProject;
 
+	/** The currently selected Dataset */
 	private DataNode currentDataset;
 
+	/** The currently selected Screen */
 	private DataNode currentScreen;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent
-	 *            The parent of the dialog.
-	 * @param selectedContainer
-	 * 			  The container selected by the user Project/Dataset/Screen
-	 * @param objects
-	 *            The screens / projects to be shown
-	 * @param groups
-     *            The available groups to the user
-	 * @param currentGroupId
-	 *            The id of the current user group
+	 * @param parent  The parent of the dialog.
+	 * @param selectedContainer The container selected by the user.
+	 * @param objects The screens / projects to be shown.
+	 * @param groups  The available groups to the user.
+	 * @param currentGroupId The id of the current user group.
 	 */
     LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
