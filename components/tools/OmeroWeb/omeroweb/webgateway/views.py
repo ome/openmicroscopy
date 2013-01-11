@@ -2025,16 +2025,27 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     if filepath:
         root = os.path.join(root, filepath)
 
+    owners = dict()
+
     def _getFile(f):
         w = OriginalFileWrapper(conn=conn, obj=f)
-        return w.simpleMarshal()
+        rv = w.simpleMarshal()
+        owner = w.details.owner.id.val
+        owners[owner] = None
+        rv['owner'] = owner
+        return rv
 
     try:
         result = [_getFile(f) for f in repository.listFiles(root, ctx)]
-        result = [f for f in result if not f.get('name', '').startswith('.')]
     except: # listFiles failed, likely because root does not exist
-        result = []
         logger.error(traceback.format_exc())
+        return dict(result=[])
+
+    result = [f for f in result if not f.get('name', '').startswith('.')]
+    for owner in conn.getObjects("Experimenter", owners.keys()):
+        owners[owner.id] = owner.simpleMarshal()
+    for f in result:
+        f['owner'] = owners.get(f['owner'])
     return dict(result=result)
 
 
