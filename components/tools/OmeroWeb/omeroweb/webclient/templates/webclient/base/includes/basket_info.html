@@ -24,7 +24,8 @@
 
 <script>
 
-var calculateCartTotal = function(total){
+if (typeof OME === "undefined") {OME = {}}
+OME.calculateCartTotal = function(total){
     if ((typeof total == 'undefined') || (total == '0') || (total == 0)) {
         // turning off, see #9154 $("#launch_basket").css('opacity', 0.5);
         $('#cartTotal').hide();
@@ -34,19 +35,20 @@ var calculateCartTotal = function(total){
     }
 };
 
-var showBasket = function() {
-    $("#basket_panel").toggle();
-    if ($("#basket_content").is(":visible")) {
-        
-        $("#basket_content").load("{% url basket_content %}", function(data) {
-            $('#basket_spinner').hide();
-            $('#basket_content table').alternateRowColors();
-        });
-    }
-}
-
 $(document).ready(function() {
-    calculateCartTotal({{ ome.basket_counter }});
+    
+    var showBasket = function() {
+        $("#basket_panel").toggle();
+        if ($("#basket_content").is(":visible")) {
+
+            $("#basket_content").load("{% url basket_content %}", function(data) {
+                $('#basket_spinner').hide();
+                $('#basket_content table').alternateRowColors();
+            });
+        }
+    }
+
+    OME.calculateCartTotal({{ ome.basket_counter }});
     
     $("#basket_panel").hide();
     

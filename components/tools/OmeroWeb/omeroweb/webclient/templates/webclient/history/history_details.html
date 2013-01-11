@@ -36,7 +36,7 @@
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("table#dataTable tbody tr").click(function(event) {
-                handleTableClickSelection(event);
+                OME.handleTableClickSelection(event);
             });
             
             // plugin to handle drag-select of images
@@ -45,7 +45,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    table_selection_changed(selected);
+                    OME.table_selection_changed(selected);
                 },
                 start: function(){
                 }

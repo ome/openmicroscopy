@@ -42,14 +42,16 @@
     <script type="text/javascript" src="{% static "webclient/javascript/ome.webclient.actions.js" %}"></script>
     
     <script type="text/javascript">
-        var isCheckedById = function(name) { 
+    if (typeof OME === "undefined") { OME={}; }
+    
+        OME.isCheckedById = function(name) { 
             var selected = $("body").data("selected_objects.ome");
             // TODO - filter selected by name (E.g. "image")
             return (selected.length > 0);
         };
         
-       var manyRemoveFromBasket = function() {     
-            if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+       OME.manyRemoveFromBasket = function() {     
+            if (!OME.isCheckedById("image")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
                 var selected = $("body").data("selected_objects.ome");
@@ -76,8 +78,8 @@
             }
         };
 
-        function makeShare(prefix) {
-            if (!isCheckedById("image")) {//&& !isCheckedById("dataset") && !isCheckedById("plate")) {
+        OME.makeShare = function(prefix) {
+            if (!OME.isCheckedById("image")) {
                 alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
             } else { 
                 var selected = $("body").data("selected_objects.ome");
@@ -96,7 +98,7 @@
             return false;
         }
         
-        function makeDiscussion() {
+        OME.makeDiscussion = function() {
             var src = '{% url basket_action action="todiscuss" %}';
             $("#create_discussion_form").dialog("open");
             $("#create_discussion_form").load(src);
@@ -106,7 +108,7 @@
         $(document).ready(function(){
             
             // since we are using 3-column layout (to extend the )
-            hide_left_panel();
+            OME.nav.hide_left_panel();
 
 
             // AJAX handling of create-discussion form
@@ -167,7 +169,7 @@
             });
 
             $("table#dataTable tbody tr").click(function(event) {
-                handleTableClickSelection(event);
+                OME.handleTableClickSelection(event);
 
                 var $new_selected = $("table#dataTable tbody tr.ui-selected td input");
                 if ($new_selected.length > 0) {
@@ -187,7 +189,7 @@
                     } else {
                         $("input.toggleEnabled").attr("disabled", "true");
                     }
-                    table_selection_changed($("tr.ui-selected", this));
+                    OME.table_selection_changed($("tr.ui-selected", this));
                 }
             });
             
@@ -229,18 +231,18 @@
 					<li class="seperator2"></li>
 					
 			        <li>
-						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="New discussion" title="New discussion" onclick="makeDiscussion();">
+						<input id="chatButton" class="button" type="image" src="{% static "webclient/image/icon_toolbar_chat2.png" %}" alt="New discussion" title="New discussion" onclick="OME.makeDiscussion();">
 					</li>
 				
 					<li>
-						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="makeShare('{% url basket_action 'toshare' %}');">
+						<input disabled="true" class="toggleEnabled button" type="image"  title="Create a 'Share' with the selected images" src="{% static "webclient/image/icon_toolbar_share2.png" %}" onclick="OME.makeShare('{% url basket_action 'toshare' %}');">
 					</li>
 					
 					
 					<li class="seperator2"></li>
 					
 					<li>
-				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove2.png" %}" alt="Remove Selected" title="Remove Selected" onclick="manyRemoveFromBasket();">
+				        <input disabled="true" class="toggleEnabled button" type="image" src="{% static "webclient/image/icon_toolbar_remove2.png" %}" alt="Remove Selected" title="Remove Selected" onclick="OME.manyRemoveFromBasket();">
 					 </li>
 					 
 					 <li>

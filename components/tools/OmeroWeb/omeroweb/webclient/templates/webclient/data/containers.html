@@ -39,7 +39,8 @@
     <!-- set-up left panel tabs, jstree etc -->
     <script type="text/javascript">
 
-        var handleChgrp = function(gid, gname, oid) {
+        if (typeof OME === "undefined") { OME={}; }
+        OME.handleChgrp = function(gid, gname, oid) {
             $("#chgrp-form").dialog( "option" , "title" ,"Move to Group: "+ gname);
             $("#chgrp-form").data('group_id', gid);
             $("#chgrp-form").dialog('open');
@@ -71,7 +72,7 @@
             }
         }
 
-        var handleNewContainer = function(container_type) {
+        OME.handleNewContainer = function(container_type) {
             
             $("#new_container_type").text(container_type.capitalize());
             var $f = $("#new-container-form");
@@ -80,7 +81,7 @@
             $("#new-container-form").dialog('open');
         }
 
-        var handleDelete = function() {
+        OME.handleDelete = function() {
             var datatree = $.jstree._focused();
             var selected = datatree.get_selected();
 
@@ -121,7 +122,7 @@
                     var delete_content = true;      // $("#delete_content").attr('checked');
                     if (delete_content) ajax_data[ajax_data.length] = 'child=on';
                     if (delete_anns) ajax_data[ajax_data.length] = 'anns=on';
-                    url = '{% url manage_action_containers "deletemany" %}'
+                    var url = '{% url manage_action_containers "deletemany" %}'
                     datatree.deselect_all();
                     $.ajax({
                         async : false,
@@ -134,10 +135,10 @@
                                   $.jstree.rollback(data.rlbk);
                                   alert(r.errs);
                               } else {
-                                  tree_selection_changed();   // clear center and right panels etc
+                                  OME.tree_selection_changed();   // clear center and right panels etc
                                   datatree.delete_node(selected);
                                   first_parent.children("a").click();
-                                  refreshActivities();
+                                  OME.refreshActivities();
                               }
                         },
                         error: function(response) {
@@ -149,7 +150,7 @@
             });
         }
 
-        var remove_nodes = function(tree, selected) {
+        OME.remove_nodes = function(tree, selected) {
             if (selected.length>0) {
                 var images = selected.filter('li[id|=image]');
                 var datasets = selected.filter('li[id|=dataset]');
@@ -166,7 +167,7 @@
                     removeTxt += plates.length + " Plate" + ((datasets.length>1) && "s from their" || " from its") +" Screen";
                 }
                 removeTxt += "?"
-                var confirm_remove = confirm_dialog(removeTxt,
+                var confirm_remove = OME.confirm_dialog(removeTxt,
                     function() {
                         if (confirm_remove.data('clicked_button') == "OK") {
                             if (images.length > 0) tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
@@ -227,6 +228,7 @@
                     }
                     // if "project" is selected, createDataset under it
                     var selected = $.jstree._focused().get_selected();
+                    var url;
                     if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
                     // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
@@ -275,13 +277,13 @@
                     var selected = $.jstree._focused().get_selected();
                     var group_id = $("#chgrp-form").data('group_id');
                     $("#chgrp-form").dialog("close");
-                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
+                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + OME.get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
                     var chgrp_target = $("#move_group_tree a.jstree-clicked");
                     if (chgrp_target.length == 1){
                         actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
                     }
                     $.post(actionUrl, function(data){
-                        showActivities();
+                        OME.showActivities();
                         $("#dataTree").jstree('remove', selected);
                         
                     });
@@ -391,6 +393,7 @@
                         "ajax" : {
                             // the URL to fetch the data
                             "url" : function(n) {
+                                var url;
                                 if (n.attr) {
                                     var parent = this._get_parent(n);
                                     if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
@@ -409,7 +412,7 @@
                                 var r = { "view" : "tree" };
                                 if (n.attr && $.inArray(n.attr("rel").replace("-locked", ""), ["dataset", "orphaned"]) > -1) {
                                     // pagination supported for 'dataset' and 'orphaned'...
-                                    var page = n.data("page") || null;      // this data is added by doPagination()
+                                    var page = n.data("page") || null;      // this data is added by OME.doPagination()
                                     if (page) r["page"] = page;
                                 } 
                                 return r;
@@ -555,7 +558,7 @@
                     // the UI plugin - it handles selecting/deselecting/hovering nodes
                     "ui" : {
                         "select_limit" : -1,
-                        "select_multiple_modifier": multi_key(),
+                        "select_multiple_modifier": OME.multi_key(),
                         "selected_parent_close": "select_parent",
                         "disable_selecting_children": true,
                         "select_prev_on_delete": false,
@@ -579,17 +582,17 @@
                                     "project": {
                                         "label" : "Project",
                                         "icon"  : '{% static "webclient/image/folder16.png" %}',
-                                        action: function (obj) {handleNewContainer("project"); },
+                                        action: function (obj) {OME.handleNewContainer("project"); },
                                     },
                                     "dataset": {
                                         "label" : "Dataset",
                                         "icon"  : '{% static "webclient/image/folder_image16.png" %}',
-                                        action: function (obj) {handleNewContainer("dataset"); },
+                                        action: function (obj) {OME.handleNewContainer("dataset"); },
                                       },
                                       "screen": {
                                         "label" : "Screen",
                                         "icon"  : '{% static "webclient/image/folder_screen16.png" %}',
-                                        action: function (obj) {handleNewContainer("screen"); },
+                                        action: function (obj) {OME.handleNewContainer("screen"); },
                                       }
                                 }
                             };
@@ -628,7 +631,7 @@
                                             tree.data.crrm.ct_nodes = false;
                                             tree.data.crrm.cp_nodes = false;
                                             var selected = tree.get_selected();
-                                            remove_nodes(tree, selected);
+                                            OME.remove_nodes(tree, selected);
                                         }
                                     }
                                 }
@@ -637,7 +640,7 @@
                             config["delete"] = {
                                 "label" : "Delete",
                                 "icon"  : '{% static "webclient/image/icon_basic_delete_16.png" %}',
-                                "action": handleDelete
+                                "action": OME.handleDelete
                             };
                             
                             config["chgrp"] = {
@@ -660,7 +663,7 @@
                                                     {% endif %}
                                                 {% endif %},
                                                 "action": function(obj) {
-                                                    handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
+                                                    OME.handleChgrp({{ grp.id }}, "{{ grp.name }}", obj[0].id);
                                                 }
                                             },
                                         {% endifnotequal %}
@@ -672,7 +675,7 @@
                                 "label" : "Add to Basket",
                                 "icon"  : '{% static "webclient/image/icon_basic_basket_16.png" %}',                                    
                                 "action": function(){
-                                    addToBasket(this.get_selected(), '{% url update_basket %}');
+                                    OME.addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
                             };
                             
@@ -823,12 +826,12 @@
                 .delegate("a", "dblclick", function(e) {
                     var obj_rel = $(this).parent().attr('rel');
                     if ((obj_rel=='image') || (obj_rel=='image-locked')) {
-                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.inst.data.ui.last_selected, data.inst);
-                    tree_selection_changed(data, e);
+                    OME.tree_selection_changed(data, e);
                 })
                 .bind("open_node.jstree", function (e, data) {
 
@@ -837,6 +840,7 @@
                     var refresh = false;
                     data.rslt.o.each(function (i) {
                         var remove = false;
+                        var url;
                         if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
@@ -883,7 +887,7 @@
                             }
                         });
                     });
-                    clear_selected(true);   // clear center and right panels etc
+                    OME.clear_selected(true);   // clear center and right panels etc
                     if (refresh) {
                         data.inst.deselect_all();
                         // refresh source
@@ -913,13 +917,13 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "addprojectButton":
-                    handleNewContainer("project");
+                    OME.handleNewContainer("project");
                     break;
                 case "adddatasetButton":
-                    handleNewContainer("dataset");
+                    OME.handleNewContainer("dataset");
                     break;
                 case "addscreenButton":
-                    handleNewContainer("screen");
+                    OME.handleNewContainer("screen");
                     break;
                 case "copyButton":
                     $("#dataTree").jstree('copy', $.jstree._focused().get_selected());
@@ -935,20 +939,20 @@
                     jstree.data.crrm.ct_nodes = false;
                     jstree.data.crrm.cp_nodes = false;
                     var selected = jstree.get_selected();
-                    remove_nodes(jstree, selected);
+                    OME.remove_nodes(jstree, selected);
                     break;
                 case "deleteButton":
-                        handleDelete();
+                        OME.handleDelete();
                     break;
                 case "basketButton":
-                    addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
+                    OME.addToBasket($.jstree._focused().get_selected(), '{% url update_basket %}');
                     break;
                 case "refreshButton":
                     // clear selection of center/right panels, refresh and notify
-                    clear_selected(true);   // force refresh: true
+                    OME.clear_selected(true);   // force refresh: true
                     $("#dataTree").jstree("refresh");
                     data = $.jstree._focused().get_selected();
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                     break;
                 default:
                     break;
@@ -966,37 +970,7 @@
     {% for cp in ome.center_plugins %}
         {% include cp.include %}
     {% endfor %}
-	
-	
-	
-	<!-- Select Box Dropdown -->
-	<script type="text/javascript">
-	function createDropDown(){
-	    var source = $("#source");
-	    var selected = source.find("option[selected]");  // get selected <option>
-	    var options = $("option", source);  // get all <option> elements
-	    // create <dl> and <dt> with selected value inside it
-	    $("body").append('<dl id="target" class="select_dropdown"></dl>')
-	    $("#target").append('<dt><a href="#">' + selected.text() + 
-	        '<span class="value">' + selected.val() + 
-	        '</span></a></dt>')
-	    $("#target").append('<dd><ul></ul></dd>')
-	    // iterate through all the <option> elements and create UL
-	    options.each(function(){
-	        $("#target dd ul").append('<li><a href="#">' + 
-	            $(this).text() + '<span class="value">' + 
-	            $(this).val() + '</span></a></li>');
-	    });
-	}
-        
-	$(".select_dropdown dd ul li a").click(function() {
-	    var text = $(this).html();
-	    $(".select_dropdown dt a").html(text);
-	    $(".select_dropdown dd ul").hide();
-	    var source = $("#source");
-	    source.val($(this).find("span.value").html())
-	});
-	    </script>
+
 
 
 {% endblock %}

@@ -1,64 +1,73 @@
 /*
  * Copyright (c) 2008-2011 University of Dundee. & Open Microscopy Environment.
  * All rights reserved.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
  */
 
+/*global OME:true */
+if (typeof OME === "undefined") {
+    OME = {};
+}
+
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
-}
+};
 
 jQuery.fn.alternateRowColors = function() {
     var $rows = $(this).children().children('tr');
     $rows.not('.hidden').filter(':odd').removeClass('even').addClass('odd');
     $rows.not('.hidden').filter(':even').removeClass('odd').addClass('even');
   return this;
-}
+};
 
-function openPopup(url) {
+OME.openPopup = function(url) {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
-    var owindow = window.open(url, '', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
-    if(!owindow.closed) owindow.focus();
+    var owindow = window.open(url, '', 'height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
+    if(!owindow.closed) {
+        owindow.focus();
+    }
     return false;
-}
+};
 
 
-function openCenteredWindow(url) {
+OME.openCenteredWindow = function(url) {
     var width = 550;
     var height = 600;
-    var left = parseInt((screen.availWidth/2) - (width/2));
-    var top = 0 // parseInt((screen.availHeight/2) - (height/2));
+    var left = parseInt((screen.availWidth/2) - (width/2), 10);
+    var top = 0;
     var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
     var myWindow = window.open(url, "", windowFeatures);
-    if(!myWindow.closed) myWindow.focus();
+    if(!myWindow.closed) {
+        myWindow.focus();
+    }
     return false;
-}
+};
 
 
 /*
  *  Returns a string representing the currently selected items in the $.jstree.
  * E.g.     "Image=23,34,98&Dataset=678"
 **/
-function get_tree_selection() {
-    if (typeof $.jstree == "undefined") return "";
+OME.get_tree_selection = function() {
+    if (typeof $.jstree === "undefined") {
+        return "";
+    }
     var datatree = $.jstree._focused();
 
-    var ids = new Array();
-    var Data_Type = null;
     var selected = datatree.data.ui.selected;
     if (selected.size() == 1) {
         var klass = selected.attr('rel');
@@ -69,7 +78,7 @@ function get_tree_selection() {
             }
         }
     }
-    var selected_ids = {}
+    var selected_ids = {};
     selected.each(function() {
         var dtype = this.id.split("-")[0];
         var data_type = dtype.charAt(0).toUpperCase() + dtype.slice(1); // capitalise
@@ -77,37 +86,43 @@ function get_tree_selection() {
         if (data_type in selected_ids) {
             selected_ids[data_type] += ","+data_id;
         } else {
-            selected_ids[data_type] = data_id
+            selected_ids[data_type] = data_id;
         }
     });
-    var ids_list = []
-    for (key in selected_ids){
+    var ids_list = [];
+    for (var key in selected_ids){
         ids_list.push(key+"="+selected_ids[key]);
     }
     return ids_list.join("&");
-}
+};
 
 
 /*
  * Confirm dialog using jquery-ui dialog. http://jqueryui.com/demos/dialog/
  * This code provides a short-cut that doens't need html elements on the page
  * Basic usage (text only - Default buttons are 'OK' and 'Cancel'):
- *    var OK_dialog = confirm_dialog("Can you confirm that you want to proceed?", function() {
+ *    var OK_dialog = OME.confirm_dialog("Can you confirm that you want to proceed?", function() {
  *        var clicked_button_text = OK_dialog.data("clicked_button");
  *        alert(clicked_button_text);
  *    });
  *
  * Also possible to specify title, buttons, width, height:
  *    var btn_labels = ["Yes", "No", "Maybe", "Later"];
- *    var title_dialog = confirm_dialog("Can you confirm that you want to proceed?", 
+ *    var title_dialog = OME.confirm_dialog("Can you confirm that you want to proceed?",
  *          function() { alert( title_dialog.data("clicked_button") },
  *          "Dialog Title", btn_labels, 300, 200);
  */
-var confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
+OME.confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
-    if ((typeof title == "undefined") || (title === null)) var title = "Confirm";
-    if ((typeof width == "undefined") || (width === null)) var width = 350;
-    if ((typeof height == "undefined") || (height === null)) var height = 140;
+    if ((typeof title == "undefined") || (title === null)) {
+        var title = "Confirm";
+    }
+    if ((typeof width == "undefined") || (width === null)) {
+        var width = 350;
+    }
+    if ((typeof height == "undefined") || (height === null)) {
+        var height = 140;
+    }
 
     var $dialog = $("#confirm_dialog");
     if ($dialog.length > 0) {       // get rid of any old dialogs
@@ -120,16 +135,16 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
     $dialog.html("<p>"+ dialog_text +"</p>");
 
     if (typeof button_labels == "undefined") {
-        button_labels = ['OK', 'Cancel']
+        button_labels = ['OK', 'Cancel'];
     }
-    var btns = {}
+    var btns = {};
     for (var i=0; i<button_labels.length; i++) {
         var b = button_labels[i];
         btns[b] = function(event) {
             var btxt = $(event.target).text();
             $dialog.data("clicked_button", btxt);
             $( this ).dialog( "close" );
-        }
+        };
     }
 
     $dialog.dialog({
@@ -139,17 +154,24 @@ var confirm_dialog = function(dialog_text, callback, title, button_labels, width
         modal: true,
         buttons: btns
     });
-    $dialog.bind("dialogclose", callback);
+    if (callback) {
+        $dialog.bind("dialogclose", callback);
+    }
 
     return $dialog;
 };
 
+// short-cut to simply display a message
+OME.alert_dialog = function(message) {
+    OME.confirm_dialog(message, undefined, "", ["OK"]);
+};
+
 
 /*
- * A dialog for sending feedback. 
+ * A dialog for sending feedback.
  * Loads and submits the feedback form at "/feedback/feedback"
  */
-var feedback_dialog = function(error, feedbackUrl) {
+OME.feedback_dialog = function(error, feedbackUrl) {
 
     var $feedback_dialog = $("#feedback_dialog");
     if ($feedback_dialog.length > 0) {       // get rid of any old dialogs
@@ -191,22 +213,22 @@ var feedback_dialog = function(error, feedbackUrl) {
     return $feedback_dialog;
 };
 
-/** 
+/**
  * Handle jQuery load() errors (E.g. timeout)
  * In this case we simply refresh (will redirect to login page)
 **/
-var setupAjaxError = function(feedbackUrl){
+OME.setupAjaxError = function(feedbackUrl){
     $("body").ajaxError(function(e, req, settings, exception) {
         if (req.status == 404) {
             var msg = "Url: " + settings.url + "<br/>" + req.responseText;
-            confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
+            OME.confirm_dialog(msg, null, "404 Error", ["OK"], 360, 200);
         } else if (req.status == 403) {
             // Denied (E.g. session timeout) Refresh - will redirect to login page
             window.location.reload();
         } else if (req.status == 500) {
             // Our 500 handler returns only the stack-trace if request.is_json()
             var error = req.responseText;
-            feedback_dialog(error, feedbackUrl);
+            OME.feedback_dialog(error, feedbackUrl);
         }
     });
 };
@@ -217,7 +239,7 @@ var setupAjaxError = function(feedbackUrl){
  * A dialog for logging-in on the fly (without redirect to login page).
  * On clicking 'Connect' we post username & password to login url and on callback, the callback function is called
  */
-var login_dialog = function(login_url, callback) {
+OME.login_dialog = function(login_url, callback) {
 
     var $dialog = $("#login_dialog");
     if ($dialog.length > 0) {       // get rid of any old dialogs
@@ -258,7 +280,7 @@ var login_dialog = function(login_url, callback) {
 (function ($) {
 
     // This jQuery plugin is used to init a right-panel webclient-plugin (too many plugins!)
-    // It adds listeners to selection and tab-change events, updating the panel by loading 
+    // It adds listeners to selection and tab-change events, updating the panel by loading
     // a url based on the currently selected objects.
     // Example usage:
     //
@@ -271,7 +293,7 @@ var login_dialog = function(login_url, callback) {
     //  });
     $.fn.omeroweb_right_plugin = function (settings) {
 
-        returnValue = this;
+        var returnValue = this;
 
         // Process each jQuery object in array
         this.each(function(i) {
@@ -287,7 +309,7 @@ var login_dialog = function(login_url, callback) {
             var update_tab_content = function() {
                 // get the selected id etc
                 var selected = $("body").data("selected_objects.ome");
-                if (selected.length == 0) {
+                if (selected.length === 0) {
                     return;
                 }
                 var obj_id = selected[0]['id'];     // E.g. image-123
@@ -298,7 +320,7 @@ var login_dialog = function(login_url, callback) {
                 if ($this.is(":visible") && $this.is(":empty")) {
                     // we want the context of load_tab_content to be $this
                     $.proxy(load_tab_content,$this)(selected, dtype, oid);
-                };
+                }
             };
 
             // update tabs when tree selection changes or tabs switch
@@ -317,7 +339,7 @@ var login_dialog = function(login_url, callback) {
 
                 // get selected objects
                 var selected = $("body").data("selected_objects.ome");
-                if (selected.length == 0) {
+                if (selected.length === 0) {
                     $("#annotation_tabs").tabs("disable", plugin_tab_index);
                     return;
                 }
@@ -329,7 +351,7 @@ var login_dialog = function(login_url, callback) {
                 var supported;
                 if (typeof supported_obj_types != 'undefined') {
                     supported = ($.inArray(orel, supported_obj_types) >-1) && (selected.length == 1);
-                } else { 
+                } else {
                     supported = tab_enabled(selected);
                 }
 
@@ -356,7 +378,7 @@ var login_dialog = function(login_url, callback) {
     // This plugin is similar to the one above, handling center-panel webclient-plugin init.
     $.fn.omeroweb_center_plugin = function (settings) {
 
-        returnValue = this;
+        var returnValue = this;
 
         // Process each jQuery object in array
         this.each(function(i) {
@@ -369,12 +391,14 @@ var login_dialog = function(login_url, callback) {
                 supported_obj_types = settings['supported_obj_types'],
                 plugin_enabled = settings['plugin_enabled'],      // only used if 'supported_obj_types' undefined
                 empty_on_sel_change = settings['empty_on_sel_change'];
-            if (typeof empty_on_sel_change == 'undefined') empty_on_sel_change = true;  // TODO use default settings
+            if (typeof empty_on_sel_change == 'undefined') {
+                empty_on_sel_change = true;  // TODO use default settings
+            }
 
             var update_plugin_content = function() {
                 // get the selected id etc
                 var selected = $("body").data("selected_objects.ome");
-                if (selected.length == 0) {
+                if (selected.length === 0) {
                     return;
                 }
                 var obj_id = selected[0]['id'];     // E.g. image-123
@@ -385,7 +409,7 @@ var login_dialog = function(login_url, callback) {
                 if ($this.is(":visible")) {
                     // we want the context of load_plugin_content to be $this
                     $.proxy(load_plugin_content,$this)(selected, dtype, oid);
-                };
+                }
             };
 
 
@@ -401,8 +425,8 @@ var login_dialog = function(login_url, callback) {
 
                 // get selected objects
                 var selected = $("body").data("selected_objects.ome");
-                if (selected.length == 0) {
-                    set_center_plugin_enabled(plugin_index, false);
+                if (selected.length === 0) {
+                    OME.set_center_plugin_enabled(plugin_index, false);
                     return;
                 }
                 var obj_id = selected[0]['id'];     // E.g. image-123
@@ -419,7 +443,7 @@ var login_dialog = function(login_url, callback) {
                 }
 
                 // update enabled state
-                set_center_plugin_enabled(plugin_index, supported);
+                OME.set_center_plugin_enabled(plugin_index, supported);
                 if(supported) {
                     update_plugin_content();
                 } else {
@@ -432,7 +456,7 @@ var login_dialog = function(login_url, callback) {
         return returnValue;
     };
 
-})(jQuery);
+}(jQuery));
 
 
 // jQuery plugin: simple emulation of table-sorter for other elements...
@@ -478,7 +502,7 @@ var login_dialog = function(login_url, callback) {
                             }
                         }
                         return $cell.text();
-                    }
+                    };
                     if ($header.is('.sort-alpha')) {
                         findSortKey = function($cell) {
                             return findSortText($cell).toUpperCase();
@@ -493,7 +517,7 @@ var login_dialog = function(login_url, callback) {
                         findSortKey = function($cell) {
                             var date = Date.parse(findSortText($cell));
                             return isNaN(date) ? 0 : date;
-                        }
+                        };
                     }
                     if (findSortKey) {
                         $header
@@ -511,8 +535,12 @@ var login_dialog = function(login_url, callback) {
                                 });
                                 // Do the sorting...
                                 rows.sort(function(a, b){
-                                    if (a.sortKey < b.sortKey) return -sortDirection;
-                                    if (a.sortKey > b.sortKey) return sortDirection;
+                                    if (a.sortKey < b.sortKey) {
+                                        return -sortDirection;
+                                    }
+                                    if (a.sortKey > b.sortKey) {
+                                        return sortDirection;
+                                    }
                                     return 0;
                                 });
                                 // add rows to DOM in order
@@ -541,11 +569,11 @@ var login_dialog = function(login_url, callback) {
     destroy: function() {
         
         return this.each(function(){
-            var $this = $(this),
-                data = $this.data('elementsorter');
+            //var $this = $(this),
+            //    data = $this.data('elementsorter');
 
             // all we need to do is remove the click handlers from headers
-            var $headers = $(data.head, $this);
+            // var $headers = $(data.head, $this);
         });
     }
 
@@ -565,3 +593,48 @@ var login_dialog = function(login_url, callback) {
     };
 
 }(jQuery));
+
+// ** TESTING ONLY **
+// http://remysharp.com/2007/11/01/detect-global-variables/
+if (false) {                    // set to 'true' to run. NB: Need to uncomment 'console.log..' below.
+    setTimeout(function(){      // use timeout to allow all scripts to load etc
+        console.log("SHOWING GLOBAL VARIABLES...");
+        var differences = {},
+            exceptions,
+            globals = {},
+            //ignoreList = (prompt('Ignore filter (comma sep)?', '') || '').split(','),
+            ignoreList = [],    // E.g. ["function"]
+            i = ignoreList.length,
+            iframe = document.createElement('iframe');
+        while (i--) {
+          globals[ignoreList[i]] = 1;
+        }
+        for (i in window) {
+          differences[i] = {
+            'type': typeof window[i],
+            'val': window[i]
+          };
+        }
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        iframe.src = 'about:blank';
+        iframe = iframe.contentWindow || iframe.contentDocument;
+        for (i in differences) {
+          if (typeof iframe[i] != 'undefined') {delete differences[i];}
+          else if (globals[differences[i].type]) {delete differences[i];}
+        }
+        exceptions = 'addEventListener,document,location,navigator,window'.split(',');
+        exceptions.push("jQuery", "$");  // Ignore jQuery etc...
+        exceptions.push("isClientPhone", "callback", "isClientTouch", "isIE");      // from panojs/utils.js
+        exceptions.push("sanitizeHexColor", "toRGB", "rgbToHex", "parseQuery", "downloadLandingDialog"); // from ome.gs_utils.js
+        // All these from PanoJS
+        exceptions.push("PanoJS", "PanoControls", "BisqueISLevel", "BisqueISPyramid", "formatInt");
+        exceptions.push("ImgcnvPyramid", "ImgcnvLevel", "InfoControl", "Metadata", "OsdControl", "ROIControl");
+        exceptions.push("Tile", "ZoomifyLevel", "ZoomifyPyramid", "SvgControl", "ThumbnailControl", "trim");
+        i = exceptions.length;
+        while (--i) {
+          delete differences[exceptions[i]];
+        }
+        console.dir(differences);     // comment out to keep jsHint happy!
+    }, 1000);
+}

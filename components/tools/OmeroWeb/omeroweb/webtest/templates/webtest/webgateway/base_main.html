@@ -31,7 +31,7 @@ Extends "webgateway/base/base_main.html"
 <script>
     $(function(){
         $("#popup_demo").click(function(){
-            openPopup("{% url webgateway_templates 'base_main' %}");
+            OME.openPopup("{% url webgateway_templates 'base_main' %}");
         });
     });
 </script>
@@ -70,7 +70,7 @@ Extends "webgateway/base/base_main.html"
     includes jQuery, jQuery-UI and some OME script utility functions.
 </p>
 
-<p>For example, use openPopup(url) to open this page in a new window:
+<p>For example, use OME.openPopup(url) to open this page in a new window:
     <button id="popup_demo">Open this page in new window</button>
 </p>
 
