@@ -148,6 +148,7 @@ class ChannelEditUI
 		while (k.hasNext()) {
 			channel = (ChannelData) k.next();
 			field = new JTextField();
+			field.setBackground(UIUtilities.BACKGROUND_COLOR);
 			field.setText(channel.getChannelLabeling());
 			field.getDocument().addDocumentListener(this);
 			fields.put(field, channel);
@@ -169,22 +170,19 @@ class ChannelEditUI
 		applyToAll.setActionCommand(""+APPLY_TO_ALL);
 		
 		messageLabel = new JLabel();
+		messageLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/** Builds and lays out the UI.*/
 	private void buildGUI()
 	{
-		JPanel fieldsPanel = new JPanel();
-		fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
-		Entry<JTextField, ChannelData> e;
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 		Iterator<Entry<JTextField, ChannelData>> 
 		i = fields.entrySet().iterator();
 		while (i.hasNext()) {
-			e = i.next();
-			fieldsPanel.add(e.getKey());
+			add(i.next().getKey());
 		}
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(fieldsPanel);
 		add(messageLabel);
 		add(buildControls());
 	}
