@@ -386,15 +386,18 @@ Examples:
                     except KeyError:
                         user = None
                 if user is not None and len(user) > 0:
-                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
                     if not "\\" in user:
                         computername = win32api.GetComputerName()
                         user = "\\".join([computername, user])
-                    self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
-                    policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
-                    sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
-                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
-                    win32security.LsaClose(policy_handle)
+                    try:
+                        # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                        self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
+                        policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
+                        sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
+                        win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
+                        win32security.LsaClose(policy_handle)
+                    except pywintypes.error, details:
+                        self.ctx.die(200, "Error during service user set up: (%s) %s" % (details[0], details[2]))
                     if not pasw:
                         try:
                             pasw = config.as_map()["omero.windows.pass"]
