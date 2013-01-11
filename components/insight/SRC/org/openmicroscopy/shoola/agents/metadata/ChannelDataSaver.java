@@ -110,7 +110,8 @@ public class ChannelDataSaver
      */
     public void handleResult(Object result) 
     {
-        viewer.setChannelsData((Map) result, true);
+    	System.err.println(result);
+        //viewer.setChannelsData((Map) result, true);
     }
 
 }

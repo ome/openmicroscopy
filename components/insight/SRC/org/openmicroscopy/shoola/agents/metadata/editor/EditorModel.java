@@ -2584,7 +2584,7 @@ class EditorModel
 					parentRefObject instanceof PlateData))
 				return;
 			object = (DataObject) parentRefObject;
-		}
+		} else object = (DataObject) refObject;
 		ChannelDataSaver loader = new ChannelDataSaver(component,
 				getSecurityContext(), channels, object);
 		loader.load();

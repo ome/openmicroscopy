@@ -1178,8 +1178,7 @@ class OmeroMetadataServiceImpl
 				}
 			} else if (object instanceof PlateData) {
 				//Load all the wells
-				images = gateway.loadPlateWells(ctx, object.getId(), -1,
-						userID);
+				images = gateway.loadPlateWells(ctx, object.getId(), -1);
 				if (images != null) {
 					k = images.iterator();
 					while (k.hasNext()) {
@@ -2019,15 +2018,52 @@ class OmeroMetadataServiceImpl
 			List<ChannelData> channels, List<DataObject> objects)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		// TODO Auto-generated method stub
+		if (channels == null || channels.size() == 0) return null;
+		//Update the channels only
+		if (objects == null || objects.size() == 0) return null;
+		List<IObject> pixels = gateway.getPixels(ctx, objects);
+		if (pixels == null) return null;
+		Iterator<IObject> i = pixels.iterator();
+		Pixels p;
+		int sizeC;
+		int n = channels.size();
+		List<IObject> toUpdate = new ArrayList<IObject>();
+		List<Channel> l;
+		while (i.hasNext()) {
+			p = (Pixels) i.next();
+			sizeC = p.getSizeC().getValue();
+			if (sizeC >= n) {
+				l = p.copyChannels();
+				updateChannels(channels, l);
+				toUpdate.addAll(l);
+			}
+		}
+		//Update the channels now
+		gateway.updateObjects(ctx, toUpdate, new Parameters());
 		return null;
 	}
 	
+	private void updateChannels(List<ChannelData> ref,
+			List<Channel> list)
+	{
+		Iterator<Channel> i = list.iterator();
+		Channel channel;
+		ChannelData data;
+		int index = 0;
+		while (i.hasNext()) {
+			channel = i.next();
+			data = ref.get(index);
+			channel.getLogicalChannel().setName(omero.rtypes.rstring(
+					data.getName()));
+			index++;
+		}
+	}
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getChannelsMetadata(SecurityContext, long)
 	 */
-	public List<ChannelData> getChannelsMetadata(SecurityContext ctx, long pixelsID)
+	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
+			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Pixels pixels = gateway.getPixels(ctx, pixelsID);
