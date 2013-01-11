@@ -534,7 +534,7 @@
     /* Right Inner Content */
     
     .right_tab_inner {
-		padding:15px;
+        padding:10px 15px;
         overflow: auto;
         top:6px ;bottom:0px; left:0px; right:0px;
         position: absolute;
@@ -549,7 +549,7 @@
     /* Seperator */
     
     #right_panel hr {
-        margin:15px 0;
+        margin:10px 0;
         display:block;
         border:none;
         border-bottom: solid 1px rgba(255,255,255,.8);
@@ -588,7 +588,7 @@
     
     
 	.data_heading {
-		margin-bottom:20px;
+		margin-bottom:15px;
 		border-bottom:solid 1px hsl(210,10%,90%);
 		overflow:hidden;
 		-webkit-box-shadow:0 1px 0 rgba(255,255,255,.5);
@@ -597,7 +597,7 @@
 		   -moz-box-shadow:0 1px 0  rgba(255,255,255,.5); /* FF3.5+ */
 		        box-shadow:0 1px 0  rgba(255,255,255,.5); /* Opera 10.5, IE 9.0 */
 		
-		padding:10px 0;
+		padding:10px 0 5px 0;
 	}
 	
 	
