@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -56,6 +57,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
@@ -65,6 +67,7 @@ import javax.swing.text.Document;
 
 //Third-party libraries
 
+import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -243,6 +246,28 @@ class PropertiesUI
 		channelsPane.add(channelsArea);
 	}
 	
+	/**
+	 * Returns the <code>JXTaskPane</code> hosting the component.
+	 * 
+	 * @param parent The value to check.
+	 * @return See above.
+	 */
+	private Container getComponent(Container parent)
+	{
+		if (parent == null) return null;
+		if (parent instanceof JXTaskPane) return parent;
+		return getComponent(parent.getParent());
+	}
+	
+	/** Resets the size of the components hosting this component.*/
+	private void resetComponentSize()
+	{
+		Container pane = getComponent(getParent());
+		pane.setSize(getPreferredSize());
+		pane.validate();
+		pane.repaint();
+	}
+	
 	/** Modifies the UI so the user can edit the channels.*/
 	private void editChannels()
 	{
@@ -255,8 +280,7 @@ class PropertiesUI
 		channelsPane.add(channelEditPane);
 		removeAll();
 		buildGUI();
-		validate();
-		repaint();
+		resetComponentSize();
 	}
 	
 	/** Modifies the UI to display the initial channels details.*/
@@ -265,8 +289,7 @@ class PropertiesUI
 		buildChannelsPane();
 		removeAll();
 		buildGUI();
-		validate();
-		repaint();
+		resetComponentSize();
 	}
 	
 	/** Initializes the components composing this display. */
