@@ -433,28 +433,31 @@
            
 		    {% if manager.image %}            
 
+            {% include "webclient/annotations/includes/toolbar.html" %}
+
             <!-- Image Name -->
             {% with obj=manager.image nameText=manager.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
             
-            
 
-            {% include "webclient/annotations/includes/toolbar.html" %}
-
-            <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
 
-				<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url web_image_viewer manager.image.id %}')"
-				        title="Open full image viewer in new window">
-					<span>
-	                {% trans "Launch full viewer" %} 
-					</span>
-				</button>
-				
+                <h2 class="data_heading_id" style="float:left">
+                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                </h2>
+
+                <button class="btn silver btn_text" href="#" style="float:right"
+                        onclick="return OME.openPopup('{% url web_image_viewer manager.image.id %}')"
+                        title="Open full image viewer in new window">
+                    <span>
+                         {% trans "Full viewer" %} 
+                    </span>
+                </button>
+
                 {% if manager.openAstexViewerCompatible %}
                 
-                <button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
+                <button style="float:right; margin-right:5px" class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
                         title="Open with Open Astex Viewer">
 					<span>
 	                {% trans "Volume viewer" %} 
@@ -464,7 +467,7 @@
 				
             </div>
                   
-				  
+			<div style="clear:both"></div>
 				  
 				  
 				  
@@ -496,15 +499,19 @@
             {% else %}
                 {% if manager.dataset %}
 
+                {% include "webclient/annotations/includes/toolbar.html" %}
+
                 <!-- Dataset Name -->
                 {% with obj=manager.dataset nameText=manager.dataset.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
 
 
-                {% include "webclient/annotations/includes/toolbar.html" %}
-
                 
+                <h2 class="data_heading_id">
+                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                </h2>
+
 				<hr/>
 				
 				<!-- Dataset Description -->
@@ -529,13 +536,17 @@
                 {% else %}
                     {% if manager.project %}
 
+                    {% include "webclient/annotations/includes/toolbar.html" %}
+
                     <!-- Project Name -->
                     {% with obj=manager.project nameText=manager.project.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
-                    
 
-                    {% include "webclient/annotations/includes/toolbar.html" %}
+                    
+                    <h2 class="data_heading_id">
+                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                    </h2>
 
 					<hr/>
 					
@@ -564,22 +575,29 @@
             
             {% if manager.well %}            
 
-            <!-- Image (in WellSample) Description -->
+            {% include "webclient/annotations/includes/toolbar.html" %}
+
+                        <!-- Image (in WellSample) Description -->
             {% with obj=manager.well.getWellSample.image nameText=manager.well.getWellSample.image.name %}
                 {% include "webclient/annotations/includes/name.html" %}
             {% endwith %}
 
                    
 
-            {% include "webclient/annotations/includes/toolbar.html" %}
-
+             <h2 class="data_heading_id" style="float:left">
+                Image ID: <strong>{{ manager.well.getWellSample.image.id }}</strong>
+                Well ID: <strong>{{ manager.well.id }}</strong>
+            </h2>
             
-			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#" style="float:right"
+                onclick="return OME.openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>
 			</button>
 			
+            <div style="clear:both"></div>
+
 			<hr/>
 			
                         <!-- Image (in WellSample) Description -->
@@ -595,15 +613,18 @@
             {% else %}
                 {% if manager.acquisition %}
 
+                {% include "webclient/annotations/includes/toolbar.html" %}
+
                 <!-- Acquisition Name -->
                 {% with obj=manager.acquisition nameText=manager.acquisition.name %}
                     {% include "webclient/annotations/includes/name.html" %}
                 {% endwith %}
                 
 
-                {% include "webclient/annotations/includes/toolbar.html" %}
+                <h2 class="data_heading_id">
+                    {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                </h2>
 
-                
 				<hr/>
 				
                 <!-- Acquisition Description -->
@@ -630,17 +651,17 @@
                 {% else %}
                     {% if manager.plate %}
 
+                    {% include "webclient/annotations/includes/toolbar.html" %}
+
                     <!-- Plate Name -->
                     {% with obj=manager.plate nameText=manager.plate.name %}
                         {% include "webclient/annotations/includes/name.html" %}
                     {% endwith %}
 
 
-              
-			  		  
-			  
-                        {% include "webclient/annotations/includes/toolbar.html" %}
-
+                    <h2 class="data_heading_id">
+                        {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                    </h2>
 					
 					<hr/>
 					
@@ -669,15 +690,16 @@
                     {% else %}
                         {% if manager.screen %}
 
+                        {% include "webclient/annotations/includes/toolbar.html" %}
+
                         <!-- Screen Name -->
                         {% with obj=manager.screen nameText=manager.screen.name %}
                             {% include "webclient/annotations/includes/name.html" %}
                         {% endwith %}
 
-            
-
-                        {% include "webclient/annotations/includes/toolbar.html" %}
-
+                        <h2 class="data_heading_id">
+                            {{ manager.obj_type }} ID: <strong>{{ manager.obj_id }}</strong>
+                        </h2>
 							
 						<hr/>	
 							
@@ -952,6 +974,10 @@
 
 
         {% if manager.tag %}
+
+            <!-- Toolbar at the top -->
+            {% include "webclient/annotations/includes/toolbar.html" %}
+
             <div id="general_tab" class="right_tab_inner" >
 
                 <!-- Tag TextValue -->
@@ -961,7 +987,6 @@
 
         
 
-                {% include "webclient/annotations/includes/toolbar.html" %}
 
 				<hr/>
 
