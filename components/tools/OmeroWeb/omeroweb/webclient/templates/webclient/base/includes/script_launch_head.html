@@ -22,16 +22,6 @@
 
 
     $(document).ready(function(){
-        
-        function openScriptWindow(event, width, height) {
-            // open script url, providing Data_Type and IDs params in request
-            var script_url = $(event.target).attr('href');
-            if (script_url == "#") return false;
-
-            script_url += "?"+ OME.get_tree_selection();
-            OME.openCenteredWindow(script_url, width, height);
-            return false;
-        }
 
         $('body').click(function(event) {
             if (event.target.id != 'scriptButton') {
@@ -50,7 +40,7 @@
                 $("#scriptList").load(script_list_url, function(){
                     //$("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
                     // bind links to OME.openPopup
-                    $("#scriptList.sub_menu a").click(openScriptWindow);
+                    $("#scriptList.sub_menu a").click(OME.openScriptWindow);
                     $scriptSpinner.hide();
                 });
             }

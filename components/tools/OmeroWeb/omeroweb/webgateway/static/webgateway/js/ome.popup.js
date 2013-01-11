@@ -58,6 +58,17 @@ OME.openCenteredWindow = function(url, w, h) {
 };
 
 
+OME.openScriptWindow = function(event, width, height) {
+    // open script url, providing Data_Type and IDs params in request
+    var script_url = $(event.target).attr('href');
+    if (script_url == "#") return false;
+
+    script_url += "?"+ OME.get_tree_selection();
+    OME.openCenteredWindow(script_url, width, height);
+    return false;
+};
+
+
 /*
  *  Returns a string representing the currently selected items in the $.jstree.
  * E.g.     "Image=23,34,98&Dataset=678"
@@ -115,13 +126,13 @@ OME.get_tree_selection = function() {
 OME.confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
     if ((typeof title == "undefined") || (title === null)) {
-        var title = "Confirm";
+        title = "Confirm";
     }
     if ((typeof width == "undefined") || (width === null)) {
-        var width = 350;
+        width = 350;
     }
     if ((typeof height == "undefined") || (height === null)) {
-        var height = 140;
+        height = 140;
     }
 
     var $dialog = $("#confirm_dialog");

@@ -17,11 +17,11 @@
 //
 
 $(document).ready(function() {
-    setupAjaxError("{% url fsend %}");      // just in case!
+    OME.setupAjaxError("{% url fsend %}");      // just in case!
 
     $('#script_form').ajaxForm({
         success: function(data) {
-            window.opener.showActivities();
+            window.opener.OME.showActivities();
             self.close();
         }
     });
