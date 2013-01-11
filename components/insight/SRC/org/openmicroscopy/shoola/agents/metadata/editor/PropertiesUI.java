@@ -1614,11 +1614,11 @@ class PropertiesUI
 			cancelChannelsEdit();
 		} else if (ChannelEditUI.SAVE_PROPERTY.equals(name)) {
 			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
-			model.fireChannelsSaving(channels, false);
+			model.fireChannelSaving(channels, false);
 			cancelChannelsEdit();
 		} else if (ChannelEditUI.APPLY_TO_ALL_PROPERTY.equals(name)) {
 			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
-			model.fireChannelsSaving(channels, true);
+			model.fireChannelSaving(channels, true);
 			cancelChannelsEdit();
 		}
 	}
