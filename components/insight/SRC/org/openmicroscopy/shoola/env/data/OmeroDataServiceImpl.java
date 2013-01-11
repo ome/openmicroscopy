@@ -781,7 +781,7 @@ class OmeroDataServiceImpl
 			long plateID, long acquisitionID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadPlateWells(ctx, plateID, acquisitionID, userID);
+		return gateway.loadPlateWells(ctx, plateID, acquisitionID);
 	}
 
 	/**

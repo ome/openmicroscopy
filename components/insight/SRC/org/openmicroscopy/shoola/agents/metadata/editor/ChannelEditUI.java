@@ -219,7 +219,7 @@ class ChannelEditUI
 			channels.add(channel);
 		}
 		//Apply the
-		if (applyToAll.isVisible())
+		if (!applyToAll.isVisible())
 			firePropertyChange(APPLY_TO_ALL_PROPERTY, null, channels);
 		else firePropertyChange(SAVE_PROPERTY, null, channels);
 	}
@@ -235,12 +235,14 @@ class ChannelEditUI
 		else if (parent instanceof PlateData)
 			messageLabel.setText(WARNING_PLATE);
 		applyToAll.setVisible(false);
+		saveButton.setEnabled(true);
 		repaint();
 	}
 	
 	/** Cancel the saving.*/
 	private void cancel()
 	{
+		saveButton.setEnabled(false);
 		messageLabel.setText("");
 		applyToAll.setVisible(true);
 		firePropertyChange(CANCEL_PROPERTY, Boolean.valueOf(false),

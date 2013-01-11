@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ChannelDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
@@ -331,9 +332,9 @@ class DataManagerViewImpl
 	 */
 	public CallHandle saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects,
-			AgentEventListener channelDataSaver) {
-		// TODO Auto-generated method stub
-		return null;
+			AgentEventListener observer) {
+		BatchCallTree cmd = new ChannelDataSaver(ctx, channels, objects);
+		return cmd.exec(observer);
 	}
 
 }
