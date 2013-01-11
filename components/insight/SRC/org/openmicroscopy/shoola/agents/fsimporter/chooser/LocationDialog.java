@@ -92,10 +92,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	
 	// table design presets
 
-	private static final String TOOLTIP_SCREENS_TAB = "Import settings for Screens";
-
-	private static final String TOOLTIP_PROJECTS_TAB = "Import settings for Projects";
-
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
 	
@@ -138,6 +134,14 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** Text for screens */
 	private static final String TEXT_SCREENS = "Screens";
 
+	/** Text for Screens tab */
+	private static final String TOOLTIP_SCREENS_TAB = 
+			"Import settings for Screens";
+
+	/** Text for Projects tab */
+	private static final String TOOLTIP_PROJECTS_TAB = 
+			"Import settings for Projects";
+	
 	/** Text for a project. */
 	private static final String TEXT_PROJECT = "Project";
 
@@ -1046,7 +1050,8 @@ class LocationDialog extends JDialog implements ActionListener,
 					projects.add(project);
 
 					List<DataNode> projectDatasets = new ArrayList<DataNode>();
-					DataNode defaultDataset = new DataNode(DataNode.createDefaultDataset());
+					DataNode defaultDataset = 
+							new DataNode(DataNode.createDefaultDataset());
 					projectDatasets.add(defaultDataset);
 					
 					List children = treeNode.getChildrenDisplay();
@@ -1133,7 +1138,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		else
 		{
 			selectedProject = findDataNode(projects, currentProject);
-			selectedDataset = findDataNode(datasets.get(selectedProject), currentDataset);
+			selectedDataset = findDataNode(datasets.get(selectedProject), 
+					currentDataset);
 			selectedScreen = findDataNode(screens, currentScreen);
 		}
 		
@@ -1143,7 +1149,8 @@ class LocationDialog extends JDialog implements ActionListener,
 				
 				
 				displayItems(projectsBox, projects, selectedProject, this);
-				displayItemsWithTooltips(datasetsBox, datasets.get(selectedProject), selectedDataset);
+				displayItemsWithTooltips(datasetsBox, 
+						datasets.get(selectedProject), selectedDataset);
 				break;
 				
 			case  Importer.SCREEN_TYPE:
