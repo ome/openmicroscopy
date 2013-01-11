@@ -229,6 +229,36 @@ class PropertiesUI
 	/** Button to edit the channels. */
 	private JButton editChannel;
 	
+	/** Component displayed when editing the channels.*/
+	private ChannelEditUI channelEditPane;
+	
+	/** Components hosting the channels' details.*/
+	private JPanel channelsPane;
+	
+	
+	/** Indicates to display the original channels view.*/
+	private void cancelEdit()
+	{
+		channelsPane.removeAll();
+		channelsPane.add(editChannel);
+		channelsPane.add(channelsArea);
+		validate();
+		repaint();
+	}
+	
+	/** Modifies the UI so the user can edit the channels.*/
+	private void editChannels()
+	{
+		if (channelEditPane == null) {
+			channelEditPane = new ChannelEditUI(model.getChannelData(), 
+					model.getParentRootObject());
+			channelEditPane.addPropertyChangeListener(this);
+		}
+		channelsPane.removeAll();
+		channelsPane.add(channelEditPane);
+		validate();
+		repaint();
+	}
 	
 	/** Initializes the components composing this display. */
     private void initComponents()
@@ -328,9 +358,9 @@ class PropertiesUI
 		formatButton(editDescription, EDIT_DESC_TEXT, EDIT_DESC);
 		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
-		
+		editChannel.setEnabled(false);
 		descriptionPane.setEnabled(false);
-    }   
+    }
     
     /**
      * Formats the specified button.
@@ -709,20 +739,21 @@ class PropertiesUI
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
     				Font.BOLD, size);
     		c.gridx = 0;
+    		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
-        	JPanel channels = new JPanel();
-        	channels.setBackground(UIUtilities.BACKGROUND_COLOR);
-        	channels.setLayout(new FlowLayout(FlowLayout.LEFT));
-        	channels.add(editChannel);
-        	channels.add(channelsArea);
-        	content.add(channels, c);
+        	channelsPane = new JPanel();
+        	channelsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+        	channelsPane.setLayout(new FlowLayout(FlowLayout.LEFT));
+        	channelsPane.add(editChannel);
+        	channelsPane.add(channelsArea);
+        	content.add(channelsPane, c);
     	}
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
         return p;
     }
-  
+    
     /** 
      * Initializes a <code>TextPane</code>.
      * 
@@ -1232,6 +1263,7 @@ class PropertiesUI
 	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
+		editChannel.setEnabled(true);
 		int n = channels.size()-1;
 		Iterator k = channels.keySet().iterator();
 		int j = 0;
@@ -1356,8 +1388,10 @@ class PropertiesUI
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
+		channelEditPane = null;
 		if (oldObject == null) return;
 		if (!model.isSameObject(oldObject)) {
+			editChannel.setEnabled(false);
 			channelsArea.setText("");
 			idLabel.setText("");
 			ownerLabel.setText("");
@@ -1417,7 +1451,7 @@ class PropertiesUI
 						!descriptionPane.isEnabled());
 				break;
 			case EDIT_CHANNEL:
-				
+				editChannels();
 		}
 	}
 	
@@ -1545,8 +1579,17 @@ class PropertiesUI
 				case WikiDataObject.PROTOCOL:
 					bus.post(new DataObjectSelectionEvent(
 							FileData.class, id));
-					break;
 			}
+		} else if (ChannelEditUI.CANCEL_PROPERTY.equals(name)) {
+			cancelEdit();
+		} else if (ChannelEditUI.SAVE_PROPERTY.equals(name)) {
+			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
+			model.fireChannelsSaving(channels, false);
+			cancelEdit();
+		} else if (ChannelEditUI.APPLY_TO_ALL_PROPERTY.equals(name)) {
+			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
+			model.fireChannelsSaving(channels, true);
+			cancelEdit();
 		}
 	}
 	
