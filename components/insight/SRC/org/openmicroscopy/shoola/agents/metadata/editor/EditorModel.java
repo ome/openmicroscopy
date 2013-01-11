@@ -2576,7 +2576,7 @@ class EditorModel
 	 *                   the images in the dataset or the plate.
 	 *                   Pass <code>false</code> to only update the image.
 	 */
-	void fireChannelsSaving(List<ChannelData> channels, boolean applyToAll)
+	void fireChannelSaving(List<ChannelData> channels, boolean applyToAll)
 	{
 		DataObject object = null;
 		if (applyToAll) {
