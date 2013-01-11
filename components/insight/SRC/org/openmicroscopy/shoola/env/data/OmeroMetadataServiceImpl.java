@@ -58,6 +58,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
@@ -2014,7 +2015,7 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroMetadataService#saveChannelData(SecurityContext, List, List)
 	 */
-	public Map<Integer, ChannelData> saveChannelData(SecurityContext ctx,
+	public List<DataObject> saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects)
 			throws DSOutOfServiceException, DSAccessException
 	{
@@ -2022,4 +2023,24 @@ class OmeroMetadataServiceImpl
 		return null;
 	}
 	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getChannelsMetadata(SecurityContext, long)
+	 */
+	public List<ChannelData> getChannelsMetadata(SecurityContext ctx, long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Pixels pixels = gateway.getPixels(ctx, pixelsID);
+		if (pixels == null) return new ArrayList<ChannelData>();
+		Collection l = pixels.copyChannels();
+		if (l == null) return new ArrayList<ChannelData>();
+		Iterator i = l.iterator();
+		List<ChannelData> m = new ArrayList<ChannelData>(l.size());
+		int index = 0;
+		while (i.hasNext()) {
+			m.add(new ChannelData(index, (Channel) i.next()));
+			index++;
+		}
+		return m;
+	}
 }

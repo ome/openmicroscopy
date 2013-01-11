@@ -667,6 +667,7 @@ public interface OmeroMetadataService
 	/**
 	 * Saves the channels. Applies the changes to all the images contained in
 	 * the specified objects. This could be datasets, plates or images.
+	 * Returns the objects whose channels have been updated.
 	 * 
 	 * @param ctx The security context.
 	 * @param channels The channels to update.
@@ -678,8 +679,22 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map<Integer, ChannelData> saveChannelData(SecurityContext ctx,
+	public List<DataObject> saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the channel data for the specified pixels set.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of pixels set.
+	 * @return A list of channels.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
+			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
 }
