@@ -298,14 +298,14 @@
                                 msg += "<br>This will be attached to the Image and available to download.";
                             }
 
-                            var confirm_ometiff = confirm_dialog(msg,
+                            var confirm_ometiff = OME.confirm_dialog(msg,
                                 function() {
                                     var btn = confirm_ometiff.data("clicked_button");
                                     switch (btn) {
                                         case "Create":   // two options for the same button
                                         case "Create New":
                                             $.post( url, function() {
-                                                showActivities();
+                                                OME.showActivities();
                                             });
                                             break;
                                         case "Download":
@@ -474,7 +474,7 @@
             <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
 
-				<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"
+				<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url web_image_viewer manager.image.id %}')"
 				        title="Open full image viewer in new window">
 					<span>
 	                {% trans "Launch full viewer" %} 
@@ -483,7 +483,7 @@
 				
                 {% if manager.openAstexViewerCompatible %}
                 
-                <button class="btn silver btn_text" href="#" onclick="return openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
+                <button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'image_8bit' manager.image.id %}')"
                         title="Open with Open Astex Viewer">
 					<span>
 	                {% trans "Volume viewer" %} 
@@ -700,7 +700,7 @@
                 </div>
             </h2>
             
-			<button class="btn silver btn_text" href="#" onclick="return openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
+			<button class="btn silver btn_text" href="#" onclick="return OME.openPopup('{% url web_image_viewer manager.well.getWellSample.image.id %}')" alt="View" title="Open full viewer">
 				<span>
                 {% trans "Launch full viewer" %} 
 				</span>

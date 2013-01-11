@@ -78,10 +78,10 @@
 	
 	    <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
 	    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	        <a href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
 	    {% endifequal %}
 	    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-	        <a href="#" onclick="return openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
+	        <a href="#" onclick="return OME.openPopup('{% url open_astex_viewer 'file' fileann.id %}')">Volume viewer</a>
 	    {% endifequal %}
 	</div>
 </li>

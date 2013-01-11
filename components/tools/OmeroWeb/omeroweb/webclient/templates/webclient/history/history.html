@@ -48,7 +48,7 @@
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar %}');
 
-                table_selection_changed();    // selects nothing
+                OME.table_selection_changed();    // selects nothing
 
                 $("#filtersearch label").inFieldLabels();
         })
