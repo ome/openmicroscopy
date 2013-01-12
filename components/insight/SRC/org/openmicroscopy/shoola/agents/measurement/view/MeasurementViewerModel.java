@@ -1849,4 +1849,10 @@ class MeasurementViewerModel
 		return false;
 	}
 
+	/**
+	 * Sets the channels that have been modified.
+	 * 
+	 * @param channels The value to set.
+	 */
+	void setChannelData(List<ChannelData> channels) { metadata = channels; }
 }

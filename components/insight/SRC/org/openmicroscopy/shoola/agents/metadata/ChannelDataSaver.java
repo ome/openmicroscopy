@@ -26,21 +26,24 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
-import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ChannelData;
 import pojos.DataObject;
+
 /**
- *
+ * Updates the channels for images related to the specified data object.
+ * This class calls one of the <code>saveChannelData</code> methods in the
+ * <code>DataManagerView</code>.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -89,15 +92,6 @@ public class ChannelDataSaver
         handle = dmView.saveChannelData(ctx, channels, list, this);
     }
     
-    /**
-     * Notifies the user that it wasn't possible to retrieve the data and
-     * and discards the {@link #viewer}.
-     */
-    public void handleNullResult() 
-    {
-    	viewer.setChannelsData(new HashMap(), true);
-    }
-    
     /** 
      * Cancels the data loading. 
      * @see EditorLoader#cancel()
@@ -110,8 +104,8 @@ public class ChannelDataSaver
      */
     public void handleResult(Object result) 
     {
-    	System.err.println(result);
-        //viewer.setChannelsData((Map) result, true);
+    	EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+    	bus.post(new ChannelSavedEvent(ctx, channels, (List<Long>) result));
     }
 
 }

@@ -147,7 +147,7 @@ public class MeasurementViewerFactory
 	public static MeasurementViewer getViewer(SecurityContext ctx,
 			long pixelsID)
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<MeasurementViewer> v = singleton.viewers.iterator();
         MeasurementViewerComponent comp;
         while (v.hasNext()) {
             comp = (MeasurementViewerComponent) v.next();
@@ -157,6 +157,26 @@ public class MeasurementViewerFactory
 	}
 	
 	/**
+	 * Returns a viewer or <code>null</code> if not previously created.
+	 * 
+	 * @param ctx The security context.
+	 * @param imageID The id of the image.
+	 * @return See above.
+	 */
+	public static MeasurementViewer getViewerFromImage(SecurityContext ctx,
+			long imageID)
+	{
+		Iterator<MeasurementViewer> v = singleton.viewers.iterator();
+        MeasurementViewerComponent comp;
+        while (v.hasNext()) {
+            comp = (MeasurementViewerComponent) v.next();
+            if (comp.getModel().getImageID() == imageID) return comp;
+        }
+		return null;
+	}
+	
+	
+	/**
 	 * Adds the passed request to the collection.
 	 * 
 	 * @param request 	The request to add.
@@ -164,7 +184,7 @@ public class MeasurementViewerFactory
 	public static void addRequest(MeasurementTool request)
 	{
 		if (request == null) return;
-		singleton.requests.add(request);	
+		singleton.requests.add(request);
 	}
 	
 	/**
@@ -175,7 +195,7 @@ public class MeasurementViewerFactory
 	 */
 	public static MeasurementTool getRequest(long pixelsID)
 	{
-		Iterator v = singleton.requests.iterator();
+		Iterator<MeasurementTool> v = singleton.requests.iterator();
 		MeasurementTool request;
 		PixelsData pixels;
         while (v.hasNext()) {
@@ -197,7 +217,7 @@ public class MeasurementViewerFactory
 	{
 		if (singleton.viewers.size() == 0) return null;
 		List<Object> instances = new ArrayList<Object>();
-		Iterator i = singleton.viewers.iterator();
+		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
 		MeasurementViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (MeasurementViewerComponent) i.next();
@@ -216,7 +236,7 @@ public class MeasurementViewerFactory
 	{
 		//if (singleton.viewers.size() == 0) return;
 		if (instances != null) {
-			Iterator i = instances.iterator();
+			Iterator<Object> i = instances.iterator();
 			Object o;
 			MeasurementViewerComponent comp;
 			while (i.hasNext()) {
@@ -252,7 +272,7 @@ public class MeasurementViewerFactory
 	public static void onROIDeleted(long imageID)
 	{
 		if (singleton.viewers.size() == 0) return;
-		Iterator i = singleton.viewers.iterator();
+		Iterator<MeasurementViewer> i = singleton.viewers.iterator();
 		MeasurementViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (MeasurementViewerComponent) i.next();
@@ -290,7 +310,7 @@ public class MeasurementViewerFactory
 	private void clear()
 	{
 		if (viewers.size() == 0) return;
-		Iterator i = viewers.iterator();
+		Iterator<MeasurementViewer> i = viewers.iterator();
 		MeasurementViewerComponent comp;
 		
 		while (i.hasNext()) {
@@ -307,11 +327,11 @@ public class MeasurementViewerFactory
      * <code>model</code>.
      * 
      * @param model The component's Model.
-     * @return A {@link MeasurementViewer} for the specified <code>model</code>.  
+     * @return A {@link MeasurementViewer} for the specified <code>model</code>.
      */
 	private MeasurementViewer createROIViewer(MeasurementViewerModel model)
 	{
-		Iterator v = viewers.iterator();
+		Iterator<MeasurementViewer> v = viewers.iterator();
         MeasurementViewerComponent comp;
         while (v.hasNext()) {
             comp = (MeasurementViewerComponent) v.next();
@@ -332,7 +352,7 @@ public class MeasurementViewerFactory
 	public void stateChanged(ChangeEvent e)
 	{
 		MeasurementViewerComponent comp = 
-						(MeasurementViewerComponent) e.getSource(); 
+						(MeasurementViewerComponent) e.getSource();
 		if (comp.getState() == MeasurementViewer.DISCARDED) 
 			viewers.remove(comp);
 	}

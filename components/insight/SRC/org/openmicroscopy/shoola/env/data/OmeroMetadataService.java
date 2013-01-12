@@ -668,7 +668,7 @@ public interface OmeroMetadataService
 	 * Saves the channels. Applies the changes to all the images contained in
 	 * the specified objects. This could be datasets, plates or images.
 	 * Returns the identifiers of the images whose channels have been updated,
-	 * or an empty list if no images updated.
+	 * or an empty list if no images were updated.
 	 * 
 	 * @param ctx The security context.
 	 * @param channels The channels to update.
