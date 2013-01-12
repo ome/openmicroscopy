@@ -301,6 +301,34 @@ OME.deleteItem = function(event, domClass, url) {
     return false;
 };
 
+// More code that is shared between metadata_general and batch_annotate panels
+// Called when panel loaded. Does exactly what it says on the tin.
+OME.initToolbarDropdowns = function() {
+    // -- Toolbar buttons - show/hide dropdown options --
+    $(".toolbar_dropdown ul").css('visibility', 'hidden');
+    // show on click
+    var $toolbar_dropdownlists = $(".toolbar_dropdown ul");
+    $(".toolbar_dropdown button").click(function(e) {
+        // hide any other lists that might be showing...
+        $toolbar_dropdownlists.css('visibility', 'hidden');
+        // then show this one...
+        $("ul", $(this).parent()).css('visibility', 'visible');
+        e.preventDefault();
+        return false;
+    });
+    // on hover-out, hide drop-down menus
+    $toolbar_dropdownlists.hover(function(){}, function(){
+        $(this).css('visibility', 'hidden');
+    });
+
+    // For Figure scripts, we need a popup:
+    $("#figScriptList li a").click(function(event){
+        OME.openScriptWindow(event, 800, 600);
+        event.preventDefault();
+        return false;
+    });
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         bodyHandler: function() {

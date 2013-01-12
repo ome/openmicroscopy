@@ -136,6 +136,7 @@ button::-moz-focus-inner {
 	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
 	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
 	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_figscripts {background: url(../../webgateway/img/icon_figure_scripts.png) center center no-repeat;}
 	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat; 
 	    float:right;
 	    position: relative}
@@ -153,7 +154,7 @@ button::-moz-focus-inner {
 	    display:block;
 	}
     
-    #general_tab .toolbar_dropdown .btn span {
+    .toolbar_dropdown .btn span {
         width:20px;
         height:18px;
         display:block;
@@ -161,10 +162,6 @@ button::-moz-focus-inner {
     
     #general_tab .btn_download {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
-    }
-
-    #general_tab .btn_figscripts {
-        background: url(../../webgateway/img/icon_figure_scripts.png) center center no-repeat;
     }
     
     .toolbar_dropdown {
@@ -482,7 +479,7 @@ button::-moz-focus-inner {
 	width:12px;
 	height:12px;
 	position:absolute;
-	z-index:99;
+	z-index:90;
 	right:5px;
 	top:5px;
 	-webkit-border-radius:20px;
