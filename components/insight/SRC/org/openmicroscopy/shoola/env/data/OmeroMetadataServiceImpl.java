@@ -131,8 +131,10 @@ class OmeroMetadataServiceImpl
 		Channel channel;
 		ChannelData data;
 		int index = 0;
+		int n = ref.size();
 		while (i.hasNext()) {
 			channel = i.next();
+			if (index == n) break;
 			data = ref.get(index);
 			channel.getLogicalChannel().setName(omero.rtypes.rstring(
 					data.getName()));
