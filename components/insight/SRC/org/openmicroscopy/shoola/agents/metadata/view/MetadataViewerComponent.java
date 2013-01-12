@@ -1208,6 +1208,7 @@ class MetadataViewerComponent
 	{
 		Renderer rnd = getRenderer();
 		if (rnd != null) rnd.onUpdatedChannels(channels);
+		model.getEditor().onUpdatedChannels(channels);
 	}
 	
 	/** 

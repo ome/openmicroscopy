@@ -3846,5 +3846,22 @@ class EditorModel
 		if (ns == null) return false;
 		return EXCLUDED_FILE_NS.contains(ns);
 	}
+	
+	/**
+	 * Update the channels.
+	 * 
+	 * @param channels The value to set.
+	 */
+	void updateChannels(List<ChannelData> channels)
+	{
+		List l = sorter.sort(channels); 
+		emissionsWavelengths = new LinkedHashMap();
+		Iterator i = l.iterator();
+		Object channel;
+		while (i.hasNext()) {
+			channel = i.next();
+			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
+		}
+	}
 
 }
