@@ -29,6 +29,8 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import pojos.DataObject;
+
 
 //Third-party libraries
 
@@ -98,6 +100,30 @@ public class MetadataViewerFactory
 	{
 		MetadataViewerModel model = new MetadataViewerModel(refObject, index);
 		return singleton.createViewer(model);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer} associated to the object specified.
+	 * 
+	 * @param objectType The type of object to handle.
+	 * @param id The id of the object the component is for.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewerFromId(String objectType, long id)
+	{
+		Iterator<MetadataViewer> i = singleton.viewers.iterator();
+		MetadataViewerComponent viewer;
+		Object ref;
+		while (i.hasNext()) {
+			viewer = (MetadataViewerComponent) i.next();
+			ref = viewer.getRefObject();
+			if (ref.getClass().getName().equals(objectType) 
+					&& ref instanceof DataObject) {
+				if (id == ((DataObject) ref).getId()) return viewer;
+			}
+				
+		}
+		return null;
 	}
 	
 	/**

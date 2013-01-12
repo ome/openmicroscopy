@@ -3426,6 +3426,16 @@ class ImViewerComponent
 	{
 		return model.getCompressionLevel() != RenderingControl.UNCOMPRESSED;
 	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#onUpdatedChannels(List)
+	 */
+	public void onUpdatedChannels(List<ChannelData> channels)
+	{
+		model.setChannels(channels);
+		
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

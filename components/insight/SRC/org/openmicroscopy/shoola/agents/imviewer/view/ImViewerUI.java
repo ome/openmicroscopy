@@ -2660,6 +2660,14 @@ class ImViewerUI
      */
     GroupData getSelectedGroup() { return model.getSelectedGroup(); }
 
+    /**
+     * Updates the component displaying the channels' details after update.
+     */
+    void onChannelUpdated()
+    {
+    	controlPane.onChannelUpdated();
+    }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
