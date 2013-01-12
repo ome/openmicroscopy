@@ -3434,7 +3434,7 @@ class ImViewerComponent
 	public void onUpdatedChannels(List<ChannelData> channels)
 	{
 		model.setChannels(channels);
-		
+		view.onChannelUpdated();
 	}
 	
 	/** 
