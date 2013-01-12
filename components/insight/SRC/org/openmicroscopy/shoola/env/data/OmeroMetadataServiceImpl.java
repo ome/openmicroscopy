@@ -118,7 +118,28 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway gateway;
 	
-
+	/**
+	 * Updates the loaded channels.
+	 * 
+	 * @param ref The modified channels.
+	 * @param list The channels to update.
+	 */
+	private void updateChannels(List<ChannelData> ref,
+			List<Channel> list)
+	{
+		Iterator<Channel> i = list.iterator();
+		Channel channel;
+		ChannelData data;
+		int index = 0;
+		while (i.hasNext()) {
+			channel = i.next();
+			data = ref.get(index);
+			channel.getLogicalChannel().setName(omero.rtypes.rstring(
+					data.getName()));
+			index++;
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the value contains the terms specified,
 	 * <code>false</code> otherwise.
@@ -2014,15 +2035,16 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroMetadataService#saveChannelData(SecurityContext, List, List)
 	 */
-	public List<DataObject> saveChannelData(SecurityContext ctx,
+	public List<Long> saveChannelData(SecurityContext ctx,
 			List<ChannelData> channels, List<DataObject> objects)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		if (channels == null || channels.size() == 0) return null;
+		List<Long> images = new ArrayList<Long>();
+		if (channels == null || channels.size() == 0) return images;
 		//Update the channels only
-		if (objects == null || objects.size() == 0) return null;
+		if (objects == null || objects.size() == 0) return images;
 		List<IObject> pixels = gateway.getPixels(ctx, objects);
-		if (pixels == null) return null;
+		if (pixels == null) return images;
 		Iterator<IObject> i = pixels.iterator();
 		Pixels p;
 		int sizeC;
@@ -2036,28 +2058,14 @@ class OmeroMetadataServiceImpl
 				l = p.copyChannels();
 				updateChannels(channels, l);
 				toUpdate.addAll(l);
+				images.add(p.getImage().getId().getValue());
 			}
 		}
 		//Update the channels now
 		gateway.updateObjects(ctx, toUpdate, new Parameters());
-		return null;
+		return images;
 	}
 	
-	private void updateChannels(List<ChannelData> ref,
-			List<Channel> list)
-	{
-		Iterator<Channel> i = list.iterator();
-		Channel channel;
-		ChannelData data;
-		int index = 0;
-		while (i.hasNext()) {
-			channel = i.next();
-			data = ref.get(index);
-			channel.getLogicalChannel().setName(omero.rtypes.rstring(
-					data.getName()));
-			index++;
-		}
-	}
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getChannelsMetadata(SecurityContext, long)
