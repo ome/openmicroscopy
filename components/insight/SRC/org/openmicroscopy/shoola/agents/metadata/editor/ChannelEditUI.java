@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,17 +37,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -77,15 +83,15 @@ class ChannelEditUI
 	 * Message displayed before apply the renaming to all images in the dataset.
 	 */
 	private static final String WARNING_DATASET = 
-			"Update channel names for all Images in " +
-			"the Dataset? This cannot be undone.";
+			"Update channel names for all Images in the " +
+					"Dataset? This cannot be undone.";
 	
 	/** 
 	 * Message displayed before apply the renaming to all images in the plate.
 	 */
 	private static final String WARNING_PLATE = 
-			"Update channel names for all Images in " +
-			"the Plate? This cannot be undone.";
+			String.format("Update channel names for all Images in.%nthe " +
+					"Plate?%nThis cannot be undone.");
 	
 	/** Action id indicating to save the changes if any.*/
 	private static final int SAVE = 0;
@@ -131,7 +137,7 @@ class ChannelEditUI
 	private Object parent;
 	
 	/** Component used to display a warning before saving.*/
-	private JLabel messageLabel;
+	private JTextArea messageLabel;
 	
 	/**
 	 * Initializes the components composing the display.
@@ -169,7 +175,19 @@ class ChannelEditUI
 		applyToAll.addActionListener(this);
 		applyToAll.setActionCommand(""+APPLY_TO_ALL);
 		
-		messageLabel = new JLabel();
+		
+		Border border = new CompoundBorder(
+				BorderFactory.createLineBorder(Color.gray),
+				new EmptyBorder(2, 2, 2, 2));
+		
+		saveButton.setOpaque(false);
+		saveButton.setBorder(border);
+		cancelButton.setOpaque(false);
+		cancelButton.setBorder(border);
+		applyToAll.setOpaque(false);
+		applyToAll.setBorder(border);
+		
+		messageLabel = new MultilineLabel();
 		messageLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
