@@ -288,6 +288,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         final ObjectFactory of = this.current.adapter.getCommunicator().findObjectFactory(reqId);
         final AMD_submit submit = new AMD_submit();
         final ImportRequest req = (ImportRequest) of.create(reqId);
+        req.repoUuid = repo.getRepoUuid();
         req.activity = link;
         req.location = location;
         req.settings = settings;

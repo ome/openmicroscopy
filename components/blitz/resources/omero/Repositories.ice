@@ -278,7 +278,7 @@ module omero {
              * All files which are uploaded will be available
              * from it.
              **/
-             ManagedRepository* repo;
+             string repoUuid;
 
             /**
              * Proxy of the process which this request

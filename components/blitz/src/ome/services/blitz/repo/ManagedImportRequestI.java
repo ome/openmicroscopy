@@ -390,7 +390,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         int series = 0;
         for (Long pixelsId : pixelIds())
         {
-            store.setPixelsParams(pixelsId, series, targetName);
+            store.setPixelsParams(pixelsId, series, targetName, repoUuid);
             series++;
         }
 
