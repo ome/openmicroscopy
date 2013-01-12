@@ -48,11 +48,11 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.util.processing.chart.ImageData;
-
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
+
 
 /** 
  * The MetadataViewerAgent agent. This agent displays metadata related to 
@@ -267,7 +267,6 @@ public class MetadataViewerAgent
     	if (!env.isServerAvailable()) return;
     	List<ChannelData> channels = evt.getChannels();
     	Iterator<Long> i = evt.getImageIds().iterator();
-    	SecurityContext ctx = evt.getSecurityContext();
     	MetadataViewer viewer;
     	while (i.hasNext()) {
     		viewer = MetadataViewerFactory.getViewerFromId(

@@ -65,6 +65,7 @@ public class ChannelSavedEvent
 	{
 		this.channels = channels;
 		this.imageIds = imageIds;
+		this.ctx = ctx;
 	}
 	
 	/**
