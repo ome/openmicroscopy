@@ -83,15 +83,15 @@ class ChannelEditUI
 	 * Message displayed before apply the renaming to all images in the dataset.
 	 */
 	private static final String WARNING_DATASET = 
-			"Update channel names for all Images in the " +
-					"Dataset? This cannot be undone.";
+			"Update channel names for all Images in the Dataset? " +
+			"This cannot be undone.";
 	
 	/** 
 	 * Message displayed before apply the renaming to all images in the plate.
 	 */
 	private static final String WARNING_PLATE = 
-			String.format("Update channel names for all Images in.%nthe " +
-					"Plate?%nThis cannot be undone.");
+			"Update channel names for all Images in the Plate? " +
+			"This cannot be undone.";
 	
 	/** Action id indicating to save the changes if any.*/
 	private static final int SAVE = 0;
