@@ -274,7 +274,6 @@ class PropertiesUI
 			Object ho = model.getParentRootObject();
 			if (model.getParentRootObject() instanceof WellData)
 				ho = model.getGrandParentRootObject();
-			System.err.println(model.getGrandParentRootObject());
 			channelEditPane = new ChannelEditUI(model.getChannelData(), ho);
 			channelEditPane.addPropertyChangeListener(this);
 		}

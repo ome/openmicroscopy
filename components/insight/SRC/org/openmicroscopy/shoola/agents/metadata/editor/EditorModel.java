@@ -2580,10 +2580,11 @@ class EditorModel
 	{
 		DataObject object = null;
 		if (applyToAll) {
-			if (!(parentRefObject instanceof DatasetData ||
-					parentRefObject instanceof PlateData))
-				return;
-			object = (DataObject) parentRefObject;
+			if (parentRefObject instanceof DatasetData)
+				object = (DataObject) parentRefObject;
+			else if (gpRefObject instanceof PlateData)
+				object = (DataObject) gpRefObject;
+			else return;
 		} else object = (DataObject) refObject;
 		ChannelDataSaver loader = new ChannelDataSaver(component,
 				getSecurityContext(), channels, object);
