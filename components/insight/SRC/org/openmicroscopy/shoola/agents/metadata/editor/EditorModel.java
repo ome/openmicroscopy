@@ -2260,7 +2260,7 @@ class EditorModel
 	 */
 	void setRootObject(Object refObject)
 	{ 
-		boolean b = isSameObject(refObject);
+		boolean b = isSameObject(this.refObject);
 		this.refObject = refObject;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
