@@ -29,12 +29,13 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import pojos.DataObject;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
+import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Factory to create {@link MetadataViewer} component.
@@ -114,12 +115,19 @@ public class MetadataViewerFactory
 		Iterator<MetadataViewer> i = singleton.viewers.iterator();
 		MetadataViewerComponent viewer;
 		Object ref;
+		String name;
+		long refId;
 		while (i.hasNext()) {
 			viewer = (MetadataViewerComponent) i.next();
 			ref = viewer.getRefObject();
-			if (ref.getClass().getName().equals(objectType) 
-					&& ref instanceof DataObject) {
-				if (id == ((DataObject) ref).getId()) return viewer;
+			name = ref.getClass().getName();
+			if (ref instanceof WellSampleData)
+				name = ImageData.class.getName();
+			if (name.equals(objectType) && ref instanceof DataObject) {
+				refId =  ((DataObject) ref).getId();
+				if (ref instanceof WellSampleData)
+					refId = ((WellSampleData) ref).getImage().getId();
+				if (id == refId) return viewer;
 			}
 				
 		}
