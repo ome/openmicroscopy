@@ -271,8 +271,11 @@ class PropertiesUI
 	private void editChannels()
 	{
 		if (channelEditPane == null) {
-			channelEditPane = new ChannelEditUI(model.getChannelData(),
-					model.getParentRootObject());
+			Object ho = model.getParentRootObject();
+			if (model.getParentRootObject() instanceof WellData)
+				ho = model.getGrandParentRootObject();
+			System.err.println(model.getGrandParentRootObject());
+			channelEditPane = new ChannelEditUI(model.getChannelData(), ho);
 			channelEditPane.addPropertyChangeListener(this);
 		}
 		channelsPane.removeAll();
