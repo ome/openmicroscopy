@@ -993,42 +993,50 @@ public class FileImportComponent
 				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
-				} else if (image instanceof ImportException) {
-					ImportException ie = (ImportException) image;
+				} else if (image instanceof Exception) {
+					Exception e = (Exception) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
-					toReImport = true;
+					toReImport = false;
 					errorButton.setToolTipText(
-							UIUtilities.formatExceptionForToolTip(ie));
-					exception = ie;
+							UIUtilities.formatExceptionForToolTip(e));
+					exception = e;
 					errorButton.setVisible(false);
-					int s = ie.getStatus();
-					if (s == ImportException.COMPRESSION) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(COMPRESSION_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.MISSING_LIBRARY) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(MISSING_LIB_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.FILE_ON_TAPE) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.NO_SPACE) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(NO_SPACE_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
+					cancelButton.setVisible(false);
+					if (e instanceof ImportException) {
+						toReImport = true;
+						ImportException ie = (ImportException) image;
+						int s = ie.getStatus();
+						if (s == ImportException.COMPRESSION) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(COMPRESSION_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.MISSING_LIBRARY) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(MISSING_LIB_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.FILE_ON_TAPE) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.NO_SPACE) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(NO_SPACE_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else {
+							errorButton.setVisible(true);
+							errorBox.setVisible(true);
+							errorBox.addChangeListener(this);
+						}
 					} else {
 						errorButton.setVisible(true);
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
 					}
-					cancelButton.setVisible(false);
 				}
 			}
 		}
