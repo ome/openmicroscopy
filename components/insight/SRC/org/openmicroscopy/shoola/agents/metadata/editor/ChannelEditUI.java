@@ -83,14 +83,14 @@ class ChannelEditUI
 	 * Message displayed before apply the renaming to all images in the dataset.
 	 */
 	private static final String WARNING_DATASET = 
-			"Update channel names for all Images in the Dataset? " +
+			"Update channel names for all images in the dataset? " +
 			"This cannot be undone.";
 	
 	/** 
 	 * Message displayed before apply the renaming to all images in the plate.
 	 */
 	private static final String WARNING_PLATE = 
-			"Update channel names for all Images in the Plate? " +
+			"Update channel names for all images in the plate? " +
 			"This cannot be undone.";
 	
 	/** Action id indicating to save the changes if any.*/
@@ -107,6 +107,9 @@ class ChannelEditUI
 	
 	/** The text of the {@link #save}.*/
 	private static final String SAVE_TEXT = "Save";
+	
+	/** The text of the {@link #save}.*/
+	private static final String CONTINUE_TEXT = "Continue";
 	
 	/** The text of the {@link #cancelButton}.*/
 	private static final String CANCEL_TEXT = "Cancel";
@@ -244,6 +247,17 @@ class ChannelEditUI
 		if (!applyToAll.isVisible())
 			firePropertyChange(APPLY_TO_ALL_PROPERTY, null, channels);
 		else firePropertyChange(SAVE_PROPERTY, null, channels);
+		resetControls();
+	}
+	
+	/** Resets the controls.*/
+	private void resetControls()
+	{
+		saveButton.setEnabled(false);
+		saveButton.setVisible(!(parent instanceof PlateData));
+		saveButton.setText(SAVE_TEXT);
+		messageLabel.setText("");
+		applyToAll.setVisible(true);
 	}
 	
 	/** 
@@ -259,16 +273,14 @@ class ChannelEditUI
 		applyToAll.setVisible(false);
 		saveButton.setEnabled(true);
 		saveButton.setVisible(true);
+		saveButton.setText(CONTINUE_TEXT);
 		repaint();
 	}
 	
 	/** Cancel the saving.*/
 	private void cancel()
 	{
-		saveButton.setEnabled(false);
-		saveButton.setVisible(!(parent instanceof PlateData));
-		messageLabel.setText("");
-		applyToAll.setVisible(true);
+		resetControls();
 		//Reset the fields' values.
 		Entry<JTextField, ChannelData> e;
 		Iterator<Entry<JTextField, ChannelData>>
