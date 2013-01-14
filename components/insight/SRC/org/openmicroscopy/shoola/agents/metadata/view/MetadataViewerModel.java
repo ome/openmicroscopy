@@ -1098,11 +1098,13 @@ class MetadataViewerModel
 	 * otherwise.
 	 * 
 	 * @param keys The nodes to handle.
-	 * @return
+	 * @return See above.
 	 */
 	boolean isSameSelection(Collection<DataObject> keys)
 	{
+		if (keys == null) return false;
 		List<DataObject> nodes = getRelatedNodes();
+		if (nodes == null) return false;
 		//Check that the selection is still the same.
 		int count = 0;
 		DataObject o;
