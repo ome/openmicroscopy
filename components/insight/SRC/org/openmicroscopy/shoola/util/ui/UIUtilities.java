@@ -43,7 +43,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -149,7 +148,7 @@ public class UIUtilities
 	/** The maximum number of characters in a line for the tool tip. */
 	public static final int					MAX_CHARACTER = 40;
 	
-	/** A light grey colour for line borders etc. */
+	/** A light grey color for line borders etc. */
 	public static final Color 				LIGHT_GREY = 
 												new Color(200, 200, 200);
 	
