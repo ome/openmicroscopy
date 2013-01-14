@@ -79,12 +79,17 @@
         overflow: hidden;
         padding: 30px 50px;
     }
-    #zRangeSlider {
+    #img_size_slider {
+        position: absolute;
+        top: 12px;
+        left: 100px;
+    }
+    #zRangeSlider, #img_size_slider {
         border: 1px solid #aaa;
         height: 6px;
         width: 150px;
     }
-    #zRangeSlider .ui-slider-handle {
+    .ui-slider-handle {
         border: 1px solid #aaa;
         background: #727C86;
         border-radius: 3px;
@@ -315,6 +320,8 @@
             <input id="submit" type="submit" value="Create Figure" />
         </div>
         <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
+
+        <div id="img_size_slider" title="Zoom Preview Figure"></div>
     </div>
 
 </form>
