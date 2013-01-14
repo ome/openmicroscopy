@@ -2205,13 +2205,16 @@ def repository_download(request, klass, name=None, filepath=None, conn=None, **k
     code, start, end = parse_range(request, filesize)
 
     if code < 400:
-        response = ConnCleaningHttpResponse(iterate_content(sourcefile, start, end))
+        response = ConnCleaningHttpResponse(iterate_content(sourcefile, start, end),
+                                            close_files=[sourcefile])
         response.conn = conn
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Length'] = end - start + 1
 
     else:
-        response = HttpResponse(status=code)
+        response = ConnCleaningHttpResponse(status=code,
+                                            close_files=[sourcefile])
+        response.conn = conn
 
     return response
 
