@@ -29,38 +29,38 @@ import java.util.Stack;
  * @since 4.5
  */
 public class FleetingDirectory {
-	/* the directory deletion that should follow *
-	 * (in Java SE 6 use a Deque instead) */
-	private final Stack<File> created = new Stack<File>();
-	
-	/**
-	 * Ensure that the given directory exists, 
-	 * by creating it and its parents if necessary.
-	 * @param directory the directory that is to exist
-	 */
-	public FleetingDirectory(File directory) {
-		directory = directory.getAbsoluteFile();
-		final Stack<File> toCreate = new Stack<File>();
-		
-		/* find which directories need to be created */
-		while (!directory.exists()) {
-			toCreate.push(directory);
-			directory = directory.getParentFile();
-		}
-		
-		/* create the directories, noting that they must later be deleted */
-		while (!toCreate.isEmpty()) {
-			final File nextToCreate = toCreate.pop();
-			nextToCreate.mkdir();
-			created.push(nextToCreate);
-		}
-	}
-	
-	/**
-	 * Delete the directories that were created in constructing this instance.
-	 */
-	public void deleteCreated() {
-		while (!created.isEmpty())
-			created.pop().delete();
-	}
+    /* the directory deletion that should follow *
+     * (in Java SE 6 use a Deque instead) */
+    private final Stack<File> created = new Stack<File>();
+    
+    /**
+     * Ensure that the given directory exists, 
+     * by creating it and its parents if necessary.
+     * @param directory the directory that is to exist
+     */
+    public FleetingDirectory(File directory) {
+        directory = directory.getAbsoluteFile();
+        final Stack<File> toCreate = new Stack<File>();
+        
+        /* find which directories need to be created */
+        while (!directory.exists()) {
+            toCreate.push(directory);
+            directory = directory.getParentFile();
+        }
+        
+        /* create the directories, noting that they must later be deleted */
+        while (!toCreate.isEmpty()) {
+            final File nextToCreate = toCreate.pop();
+            nextToCreate.mkdir();
+            created.push(nextToCreate);
+        }
+    }
+    
+    /**
+     * Delete the directories that were created in constructing this instance.
+     */
+    public void deleteCreated() {
+        while (!created.isEmpty())
+            created.pop().delete();
+    }
 }
