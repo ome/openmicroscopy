@@ -2458,6 +2458,7 @@ class TreeViewerComponent
 			view.removeAllFromWorkingPane();
 			return;
 		}
+		Browser browser = model.getSelectedBrowser();
 		Object parentObject = parent.getUserObject();
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
@@ -2468,9 +2469,18 @@ class TreeViewerComponent
 					model.getSecurityContext(parent),
 					(TagAnnotationData) parentObject, leaves, false);
 		} else if (parentObject instanceof GroupData) {
-			db = DataBrowserFactory.getGroupsBrowser(
-					model.getSecurityContext(parent), (GroupData) parentObject,
-					leaves);
+			if (browser != null) {
+				if (browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
+					db = DataBrowserFactory.getGroupsBrowser(
+							model.getSecurityContext(parent),
+							(GroupData) parentObject, leaves);
+				} else {
+					db = DataBrowserFactory.getDataBrowser(
+							model.getSecurityContext(parent), grandParentObject, 
+							parentObject, leaves, parent);
+				}
+			}
+			
 		} else if (parentObject instanceof FileData) {
 			FileData f = (FileData) parentObject;
 			if (!f.isHidden()) {
@@ -2484,7 +2494,7 @@ class TreeViewerComponent
 					model.getSecurityContext(parent), grandParentObject, 
 					parentObject, leaves, parent);
 			if (parent instanceof TreeImageTimeSet) {
-				ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
+				ExperimenterData exp = browser.getNodeOwner(parent);
 				db.setExperimenter(exp);
 			}
 		}

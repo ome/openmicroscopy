@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.CollapseAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -311,10 +312,19 @@ class BrowserControl
         		model.loadExperimenterData(display, display);
         	} else {
         		//Load the data of the logged in user.
-        		List l = display.getChildrenDisplay();
-        		if (l != null & l.size() > 0) {
-            		view.expandNode((TreeImageDisplay) l.get(0), true);
-        		}
+        		switch (model.getDisplayMode()) {
+					case TreeViewer.GROUP_DISPLAY:
+						view.loadAction(display);
+						model.loadExperimenterData(display, null);
+						break;
+					case TreeViewer.EXPERIMENTER_DISPLAY:
+					default:
+						List l = display.getChildrenDisplay();
+		        		if (l != null & l.size() > 0) {
+		            		view.expandNode((TreeImageDisplay) l.get(0), true);
+		        		}
+				}
+        		
         	}
         }
     }

@@ -41,6 +41,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -851,4 +852,18 @@ public interface Browser
 	 */
 	void paste(TreeImageDisplay[] parents);
 	
+	/**
+	 * Returns the node hosting the default group when in group display mode.
+	 * 
+	 * @return See above.
+	 */
+	TreeImageDisplay getDefaultGroupNode();
+
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link TreeViewer}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
 }

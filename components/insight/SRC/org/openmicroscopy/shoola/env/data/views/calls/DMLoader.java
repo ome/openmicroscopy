@@ -144,8 +144,6 @@ public class DMLoader
     public DMLoader(SecurityContext ctx, Class rootNodeType,
     	List<Long> rootNodeIDs, boolean withLeaves, long userID, long groupID)
     {
-        if (userID < 0) 
-            throw new IllegalArgumentException("No root ID not valid.");
         this.ctx = ctx;
         if (rootNodeType == null) {
         	loadCall = makeBatchCall(userID, groupID);

@@ -206,11 +206,7 @@ class OmeroDataServiceImpl
 	{
 		ParametersI param = new ParametersI();
 		if (rootNodeIDs == null) {
-			ExperimenterData exp = 
-				(ExperimenterData) context.lookup(
-						LookupNames.CURRENT_USER_DETAILS);
-			if (userID < 0) userID = exp.getId();
-			param.exp(omero.rtypes.rlong(userID));
+			if (userID >= 0) param.exp(omero.rtypes.rlong(userID));
 		}
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
