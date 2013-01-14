@@ -1,4 +1,4 @@
-{% extends "webgateway/core_html.html" %}
+{% extends "webgateway/base/base_header.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -28,7 +28,7 @@
 {% endcomment %}
 
 {% block title %}
-    Run Split View Figure
+    Create Split View Figure
 {% endblock %}
 
 
@@ -70,8 +70,14 @@
         margin-left:auto;
         margin-right:auto;
         margin-top: 10px;
+        margin-bottom: 10px;
         padding: 5px;
         background: #fff;
+        border: 1px solid white;
+        border-radius: 5px 5px 5px 5px;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        padding: 30px 50px;
     }
     #zRangeSlider {
         border: 1px solid #aaa;
@@ -83,20 +89,15 @@
         background: #727C86;
         border-radius: 3px;
     }
-    #script_header {
-
+    #middle_header {
+        height: 35px;
     }
-    div.header {
-        background: #ddd; 
-        position:fixed; 
-        top:0px; left:0px; right:0px;
-        padding: 7px;
-        border-bottom: 1px solid #aaa;
-        font-size: 120%;
-        height: 50px;
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
+    #script_content {
+        position: absolute;
+        top:0px; left:0px; right:0px; bottom:35px;
+        overflow:auto;
+        padding:10px;
+        background-color: #EFF1F4
     }
     div.footer {
         background: #ddd; 
@@ -115,20 +116,23 @@
 {% endblock %}
 
 
-{% block body %}
+{% block middle_header_left %}
+<!-- Empty block removes the header links here -->
+{% endblock %}
 
 
-<div class="header"
+{% block content %}
 
-    <h1>Create Split View Figure</h1>
 
-</div>
-
-<div style="position: absolute; top:50px; left:0px; right:0px; bottom:40px; overflow:auto">
+<div id="script_content">
 
 <form id="script_form" method="post" action="{% url script_run scriptId %}">
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
+
+        <h1>Create Split View Figure</h1>
+
+        <hr/>
 
         <input type="text" name="IDs" value="{{ idString }}" style="display:none">
 
@@ -319,6 +323,9 @@
 <!---------------------------- FIGURE PREVIEW ---------------------->
 
 <table id="figure_table">
+    <tr><td>
+        <div style="padding:10px">
+    <table>
     <tr>
         <td></td>
         {% for c in channels %}
@@ -372,6 +379,9 @@
         </td>
     </tr>
     {% endfor %}
+    </table>
+</div>
+</td></tr>
 </table>
 
 </div>

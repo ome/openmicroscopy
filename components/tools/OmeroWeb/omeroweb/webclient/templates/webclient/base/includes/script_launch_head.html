@@ -38,7 +38,7 @@
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
                 $("#scriptList").load(script_list_url, function(){
-                    //$("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
+                    $("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
                     // bind links to OME.openPopup
                     $("#scriptList.sub_menu a").click(OME.openScriptWindow);
                     $scriptSpinner.hide();

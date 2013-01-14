@@ -464,16 +464,11 @@
 				position:relative;
 			}
 				
+			/* The menuItem class is added by js to items with children */
 			.dropdown > li > a.menuItem {
 				background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
 			}
-
-			/* This menu only has single level - remove '>' from menu items */
-			#figScriptList > li > a {
-				background:url(../img/spacer.png) 90% center no-repeat !important;
-			}
-			
-			.dropdown > li:hover > a {
+			.dropdown > li:hover > a.menuItem {
 				background:url(../img/dropdown_right_arrow_hover.png) 90% center no-repeat;
 			}	
 				
