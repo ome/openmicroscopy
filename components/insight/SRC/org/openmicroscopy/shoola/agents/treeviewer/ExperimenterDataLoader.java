@@ -41,6 +41,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -166,14 +167,14 @@ public class ExperimenterDataLoader
     		int containerType, TreeImageSet expNode, TreeImageSet parent)
     {
     	super(viewer, ctx);
-        if (expNode == null ||
-        		!(expNode.getUserObject() instanceof ExperimenterData))
-        	throw new IllegalArgumentException("Experimenter node not valid.");
+        if (expNode == null)
+        	throw new IllegalArgumentException("Node not valid.");
+        Object ho = expNode.getUserObject();
+        if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+        	throw new IllegalArgumentException("Node not valid.");
         this.parent = parent;
         this.expNode = expNode;
         rootNodeType = getClassType(containerType);
-        //if (rootNodeType == null)
-          //  throw new IllegalArgumentException("Type not supported");
         if (parent != null)  withImages = true;
         if (type == TAG_SET) withImages = false;
     } 
@@ -184,30 +185,32 @@ public class ExperimenterDataLoader
      */
     public void load()
     {
-    	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
+    	long expID = -1;
+    	if (expNode.getUserObject() instanceof ExperimenterData)
+    		expID = ((ExperimenterData) expNode.getUserObject()).getId();
     	if (TagAnnotationData.class.equals(rootNodeType)) {
     		long id = -1;
     		if (parent != null) {
     			id = parent.getUserObjectId();
     		}
     		boolean top = type == TAG_SET;
-    		handle = dmView.loadTags(ctx, id, withImages, top, exp.getId(), 
+    		handle = dmView.loadTags(ctx, id, withImages, top,expID, 
     				ctx.getGroupID(), this);
     	} else if (FileAnnotationData.class.equals(rootNodeType)) {
     		handle = mhView.loadExistingAnnotations(ctx,
-    				rootNodeType, exp.getId(), this);
+    				rootNodeType, expID, this); //TO BE MODIFIED
     	} else {
     		if (viewer.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
-    			handle = dmView.loadRepositories(ctx, exp.getId(), this);
+    			//handle = dmView.loadRepositories(ctx, exp.getId(), this);
     		} else {
     			if (parent == null) {
             		handle = dmView.loadContainerHierarchy(ctx,
-            				rootNodeType, null, withImages, exp.getId(),
+            				rootNodeType, null, withImages, expID,
             				ctx.getGroupID(), this);	
             	} else {
             		handle = dmView.loadContainerHierarchy(ctx, rootNodeType,
             				Arrays.asList(parent.getUserObjectId()),
-            				withImages, exp.getId(), ctx.getGroupID(), this);
+            				withImages, expID, ctx.getGroupID(), this);
             	}
     		}
     	}

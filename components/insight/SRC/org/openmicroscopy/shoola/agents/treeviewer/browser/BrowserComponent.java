@@ -449,15 +449,26 @@ class BrowserComponent
             		model.fireExperimenterDataLoading(null);
             		return;
             	}
-            	TreeImageDisplay node = getLoggedExperimenterNode();
-            	if (node != null) {
-            		//if (model.isSingleGroup()) node.setExpanded(true);
-                	if (!model.isSingleGroup()) {
-                		TreeImageDisplay p = node.getParentDisplay();
-                		if (p != null) p.setExpanded(true);
-                	}
-            		view.expandNode(node, true);
-            	}
+            	TreeImageDisplay node;
+            	switch (model.getDisplayMode()) {
+					case TreeViewer.GROUP_DISPLAY:
+						node = getDefaultGroupNode();
+		            	if (node != null) {
+		            		view.expandNode(node, true);
+		            	}
+						break;
+					case TreeViewer.EXPERIMENTER_DISPLAY:
+					default:
+						node = getLoggedExperimenterNode();
+		            	if (node != null) {
+		            		if (!model.isSingleGroup()) {
+		                		TreeImageDisplay p = node.getParentDisplay();
+		                		if (p != null) p.setExpanded(true);
+		                	}
+		            		view.expandNode(node, true);
+		            	}
+				}
+            	
                 break;
             case READY:
             	refreshBrowser(); //do we want to automatically refresh?
@@ -1160,13 +1171,15 @@ class BrowserComponent
         if (nodes == null) throw new NullPointerException("No nodes.");
       
         if (expNode == null)
-        	throw new IllegalArgumentException("Experimenter node not valid.");
+        	throw new IllegalArgumentException("Node not valid.");
         Object uo = expNode.getUserObject();
-        if (!(uo instanceof ExperimenterData))
-        	throw new IllegalArgumentException("Experimenter node not valid.");
-        ExperimenterData exp = (ExperimenterData) uo;
+        if (!(uo instanceof ExperimenterData || uo instanceof GroupData))
+        	throw new IllegalArgumentException("Node not valid.");
+        long expID = -1;
+        if (uo instanceof ExperimenterData)
+        	expID = ((ExperimenterData) uo).getId();
         Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
-					exp.getId(), -1);//exp.getDefaultGroup().getId());
+        		expID, -1);
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
         
@@ -2193,5 +2206,26 @@ class BrowserComponent
 	{
 		model.getParentModel().setNodesToCopy(nodes, index);
 	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getLoggedExperimenterNode()
+     */
+	public TreeImageDisplay getDefaultGroupNode()
+	{
+		SecurityContext ctx = model.getSecurityContext(null);
+		long id = ctx.getGroupID();
+		ExperimenterVisitor visitor = new ExperimenterVisitor(this, id);
+		accept(visitor, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+		List<TreeImageDisplay> nodes = visitor.getNodes();
+		if (nodes.size() != 1) return null;
+		return nodes.get(0);
+	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getDisplayMode()
+     */
+	public int getDisplayMode() { return model.getDisplayMode(); }
 
 }
