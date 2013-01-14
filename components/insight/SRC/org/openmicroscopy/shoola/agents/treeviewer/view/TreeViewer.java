@@ -95,6 +95,13 @@ import pojos.ImageData;
 public interface TreeViewer
 	extends ObservableComponent
 {
+	
+	/** Indicates to display the data per experimenter.*/
+	public static final int EXPERIMENTER_DISPLAY = 
+			LookupNames.EXPERIMENTER_DISPLAY;
+	
+	/** Indicates to display the data per group.*/
+	public static final int GROUP_DISPLAY = LookupNames.GROUP_DISPLAY;
 
 	/** Indicates to run the application as an <code>ImageJ</code> plugin.*/
 	public static final int		IMAGE_J = LookupNames.IMAGE_J;
@@ -1132,4 +1139,12 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	Collection getGroups();
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link TreeViewer}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
 }
