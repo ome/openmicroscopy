@@ -235,14 +235,13 @@ class PropertiesUI
 	private ChannelEditUI channelEditPane;
 	
 	/** Components hosting the channels' details.*/
-	private JPanel channelsPane;
+	private JComponent channelsPane;
 
 	/** Builds and lays out the components displaying the channel information.*/
 	private void buildChannelsPane()
 	{
-		channelsPane.removeAll();
-		channelsPane.add(editChannel);
-		channelsPane.add(channelsArea);
+		editChannel.setVisible(true);
+		channelsPane = channelsArea;
 	}
 	
 	/**
@@ -277,8 +276,8 @@ class PropertiesUI
 			channelEditPane = new ChannelEditUI(model.getChannelData(), ho);
 			channelEditPane.addPropertyChangeListener(this);
 		}
-		channelsPane.removeAll();
-		channelsPane.add(channelEditPane);
+		channelsPane = channelEditPane;
+		editChannel.setVisible(false);
 		removeAll();
 		buildGUI();
 		resetComponentSize();
@@ -299,10 +298,7 @@ class PropertiesUI
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-        channelsPane = new JPanel();
-    	channelsPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	channelsPane.setLayout(new FlowLayout(FlowLayout.LEFT));
-
+    	
        	parentLabel = new JLabel();
        	f = parentLabel.getFont(); 
        	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -387,6 +383,7 @@ class PropertiesUI
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
     	channelsArea = UIUtilities.createComponent(null);
     	
+    	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
 		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
 		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
@@ -777,7 +774,10 @@ class PropertiesUI
     		c.gridx = 0;
     		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
+        	c.anchor = GridBagConstraints.CENTER;
+        	c.gridx++;
+        	content.add(editChannel, c);
+        	c.gridx++;
         	content.add(channelsPane, c);
     	}
     	JPanel p = UIUtilities.buildComponentPanel(content);
