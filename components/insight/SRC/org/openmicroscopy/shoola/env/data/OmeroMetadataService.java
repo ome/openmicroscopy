@@ -665,8 +665,9 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Saves the channels. Applies the changes to all the images contained in
-	 * the specified objects. This could be datasets, plates or images.
+	 * Saves the channels. Applies the changes to the images contained in
+	 * the specified objects whose number of channels matches the number of 
+	 * speficied channels. This could be datasets, plates or images.
 	 * Returns the identifiers of the images whose channels have been updated,
 	 * or an empty list if no images were updated.
 	 * 

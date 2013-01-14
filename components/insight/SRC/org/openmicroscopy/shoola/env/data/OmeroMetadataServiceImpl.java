@@ -2056,7 +2056,7 @@ class OmeroMetadataServiceImpl
 		while (i.hasNext()) {
 			p = (Pixels) i.next();
 			sizeC = p.getSizeC().getValue();
-			if (sizeC >= n) {
+			if (sizeC == n) {
 				l = p.copyChannels();
 				updateChannels(channels, l);
 				toUpdate.addAll(l);
