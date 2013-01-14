@@ -139,12 +139,11 @@ class ChannelEditUI
 	/** Component used to display a warning before saving.*/
 	private JTextArea messageLabel;
 	
-	/**
-	 * Initializes the components composing the display.
-	 * 
-	 * @param channels The channels to handle.
-	 */
-	private void initComponents(Map channels)
+	/** The channels to display.*/
+	private Map channels;
+	
+	/** Initializes the components composing the display.*/
+	private void initComponents()
 	{
 		fields = new LinkedHashMap<JTextField, ChannelData>(channels.size());
 		ChannelData channel;
@@ -189,6 +188,7 @@ class ChannelEditUI
 		
 		messageLabel = new MultilineLabel();
 		messageLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		saveButton.setVisible(!(parent instanceof PlateData));
 	}
 	
 	/** Builds and lays out the UI.*/
@@ -254,6 +254,7 @@ class ChannelEditUI
 			messageLabel.setText(WARNING_PLATE);
 		applyToAll.setVisible(false);
 		saveButton.setEnabled(true);
+		saveButton.setVisible(true);
 		repaint();
 	}
 	
@@ -261,8 +262,17 @@ class ChannelEditUI
 	private void cancel()
 	{
 		saveButton.setEnabled(false);
+		saveButton.setVisible(!(parent instanceof PlateData));
 		messageLabel.setText("");
 		applyToAll.setVisible(true);
+		//Reset the fields' values.
+		Entry<JTextField, ChannelData> e;
+		Iterator<Entry<JTextField, ChannelData>>
+		i = fields.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			e.getKey().setText(e.getValue().getChannelLabeling());
+		}
 		firePropertyChange(CANCEL_PROPERTY, Boolean.valueOf(false),
 				Boolean.valueOf(true));
 	}
@@ -298,10 +308,11 @@ class ChannelEditUI
 		if (channels == null ||  channels.size() == 0)
 			throw new IllegalArgumentException("No Channels specified.");
 		this.parent = parent;
-		initComponents(channels);
+		this.channels = channels;
+		initComponents();
 		buildGUI();
 	}
-
+	
 	/**
 	 * Handles event fired by the controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
