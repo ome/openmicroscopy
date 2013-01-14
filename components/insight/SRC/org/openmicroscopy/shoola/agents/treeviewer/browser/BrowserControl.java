@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -301,8 +302,17 @@ class BrowserControl
         if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
         		) {//|| (ho instanceof PlateData)) {
         	view.loadAction(display);
-        	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
-        			display);
+        	//Load the data of the logged in user.
+        	TreeImageDisplay node;
+    		switch (model.getDisplayMode()) {
+				case TreeViewer.GROUP_DISPLAY:
+					node = EditorUtil.getDataGroup(display);
+					break;
+				case TreeViewer.EXPERIMENTER_DISPLAY:
+				default:
+					node = BrowserFactory.getDataOwner(display);
+			}
+        	model.loadExperimenterData(node, display);
         } else if (ho instanceof ExperimenterData) {
         	view.loadAction(display);
         	model.loadExperimenterData(display, null);
@@ -324,7 +334,6 @@ class BrowserControl
 		            		view.expandNode((TreeImageDisplay) l.get(0), true);
 		        		}
 				}
-        		
         	}
         }
     }

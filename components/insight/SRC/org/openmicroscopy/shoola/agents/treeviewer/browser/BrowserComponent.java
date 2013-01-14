@@ -562,18 +562,16 @@ class BrowserComponent
         */
         if (leaves == null) throw new NullPointerException("No leaves.");
         Object ho = expNode.getUserObject();
-        if (!(ho instanceof ExperimenterData))
-        	throw new IllegalArgumentException("Experimenter not valid");
+        if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+        	throw new IllegalArgumentException("Node not valid");
         if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
         	model.getParentModel().setLeaves(parent, leaves);
         	model.setState(READY);
         	fireStateChange();
             return;
         }
-        ExperimenterData exp = (ExperimenterData) ho;
-        long userID = exp.getId();
        
-        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
+        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, -1, 
                                                                 -1);
         view.setLeavesViews(visLeaves, parent);
         
