@@ -243,4 +243,27 @@ $(document).ready(function() {
     updateMergedChannels();
     updateGrey();
 
+
+    // Bonus feature - Zoom the preview thumbs with slider
+    // Make a list of styles (for quick access on zoom)
+    var img_panel_styles = [];
+    $(".img_panel").each(function(){
+        img_panel_styles.push(this.style);
+    });
+    var setImgSize = function(size) {
+        var i, l = img_panel_styles.length;
+        for (i=0; i<l; i++) {
+            img_panel_styles[i].maxWidth = size + "px";
+            img_panel_styles[i].maxHeight = size + "px";
+        }
+    };
+    $("#img_size_slider").slider({
+        max: 200,
+        min: 30,
+        value: 100,
+        slide: function(event, ui) {
+            setImgSize(ui.value);
+        }
+    });
+
 });
