@@ -179,11 +179,15 @@ class ChannelEditUI
 				BorderFactory.createLineBorder(Color.gray),
 				new EmptyBorder(2, 2, 2, 2));
 		
-		saveButton.setOpaque(false);
+		saveButton.setOpaque(true);
+		saveButton.setBackground(UIUtilities.LIGHT_GREY);
 		saveButton.setBorder(border);
-		cancelButton.setOpaque(false);
+		cancelButton.setOpaque(true);
+		cancelButton.setBackground(UIUtilities.LIGHT_GREY);
 		cancelButton.setBorder(border);
-		applyToAll.setOpaque(false);
+		
+		applyToAll.setOpaque(true);
+		applyToAll.setBackground(UIUtilities.LIGHT_GREY);
 		applyToAll.setBorder(border);
 		
 		messageLabel = new MultilineLabel();
