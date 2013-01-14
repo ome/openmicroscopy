@@ -24,14 +24,14 @@ package ome.services.blitz.repo.path;
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 4.5
  */
-public interface StringTransformer {	
-	/* Could have used com.google.common.base.Function
-	 * but will be superseded by Java 8 lambdas anyway./
-	 
-	/**
-	 * Transform the given string.
-	 * @param a string, not null
-	 * @return the transformed string, not null
-	 */
-	public String apply(String from);
+public interface StringTransformer {    
+    /* Could have used com.google.common.base.Function
+     * but will be superseded by Java 8 lambdas anyway./
+     
+    /**
+     * Transform the given string.
+     * @param a string, not null
+     * @return the transformed string, not null
+     */
+    public String apply(String from);
 }
