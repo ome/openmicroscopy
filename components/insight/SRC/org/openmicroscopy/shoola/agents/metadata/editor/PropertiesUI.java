@@ -1190,6 +1190,8 @@ class PropertiesUI
         	descriptionPane.addDocumentListener(this);
         }
         editDescription.setEnabled(b);
+        editChannel.setEnabled(b);
+        
         setParentLabel();
         buildChannelsPane();
         buildGUI();
@@ -1295,7 +1297,7 @@ class PropertiesUI
 	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
-		editChannel.setEnabled(true);
+		editChannel.setEnabled(model.canEdit());
 		int n = channels.size()-1;
 		Iterator k = channels.keySet().iterator();
 		int j = 0;
