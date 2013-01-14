@@ -1425,4 +1425,12 @@ class TreeViewerModel
 		return TreeViewerAgent.getAvailableUserGroups();
 	}
 
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link TreeViewer}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return TreeViewer.GROUP_DISPLAY; } //TMP
+
 }

@@ -462,6 +462,30 @@ class BrowserUI
     }
     
     /**
+     * Creates the elements to attach the specified group node.
+     * 
+     * @param node The node to attach the elements to.
+     * @return See above.
+     */
+    private TreeImageSet createGroupNode(TreeImageSet node)
+    {
+    	switch (model.getBrowserType()) {
+			case Browser.IMAGES_EXPLORER:
+				createTimeElements(node);
+				break;
+			case Browser.FILES_EXPLORER:
+				createFileElements(node);
+				break;
+			case Browser.TAGS_EXPLORER:
+				createTagsElements(node);
+				break;
+			default:
+				buildEmptyNode(node);
+		}
+    	return node;
+    }
+    
+    /**
      * Creates the smart folders added to the passed node.
      * 
      * @param parent The parent of the smart folder.
@@ -819,28 +843,53 @@ class BrowserUI
 	{
 		TreeImageDisplay root = getTreeRoot();
 		TreeImageDisplay node = null;
-    	if (model.isSingleGroup()) {
-    		node = root;
-    		node = createExperimenterNode(exp, node);
-    	} else {
-    		if (TreeViewerAgent.isMultiGroups()) {
-    			GroupData group = model.getSelectedGroup();
-    			List<TreeImageSet> nodes = createGroups(group);
-    			Iterator<TreeImageSet> i = nodes.iterator();
-    			TreeImageSet n;
-    			GroupData g;
-    			while (i.hasNext()) {
-					n = i.next();
-					g = (GroupData) n.getUserObject();
-					n = createExperimenterNode(exp, n);
-					if (g.getId() == group.getId())
-						node = n;
-				}
-    		} else {
-    			node = createGroup(model.getSelectedGroup());
-    			node = createExperimenterNode(exp, node);
-    		}
-    	}
+		switch (model.getDisplayMode()) {
+			case TreeViewer.GROUP_DISPLAY:
+				if (TreeViewerAgent.isMultiGroups()) {
+	    			GroupData group = model.getSelectedGroup();
+	    			List<TreeImageSet> nodes = createGroups(group);
+	    			Iterator<TreeImageSet> i = nodes.iterator();
+	    			TreeImageSet n;
+	    			GroupData g;
+	    			while (i.hasNext()) {
+						n = i.next();
+						g = (GroupData) n.getUserObject();
+						n = createGroupNode((TreeImageSet) n);
+						if (g.getId() == group.getId())
+							node = n;
+					}
+	    		} else {
+	    			node = createGroup(model.getSelectedGroup());
+	    			node = createGroupNode((TreeImageSet) node);
+	    		}
+				break;
+			case TreeViewer.EXPERIMENTER_DISPLAY:
+			default:
+				if (model.isSingleGroup()) {
+		    		node = root;
+		    		node = createExperimenterNode(exp, node);
+		    	} else {
+		    		if (TreeViewerAgent.isMultiGroups()) {
+		    			GroupData group = model.getSelectedGroup();
+		    			List<TreeImageSet> nodes = createGroups(group);
+		    			Iterator<TreeImageSet> i = nodes.iterator();
+		    			TreeImageSet n;
+		    			GroupData g;
+		    			while (i.hasNext()) {
+							n = i.next();
+							g = (GroupData) n.getUserObject();
+							n = createExperimenterNode(exp, n);
+							if (g.getId() == group.getId())
+								node = n;
+						}
+		    		} else {
+		    			node = createGroup(model.getSelectedGroup());
+		    			node = createExperimenterNode(exp, node);
+		    		}
+		    	}
+				break;
+		}
+    	
     	return node;
 	}
 

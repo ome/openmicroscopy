@@ -953,5 +953,13 @@ class BrowserModel
 		Collection l = TreeViewerAgent.getAvailableUserGroups();
 		return l.size() <= 1;
 	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link TreeViewer}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return parent.getDisplayMode(); }
 
 }

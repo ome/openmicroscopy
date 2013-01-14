@@ -4641,4 +4641,9 @@ class TreeViewerComponent
 	 */
 	public Collection getGroups() { return model.getGroups(); }
 
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getDisplayMode()
+	 */
+	public int getDisplayMode() { return model.getDisplayMode(); }
 }
