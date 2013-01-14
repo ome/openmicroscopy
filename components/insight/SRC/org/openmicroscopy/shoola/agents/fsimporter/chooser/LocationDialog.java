@@ -364,8 +364,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param dataType The id of the data type (Screen/Project)
 	 */
 	private void displayViewFor(int dataType) {
-		setInputsEnabled(false);
-		
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
@@ -374,8 +372,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			case Importer.SCREEN_TYPE:
 				this.tabbedPane.setSelectedComponent(screenPanel);
 		}
-		
-		setInputsEnabled(true);
 	}
 
 	/**
@@ -775,16 +771,13 @@ class LocationDialog extends JDialog implements ActionListener,
 							NO_DATA_TYPE, dataType);
 			}
 
-			if(newDataObject != null) {
-				setInputsEnabled(false);
+			if (newDataObject != null) {
 				
 				EditorDialog editor = new EditorDialog(owner,
 						newDataObject, false);
 				editor.addPropertyChangeListener(this);
 				editor.setModal(true);
 				UIUtilities.centerAndShow(editor);
-				
-				setInputsEnabled(true);
 			}
 		} catch (NumberFormatException nfe) {
 		}
@@ -797,6 +790,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		GroupData selectedNewGroup = getSelectedGroup();
 		
 		if(selectedNewGroup.getId() != currentGroup.getId()) {
+			setInputsEnabled(false);
 			firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
 					currentGroup, selectedNewGroup);
 		}
@@ -1246,6 +1240,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.currentGroup = findWithId(availableGroups, currentGroupId);
 		
 		populateUIWithDisplayData();
+		setInputsEnabled(true);
 	}
 	
 	/**
@@ -1306,19 +1301,15 @@ class LocationDialog extends JDialog implements ActionListener,
 	public void itemStateChanged(ItemEvent ie) {
 		Object source = ie.getSource();
 		
-		if(ie.getStateChange() == ItemEvent.SELECTED)
+		if (ie.getStateChange() == ItemEvent.SELECTED)
 		{
-			setInputsEnabled(false);
-			
-			if(source == groupsBox) {
+			if (source == groupsBox) {
 				storeCurrentSelections();
 				
 				switchToSelectedGroup();
 			} else if (source == projectsBox) {
 				populateDatasetsBox();
 			}
-			
-			setInputsEnabled(true);
 		}
 	}
 
