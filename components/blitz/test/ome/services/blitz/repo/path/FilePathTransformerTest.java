@@ -63,12 +63,20 @@ public class FilePathTransformerTest {
 	}
 	
 	@Test
+	public void testFsFileIgnoresEmptyPathComponents() {
+		final FsFile fsFile1 = new FsFile("a/b/c");
+		final FsFile fsFile2 = new FsFile("//a//b//c//");
+		Assert.assertEquals(fsFile1, fsFile2, 
+				"in FsFile paths empty components should be insignificant");
+	}
+	
+	@Test
 	public void testLegalityOfEncodedStrings() throws UnsupportedEncodingException {
 		final String testPhrase = "The red kipper flies at midnight.";
 		final FsFile originalFile = new FsFile(testPhrase);
 		final FsFile recreatedFile = new FsFile(originalFile.getComponents());
 		Assert.assertEquals(recreatedFile, originalFile,
-					"server-local path components may contain only legal bytes");
+				"server-local path components may contain only legal bytes");
 	}
 	
 	@Test
@@ -129,17 +137,27 @@ public class FilePathTransformerTest {
 	}
 	
 	@Test
-	public void testGetMinimumDepthImpossible() throws IOException {
+	public void testGetMinimumDepthImpossibleSame() throws IOException {
 		final File clientPath1 = componentsToFile("Batteries", "not", "included");
 		final File clientPath2 = componentsToFile("Batteries", "not", "included");
 		final File clientPath3 = componentsToFile("Batteries", "are", "included");
 		fpt.getMinimumDepth(Arrays.asList(clientPath1, clientPath3));
 		try {
-		 fpt.getMinimumDepth(Arrays.asList(clientPath1, clientPath2, clientPath3));
-		 Assert.fail("getMinimumDepth must not give a result for file sets whose elements cannot be made distinguishable");
+			fpt.getMinimumDepth(Arrays.asList(clientPath1, clientPath2, clientPath3));
+			Assert.fail("getMinimumDepth must not give a result for file sets whose elements cannot be made distinguishable");
 		} catch (IllegalArgumentException e) { }
 	}
 	
+	@Test
+	public void testGetMinimumDepthImpossibleSanitizedSame() throws IOException {
+		final File clientPath1 = componentsToFile("*");
+		final File clientPath2 = componentsToFile("x");
+		try {
+			fpt.getMinimumDepth(Arrays.asList(clientPath1, clientPath2));
+			Assert.fail("getMinimumDepth must not give a result for file sets whose elements cannot be made distinguishable");
+		} catch (IllegalArgumentException e) { }
+	}
+
 	/**
 	 * Test that the minimum depth for a set of paths is as expected.
 	 * @param expectedDepth the expected minimum depth
