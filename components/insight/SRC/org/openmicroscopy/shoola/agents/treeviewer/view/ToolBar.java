@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -78,7 +79,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GroupItem;
-import org.openmicroscopy.shoola.agents.treeviewer.util.UserMenuItem;
+import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
@@ -192,6 +193,9 @@ class ToolBar
 	/** The selected group.*/
 	private GroupItem selectedItem;
 	
+	/** The collection of object hosting the groups.*/
+	private Map<JCheckBox, DataMenuItem> groupItems;
+	
 	/** Handles the group and users selection.*/
 	private void handleUsersSelection()
 	{
@@ -202,6 +206,24 @@ class ToolBar
 				!selectedItem.isGroupSelected());
 
 		usersMenu.setVisible(false);
+		groupsMenu.setVisible(false);
+	}
+	
+	/** Handles the groups selection.*/
+	private void handleGroupsSelection()
+	{
+		Entry<JCheckBox, DataMenuItem> e;
+		Iterator<Entry<JCheckBox, DataMenuItem>> 
+		i = groupItems.entrySet().iterator();
+		List<GroupData> toAdd = new ArrayList<GroupData>();
+		List<GroupData> toRemove = new ArrayList<GroupData>();
+		while (i.hasNext()) {
+			e = i.next();
+			if (e.getKey().isSelected())
+				toAdd.add((GroupData) e.getValue().getDataObject());
+			else toRemove.add((GroupData) e.getValue().getDataObject());
+		}
+		controller.setSelectedGroups(toAdd, toRemove);
 		groupsMenu.setVisible(false);
 	}
 	
@@ -257,14 +279,14 @@ class ToolBar
 		}
 		if (!users.contains(id)) users.add(id);
 		//now add the users
-		List<UserMenuItem> items = new ArrayList<UserMenuItem>();
+		List<DataMenuItem> items = new ArrayList<DataMenuItem>();
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		List l = sorter.sort(group.getLeaders());
 		Iterator i;
 		ExperimenterData exp;
 		
-		UserMenuItem item;
+		DataMenuItem item;
 		JPanel list;
 		JCheckBox groupBox = new JCheckBox();
 		Font font = groupBox.getFont();
@@ -294,7 +316,7 @@ class ToolBar
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				item = new UserMenuItem(exp, exp.getId() != id);
+				item = new DataMenuItem(exp, exp.getId() != id);
 				item.setSelected(users.contains(exp.getId()));
 				item.addActionListener(al);
 				items.add(item);
@@ -310,7 +332,7 @@ class ToolBar
 			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				item = new UserMenuItem(exp, exp.getId() != id);
+				item = new DataMenuItem(exp, exp.getId() != id);
 				item.setSelected(users.contains(exp.getId()));
 				item.addActionListener(al);
 				items.add(item);
@@ -338,7 +360,7 @@ class ToolBar
 				}
 			}
 			if (!owner) {
-				Iterator<UserMenuItem> k = items.iterator();
+				Iterator<DataMenuItem> k = items.iterator();
 				while (k.hasNext()) {
 					k.next().setEnabled(false);
 				}
@@ -353,12 +375,95 @@ class ToolBar
 	}
 	
 	/**
+	 * Creates the menu displaying the groups
+	 * 
+	 * @param source The invoker.
+	 * @param p The location of the mouse clicked.
+	 */
+	private void createGroupsMenu(Component source, Point p)
+	{
+		if (!source.isEnabled()) return;
+		Collection groups = model.getGroups();
+		if (groups == null || groups.size() == 0) return;
+		List sortedGroups = sorter.sort(groups);
+		if (groupsMenu == null) {
+			groupsMenu = new JPopupMenu();
+			groupItems = new HashMap<JCheckBox, DataMenuItem>();
+		}
+		groupsMenu.removeAll();
+		groupItems.clear();
+		
+		if (addToDisplay == null) {
+			addToDisplay = new JButton("Update");
+			addToDisplay.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent evt) {
+					handleGroupsSelection();
+				}
+			});
+		}
+		
+		GroupData group;
+		//Determine the group already displayed.
+		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+		List<TreeImageDisplay> nodes;
+		ExperimenterVisitor visitor;
+		//Find the user already added to the selected group.
+		visitor = new ExperimenterVisitor(browser, -1);
+		browser.accept(visitor);
+		nodes = visitor.getNodes();
+		Iterator<TreeImageDisplay> k = nodes.iterator();
+		List<Long> groupIds = new ArrayList<Long>();
+		long id;
+		while (k.hasNext()) {
+			id = k.next().getUserObjectId();
+			if (id >= 0) groupIds.add(id);
+		}
+		
+		//Create the group menu.
+		Iterator i = sortedGroups.iterator();
+		DataMenuItem item;
+		int size = sortedGroups.size();
+		JPanel pane = new JPanel();
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		JPanel row;
+		JCheckBox box;
+		while (i.hasNext()) {
+			group = (GroupData) i.next();
+			row = new JPanel();
+			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			box = new JCheckBox();
+			row.add(box);
+			item = new DataMenuItem(group, getGroupIcon(group));
+			if (groupIds.contains(group.getId()) || size == 1)
+				box.setSelected(true);
+			groupItems.put(box, item);
+			row.add(item);
+			pane.add(row);
+		}
+		pane.add(UIUtilities.buildComponentPanel(addToDisplay));
+		groupsMenu.add(new JScrollPane(pane));
+		//Check the size of the menu
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		 
+		//Set the size
+		Dimension d = groupsMenu.getPreferredSize();
+		Point p1 = source.getLocation();
+		SwingUtilities.convertPointToScreen(p1, source);
+		int h = dim.height-p1.y-30; //max size.
+		int diff = p1.y+d.height;
+		if (diff > h) groupsMenu.setPopupSize(d.width+20, h);
+		
+		groupsMenu.show(source, p.x, p.y);
+	}
+	
+	/**
 	 * Creates the menu displaying the groups and users.
 	 * 
 	 * @param source The invoker.
 	 * @param p The location of the mouse clicked.
 	 */
-	private void createGroupMenu(Component source, Point p)
+	private void createGroupsAndUsersMenu(Component source, Point p)
 	{
 		if (!source.isEnabled()) return;
 		Collection groups = model.getGroups();
@@ -578,12 +683,20 @@ class ToolBar
         MouseAdapter adapter = new MouseAdapter() {
     		
     		/**
-    		 * Shows the menu with the various 
+    		 * Shows the menu corresponding to the display mode.
     		 */
     		public void mousePressed(MouseEvent me)
     		{
-    			//createSelectionOption(me);
-    			createGroupMenu((Component) me.getSource(), me.getPoint());
+    			switch (model.getDisplayMode()) {
+					case TreeViewer.GROUP_DISPLAY:
+						createGroupsMenu((Component) me.getSource(),
+								me.getPoint());
+						break;
+					case TreeViewer.EXPERIMENTER_DISPLAY:
+					default:
+						createGroupsAndUsersMenu((Component) me.getSource(),
+								me.getPoint());
+				}
     		}
 		};
 		

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.util.UserMenuItem
+ * org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
@@ -25,27 +25,30 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
 //Java imports
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 
 //Third-party libraries
 
+import pojos.DataObject;
+import pojos.GroupData;
 //Application-internal dependencies
 import pojos.ExperimenterData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 
 /**
- * Hosts the experimenter to add to the menu.
+ * Hosts the experimenter or the group to add to the menu.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class UserMenuItem 
+public class DataMenuItem 
 	extends JCheckBox
 {
 
-	/** The user to host.*/
-	private ExperimenterData user;
+	/** The object to host.*/
+	private DataObject data;
 	
 	/** Flag indicating if the item can be enabled or not.*/
 	private boolean canBeEnabled;
@@ -53,25 +56,52 @@ public class UserMenuItem
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param user The user to host.
+	 * @param data The data to host.
+	 * @param icon The icon to set.
+	 */
+	public DataMenuItem(DataObject data, Icon icon)
+	{
+		this(data, icon, true);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param data The data to host.
+	 * @param icon The icon to set.
 	 * @param canBeEnabled Flag indicating if the item can be enabled or not.
 	 */
-	public UserMenuItem(ExperimenterData user, boolean canBeEnabled)
+	public DataMenuItem(DataObject data, Icon icon, boolean canBeEnabled)
 	{
-		if (user == null) 
-			throw new IllegalArgumentException("No user");
-		setText(EditorUtil.formatExperimenter(user));
+		if (data == null) 
+			throw new IllegalArgumentException("No data");
+		if (data instanceof ExperimenterData)
+			setText(EditorUtil.formatExperimenter((ExperimenterData) data));
+		else if (data instanceof GroupData)
+			setText(((GroupData) data).getName());
+		if (icon != null) setIcon(icon);
 		this.canBeEnabled = canBeEnabled;
-		this.user = user;
+		this.data = data;
 		setEnabled(true);
 	}
 	
 	/**
-	 * Returns the experimenter.
+	 * Creates a new instance.
+	 * 
+	 * @param data The data to host.
+	 * @param canBeEnabled Flag indicating if the item can be enabled or not.
+	 */
+	public DataMenuItem(DataObject data, boolean canBeEnabled)
+	{
+		this(data, null, canBeEnabled);
+	}
+	
+	/**
+	 * Returns the data object.
 	 * 
 	 * @return See above.
 	 */
-	public ExperimenterData getExperimenter() { return user; }
+	public DataObject getDataObject() { return data; }
 	
 	/**
 	 * Overridden to set the enabled flag.

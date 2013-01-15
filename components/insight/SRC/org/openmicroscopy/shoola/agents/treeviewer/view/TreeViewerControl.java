@@ -1031,6 +1031,23 @@ class TreeViewerControl
 		}
 	}
 	
+	/** 
+	 * Adds the specified groups to the display. If other groups are already
+	 * added to the display and are not in the list, they will be removed.
+	 * 
+	 * @param toAdd The groups to add.
+	 * @param toRemove The groups to remove from the display.
+	 */
+	void setSelectedGroups(List<GroupData> toAdd, List<GroupData> toRemove)
+	{
+		if (toRemove != null) {
+			Iterator<GroupData> i = toRemove.iterator();
+			while (i.hasNext())
+				model.removeGroup(i.next().getId());
+		}
+		model.setUserGroup(toAdd);
+	}
+	
 	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
