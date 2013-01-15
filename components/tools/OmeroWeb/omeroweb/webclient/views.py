@@ -811,6 +811,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
             template = "webclient/annotations/annotations_share.html"
@@ -818,7 +819,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type in ("tag"):
         context = {'manager':manager}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 
+            'share_id':share_id, 'figScripts':figScripts}
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1083,6 +1085,7 @@ def batch_annotate(request, conn=None, **kwargs):
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
+    figScripts = manager.listFigureScripts(objs)
 
     obj_ids = []
     obj_labels = []
@@ -1094,7 +1097,8 @@ def batch_annotate(request, conn=None, **kwargs):
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
+            'figScripts':figScripts}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context

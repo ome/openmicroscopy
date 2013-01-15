@@ -323,11 +323,13 @@ OME.initToolbarDropdowns = function() {
 
     // For Figure scripts, we need a popup:
     $("#figScriptList li a").click(function(event){
-        OME.openScriptWindow(event, 800, 600);
+        if (!$(this).parent().hasClass("disabled")) {
+            OME.openScriptWindow(event, 800, 600);
+        }
         event.preventDefault();
         return false;
     });
-}
+};
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
