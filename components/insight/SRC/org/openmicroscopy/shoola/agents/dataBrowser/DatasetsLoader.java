@@ -31,15 +31,15 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 
 
 /** 
- * Loads the datasets owned by the user.
+ * Loads the datasets owned by the user or by the group.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -85,10 +85,12 @@ public class DatasetsLoader
 	 */
 	public void load()
 	{
-		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
+		long id = -1;
+		if (viewer.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY)
+			id = MetadataViewerAgent.getUserDetails().getId();
 		
 		handle = dmView.loadContainerHierarchy(ctx, DatasetData.class, null,
-				false, exp.getId(), this);	
+				false, id, this);	
 	}
 	
 	/**

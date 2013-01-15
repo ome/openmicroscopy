@@ -58,9 +58,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -898,6 +900,26 @@ abstract class DataBrowserModel
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode()
+	{
+		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+			return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY;
+	}
+	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.

@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -771,5 +770,13 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	boolean areSettingsCompatible(long groupID);
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
 
 }
