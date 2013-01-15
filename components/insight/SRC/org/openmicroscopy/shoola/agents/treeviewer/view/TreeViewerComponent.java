@@ -1241,7 +1241,8 @@ class TreeViewerComponent
 		}
 		mv.setParentRootObject(parent, grandParent);
 		
-		TreeImageDisplay[] selection = browser.getSelectedDisplays();
+		TreeImageDisplay[] selection = null;
+		if (browser != null) selection = browser.getSelectedDisplays();
 		if (selection != null) {
 			siblings = new ArrayList<Object>(selection.length);
 			for (int i = 0; i < selection.length; i++) {
