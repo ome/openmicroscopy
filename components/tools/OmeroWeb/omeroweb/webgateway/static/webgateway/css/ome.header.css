@@ -228,7 +228,11 @@
 		#launch_basket  a{
 			background: url(../img/icon_basket.png) center center no-repeat;
 		}
-	
+
+		#figScriptButton{
+			background: url(../img/icon_figure_scripts.png) center center no-repeat;
+		}
+
 		#scriptButton{
 			background: url(../img/icon_script.png) center center no-repeat;
 		}
@@ -459,12 +463,19 @@
 				float:none;
 				position:relative;
 			}
+
+			.dropdown li.disabled {
+				background: transparent;
+			}
+			.dropdown li.disabled a {
+				color: #999;
+			}
 				
-			.dropdown > li > a {
+			/* The menuItem class is added by js to items with children */
+			.dropdown > li > a.menuItem {
 				background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
 			}
-			
-			.dropdown > li:hover > a {
+			.dropdown > li:hover > a.menuItem {
 				background:url(../img/dropdown_right_arrow_hover.png) 90% center no-repeat;
 			}	
 				
@@ -484,6 +495,12 @@
 				filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#6B8FB3', endColorstr='#5C7A99',GradientType=0 ); /* IE6-9 */
 				background:linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%); /* W3C */ 
 				
+			}
+
+			.dropdown li.disabled:hover {
+				background: transparent !important;
+				border-bottom: 1px solid transparent;
+   				border-top: 1px solid transparent;
 			}
 			
 					.dropdown a, #group_user_chooser li strong{
@@ -509,6 +526,10 @@
 				    .dropdown li:hover a, .dropdown li ul li:hover a{ 
 						color:white ;
 						text-shadow:none !important;
+					}
+
+					.dropdown li.disabled:hover a {
+						color: #999;
 					}
 					
 					.dropdown li ul li a{
