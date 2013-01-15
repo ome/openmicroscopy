@@ -1433,6 +1433,17 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getDisplayMode() { return TreeViewer.GROUP_DISPLAY; } //TMP
+	int getDisplayMode()
+	{
+		Integer value = (Integer) TreeViewerAgent.getRegistry().lookup(
+				LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY; 
+	}
 
 }
