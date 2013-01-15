@@ -2836,6 +2836,64 @@ class _BlitzGateway (object):
 
         return ImageWrapper(self, image)
 
+
+    def setChannelNames(self, data_type, ids, nameDict):
+        """
+        Sets and saves new names for channels of specified Images.
+        If an image has fewer channels than the max channel index in nameDict, then
+        the channel names will not be set for that image.
+
+        @param data_type:   'Image', 'Dataset'
+        @param ids:         Image or Dataset IDs
+        @param nameDict:    A dict of index:'name' ** 1-based ** E.g. {1:"DAPI", 2:"GFP"}
+        @return:            {'imageCount':totalImages, 'updateCount':updateCount}
+        """
+
+        if data_type == "Image":
+            imageIds = [long(i) for i in ids]
+        elif data_type == "Dataset":
+            images = self.getContainerService().getImages("Dataset", ids, None, self.SERVICE_OPTS)
+            imageIds = [i.getId().getValue() for i in images]
+        elif data_type == "Plate":
+            imageIds = []
+            plates = self.getObjects("Plate", ids)
+            for p in plates:
+                for well in p._listChildren():
+                    for ws in well.copyWellSamples():
+                        imageIds.append(ws.image.id.val)
+        else:
+            raise AttributeError("setChannelNames() supports data_types 'Image', 'Dataset', 'Plate' only, not '%s'" % data_type)
+
+        queryService = self.getQueryService()
+        params = omero.sys.Parameters()
+        params.map = {'ids': omero.rtypes.wrap( imageIds )}
+
+        # load Pixels, Channels, Logical Channels and Images
+        query = "select p from Pixels p left outer join fetch p.channels as c join fetch c.logicalChannel as lc join fetch p.image as i where i.id in (:ids)"
+        pix = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
+
+        maxIdx = max(nameDict.keys())
+        toSave = set()      # NB: we may have duplicate Logical Channels (Many Iamges in Plate linked to same LogicalChannel)
+        updateCount = 0
+        ctx = self.SERVICE_OPTS.copy()
+        for p in pix:
+            if p.getSizeC().getValue() < maxIdx:
+                continue
+            updateCount += 1
+            group_id = p.details.group.id.val
+            ctx.setOmeroGroup(group_id)
+            for i, c in enumerate(p.iterateChannels()):
+                if i+1 not in nameDict:
+                    continue
+                lc = c.logicalChannel
+                lc.setName(rstring(nameDict[i+1]))
+                toSave.add(lc)
+
+        toSave = list(toSave)
+        self.getUpdateService().saveCollection(toSave, ctx)
+        return {'imageCount':len(imageIds), 'updateCount':updateCount}
+
+
     def createOriginalFileFromFileObj (self, fo, path, name, fileSize, mimetype=None, ns=None):
         """
         Creates a L{OriginalFileWrapper} from a local file.
