@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.PlateData;
 import pojos.ScreenData;
 
@@ -97,7 +98,7 @@ public class ScreenPlateLoader
      * @param viewer  The viewer this data loader is for.
      *                Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param expNode The node hosting the experimenter the data are for.
+     * @param expNode The node hosting the experimenter/group the data are for.
      * 				  Mustn't be <code>null</code>.
      * @param type 	  The type of the root node.
      * @param parent  The parent the nodes are for.
@@ -106,9 +107,11 @@ public class ScreenPlateLoader
 			TreeImageSet expNode, int type, TreeImageSet parent)
 	{
 		super(viewer, ctx);
-		if (expNode == null ||
-        		!(expNode.getUserObject() instanceof ExperimenterData))
-        	throw new IllegalArgumentException("Experimenter node not valid.");
+		if (expNode == null)
+        	throw new IllegalArgumentException("Node not valid.");
+		Object ho = expNode.getUserObject();
+		if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+			throw new IllegalArgumentException("Node not valid.");
 		rootType = getClassType(type);
 		this.expNode = expNode;
 		this.parent = parent;
@@ -136,10 +139,12 @@ public class ScreenPlateLoader
      */
     public void load()
     {
-    	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
+    	long expID = -1;
+    	if (expNode.getUserObject() instanceof ExperimenterData)
+    		expID = ((ExperimenterData) expNode.getUserObject()).getId();
     	if (parent == null) 
     		handle = dmView.loadContainerHierarchy(ctx, ScreenData.class, null,
-    				false, exp.getId(), ctx.getGroupID(), this);
+    				false, expID, ctx.getGroupID(), this);
     }
 
     /**
