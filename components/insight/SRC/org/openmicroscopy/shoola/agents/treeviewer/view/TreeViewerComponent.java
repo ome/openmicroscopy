@@ -1618,36 +1618,28 @@ class TreeViewerComponent
 		//Check if current user can write in object
 		long id = model.getUserDetails().getId();
 		boolean b = false;
-		if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			if (browser == null) return false;
-			ExperimenterData exp = browser.getNodeOwner((TreeImageDisplay) ho);
-			if (exp.getId() == id) b = true;
-		} else b = EditorUtil.isUserOwner(ho, id);
-		return b;// user is the owner.
-		/*
-		if (b) return b; //user is the owner.
-		GroupData group = null;
-		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel(
-					group);
-		if (ho instanceof DataObject) {
-			DataObject data = (DataObject) ho;
-			return data.canLink();
-		} else if (ho instanceof TreeImageTimeSet) {
-			Browser browser = model.getSelectedBrowser();
-			if (browser == null) return false;
-			group = browser.getNodeGroup((TreeImageDisplay) ho);
-			
-			switch (level) {
-			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-				return true;
-			}
-			return EditorUtil.isUserGroupOwner(group, id);
+		switch (model.getDisplayMode()) {
+			case TreeViewer.GROUP_DISPLAY:
+				if (ho instanceof TreeImageTimeSet) {
+					Browser browser = model.getSelectedBrowser();
+					if (browser == null) return false;
+					GroupData g = browser.getNodeGroup(
+							(TreeImageDisplay) ho);
+					return g.canLink();
+				} else if (ho instanceof DataObject)
+					b = ((DataObject) ho).canLink();
+				return b;
+			case TreeViewer.EXPERIMENTER_DISPLAY:
+			default:
+				if (ho instanceof TreeImageTimeSet) {
+					Browser browser = model.getSelectedBrowser();
+					if (browser == null) return false;
+					ExperimenterData exp = browser.getNodeOwner(
+							(TreeImageDisplay) ho);
+					if (exp.getId() == id) b = true;
+				} else b = EditorUtil.isUserOwner(ho, id);
+				return b;
 		}
-		return false;
-		*/
 	}
 	
 	/**
