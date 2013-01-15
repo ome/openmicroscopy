@@ -915,7 +915,17 @@ class BrowserModel
 			GroupData group = (GroupData) node.getUserObject();
 			return new SecurityContext(group.getId());
 		}
-		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
+		TreeImageDisplay n = null;
+		switch (getDisplayMode()) {
+			case TreeViewer.GROUP_DISPLAY:
+				n = EditorUtil.getDataGroup(node);
+				if (n != null)
+					return new SecurityContext(n.getUserObjectId());
+				break;
+			case TreeViewer.EXPERIMENTER_DISPLAY:
+			default:
+				n = BrowserFactory.getDataOwner(node);
+		}
 		if (n == null || isSingleGroup()) {
 			return new SecurityContext(
 					getUserDetails().getDefaultGroup().getId());
