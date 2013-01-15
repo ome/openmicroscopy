@@ -3005,9 +3005,12 @@ class TreeViewerComponent
 					i = nodes.iterator();
 					TreeImageDisplay parent;
 					mv.setSelectionMode(size == 1);
+					int mode = model.getDisplayMode();
 					while (i.hasNext()) {
 						node = i.next();
-						parent = BrowserFactory.getDataOwner(node);
+						if (mode == TreeViewer.EXPERIMENTER_DISPLAY)
+							parent = BrowserFactory.getDataOwner(node);
+						else parent = EditorUtil.getDataGroup(node);
 						browser.loadExperimenterData(parent, node);
 						exp = (ExperimenterData) parent.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
