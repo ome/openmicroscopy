@@ -72,8 +72,8 @@ public class FsFile {
             this.components = Collections.unmodifiableList(components);
             final StringBuilder pathBuilder = new StringBuilder();
             for (final String component : components) {
-                if (component == null)
-                    throw new IllegalArgumentException("path components may not be null");
+                if (component == null || component.isEmpty())
+                    throw new IllegalArgumentException("each path component must have content");
                 if (component.indexOf(separatorChar) != -1)
                     throw new IllegalArgumentException("path components may not contain a path separator");
                 pathBuilder.append(component);
@@ -136,7 +136,7 @@ public class FsFile {
     }
     
     /**
-     * Transform each path component with the given transformer
+     * Transform each path component with the given transformer.
      * @param componentTransformer a transformer
      * @return the transformed path
      */
@@ -171,6 +171,21 @@ public class FsFile {
                 return null;
             }
         }
+    }
+    
+    /**
+     * Concatenate paths.
+     * @param files the paths to concatenate
+     * @return the concatenated path
+     */
+    public static FsFile concatenate(FsFile... files) {
+        int size = 0;
+        for (final FsFile file : files)
+            size += file.components.size();
+        final List<String> components = new ArrayList<String>(size);
+        for (final FsFile file : files)
+            components.addAll(file.components);
+        return new FsFile(components);
     }
     
     /**

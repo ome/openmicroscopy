@@ -63,14 +63,6 @@ public class FilePathTransformerTest {
     }
     
     @Test
-    public void testFsFileIgnoresEmptyPathComponents() {
-        final FsFile fsFile1 = new FsFile("a/b/c");
-        final FsFile fsFile2 = new FsFile("//a//b//c//");
-        Assert.assertEquals(fsFile1, fsFile2, 
-                "in FsFile paths empty components should be insignificant");
-    }
-    
-    @Test
     public void testLegalityOfEncodedStrings() throws UnsupportedEncodingException {
         final String testPhrase = "The red kipper flies at midnight.";
         final FsFile originalFile = new FsFile(testPhrase);
