@@ -27,7 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -71,8 +71,9 @@ public class ImagesLoader
     /**
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
-     * @param userID	The ID of the user.
-     * @param
+     * @param userID The ID of the user.
+     * @param orphan Pass <code>true</code> to load images not in a container,
+     *  <code>false</code> otherwise.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final long userID, final boolean orphan)
@@ -89,19 +90,17 @@ public class ImagesLoader
     /**
      * Creates a {@link BatchCall} to retrieve the passed image
      * 
-     * @param imageID	The id of the image.
-     * @param userID	The ID of the user.
+     * @param imageID The id of the image.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long imageID, final long userID)
+    private BatchCall makeBatchCall(final long imageID)
     {
         return new BatchCall("Loading user's images: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                List<Long> ids = new ArrayList<Long>(1);
-                ids.add(imageID);
-                Set set = os.getImages(ctx, ImageData.class, ids, userID);
+                Set set = os.getImages(ctx, ImageData.class,
+                		Arrays.asList(imageID), -1);
                 if (set != null && set.size() == 1) {
                 	Iterator i = set.iterator();
                 	while (i.hasNext()) {
@@ -175,7 +174,8 @@ public class ImagesLoader
      * Creates a new instance. 
      * 
      * @param ctx The security context.
-     * @param userID The ID of the user.
+     * @param userID The ID of the user or <code>-1</code> to load all
+     *               the images within the group.
      * @param orphan Indicates to load all the images or
      * only the orphaned images.
      */
@@ -191,9 +191,10 @@ public class ImagesLoader
      * 
      * @param ctx The security context.
      * @param nodeType	The type of the root node. Can only be one out of:
-     * 					{@link DatasetData}.
+     * 					{@link DatasetData} or {@link ImageData}.
      * @param nodeIDs	A set of the IDs of top-most containers.
-     * @param userID	The Id of the user.
+     * @param userID	The Id of the user or <code>-1</code> to load all
+     *               the images within the group.
      */
     public ImagesLoader(SecurityContext ctx, Class nodeType, List nodeIDs,
     		long userID)
@@ -206,7 +207,7 @@ public class ImagesLoader
         this.ctx = ctx;
         if (nodeType.equals(DatasetData.class) || 
             nodeType.equals(ImageData.class))
-            loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
+            loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs,
                     									userID);
         else throw new IllegalArgumentException("Unsupported type: "+
                 nodeType);
@@ -219,7 +220,8 @@ public class ImagesLoader
 	 * @param ctx The security context.
      * @param startTime The timestamp identifying the start of a period.
      * @param endTime The timestamp identifying the date.
-     * @param userID The Id of the user.
+     * @param userID The Id of the user or <code>-1</code> to load all
+     *               the images within the group.
      */
     public ImagesLoader(SecurityContext ctx, Timestamp startTime,
     		Timestamp endTime, long userID)
@@ -233,12 +235,11 @@ public class ImagesLoader
      * 
      * @param ctx The security context.
      * @param imageID The id of the image.
-     * @param rootLevelID The ID of the root.
      */
-    public ImagesLoader(SecurityContext ctx,long imageID, long rootLevelID)
+    public ImagesLoader(SecurityContext ctx,long imageID)
     {
     	this.ctx = ctx;
-        loadCall = makeBatchCall(imageID, rootLevelID);
+        loadCall = makeBatchCall(imageID);
     }
 
 }
