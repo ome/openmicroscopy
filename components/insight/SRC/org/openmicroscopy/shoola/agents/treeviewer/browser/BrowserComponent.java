@@ -159,7 +159,9 @@ class BrowserComponent
 			    			v.getFoundNodes(),
 							v.getExpandedTopNodes());
 			    	ctx = new SecurityContext(gid);
-					ctx.setExperimenter(expNode.getUserObjectId());
+			    	if (model.getDisplayMode() ==
+			    			TreeViewer.EXPERIMENTER_DISPLAY)
+			    		ctx.setExperimenter(expNode.getUserObjectId());
 					m.put(ctx, def);
 		    	}
 			}
@@ -1381,7 +1383,9 @@ class BrowserComponent
 			    			v.getFoundNodes(),
 							v.getExpandedTopNodes());
 			    	ctx = new SecurityContext(gid);
-					ctx.setExperimenter(expNode.getUserObjectId());
+			    	if (model.getDisplayMode() ==
+			    			TreeViewer.EXPERIMENTER_DISPLAY)
+			    		ctx.setExperimenter(expNode.getUserObjectId());
 					m.put(ctx, def);
 		    	}
 			}
@@ -1443,32 +1447,29 @@ class BrowserComponent
 			model.getParentModel().setStatus(false, "", true);
 			return;
 		}
-		Iterator i = nodes.entrySet().iterator();
+		Iterator<Entry<SecurityContext, RefreshExperimenterDef>>
+		i = nodes.entrySet().iterator();
 		RefreshExperimenterDef node;
 		TreeImageSet expNode;
 		ExperimenterData exp;
 		Set convertedNodes;
-		long userId;
-		Entry entry;
+		Entry<SecurityContext, RefreshExperimenterDef> entry;
 		int browserType = model.getBrowserType();
 		Map<Integer, Set> results;
-		SecurityContext ctx;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			ctx = (SecurityContext) entry.getKey();
+			entry = i.next();
 			//userId = (Long)
 			node = (RefreshExperimenterDef) entry.getValue();
 			expNode = node.getExperimenterNode();
-			exp = (ExperimenterData) expNode.getUserObject();
 			if (browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER)
 			{
 				results = TreeViewerTranslator.refreshFolderHierarchy(
-							(Map) node.getResults(), exp.getId(), -1);
+							(Map) node.getResults(), -1, -1);
 				view.refreshFolder(expNode, results);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
 						(Map) node.getResults(), node.getExpandedTopNodes(), 
-						exp.getId(), -1);
+						-1, -1);
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
@@ -1483,10 +1484,7 @@ class BrowserComponent
 			Iterator k;
 			Set<TreeImageDisplay> found;
 			while (i.hasNext()) {
-				//userId = (Long) i.next();
-				//node = nodes.get(userId);
-				entry = (Entry) i.next();
-				//userId = (Long)
+				entry = i.next();
 				node = (RefreshExperimenterDef) entry.getValue();
 				expNode = node.getExperimenterNode();
 				if (expNode.isExpanded()) {
