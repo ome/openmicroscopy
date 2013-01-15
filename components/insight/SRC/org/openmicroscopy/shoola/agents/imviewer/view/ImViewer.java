@@ -1278,4 +1278,11 @@ public interface ImViewer
 	 */
 	void onUpdatedChannels(List<ChannelData> channels);
 
+	/** 
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
 }
