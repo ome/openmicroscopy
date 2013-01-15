@@ -1301,6 +1301,39 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def edit_channel_names(request, imageId, conn=None, **kwargs):
+    """
+    Edit and save channel names
+    """
+    image = conn.getObject("Image", imageId)
+    channelNames = {}
+    nameDict = {}
+    for i in range(image.getSizeC()):
+        cname = request.REQUEST.get("channel%d" % i, None)
+        if cname is not None:
+            channelNames["channel%d" % i] = str(cname)
+            nameDict[i+1] = str(cname)
+    # If the 'Apply to Dataset' button was used to submit...
+    if request.REQUEST.get('confirm_apply', None) is not None:
+        parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
+        if parentId is not None:
+            ptype = parentId.split("-")[0].title()
+            pid = long(parentId.split("-")[1])
+            counts = conn.setChannelNames(ptype, [pid], nameDict)
+    else:
+        counts = conn.setChannelNames("Image", [image.getId()], nameDict)
+    rv = {"channelNames": channelNames}
+    if counts:
+        rv['imageCount'] = counts['imageCount']
+        rv['updateCount'] = counts['updateCount']
+        return rv
+    else:
+        return {"error": "No parent found to apply Channel Names"}
+
+
 @login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):

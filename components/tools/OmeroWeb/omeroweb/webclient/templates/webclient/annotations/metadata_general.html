@@ -316,6 +316,87 @@
                     return false;
                 });
 
+                // Channel name editing
+            {% if manager.image or manager.well.getWellSample.image %}
+                // we need to know parent for the 'apply to all'
+                var getParentId = function() {
+                    var datatree = $.jstree._focused();
+                    if (!datatree) return;
+                    var sel = datatree.data.ui.selected,
+                        result;
+                    var p = /^(plate-[0-9]+)$/;
+                    if (p.test(sel.attr('id'))) {
+                        return sel.attr('id');
+                    }
+                    var parent = sel.parent().parent(),
+                        parent_id = parent.attr('id');
+                    if (p.test(parent_id)) {
+                        return parent_id;
+                    }
+                    if (/^dataset-([0-9]+)$/.test(parent_id)) {
+                        return parent_id;
+                    }
+                }
+                var $chNameForm = $("#channel_names_edit");
+                // set up form with Parent
+                var pid = getParentId();    // E.g. dataset-123 OR plate-456
+                if (typeof pid === "undefined") {
+                    $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
+                } else {
+                    var parentType = pid.split("-")[0];
+                    $chNameForm.find(".ptype").text( parentType.capitalize() );
+                    $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
+                    if (parentType === "plate") {
+                        // Plate: only allow 'Apply to All' (all images linked to same Channels)
+                        $chNameForm.find("button[name=save]").hide();
+                    }
+                }
+                var resetChForm = function() {
+                    $chNameForm.find(".originalButtons").show();
+                    $chNameForm.find(".confirmButtons").hide();
+                    $("#channel_names_display").show();
+                    $("#channel_names_edit").hide();
+                }
+                // Workflow starts by displaying the form
+                $("#channel_names button").click(function(){
+                    $("#channel_names_display").hide();
+                    $("#channel_names_edit").show();
+                });
+                // Handling of all form buttons. NB: save & apply_confirm buttons submit
+                $chNameForm.find("button").click(function(event){
+                    var name = $(this).attr('name');
+                    if (name === "apply") {
+                        // Ask users to confirm:
+                        $chNameForm.find(".originalButtons").hide();
+                        $chNameForm.find(".confirmButtons").show();
+                        event.preventDefault(); // prevent form submission etc
+                        return false;
+                    } else if (name === "cancel") {
+                        // cancel - hide and don't submit
+                        resetChForm();
+                    }
+                });
+                // Form handled by AJAX
+                $("#channel_names_edit").ajaxForm({
+                    dataType:  'json',
+                    success: function(data) {
+                        var cnames = data.channelNames;
+                        // update the channel names, and ititial values in form
+                        $("#channel_names_display span").each(function(i){
+                            if (cnames.hasOwnProperty("channel"+i)) {
+                                $(this).text(cnames["channel"+i]);
+                            }
+                        });
+                        $chNameForm.find("input").each(function(i){
+                            if (cnames.hasOwnProperty( $(this).attr('name') )) {
+                                $(this).attr('value', cnames["channel"+i]);
+                            }
+                        });
+                        resetChForm();
+                    }
+                });
+            {% endif %}
+
             });
             
     </script>
@@ -438,51 +519,12 @@
 			
 			
 			
-            <table class="metadata_details">
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>
-                </tr>
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.image.getSizeX }} x {{ manager.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.image.getPixelsType }}</td>
-                </tr>
-                {% if manager.image.getPixelSizeX or manager.image.getPixelSizeY or manager.image.getPixelSizeZ %}
-                <tr>
-                    <th>Pixels Size (XY{% if manager.image.getPixelSizeZ %}Z{% endif %}) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-                        </div>
-                        <span class="tooltip_html" style='display:none'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }}
-                            {% if manager.image.getPixelSizeZ %} x {{ manager.image.getPixelSizeZ }} {% endif %}
-                        </span>
-                    </td>
-                </tr>
-                {% endif %}
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.image.getSizeZ }} x {{ manager.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-            </table>
+            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
+            {% with image=manager.image parent=manager.image.getParent %}
+                {% include "webclient/annotations/includes/core_metadata.html" %}
+            {% endwith %}
+
+
             {% else %}
                 {% if manager.dataset %}
                 {% if manager.dataset.canEdit %}
@@ -673,56 +715,12 @@
                 <span id='well_desc'>{{ manager.well.getWellSample.image.description|default:""|linebreaksbr }}</span>
                 {% endif %}
             </div>
-            
-            <table>
-                <tr>
-                    <th>Owner:</th>
-                    <td id='owner_fullname'>{{ manager.well.getWellSample.image.getOwner.getFullName }}</td>
-                </tr>
-                <tr>
-                    <th>Acquisition Date:</th>
-                    <td id='acqu_date'>{{ manager.well.getWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
-                </tr>
-                <tr>
-                    <th>Imported Date:</th>
-                    <td id='import_date'>{{ manager.well.getWellSample.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
-                </tr>
-                <tr>
-                    <th>Dimensions (XY):</th>
-                    <td id='dims_xy'>{{ manager.well.getWellSample.image.getSizeX }} x {{ manager.well.getWellSample.image.getSizeY }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Type:</th>
-                    <td id='pixels_type'>{{ manager.well.getWellSample.image.getPixelsType }}</td>
-                </tr>
-                <tr>
-                    <th>Pixels Size (XYZ) (&#181m):</th>
-                    <td id='pixels_size'>
-                        <div class='tooltip'>{{ manager.well.getWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.getWellSample.image.getPixelSizeY|floatformat:4 }} 
-                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ|floatformat:4 }} {% endif %}
-                        </div>
-                        <span class="tooltip_html" style='display:none'>{{ manager.well.getWellSample.image.getPixelSizeX }} x {{ manager.well.getWellSample.image.getPixelSizeY }}
-                            {% if manager.well.getWellSample.image.getPixelSizeZ %} x {{ manager.well.getWellSample.image.getPixelSizeZ }} {% endif %}
-                        </span>
-                    </td>
-                </tr>
-                <tr>
-                    <th>Z-sections/Timepoints:</th>
-                    <td id='dims_zt'>{{ manager.well.getWellSample.image.getSizeZ }} x {{ manager.well.getWellSample.image.getSizeT }}</td>
-                </tr>
-                <tr>
-                    <th>Channels:</th>
-                    <td id='channel_names'>
-                    {% if manager.well.getWellSample.image.getChannels %}{% for c in manager.well.getWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLabel }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th>Status:</th>
-                    <td id='well_status'>
-                        {{ manager.well.status|default:"None" }}
-                    </td>
-                </tr>
-            </table>
+
+            <!-- Include table of core metadata, Owner, SizeX,Y,Z, Channels etc -->
+            {% with image=manager.well.getWellSample.image %}
+                {% include "webclient/annotations/includes/core_metadata.html" %}
+            {% endwith %}
+
             {% else %}
                 {% if manager.acquisition %}
                 {% if manager.acquisition.canEdit %}
