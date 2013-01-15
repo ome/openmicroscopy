@@ -97,7 +97,6 @@ public class DMRefreshLoader
         Iterator<Entry<SecurityContext, List>> 
         users = nodes.entrySet().iterator();
         long userID;
-        long groupID = -1;
         List containers;
         
         Object result;
@@ -121,7 +120,7 @@ public class DMRefreshLoader
         	containers = entry.getValue();
         	if (containers == null || containers.size() == 0) {
         		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
-                		false, ctx.getExperimenter(), groupID);
+                		false, ctx.getExperimenter());
         		if (mapResult.containsKey(ctx)) {
         			s = (Set) mapResult.get(userID);
         			s.addAll((Set) result);
@@ -146,8 +145,8 @@ public class DMRefreshLoader
 					}
 				}
         		//load the rest.
-        		set = os.loadContainerHierarchy(ctx, rootNodeType, null, 
-                        false, userID, groupID);
+        		set = os.loadContainerHierarchy(ctx, rootNodeType, null,
+                        false, userID);
                 j = set.iterator();
                 children = null;
                
@@ -175,9 +174,8 @@ public class DMRefreshLoader
                             child = (DataObject) c.next();
                             id = Long.valueOf(child.getId());
                             if (ids.contains(id)) {
-                                r = os.loadContainerHierarchy(ctx, klass, 
-                                		Arrays.asList(id),
-                                        true, userID, groupID);
+                                r = os.loadContainerHierarchy(ctx, klass,
+                                		Arrays.asList(id), true, userID);
                                 k = r.iterator();
                                 while (k.hasNext()) {
                                     newChildren.add(k.next());

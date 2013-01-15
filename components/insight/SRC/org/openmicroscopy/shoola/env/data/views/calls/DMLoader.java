@@ -76,20 +76,19 @@ public class DMLoader
      * @param withLeaves    Passes <code>true</code> to retrieve the leaves
      *                      nodes, <code>false</code> otherwise.
      * @param userID		The identifier of the user.
-     * @param groupID		The identifier of the user's group.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType,
                                     final List rootNodeIDs,
                                     final boolean withLeaves,
-                                    final long userID, final long groupID)
+                                    final long userID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(ctx, rootNodeType, 
-    					rootNodeIDs, withLeaves, userID, groupID);
+    					rootNodeIDs, withLeaves, userID);
             }
         };
     }
@@ -98,17 +97,16 @@ public class DMLoader
      * Creates a {@link BatchCall} to retrieve a Container tree.
      * 
      * @param userID The identifier of the user.
-     * @param groupID The identifier of the user's group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long userID, final long groupID)
+    private BatchCall makeBatchCall(final long userID)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
                 results = os.loadContainerHierarchy(ctx, ProjectData.class, 
-                		null, false, userID, groupID);
+                		null, false, userID);
             }
         };
     }
@@ -132,26 +130,26 @@ public class DMLoader
      * 
      * @param ctx The security context.
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData}.
+     *                      {@link ProjectData}, {@link DatasetData} or
+     *                      {@link ScreenData}.
      * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
      *                      <code>null</code> to retrieve all the top-most
      *                      container specified by the rootNodeType.
      * @param withLeaves    Passes <code>true</code> to retrieve the images.
      *                      <code>false</code> otherwise.
-     * @param userID		The identifier of the user. 
-     * @param groupID		The identifier of the user's group.
+     * @param userID		The identifier of the user.
      */
     public DMLoader(SecurityContext ctx, Class rootNodeType,
-    	List<Long> rootNodeIDs, boolean withLeaves, long userID, long groupID)
+    	List<Long> rootNodeIDs, boolean withLeaves, long userID)
     {
         this.ctx = ctx;
         if (rootNodeType == null) {
-        	loadCall = makeBatchCall(userID, groupID);
+        	loadCall = makeBatchCall(userID);
         } else if (ProjectData.class.equals(rootNodeType) ||
         		DatasetData.class.equals(rootNodeType) 
                 || ScreenData.class.equals(rootNodeType))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
-                        				userID, groupID);
+                        				userID);
         else 
             throw new IllegalArgumentException("Unsupported type: "+
                                                 rootNodeType);

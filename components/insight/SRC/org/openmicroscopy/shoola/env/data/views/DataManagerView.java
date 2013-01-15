@@ -66,20 +66,20 @@ public interface DataManagerView
 	 * 
 	 * @param ctx The security context.
 	 * @param rootNodeType  The type of the root node. Can only be one out of:
-	 *                      <code>ProjectData, DatasetData</code>.
+	 *                      <code>ProjectData</code>, <code>DatasetData</code>
+	 *                      or <code>ScreenData</code>.
 	 * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
 	 *                      <code>null</code> to retrieve all the top-most
 	 *                      container specified by the rootNodeType.
 	 * @param withLeaves    Passes <code>true</code> to retrieve the images.
-	 *                      <code>false</code> otherwise.   
+	 *                      <code>false</code> otherwise.
 	 * @param userID		The identifier of the user.
-	 * @param groupID		The identifier of the user's group.
 	 * @param observer      Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List<Long> rootNodeIDs, boolean withLeaves,
-			long userID, long groupID, AgentEventListener observer);
+			long userID, AgentEventListener observer);
 
 	/**
 	 * Retrieves the images for the specified user.

@@ -94,9 +94,7 @@ public class ContainerLoader
     {
     	ExperimenterData exp = ImViewerAgent.getUserDetails();
         handle = dmView.loadContainerHierarchy(ctx, ProjectData.class, null,
-				false, exp.getId(), exp.getDefaultGroup().getId(),
-				this);
-        //handle = mhView.loadContainers(ImageData.class, imageID, userID, this);
+				false, exp.getId(), this);
     }
 
     /**

@@ -144,7 +144,7 @@ public class ScreenPlateLoader
     		expID = ((ExperimenterData) expNode.getUserObject()).getId();
     	if (parent == null) 
     		handle = dmView.loadContainerHierarchy(ctx, ScreenData.class, null,
-    				false, expID, ctx.getGroupID(), this);
+    				false, expID, this);
     }
 
     /**

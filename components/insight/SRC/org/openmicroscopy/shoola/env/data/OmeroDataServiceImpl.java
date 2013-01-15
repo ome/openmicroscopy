@@ -196,12 +196,11 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}. 
-	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long,
-	 * long)
+	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long)
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
-			long userID, long groupID)
+			long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		ParametersI param = new ParametersI();

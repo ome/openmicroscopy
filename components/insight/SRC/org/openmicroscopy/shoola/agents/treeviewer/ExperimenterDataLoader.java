@@ -205,12 +205,11 @@ public class ExperimenterDataLoader
     		} else {
     			if (parent == null) {
             		handle = dmView.loadContainerHierarchy(ctx,
-            				rootNodeType, null, withImages, expID,
-            				ctx.getGroupID(), this);	
+            				rootNodeType, null, withImages, expID, this);
             	} else {
             		handle = dmView.loadContainerHierarchy(ctx, rootNodeType,
             				Arrays.asList(parent.getUserObjectId()),
-            				withImages, expID, ctx.getGroupID(), this);
+            				withImages, expID, this);
             	}
     		}
     	}
