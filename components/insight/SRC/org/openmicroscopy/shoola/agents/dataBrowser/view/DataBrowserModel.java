@@ -749,16 +749,24 @@ abstract class DataBrowserModel
 	boolean canLinkParent()
 	{
 		if (DataBrowserAgent.isAdministrator()) return true;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		if (parent == null) {
-			if (experimenter == null) return false;
-			return experimenter.getId() == userID;
+		switch (getDisplayMode()) {
+			case LookupNames.GROUP_DISPLAY:
+				if (parent == null || !(parent instanceof DataObject))
+					return false;
+				return ((DataObject) parent).canLink();
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			default:
+				long userID = DataBrowserAgent.getUserDetails().getId();
+				if (parent == null) {
+					if (experimenter == null) return false;
+					return experimenter.getId() == userID;
+				}
+				if (!(parent instanceof DataObject)) {
+					if (experimenter == null) return false;
+					return experimenter.getId() == userID;
+				}
+				return EditorUtil.isUserOwner(parent, userID);
 		}
-		if (!(parent instanceof DataObject)) {
-			if (experimenter == null) return false;
-			return experimenter.getId() == userID;
-		}
-		return EditorUtil.isUserOwner(parent, userID);
 	}
 	
 	/**
