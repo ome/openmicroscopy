@@ -2860,7 +2860,7 @@ class OMEROGateway
 		try {
 			if (!orphan) {
 				ParametersI po = new ParametersI();
-				po.exp(omero.rtypes.rlong(userID));
+				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 				return PojoMapper.asDataObjects(service.getUserImages(po));
 			}
 			IQueryPrx svc = getQueryService(ctx);
@@ -2874,9 +2874,11 @@ class OMEROGateway
             		"DatasetImageLink as obl where obl.child = img.id)");
             sb.append(" and not exists (select ws from WellSample as " +
             		"ws where ws.image = img.id)");
-            sb.append(" and img.details.owner.id = :userID");
             ParametersI param = new ParametersI();
-        	param.addLong("userID", userID);
+            if (userID >= 0) {
+            	sb.append(" and img.details.owner.id = :userID");
+            	param.addLong("userID", userID);
+            }
         	return PojoMapper.asDataObjects(
         			svc.findAllByQuery(sb.toString(), param));
 		} catch (Throwable t) {

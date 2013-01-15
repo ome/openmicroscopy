@@ -555,11 +555,6 @@ class BrowserComponent
     						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
-        /*
-            throw new IllegalStateException(
-                    "This method can only be invoked in the LOADING_LEAVES "+
-                    "state.");
-        */
         if (leaves == null) throw new NullPointerException("No leaves.");
         Object ho = expNode.getUserObject();
         if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
@@ -571,8 +566,7 @@ class BrowserComponent
             return;
         }
        
-        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, -1, 
-                                                                -1);
+        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, -1, -1);
         view.setLeavesViews(visLeaves, parent);
         
         model.setState(READY);
