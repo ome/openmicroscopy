@@ -549,7 +549,7 @@ class OmeroDataServiceImpl
 		
 		ParametersI po = new ParametersI();
 		po.leaves();
-		po.exp(omero.rtypes.rlong(userID));
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		if (startTime != null) 
 			po.startTime(omero.rtypes.rtime(startTime.getTime()));
 		if (endTime != null) 

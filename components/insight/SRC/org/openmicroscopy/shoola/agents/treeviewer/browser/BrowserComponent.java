@@ -1576,8 +1576,10 @@ class BrowserComponent
      */
 	public void countExperimenterImages(TreeImageDisplay expNode)
 	{
-		if (expNode == null || 
-			!(expNode.getUserObject() instanceof ExperimenterData))
+		if (expNode == null)
+			throw new IllegalArgumentException("Node not valid.");
+		Object ho = expNode.getUserObject();
+		if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
 			throw new IllegalArgumentException("Node not valid.");
 		switch (model.getState()) {
 			case DISCARDED:
@@ -1601,9 +1603,11 @@ class BrowserComponent
      */
 	public void setExperimenterCount(TreeImageSet expNode, int index, Object v)
 	{
-		if (expNode == null || 
-				!(expNode.getUserObject() instanceof ExperimenterData))
-				throw new IllegalArgumentException("Node not valid.");
+		if (expNode == null)
+			throw new IllegalArgumentException("Node not valid.");
+		Object ho = expNode.getUserObject();
+		if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+			throw new IllegalArgumentException("Node not valid.");
 		int browserType = model.getBrowserType();
 		if (!(browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER
 				|| browserType == TAGS_EXPLORER))
