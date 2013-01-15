@@ -79,8 +79,7 @@ class ImagesModel
 		this.images = images;
 		this.parent = parent;
 		numberOfImages = images.size();
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformImages(images, userID, 0);
+		Set visTrees = DataBrowserTranslator.transformImages(images);
         browser = BrowserFactory.createBrowser(visTrees);
         //layoutBrowser();
 	}

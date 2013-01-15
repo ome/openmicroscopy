@@ -2537,7 +2537,6 @@ class TreeViewerComponent
 		long id; 
 		Set set, dataObjects;
 		DatasetData d;
-		long userID = model.getExperimenter().getId();
 		Iterator k;
 		
 		Map<Long, TreeImageDisplay> m = new HashMap<Long, TreeImageDisplay>();
@@ -2573,7 +2572,7 @@ class TreeViewerComponent
 							while (k.hasNext()) {
 								value.addChildDisplay(
 										TreeViewerTranslator.transformDataObject(
-										 (ImageData) k.next(), userID, -1));
+										 (ImageData) k.next()));
 							}
 						}
 						value.setChildrenLoaded(true);
@@ -2601,8 +2600,7 @@ class TreeViewerComponent
 								while (k.hasNext()) {
 									value.addChildDisplay(
 									 TreeViewerTranslator.transformDataObject(
-										(ImageData) k.next(), userID, -1)
-											);
+										(ImageData) k.next()));
 								}
 							}
 							value.setChildrenLoaded(true);
@@ -2618,7 +2616,7 @@ class TreeViewerComponent
 									while (k.hasNext()) {
 										value.addChildDisplay(
 										 TreeViewerTranslator.transformDataObject(
-										   (ImageData) k.next(), userID, -1));
+										   (ImageData) k.next()));
 									}
 								}
 								value.setChildrenLoaded(true);

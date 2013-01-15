@@ -83,9 +83,7 @@ class TagSetsModel
 			throw new IllegalArgumentException("No images.");
 		this.tagSets = tagSets;
 		this.parent = parent;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(tagSets, 
-							userID, 0);
+		Set visTrees = DataBrowserTranslator.transformHierarchy(tagSets);
         browser = BrowserFactory.createBrowser(visTrees);
         //layoutBrowser();
         Iterator<TagAnnotationData> i = tagSets.iterator();

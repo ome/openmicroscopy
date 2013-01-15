@@ -1064,13 +1064,10 @@ public class EditorUtil
      * Returns <code>true</code> if the specified data object is readable,
      * <code>false</code> otherwise, depending on the permission.
      * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.
+     * @param ho The data object to check.
      * @return See above.
      */
-    public static boolean isReadable(Object ho, long userID, long groupID)
+    public static boolean isReadable(Object ho)
     {
     	if (ho == null || ho instanceof ExperimenterData || 
     		ho instanceof String)

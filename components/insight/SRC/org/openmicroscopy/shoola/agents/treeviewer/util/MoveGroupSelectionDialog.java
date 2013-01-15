@@ -513,7 +513,7 @@ public class MoveGroupSelectionDialog
 			return;
 		}
 		Set<TreeImageDisplay> 
-		nodes = TreeViewerTranslator.transformHierarchy(targets, userID, -1);
+		nodes = TreeViewerTranslator.transformHierarchy(targets);
 		List<TreeImageDisplay> transformedNodes = 
 			prepareSortedList(sorter.sort(nodes));
 		if (transformedNodes.size() == 0) {
