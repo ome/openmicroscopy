@@ -568,7 +568,7 @@ class BrowserComponent
             return;
         }
        
-        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, -1, -1);
+        Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves);
         view.setLeavesViews(visLeaves, parent);
         
         model.setState(READY);
@@ -915,13 +915,11 @@ class BrowserComponent
         if (op == TreeViewer.UPDATE_OBJECT) view.updateNodes(nodes, object);
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
-            long userID = model.getUserID();
             //Get the user node.
             if (parentDisplay == null)
             	parentDisplay = getLastSelectedDisplay();
             TreeImageDisplay newNode = 
-            		TreeViewerTranslator.transformDataObject(object, userID, 
-            								-1);
+            		TreeViewerTranslator.transformDataObject(object);
            
             createNodes(nodes, newNode, parentDisplay);
         }     
@@ -943,11 +941,9 @@ class BrowserComponent
 		TreeImageDisplay loggedUser = getLoggedExperimenterNode();
 		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
         nodes.add(loggedUser);
-        long userID = model.getUserID();
         //long model.get
         createNodes(nodes, 
-                TreeViewerTranslator.transformDataObject(data, userID, 
-                        -1), loggedUser);
+                TreeViewerTranslator.transformDataObject(data), loggedUser);
         setSelectedNode();
 	}
 	
@@ -1169,11 +1165,7 @@ class BrowserComponent
         Object uo = expNode.getUserObject();
         if (!(uo instanceof ExperimenterData || uo instanceof GroupData))
         	throw new IllegalArgumentException("Node not valid.");
-        long expID = -1;
-        if (uo instanceof ExperimenterData)
-        	expID = ((ExperimenterData) uo).getId();
-        Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
-        		expID, -1);
+        Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes);
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
         
@@ -1451,7 +1443,6 @@ class BrowserComponent
 		i = nodes.entrySet().iterator();
 		RefreshExperimenterDef node;
 		TreeImageSet expNode;
-		ExperimenterData exp;
 		Set convertedNodes;
 		Entry<SecurityContext, RefreshExperimenterDef> entry;
 		int browserType = model.getBrowserType();
@@ -1464,12 +1455,11 @@ class BrowserComponent
 			if (browserType == IMAGES_EXPLORER || browserType == FILES_EXPLORER)
 			{
 				results = TreeViewerTranslator.refreshFolderHierarchy(
-							(Map) node.getResults(), -1, -1);
+							(Map) node.getResults());
 				view.refreshFolder(expNode, results);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
-						(Map) node.getResults(), node.getExpandedTopNodes(), 
-						-1, -1);
+						(Map) node.getResults(), node.getExpandedTopNodes());
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}

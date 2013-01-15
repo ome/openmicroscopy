@@ -576,9 +576,7 @@ class ImporterComponent
 				return;
 		}
 		if (chooser == null) return;
-		ExperimenterData exp = ImporterAgent.getUserDetails();
-		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
-				model.getGroupId());
+		Set nodes = TreeViewerTranslator.transformHierarchy(result);
 		chooser.reset(nodes, type, model.getGroupId());
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();

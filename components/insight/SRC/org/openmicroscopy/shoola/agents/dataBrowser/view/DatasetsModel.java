@@ -77,9 +77,7 @@ class DatasetsModel
 		if (datasets  == null) 
 			throw new IllegalArgumentException("No datasets.");
 		this.parent = parent;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
-							userID, 0);
+		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets);
         browser = BrowserFactory.createBrowser(visTrees);
         //layoutBrowser();
         Iterator<DatasetData> i = datasets.iterator();
