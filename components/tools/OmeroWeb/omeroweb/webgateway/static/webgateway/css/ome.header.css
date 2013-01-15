@@ -463,6 +463,13 @@
 				float:none;
 				position:relative;
 			}
+
+			.dropdown li.disabled {
+				background: transparent;
+			}
+			.dropdown li.disabled a {
+				color: #999;
+			}
 				
 			/* The menuItem class is added by js to items with children */
 			.dropdown > li > a.menuItem {
@@ -489,6 +496,12 @@
 				background:linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%); /* W3C */ 
 				
 			}
+
+			.dropdown li.disabled:hover {
+				background: transparent !important;
+				border-bottom: 1px solid transparent;
+   				border-top: 1px solid transparent;
+			}
 			
 					.dropdown a, #group_user_chooser li strong{
 						font-size:1.2em;
@@ -513,6 +526,10 @@
 				    .dropdown li:hover a, .dropdown li ul li:hover a{ 
 						color:white ;
 						text-shadow:none !important;
+					}
+
+					.dropdown li.disabled:hover a {
+						color: #999;
 					}
 					
 					.dropdown li ul li a{
