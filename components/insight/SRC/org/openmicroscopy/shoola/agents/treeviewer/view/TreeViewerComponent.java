@@ -609,17 +609,20 @@ class TreeViewerComponent
         						}
         						db.setSelectedNodes(list, app);
         					} else if (object instanceof GroupData) {
-        						TreeImageDisplay child;
-        						//copy the node.
-            					while (i.hasNext()) {
-            						child = (TreeImageDisplay) i.next();
-            						s.add(child.getUserObject());
-            					}
-        						setLeaves((TreeImageSet) display, s);
-        						db = DataBrowserFactory.getDataBrowser(
-        								display.getUserObject());
-        						list = browser.getSelectedDataObjects();
-        						db.setSelectedNodes(list, app);
+        						if (browser.getBrowserType() ==
+        								Browser.ADMIN_EXPLORER) {
+        							TreeImageDisplay child;
+            						//copy the node.
+                					while (i.hasNext()) {
+                						child = (TreeImageDisplay) i.next();
+                						s.add(child.getUserObject());
+                					}
+            						setLeaves((TreeImageSet) display, s);
+            						db = DataBrowserFactory.getDataBrowser(
+            								display.getUserObject());
+            						list = browser.getSelectedDataObjects();
+            						db.setSelectedNodes(list, app);
+        						}
         					} else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
         							(TagAnnotationData) object;
@@ -2475,10 +2478,6 @@ class TreeViewerComponent
 					db = DataBrowserFactory.getGroupsBrowser(
 							model.getSecurityContext(parent),
 							(GroupData) parentObject, leaves);
-				} else {
-					db = DataBrowserFactory.getDataBrowser(
-							model.getSecurityContext(parent), grandParentObject, 
-							parentObject, leaves, parent);
 				}
 			}
 			
