@@ -506,6 +506,10 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
                     index = fields[0]
+            show = request.REQUEST.get('show', None)
+            if show is not None:
+                select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
+                context['select_wells'] = ",".join(select_wells)
             context['baseurl'] = reverse('webgateway').rstrip('/')
             context['form_well_index'] = form_well_index
             template = "webclient/data/plate.html"
@@ -1564,7 +1568,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parents.split('|'))
+            manager.remove(parents.split('|'), index)
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }

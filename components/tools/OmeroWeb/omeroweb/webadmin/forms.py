@@ -74,9 +74,9 @@ class ExperimenterForm(NonASCIIForm):
         self.email_check=email_check 
         
         try:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False)
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['other_groups'], required=False, label="Groups")
         except:
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False)
+            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['groups'], required=False, label="Groups")
         
         try:
             if kwargs['initial']['default_group']: pass
