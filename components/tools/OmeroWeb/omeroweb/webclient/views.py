@@ -1466,7 +1466,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if (o_type == "well"):
                 obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
+            if o_type == "tag":
+                txtValue = obj.textValue
+            else:
+                txtValue = obj.getName()
+            form = ContainerNameForm(initial={'name': txtValue})
             context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
