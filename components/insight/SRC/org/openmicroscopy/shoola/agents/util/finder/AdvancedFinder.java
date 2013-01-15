@@ -120,6 +120,9 @@ public class AdvancedFinder
 	/** The components used to sort the nodes.*/
 	private ViewerSorter sorter;
 	
+	/** The display mode e.g. Experimenter/Group.*/
+	private int displayMode;
+	
 	/**
 	 * Returns the name of the group corresponding to the security context.
 	 * 
@@ -324,9 +327,7 @@ public class AdvancedFinder
 		
 		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
 		List<ExperimenterData> annotators = fillUsersList(null);
-		//fillUsersList(ctx.getSelectedAnnotators());
 		List<ExperimenterData> excludedOwners = fillUsersList(null);
-		//fillUsersList(ctx.getExcludedOwners());
 		List<ExperimenterData> excludedAnnotators = fillUsersList(null);
 		
 		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
@@ -336,7 +337,9 @@ public class AdvancedFinder
 		SearchDataContext searchContext = new SearchDataContext(scope, types, 
 										some, must, none);
 		searchContext.setTimeInterval(start, end);
-		searchContext.setOwners(owners);
+		if (displayMode == LookupNames.EXPERIMENTER_DISPLAY)
+			searchContext.setOwners(owners);
+
 		searchContext.setAnnotators(annotators);
 		searchContext.setExcludedOwners(excludedOwners);
 		searchContext.setExcludedAnnotators(excludedAnnotators);
@@ -452,6 +455,7 @@ public class AdvancedFinder
 	AdvancedFinder(Collection<GroupData> groups)
 	{
 		//sort
+		displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		sorter = new ViewerSorter();
 		List<GroupData> l = sorter.sort(groups);
 		initialize(createControls(), l);
@@ -643,6 +647,16 @@ public class AdvancedFinder
 		groupsContext.clear();
 		addResult(null, true);
 		uiDelegate.reset();
+	}
+	
+	/**
+	 * Sets the display mode e.g. Group Display
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public void setDisplayMode(int displayMode)
+	{
+		this.displayMode = displayMode;
 	}
 	
 	/**

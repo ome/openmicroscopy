@@ -591,7 +591,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
-			throw new IllegalArgumentException("No scontext defined.");
+			throw new IllegalArgumentException("No security context defined.");
 		if (context == null)
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
@@ -603,7 +603,7 @@ class OmeroDataServiceImpl
 					gateway.searchByTime(ctx, context));
 			return results;
 		}
-		Object result = gateway.performSearch(ctx, context); 
+		Object result = gateway.performSearch(ctx, context);
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
@@ -615,11 +615,14 @@ class OmeroDataServiceImpl
 		Set images;
 		DataObject img;
 		List owners = context.getOwners();
-		Set<Long> ownerIDs = new HashSet<Long>(owners.size());
-		k = owners.iterator();
-		while (k.hasNext()) {
-			ownerIDs.add(((DataObject) k.next()).getId());
+		Set<Long> ownerIDs = new HashSet<Long>();
+		if (owners != null) {
+			k = owners.iterator();
+			while (k.hasNext()) {
+				ownerIDs.add(((DataObject) k.next()).getId());
+			}
 		}
+		if (m == null) return results;
 		
 		Set<DataObject> nodes;
 		Object v;

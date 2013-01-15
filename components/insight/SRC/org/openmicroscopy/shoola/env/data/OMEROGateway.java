@@ -5266,7 +5266,7 @@ class OMEROGateway
 			Details d;
 			//owner
 			List<Details> owners = new ArrayList<Details>();
-			//if (users != null && users.size() > 0) {
+			if (users != null && users.size() > 0) {
 				i = users.iterator();
 				while (i.hasNext()) {
 					exp = (ExperimenterData) i.next();
@@ -5274,7 +5274,7 @@ class OMEROGateway
 					d.setOwner(exp.asExperimenter());
 			        owners.add(d);
 				}
-			//}
+			}
 			
 			
 			List<String> some = prepareTextSearch(context.getSome(), service);
