@@ -94,7 +94,6 @@
                     openPopup("{% url web_image_viewer 0 %}".replace('0', parseInt( $(this).attr('id').split("-")[1])));
                 });
             });            
-            wpv.load({{ manager.getPlateId }}, {{ index }});
             wpv.self.selectable({
                 filter: 'td.well',
                 distance: 2,
@@ -105,38 +104,29 @@
                 start: function(){
                 }
             });
-            
-            wpv.self.bind('_resetLoaded', function(){
-
-                // See if the url contains ?show=well-123
-                var q = (location.search.length > 1 ? location.search.substring(1).split("&") : []);
-                var qKeys = {},
-                    shows, well_id, $well,
-                    selected_wells = $("");
-                for(var i = 0; i < q.length; i++){
-                    qKeys[q[i].match(/^[^=]+/)] = q[i].replace(/^[^=]+=?/, "");
-                }
-                if (qKeys["show"]) {
-                    // handle multiple wells. ?show=well-123|well-456
-                    shows = qKeys["show"].split(/%7C|\|/);      // split | OR %7C (| can be encoded as %7C)
-                    for (var s=0;s<shows.length;s++){
-                        if (shows[s].substr(0,5) === "well-") {
-                            well_id = parseInt(shows[s].replace("well-",""));
-                            if (typeof well_id === "number") {
-                                $well = $("#well-"+well_id);
-                                if ($well.length > 0) {
-                                    selected_wells = selected_wells.add($well);
-                                }
+            {% if select_wells %}
+                wpv.self.bind('_resetLoaded', function(){
+                    var sel_well_ids = [{{ select_wells }}],
+                        well_id,
+                        selected_wells = $("");
+                    for (var s=0;s<sel_well_ids.length;s++){
+                        well_id = sel_well_ids[s];
+                        if (typeof well_id === "number") {
+                            $well = $("#well-"+well_id);
+                            if ($well.length > 0) {
+                                selected_wells = selected_wells.add($well);
                             }
                         }
                     }
                     if (selected_wells.length > 0) {
                         handleClickSelection(undefined, selected_wells.children("img"));
                         $selected = $('td.ui-selected', wpv.self);
-                        well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
+                        OME.well_selection_changed($selected, {{ index }}, '{{ manager.getPermsCss }}');
                     }
-                }
-            })
+                });
+            {% endif %}
+
+            wpv.load({{ manager.getPlateId }}, {{ index }});
 
         });
 

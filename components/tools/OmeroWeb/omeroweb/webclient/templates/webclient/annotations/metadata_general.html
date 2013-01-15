@@ -138,17 +138,20 @@
                 // bind removeItem to various [-] buttons
                 $("#comments_container").on("click", ".removeComment", function(event){
                     var url = $(this).attr('url');
-                    OME.removeItem(event, ".ann_comment_wrapper", url, $.trim($("#object-id").text()));
+                    OME.removeItem(event, ".ann_comment_wrapper", 
+                        url, $.trim($("#object-id").text()), {{ index }});
                     return false;
                 });
                 $("#tags_container").on("click", ".removeTag", function(event){
                     var url = $(this).attr('url');
-                    OME.removeItem(event, ".tag_annotation_wrapper", url, $.trim($("#object-id").text()));
+                    OME.removeItem(event, ".tag_annotation_wrapper", url, 
+                        $.trim($("#object-id").text()), {{ index }});
                     return false;
                 });
                 $("#fileanns_container").on("click", ".removeFile", function(event) {
                     var url = $(this).attr('href');
-                    OME.removeItem(event, ".file_ann_wrapper", url, $.trim($("#object-id").text()));
+                    OME.removeItem(event, ".file_ann_wrapper", url, 
+                        $.trim($("#object-id").text()), {{ index }});
                     return false;
                 });
                 
