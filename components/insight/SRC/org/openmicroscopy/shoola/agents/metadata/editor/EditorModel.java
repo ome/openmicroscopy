@@ -850,8 +850,16 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canLink(Object data)
-	{ 
-		return EditorUtil.isUserOwner(data, getUserID());
+	{
+		switch (getDisplayMode()) {
+			case LookupNames.GROUP_DISPLAY:
+				if (data instanceof DataObject)
+					return ((DataObject) data).canLink();
+				return false;
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			default:
+				return EditorUtil.isUserOwner(data, getUserID());
+		}
 	}
 
 	/**
@@ -3853,6 +3861,7 @@ class EditorModel
 	}
 	
 	/**
+<<<<<<< HEAD
 	 * Update the channels.
 	 * 
 	 * @param channels The value to set.
@@ -3867,6 +3876,24 @@ class EditorModel
 			channel = i.next();
 			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
 		}
+	}
+
+	/*** Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode()
+	{
+		Integer value = (Integer) MetadataViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+			return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY;
 	}
 
 }
