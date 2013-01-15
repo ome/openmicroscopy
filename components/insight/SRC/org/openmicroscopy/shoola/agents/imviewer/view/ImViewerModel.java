@@ -2901,8 +2901,27 @@ class ImViewerModel
 		if (refUnits != null) return refUnits.getUnits();
 		double size = getPixelsSizeX();
 		if (size < 0) return UnitsObject.MICRONS;
-		refUnits = EditorUtil.transformSize(size); 
+		refUnits = EditorUtil.transformSize(size);
 		return refUnits.getUnits();
+	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode()
+	{
+		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+			return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY;
 	}
     
 }
