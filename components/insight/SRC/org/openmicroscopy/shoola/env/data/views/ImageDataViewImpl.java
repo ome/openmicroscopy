@@ -311,12 +311,12 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#loadImage(long, long, AgentEventListener)
+     * @see ImageDataView#loadImage(long, AgentEventListener)
      */
-	public CallHandle loadImage(SecurityContext ctx, long imageID, long userID,
+	public CallHandle loadImage(SecurityContext ctx, long imageID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ImagesLoader(ctx, imageID, userID);
+		BatchCallTree cmd = new ImagesLoader(ctx, imageID);
 		return cmd.exec(observer);
 	}
 
