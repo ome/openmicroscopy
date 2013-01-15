@@ -97,7 +97,7 @@ public class ProjectsLoader
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(id);
     	handle = hiBrwView.loadHierarchy(ctx, ProjectData.class, ids, userID,
-    			ctx.getGroupID(), this);
+    			this);
     }
 
     /**

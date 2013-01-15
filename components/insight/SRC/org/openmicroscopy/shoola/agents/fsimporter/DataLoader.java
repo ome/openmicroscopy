@@ -96,7 +96,7 @@ public class DataLoader
 	public void load()
 	{
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				getCurrentUserID(), groupID, this);	
+				getCurrentUserID(), this);	
 	}
 	
 	/** 

@@ -86,10 +86,9 @@ public class DatasetsLoader
 	public void load()
 	{
 		ExperimenterData exp = MetadataViewerAgent.getUserDetails();
-		GroupData group = exp.getDefaultGroup();
 		
 		handle = dmView.loadContainerHierarchy(ctx, DatasetData.class, null,
-				false, exp.getId(), group.getId(), this);	
+				false, exp.getId(), this);	
 	}
 	
 	/**
