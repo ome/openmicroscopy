@@ -28,7 +28,7 @@
         <ul>
             {% for c in manager.containers.projects %}
             <li id='project-{{ c.id }}' rel="project{% if not c.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|truncatebefor:"35" }} {% if c.countChildren %}
+				<a href="#">{{ c.name|default:"Project"|truncatebefor:"35" }} {% if c.countChildren %}
 					<span class="children_count" id="counter-project-{{ c.id }}">{{ c.countChildren}}</span>{% endif %}
 				</a>
                 {% if c.countChildren %}
@@ -36,7 +36,7 @@
                     {% for d in c.listChildren %}
                         <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" 
                                 class="{{ c.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-							<a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}
+							<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.countChildren %}
 								<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.countChildren}}
 									<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 							</a>
@@ -54,7 +54,7 @@
             {% for d in manager.containers.datasets %}
                 <li id='dataset-{{ d.id }}' rel="dataset{% if not d.canEdit %}-locked{% endif %}" 
                         class="{{ d.getPermsCss }}{% if d.countChildren %} jstree-closed{% endif %}">
-					<a href="#">{{ d.name|truncatebefor:"35" }} {% if d.countChildren %}
+					<a href="#">{{ d.name|default:"Dataset"|truncatebefor:"35" }} {% if d.countChildren %}
 						<span class="children_count" id="counter-dataset-{{ d.id }}">{{ d.countChildren}}
 							<span id="page-dataset-{{ d.id }}"></span></span>{% endif %}
 					</a>
@@ -66,18 +66,18 @@
 			
             {% for c in manager.containers.screens %}
             <li id='screen-{{ c.id }}' rel="screen{% if not c.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}">
-				<a href="#">{{ c.name|truncatebefor:"35" }} {% if c.countChildren %}
+				<a href="#">{{ c.name|default:"Screen"|truncatebefor:"35" }} {% if c.countChildren %}
 					<span class="children_count" id="counter-screen-{{ c.id }}">{{ c.countChildren}}</span>{% endif %}</a>
                 {% if c.countChildren %}
                 <ul>
                     {% for d in c.listChildren %}
                         <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
-                            <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                            <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
                             {% if d.countPlateAcquisitions %}
                             <ul>
                                 {% for e in d.listPlateAcquisitions %}
                                     <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.canEdit %}-locked{% endif %}" class="{{ e.getPermsCss }}">
-                                        <a href="#">{{ e.name|truncatebefor:"35" }}</a>
+                                        <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -94,12 +94,12 @@
 			
             {% for d in manager.containers.plates %}
             <li id='plate-{{ d.id }}' rel="plate{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}">
-                <a href="#">{{ d.name|truncatebefor:"35" }}</a>
+                <a href="#">{{ d.name|default:"Plate"|truncatebefor:"35" }}</a>
                 {% if d.countPlateAcquisitions %}
                 <ul>
                     {% for e in d.listPlateAcquisitions %}
                         <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.canEdit %}-locked{% endif %}" class="{{ e.getPermsCss }}">
-                            <a href="#">{{ e.name|truncatebefor:"35" }}</a>
+                            <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
                         </li>
                     {% endfor %}
                 </ul>
