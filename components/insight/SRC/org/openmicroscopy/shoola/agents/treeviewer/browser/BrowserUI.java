@@ -476,9 +476,6 @@ class BrowserUI
 			case Browser.FILES_EXPLORER:
 				createFileElements(node);
 				break;
-			case Browser.TAGS_EXPLORER:
-				createTagsElements(node);
-				break;
 			default:
 				buildEmptyNode(node);
 		}
