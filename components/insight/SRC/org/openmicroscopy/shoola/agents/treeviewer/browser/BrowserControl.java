@@ -270,7 +270,8 @@ class BrowserControl
         int browserType = model.getBrowserType();
         if ((browserType == Browser.IMAGES_EXPLORER || 
         	browserType == Browser.FILES_EXPLORER) &&
-        		!display.isChildrenLoaded() && ho instanceof ExperimenterData) {
+        		!display.isChildrenLoaded() && (ho instanceof ExperimenterData
+        				|| ho instanceof GroupData)) {
         	model.countExperimenterImages(display);
         	return;
         } 
