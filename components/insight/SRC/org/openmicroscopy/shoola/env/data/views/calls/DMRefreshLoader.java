@@ -94,7 +94,8 @@ public class DMRefreshLoader
     	throws Exception
     {
     	OmeroDataService os = context.getDataService();
-        Iterator users = nodes.entrySet().iterator();
+        Iterator<Entry<SecurityContext, List>> 
+        users = nodes.entrySet().iterator();
         long userID;
         long groupID = -1;
         List containers;
@@ -108,16 +109,16 @@ public class DMRefreshLoader
         Map topNodes;
         DataObject child, parent;
         Set s;
-        Entry entry;
+        Entry<SecurityContext, List> entry;
         SecurityContext ctx;
         TimeRefObject ref;
         Object object;
         
         while (users.hasNext()) {
-        	entry = (Entry) users.next();
-        	ctx = (SecurityContext) entry.getKey();
+        	entry = users.next();
+        	ctx = entry.getKey();
         	userID = ctx.getExperimenter();
-        	containers = (List) entry.getValue();
+        	containers = entry.getValue();
         	if (containers == null || containers.size() == 0) {
         		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                 		false, ctx.getExperimenter(), groupID);
