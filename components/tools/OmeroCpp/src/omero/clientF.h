@@ -7,7 +7,12 @@
 #ifndef OMERO_CLIENTF_H
 #define OMERO_CLIENTF_H
 
-#include <IceUtil/Handle.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 
 namespace omero {
 
@@ -24,11 +29,19 @@ namespace omero {
      *  omero::client_ptr client1 = new omero::client("localhost");
      *  omero::client_ptr client2 = new omero::client("localhost", port);
      */
+#if ICE_INT_VERSION / 100 >= 304
+    typedef IceInternal::Handle<client> client_ptr;
+#else
     typedef IceUtil::Handle<client> client_ptr;
+#endif
 
     class CallbackI;
 
+#if ICE_INT_VERSION / 100 >= 304
+    typedef IceInternal::Handle<CallbackI> CallbackIPtr;
+#else
     typedef IceUtil::Handle<CallbackI> CallbackIPtr;
+#endif
 
 }
 #endif // OMERO_CLIENTF_H

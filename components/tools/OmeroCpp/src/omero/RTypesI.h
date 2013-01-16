@@ -12,6 +12,12 @@
 #include <omero/Scripts.h>
 #include <omero/RTypes.h>
 #include <Ice/Ice.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <string>
 #include <map>
 
@@ -248,7 +254,11 @@ namespace omero {
 	    virtual void destroy() { } // No-op
 	};
 
+#if ICE_INT_VERSION / 100 >= 304
+	typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
+#else
 	typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
+#endif
 
 	// Shared state (flyweight)
 	// =========================================================================

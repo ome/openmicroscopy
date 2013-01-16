@@ -11,7 +11,12 @@
 #include <omero/cmd/Graphs.h>
 #include <omero/model/ImageI.h>
 #include <IceUtil/CtrlCHandler.h>
-#include <IceUtil/Handle.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <functional>
 #include <iostream>
 #include <map>
@@ -202,7 +207,11 @@ public:
     }
 };
 
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<ChgrpCall> ChgrpCallPtr;
+#else
 typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
+#endif
 
 static ChgrpCallPtr call;
 

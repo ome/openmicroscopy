@@ -14,6 +14,12 @@
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Scripts.h>
@@ -79,7 +85,11 @@ namespace omero {
         };
 
 
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<ProcessCallbackI> ProcessCallbackIPtr;
+#else
         typedef IceUtil::Handle<ProcessCallbackI> ProcessCallbackIPtr;
+#endif
 
 
         namespace OME_API_DEL = omero::api::_cpp_delete;
@@ -124,7 +134,11 @@ namespace omero {
         };
 
 
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<DeleteCallbackI> DeleteCallbackIPtr;
+#else
         typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
+#endif
 
 
         /*
@@ -297,7 +311,11 @@ namespace omero {
 
         };
 
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<CmdCallbackI> CmdCallbackIPtr;
+#else
         typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
+#endif
 
     };
 };

@@ -17,6 +17,12 @@
 #include <omero/model/ExternalInfoI.h>
 #include <omero/model/PermissionsI.h>
 #include <Ice/Ice.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <iostream>
 #include <string>
 #include <vector>
@@ -119,7 +125,11 @@ namespace omero {
 
 	};
 
+#if ICE_INT_VERSION / 100 >= 304
+	typedef IceInternal::Handle<DetailsI> DetailsIPtr;
+#else
 	typedef IceUtil::Handle<DetailsI> DetailsIPtr;
+#endif
 
   }
 }
