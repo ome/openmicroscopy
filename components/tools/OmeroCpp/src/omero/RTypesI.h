@@ -40,6 +40,18 @@
  */
 
 namespace omero {
+    namespace rtypes {
+	class ObjectFactory;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::rtypes::ObjectFactory*);
+}
+#endif
+
+namespace omero {
 
     namespace rtypes {
 
@@ -243,6 +255,13 @@ namespace omero {
 	// ========================================================================
 
 	// Conversion classes are for omero.model <--> ome.model only (no python)
+	class ObjectFactory;
+
+#if ICE_INT_VERSION / 100 >= 304
+	typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
+#else
+	typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
+#endif
 
 	class ObjectFactory : virtual public Ice::ObjectFactory {
 	protected:
@@ -253,12 +272,6 @@ namespace omero {
 	    virtual Ice::ObjectPtr create(const std::string& id) = 0;
 	    virtual void destroy() { } // No-op
 	};
-
-#if ICE_INT_VERSION / 100 >= 304
-	typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
-#else
-	typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
-#endif
 
 	// Shared state (flyweight)
 	// =========================================================================

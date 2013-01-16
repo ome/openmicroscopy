@@ -29,10 +29,34 @@
 
 namespace omero {
     namespace util {
+        class TileData;
+        class TileLoopIteration;
+        class TileLoop;
+        class RPSTileLoop;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::util::TileData*);
+  ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
+  ::Ice::Object* upCast(::omero::util::TileLoop*);
+  ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
+}
+#endif
+
+namespace omero {
+    namespace util {
 
         /**
          * Interface which must be returned from TileLoop.createData
          */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<TileData> TileDataPtr;
+#else
+        typedef IceUtil::Handle<TileData> TileDataPtr;
+#endif
+
         class OMERO_API TileData : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -46,15 +70,15 @@ namespace omero {
             virtual void close() = 0;
         };
 
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileData> TileDataPtr;
-#else
-        typedef IceUtil::Handle<TileData> TileDataPtr;
-#endif
-
         /**
          * Interface to be passed to forEachTile.
          */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<TileLoopIteration> TileLoopIterationPtr;
+#else
+        typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
+#endif
+
         class OMERO_API TileLoopIteration : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -67,15 +91,15 @@ namespace omero {
                              int tileWidth, int tileHeight, int tileCount) const = 0;
         };
 
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileLoopIteration> TileLoopIterationPtr;
-#else
-        typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
-#endif
-
         /**
          * Interface to be passed to forEachTile.
          */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<TileLoop> TileLoopPtr;
+#else
+        typedef IceUtil::Handle<TileLoop> TileLoopPtr;
+#endif
+
         class OMERO_API TileLoop : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -89,14 +113,7 @@ namespace omero {
                                    int tileHeight, int tileWidth, const TileLoopIterationPtr& iteration);
         };
 
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileLoop> TileLoopPtr;
-#else
-        typedef IceUtil::Handle<TileLoop> TileLoopPtr;
-#endif
-
         // Forward defs
-        class RPSTileLoop;
 #if ICE_INT_VERSION / 100 >= 304
         typedef IceInternal::Handle<RPSTileLoop> RPSTileLoopPtr;
 #else

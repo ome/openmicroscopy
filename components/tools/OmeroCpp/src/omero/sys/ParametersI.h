@@ -30,10 +30,20 @@
 #endif
 
 namespace omero {
+    namespace sys {
+        class OMERO_API ParametersI; // Forward
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::sys::ParametersI*);
+}
+#endif
+
+namespace omero {
 
     namespace sys {
-
-        class OMERO_API ParametersI; // Forward
 
 	/**
 	 * Ice versions 3.4.x and 3.5beta have a bug preventing the

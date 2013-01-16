@@ -13,6 +13,14 @@ using namespace omero::util::concurrency;
 using namespace omero;
 using namespace std;
 
+class BaseThread;
+
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<BaseThread> BaseThreadPtr;
+#else
+typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
+#endif
+
 class BaseThread : public IceUtil::Thread {
 public:
     bool passed;
@@ -20,12 +28,6 @@ public:
         return IceUtil::Time::milliSeconds(ms);
     };
 };
-
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<BaseThread> BaseThreadPtr;
-#else
-typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
-#endif
 
 Event event;
 
