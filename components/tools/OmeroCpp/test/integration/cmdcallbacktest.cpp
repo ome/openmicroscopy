@@ -39,6 +39,14 @@ using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
 
+class TestCB;
+
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<TestCB> TestCBPtr;
+#else
+typedef IceUtil::Handle<TestCB> TestCBPtr;
+#endif
+
 class TestCB: virtual public CmdCallbackI {
 private:
     // Preventing copy-construction and assigning by value.
@@ -106,12 +114,6 @@ public:
         ASSERT_TRUE(isCancelled());
     }
 };
-
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<TestCB> TestCBPtr;
-#else
-typedef IceUtil::Handle<TestCB> TestCBPtr;
-#endif
 
 class CBFixture : virtual public Fixture {
 public:

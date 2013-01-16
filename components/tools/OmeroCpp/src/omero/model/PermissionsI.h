@@ -29,7 +29,20 @@
 #   endif
 #endif
 
-namespace omero { namespace model {
+namespace omero {
+  namespace model {
+    class PermissionsI;
+  }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::model::PermissionsI*);
+}
+#endif
+
+namespace omero {
+  namespace model {
 
   /*
    * Blitz wrapper for the permissions related to
@@ -41,6 +54,13 @@ namespace omero { namespace model {
    *  -- [is|set]Locked
    *
    */
+
+#if ICE_INT_VERSION / 100 >= 304
+  typedef IceInternal::Handle<PermissionsI> PermissionsIPtr;
+#else
+  typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
+#endif
+
 class OMERO_API PermissionsI : virtual public Permissions {
 
 protected:
@@ -93,12 +113,6 @@ public:
     virtual void unload(const Ice::Current& c = Ice::Current());
 
   };
-
-#if ICE_INT_VERSION / 100 >= 304
-  typedef IceInternal::Handle<PermissionsI> PermissionsIPtr;
-#else
-  typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
-#endif
 
  }
 }

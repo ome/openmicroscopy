@@ -129,6 +129,14 @@ T strToNum(const std::string &inputString,
     return t;
 }
 
+class ChgrpCall;
+
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<ChgrpCall> ChgrpCallPtr;
+#else
+typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
+#endif
+
 class ChgrpCall : public IceUtil::Shared {
 private:
     // Preventing copy-construction and assigning by value.
@@ -206,12 +214,6 @@ public:
         }
     }
 };
-
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<ChgrpCall> ChgrpCallPtr;
-#else
-typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
-#endif
 
 static ChgrpCallPtr call;
 

@@ -15,13 +15,22 @@
 #endif
 
 namespace omero {
-
     /*
      * Forward definitions and handles
      */
 
     class client;
+    class CallbackI;
+}
 
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::client*);
+  ::Ice::Object* upCast(::omero::CallbackI*);
+}
+#endif
+
+namespace omero {
     /*
      * Typedef for using Ice's smart pointer reference counting
      * infrastructure.
@@ -31,11 +40,11 @@ namespace omero {
      */
 #if ICE_INT_VERSION / 100 >= 304
     typedef IceInternal::Handle<client> client_ptr;
+
 #else
     typedef IceUtil::Handle<client> client_ptr;
 #endif
 
-    class CallbackI;
 
 #if ICE_INT_VERSION / 100 >= 304
     typedef IceInternal::Handle<CallbackI> CallbackIPtr;

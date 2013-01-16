@@ -36,6 +36,18 @@
 #endif
 
 namespace omero {
+    namespace model {
+	class DetailsI;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  ::Ice::Object* upCast(::omero::model::DetailsI*);
+}
+#endif
+
+namespace omero {
 
     namespace model {
 
@@ -43,6 +55,13 @@ namespace omero {
 	 * Simple implementation of the Details.ice
 	 * type embedded in every OMERO.blitz type.
 	 */
+
+#if ICE_INT_VERSION / 100 >= 304
+	typedef IceInternal::Handle<DetailsI> DetailsIPtr;
+#else
+	typedef IceUtil::Handle<DetailsI> DetailsIPtr;
+#endif
+
 	class OMERO_API DetailsI : virtual public Details {
 
 	protected:
@@ -124,12 +143,6 @@ namespace omero {
 	  }
 
 	};
-
-#if ICE_INT_VERSION / 100 >= 304
-	typedef IceInternal::Handle<DetailsI> DetailsIPtr;
-#else
-	typedef IceUtil::Handle<DetailsI> DetailsIPtr;
-#endif
 
   }
 }
