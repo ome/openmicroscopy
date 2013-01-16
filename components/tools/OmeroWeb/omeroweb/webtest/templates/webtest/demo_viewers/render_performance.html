@@ -1,0 +1,111 @@
+{% extends "webgateway/base/base_main.html" %}
+
+{% block title %}Render Performance{% endblock %}
+
+
+{% block link %}
+{% endblock %}
+
+{% block script %}
+{{ block.super }}
+
+
+<script>
+$(document).ready(function() {
+
+    var $planes = $("img.plane"),
+        $planeCount = $("#planeCount"),
+        $planesLoaded = $("#planesLoaded"),
+        $duration = $("#duration"),
+        $secsPerPlane = $("#secsPerPlane"),
+        planeCount = $planes.length,
+        loadedCount = 0,
+        start = 0,
+        duration = 0,
+        perPlane = 0;
+
+    $planeCount.text(planeCount);
+
+    var initLoadCallbacks = function() {
+        // When a plane has loaded, update count and time
+        $planes.load(function() {
+            loadedCount += 1;
+            $planesLoaded.text(loadedCount);
+            duration = (Date.now() - start) / 1000;
+            perPlane = duration / loadedCount;
+            $duration.text(duration.toPrecision(3));
+            $secsPerPlane.text(perPlane.toPrecision(3));
+        });
+    }
+
+
+    $("#loadSequential").click(function() {
+
+        initLoadCallbacks();
+
+        $planes.load(function() {
+            var thisId = +$(this).attr('id');
+            thisId += 1;
+            $nextPlane = $("#" + thisId);
+            // load the next Plane
+            var src = $nextPlane.attr('href');
+            $nextPlane.attr('src', src);
+        });
+
+        start = Date.now();
+
+        // Kick off loading of first image.
+        $("#0").attr('src', $("#0").attr('href'));
+    });
+
+
+    $("#loadAll").click(function(){
+
+        initLoadCallbacks();
+
+        start = Date.now();
+
+        // Set the src to start all planes loading
+        $planes.each(function(){
+            var src = $(this).attr('href');
+            $(this).attr('src', src);
+        })
+    });
+
+});
+</script>
+
+<style type="text/css">
+    img.plane {
+        max-width: 50px;
+        max-height: 50px
+    }
+</style>
+{% endblock %}
+
+
+
+{% block body %}
+
+Usage: Refresh page, then click button below to EITHER load all images at once OR load sequentially. 
+
+<hr />
+
+<button id="loadAll" value="Load All">Load All</button>
+<button id="loadSequential" value="Load Sequential">Load Sequentially</button>
+
+Planes Loaded: <span id="planesLoaded">0</span> / <span id="planeCount">0</span> |
+Duration: <span id="duration">0</span> secs |
+Per Plane: <span id="secsPerPlane">0</span> secs.
+
+<hr />
+
+{% for zct in zctList %}
+
+        <img id="{{ forloop.counter0 }}" class="plane"
+            src="{% url webgateway.views.render_image image.id 0 0 %}?c=0"
+            href="{% url webgateway.views.render_image image.id zct.z zct.t %}?c={{ zct.c }}"/>
+
+{% endfor %}
+
+{% endblock %}
