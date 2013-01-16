@@ -363,11 +363,13 @@
                     $chNameForm.find(".originalButtons").show();
                     $chNameForm.find(".confirmButtons").hide();
                     $("#channel_names_display").show();
+                    $("#editChannelNames").show();
                     $("#channel_names_edit").hide();
                 }
                 // Workflow starts by displaying the form
-                $("#channel_names button").click(function(){
+                $("#editChannelNames").click(function(){
                     $("#channel_names_display").hide();
+                    $("#editChannelNames").hide();
                     $("#channel_names_edit").show();
                 });
                 // Handling of all form buttons. NB: save & apply_confirm buttons submit
