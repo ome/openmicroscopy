@@ -22,6 +22,12 @@
 #include <string>
 #include <map>
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <omero/util/concurrency.h>
 
 using namespace std;
@@ -101,7 +107,11 @@ public:
     }
 };
 
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<TestCB> TestCBPtr;
+#else
 typedef IceUtil::Handle<TestCB> TestCBPtr;
+#endif
 
 class CBFixture : virtual public Fixture {
 public:

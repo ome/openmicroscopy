@@ -10,8 +10,13 @@
 #define PERMISSIONSI_H
 
 #include <omero/model/Permissions.h>
-#include <IceUtil/Handle.h>
 #include <Ice/Config.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <iostream>
 #include <string>
 #include <vector>
@@ -89,7 +94,11 @@ public:
 
   };
 
+#if ICE_INT_VERSION / 100 >= 304
+  typedef IceInternal::Handle<PermissionsI> PermissionsIPtr;
+#else
   typedef IceUtil::Handle<PermissionsI> PermissionsIPtr;
+#endif
 
  }
 }

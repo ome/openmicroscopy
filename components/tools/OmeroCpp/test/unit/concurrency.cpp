@@ -1,5 +1,11 @@
 #include <list>
 #include <IceUtil/Thread.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <omero/fixture.h>
 #include <omero/util/concurrency.h>
 
@@ -15,7 +21,11 @@ public:
     };
 };
 
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<BaseThread> BaseThreadPtr;
+#else
 typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
+#endif
 
 Event event;
 
