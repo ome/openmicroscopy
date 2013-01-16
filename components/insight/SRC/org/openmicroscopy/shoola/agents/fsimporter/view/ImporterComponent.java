@@ -258,7 +258,7 @@ class ImporterComponent
 	 */
 	public void discard()
 	{
-		if (model.getState() != IMPORTING) {
+		if (model.getState() != IMPORTING && model.getState() != DISCARDED) {
 			view.close();
 			model.discard();
 		}
