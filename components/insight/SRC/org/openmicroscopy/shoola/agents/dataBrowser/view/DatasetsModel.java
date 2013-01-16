@@ -40,9 +40,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -78,6 +82,17 @@ class DatasetsModel
 		this.parent = parent;
 		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets);
         browser = BrowserFactory.createBrowser(visTrees);
+        long currentUserId = getCurrentUser().getId();
+        ExperimenterData owner = null;
+        long id = currentUserId;
+        if (parent instanceof DataObject) {
+        	owner = ((DataObject) parent).getOwner();
+        	if (owner.getId() != currentUserId) id = owner.getId();
+        }
+        if (getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY)
+        	browser.accept(new DecoratorVisitor(id));
+        
+        //Visit the node to set the 
         //layoutBrowser();
         Iterator<DatasetData> i = datasets.iterator();
 		DatasetData data;

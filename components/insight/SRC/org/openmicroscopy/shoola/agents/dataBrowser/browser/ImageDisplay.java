@@ -36,10 +36,13 @@ import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -281,36 +284,44 @@ public abstract class ImageDisplay
      * Adds an <code>Annotated</code> icon if the object 
      * has annotation linked to it. Adds an <code>Owner</code> icon if
      * the owner is not the user currently logged in.
+     * 
+     * @param userID The id of the user currently logged in.
      */
-    public void setNodeDecoration()
+    public void setNodeDecoration(long userID)
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
     	IconManager icons = IconManager.getInstance();
-    	/*
-    	if (hierarchyObject instanceof DataObject) {
+    	if (hierarchyObject instanceof DataObject && userID >= 0) {
     		try {
     			ExperimenterData owner = 
-    				((DataObject) hierarchyObject).getOwner();
-        		if (owner != null) {
-        			ExperimenterData exp = DataBrowserAgent.getUserDetails();
-        			if (exp.getId() != owner.getId()) {
-        				JLabel l = new JLabel(
-        						icons.getIcon(IconManager.OWNER_8));
-        				l.setToolTipText("Owner: "+
-        						EditorUtil.formatExperimenter(
-        						DataBrowserAgent.getExperimenter(
-        								owner.getId())));
-        				nodes.add(l);
-        			}
-        		}
-			} catch (Exception e) {}
-    	}
-    	*/
+    					((DataObject) hierarchyObject).getOwner();
+    			if (owner != null) {
+    				
+    				if (userID != owner.getId()) {
+    					JLabel l = new JLabel(
+    							icons.getIcon(IconManager.OWNER_8));
+    					//l.setToolTipText("Owner: "+
+    						//	EditorUtil.formatExperimenter(owner));
+    					nodes.add(l);
+    				}
+    			}
+    		} catch (Exception e) {}
+        }
+    	
     	if (EditorUtil.isAnnotated(hierarchyObject, count)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
     	
     	if (nodes.size() > 0) setDecoration(nodes);
+    	validate();
+    	repaint();
     }
+    
+    /**
+     * Adds an <code>Annotated</code> icon if the object 
+     * has annotation linked to it. Adds an <code>Owner</code> icon if
+     * the owner is not the user currently logged in.
+     */
+    public void setNodeDecoration() { setNodeDecoration(-1); }
     
     /** 
      * Sets the annotation count.
