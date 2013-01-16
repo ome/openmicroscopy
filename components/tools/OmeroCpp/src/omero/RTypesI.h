@@ -47,7 +47,7 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::Object* upCast(::omero::rtypes::ObjectFactory*);
+  ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
 }
 #endif
 
@@ -255,8 +255,6 @@ namespace omero {
 	// ========================================================================
 
 	// Conversion classes are for omero.model <--> ome.model only (no python)
-	class ObjectFactory;
-
 #if ICE_INT_VERSION / 100 >= 304
 	typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
 #else

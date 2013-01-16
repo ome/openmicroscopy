@@ -46,7 +46,6 @@ namespace omero {
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
   ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
-  ::Ice::Object* upCast(::omero::callbacks::DeleteCallbackI*);
   ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
 }
 #endif
@@ -123,11 +122,7 @@ namespace omero {
          *         errors = cb.block(500);
          *     }
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<DeleteCallbackI> DeleteCallbackIPtr;
-#else
         typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
-#endif
 
         class OMERO_API DeleteCallbackI : virtual public IceUtil::Shared {
 
