@@ -243,8 +243,12 @@ public class CreateTopContainerAction
         			//setEnabled(model.canLink(ho));
 					return;
 				}
+        		System.err.println(ho);
         		if (ho instanceof GroupData) {
-        			setEnabled(false);
+        			System.err.println(model.getDisplayMode() ==
+        					TreeViewer.GROUP_DISPLAY);
+        			setEnabled(model.getDisplayMode() ==
+        					TreeViewer.GROUP_DISPLAY);
         			return;
         		}
         		switch (nodeType) {
