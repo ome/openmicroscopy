@@ -584,3 +584,14 @@ def stack_preview (request, imageId, conn=None, **kwargs):
     sizeZ = image.getSizeZ()
     z_indexes = [0, int(sizeZ*0.25), int(sizeZ*0.5), int(sizeZ*0.75), sizeZ-1]
     return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
+
+@login_required()
+def render_performance (request, imageId, conn=None, **kwargs):
+    """ Test rendering performance for all planes in an image """
+    image = conn.getObject("Image", imageId)
+    zctList = []
+    for z in range(image.getSizeZ()):
+        for c in range(image.getSizeC()):
+            for t in range(image.getSizeT()):
+                zctList.append({'z':z, 'c':c+1, 't':t})
+    return render_to_response('webtest/demo_viewers/render_performance.html', {'image':image, 'zctList':zctList})
