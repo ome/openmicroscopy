@@ -9,12 +9,7 @@
 #define OMERO_UTIL_TILES_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <IceUtil/Handle.h>
 #include <omero/API.h>
 #include <omero/api/RawPixelsStore.h>
 #include <omero/model/Pixels.h>
@@ -51,11 +46,7 @@ namespace omero {
         /**
          * Interface which must be returned from TileLoop.createData
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileData> TileDataPtr;
-#else
         typedef IceUtil::Handle<TileData> TileDataPtr;
-#endif
 
         class OMERO_API TileData : virtual public IceUtil::Shared {
         private:
@@ -73,11 +64,7 @@ namespace omero {
         /**
          * Interface to be passed to forEachTile.
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileLoopIteration> TileLoopIterationPtr;
-#else
         typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
-#endif
 
         class OMERO_API TileLoopIteration : virtual public IceUtil::Shared {
         private:
@@ -94,11 +81,7 @@ namespace omero {
         /**
          * Interface to be passed to forEachTile.
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<TileLoop> TileLoopPtr;
-#else
         typedef IceUtil::Handle<TileLoop> TileLoopPtr;
-#endif
 
         class OMERO_API TileLoop : virtual public IceUtil::Shared {
         private:
@@ -114,11 +97,7 @@ namespace omero {
         };
 
         // Forward defs
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<RPSTileLoop> RPSTileLoopPtr;
-#else
         typedef IceUtil::Handle<RPSTileLoop> RPSTileLoopPtr;
-#endif
 
         class OMERO_API RPSTileData : virtual public TileData {
         protected:

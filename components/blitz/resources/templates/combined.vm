@@ -165,9 +165,20 @@ Note how the whitespace for the python definitions is important.
 [$hdr] namespace omero {
 [$hdr]   namespace model {
 [$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
+[$hdr]   }
+[$hdr] }
+[$hdr] \#if ICE_INT_VERSION / 100 >= 304
+[$hdr] ::Ice::Object* IceInternal::upCast(${PojoI}* p) { return p; }
+[$hdr] #endif
+[$hdr] namespace omero {
+[$hdr]   namespace model {
+[$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
+[$cpp] \#if ICE_INT_VERSION / 100 >= 304
+[$cpp] ::Ice::Object* IceInternal::upCast(::omero::sys::ParametersI* p) { return p; }
+[$cpp] #endif
 [$cpp] using omero::rtypes::rlong;
 [$cpp] namespace omero {
 [$cpp]   namespace model {
