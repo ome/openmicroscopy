@@ -46,7 +46,6 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
-import org.hibernate.id.IdentityGenerator.GetGeneratedKeysDelegate;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
