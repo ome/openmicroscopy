@@ -530,6 +530,7 @@ class BrowserUI
      */
     private void createTagsElements(TreeImageDisplay parent)
     {
+    	if (model.getDisplayMode() == TreeViewer.GROUP_DISPLAY) return;
     	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
     	TreeFileSet node = new TreeFileSet(TreeFileSet.TAG);
     	buildEmptyNode(node);
