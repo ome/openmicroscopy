@@ -352,7 +352,7 @@
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
                     var parentType = pid.split("-")[0];
-                    $chNameForm.find(".ptype").text( parentType.capitalize() );
+                    $chNameForm.find(".ptype").text( parentType );
                     $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
                     if (parentType === "plate") {
                         // Plate: only allow 'Apply to All' (all images linked to same Channels)
