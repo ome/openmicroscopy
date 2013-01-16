@@ -37,6 +37,7 @@ from omero_ext.which import whichall
 from omero_version import ice_compatibility
 
 try:
+    import pywintypes
     import win32service
     import win32evtlogutil
     import win32api
@@ -204,10 +205,10 @@ Examples:
             help="""If set, then only tests if the icegridnode is running""")
 
         for name in ("start", "startasync"):
-            self.actions[name].add_argument("-u","--user", help="""
-            User argument which should be logged in. If none is provided, the configuration
-            value for omero.windows.user will be taken. (Windows-only)
-            """)
+            self.actions[name].add_argument("-u","--user",
+                help="Service Log On As user name. If none given, the value of omero.windows.user will be used. (Windows-only)")
+            self.actions[name].add_argument("-w","--password",
+                help="Service Log On As user password. If none given, the value of omero.windows.pass will be used. (Windows-only)")
 
         for k in ("start", "startasync", "deploy", "restart", "restartasync"):
             self.actions[k].add_argument("file", nargs="?",
@@ -260,18 +261,7 @@ Examples:
             self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
 
         def _query_service(self, svc_name):
-            """
-            Query the service
-            Required to check the stdout since
-            rcode is not non-0
-            """
-            command = ["sc", "query", svc_name]
-            popen = self.ctx.popen(command) # popen
-            output = popen.communicate()[0]
-            if 0 <= output.find("1060"):
-                return "DOESNOTEXIST"
-            else:
-                return output
+            self.ctx.die(666, "Could not import win32service and/or win32evtlogutil")
 
     #
     # End Windows Methods
@@ -378,6 +368,7 @@ Examples:
         self.check([])
 
         user = args.user
+        pasw = args.password
         descript = self._descript(args)
 
         if self._isWindows():
@@ -386,45 +377,64 @@ Examples:
 
             # Now check if the server exists
             if 0 <= output.find("DOESNOTEXIST"):
-                command = [
-                   "sc", "create", svc_name,
-                   "binPath=","""icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name),
-                   "DisplayName=", svc_name,
-                   "start=","auto"]
+                binpath = """icegridnode.exe "%s" --deploy "%s" --service %s""" % (self._icecfg(), descript, svc_name)
 
                 # By default: "NT Authority\Local System"
                 if not user:
                     try:
                         user = config.as_map()["omero.windows.user"]
                     except KeyError:
-                        user = ""
-                if len(user) > 0:
-                    # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                        user = None
+                if user is not None and len(user) > 0:
                     if not "\\" in user:
                         computername = win32api.GetComputerName()
                         user = "\\".join([computername, user])
-                    command.append("obj=")
-                    command.append(user)
-                    self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
-                    policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
-                    sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
-                    win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
-                    win32security.LsaClose(policy_handle)
                     try:
-                        pasw = config.as_map()["omero.windows.pass"]
-                    except KeyError:
-                        pasw = self._ask_for_password(" for service user \"%s\"" % user)
-                    command.append("password=")
-                    command.append(pasw)
-                self.ctx.out(self.ctx.popen(command).communicate()[0]) # popen
+                        # See #9967, code based on http://mail.python.org/pipermail/python-win32/2010-October/010791.html
+                        self.ctx.out("Granting SeServiceLogonRight to service user \"%s\"" % user)
+                        policy_handle = win32security.LsaOpenPolicy(None, win32security.POLICY_ALL_ACCESS)
+                        sid_obj, domain, tmp = win32security.LookupAccountName(None, user)
+                        win32security.LsaAddAccountRights(policy_handle, sid_obj, ('SeServiceLogonRight',))
+                        win32security.LsaClose(policy_handle)
+                    except pywintypes.error, details:
+                        self.ctx.die(200, "Error during service user set up: (%s) %s" % (details[0], details[2]))
+                    if not pasw:
+                        try:
+                            pasw = config.as_map()["omero.windows.pass"]
+                        except KeyError:
+                            pasw = self._ask_for_password(" for service user \"%s\"" % user)
+                else:
+                    pasw = None
+
+                hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+                try:
+                    self.ctx.out("Installing %s Windows service." % svc_name)
+                    hs = win32service.CreateService(hscm, svc_name, svc_name, win32service.SERVICE_ALL_ACCESS,
+                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_DEMAND_START,
+                            win32service.SERVICE_ERROR_NORMAL, binpath, None, 0, None, user, pasw)
+                    self.ctx.out("Successfully installed %s Windows service." % svc_name)
+                    win32service.CloseServiceHandle(hs)
+                finally:
+                    win32service.CloseServiceHandle(hscm)
 
             # Then check if the server is already running
             if 0 <= output.find("RUNNING"):
-                 self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
+                self.ctx.die(201, "%s is already running. Use stop first" % svc_name)
 
-            # Finally start the service
-            output = self.ctx.popen(["sc","start",svc_name]).communicate()[0] # popen
-            self.ctx.out(output)
+            # Finally, try to start the service - delete if startup fails
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            try:
+                hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                win32service.StartService(hs, None)
+                self.ctx.out("Starting %s Windows service." % svc_name)
+            except pywintypes.error, details:
+                self.ctx.out("%s service startup failed: (%s) %s" % (svc_name, details[0], details[2]))
+                win32service.DeleteService(hs)
+                self.ctx.die(202, "%s service deleted." % svc_name)
+            finally:
+                win32service.CloseServiceHandle(hs)
+                win32service.CloseServiceHandle(hscm)
+
         else:
             command = ["icegridnode","--daemon","--pidfile",str(self._pid()),"--nochdir",self._icecfg(),"--deploy",str(descript)] + args.targets
             self.ctx.rv = self.ctx.call(command)
@@ -560,8 +570,15 @@ Examples:
             output = self._query_service(svc_name)
             if 0 <= output.find("DOESNOTEXIST"):
                 self.ctx.die(203, "%s does not exist. Use 'start' first." % svc_name)
-            self.ctx.out(self.ctx.popen(["sc","stop",svc_name]).communicate()[0]) # popen
-            self.ctx.out(self.ctx.popen(["sc","delete",svc_name]).communicate()[0]) # popen
+            hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
+            try:
+                hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                win32service.ControlService(hs, win32service.SERVICE_CONTROL_STOP)
+                win32service.DeleteService(hs)
+                self.ctx.out("%s service deleted." % svc_name)
+            finally:
+                win32service.CloseServiceHandle(hs)
+                win32service.CloseServiceHandle(hscm)
         else:
             command = self._cmd("-e","node shutdown %s" % self._node())
             try:
