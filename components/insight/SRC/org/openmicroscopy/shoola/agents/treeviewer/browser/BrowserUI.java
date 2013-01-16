@@ -1824,7 +1824,7 @@ class BrowserUI
             i = nodes.iterator();
             TreeImageDisplay node;
             TreeFileSet n = null;
-            Set toKeep = new HashSet();
+            Set<TreeImageDisplay> toKeep = new HashSet<TreeImageDisplay>();
             int type;
             while (i.hasNext()) {
             	node = (TreeImageDisplay) i.next();
@@ -1894,8 +1894,7 @@ class BrowserUI
 					i = children.iterator();
 					while (i.hasNext()) {
 						child = (TreeImageDisplay) i.next();
-						if (child.getUserObject() instanceof ExperimenterData
-								&& child.isExpanded())
+						if (child.isExpanded())
 							expandNode(child);
 					}
 				}
