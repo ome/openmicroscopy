@@ -100,9 +100,9 @@ public class WellProcessor implements ModelProcessor
         IObjectContainer container =
             store.getIObjectContainer(Plate.class, indexes);
         Plate plate = (Plate) container.sourceObject;
-        String userSpecifiedPlateName = store.getUserSpecifiedPlateName();
+        String userSpecifiedPlateName = store.getUserSpecifiedName();
         String userSpecifiedPlateDescription =
-            store.getUserSpecifiedPlateDescription();
+            store.getUserSpecifiedDescription();
         if (userSpecifiedPlateName != null)
         {
             plate.setName(rstring(userSpecifiedPlateName));

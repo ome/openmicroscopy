@@ -7,6 +7,8 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rstring;
+
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -30,6 +33,7 @@ import ome.formats.importer.util.IniFileLoader;
 import ome.system.PreferenceContext;
 import ome.system.UpgradeCheck;
 import omero.model.Annotation;
+import omero.model.FilesetVersionInfo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -104,11 +108,8 @@ public class ImportConfig {
     public final LongValue group;
     public final BoolValue doThumbnails;
     public final StrValue email;
-    public final StrValue serverList;
-    public final StrValue imageName;
-    public final StrValue imageDescription;
-    public final StrValue plateName;
-    public final StrValue plateDescription;
+    public final StrValue userSpecifiedName;
+    public final StrValue userSpecifiedDescription;
     public final StrValue targetClass;
     public final LongValue targetId;
 
@@ -117,10 +118,7 @@ public class ImportConfig {
     public final BoolValue sendReport;
     public final BoolValue sendFiles;
     public final BoolValue sendLogFile;
-    public final BoolValue companionFile;
 
-    public final BoolValue archiveImage;
-    public final BoolValue metadataOnly;
     public final BoolValue useCustomImageNaming;
     public final BoolValue useFullPath;
     public final IntValue numOfDirectories;
@@ -195,8 +193,7 @@ public class ImportConfig {
             ini.updateFlexReaderServerMaps();
         }
 
-        log.info(String.format("Bioformats version: %s revision: %s date: %s",
-             FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE));
+        log.info("Bioformats " + getBioFormatsVersion());
 
         agent        = new StrValue("agent", this, "importer");
         hostname     = new StrValue("hostname", this, "omero.host");
@@ -218,11 +215,8 @@ public class ImportConfig {
         group		 = new LongValue("group", this, null);
         doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
-        serverList   = new StrValue("serverList", this);
-        imageName    = new StrValue("imageName", this);
-        imageDescription  = new StrValue("imageDescription", this);
-        plateName    = new StrValue("plateName", this);
-        plateDescription  = new StrValue("plateDescription", this);
+        userSpecifiedName = new StrValue("userSpecifiedName", this);
+        userSpecifiedDescription = new StrValue("userSpecifiedDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0L);
 
@@ -234,11 +228,8 @@ public class ImportConfig {
         contOnError  = new BoolValue("contOnError", this, false);
         sendReport   = new BoolValue("sendReport", this, false);
         sendFiles    = new BoolValue("sendFiles", this, true);
-        companionFile = new BoolValue("companionFile", this, true);
         sendLogFile  = new BoolValue("sendLogFile", this, true);
 
-        archiveImage = new BoolValue("archive", this, false);
-        metadataOnly = new BoolValue("metadatOnly", this, false);
         useFullPath  = new BoolValue("useFullPath", this, true);
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
@@ -252,6 +243,25 @@ public class ImportConfig {
                 "userPixels", this, null);
 
         readersPath = new StrValue("readersPath", this);
+    }
+
+    public String getBioFormatsVersion() {
+        return String.format("version: %s revision: %s date: %s",
+                FormatTools.VERSION, FormatTools.VCS_REVISION, FormatTools.DATE);
+    }
+
+    public String getOmeroVersion() {
+        return omeroVersion;
+    }
+
+    public void fillVersionInfo(FilesetVersionInfo versionInfo) {
+        versionInfo.setBioformatsVersion(rstring(getBioFormatsVersion()));
+        versionInfo.setOmeroVersion(rstring(getOmeroVersion()));
+        versionInfo.setOsArchitecture(rstring(System.getProperty("os.arch")));
+        versionInfo.setOsName(rstring(System.getProperty("os.name")));
+        versionInfo.setOsVersion(rstring(System.getProperty("os.version")));
+        versionInfo.setLocale(rstring(Locale.getDefault().toString()));
+        // TODO: add java version info
     }
 
     /**
@@ -521,73 +531,6 @@ public class ImportConfig {
     }
 
     //
-    // Server list
-    //
-
-    /**
-     * @return server list
-     */
-    public List<String> getServerList() {
-        if (serverList.empty() || serverList.get().trim().length() == 0) {
-            return null;
-        } else {
-            List<String> list = new ArrayList<String>();
-            String[] l = serverList.get().split(SERVER_NAME_SEPARATOR, 0);
-            if (l == null || l.length == 0) {
-                return null;
-            } else {
-                if (list != null)
-                    list.clear();
-                for (int index = 0; index < l.length; index++) {
-                    if (list != null)
-                        list.add(l[index].trim());
-                }
-            }
-            return list;
-        }
-    }
-
-    /**
-     * Save the current serverList if the currentServer is not on the list. Make
-     * sure that the server is a valid string and does not represent fake input
-     * text like "--> Enter server"
-     */
-    public void updateServerList(String currentServer) {
-
-        List<String> l = getServerList();
-        if (l != null && l.contains(currentServer)) {
-            return;
-        }
-
-        if (serverList.empty() || serverList.get().length() == 0) {
-            serverList.set(currentServer.trim());
-        } else {
-            serverList.set(serverList + SERVER_NAME_SEPARATOR + currentServer);
-        }
-    }
-
-    /**
-     * @param server - remove this server from the server list
-     */
-    public void removeServer(String server) {
-        List<String> l = getServerList();
-        if (l == null)
-            return;
-        l.remove(server);
-        Iterator<String> i = l.iterator();
-        String list = "";
-        int n = l.size() - 1;
-        int index = 0;
-        while (i.hasNext()) {
-            list += (String) i.next();
-            if (index != n)
-                list += SERVER_NAME_SEPARATOR;
-            index++;
-        }
-        serverList.set(list);
-    }
-
-    //
     // HELPERS
     //
 
@@ -669,7 +612,6 @@ public class ImportConfig {
      */
     public void loadGui() {
          email.load();
-         archiveImage.load();
     }
 
      /**
@@ -679,7 +621,6 @@ public class ImportConfig {
       */
      public void saveGui() {
           email.store();
-          archiveImage.store();
      }
 
     /**
@@ -701,7 +642,6 @@ public class ImportConfig {
         useFullPath.load();
         numOfDirectories.load();
         savedDirectory.load();
-        companionFile.load();
 
 
         sendLogFile.load();
@@ -730,7 +670,6 @@ public class ImportConfig {
         useFullPath.store();
         numOfDirectories.store();
         savedDirectory.store();
-        companionFile.store();
 
         sendLogFile.store();
         sendFiles.store();

@@ -939,12 +939,10 @@ public class AbstractServerTest
 		ImportCandidates candidates = new ImportCandidates(reader, paths, o);
 		
 		ImportLibrary library = new ImportLibrary(importer, reader);
-		library.setMetadataOnly(metadata);
 		ImportContainer ic = candidates.getContainers().get(0);
 		//new ImportContainer(
         //        file, null, target, false, null, null, null, null);
-		ic.setUseMetadataFile(true);
-		ic.setCustomImageName(format);
+		ic.setUserSpecifiedName(format);
 		ic.setTarget(target);
 		//ic = library.uploadFilesToRepository(ic);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);

@@ -25,6 +25,7 @@
     <constructor-arg><value>true</value></constructor-arg>
     <property name="originalFilesService" ref="/OMERO/Files"/>
     <property name="IRepositoryInfo" ref="internal-ome.api.IRepositoryInfo"/>
+    <property name="adminService" ref="internal-ome.api.IAdmin"/>
   </bean>
 
   <bean id="managed-ome.api.RawFileStore" parent="managedStatefulService" singleton="false">

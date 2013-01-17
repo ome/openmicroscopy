@@ -362,7 +362,7 @@ public class HandleI implements _HandleOperations, IHandle,
                 @Transactional(readOnly = false)
                 public List<Object> doWork(Session session, ServiceFactory sf) {
                     try {
-                        List<Object> rv = doRun(getSqlAction(), session, sf);
+                        List<Object> rv = steps(getSqlAction(), session, sf);
                         state.set(State.FINISHED); // Regardless of current
                         return rv;
                     } catch (Cancel c) {
@@ -388,6 +388,8 @@ public class HandleI implements _HandleOperations, IHandle,
             helper.warn("Request rolled back by %s", t.getCause());
             helper.fail(new ERR(), t, "run-fail");
         } finally {
+            // getResponse will be called regardless of return/exception state
+            // and therefore any cleanup can happen there.
             rsp.set(req.getResponse());
             sw.stop("omero.request.tx");
             notifyCallbacks();
@@ -412,30 +414,20 @@ public class HandleI implements _HandleOperations, IHandle,
         return merged;
     }
 
-    public List<Object> doRun(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
-        StopWatch sw = new CommonsLogStopWatch();
-        try {
-            return steps(sql, session, sf);
-        } finally {
-            sw.stop("omero.request");
-            status.startTime = sw.getStartTime();
-            status.stopTime = sw.getStartTime() + sw.getElapsedTime();
-        }
-    }
-
     public List<Object> steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
+        StopWatch swWhole = new CommonsLogStopWatch();
         try {
 
             // Initialize. Any exceptions should cancel the process
             List<Object> rv = new ArrayList<Object>();
-            StopWatch sw = new CommonsLogStopWatch();
+            StopWatch swEach = null;
             // Now that we're in the transaction, replace the helper.
             helper = new Helper((Request)req, status, sql, session, sf);
             req.init(helper);
 
             int j = 0;
             while (j < status.steps) {
-                sw = new CommonsLogStopWatch();
+                swEach = new CommonsLogStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw helper.cancel(new ERR(), null, "not-ready");
@@ -446,7 +438,7 @@ public class HandleI implements _HandleOperations, IHandle,
                 } catch (Throwable t) {
                     throw helper.cancel(new ERR(), t, "bad-step", "step", ""+j);
                 } finally {
-                    sw.stop("omero.request.step." + j);
+                    swEach.stop("omero.request.step." + j);
                     // If cancel was thrown, then this value will be overwritten
                     // by the try/catch handler
                     state.compareAndSet(State.RUNNING, State.READY);
@@ -478,6 +470,10 @@ public class HandleI implements _HandleOperations, IHandle,
             String msg = "Failure during Request.step:";
             helper.error(t, msg);
             throw helper.cancel(new ERR(), t, "steps-cancel");
+        } finally {
+            swWhole.stop("omero.request");
+            status.startTime = swWhole.getStartTime();
+            status.stopTime = swWhole.getStartTime() + swWhole.getElapsedTime();
         }
 
     }

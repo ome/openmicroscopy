@@ -23,70 +23,43 @@
 
 package ome.formats.importer;
 
+import static omero.rtypes.rbool;
+import static omero.rtypes.rstring;
+
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 
+import omero.grid.ImportSettings;
 import omero.model.Annotation;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
+import omero.model.FilesetEntryI;
+import omero.model.FilesetVersionInfo;
+import omero.model.FilesetVersionInfoI;
+import omero.model.UploadJob;
+import omero.model.UploadJobI;
 import omero.model.IObject;
-import omero.model.Pixels;
 
 public class ImportContainer
 {
-	private Long projectID;
 	private String reader;
     private String[] usedFiles;
     private Boolean isSPW;
 	private File file;
-
-    /**
-     * The number of Images (also referred to as <i>Series</i>) that
-     * Bio-Formats has detected.
-     */
-    private Integer bfImageCount;
-
-	/**
-     * Image dimensions populated OMERO Pixels objects for each of the Images
-     * (also referred to as <i>Series</i>) that Bio-Formats has detected.
-     * The length of this collection is equivilent to the <i>Series</i> count
-     * and is ordered as the <i>Series</i> are ordered. <b>NOTE:</b> Each
-     * OMERO Pixels object is populated with a bogus <code>PixelsType</code>
-     * whose value has been extracted from Bio-Formats. It <b>must not</b> be
-     * saved into OMERO.
-     */
-    private List<Pixels> bfPixels;
-
-    /**
-     * Image names populated for each of the Images (also referred to as
-     * <i>Series</i>)that Bio-Formats has detected. The length of this
-     * collection is equivilent to the <i>Series</i> count and is ordered as
-     * the <i>Series</i> are ordered. <b>NOTE:</b> This listmay be sparse,
-     * contain <code>null</code> values or empty length strings. Caution should
-     * be exercised when working directly with this metadata.
-     */
-    private List<String> bfImageNames;
-
-    private Boolean archive;
     private Double[] userPixels;
-    private String customImageName;
-    private String customImageDescription;
-    private String customPlateName;
-    private String customPlateDescription;
+    private String userSpecifiedName;
+    private String userSpecifiedDescription;
     private boolean doThumbnails = true;
-    private boolean useMetadataFile = true;
     private List<Annotation> customAnnotationList;
     private IObject target;
-    private boolean isMetadataOnly = false;
-    private boolean isBigImage = false;
 
-	public ImportContainer(File file, Long projectID,
-			IObject target,
-			Boolean archive,
-			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
+	public ImportContainer(File file,
+            IObject target,
+            Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
-		this.projectID = projectID;
 		this.target = target;
-		this.archive = archive;
 		this.userPixels = userPixels;
 		this.reader = reader;
 		this.usedFiles = usedFiles;
@@ -94,70 +67,6 @@ public class ImportContainer
 	}
 
 	// Various Getters and Setters //
-
-    public Integer getBfImageCount() {
-		return bfImageCount;
-	}
-
-	public void setBfImageCount(Integer bfImageCount) {
-		this.bfImageCount = bfImageCount;
-	}
-
-	public List<Pixels> getBfPixels() {
-		return bfPixels;
-	}
-
-	public void setBfPixels(List<Pixels> bfPixels) {
-		this.bfPixels = bfPixels;
-	}
-
-	public List<String> getBfImageNames() {
-		return bfImageNames;
-	}
-
-	public void setBfImageNames(List<String> bfImageNames) {
-		this.bfImageNames = bfImageNames;
-	}
-
-    /**
-     * Retrieves the metadata only flag.
-     * @return See above.
-     */
-    public boolean getMetadataOnly()
-    {
-        return isMetadataOnly;
-    }
-
-    /**
-     * Sets the metadata only flag.
-     * @param isMetadataOnly Whether or not to perform metadata only imports
-     * with this container.
-     * @since OMERO Beta 4.3.0.
-     */
-    public void setMetadataOnly(boolean isMetadataOnly)
-    {
-        this.isMetadataOnly = isMetadataOnly;
-    }
-
-    /**
-     * Retrieves the BigImage flag.
-     * @return See above.
-     */
-    public boolean getBigImage()
-    {
-        return isBigImage;
-    }
-
-    /**
-     * Sets the BigImage flag.
-     * @param isBigImage Whether or not to perform BigImage imports
-     * with this container.
-     * @since OMERO Beta 4.3.0.
-     */
-    public void setBigImage(boolean isBigImage)
-    {
-        this.isBigImage = isBigImage;
-    }
 
     /**
      * Retrieves whether or not we are performing thumbnail creation upon
@@ -184,108 +93,45 @@ public class ImportContainer
     }
 
     /**
-     * Retrieves the current custom image name string.
+     * Retrieves the current custom image/plate name string.
      * @return As above. <code>null</code> if it has not been set.
      */
-    public String getCustomImageName()
+    public String getUserSpecifiedName()
     {
-        return customImageName;
+        return userSpecifiedName;
     }
 
     /**
-     * Sets the custom image name for import. If this value is left
-     * null, the image description supplied by Bio-Formats will be used.
-     * @param v A custom image name to use for all images represented
+     * Sets the custom image/plate name for import. If this value is left
+     * null, the image/plate name supplied by Bio-Formats will be used.
+     * @param v A custom image/plate name to use for all entities represented
      * by this container.
      */
-    public void setCustomImageName(String v)
+    public void setUserSpecifiedName(String v)
     {
-        customImageName = v;
+        userSpecifiedName = v;
     }
 
     /**
-     * Retrieves the current custom image description string.
-     * @return As above. <code>null</code> if it has not been set.
-     * @since OMERO Beta 4.2.1.
-     */
-    public String getCustomImageDescription()
-    {
-        return customImageDescription;
-    }
-
-    /**
-     * Sets the custom image description for import. If this value is left
-     * null, the image description supplied by Bio-Formats will be used.
-     * @param v A custom image description to use for all images represented
-     * by this container.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setCustomImageDescription(String v)
-    {
-        customImageDescription = v;
-    }
-
-    /**
-     * Retrieves the current custom plate name string.
+     * Retrieves the current custom image/plate description string.
      * @return As above. <code>null</code> if it has not been set.
      * @since OMERO Beta 4.2.1.
      */
-    public String getCustomPlateName()
+    public String getUserSpecifiedDescription()
     {
-        return customPlateName;
+        return userSpecifiedDescription;
     }
 
     /**
-     * Sets the custom plate name for import. If this value is left
-     * null, the plate description supplied by Bio-Formats will be used.
-     * @param v A custom plate name to use for all plates represented
+     * Sets the custom image/plate description for import. If this value is left
+     * null, the image/plate description supplied by Bio-Formats will be used.
+     * @param v A custom image/plate description to use for all images represented
      * by this container.
      * @since OMERO Beta 4.2.1.
      */
-    public void setCustomPlateName(String v)
+    public void setUserSpecifiedDescription(String v)
     {
-        customPlateName = v;
-    }
-
-    /**
-     * Retrieves the current custom plate description string.
-     * @return As above. <code>null</code> if it has not been set.
-     * @since OMERO Beta 4.2.1.
-     */
-    public String getCustomPlateDescription()
-    {
-        return customPlateDescription;
-    }
-
-    /**
-     * Sets the custom plate description for import. If this value is left
-     * null, the plate description supplied by Bio-Formats will be used.
-     * @param v A custom plate description to use for all plates represented
-     * by this container.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setCustomPlateDescription(String v)
-    {
-        customPlateDescription = v;
-    }
-
-    /**
-     * Whether or not we're using an original metadata file.
-     * @return See above.
-     * @since OMERO Beta 4.2.1.
-     */
-    public boolean getUseMetadataFile()
-    {
-        return useMetadataFile;
-    }
-
-    /**
-     * Sets whether or not we're using an original metadata file.
-     * @since OMERO Beta 4.2.1.
-     */
-    public void setUseMetadataFile(boolean v)
-    {
-        useMetadataFile = v;
+        userSpecifiedDescription = v;
     }
 
     /**
@@ -351,22 +197,6 @@ public class ImportContainer
 	    this.file = file;
 	}
 
-    /**
-     * @return Returns the projectID.
-     */
-    public Long getProjectID()
-    {
-        return projectID;
-    }
-
-    /**
-     * @return Returns the projectID.
-     */
-    public void setProjectID(Long projectID)
-    {
-        this.projectID = projectID;
-    }
-
 	public IObject getTarget()
 	{
 	    return target;
@@ -386,12 +216,43 @@ public class ImportContainer
         this.userPixels = userPixels;
     }
 
-    public void setArchive(boolean archive)
-    {
-        this.archive = archive;
+    public void fillData(ImportConfig config, ImportSettings settings, Fileset fs) {
+        // TODO: These should possible be a separate option like
+        // ImportUserSettings rather than mis-using ImportContainer.
+        settings.doThumbnails = rbool(getDoThumbnails());
+        settings.userSpecifiedTarget = getTarget();
+        settings.userSpecifiedName = rstring(getUserSpecifiedName());
+        settings.userSpecifiedDescription = rstring(getUserSpecifiedDescription());
+        settings.userSpecifiedAnnotationList = getCustomAnnotationList();
+        if (getUserPixels() != null) {
+            Double[] source = getUserPixels();
+            double[] target = new double[source.length];
+            for (int i = 0; i < source.length; i++) {
+                if (source[i] == null) {
+                    target = null;
+                    break;
+                }
+                target[i] = source[i];
+            }
+            settings.userSpecifiedPixels = target; // May be null.
+        }
+
+        // Fill used paths
+        FilesetEntry entry = null;
+        for (String usedFile : getUsedFiles()) {
+            entry = new FilesetEntryI();
+            entry.setClientPath(rstring(usedFile));
+            fs.addFilesetEntry(entry);
+        }
+
+        // Fill BF info
+        FilesetVersionInfo clientVersionInfo = new FilesetVersionInfoI();
+        clientVersionInfo.setBioformatsReader(rstring(reader));
+        config.fillVersionInfo(clientVersionInfo);
+        UploadJob upload = new UploadJobI();
+        upload.setVersionInfo(clientVersionInfo);
+        fs.linkJob(upload);
+
     }
 
-    public boolean getArchive() {
-        return this.archive;
-    }
 }

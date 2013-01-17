@@ -101,33 +101,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
         return count;
     }
 
-    private final static String findRepoFileSql = PsqlStrings
-            .getString("sql_action.find_repo_file"); //$NON-NLS-1$
-
-    public Long findRepoFile(String uuid, String dirname, String basename,
-            String mimetype) {
-        try {
-            if (mimetype != null) {
-                return _jdbc().queryForLong(
-                        findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
-                        uuid, dirname, basename, mimetype);
-            } else {
-                return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
-            }
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
-    }
-
-    public String findRepoFilePath(String uuid, long id) {
-        try {
-            return (String) _jdbc().queryForObject(_lookup("find_repo_file_path"), //$NON-NLS-1$
-                    String.class, id, uuid);
-        } catch (EmptyResultDataAccessException erdae) {
-            return null;
-        }
-    }
-
     public List<Long> findRepoPixels(String uuid, String dirname, String basename){
         return _jdbc().query(_lookup("find_repo_pixels"), //$NON-NLS-1$
                 new RowMapper<Long>() {

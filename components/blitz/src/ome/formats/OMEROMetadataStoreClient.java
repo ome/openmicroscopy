@@ -115,7 +115,7 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.constants.METADATASTORE;
-import omero.grid.Import;
+import omero.grid.ImportSettings;
 import omero.grid.InteractiveProcessorPrx;
 import omero.metadatastore.IObjectContainer;
 import omero.model.AcquisitionMode;
@@ -289,17 +289,11 @@ public class OMEROMetadataStoreClient
     /** Annotations from the user for use by model processors. */
     private List<Annotation> userSpecifiedAnnotations;
 
-    /** Image name the user specified for use by model processors. */
-    private String userSpecifiedImageName;
+    /** Image/Plate name the user specified for use by model processors. */
+    private String userSpecifiedName;
 
-    /** Image description the user specified for use by model processors. */
-    private String userSpecifiedImageDescription;
-
-    /** Plate name the user specified for use by model processors. */
-    private String userSpecifiedPlateName;
-
-    /** Plate description the user specified for use by model processors. */
-    private String userSpecifiedPlateDescription;
+    /** Image/Plate description the user specified for use by model processors. */
+    private String userSpecifiedDescription;
 
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
@@ -320,10 +314,6 @@ public class OMEROMetadataStoreClient
     /** Excitation filter LSID suffix. */
     public static final String OMERO_EXCITATION_FILTER_SUFFIX =
 	":OMERO_EXCITATION_FILTER";
-
-    /** Companion file namespace */
-    private static final String NS_COMPANION =
-	omero.constants.namespaces.NSCOMPANIONFILE.value;
 
     /** Original metadata text file key */
     private static final String ORIGINAL_METADATA_KEY =
@@ -1051,8 +1041,8 @@ public class OMEROMetadataStoreClient
             referenceStringCache = null;
             imageChannelGlobalMinMax = null;
             userSpecifiedAnnotations = null;
-            userSpecifiedImageName = null;
-            userSpecifiedImageDescription = null;
+            userSpecifiedName = null;
+            userSpecifiedDescription = null;
             userSpecifiedTarget = null;
             userSpecifiedPhysicalPixelSizes = null;
             delegate.createRoot();
@@ -1159,81 +1149,49 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateName()
      */
-    public String getUserSpecifiedPlateName()
+    public String getUserSpecifiedName()
     {
-        return userSpecifiedPlateName;
+        return userSpecifiedName;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateName(java.lang.String)
-     */
-    public void setUserSpecifiedPlateName(String name)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Using user specified plate name: " + name);
-        }
-        userSpecifiedPlateName = name;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateDescription()
-     */
-    public String getUserSpecifiedPlateDescription()
-    {
-        return userSpecifiedPlateDescription;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateDescription(java.lang.String)
-     */
-    public void setUserSpecifiedPlateDescription(String description)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Using user specified plate description: " + description);
-        }
-        userSpecifiedPlateDescription = description;
-    }
-
-    /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedName()
      */
     public String getUserSpecifiedImageName()
     {
-        return userSpecifiedImageName;
+        return userSpecifiedName;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageName(java.lang.String)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedName(java.lang.String)
      */
-    public void setUserSpecifiedImageName(String name)
+    public void setUserSpecifiedName(String name)
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Using user specified image name: " + name);
+            log.debug("Using user specified name: " + name);
         }
-        this.userSpecifiedImageName = name;
+        this.userSpecifiedName = name;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageDescription()
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedDescription()
      */
-    public String getUserSpecifiedImageDescription()
+    public String getUserSpecifiedDescription()
     {
-        return userSpecifiedImageDescription;
+        return userSpecifiedDescription;
     }
 
     /* (non-Javadoc)
-     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedImageDescription(java.lang.String)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedDescription(java.lang.String)
      */
-    public void setUserSpecifiedImageDescription(String description)
+    public void setUserSpecifiedDescription(String description)
     {
         if (log.isDebugEnabled())
         {
-            log.debug("Using user specified image description: " + description);
+            log.debug("Using user specified description: " + description);
         }
-        this.userSpecifiedImageDescription = description;
+        this.userSpecifiedDescription = description;
     }
 
     /* (non-Javadoc)
@@ -1447,359 +1405,6 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Creates a temporary file on disk containing all metadata in the
-     * Bio-Formats metadata hash table for the current series.
-     * @param suffix String that will be appended to the end of the temporary
-     * file path.
-     * @return Temporary file created.
-     */
-    private File createSeriesMetadataFile(String suffix)
-    {
-	Hashtable<?,?> globalMetadata = reader.getGlobalMetadata();
-	Hashtable<?,?> seriesMetadata = reader.getSeriesMetadata();
-        if (globalMetadata.size() == 0 && seriesMetadata.size() == 0)
-        {
-            return null;
-        }
-	FileOutputStream stream = null;
-	OutputStreamWriter writer= null;
-	try
-	{
-		File metadataFile = TempFileManager.createTempFile(
-		        ORIGINAL_METADATA_KEY, suffix);
-		stream = new FileOutputStream(metadataFile);
-		writer = new OutputStreamWriter(stream);
-		metadataFile.deleteOnExit();
-		writer.write("[GlobalMetadata]\n");
-		for (Object key : globalMetadata.keySet())
-		{
-			String s = key.toString() + "="
-			           + globalMetadata.get(key).toString() + "\n";
-			writer.write(s);
-		}
-		writer.write("[SeriesMetadata]\n");
-		for (Object key : seriesMetadata.keySet())
-		{
-			String s = key.toString() + "="
-			           + seriesMetadata.get(key).toString() + "\n";
-			writer.write(s);
-		}
-		return metadataFile;
-	}
-	catch (IOException e)
-	{
-		log.error("Unable to create series metadata file.", e);
-		return null;
-	}
-	finally
-	{
-		try
-		{
-			if (writer != null)
-			{
-				writer.close();
-			}
-			if (stream != null)
-			{
-				stream.close();
-			}
-		}
-		catch (IOException e)
-		{
-			log.error("Unable to close writer or stream.", e);
-		}
-	}
-    }
-
-    /**
-     * Links relevant companion files for later original file upload if
-     * we are of the HCS domain.
-     * @return A list of the temporary metadata files created on local disk.
-     */
-    public List<File> setArchiveScreeningDomain(Import data)
-    {
-	List<File> metadataFiles = new ArrayList<File>();
-	String[] usedFiles = reader.getUsedFiles();
-	List<String> companionFiles = getFilteredCompanionFiles();
-	ImageReader imageReader = (ImageReader) reader;
-	String formatString =
-		imageReader.getReader().getClass().toString();
-	formatString = formatString.replace("class loci.formats.in.", "");
-	formatString = formatString.replace("Reader", "");
-	LSID plateKey = new LSID(Plate.class, 0);
-	// Set the archived flag to false as archiving is disabled for screens
-	for (int series = 0; series < reader.getSeriesCount(); series++)
-	{
-		LinkedHashMap<Index, Integer> imageIndexes =
-			new LinkedHashMap<Index, Integer>();
-		imageIndexes.put(Index.IMAGE_INDEX, series);
-		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(false));
-	}
-	// Create original file objects for later population for companion
-	// files. This increments the original file count by the
-	// number of files to actually be created.
-	int originalFileIndex = 0;
-	for (String usedFilename : usedFiles)
-	{
-		File usedFile = new File(usedFilename);
-		String absolutePath = usedFile.getAbsolutePath();
-		boolean isCompanionFile = companionFiles == null? false :
-			    companionFiles.contains(usedFilename);
-		LinkedHashMap<Index, Integer> indexes =
-				new LinkedHashMap<Index, Integer>();
-		indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-		// The file is a companion file, create it,
-		// and increment the next original file's index.
-		String format = "Companion/" + formatString;
-		createOriginalFileFromFile(usedFile, indexes, format);
-		addCompanionFileAnnotationTo(plateKey, indexes,
-		        originalFileIndex);
-		originalFileIndex++;
-	}
-	return metadataFiles;
-    }
-
-    /**
-     * Populates archive flags on all images currently processed links
-     * relevant original metadata files as requested and performs graph logic
-     * to have the scaffolding in place for later original file upload.
-     * @param useMetadataFile Whether or not to dump all metadata to a flat
-     * file annotation on the server.
-     * @return A list of the temporary metadata files created on local disk.
-     */
-    public List<File> setArchive(boolean useMetadataFile, Import data)
-    {
-	List<File> metadataFiles = new ArrayList<File>();
-	int originalFileIndex = countCachedContainers(OriginalFile.class, null);
-		Map<String, Integer> pathIndexMap = new HashMap<String, Integer>();
-	for (int series = 0; series < reader.getSeriesCount(); series++)
-	{
-		reader.setSeries(series);
-		String[] usedFiles = reader.getSeriesUsedFiles();
-		// Collection of companion files so we can use contains()
-		List<String> companionFiles = getFilteredSeriesCompanionFiles();
-
-		ImageReader imageReader = (ImageReader) reader;
-		String formatString =
-			imageReader.getReader().getClass().toString();
-		formatString = formatString.replace("class loci.formats.in.", "");
-		formatString = formatString.replace("Reader", "");
-		LSID pixelsKey = new LSID(Pixels.class, series);
-		LSID imageKey = new LSID(Image.class, series);
-		LinkedHashMap<Index, Integer> imageIndexes =
-			new LinkedHashMap<Index, Integer>();
-		imageIndexes.put(Index.IMAGE_INDEX, series);
-
-		// Populate the archived flag on the image. This inadvertently
-		// ensures that an Image object (and corresponding container)
-		// exists.
-		Image image = getSourceObject(Image.class, imageIndexes);
-		image.setArchived(toRType(true));
-
-		// If we have been asked to create a metadata file with all the
-		// metadata dumped out, do so, add it to the collection we're to
-		// return and create an OriginalFile object to hold state on the
-		// server and a companion file annotation to link it to the pixels
-		// set itself. This increments the original file count if enabled.
-		if (useMetadataFile)
-		{
-		    String uuid = UUID.randomUUID().toString();
-			File metadataFile = createSeriesMetadataFile(uuid);
-			if (metadataFile != null)
-			{
-				metadataFiles.add(metadataFile);
-				LinkedHashMap<Index, Integer> indexes =
-					new LinkedHashMap<Index, Integer>();
-				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-				String format = "text/plain";
-				OriginalFile originalFile = createOriginalFileFromFile(
-				        metadataFile, indexes, format);
-				log.debug("originalFile created");
-				originalFile.setPath(toRType(String.format("%s%s/",
-				        omero.constants.annotation.file.ORIGINALMETADATAPREFIX.value,
-				        uuid)));
-				originalFile.setName(toRType(omero.constants.annotation.file.ORIGINALMETADATA.value));
-				log.debug("originalFile path created");
-                    indexes = new LinkedHashMap<Index, Integer>();
-                    indexes.put(Index.IMAGE_INDEX, series);
-                    indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-                    addCompanionFileAnnotationTo(imageKey, indexes,
-                                                 originalFileIndex);
-                    originalFileIndex++;
-                }
-		}
-
-		// Use uploaded original file objects for later population based on
-		// the existence or abscence of companion files.
-		// This increments the original file count by the number of
-		// files to actually be created.
-		for (int i = 0; i < usedFiles.length; i++)
-		{
-			String usedFilename = usedFiles[i];
-			File usedFile = new File(usedFilename);
-			String absolutePath = usedFile.getAbsolutePath();
-			boolean isCompanionFile = companionFiles == null? false :
-				                      companionFiles.contains(usedFilename);
-			LinkedHashMap<Index, Integer> indexes =
-				new LinkedHashMap<Index, Integer>();
-			indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-			int usedFileIndex = originalFileIndex;
-			if (pathIndexMap.containsKey(absolutePath))
-			{
-				// PATH 1: We've already seen this path before, re-use
-				// the same original file index.
-				usedFileIndex = pathIndexMap.get(absolutePath);
-			}
-			else if (isCompanionFile)
-			{
-				// PATH 2: The file is a companion file.
-				// add the original file index into our cached map
-				// and increment the next original file's index.
-				String format = "Companion/" + formatString;
-				useOriginalFile(data.originalFileMap.get(absolutePath), indexes, format);
-				pathIndexMap.put(absolutePath, usedFileIndex);
-				originalFileIndex++;
-			}
-			else
-			{
-				// PATH 3:The file is not a companion file, create it,
-				// add the original file index into our cached map
-				// and increment the next original file's index.
-				useOriginalFile(data.originalFileMap.get(absolutePath), indexes,
-				                           formatString);
-				pathIndexMap.put(absolutePath, usedFileIndex);
-				originalFileIndex++;
-			}
-
-			if (isCompanionFile)
-			{
-            // Add a companion file annotation to the Image.
-            indexes = new LinkedHashMap<Index, Integer>();
-            indexes.put(Index.IMAGE_INDEX, series);
-            indexes.put(Index.ORIGINAL_FILE_INDEX, usedFileIndex);
-            addCompanionFileAnnotationTo(imageKey, indexes,
-                                         usedFileIndex);
-            }
-            // Always link the original file to the Image even if
-            // it is a companion file.
-            LSID originalFileKey =
-                    new LSID(OriginalFile.class, usedFileIndex);
-            addReference(pixelsKey, originalFileKey);
-        }
-        }
-        return metadataFiles;
-    }
-
-    /**
-     * Filters a set of filenames.
-     * @param files An array of the files to filter.
-     * @return A collection of the filtered files.
-     */
-    private List<String> filterFilenames(String[] files)
-    {
-	if (files == null)
-	{
-		return null;
-	}
-	List<String> filteredFiles = new ArrayList<String>();
-	for (String file : files)
-	{
-		if (!file.endsWith(".tif")
-			&& !file.endsWith(".tiff"))
-		{
-			filteredFiles.add(file);
-		}
-	}
-	return filteredFiles;
-    }
-
-    /**
-     * Returns the current set of filtered companion files that the Bio-Formats
-     * image reader contains.
-     * @return See above.
-     * @see getFilteredSeriesCompanionFiles()
-     */
-    public List<String> getFilteredCompanionFiles()
-    {
-	return filterFilenames(reader.getUsedFiles(true));
-    }
-
-    /**
-     * Returns the current set of filtered companion files that the Bio-Formats
-     * image reader contains for the current series.
-     * @return See above.
-     * @see getFilteredCompanionFiles()
-     */
-    public List<String> getFilteredSeriesCompanionFiles()
-    {
-	return filterFilenames(reader.getSeriesUsedFiles(true));
-    }
-
-    /**
-     * Adds a file annotation and original file reference linked to a given
-     * base LSID target.
-     * @param target LSID of the target object.
-     * @param indexes Indexes of the annotation.
-     * @param originalFileIndex Index of the original file.
-     * @return The LSID of the original file.
-     */
-    private void addCompanionFileAnnotationTo(
-		LSID target, LinkedHashMap<Index, Integer> indexes,
-		int originalFileIndex)
-    {
-	FileAnnotation a = (FileAnnotation)
-	getSourceObject(FileAnnotation.class, indexes);
-	a.setNs(rstring(NS_COMPANION));
-
-	Collection<Integer> indexValues = indexes.values();
-	Integer[] integerValues = indexValues.toArray(
-			new Integer[indexValues.size()]);
-	int[] values = new int[integerValues.length];
-	for (int i = 0; i < integerValues.length; i++)
-	{
-		values[i] = integerValues[i].intValue();
-	}
-	LSID annotationKey = new LSID(FileAnnotation.class, values);
-	LSID originalFileKey = new LSID(OriginalFile.class,
-			originalFileIndex);
-	addReference(target, annotationKey);
-	addReference(annotationKey, originalFileKey);
-    }
-
-    /**
-     * Looks up an original file by UUID if the requested path contains the
-     * <code>ORIGINAL_METADATA_KEY</code>.
-     * @param path Absolute path to locate an original file for.
-     * @param originalFileMap Original file path vs. original file map.
-     * @return An original file if one can be looked up by UUID and
-     * <code>null</code> otherwise.
-     */
-    private OriginalFile byUUID(
-		String path, Map<String, OriginalFile> originalFileMap)
-    {
-	for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
-	{
-		try {
-			if (path.contains(ORIGINAL_METADATA_KEY))
-			{
-				String[] tokens = entry.getKey().split("/");
-				if (tokens.length > 1 && path.endsWith(tokens[tokens.length - 2]))
-				{
-					return entry.getValue();
-				}
-			}
-		} catch (ArrayIndexOutOfBoundsException e)
-		{
-			log.error("byUUID error, path: " + path + ", entry.key: " + entry.getKey(), e);
-			throw e;
-		}
-	}
-
-	return null;
-    }
-
-    /**
      * Sets extended the properties on a pixel set.
      * @param pixelsId The pixels set identifier.
      * @param series The series number to populate.
@@ -1808,9 +1413,31 @@ public class OMEROMetadataStoreClient
      */
     public void setPixelsParams(long pixelsId, int series, String targetName)
     {
+        setPixelsParams(pixelsId, series, targetName, null);
+    }
+
+    /**
+     * Sets extended the properties on a pixel set including the repository
+     * which the object is to be found in. In general, this should <em>not</em>
+     * be here, but rather the repository itself should be responsible for these
+     * actions. However, as a workaround for the current state of import before
+     * another major refactoring, permit setting the value here.
+     *s
+     * @param pixelsId The pixels set identifier.
+     * @param series The series number to populate.
+     * @param target The <code>setId()</code> target.
+     * @param prefix Prefix within the binary repository for all files.
+     */
+    public void setPixelsParams(long pixelsId, int series, String targetName,
+            String repoUuid)
+    {
+
         try
         {
             Map<String, String> params = new HashMap<String, String>();
+            if (repoUuid != null) {
+                params.put("repo", repoUuid);
+            }
             params.put("image_no", Integer.toString(series));
             params.put("target", targetName);
             delegate.setPixelsParams(pixelsId, true, params);
@@ -2169,33 +1796,9 @@ public class OMEROMetadataStoreClient
      * Creates an original file object from a Java file object along with some
      * metadata specific to OMERO in the container cache or returns the
      * original file as already created in the supplied map.
-     * @param file Java file object to pull metadata from.
-     * @param indexes Container cache indexes to use.
-     * @param formatString Original file format as a string.
-     * @param existing Existing original files keyed by absolute path.
-     * @return Created original file source object.
-     */
-    private OriginalFile createOriginalFileFromFile(
-		File file, LinkedHashMap<Index, Integer> indexes,
-		String formatString)
-    {
-		OriginalFile o = (OriginalFile)
-			getSourceObject(OriginalFile.class, indexes);
-		o.setName(toRType(file.getName()));
-		o.setSize(toRType(file.length()));
-		o.setMimetype(toRType(formatString));
-		o.setPath(toRType(file.getParent() + File.separator));
-		o.setSha1(toRType("Pending"));
-		return o;
-    }
-
-    /**
-     * Creates an original file object from a Java file object along with some
-     * metadata specific to OMERO in the container cache or returns the
-     * original file as already created in the supplied map.
      * @param ofile OriginalFile object populated.
      * @param indexes Container cache indexes to use.
-     * @param formatString Original file format as a string.
+     * @param formatString Original file format as a string. Possibly null.
      * @param existing Existing original files keyed by absolute path.
      * @return Created original file source object.
      */
@@ -2206,6 +1809,20 @@ public class OMEROMetadataStoreClient
         IObjectContainer ioc = getIObjectContainer(OriginalFile.class, indexes);
 		ofile.setMimetype(toRType(formatString));
         ioc.sourceObject = ofile;
+        if (ofile.sizeOfPixelsFileMaps() < 0) { // Required for handleReference
+            try {
+                OriginalFile toCopy = (OriginalFile) iQuery.findByQuery
+                    ("select o from OriginalFile o " +
+                    		"left outer join fetch o.pixelsFileMaps " +
+                    		"where o.id = :id",
+                    		new ParametersI().addId(ofile.getId().getValue()));
+                ofile.reloadPixelsFileMaps(toCopy);
+                ofile.getDetails().setUpdateEvent(null); // Optimistic lock
+            } catch (ServerError se) {
+                throw new RuntimeException(se);
+            }
+                    
+        }
 		return ofile;
     }
 
@@ -2526,38 +2143,6 @@ public class OMEROMetadataStoreClient
         {
             throw new RuntimeException(e);
         }
-    }
-
-    /**
-     * @param in
-     * @return
-     */
-    public static String byteArrayToHexString(byte in[]) {
-
-        byte ch = 0x00;
-        int i = 0;
-
-        if (in == null || in.length <= 0) {
-            return null;
-        }
-
-        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "a", "b", "c", "d", "e", "f" };
-
-        StringBuffer out = new StringBuffer(in.length * 2);
-
-        while (i < in.length) {
-            ch = (byte) (in[i] & 0xF0);
-            ch = (byte) (ch >>> 4);
-            ch = (byte) (ch & 0x0F);
-            out.append(pseudo[ch]);
-            ch = (byte) (in[i] & 0x0F);
-            out.append(pseudo[ch]);
-            i++;
-        }
-
-        String rslt = new String(out);
-        return rslt;
     }
 
     /**

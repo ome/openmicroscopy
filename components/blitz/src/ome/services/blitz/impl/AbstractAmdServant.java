@@ -263,16 +263,28 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
         }
 
         // Now we've finished that, let's return control to the user.
-        if (t == null) {
-            __cb.ice_response();
-        } else {
-            __cb.ice_exception(new IceMapper().handleException(t, ctx));
+        try {
+            if (t == null) {
+                __cb.ice_response();
+            } else {
+                __cb.ice_exception(new IceMapper().handleException(t, ctx));
+            }
+        } finally {
+            postClose(__current);
         }
-
     }
 
     protected void preClose(Ice.Current current) throws Throwable {
-        log.debug("No pre-close define");
+        log.debug("Base pre-close define");
+    }
+
+    /**
+     * Should not throw any exceptions which should be detected by clients
+     * since it is  called in a finally block after the client thread has been
+     * released.
+     */
+    protected void postClose(Ice.Current current) {
+        log.debug("Base post-close define");
     }
 
 }

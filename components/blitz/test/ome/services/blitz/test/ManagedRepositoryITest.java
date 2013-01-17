@@ -19,9 +19,7 @@
 package ome.services.blitz.test;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 import loci.formats.FormatTools;
 
@@ -31,8 +29,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
@@ -44,9 +42,10 @@ import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api._RawFileStoreTie;
-import omero.grid.Import;
-import omero.grid.RepositoryImportContainer;
-import omero.model.Pixels;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportSettings;
+import omero.model.Fileset;
+import omero.model.FilesetI;
 import omero.util.TempFileManager;
 
 /**
@@ -81,7 +80,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         targetDir.mkdirs();
 
         repo = new ManagedRepositoryI("template",
-                new RepositoryDaoImpl(rootPrincipal, user.ex), reg);
+                new RepositoryDaoImpl(rootPrincipal, user.ex));
         repo.setApplicationContext(user.ctx);
 
         internal = new LegacyRepositoryI(user.adapter, reg, user.ex, rootPrincipal,
@@ -122,28 +121,28 @@ public class ManagedRepositoryITest extends AbstractServantTest {
         File ics = new File(dir, "test.ics");
         FileUtils.touch(fake);
         FormatTools.convert(fake.getAbsolutePath(), ids.getAbsolutePath());
-        ImportContainer ic = new ImportContainer(ids, null /*proj*/, null /*target*/,
-                Boolean.FALSE /*archive*/, null /*user pixels */,
+        ImportContainer ic = new ImportContainer(ids, null /*target*/,
+                null /*user pixels */,
                 null /*reader*/, new String[]{ids.getAbsolutePath(), ics.getAbsolutePath()},
                 Boolean.FALSE /*spw*/);
-        ic.setBfImageCount(1);
         return ic;
     }
 
     public void testBasicImportExample() throws Exception {
+
         File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
         ImportContainer ic = makeFake(tmpDir);
+        ImportSettings settings = new ImportSettings();
+        Fileset fs = new FilesetI();
+        ic.fillData(new ImportConfig(), settings, fs);
 
-        Import i = repo.prepareImport(Arrays.asList(ic.getUsedFiles()), curr());
+        ImportProcessPrx i = repo.importFileset(fs, settings, curr());
         assertNotNull(i);
 
-        upload(repo.uploadUsedFile(i, i.usedFiles.get(0), curr()));
-        upload(repo.uploadUsedFile(i, i.usedFiles.get(1), curr()));
+        upload(i.getUploader(0));
+        upload(i.getUploader(1));
 
-        // FIXME: This should be a much simpler method call.
-        RepositoryImportContainer repoIc =
-                ImportLibrary.createRepositoryImportContainer(ic);
-        List<Pixels> pixList = repo.importMetadata(i, repoIc, curr());
+        // FIXME: TBD
 
     }
 

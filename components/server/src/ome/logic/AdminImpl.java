@@ -269,6 +269,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // ~ User accessible interface methods
     // =========================================================================
 
+    @RolesAllowed("user")
+    public boolean canAnnotate(final IObject obj) {
+
+        if (obj == null) {
+            throw new ApiUsageException("Argument cannot be null");
+        }
+
+        Class c = Utils.trueClass(obj.getClass());
+        IObject trusted = iQuery.get(c, obj.getId());
+        return aclVoter.allowAnnotate(trusted, trusted.getDetails());
+    }
 
     @RolesAllowed("user")
     public boolean canUpdate(final IObject obj) {
@@ -281,7 +292,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         IObject trusted = iQuery.get(c, obj.getId());
         return aclVoter.allowUpdate(trusted, trusted.getDetails());
     }
-
 
     @RolesAllowed("user")
     public Experimenter getExperimenter(final long id) {

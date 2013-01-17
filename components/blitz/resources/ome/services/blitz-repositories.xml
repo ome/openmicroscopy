@@ -30,6 +30,9 @@
     <constructor-arg ref="executor"/>
   </bean>
 
+  <bean id="processContainer" class="ome.services.blitz.repo.ProcessContainer">
+  </bean>
+
   <bean id="legacyRepository" class="ome.services.blitz.repo.LegacyRepositoryI" destroy-method="close">
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
@@ -68,7 +71,7 @@
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
               <constructor-arg value="${omero.fslite.path}"/>
               <constructor-arg ref="repositoryDao"/>
-              <constructor-arg ref="Registry"/>
+              <constructor-arg ref="processContainer"/>
           </bean>
       </constructor-arg>
   </bean>

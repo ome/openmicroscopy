@@ -156,7 +156,7 @@ public class PixelsProcessor implements ModelProcessor
             }
 
             // Ensure that the Image name is set
-            String userSpecifiedName = store.getUserSpecifiedImageName();
+            String userSpecifiedName = store.getUserSpecifiedName();
             String saveName = "";
             if (image.getName() == null
                 || image.getName().getValue().trim().length() == 0
@@ -187,8 +187,7 @@ public class PixelsProcessor implements ModelProcessor
             image.setName(rstring(saveName));
 
             // Set the Image description if one was supplied by the user
-            String userSpecifiedDescription =
-		store.getUserSpecifiedImageDescription();
+            String userSpecifiedDescription = store.getUserSpecifiedDescription();
             if (userSpecifiedDescription != null)
             {
 		image.setDescription(rstring(userSpecifiedDescription));

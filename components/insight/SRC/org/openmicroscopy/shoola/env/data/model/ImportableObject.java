@@ -654,33 +654,6 @@ public class ImportableObject
 		}
 		return false;
 	}
-
-	/**
-	 * Returns a copy of the object.
-	 * 
-	 * @return See above.
-	 */
-	public ImportableObject copy()
-	{
-		Iterator<ImportableFile> i = this.files.iterator();
-		List<ImportableFile> copy = new ArrayList<ImportableFile>();
-		while (i.hasNext()) {
-			copy.add(i.next().copy());
-		}
-		ImportableObject newObject = new ImportableObject(copy, 
-				this.overrideName);
-		newObject.depthForName = this.depthForName;
-		newObject.loadThumbnail = this.loadThumbnail;
-		newObject.newObjects = this.newObjects;
-		newObject.overrideName = this.overrideName;
-		newObject.pixelsSize = this.pixelsSize;
-		newObject.projectDatasetMap = this.projectDatasetMap;
-		newObject.refNodes = this.refNodes;
-		newObject.scanningDepth = this.scanningDepth;
-		newObject.tags = this.tags;
-		newObject.type = this.type;
-		return newObject;
-	}
 	
 	/**
 	 * Resets the files to reimport.

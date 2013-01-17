@@ -32,6 +32,7 @@ def additional_tests():
     suite.addTest(load("cmdtest.suite"))
     #suite.addTest(load("scriptstest.harness"))
     suite.addTest(load("clitest.suite._additional_tests"))
+    suite.addTest(load("fstest.suite"))
     suite.addTest(load("scriptstest.suite._additional_tests"))
     suite.addTest(load("tablestest.suite._additional_tests"))
     return suite

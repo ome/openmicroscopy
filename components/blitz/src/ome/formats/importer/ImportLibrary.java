@@ -22,51 +22,43 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-import loci.formats.FormatTools;
-import loci.formats.IFormatReader;
-import loci.formats.MissingLibraryException;
-import loci.formats.UnknownFormatException;
-import loci.formats.UnsupportedCompressionException;
-import loci.formats.in.MIASReader;
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.OverlayMetadataStore;
-import ome.formats.importer.util.ErrorHandler;
-import ome.formats.model.InstanceProvider;
-import ome.util.PixelData;
-import omero.ServerError;
-import omero.api.RawFileStorePrx;
-import omero.api.ServiceFactoryPrx;
-import omero.grid.Import;
-import omero.grid.ManagedRepositoryPrx;
-import omero.grid.ManagedRepositoryPrxHelper;
-import omero.grid.RepositoryImportContainer;
-import omero.grid.RepositoryMap;
-import omero.grid.RepositoryPrx;
-import omero.model.Annotation;
-import omero.model.Dataset;
-import omero.model.FileAnnotation;
-import omero.model.IObject;
-import omero.model.Image;
-import omero.model.OriginalFile;
-import omero.model.Pixels;
-import omero.model.Plate;
-import omero.model.Screen;
-import omero.model.WellSample;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.util.ErrorHandler;
+import ome.formats.model.InstanceProvider;
+import ome.util.Utils;
+
+import omero.ServerError;
+import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.ERR;
+import omero.cmd.HandlePrx;
+import omero.cmd.Response;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportResponse;
+import omero.grid.ImportSettings;
+import omero.grid.ManagedRepositoryPrx;
+import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RepositoryMap;
+import omero.grid.RepositoryPrx;
+import omero.model.Dataset;
+import omero.model.Fileset;
+import omero.model.FilesetI;
+import omero.model.Image;
+import omero.model.OriginalFile;
+import omero.model.Pixels;
+import omero.model.Screen;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -88,31 +80,15 @@ public class ImportLibrary implements IObservable
 
     /** The class used to identify the dataset target.*/
     private static final String DATASET_CLASS = "omero.model.Dataset";
-    
+
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
-    
-    /** Default arraybuf size for planar data transfer. (1MB) */
-    public static final int DEFAULT_ARRAYBUF_SIZE = 1048576;
 
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
 
-    private final OMEROWrapper reader;
-
     private final ManagedRepositoryPrx repo;
-
-    private byte[] arrayBuf = new byte[DEFAULT_ARRAYBUF_SIZE];
-
-    /** Whether or not to import as metadata only. */
-    private boolean isMetadataOnly = false;
-
-    /** Maximum plane width. */
-    private int maxPlaneWidth;
-
-    /** Maximum plane height. */
-    private int maxPlaneHeight;
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -130,89 +106,7 @@ public class ImportLibrary implements IObservable
         }
 
         this.store = client;
-        this.reader = reader;
         repo = lookupManagedRepository();
-        try
-        {
-            maxPlaneWidth = Integer.parseInt(store.getConfigValue(
-                    "omero.pixeldata.max_plane_width"));
-        }
-        catch (NumberFormatException e)
-        {
-            log.warn("Pre 4.3.2 server or empty missing " +
-                     "omero.pixeldata.max_plane_width, using hard coded " +
-                     "maximum plane width!");
-            maxPlaneWidth = 3192;
-        }
-        try
-        {
-            maxPlaneHeight = Integer.parseInt(store.getConfigValue(
-                    "omero.pixeldata.max_plane_height"));
-        }
-        catch (NumberFormatException e)
-        {
-            log.warn("Pre 4.3.2 server or empty missing " +
-                     "omero.pixeldata.max_plane_height, using hard coded " +
-                     "maximum plane height!");
-            maxPlaneHeight = 3192;
-        }
-        if (log.isDebugEnabled())
-        {
-            log.debug("Maximum plane width: " + maxPlaneWidth);
-            log.debug("Maximum plane height: " + maxPlaneHeight);
-        }
-    }
-
-    /**
-     * Sets the metadata only flag.
-     * @param isMetadataOnly Whether or not to perform metadata only imports
-     * with this import library.
-     */
-    public void setMetadataOnly(boolean isMetadataOnly)
-    {
-        if (log.isDebugEnabled())
-        {
-            log.debug("Setting metadata only flag: " + isMetadataOnly);
-        }
-        this.isMetadataOnly = isMetadataOnly;
-    }
-
-    /**
-     * Retrieves the metadata only flag.
-     * @return See above.
-     */
-    public boolean isMetadataOnly()
-    {
-        return isMetadataOnly;
-    }
-
-    //
-    // Delegation methods
-    //
-
-    public long getExperimenterID()
-    {
-        return store.getExperimenterID();
-    }
-
-    public InstanceProvider getInstanceProvider()
-    {
-        return store.getInstanceProvider();
-    }
-
-    /**
-     * Prepares the metadata store using existing metadata that has been
-     * pre-registered by OMERO.fs. The expected graph should be fully loaded:
-     * <ul>
-     *   <li>Image</li>
-     *   <li>Pixels</li>
-     * </ul>
-     * @param existingMetadata Map of imageIndex or series vs. populated Image
-     * source graph with the fetched objects defined above.
-     */
-    public void prepare(Map<Integer, Image> existingMetadata)
-    {
-        store.prepare(existingMetadata);
     }
 
     //
@@ -246,7 +140,7 @@ public class ImportLibrary implements IObservable
 
     /**
      * Primary user method for importing a number
-     * 
+     *
      * @param config The configuration information.
      * @param candidates Hosts information about the files to import.
      */
@@ -286,140 +180,6 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Create a RepositoryImportContainer from an ImportContainer.
-     * Currently public static for testing purposes.
-     * @TODO This method and the RIC return type should be removed post-haste.
-     */
-    public static RepositoryImportContainer createRepositoryImportContainer(ImportContainer ic) {
-        RepositoryImportContainer repoIC = new RepositoryImportContainer();
-        repoIC.file = ic.getUsedFiles()[0];
-        repoIC.projectId = (ic.getProjectID() == null) ? -1L : ic.getProjectID().longValue();
-        repoIC.target = ic.getTarget();
-        repoIC.reader = ic.getReader();
-        repoIC.usedFiles = ic.getUsedFiles();
-        repoIC.isSPW = (ic.getIsSPW() == null) ? false :
-        	ic.getIsSPW().booleanValue();
-        repoIC.bfImageCount = (ic.getBfImageCount() == null) ? 1 :
-        	ic.getBfImageCount().intValue();
-        repoIC.bfPixels = ic.getBfPixels();
-        repoIC.bfImageNames = ic.getBfImageNames();
-        // Assuming that if the array is not null all values are not null.
-        if (ic.getUserPixels() == null || ic.getUserPixels().length == 0) {
-            repoIC.userPixels = null;
-        }
-        else {
-            double[] userPixels = new double[ic.getUserPixels().length];
-            for (int i=0; i < userPixels.length; i++) {
-                userPixels[i] = ic.getUserPixels()[i].doubleValue();
-            }
-            repoIC.userPixels = userPixels;
-        }
-        repoIC.customImageName = ic.getCustomImageName();
-        repoIC.customImageDescription = ic.getCustomImageDescription();
-        repoIC.customPlateName = ic.getCustomPlateName();
-        repoIC.customPlateDescription = ic.getCustomPlateDescription();
-        repoIC.doThumbnails = ic.getDoThumbnails();
-        repoIC.customAnnotationList = ic.getCustomAnnotationList();
-        return repoIC;
-    }
-
-    /** opens the file using the {@link FormatReader} instance */
-    private void open(String fileName) throws IOException, FormatException
-    {
-        reader.close();
-        reader.setMetadataStore(store);
-        reader.setMinMaxStore(store);
-        store.setReader(reader.getImageReader());
-        reader.setId(fileName);
-        //reset series count
-        if (log.isDebugEnabled())
-        {
-            log.debug("Image Count: " + reader.getImageCount());
-        }
-    }
-
-    /**
-     * Uses the {@link OMEROMetadataStoreClient} to save the current all
-     * image metadata provided.
-     *
-     * @param index Index of the file being imported.
-     * @param container The import container which houses all the configuration
-     * values for the import.
-     * @return the newly created {@link Pixels} id.
-     * @throws FormatException if there is an error parsing metadata.
-     * @throws IOException if there is an error reading the file.
-     */
-    private List<Pixels> importMetadata(
-            int index, ImportContainer container)
-            throws FormatException, IOException
-    {
-        // 1st we post-process the metadata that we've been given.
-        IObject target = container.getTarget();
-        notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
-                index, null, target, null, 0, null));
-        store.setUserSpecifiedPlateName(container.getCustomPlateName());
-        store.setUserSpecifiedPlateDescription(
-                container.getCustomPlateDescription());
-        store.setUserSpecifiedImageName(container.getCustomImageName());
-        store.setUserSpecifiedImageDescription(
-                container.getCustomImageDescription());
-        Double[] userPixels = container.getUserPixels();
-        if (userPixels != null)
-            store.setUserSpecifiedPhysicalPixelSizes(
-                    userPixels[0], userPixels[1], userPixels[2]);
-        store.setUserSpecifiedTarget(container.getTarget());
-        store.setUserSpecifiedAnnotations(container.getCustomAnnotationList());
-        store.postProcess();
-        notifyObservers(new ImportEvent.END_POST_PROCESS(
-                index, null, target, null, 0, null));
-
-        notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
-                index, null, target, null, 0, null));
-        List<Pixels> pixelsList = store.saveToDB();
-        notifyObservers(new ImportEvent.END_SAVE_TO_DB(
-                index, null, target, null, 0, null));
-        return pixelsList;
-    }
-
-    /**
-     * If available, populates overlays for a given set of pixels objects.
-     * @param pixelsList Pixels objects to populate overlays for.
-     * @param plateIds Plate object IDs to populate overlays for.
-     */
-    private void importOverlays(List<Pixels> pixelsList, List<Long> plateIds)
-        throws ServerError, FormatException, IOException
-    {
-        IFormatReader baseReader = reader.getImageReader().getReader();
-        if (baseReader instanceof MIASReader)
-        {
-            try
-            {
-                MIASReader miasReader = (MIASReader) baseReader;
-                String currentFile = miasReader.getCurrentFile();
-                reader.close();
-                miasReader.setAutomaticallyParseMasks(true);
-                ServiceFactoryPrx sf = store.getServiceFactory();
-                OverlayMetadataStore s = new OverlayMetadataStore();
-                s.initialize(sf, pixelsList, plateIds);
-                reader.setMetadataStore(s);
-                miasReader.close();
-                miasReader.setAutomaticallyParseMasks(true);
-                miasReader.setId(currentFile);
-                s.complete();
-            }
-            catch (ServerError e)
-            {
-                log.warn("Error while populating MIAS overlays.", e);
-            }
-            finally
-            {
-                reader.close();
-                reader.setMetadataStore(store);
-            }
-        }
-    }
-
-    /**
      * Delete files from the managed repository.
      * @param container The current import container containing usedFiles to be
      * deleted.
@@ -434,17 +194,11 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Upload files to the managed repository.
-     *
-     * This is done by first passing in the possibly absolute local file paths.
-     * A common selection of those are chosen and passed back to the client.
-     *
-     * @param container The current import container we're to handle.
-     * @return Rewritten container after files have been copied to repository.
+     * Provide initial configuration to the server in order to create the
+     * {@link ImportProcessPrx} which will manage state server-side.
      */
-    public Import uploadFilesToRepository(final ImportContainer container)
-            throws ServerError
-    {
+    public ImportProcessPrx createImport(final ImportContainer container)
+        throws ServerError {
         checkManagedRepo();
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
@@ -455,62 +209,133 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
-        final byte[] buf = new byte[DEFAULT_ARRAYBUF_SIZE];  // 1 MB buffer
-        final List<String> srcFiles = Arrays.asList(usedFiles);
-        final int fileTotal = srcFiles.size();
-        final Import data = repo.prepareImport(srcFiles);
 
-        notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                null, 0, fileTotal, null, null, null));
+        final ImportSettings settings = new ImportSettings();
+        final Fileset fs = new FilesetI();
+        container.fillData(new ImportConfig(), settings, fs);
+        return repo.importFileset(fs, settings);
 
+    }
+
+    /**
+     * Upload files to the managed repository.
+     *
+     * This is done by first passing in the possibly absolute local file paths.
+     * A common selection of those are chosen and passed back to the client.
+     *
+     * As each file is written to the server, a message digest is kept updated
+     * of the bytes that are being written. These are then returned to the
+     * caller so they can be checked against the values found on the server.
+     *
+     * @param container The current import container we're to handle.
+     * @return A list of the client-side (i.e. local) hashes for each file.
+     */
+    public List<String> uploadFilesToRepository(
+            final String[] srcFiles, final ImportProcessPrx proc)
+    {
+
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final List<String> checksums = new ArrayList<String>();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final int fileTotal = srcFiles.length;
+
+        log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
-            File file = new File(srcFiles.get(i));
-            long length = file.length();
-            FileInputStream stream = null;
-            RawFileStorePrx rawFileStore = null;
             try {
-                stream = new FileInputStream(file);
-                rawFileStore = repo.uploadUsedFile(data, data.usedFiles.get(i));
-                int rlen = 0;
-                long offset = 0;
-                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
-                while (stream.available() != 0) {
-                    rlen = stream.read(buf);
-                    rawFileStore.write(buf, offset, rlen);
-                    offset += rlen;
-                    notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                            file.getAbsolutePath(), i, fileTotal, offset, length, null));
-                }
-                OriginalFile ofile = repo.createOriginalFile(data.usedFiles.get(i));
-                String absolutePath = repo.getAbsolutePath(data.usedFiles.get(i));
-                data.originalFileMap.put(absolutePath, ofile);
-                notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
-                        file.getAbsolutePath(), i, fileTotal, offset, length, null));
-            }
-            catch (Exception e) {
-                notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
-                        file.getAbsolutePath(), i, fileTotal, null, null, e));
-                log.error("I/O or server error uploading file.", e);
+                checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+            } catch (ServerError e) {
+                log.error("Server error uploading file.", e);
+                break;
+            } catch (IOException e) {
+                log.error("I/O error uploading file.", e);
                 break;
             }
-            finally {
-                cleanupUpload(rawFileStore, stream);
-            }
         }
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, fileTotal, fileTotal, null, null, null));
+        return checksums;
+    }
 
-        usedFiles = data.usedFiles.toArray(new String[data.usedFiles.size()]);
-        if (log.isDebugEnabled()) {
-            log.debug("Used files after:");
-            for (String f : usedFiles) {
-                log.debug(f);
+    public String uploadFile(final ImportProcessPrx proc,
+            final String[] srcFiles, int index) throws ServerError, IOException
+    {
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        return uploadFile(proc, srcFiles, index, md, buf);
+    }
+
+    public String uploadFile(final ImportProcessPrx proc,
+            final String[] srcFiles, final int index,
+            final MessageDigest md, final byte[] buf)
+            throws ServerError, IOException {
+
+            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                    null, 0, srcFiles.length, null, null, null));
+
+        md.reset();
+
+        String digestString = null;
+        File file = new File(srcFiles[index]);
+        long length = file.length();
+        FileInputStream stream = null;
+        RawFileStorePrx rawFileStore = null;
+        try {
+            stream = new FileInputStream(file);
+            rawFileStore = proc.getUploader(index);
+            int rlen = 0;
+            long offset = 0;
+
+            // "touch" the file otherwise zero-length files
+            rawFileStore.write(new byte[0], offset, 0);
+            notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    offset, length, null));
+
+            while (stream.available() != 0) {
+                rlen = stream.read(buf);
+                md.update(buf, 0, rlen);
+                rawFileStore.write(buf, offset, rlen);
+                offset += rlen;
+                notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
+                        file.getAbsolutePath(), index, srcFiles.length,
+                        offset, length, null));
             }
+
+            byte[] digest = md.digest();
+            digestString = Utils.bytesToHex(digest);
+
+            OriginalFile ofile = rawFileStore.save();
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s/%s id=%s",
+                        ofile.getPath().getValue(),
+                        ofile.getName().getValue(),
+                        ofile.getId().getValue()));
+                log.debug(String.format("checksums: client=%s,server=%s",
+                        digestString, ofile.getSha1().getValue()));
+            }
+            notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    offset, length, null));
+
         }
-        container.setUsedFiles(usedFiles);
-        container.setFile(new File(usedFiles[0]));
-        return data;
+        catch (IOException e) {
+            notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, null, e));
+            throw e;
+        }
+        catch (ServerError e) {
+            notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, null, e));
+            throw e;
+        }
+        finally {
+            cleanupUpload(rawFileStore, stream);
+        }
+
+        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
+                null, index, srcFiles.length, null, null, null));
+
+        return digestString;
     }
 
     private void cleanupUpload(RawFileStorePrx rawFileStore,
@@ -550,221 +375,93 @@ public class ImportLibrary implements IObservable
      * server we're importing into.
      * @since OMERO Beta 4.2.1.
      */
-    public List<Pixels> importImage(ImportContainer container, int index,
+    public List<Pixels> importImage(final ImportContainer container, int index,
                                     int numDone, int total)
             throws FormatException, IOException, Throwable
     {
-        if(container.getMetadataOnly()) {
-            throw new RuntimeException("Unsupported");
+        final ImportProcessPrx proc = createImport(container);
+        final String[] srcFiles = container.getUsedFiles();
+        final List<String> checksums = new ArrayList<String>();
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+
+        for (int i = 0; i < srcFiles.length; i++) {
+            checksums.add(uploadFile(proc, srcFiles, i, md, buf));
         }
 
-        Import data = uploadFilesToRepository(container);
-        RepositoryImportContainer repoIc = createRepositoryImportContainer(container);
-        List<Pixels> pixList = repo.importMetadata(data, repoIc);
-        notifyObservers(new ImportEvent.IMPORT_DONE(
-                index, container.getFile().getAbsolutePath(),
-                null, null, 0, null, pixList));
-        return pixList;
+        // At this point the import is running, check handle for number of
+        // steps.
+        final HandlePrx handle = proc.verifyUpload(checksums);
+        final CmdCallbackI cb = createCallback(proc, handle, container);
+        cb.loop(60*60, 1000); // Wait 1 hr per step.
+        final ImportResponse rsp = getImportResponse(cb, container);
+        return rsp.pixels;
+    }
+
+    @SuppressWarnings("serial")
+    public CmdCallbackI createCallback(ImportProcessPrx proc, HandlePrx handle,
+            final ImportContainer container) throws ServerError
+    {
+        // Adapter which should be used for callbacks. This is more
+        // complicated than it needs to be at the moment. We're only sure that
+        // the OMSClient has a ServiceFactory (and not necessarily a client)
+        // so we have to inspect various fields to get the adapter.
+        final ServiceFactoryPrx sf = store.getServiceFactory();
+        final Ice.ObjectAdapter oa = sf.ice_getConnection().getAdapter();
+        final Ice.Communicator ic = oa.getCommunicator();
+        final String category = omero.client.getRouter(ic).getCategoryForClient();
+
+        return new CmdCallbackI(oa, category, handle) {
+            public void step(int step, int total, Ice.Current current) {
+                notifyObservers(new ImportEvent.PROGRESS_EVENT(
+                        0, container.getFile().getAbsolutePath(),
+                        null, null, 0, null, step, total));
+            }
+        };
     }
 
     /**
-     * Perform an image import on already uploaded files. <em>Note: this method both
-     *notifies {@link #observers} of error states AND throws the exception to cancel
-     * processing.</em>
-     * {@link #importCandidates(ImportConfig, ImportCandidates)}
-     * uses {@link ImportConfig#contOnError} to act on these exceptions.
-     * @param container The import container which houses all the configuration
-     * values and target for the import.
-     * @param index Index of the import in a set. <code>0</code> is safe if
-     * this is a singular import.
-     * @param numDone Number of imports completed in a set. <code>0</code> is
-     * safe if this is a singular import.
-     * @param total Total number of imports in a set. <code>1</code> is safe
-     * if this is a singular import.
-     * @return List of Pixels that have been imported.
-     * @throws FormatException If there is a Bio-Formats image file format
-     * error during import.
-     * @throws IOException If there is an I/O error.
-     * @throws ServerError If there is an error communicating with the OMERO
-     * server we're importing into.
-     * @since OMERO Beta 4.5.
+     * Returns a non-null {@link ImportResponse} or throws notifies observers
+     * and throws a {@link RuntimeException}.
+     * @param cb
+     * @param container
+     * @return
      */
-    public List<Pixels> importImageInternal(ImportContainer container, Import data, int index,
-                                    int numDone, int total)
-            throws FormatException, IOException, Throwable
+    public ImportResponse getImportResponse(CmdCallbackI cb,
+            final ImportContainer container)
     {
-        File file = container.getFile();
-        String fileName = file.getAbsolutePath();
-        String shortName = file.getName();
-        String format = null;
-        String[] domains = null;
-        String[] usedFiles = new String[1];
-        boolean isScreeningDomain = false;
-
-        IObject userSpecifiedTarget = container.getTarget();
-
-        usedFiles[0] = file.getAbsolutePath();
-
-        try {
-            //TODO: must check that files exist in repository
-            notifyObservers(new ImportEvent.LOADING_IMAGE(
-                    shortName, index, numDone, total));
-
-            open(file.getAbsolutePath());
-            format = reader.getFormat();
-            domains = reader.getDomains();
-            if (reader.getUsedFiles() != null)
-            {
-                usedFiles = reader.getUsedFiles();
-            }
-            if (usedFiles == null) {
-                throw new NullPointerException(
-                        "usedFiles must be non-null");
-            }
-            for (String domain : domains)
-            {
-                if (domain.equals(FormatTools.HCS_DOMAIN))
-                {
-                    isScreeningDomain = true;
-                    break;
-                }
-            }
-            IFormatReader baseReader = reader.getImageReader().getReader();
-            // Forcing these to false for now but remove completely once tested?
-            boolean useMetadataFile = false;
-            if (log.isInfoEnabled())
-            {
-                log.info("File format: " + format);
-                log.info("Base reader: " + baseReader.getClass().getName());
-                log.info("Metadata only import? " + isMetadataOnly);
-                log.info("Big image? " + container.getBigImage());
-            }
-            notifyObservers(new ImportEvent.LOADED_IMAGE(
-                    shortName, index, numDone, total));
-
-            String formatString = baseReader.getClass().toString();
-            formatString = formatString.replace("class loci.formats.in.", "");
-            formatString = formatString.replace("Reader", "");
-
-            // Save metadata and prepare the RawPixelsStore for our arrival.
-            if (isScreeningDomain)
-            {
-                log.info("Reader is of HCS domain, disabling metafile.");
-                store.setArchiveScreeningDomain(data);
-            }
-            else
-            {
-                log.info("Reader is not of HCS domain, use metafile: "
-                        + useMetadataFile);
-                store.setArchive(useMetadataFile, data);
-            }
-            List<Pixels> pixList = importMetadata(index, container);
-            List<Long> plateIds = new ArrayList<Long>();
-            Image image = pixList.get(0).getImage();
-            if (image.sizeOfWellSamples() > 0)
-            {
-                Plate plate =
-                    image.copyWellSamples().get(0).getWell().getPlate();
-                plateIds.add(plate.getId().getValue());
-            }
-            List<Long> pixelsIds = new ArrayList<Long>(pixList.size());
-            for (Pixels pixels : pixList)
-            {
-                pixelsIds.add(pixels.getId().getValue());
-            }
-            boolean saveSha1 = false;
-            // Parse the binary data to generate min/max values
-            int seriesCount = reader.getSeriesCount();
-            for (int series = 0; series < seriesCount; series++) {
-                ImportSize size = new ImportSize(fileName,
-                        pixList.get(series), reader.getDimensionOrder());
-                Pixels pixels = pixList.get(series);
-                long pixId = pixels.getId().getValue();
-                MessageDigest md = parseData(fileName, series, size);
-                if (md != null) {
-                    String s = OMEROMetadataStoreClient.byteArrayToHexString(
-                            md.digest());
-                    pixels.setSha1(store.toRType(s));
-                    saveSha1 = true;
-                }
-            }
-
-            // As we're in metadata only mode  on we need to
-            // tell the server which Pixels set matches up to which series.
-            String targetName = container.getFile().getAbsolutePath();
-            int series = 0;
-            for (Long pixelsId : pixelsIds)
-            {
-                store.setPixelsParams(pixelsId, series, targetName);
-                series++;
-            }
-
-            if (saveSha1)
-            {
-                store.updatePixels(pixList);
-            }
-
-            if (reader.isMinMaxSet() == false)
-            {
-                store.populateMinMax();
-            }
-
-            notifyObservers(new ImportEvent.IMPORT_OVERLAYS(
-                    index, null, userSpecifiedTarget, null, 0, null));
-            importOverlays(pixList, plateIds);
-
-            notifyObservers(new ImportEvent.IMPORT_PROCESSING(
-                    index, null, userSpecifiedTarget, null, 0, null));
-            if (container.getDoThumbnails())
-            {
-                store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
-            }
-            else
-            {
-                log.warn("Not creating thumbnails at user request!");
-            }
-
-            store.launchProcessing(); // Use or return value here later. TODO
-
-            return pixList;
-
-        } catch (MissingLibraryException mle) {
-            notifyObservers(new ErrorHandler.MISSING_LIBRARY(
-                    fileName, mle, usedFiles, format));
-            throw mle;
-        } catch (IOException io) {
-            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
-                    fileName, io, usedFiles, format));
-            throw io;
-        } catch (UnsupportedCompressionException uce) {
-            // Handling as UNKNOWN_FORMAT for 4.3.0
-            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
-                    fileName, uce, this));
-            throw uce;
-        } catch (UnknownFormatException ufe) {
-            notifyObservers(new ErrorHandler.UNKNOWN_FORMAT(
-                    fileName, ufe, this));
-            throw ufe;
-        } catch (FormatException fe) {
-            notifyObservers(new ErrorHandler.FILE_EXCEPTION(
-                    fileName, fe, usedFiles, format));
-            throw fe;
-        } catch (NullPointerException npe) {
+        Response rsp = cb.getResponse();
+        ImportResponse rv = null;
+        if (rsp instanceof ERR) {
+            final ERR err = (ERR) rsp;
+            final RuntimeException rt = new RuntimeException(String.format(
+                    "Failure response on import!\n" +
+                    "Category: %s\n" +
+                    "Name: %s\n" +
+                    "Parameters: %s\n", err.category, err.name,
+                    err.parameters));
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                    fileName, npe, usedFiles, format));
-            throw npe;
-        } catch (Exception e) {
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                    fileName, e, usedFiles, format));
-            throw e;
-        } catch (Throwable t) {
-            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                    fileName, new RuntimeException(t), usedFiles, format));
-            throw t;
-        } finally {
-            store.setGroup(null);
-            store.createRoot(); // CLEAR MetadataStore
+                    container.getFile().getAbsolutePath(), rt,
+                    container.getUsedFiles(), container.getReader()));
+            throw rt;
+        } else if (rsp instanceof ImportResponse) {
+            rv = (ImportResponse) rsp;
         }
+
+        if (rv == null) {
+            final RuntimeException rt
+                = new RuntimeException("Unknown response: " + rsp);
+            notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                    container.getFile().getAbsolutePath(), rt,
+                    container.getUsedFiles(), container.getReader()));
+            throw rt;
+        }
+
+        notifyObservers(new ImportEvent.IMPORT_DONE(
+                0, container.getFile().getAbsolutePath(),
+                null, null, 0, null, rv.pixels));
+
+        return rv;
     }
 
     // ~ Helpers
@@ -804,195 +501,6 @@ public class ImportLibrary implements IObservable
         if (repo == null) {
             throw new RuntimeException("No FS! Cannot proceed");
         }
-    }
-
-    /**
-     * Parse the binary data to generate min/max values and 
-     * allow an md to be calculated.
-     *
-     * @param series
-     * @return The SHA1 message digest for the binary data.
-     */
-    public MessageDigest parseData(String fileName, int series,
-                                        ImportSize size)
-        throws FormatException, IOException, ServerError
-    {
-        reader.setSeries(series);
-        int maxPlaneSize = maxPlaneWidth * maxPlaneHeight;
-        if (((long) reader.getSizeX()
-             * (long) reader.getSizeY()) > maxPlaneSize) {
-            int pixelType = reader.getPixelType();
-            long[] minMax = FormatTools.defaultMinMax(pixelType);
-            for (int c = 0; c < reader.getSizeC(); c++) {
-                store.setChannelGlobalMinMax(
-                        c, minMax[0], minMax[1], series);
-            }
-            return null;
-        }
-        int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-                "Required SHA-1 message digest algorithm unavailable.");
-        }
-        int planeNo = 1;
-        for (int t = 0; t < size.sizeT; t++) {
-            for (int c = 0; c < size.sizeC; c++) {
-                for (int z = 0; z < size.sizeZ; z++) {
-                    parseDataByPlane(size, z, c, t,
-                            bytesPerPixel, fileName, md);
-                    notifyObservers(new ImportEvent.IMPORT_STEP(
-                            planeNo, series, reader.getSeriesCount()));
-                    planeNo++;
-                }
-            }
-        }
-        return md;
-    }
-
-    /**
-     * Read a plane to cause min/max valus to be calculated.
-     *
-     * @param size Sizes of the Pixels set.
-     * @param z The Z-section offset to write to.
-     * @param c The channel offset to write to.
-     * @param t The timepoint offset to write to.
-     * @param bytesPerPixel Number of bytes per pixel.
-     * @param fileName Name of the file.
-     * @param md Current Pixels set message digest.
-     * @throws FormatException If there is an error reading Pixel data via
-     * Bio-Formats.
-     * @throws IOException If there is an I/O error reading Pixel data via
-     * Bio-Formats.
-     */
-    private void parseDataByPlane(ImportSize size, int z, int c, int t,
-                                      int bytesPerPixel, String fileName,
-                                      MessageDigest md)
-        throws FormatException, IOException, ServerError
-    {
-        int tileHeight = reader.getOptimalTileHeight();
-        int tileWidth = reader.getOptimalTileWidth();
-        int planeNumber, x, y, w, h;
-        for (int tileOffsetY = 0;
-             tileOffsetY < (size.sizeY + tileHeight - 1) / tileHeight;
-             tileOffsetY++)
-        {
-            for (int tileOffsetX = 0;
-                 tileOffsetX < (size.sizeX + tileWidth - 1) / tileWidth;
-                 tileOffsetX++)
-            {
-                x = tileOffsetX * tileWidth;
-                y = tileOffsetY * tileHeight;
-                w = tileWidth;
-                h = tileHeight;
-                if ((x + tileWidth) > size.sizeX)
-                {
-                    w = size.sizeX - x;
-                }
-                if ((y + tileHeight) > size.sizeY)
-                {
-                    h = size.sizeY - y;
-                }
-                int bytesToRead = w * h * bytesPerPixel;
-                if (arrayBuf.length != bytesToRead)
-                {
-                    arrayBuf = new byte[bytesToRead];
-                }
-                planeNumber = reader.getIndex(z, c, t);
-                if (log.isDebugEnabled())
-                {
-                    log.debug(String.format(
-                            "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d " +
-                            "arrayBuf.length:%d", planeNumber, x, y, w, h,
-                            arrayBuf.length));
-                }
-                arrayBuf = reader.openBytes(
-                        planeNumber, arrayBuf, x, y, w, h);
-                try {
-                    md.update(arrayBuf);
-                }
-                catch (Exception e) {
-                    // This better not happen. :)
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Examines a byte array to see if it needs to be byte swapped and modifies
-     * the byte array directly.
-     * @param byteArray The byte array to check and modify if required.
-     * @return the <i>byteArray</i> either swapped or not for convenience.
-     * @throws IOException if there is an error read from the file.
-     * @throws FormatException if there is an error during metadata parsing.
-     */
-    private byte[] swapIfRequired(ByteBuffer buffer, String fileName)
-        throws FormatException, IOException
-    {
-        int pixelType = reader.getPixelType();
-        boolean isLittleEndian = reader.isLittleEndian();
-        int bytesPerPixel = getBytesPerPixel(pixelType);
-
-        // We've got nothing to do if the samples are only 8-bits wide.
-        if (bytesPerPixel == 1)
-            return buffer.array();
-
-        int length;
-        if (isLittleEndian) {
-            if (bytesPerPixel == 2) { // short/ushort
-                ShortBuffer buf = buffer.asShortBuffer();
-                length = buffer.limit() / 2;
-                for (int i = 0; i < length; i++) {
-                    buf.put(i, DataTools.swap(buf.get(i)));
-                }
-            } else if (bytesPerPixel == 4) { // int/uint/float
-                IntBuffer buf = buffer.asIntBuffer();
-                length = buffer.limit() / 4;
-                for (int i = 0; i < length; i++) {
-                    buf.put(i, DataTools.swap(buf.get(i)));
-                }
-            } else if (bytesPerPixel == 8) // long/double
-            {
-                LongBuffer buf = buffer.asLongBuffer();
-                length = buffer.limit() / 8;
-                for (int i = 0; i < length ; i++) {
-                    buf.put(i, DataTools.swap(buf.get(i)));
-                }
-            } else {
-                throw new FormatException(String.format(
-                        "Unsupported sample bit width: %d", bytesPerPixel));
-            }
-        }
-        // We've got a big-endian file with a big-endian byte array.
-        return buffer.array();
-    }
-
-
-    /**
-     * Retrieves how many bytes per pixel the current plane or section has.
-     * @return the number of bytes per pixel.
-     */
-    private int getBytesPerPixel(int type)
-    {
-        switch(type) {
-            case 0:
-            case 1:
-                return 1;  // INT8 or UINT8
-            case 2:
-            case 3:
-                return 2;  // INT16 or UINT16
-            case 4:
-            case 5:
-            case 6:
-                return 4;  // INT32, UINT32 or FLOAT
-            case 7:
-                return 8;  // DOUBLE
-        }
-        throw new RuntimeException("Unknown type with id: '" + type + "'");
     }
 
     public void clear()
