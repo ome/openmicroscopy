@@ -124,6 +124,10 @@ public class ImporterFactory
 	{
 		if (singleton.importer != null) {
 			singleton.importer.discard();
+			singleton.windowMenu.removeAll();
+			singleton.isAttached = false;
+			TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
+			tb.removeFromMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
 			singleton.importer = null;
 		}
 	}

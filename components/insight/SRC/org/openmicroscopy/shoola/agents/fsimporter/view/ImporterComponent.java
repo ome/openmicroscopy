@@ -251,6 +251,7 @@ class ImporterComponent
 		if (model.getState() != IMPORTING && model.getState() != DISCARDED) {
 			view.close();
 			model.discard();
+			fireStateChange();
 		}
 	}
 
