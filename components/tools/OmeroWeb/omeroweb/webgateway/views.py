@@ -1923,8 +1923,8 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     if isinstance(a, HttpResponse) or a.has_key('error'):
         return a
 
-    if len(a['data']) != 1:
-        return dict(error='Could not retrieve single bulk annotations table')
+    if len(a['data']) < 1:
+        return dict(error='Could not retrieve bulk annotations table')
 
     # multiple bulk annotations files could be attached, use the most recent
     # one (= the one with the highest identifier)
