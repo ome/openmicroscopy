@@ -1102,7 +1102,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (container != null)
 		{
 			Object hostObject = container.getUserObject();
-			if(hostObject instanceof DatasetData)
+			if(hostObject instanceof ProjectData)
 			{
 				selectedProject = findDataNode(projects, 
 					hostObject, ProjectData.class);
