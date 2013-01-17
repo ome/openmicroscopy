@@ -20,12 +20,16 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+
+import omero.RType;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
+import omero.cmd.Response;
 import omero.grid.ManagedRepositoryPrxHelper;
+import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
@@ -177,6 +181,18 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     public final RepositoryPrx getProxy(Current __current) {
         return proxy;
+    }
+
+    public Response rawAccess(RawAccessRequest req, Current __current) throws ServerError {
+        if (!(req instanceof RawAccessRequestI)) {
+            return new omero.cmd.ERR();
+        }
+        try {
+            ((RawAccessRequestI) req).local(this, servant, __current);
+            return new omero.cmd.OK();
+        } catch (Throwable t) {
+            throw new IceMapper().handleServerError(t, servant.context);
+        }
     }
 
     public abstract String getFilePath(final OriginalFile file,

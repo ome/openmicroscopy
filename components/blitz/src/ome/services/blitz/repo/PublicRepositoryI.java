@@ -24,28 +24,32 @@
  */
 package ome.services.blitz.repo;
 
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import Ice.Current;
 
 import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
-import ome.services.RawFileBean;
-import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.RegisterServantMessage;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
-import ome.system.Principal;
+
 import omero.InternalException;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -59,20 +63,7 @@ import omero.api._RawPixelsStoreTie;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.util.IceMapper;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
-import Ice.Current;
 
 /**
  * An implementation of he PublicRepository interface
@@ -228,26 +219,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public String mimetype(String path, Current __current) throws ServerError {
         return checkPath(path, __current).mustExist().getMimetype();
-    }
-
-    /**
-     * Create a file in the repository if one doesn't already exist.
-     *
-     * @param path
-     *            A path on a repository.
-     * @param __current
-     *            ice context.
-     * @return The creation of the file (false means file already exists).
-     *
-     */
-    public boolean create(String path, Current __current) throws ServerError {
-        File file = checkPath(path, __current).file;
-        try {
-            FileUtils.touch(file);
-            return true;
-        } catch (Exception e) {
-            throw new omero.InternalException(stackTraceAsString(e), null, e.getMessage());
-        }
     }
 
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {

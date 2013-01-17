@@ -45,6 +45,114 @@ class AbstractRepoTest(lib.ITest):
         self.assert_(found)
         return prx
 
+    def createFile(self, mrepo1, filename):
+        rfs = mrepo1.file(filename, "rw")
+        try:
+            rfs.write("hi", 0, 2)
+            ofile = rfs.save()
+            return ofile
+        finally:
+            rfs.close()
+
+    def assertWrite(self, mrepo2, filename, ofile):
+        def _write(rfs):
+            try:
+                rfs.write("bye", 0, 3)
+                self.assertEquals("bye", rfs.read(0, 3))
+                # Resetting for other expectations
+                rfs.truncate(2)
+                rfs.write("hi", 0, 2)
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
+        # TODO: fileById is always "r"
+        # rfs = mrepo2.fileById(ofile.id.val)
+        # _write(rfs)
+
+        rfs = mrepo2.file(filename, "rw")
+        _write(rfs)
+
+    def assertNoWrite(self, mrepo2, filename, ofile):
+        def _nowrite(rfs):
+            try:
+                self.assertRaises(omero.SecurityViolation,
+                                  rfs.write, "bye", 0, 3)
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val)
+        _nowrite(rfs)
+
+        rfs = mrepo2.file(filename, "r")
+        _nowrite(rfs)
+
+        # Can't even acquire a writeable-rfs.
+        self.assertRaises(omero.SecurityViolation,
+                          mrepo2.file, filename, "rw")
+
+    def assertDirWrite(self, mrepo2, dirname):
+        self.createFile(mrepo2, dirname+"/file2.txt")
+
+    def assertNoDirWrite(self, mrepo2, dirname):
+        # Also check that it's not possible to write
+        # in someone elses directory.
+        self.assertRaises(omero.SecurityViolation,
+                          self.createFile, mrepo2, dirname+"/file2.txt")
+
+    def assertNoRead(self, mrepo2, filename, ofile):
+        self.assertRaises(omero.SecurityViolation,
+                          mrepo2.fileById, ofile.id.val)
+        self.assertRaises(omero.SecurityViolation,
+                          mrepo2.file, filename, "r")
+
+    def assertRead(self, mrepo2, filename, ofile, ctx=None):
+        def _read(rfs):
+            try:
+                self.assertEquals("hi", rfs.read(0, 2))
+            finally:
+                rfs.close()
+
+        rfs = mrepo2.fileById(ofile.id.val, ctx)
+        _read(rfs)
+
+        rfs = mrepo2.file(filename, "r", ctx)
+        _read(rfs)
+
+    def assertListings(self, mrepo1, uuid):
+        self.assertEquals(["/"+uuid], mrepo1.list("."))
+        self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
+        self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
+        self.assertEquals(["/"+uuid+"/b/c/file.txt"],
+                          mrepo1.list(uuid+"/b/c/"))
+
+
+    def raw(self, command, args, client=None):
+        if client == None:
+            client = self.client
+        mrepo = self.getManagedRepo(self.client)
+        obj = mrepo.root()
+        sha = obj.sha1.val
+        raw_access = omero.grid.RawAccessRequest()
+        raw_access.repoUuid = sha
+        raw_access.command = command
+        raw_access.args = args
+        handle = client.sf.submit(raw_access)
+        return CmdCallbackI(client, handle)
+
+    def assertPasses(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        if not isinstance(rsp, omero.cmd.OK):
+            raise Exception(rsp)
+        return rsp
+
+    def assertError(self, cb, loops=10, wait=500):
+        cb.loop(loops, wait)
+        rsp = cb.getResponse()
+        self.assertTrue(isinstance(rsp, omero.cmd.ERR))
+
 
 class TestRepository(AbstractRepoTest):
 
@@ -170,88 +278,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         mrepo1 = self.getManagedRepo(client1)
         mrepo2 = self.getManagedRepo(client2)
         return client1, mrepo1, client2, mrepo2
-
-    def createFile(self, mrepo1, filename):
-        rfs = mrepo1.file(filename, "rw")
-        try:
-            rfs.write("hi", 0, 2)
-            ofile = rfs.save()
-            return ofile
-        finally:
-            rfs.close()
-
-    def assertWrite(self, mrepo2, filename, ofile):
-        def _write(rfs):
-            try:
-                rfs.write("bye", 0, 3)
-                self.assertEquals("bye", rfs.read(0, 3))
-                # Resetting for other expectations
-                rfs.truncate(2)
-                rfs.write("hi", 0, 2)
-                self.assertEquals("hi", rfs.read(0, 2))
-            finally:
-                rfs.close()
-
-        # TODO: fileById is always "r"
-        # rfs = mrepo2.fileById(ofile.id.val)
-        # _write(rfs)
-
-        rfs = mrepo2.file(filename, "rw")
-        _write(rfs)
-
-    def assertNoWrite(self, mrepo2, filename, ofile):
-        def _nowrite(rfs):
-            try:
-                self.assertRaises(omero.SecurityViolation,
-                                  rfs.write, "bye", 0, 3)
-                self.assertEquals("hi", rfs.read(0, 2))
-            finally:
-                rfs.close()
-
-        rfs = mrepo2.fileById(ofile.id.val)
-        _nowrite(rfs)
-
-        rfs = mrepo2.file(filename, "r")
-        _nowrite(rfs)
-
-        # Can't even acquire a writeable-rfs.
-        self.assertRaises(omero.SecurityViolation,
-                          mrepo2.file, filename, "rw")
-
-    def assertDirWrite(self, mrepo2, dirname):
-        self.createFile(mrepo2, dirname+"/file2.txt")
-
-    def assertNoDirWrite(self, mrepo2, dirname):
-        # Also check that it's not possible to write
-        # in someone elses directory.
-        self.assertRaises(omero.SecurityViolation,
-                          self.createFile, mrepo2, dirname+"/file2.txt")
-
-    def assertNoRead(self, mrepo2, filename, ofile):
-        self.assertRaises(omero.SecurityViolation,
-                          mrepo2.fileById, ofile.id.val)
-        self.assertRaises(omero.SecurityViolation,
-                          mrepo2.file, filename, "r")
-
-    def assertRead(self, mrepo2, filename, ofile, ctx=None):
-        def _read(rfs):
-            try:
-                self.assertEquals("hi", rfs.read(0, 2))
-            finally:
-                rfs.close()
-
-        rfs = mrepo2.fileById(ofile.id.val, ctx)
-        _read(rfs)
-
-        rfs = mrepo2.file(filename, "r", ctx)
-        _read(rfs)
-
-    def assertListings(self, mrepo1, uuid):
-        self.assertEquals(["/"+uuid], mrepo1.list("."))
-        self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
-        self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
-        self.assertEquals(["/"+uuid+"/b/c/file.txt"],
-                          mrepo1.list(uuid+"/b/c/"))
 
     def testTopPrivateGroup(self):
 
@@ -484,6 +510,38 @@ class TestPythonImporter(AbstractRepoTest):
             self.fail(rsp)
         else:
             self.assertEquals(1, len(rsp.pixels))
+
+class TestRawAccess(AbstractRepoTest):
+
+    def testAsNonAdmin(self):
+        uuid = self.uuid()
+        cb = self.raw("touch", ["./"+uuid])
+        self.assertError(cb)
+
+    def testAsAdmin(self):
+        uuid = self.uuid()
+        cb = self.raw("touch", ["./"+uuid])
+        self.assertError(cb)
+
+class TestDbSync(AbstractRepoTest):
+
+    def testNonDbFileNotReturned(self):
+        uuid = self.uuid()
+        filename = uuid + "/file.txt"
+        fooname = uuid + "/foo.txt"
+        mrepo = self.getManagedRepo()
+
+        mrepo.makeDir(uuid, True)
+        ofile = self.createFile(mrepo, filename)
+
+        # foo.txt is created on the backend but doesn't show up.
+        self.assertEquals(['/%s/file.txt' % uuid], mrepo.list("./"+uuid))
+        self.assertPasses(self.raw("touch", [fooname], client=self.root))
+        self.assertEquals(['/%s/file.txt' % uuid], mrepo.list("./"+uuid))
+
+        # If we try to create such a file, we should receive an exception
+        self.createFile(mrepo, fooname)
+
 
 if __name__ == '__main__':
     unittest.main()

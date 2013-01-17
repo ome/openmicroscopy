@@ -96,8 +96,6 @@ module omero {
              **/
             bool fileExists(string path) throws ServerError;
 
-            ["deprecated:currently for testing only"] bool create(string path) throws ServerError;
-
             /**
              * Create a directory at the given path. If parents is true,
              * then all preceding paths will be generated and no exception
@@ -368,6 +366,21 @@ module omero {
         };
 
         /**
+         * Command object which will be parsed by the internal
+         * repository given by "repo". This command will *only*
+         * be processed if the user has sufficient rights (e.g.
+         * is a member of "system") and is largely intended for
+         * testing and diagnosis rather than actual client
+         * functionality.
+         **/
+        class RawAccessRequest extends omero::cmd::Request {
+            string repoUuid;
+            string command;
+            omero::api::StringSet args;
+            string path;
+        };
+
+        /**
          * Internal portion of the API used for management. Not available to clients.
          **/
         ["ami"] interface InternalRepository {
@@ -388,6 +401,8 @@ module omero {
             omero::model::OriginalFile getDescription() throws ServerError;
             // If this returns null, user will have to wait
             Repository* getProxy() throws ServerError;
+
+            omero::cmd::Response rawAccess(RawAccessRequest raw) throws ServerError;
 
             string getFilePath(omero::model::OriginalFile file)
                     throws ServerError;
