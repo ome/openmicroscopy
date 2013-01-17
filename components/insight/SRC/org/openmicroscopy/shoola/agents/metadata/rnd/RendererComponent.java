@@ -1188,4 +1188,14 @@ class RendererComponent
 		}
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#onUpdatedChannels(List)
+	 */
+	public void onUpdatedChannels(List<ChannelData> channels)
+	{
+		model.setChannels(channels);
+		
+	}
+
 }

@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 
@@ -663,4 +664,39 @@ public interface OmeroMetadataService
 		long annotationId)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Saves the channels. Applies the changes to the images contained in
+	 * the specified objects whose number of channels matches the number of 
+	 * speficied channels. This could be datasets, plates or images.
+	 * Returns the identifiers of the images whose channels have been updated,
+	 * or an empty list if no images were updated.
+	 * 
+	 * @param ctx The security context.
+	 * @param channels The channels to update.
+	 * @param objects The objects to apply the changes to. If the objects are
+	 * datasets, then all the images within the datasets will be updated.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<Long> saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Retrieves the channel data for the specified pixels set.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of pixels set.
+	 * @return A list of channels.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
+			long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
+
 }

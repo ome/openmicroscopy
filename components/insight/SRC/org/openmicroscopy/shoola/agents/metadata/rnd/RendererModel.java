@@ -1481,4 +1481,15 @@ class RendererModel
 		rndControl.setSelectedResolutionLevel(level);
 	}
 	
+	/**
+	 * Sets the channels.
+	 * 
+	 * @param channels The updated channels.
+	 */
+	void setChannels(List<ChannelData> channels)
+	{
+		ViewerSorter sorter = new ViewerSorter();
+		sortedChannel = Collections.unmodifiableList(sorter.sort(channels));
+	}
+	
 }

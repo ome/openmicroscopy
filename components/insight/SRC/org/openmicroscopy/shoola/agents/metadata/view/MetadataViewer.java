@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
+import pojos.ChannelData;
 import pojos.DataObject;
 
 /** 
@@ -652,5 +653,13 @@ public interface MetadataViewer
 	 * @return See above.
 	 */
 	StructuredDataResults getStructuredData(Object refObject);
+
+	/**
+	 * Invokes when the channels have been modified. Updates the values
+	 * displayed in the measurement tool.
+	 * 
+	 * @param channels The channels to handle.
+	 */
+	void onUpdatedChannels(List<ChannelData> channels);
 
 }
