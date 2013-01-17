@@ -586,12 +586,23 @@ def stack_preview (request, imageId, conn=None, **kwargs):
     return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
 
 @login_required()
-def render_performance (request, imageId, conn=None, **kwargs):
+def render_performance (request, obj_type, id, conn=None, **kwargs):
     """ Test rendering performance for all planes in an image """
-    image = conn.getObject("Image", imageId)
-    zctList = []
-    for z in range(image.getSizeZ()):
-        for c in range(image.getSizeC()):
-            for t in range(image.getSizeT()):
-                zctList.append({'z':z, 'c':c+1, 't':t})
-    return render_to_response('webtest/demo_viewers/render_performance.html', {'image':image, 'zctList':zctList})
+    context = {}
+    if obj_type == 'image':
+        image = conn.getObject("Image", id)
+        zctList = []
+        for z in range(image.getSizeZ()):
+            for c in range(image.getSizeC()):
+                for t in range(image.getSizeT()):
+                    zctList.append({'z':z, 'c':c+1, 't':t})
+        context = {'image':image, 'zctList':zctList}
+    elif obj_type == 'plate':
+        imageIds = []
+        plate = conn.getObject("Plate", id)
+        for well in plate._listChildren():
+            for ws in well.copyWellSamples():
+                imageIds.append(ws.image.id.val)
+        context = {'plate':plate, 'imageIds':imageIds}
+
+    return render_to_response('webtest/demo_viewers/render_performance.html', context)
