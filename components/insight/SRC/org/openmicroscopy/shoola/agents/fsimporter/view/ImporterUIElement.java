@@ -1108,11 +1108,4 @@ class ImporterUIElement
 		}
 	}
 
-	/**
-	 * Returns a copy of the importable object.
-	 * 
-	 * @return See above.
-	 */
-	ImportableObject getImportableObject() { return object.copy(); }
-	
 }

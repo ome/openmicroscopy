@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +150,16 @@ public interface SqlAction {
      */
     Long findRepoFile(String uuid, String dirname, String basename,
             String mimetype);
+
+    /**
+     * Return a list of original file ids that all have a path value matching
+     * the passed dirname in the given repository.
+     *
+     * @param uuid
+     * @param dirname
+     * @return possibly empty list of ids.
+     */
+    List<Long> findRepoFiles(String repoUuid, String dirname);
 
     String findRepoFilePath(String uuid, long id);
 
@@ -430,6 +441,42 @@ public interface SqlAction {
         //
         // FILES
         //
+
+        public Long findRepoFile(String uuid, String dirname, String basename,
+                String mimetype) {
+
+            String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
+
+            try {
+                if (mimetype != null) {
+                    return _jdbc().queryForLong(
+                            findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
+                            uuid, dirname, basename, mimetype);
+                } else {
+                    return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
+                }
+            } catch (EmptyResultDataAccessException e) {
+                return null;
+            }
+        }
+
+        public List<Long> findRepoFiles(String uuid, String dirname) {
+            try {
+                return _jdbc().query(_lookup("find_repo_files"),
+                        new IdRowMapper(), uuid, dirname);
+            } catch (EmptyResultDataAccessException e) {
+                return Collections.emptyList();
+            }
+        }
+
+        public String findRepoFilePath(String uuid, long id) {
+            try {
+                return _jdbc().queryForObject(_lookup("find_repo_file_path"), //$NON-NLS-1$
+                        String.class, id, uuid);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
 
         public List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId, int rows) {
             final RowMapper<long[]> rm = new RowMapper<long[]>() {

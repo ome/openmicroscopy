@@ -1,32 +1,126 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
-
-import ome.system.Principal;
-
-import omero.ServerError;
-import omero.model.OriginalFile;
-import omero.sys.EventContext;
+import java.util.Collection;
+import java.util.List;
 
 import Ice.Current;
 
+import ome.api.RawFileStore;
+import ome.io.nio.FileBuffer;
+import ome.services.RawFileBean;
+
+import omero.SecurityViolation;
+import omero.ServerError;
+import omero.model.Fileset;
+import omero.model.IObject;
+import omero.model.Job;
+import omero.model.OriginalFile;
+import omero.sys.EventContext;
+
 public interface RepositoryDao {
 
-    OriginalFile getOriginalFile(final long repoId);
+    /**
+     * Create a {@link RawFileBean} (i.e. an implementation of
+     * {@link ome.api.RawFileStore} which can be passed to
+     * {@link RepoRawFileStore} for performing internal functions. The primary
+     * difference to an instance created via the ServiceFactory is that
+     * the {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} method is called
+     * pointing to a non-romio file path, e.g. /OMERO/Files/x.
+     *
+     * @param fileId ID of an {@link OriginalFile}
+     * @param checked Not null. Normalized path from the repository.
+     * @param mode FileChannel mode, "r", "rw", etc.
+     * @return An instance with
+     *      {@link RawFileBean#setFileIdWithBuffer(FileBuffer)} called.
+     */
+    RawFileStore getRawFileStore(long fileId, CheckedPath checked, String mode,
+            final Ice.Current current) throws SecurityViolation;
+
+    /**
+     * Delegate to {@link ome.util.SqlAction#findRepoFile(String, String, String, String)}
+     * for looking up the id of the file, and then load it normally via
+     * IQuery. This will enforce any read security checks.
+     * @param uuid
+     * @param dirname
+     * @param basename
+     * @param mimetype
+     * @return
+     */
+    OriginalFile findRepoFile(String uuid, CheckedPath checked,
+            String mimetype, Ice.Current current) throws ServerError;
+
+    /**
+     * Delegates to IAdmin#canUpdate
+     * @param fileId
+     * @param current
+     * @throws an {@link omero.SecurityViolation} if the currentUser is not
+     *      allowed to access the given file.
+     * @return
+     */
+    boolean canUpdate(IObject obj, Ice.Current current);
+
+    OriginalFile getOriginalFile(long fileId, Ice.Current current)
+            throws SecurityViolation;
+
+
+    /**
+     * Return a non-null, possibly empty list of {@link OriginalFile} elements
+     * which are accessible to the given user at the given path. If the
+     * directory which they are associated with is not also readable by the
+     * current user, then a {@link SecurityViolation} will be thrown.
+     *
+     * @param uuid for the repository in question.
+     * @param checked normalized path which can be found as the value of
+     *      {@link OriginalFile#getPath()} in the database.
+     * @param current
+     */
+    List<OriginalFile> getOriginalFiles(String repoUuid, CheckedPath checked,
+            Ice.Current current) throws SecurityViolation;
+
+    /**
+     * Fill the various fields of the {@link Fileset} and then save the
+     * entire instance into the database.
+     *
+     * @param repoUuid for the repository in question.
+     * @param fs a user provided {@link Fileset} that must minimally have the
+     *    {@link FilesetEntry} objects present with their clientPath set. The rest
+     *    of the fields will be filled here.
+     * @param paths a List of the same size as the number of entries in fs
+     *    one per {@link FilesetEntry}.
+     * @param currentUser
+     */
+    Fileset saveFileset(String repoUuid, Fileset fs, List<CheckedPath> paths,
+            Ice.Current current) throws ServerError;
+
+    /**
+     * Load filesets by id.
+     * @param ids
+     * @param current
+     * @return
+     */
+    List<Fileset> loadFilesets(List<Long> ids, Ice.Current current)
+            throws ServerError;
 
     /**
      * Register an OriginalFile object
      *
-     * @param omeroFile
-     *            OriginalFile object.
-     * @param currentUser
+     * @param repoUuid
+     *            uuid of the repository that the given file argument should be
+     *            registered with. Cannot be null.
+     * @param checked
+     *            Normalized path provided by the repository. Not null.
+     * @param mimetype
+     *            Mimetype for use with the OriginalFile. May be null in which
+     *            case a default will be chosen.
+     * @param current
      *            Not null.
      * @return The OriginalFile with id set (unloaded)
      * @throws ServerError
      *
      */
-    OriginalFile register(OriginalFile omeroFile, final Principal currentUser)
-            throws ServerError;
+    OriginalFile register(String repoUuid, CheckedPath checked, String mimetype,
+            final Ice.Current current) throws ServerError;
 
     /**
      * Get an {@link OriginalFile} object based on its id. Returns null if
@@ -37,39 +131,30 @@ public interface RepositoryDao {
      * @return OriginalFile object.
      *
      */
-    File getFile(final long id, final Principal currentUser,
+    File getFile(final long id, final Ice.Current current,
             final String repoUuid, final CheckedPath root);
 
     /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
+     * Create a job from an instance provided by either the client or the
+     * server. Only those fields which are modifiable by the user will be
+     * copied.
      *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
+     * @param job Not null.
+     * @param current Not null.
+     * @return
+     * @throws ServerError
      */
-    OriginalFile createUserDirectory(final String repoUuid, final String path,
-            final String name, Principal currentUser)
-            throws omero.ApiUsageException;
+    <T extends Job> T saveJob(T job, Ice.Current current) throws ServerError;
 
     /**
-     * Create an {@link OriginalFile} in the given repository if it does
-     * not exist. Otherwise, return the id.
+     * Set both the message and the status of the given job.
      *
-     * @param repoUuid Not null. sha1 of the repository
-     * @param path Not null. {@link OriginalFile#getPath()}
-     * @param name Not null. {@link OriginalFile#getName()}
-     * @param size {@link OriginalFile#getSize()}
-     * @param currentUser Not null.
-     * @return ID of the object.
-     * @throws omero.ApiUsageException
+     * @param job Not null.
+     * @param message If null, no modification will be made for the message
+     * @param status If null, no modification will be made for the status.
      */
-    OriginalFile createUserFile(final String repoUuid, final String path,
-            final String name, final long size, Principal currentUser)
-            throws omero.ApiUsageException;
+    void updateJob(Job job, String message, String status, Ice.Current current)
+        throws ServerError;
 
     /**
      * Look up information for the current session as specified in the ctx

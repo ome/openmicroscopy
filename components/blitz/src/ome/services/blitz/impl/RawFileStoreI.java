@@ -115,7 +115,6 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
     public void write_async(AMD_RawFileStore_write __cb, byte[] buf,
             long position, int length, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, buf, position, length);
-
     }
 
     public void save_async(AMD_RawFileStore_save __cb, Current __current)

@@ -1127,6 +1127,26 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
     }
 
+    /**
+     * wraps any non-ServerError returned by
+     * {@link #handleException(Throwable, OmeroContext)} in an
+     * {@link InternalException}.
+     *
+     * @param t
+     * @param ctx
+     * @return
+     */
+    public ServerError handleServerError(Throwable t, OmeroContext ctx) {
+        Ice.UserException ue = handleException(t, ctx);
+        if (ue instanceof ServerError) {
+            return (ServerError) ue;
+        }
+        omero.InternalException ie = new omero.InternalException();
+        IceMapper.fillServerError(ie, ue);
+        return ie;
+
+    }
+
     public Ice.UserException handleException(Throwable t, OmeroContext ctx) {
 
         // Getting rid of the reflection wrapper.

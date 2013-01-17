@@ -208,16 +208,6 @@ public class ImportEvent {
 
     // misc-events
 
-    public static class FILE_SIZE_STEP extends ImportEvent {
-        public final long total_files;
-        public final long total_files_length;
-
-        public FILE_SIZE_STEP(long totalFiles, long totalFileLength) {
-            this.total_files = totalFiles;
-            this.total_files_length = totalFileLength;
-        }
-    }
-
     public static class DEBUG_SEND extends ImportEvent {
         public final boolean sendFiles;
         public final boolean sendLogs;

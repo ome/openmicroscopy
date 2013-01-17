@@ -83,6 +83,19 @@ public interface ACLVoter {
     boolean allowCreation(IObject iObject);
 
     /**
+     * test whether the given object should be annotatable given the trusted
+     * {@link Details details}. The details will usually be retrieved from the
+     * current state array coming from the database.
+     *
+     * @param iObject
+     *            a non-null entity to test for update.
+     * @param trustedDetails
+     *            a {@link Details} instance that is known to be valid.
+     * @return true if annotation of this object can proceed
+     */
+    boolean allowAnnotate(IObject iObject, Details trustedDetails);
+
+    /**
      * test whether the given object should be updateable given the trusted
      * {@link Details details}. The details will usually be retrieved from the
      * current state array coming from the database.

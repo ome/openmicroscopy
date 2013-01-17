@@ -28,6 +28,8 @@ module omero {
         class ExternalInfo;
         class Family;
         class Filament;
+        class Fileset;
+        class FilesetJobLink;
         class Format;
         class IObject;
         class Image;

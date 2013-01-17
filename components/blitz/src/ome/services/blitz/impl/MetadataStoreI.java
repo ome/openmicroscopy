@@ -318,6 +318,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf)
             {
+                final String repo = params.remove("repo");
                 sql.setPixelsParams(pixelsId, params);
                 if (!useOriginalFile)
                 {
@@ -372,7 +373,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 }
                 String path = p.matcher(parent).replaceFirst("");
                 sql.setPixelsNamePathRepo(pixelsId, targetFile.getName(),
-                                          path, null);
+                                          path, repo);
                 return null;
             }
         }));

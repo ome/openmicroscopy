@@ -17,7 +17,7 @@ javaaddpath(which('slf4j-log4j12.jar'));
 javaaddpath(which('scifio.jar'));
 javaaddpath(which('blitz.jar'));
 javaaddpath(which('ini4j.jar'));
-javaaddpath(which('OmeroImporter.jar'));
+javaaddpath(which('omero_client.jar'));
 
 % Add jar-fix for Matlab
 if ismac

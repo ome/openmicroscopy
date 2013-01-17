@@ -138,8 +138,7 @@ public class ImportLibraryTest
                 assertNotNull(pixels);
                 assertEquals(pixels.size(), 1);
 		// omero.grid.Import data = library.uploadFilesToRepository(ic);
-                // omero.grid.RepositoryImportContainer repoIc = ImportLibrary.createRepositoryImportContainer(ic);
-                // List<Pixels> pixels = repo.importMetadata(data, repoIc);
+                // List<Pixels> pixels = repo.importMetadata(data);
 		// assertNotNull(pixels);
 		// assertEquals(pixels.size(), 1);
 	}
@@ -166,8 +165,8 @@ public class ImportLibraryTest
 		ImportLibrary library = new ImportLibrary(importer,
 				new OMEROWrapper(config));
 		ImportContainer ic = getCandidates(f).getContainers().get(0);
-		ic = new ImportContainer(f, -1L, null, 
-				false, null, null, ic.getUsedFiles(), null);
+		ic = new ImportContainer(f, null,
+				null, null, ic.getUsedFiles(), null);
 		List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 		assertNotNull(pixels);
 		assertEquals(pixels.size(), 1);

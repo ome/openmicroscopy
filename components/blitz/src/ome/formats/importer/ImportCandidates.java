@@ -417,28 +417,20 @@ public class ImportCandidates extends DirectoryWalker
                 String[] domains = reader.getReader().getDomains();
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-                ImportContainer ic = new ImportContainer(file, null,
-                        null, false, null, format, usedFiles, isSPW);
+                ImportContainer ic = new ImportContainer(file,
+                        null, null, format, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
-                ic.setBfImageCount(reader.getSeriesCount());
-                ic.setBfPixels(getPixelsWithDimensions());
-                ic.setBfImageNames(getImageNames());
-                String configImageName = config.imageName.get();
+                String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
                 {
-                    ic.setCustomImageName(path);
+                    ic.setUserSpecifiedName(path);
                 }
                 else
                 {
-                    ic.setCustomImageName(configImageName);
+                    ic.setUserSpecifiedName(configImageName);
                 }
-                ic.setCustomImageDescription(config.imageDescription.get());
-                ic.setCustomPlateName(config.plateName.get());
-                ic.setCustomPlateDescription(config.plateDescription.get());
-                ic.setArchive(config.archiveImage.get());
-                ic.setMetadataOnly(config.metadataOnly.get());
+                ic.setUserSpecifiedDescription(config.userSpecifiedDescription.get());
                 ic.setCustomAnnotationList(config.annotations.get());
-                ic.setUseMetadataFile(config.companionFile.get());
                 return ic;
             } finally
             {

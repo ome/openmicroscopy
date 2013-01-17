@@ -114,6 +114,7 @@ module omero {
     };
 
     module grid {
+        interface ManagedRepository;
         interface ScriptProcessor;
         interface SharedResources;
         interface Table;

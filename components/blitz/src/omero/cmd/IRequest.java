@@ -82,6 +82,8 @@ public interface IRequest {
     /**
      * Returns the current response value. This method should be protected
      * by synchronization where necessary, and should never raise an exception.
+     * It is also guaranteed to be called so that any state cleanup that is
+     * necessary can take place here.
      */
     Response getResponse();
 

@@ -59,7 +59,13 @@ public class OmeroFilePathResolver implements FilePathResolver
         String name = namePathRepo.get(0);
         String path = namePathRepo.get(1);
         String repo = namePathRepo.get(2);
-        if (name != null && path != null && repo == null)
+        if (name != null && path != null) // && repo == null)
+            // FIXME: ignoring repo as a workaround for all the corruptions
+            // seen during testing. In order to enable multi-server FS
+            // proper redirecting will need to happen at the pixel buffer
+            // layer as is currently happening in RawPixelsStoreI etc.
+            // In other words, far before we reach this code, we should
+            // already have been re-directed to the proper repo.
         {
             // A "null" repo signifies the default repository
             File f = new File(omeroDataDir);

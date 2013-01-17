@@ -58,8 +58,6 @@ public class EclipseClasspath extends IvyCacheTask {
         "rendering",
         "common-test",
         "dsl-test",
-        "OmeroImporter-test",
-        "OmeroImporter",
         "omero_client"
         //"postgresql", These are needed.
         //"ice",

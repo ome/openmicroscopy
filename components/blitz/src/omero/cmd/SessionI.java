@@ -496,22 +496,7 @@ public class SessionI implements _SessionOperations {
         try {
 
             servant = (Ice.Object) context.getBean(name);
-
-            // Now setup the servant
-            // ---------------------------------------------------------------------
-            internalServantConfig(servant);
-            Object real = servant;
-
-            if (servant instanceof Ice.TieBase) {
-                Ice.TieBase tie = (Ice.TieBase) servant;
-                real = tie.ice_delegate();
-                internalServantConfig(real);
-
-                if (real instanceof TieAware) {
-                    ((TieAware) real).setTie(tie);
-                }
-            }
-
+            configureServant(servant);
             return servant;
         } catch (ClassCastException cce) {
             InternalException ie = new InternalException();
@@ -527,6 +512,28 @@ public class SessionI implements _SessionOperations {
             log.warn("Uncaught exception in createServantDelegate. ", e);
             throw new InternalException(null, e.getClass().getName(),
                     e.getMessage());
+        }
+    }
+
+    /**
+     * Apply proper AOP and call setters for any known injection properties.
+     * @param servant
+     * @throws ServerError
+     */
+    public void configureServant(Ice. Object servant) throws ServerError {
+        // Now setup the servant
+        // ---------------------------------------------------------------------
+        internalServantConfig(servant);
+        Object real = servant;
+
+        if (servant instanceof Ice.TieBase) {
+            Ice.TieBase tie = (Ice.TieBase) servant;
+            real = tie.ice_delegate();
+            internalServantConfig(real);
+
+            if (real instanceof TieAware) {
+                ((TieAware) real).setTie(tie);
+            }
         }
     }
 

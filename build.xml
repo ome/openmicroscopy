@@ -214,7 +214,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin. May require 'build-java'" depends="init">
-        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <!-- Parts of build-dist -->
         <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
@@ -295,7 +294,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="eclipse"/>
         <iterate buildpathref="insight.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
-        <iterate buildpathref="OmeroImporter.buildpath" target="eclipse"/>
         <tryEclipse settingsRef="ivy.toplevel" filter="true"/>
     </target>
 
@@ -417,9 +415,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
-	<copy todir="target">
-	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
-	</copy>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
@@ -868,9 +863,6 @@ omero.version=${omero.version}
             <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar">
-                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
-            </jar_update_if>
         </then>
         </if>
     </target>
@@ -921,6 +913,74 @@ omero.version=${omero.version}
         <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
     </target>
+
+    <target name="hot-blitz" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${blitz.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-common" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${common.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-model" depends="init">
+        <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
+        <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
+        <property name="targets" value="install"/>
+        <hotdeploy component="${model.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-romio" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${romio.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-server" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${server.comp}" targets="${targets}"/>
+    </target>
+
+    <macrodef name="hotdeploy">
+        <attribute name="targets"/>
+        <attribute name="component"/>
+        <sequential>
+            <for list="@{targets}" param="target">
+                <sequential>
+                    <ant antfile="@{component}/build.xml" dir="@{component}" target="@{target}" inheritAll="false"/>
+                </sequential>
+            </for>
+            <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+            <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Blitz-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Indexer-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="PixelData-0"/>
+            </ice-admin>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="ice-admin">
+        <element name="args" implicit="yes"/>
+        <sequential>
+            <exec executable="python" dir="${dist.dir}" failonerror="true">
+                <arg value="bin/omero"/>
+                <arg value="admin"/>
+                <arg value="ice"/>
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
 
     <macrodef name="gitdescribe">
 

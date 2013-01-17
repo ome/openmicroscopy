@@ -45,10 +45,10 @@ public class OriginalFilesService extends AbstractFileSystemService {
      * @param file
      * @return FileBuffer
      */
-    public FileBuffer getFileBuffer(OriginalFile file) {
+    public FileBuffer getFileBuffer(OriginalFile file, String mode) {
         String path = getFilesPath(file.getId());
         createSubpath(path);
-        return new FileBuffer(path, file);
+        return new FileBuffer(path, mode);
     }
     
     /**

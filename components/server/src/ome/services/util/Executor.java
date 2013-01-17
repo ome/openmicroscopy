@@ -184,6 +184,16 @@ public interface Executor extends ApplicationContextAware {
     }
 
     /**
+     * In the case of a stateful work order, the bean itself needs to be
+     * associated with the sessionHandler and thread rather than the word
+     * instance itself. If SessionHandler sees a StatefulWork instance
+     * it will ask for the inner "this" to be used.
+     */
+    public interface StatefulWork {
+        Object getThis();
+    }
+
+    /**
      * Work SPI to perform actions related to
      * {@link org.hibernate.SessionFactory#openStatelessSession() stateless}
      * sessions. This overrides <em>ALL</em> security in the server and should
