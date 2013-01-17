@@ -1095,8 +1095,8 @@ public class FileImportComponent
 	{
 		if (errorBox == null || !errorBox.isVisible()) return null;
 		if (!errorBox.isEnabled()) return null;
-		ImportErrorObject object = new ImportErrorObject(file, 
-				(ImportException) image);
+		ImportErrorObject object = new ImportErrorObject(file,
+				(Exception) image);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		return object;
