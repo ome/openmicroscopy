@@ -164,20 +164,27 @@ Note how the whitespace for the python definitions is important.
 [$pyc]
 [$hdr] namespace omero {
 [$hdr]   namespace model {
-[$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
+[$hdr]     class OMERO_API ${PojoI};
 [$hdr]   }
 [$hdr] }
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
-[$hdr] ::Ice::Object* IceInternal::upCast(${PojoI}* p) { return p; }
+[$hdr] namespace IceInternal {
+[$hdr]   ::Ice::Object* upCast(::omero::model::${PojoI}*);
+[$hdr] }
 [$hdr] #endif
 [$hdr] namespace omero {
 [$hdr]   namespace model {
+[$hdr] \#if ICE_INT_VERSION / 100 >= 304
+[$hdr]   typedef IceInternal::Handle<${PojoI}> ${PojoI}Ptr;
+[$hdr] \#else
+[$hdr]   typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
+[$hdr] #endif
 [$hdr]     class OMERO_API ${PojoI} : virtual public ${Pojo} {
 
 [$cpp] \#include <omero/model/${Pojo}I.h>
 [$cpp] \#include <omero/RTypesI.h>
 [$cpp] \#if ICE_INT_VERSION / 100 >= 304
-[$cpp] ::Ice::Object* IceInternal::upCast(::omero::sys::ParametersI* p) { return p; }
+[$cpp] ::Ice::Object* IceInternal::upCast(::omero::model::${PojoI}* p) { return p; }
 [$cpp] #endif
 [$cpp] using omero::rtypes::rlong;
 [$cpp] namespace omero {
@@ -2009,11 +2016,6 @@ END DECLARATION BLOCK:
 
 [$jav] }
 [$hdr]  };
-[$hdr] \#if ICE_INT_VERSION / 100 >= 304
-[$hdr]   typedef IceInternal::Handle<${PojoI}> ${PojoI}Ptr;
-[$hdr] \#else
-[$hdr]   typedef IceUtil::Handle<${PojoI}> ${PojoI}Ptr;
-[$hdr] #endif
 [$hdr]
 
 [$cpp]}}
