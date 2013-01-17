@@ -201,6 +201,10 @@ class ImporterComponent
 				model.getGroupId());
 	}
 	
+	/**
+	 * Returns the sorted list of groups the current user has access to
+	 * @return see above.
+	 */
 	private Collection<GroupData> loadGroups() {
 		Collection set = ImporterAgent.getAvailableUserGroups();
 		
