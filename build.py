@@ -108,25 +108,23 @@ def choose_omero_version():
 
 
 def handle_tools(args):
+    _ = os.path.sep.join
     additions = []
-    while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp", "-top"):
+    mappings = {
+        "-top": _(["build.xml"]),
+        "-cpp": _(["components","tools","OmeroCpp","build.xml"]),
+        "-fs": _(["components","tools","OmeroFS","build.xml"]),
+        "-java": _(["components","tools","OmeroJava","build.xml"]),
+        "-py": _(["components","tools","OmeroPy","build.xml"]),
+        "-web": _(["components","tools","OmeroWeb","build.xml"]),
+    }
+    while len(args) > 0 and args[0] in mappings.keys()+["-perf"]:
         if args[0] == "-perf":
             args.pop(0)
             A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
             additions.extend(A)
-        elif args[0] == "-py":
-            args.pop(0)
-            F = os.path.sep.join(["components","tools","OmeroPy","build.xml"])
-            A = ["-f", F]
-            additions.extend(A)
-        elif args[0] == "-cpp":
-            args.pop(0)
-            F = os.path.sep.join(["components","tools","OmeroCpp","build.xml"])
-            A = ["-f", F]
-            additions.extend(A)
-        elif args[0] == "-top":
-            args.pop(0)
-            F = os.path.sep.join(["build.xml"])
+        elif args[0] in mappings.keys():
+            F = mappings[args.pop(0)]
             A = ["-f", F]
             additions.extend(A)
     return additions + args
