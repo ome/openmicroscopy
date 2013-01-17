@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.ChannelDataSaver;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
@@ -2259,7 +2260,7 @@ class EditorModel
 	 */
 	void setRootObject(Object refObject)
 	{ 
-		boolean b = isSameObject(refObject);
+		boolean b = isSameObject(this.refObject);
 		this.refObject = refObject;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
@@ -2563,6 +2564,31 @@ class EditorModel
 			}
 			parent.saveData(object, list, metadata, data, asynch);
 		}
+	}
+	
+	/**
+	 * Updates the specified channels. If <code>applyToAll</code> is
+	 * <code>true</code>, the channels of all the images in the dataset or
+	 * the plate will be updated,
+	 * 
+	 * @param channels The channels to update.
+	 * @param applyToAll Pass <code>true</code> to update the channels of all
+	 *                   the images in the dataset or the plate.
+	 *                   Pass <code>false</code> to only update the image.
+	 */
+	void fireChannelSaving(List<ChannelData> channels, boolean applyToAll)
+	{
+		DataObject object = null;
+		if (applyToAll) {
+			if (parentRefObject instanceof DatasetData)
+				object = (DataObject) parentRefObject;
+			else if (gpRefObject instanceof PlateData)
+				object = (DataObject) gpRefObject;
+			else return;
+		} else object = (DataObject) refObject;
+		ChannelDataSaver loader = new ChannelDataSaver(component,
+				getSecurityContext(), channels, object);
+		loader.load();
 	}
 	
 	/**
@@ -3820,6 +3846,23 @@ class EditorModel
 	{
 		if (ns == null) return false;
 		return EXCLUDED_FILE_NS.contains(ns);
+	}
+	
+	/**
+	 * Update the channels.
+	 * 
+	 * @param channels The value to set.
+	 */
+	void updateChannels(List<ChannelData> channels)
+	{
+		List l = sorter.sort(channels); 
+		emissionsWavelengths = new LinkedHashMap();
+		Iterator i = l.iterator();
+		Object channel;
+		while (i.hasNext()) {
+			channel = i.next();
+			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
+		}
 	}
 
 }

@@ -283,19 +283,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Retrieves the channel metadata for the specified pixels sets.
-	 * 
-	 * @param ctx The security context.
-	 * @param pixelsID The id of pixels set.
-	 * @return A list of metadata.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public List getChannelsMetadata(SecurityContext ctx, long pixelsID)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Retrieves and saves locally the archived files.
 	 * 
 	 * @param ctx The security context.

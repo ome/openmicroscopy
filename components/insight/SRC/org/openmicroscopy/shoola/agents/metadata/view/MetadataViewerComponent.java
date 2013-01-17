@@ -1203,6 +1203,17 @@ class MetadataViewerComponent
 	}
 
 	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onUpdatedChannels(List)
+	 */
+	public void onUpdatedChannels(List<ChannelData> channels)
+	{
+		Renderer rnd = getRenderer();
+		if (rnd != null) rnd.onUpdatedChannels(channels);
+		model.getEditor().onUpdatedChannels(channels);
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
