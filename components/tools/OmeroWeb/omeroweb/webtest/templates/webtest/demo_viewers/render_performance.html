@@ -22,7 +22,8 @@ $(document).ready(function() {
         loadedCount = 0,
         start = 0,
         duration = 0,
-        perPlane = 0;
+        perPlane = 0,
+        imgSrcAttr = 'plane';   // attribute of img that has the src we want
 
     $planeCount.text(planeCount);
 
@@ -43,19 +44,24 @@ $(document).ready(function() {
 
         initLoadCallbacks();
 
+        {% if imageIds %}
+        // if loading a plate, choose img src (thumbnail OR full plane)
+        imgSrcAttr = $("input[name=loadThumbs]:checked").attr('value');
+        {% endif %}
+
         $planes.load(function() {
             var thisId = +$(this).attr('id');
             thisId += 1;
             $nextPlane = $("#" + thisId);
             // load the next Plane
-            var src = $nextPlane.attr('href');
+            var src = $nextPlane.attr(imgSrcAttr);
             $nextPlane.attr('src', src);
         });
 
         start = Date.now();
 
         // Kick off loading of first image.
-        $("#0").attr('src', $("#0").attr('href'));
+        $("#0").attr('src', $("#0").attr(imgSrcAttr));
     });
 
 
@@ -63,11 +69,16 @@ $(document).ready(function() {
 
         initLoadCallbacks();
 
+        {% if imageIds %}
+        // if loading a plate, choose img src (thumbnail OR full plane)
+        imgSrcAttr = $("input[name=loadThumbs]:checked").attr('value');
+        {% endif %}
+
         start = Date.now();
 
         // Set the src to start all planes loading
         $planes.each(function(){
-            var src = $(this).attr('href');
+            var src = $(this).attr(imgSrcAttr);
             $(this).attr('src', src);
         })
     });
@@ -98,14 +109,33 @@ Planes Loaded: <span id="planesLoaded">0</span> / <span id="planeCount">0</span>
 Duration: <span id="duration">0</span> secs |
 Per Plane: <span id="secsPerPlane">0</span> secs.
 
+{% if imageIds %}
+    | For Plate,
+    Load Full Planes <input type='radio' name='loadThumbs' value="plane" />
+    OR Load Thumbnails <input type='radio' name='loadThumbs' value="thumb" />
+{% endif %}
 <hr />
 
-{% for zct in zctList %}
+{% if zctList %}
 
+    {% for zct in zctList %}
         <img id="{{ forloop.counter0 }}" class="plane"
             src="{% url webgateway.views.render_image image.id 0 0 %}?c=0"
-            href="{% url webgateway.views.render_image image.id zct.z zct.t %}?c={{ zct.c }}"/>
+            plane="{% url webgateway.views.render_image image.id zct.z zct.t %}?c={{ zct.c }}"/>
+    {% endfor %}
 
-{% endfor %}
+{% else %}
+
+    {% if imageIds %}
+
+        {% for iid in imageIds %}
+        <img id="{{ forloop.counter0 }}" class="plane"
+            src="{% url webgateway.views.render_image iid %}?c=0"
+            plane="{% url webgateway.views.render_image iid %}"
+            thumb="{% url webgateway.views.render_thumbnail iid %}"/>
+    {% endfor %}
+    {% endif %}
+
+{% endif %}
 
 {% endblock %}
