@@ -109,7 +109,7 @@ def choose_omero_version():
 
 def handle_tools(args):
     additions = []
-    while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp"):
+    while len(args) > 0 and args[0] in ("-perf", "-py", "-cpp", "-top"):
         if args[0] == "-perf":
             args.pop(0)
             A = "-listener net.sf.antcontrib.perf.AntPerformanceListener".split()
@@ -122,6 +122,11 @@ def handle_tools(args):
         elif args[0] == "-cpp":
             args.pop(0)
             F = os.path.sep.join(["components","tools","OmeroCpp","build.xml"])
+            A = ["-f", F]
+            additions.extend(A)
+        elif args[0] == "-top":
+            args.pop(0)
+            F = os.path.sep.join(["build.xml"])
             A = ["-f", F]
             additions.extend(A)
     return additions + args
