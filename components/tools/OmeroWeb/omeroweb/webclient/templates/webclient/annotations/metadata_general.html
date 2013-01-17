@@ -328,6 +328,9 @@
             {% if manager.image or manager.well.getWellSample.image %}
                 // we need to know parent for the 'apply to all'
                 var getParentId = function() {
+                    if (typeof $.jstree === "undefined") {
+                        return;
+                    }
                     var datatree = $.jstree._focused();
                     if (!datatree) return;
                     var sel = datatree.data.ui.selected,
