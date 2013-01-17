@@ -236,8 +236,6 @@ class ImporterComponent
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
 		view.toFront();
-		//view.setVisible(false);
-		//UIUtilities.centerAndShow(chooser);
 	}
 
 	/** 
