@@ -1901,9 +1901,10 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private synchronized void needDefault(long pixelsID, Object prx)
+	private synchronized boolean needDefault(long pixelsID, Object prx)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		boolean b = true;
 		try {
 			if (prx instanceof ThumbnailStorePrx) {
 				ThumbnailStorePrx service = (ThumbnailStorePrx) prx;
@@ -1919,8 +1920,10 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
+			b = false;
 			handleException(e, "Cannot set the rendering defaults.");
 		}
+		return b;
 	}
 	
 	/**
@@ -3197,7 +3200,10 @@ class OMEROGateway
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
-			needDefault(pixelsID, service);
+			if (!needDefault(pixelsID, service)) {
+				closeService(ctx, service);
+				throw new RenderingServiceException("Cannot create thumbnail");
+			}
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
 				RenderingDef def = getRenderingDef(ctx, pixelsID, userID);
@@ -3257,7 +3263,10 @@ class OMEROGateway
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
-			needDefault(pixelsID, service);
+			if (!needDefault(pixelsID, service)) {
+				closeService(ctx, service);
+				throw new RenderingServiceException("Cannot create thumbnail");
+			}
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
@@ -3370,7 +3379,14 @@ class OMEROGateway
 		RenderingEnginePrx service = getRenderingService(ctx, pixelsID);
 		try {
 			service.lookupPixels(pixelsID);
-			needDefault(pixelsID, service);
+			if (!needDefault(pixelsID, service)) {
+				if (service != null) {
+					try {
+						service.close();
+					} catch (Exception e) {}
+				}
+				return null;
+			}
 			service.load();
 			return service;
 		} catch (Throwable t) {
