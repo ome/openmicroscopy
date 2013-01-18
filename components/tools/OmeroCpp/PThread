@@ -1,0 +1,217 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Copyright (C) 2013 Glencoe Software, Inc. All Rights Reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+"""
+Defines autoconf like checking for pthread flags. See:
+http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_pthread.m4
+"""
+
+import os
+import sys
+blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pardir, "blitz") )
+sys.path.append( blitz )
+from blitz_tools import *
+
+
+pthread_test_source_file = """
+#include <pthread.h>
+static void routine(void *a) { a = 0; }
+static void *start_routine(void *a) { return a; }
+
+int main(int argc, char **argv)
+{
+    pthread_t th; pthread_attr_t attr;
+    pthread_create(&th, 0, start_routine, 0);
+    pthread_join(th, 0);
+    pthread_attr_init(&attr);
+    pthread_cleanup_push(routine, 0);
+    pthread_cleanup_pop(0);
+    return 0;
+}
+"""
+
+
+def CheckPthread(context, flag):
+    context.Message('Checking for pthread (%s)...' % flag)
+    result = context.TryLink(pthread_test_source_file, '.cpp')
+    context.Result(result)
+    return result
+
+Import("flag")
+tenv = OmeroEnvironment(omero_quiet=True)
+platform = tenv.get("PLATFORM", "unknown")
+host_os = tenv.get("HOST_OS", "unknown")
+
+#
+# Top-level check which will recurse.
+#
+if flag == "START":
+
+    # Skipping precheck
+
+    # We must check for the threads library under a number of different
+    # names; the ordering is very important because some systems
+    # (e.g. DEC) have both -lpthread and -lpthreads, where one of the
+    # libraries is broken (non-POSIX).
+
+    # Create a list of thread flags to try.  Items starting with a "-" are
+    # C compiler flags, and other items are library names, except for "none"
+    # which indicates that we try without any flags at all, and "pthread-config"
+    # which is a program returning the flags for the Pth emulation library.
+
+    ax_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+
+    # The ordering *is* (sometimes) important.  Some notes on the
+    # individual items follow:
+
+    # pthreads: AIX (must check this before -lpthread)
+    # none: in case threads are in libc; should be tried before -Kthread and
+    #       other compiler flags to prevent continual compiler warnings
+    # -Kthread: Sequent (threads in libc, but -Kthread needed for pthread.h)
+    # -kthread: FreeBSD kernel threads (preferred to -pthread since SMP-able)
+    # lthread: LinuxThreads port on FreeBSD (also preferred to -pthread)
+    # -pthread: Linux/gcc (kernel threads), BSD/gcc (userland threads)
+    # -pthreads: Solaris/gcc
+    # -mthreads: Mingw32/gcc, Lynx/gcc
+    # -mt: Sun Workshop C (may only link SunOS threads [-lthread], but it
+    #      doesn't hurt to check since this sometimes defines pthreads too;
+    #      also defines -D_REENTRANT)
+    #      ... -mt is also the pthreads flag for HP/aCC
+    # pthread: Linux, etcetera
+    # --thread-safe: KAI C++
+    # pthread-config: use pthread-config program (for GNU Pth library)
+
+    if platform == 'solaris':
+
+        # On Solaris (at least, for some versions), libc contains stubbed
+        # (non-functional) versions of the pthreads routines, so link-based
+        # tests will erroneously succeed.  (We need to link with -pthreads/-mt/
+        # -lpthread.)  (The stubs are missing pthread_cleanup_push, or rather
+        # a function called by this macro, so we could check for that, but
+        # who knows whether they'll stub that too in a future libc.)  So,
+        # we'll just look for -pthreads and -lpthread first:
+
+        ax_pthread_flags="-pthreads pthread -mt -pthread " + ax_pthread_flags
+
+    elif platform == 'darwin':
+
+        ax_pthread_flags="-pthread " + ax_pthread_flags
+
+    # Not handling ax_pthread_ok before here
+    value = None
+    for flag in ax_pthread_flags.split():
+        value = tenv.SConscript("PThread", exports={"flag":flag})
+        if value:
+            break
+    Return("value")
+
+#
+# Here we are in a particular check
+#
+else:
+
+    skip = False
+    ax_pthread_ok = False
+    PTHREAD_CFLAGS = []
+    PTHREAD_LIBFLAGS = []
+
+    if flag == "none":
+        # AC_MSG_CHECKING([whether pthreads work without any flags])
+        pass  # Use default value
+
+    elif flag.startswith("-"):
+        # AC_MSG_CHECKING([whether pthreads work with $flag])
+        PTHREAD_CFLAGS.append(flag)
+
+    elif flag == "pthread-config":
+        # AC_CHECK_PROG(ax_pthread_config, pthread-config, yes, no)
+        # if test x"$ax_pthread_config" = xno; then continue; fi
+        try:
+            tenv.ParseConfig('pthread-config --cflags')
+        except OSError:
+            skip = True
+
+    else:
+            # AC_MSG_CHECKING([for the pthreads library -l$flag])
+            PTHREAD_LIBFLAGS.append("-l"+flag)
+
+    # Check for various functions.  We must include pthread.h,
+    # since some functions may be macros.  (On the Sequent, we
+    # need a special flag -Kthread to make this header compile.)
+    # We check for pthread_join because it is in -lpthread on IRIX
+    # while pthread_create is in libc.  We check for pthread_attr_init
+    # due to DEC craziness with -lpthreads.  We check for
+    # pthread_cleanup_push because it is one of the few pthread
+    # functions on Solaris that doesn't have a non-functional libc stub.
+    # We try pthread_create on general principles.
+
+    if not skip:
+        if PTHREAD_LIBFLAGS:
+            tenv.AppendUnique(LIBFLAGS=PTHREAD_LIBFLAGS)
+        if PTHREAD_CFLAGS:
+            tenv.Append(CXXFLAGS=PTHREAD_CFLAGS)
+        tconf = Configure(tenv, custom_tests = {'CheckPthread' : CheckPthread})
+        if tconf.CheckPthread(flag):
+            ax_pthread_ok = True
+            Return(["PTHREAD_CFLAGS", "PTHREAD_LIBFLAGS"])
+        tconf.Finish()
+
+    # Various other checks:
+    if ax_pthread_ok:
+
+        # Detect AIX lossage: JOINABLE attribute is called UNDETACHED.
+        # AC_MSG_CHECKING([for joinable pthread attribute])
+        """
+        attr_name=unknown
+        for attr in ("PTHREAD_CREATE_JOINABLE", "PTHREAD_CREATE_UNDETACHED"):
+            AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <pthread.h>],
+                            [int attr = $attr; return attr /* ; */])],
+                [attr_name=$attr; break],
+                [])
+        done
+        AC_MSG_RESULT($attr_name)
+        if test "$attr_name" != PTHREAD_CREATE_JOINABLE; then
+            AC_DEFINE_UNQUOTED(PTHREAD_CREATE_JOINABLE, $attr_name,
+                                [Define to necessary symbol if this constant
+                                uses a non-standard name on your system.])
+        fi
+        """
+
+        # AC_MSG_CHECKING([if more special flags are required for pthreads])
+        _flag = None
+        for x in ("aix", "freebsd", "darwin"):
+            if host_os.startswith(x):
+                _flag = "-D_THREAD_SAFE"
+        for x in ("osf", "hpux"):
+            if host_os.startswith(x):
+                _flag = "-D_REENTRANT"
+        if host_os.startswith("solaris"):
+            pass
+            """
+            solaris*)
+            if test "$GCC" = "yes"; then
+                _flag="-D_REENTRANT"
+            else
+                _flag="-mt -D_REENTRANT"
+            """
+
+        if _flag:
+            PTHREAD_CFLAGS.append(_flag)

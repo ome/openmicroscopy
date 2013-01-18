@@ -10,19 +10,35 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
+
 #
 # At the moment, execution of this script requires,
 # ant tools-init to have been run
 #
 
 env = OmeroEnvironment(CPPPATH=["src","target"])
-
 if not env.GetOption('clean'):
+
     conf = Configure(env)
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
         print 'Ice/Ice.h not found'
         env.Exit(1)
     conf.Finish()
+
+    import sys, traceback as tb
+    def tracefunc(frame, event, arg):
+        tb.print_exc()
+        return tracefunc
+    #sys.settrace(tracefunc)
+    value = env.SConscript("PThread", exports={"flag":"START"})
+    if value:
+        PTHREAD_CFLAGS, PTHREAD_LIBFLAGS = value
+        if PTHREAD_CFLAGS:
+            print "PTHREAD_CFLAGS: ", PTHREAD_CFLAGS
+            env.AppendUnique(CXXFLAGS=PTHREAD_CFLAGS)
+        if PTHREAD_LIBFLAGS:
+            print "PTHREAD_LIBFLAGS: ", PTHREAD_LIBFLAGS
+            env.AppendUnique(LIBFLAGS=PTHREAD_LIBFLAGS)
 
 f = open("scons.log", "w")
 f.write(env.Dump())
