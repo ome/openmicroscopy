@@ -325,7 +325,7 @@ public class DataNode
 	}
 	
 	/**
-	 * Returns <code>true</code> if the node is a default node for screen, 
+	 * Returns <code>true</code> if the node is a default node for project, 
 	 * <code>false</code> otherwise.
 	 *  
 	 * @return See above.
