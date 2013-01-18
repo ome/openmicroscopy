@@ -85,10 +85,7 @@ public class ImViewerFactory
 	 */
 	private static final String	OMERO_VIEWER_COMPRESSION = 
 		"omeroViewerCompression";
-	
-	/** The name associated to the component. */
-	private static final String NAME = "Viewer: ";
-	
+
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Image Viewer";
 	
@@ -160,7 +157,7 @@ public class ImViewerFactory
 	 */
 	public static void onGroupSwitched(boolean success)
 	{
-		if (!success)  return;
+		if (!success) return;
 		singleton.clear();
 	}
 	
@@ -210,7 +207,7 @@ public class ImViewerFactory
 	 */
 	public static ImViewer getImageViewer(SecurityContext ctx, long pixelsID)
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
@@ -221,6 +218,25 @@ public class ImViewerFactory
 	}
 
 	/**
+	 * Returns the viewer if any, identified by the passed image's ID.
+	 * 
+	 * @param imageID The Identifier of the image.
+	 * @return See above.
+	 */
+	public static ImViewer getImageViewerFromImage(SecurityContext ctx,
+			long imageID)
+	{
+		Iterator<ImViewer> v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			if (comp.getModel().isSameImage(imageID, ctx))
+				return comp;
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns the viewer if any, identified by the passed pixels ID.
 	 * 
 	 * @param parent The of the image.
@@ -229,7 +245,7 @@ public class ImViewerFactory
 	public static ImViewer getImageViewerFromParent(DataObject parent)
 	{
 		if (parent == null) return null;
-		Iterator v = singleton.viewers.iterator();
+		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
@@ -246,7 +262,7 @@ public class ImViewerFactory
 	public static void copyRndSettings(ImageData image)
 	{
 		singleton.refImage = image;
-		Iterator v = singleton.viewers.iterator();
+		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
@@ -263,7 +279,7 @@ public class ImViewerFactory
 	 */
 	public static void rndSettingsSaved(long pixelsID, RndProxyDef settings)
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
@@ -279,7 +295,7 @@ public class ImViewerFactory
 	 */
 	public static void storeEvent(SaveRelatedData evt)
 	{
-		Iterator v = singleton.viewers.iterator();
+		Iterator<ImViewer> v = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		long pixelsID = evt.getPixelsID();
 		while (v.hasNext()) {
@@ -298,7 +314,7 @@ public class ImViewerFactory
 	{
 		if (singleton.viewers.size() == 0) return null;
 		List<Object> instances = new ArrayList<Object>();
-		Iterator i = singleton.viewers.iterator();
+		Iterator<ImViewer> i = singleton.viewers.iterator();
 		ImViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (ImViewerComponent) i.next();
@@ -317,7 +333,7 @@ public class ImViewerFactory
 	{
 		//if (singleton.viewers.size() == 0) return;
 		if (instances != null) {
-			Iterator i = instances.iterator();
+			Iterator<Object> i = instances.iterator();
 			ImViewerComponent comp;
 			Object o;
 			List<Long> ids = new ArrayList<Long>();
@@ -451,7 +467,7 @@ public class ImViewerFactory
 	/** Clears the collection of tracked viewers. */
 	private void clear()
 	{
-		Iterator i = viewers.iterator();
+		Iterator<ImViewer> i = viewers.iterator();
 		ImViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (ImViewerComponent) i.next();
@@ -472,7 +488,7 @@ public class ImViewerFactory
 	 */
 	private ImViewer getViewer(ImViewerModel model)
 	{
-		Iterator v = viewers.iterator();
+		Iterator<ImViewer> v = viewers.iterator();
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();

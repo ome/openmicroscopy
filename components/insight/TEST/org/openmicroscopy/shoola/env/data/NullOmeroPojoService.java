@@ -199,16 +199,6 @@ public class NullOmeroPojoService
 
 	/**
      * No-op implementation
-     * @see OmeroDataService#getChannelsMetadata(long)
-     */
-	public List getChannelsMetadata(SecurityContext ctx, long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-     * No-op implementation
      * @see OmeroDataService#getCollectionCount(Class, String, List)
      */
 	public Map getCollectionCount(SecurityContext ctx, Class rootNodeType,

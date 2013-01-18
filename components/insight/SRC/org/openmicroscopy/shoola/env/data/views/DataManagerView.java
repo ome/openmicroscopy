@@ -39,8 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.ui.DataObjectTransfer;
-
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -337,5 +336,20 @@ public interface DataManagerView
 	 */
 	public CallHandle isLargeImage(SecurityContext ctx, long pixelsID,
 			AgentEventListener observer);
+
+	/**
+	 * Saves the channels. Applies the changes to all the images contained in
+	 * the specified objects. This could be datasets, plates or images.
+	 * 
+	 * @param ctx The security context.
+	 * @param channels The channels to update.
+	 * @param objects The objects to apply the changes to. If the objects are
+	 * datasets, then all the images within the datasets will be updated.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects,
+			AgentEventListener channelDataSaver);
 	
 }

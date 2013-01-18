@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationParentLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ChannelDataSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
@@ -55,6 +56,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.RepositoriesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -319,6 +322,18 @@ class DataManagerViewImpl
 	{
 		BatchCallTree cmd = new PixelsDataLoader(ctx, pixelsID,
 				PixelsDataLoader.SIZE);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#saveChannelData(SecurityContext, List, List,
+	 * AgentEventListener)
+	 */
+	public CallHandle saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects,
+			AgentEventListener observer) {
+		BatchCallTree cmd = new ChannelDataSaver(ctx, channels, objects);
 		return cmd.exec(observer);
 	}
 

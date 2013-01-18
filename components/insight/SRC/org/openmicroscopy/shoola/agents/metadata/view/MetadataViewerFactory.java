@@ -33,6 +33,9 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
+import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * Factory to create {@link MetadataViewer} component.
@@ -98,6 +101,37 @@ public class MetadataViewerFactory
 	{
 		MetadataViewerModel model = new MetadataViewerModel(refObject, index);
 		return singleton.createViewer(model);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer} associated to the object specified.
+	 * 
+	 * @param objectType The type of object to handle.
+	 * @param id The id of the object the component is for.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewerFromId(String objectType, long id)
+	{
+		Iterator<MetadataViewer> i = singleton.viewers.iterator();
+		MetadataViewerComponent viewer;
+		Object ref;
+		String name;
+		long refId;
+		while (i.hasNext()) {
+			viewer = (MetadataViewerComponent) i.next();
+			ref = viewer.getRefObject();
+			name = ref.getClass().getName();
+			if (ref instanceof WellSampleData)
+				name = ImageData.class.getName();
+			if (name.equals(objectType) && ref instanceof DataObject) {
+				refId =  ((DataObject) ref).getId();
+				if (ref instanceof WellSampleData)
+					refId = ((WellSampleData) ref).getImage().getId();
+				if (id == refId) return viewer;
+			}
+				
+		}
+		return null;
 	}
 	
 	/**

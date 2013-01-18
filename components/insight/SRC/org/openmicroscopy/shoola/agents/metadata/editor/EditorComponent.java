@@ -1175,5 +1175,15 @@ class EditorComponent
 		model.setLargeImage(value);
 		
 	}
+	
+    /** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#onUpdatedChannels(List)
+	 */
+	public void onUpdatedChannels(List<ChannelData> channels)
+	{
+		model.updateChannels(channels);
+		view.showChannelData();
+	}
 
 }

@@ -32,8 +32,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -81,7 +81,7 @@ public class ChannelMetadataLoader
         return new BatchCall("Loading channel Metadata: ") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
+                OmeroMetadataService os = context.getMetadataService();
                 List l = os.getChannelsMetadata(ctx, pixelsID);
                 if (userID >= 0) { //load the rendering settings.
                 	OmeroImageService svc = context.getImageService();

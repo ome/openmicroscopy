@@ -46,9 +46,12 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
+import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -58,11 +61,14 @@ import org.openmicroscopy.shoola.env.data.events.ReloadRenderingEngine;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
+
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -463,6 +469,26 @@ public class ImViewerAgent
     }
     
     /**
+     * Updates the view when the channels have been updated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleChannelSavedEvent(ChannelSavedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	List<ChannelData> channels = evt.getChannels();
+    	Iterator<Long> i = evt.getImageIds().iterator();
+    	SecurityContext ctx = evt.getSecurityContext();
+    	ImViewer viewer;
+    	while (i.hasNext()) {
+    		viewer = ImViewerFactory.getImageViewerFromImage(ctx, i.next());
+			if (viewer != null) {
+				viewer.onUpdatedChannels(channels);
+			}
+		}
+    }
+    /**
      * Checks if the passed image is actually opened in the viewer.
      * 
      * @param image The image to handle.
@@ -520,6 +546,7 @@ public class ImViewerAgent
         bus.register(this, ReloadRenderingEngine.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, SelectChannel.class);
+        bus.register(this, ChannelSavedEvent.class);
     }
 
     /**
@@ -586,6 +613,8 @@ public class ImViewerAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
         else if (e instanceof SelectChannel)
 			handleSelectChannel((SelectChannel) e);
+        else if (e instanceof ChannelSavedEvent)
+			handleChannelSavedEvent((ChannelSavedEvent) e);
     }
 
 }
