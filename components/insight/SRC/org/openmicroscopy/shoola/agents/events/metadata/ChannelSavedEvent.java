@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent 
+ * org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *  
+ * 
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -29,53 +29,64 @@ import java.util.List;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
+import pojos.ChannelData;
 
-/** 
- * Event indicating that the objects have been annotated.
+/**
+ * Event posted when the channels have been updated.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @since Beta4.4
+ * @since 4.4
  */
-public class AnnotatedEvent 
+public class ChannelSavedEvent 
 	extends RequestEvent
 {
 
-	/** The data object annotated.*/
-	private List<DataObject> data;
+	/** The modified channels.*/
+	private List<ChannelData> channels;
 	
-	/** Indicates the annotation added or removed.*/
-	private int count;
+	/** The images whose channels have been updated.*/
+	private List<Long> imageIds;
+	
+	/** Indicates the security context.*/
+	private SecurityContext ctx;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param data The annotated object.
-	 * @param count Pass <code>0</code> if no annotation, a positive value if
-	 * annotations are added, negative value if annotations are removed.
+	 * @param channels The modified channels.
+	 * @param imageIds The images whose channels have been updated.
 	 */
-	public AnnotatedEvent(List<DataObject> data, int count)
+	public ChannelSavedEvent(SecurityContext ctx,
+			List<ChannelData> channels, List<Long> imageIds)
 	{
-		this.data = data;
-		this.count = count;
+		this.channels = channels;
+		this.imageIds = imageIds;
+		this.ctx = ctx;
 	}
 	
 	/**
-	 * Returns the annotated object.
+	 * Returns the modified channels.
 	 * 
 	 * @return See above.
 	 */
-	public List<DataObject> getData() { return data; }
+	public List<ChannelData> getChannels() { return channels; }
 	
 	/**
-	 * Returns a positive value if annotations are added, a negative value
-	 * if annotations are removed.
+	 * Returns the images whose channels have been updated.
 	 * 
 	 * @return See above.
 	 */
-	public int getCount() { return count; }
+	public List<Long> getImageIds() { return imageIds; }
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
 	
 }

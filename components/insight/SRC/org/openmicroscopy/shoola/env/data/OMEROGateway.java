@@ -5704,8 +5704,7 @@ class OMEROGateway
 	}
 	
 	//TMP: 
-	Set loadPlateWells(SecurityContext ctx, long plateID, long acquisitionID,
-			long userID)
+	Set loadPlateWells(SecurityContext ctx, long plateID, long acquisitionID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
@@ -5755,6 +5754,46 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
+	
+	Set<WellData> loadPlateWells(SecurityContext ctx, List<Long> plateIDs)
+			throws DSOutOfServiceException, DSAccessException
+		{
+			isSessionAlive(ctx);
+			IQueryPrx service = getQueryService(ctx);
+			try {
+				List<RType> ids = new ArrayList<RType>(plateIDs.size());
+				Iterator<Long> j = plateIDs.iterator();
+				while (j.hasNext())
+					ids.add(omero.rtypes.rlong(j.next()));
+				List results = null;
+				Set<WellData> wells = new HashSet<WellData>();
+				Iterator i;
+				
+				//if no acquisition set. First try to see if we have a id.
+				ParametersI param = new ParametersI();
+				param.add("plateIDs", omero.rtypes.rlist(ids));
+				StringBuilder sb = new StringBuilder();
+				
+				sb.append("select well from Well as well ");
+				sb.append("left outer join fetch well.plate as pt ");
+				sb.append("left outer join fetch well.wellSamples as ws ");
+				sb.append("left outer join fetch ws.plateAcquisition as pa ");
+				sb.append("left outer join fetch ws.image as img ");
+				sb.append("left outer join fetch img.pixels as pix ");
+	            sb.append("left outer join fetch pix.pixelsType as pt ");
+	            sb.append("where well.plate.id in (:plateIDs)");
+	            results = service.findAllByQuery(sb.toString(), param);
+				i = results.iterator();
+				while (i.hasNext()) {
+					wells.add((WellData) 
+							PojoMapper.asDataObject((Well) i.next()));
+				}
+				return wells;
+			} catch (Exception e) {
+				handleException(e, "Cannot load plate");
+			}
+			return new HashSet();
+		}
 	
 	/**
 	 * Loads the acquisition object related to the passed image.
@@ -8278,4 +8317,78 @@ class OMEROGateway
 		return ho.getDetails().getPermissions().canDelete();
 	}
 
+	/**
+	 * Retrieves the dimensions in microns of the specified pixels set.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID  The pixels set ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List<IObject> getPixels(SecurityContext ctx, List<DataObject> objects)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		IPixelsPrx service = getPixelsService(ctx);
+		IContainerPrx container = getPojosService(ctx);
+		IQueryPrx query = getQueryService(ctx);
+		try {
+			DataObject ho = objects.get(0);
+			List<Long> ids = new ArrayList<Long>();
+			Iterator<DataObject> i = objects.iterator();
+			while (i.hasNext()) {
+				ids.add(i.next().getId());
+			}
+			if (ho instanceof DatasetData) {
+				Iterator<Image> j;
+				List<Image> images = container.getImages(
+						convertPojos(ho).getName(), ids, new Parameters());
+				j = images.iterator();
+				ids.clear();
+				while (j.hasNext()) {
+					ids.add(j.next().getId().getValue());
+				}
+			} else if (ho instanceof PlateData) {
+				Set<WellData> wells = loadPlateWells(ctx, ids);
+				ids.clear();
+				Iterator<WellData> k = wells.iterator();
+				WellData well;
+				Iterator<WellSampleData> j;
+				while (k.hasNext()) {
+					well = (WellData) k.next();
+					j = well.getWellSamples().iterator();
+					while (j.hasNext()) {
+						ids.add(j.next().getImage().getId());
+					}
+				}
+			}
+			if (ids.size() == 0) return null;
+			//Now load the pixels.
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("select p from Pixels as p ");
+			buffer.append("left outer join fetch p.pixelsType as pt ");
+			buffer.append("left outer join fetch p.channels as c ");
+			buffer.append("left outer join fetch c.logicalChannel as lc ");
+			buffer.append("left outer join fetch c.statsInfo ");
+			buffer.append("left outer join fetch lc.photometricInterpretation ");
+			buffer.append("left outer join fetch lc.illumination ");
+			buffer.append("left outer join fetch lc.mode ");
+			buffer.append("left outer join fetch lc.contrastMethod ");
+			buffer.append("join fetch p.image as i ");
+			buffer.append("where i.id in (:ids)");
+			ParametersI param = new ParametersI();
+			List<RType> l = new ArrayList<RType>(ids.size());
+			Iterator<Long> j = ids.iterator();
+			while (j.hasNext())
+				l.add(omero.rtypes.rlong(j.next()));
+			param.add("ids", omero.rtypes.rlist(l));
+			
+           return query.findAllByQuery(buffer.toString(), param);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the pixels sets");
+		}
+		return null;
+	}
 }

@@ -308,6 +308,9 @@ class ImViewerModel
     /** The units corresponding to the pixels size.*/
     private UnitsObject refUnits;
     
+    /** The channels.*/
+    private List<ChannelData> channels;
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -814,11 +817,23 @@ class ImViewerModel
 	 */
 	List<ChannelData> getChannelData()
 	{ 
+		if (channels != null) return channels;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return new ArrayList<ChannelData>();
-		return rnd.getChannelData();
+		channels = rnd.getChannelData();
+		return channels;
 	}
 
+	/**
+	 * Sets the channels associated to the image.
+	 * 
+	 * @param channels The channels to set.
+	 */
+	void setChannels(List<ChannelData> channels)
+	{
+		this.channels = channels;
+	}
+	
 	/**
 	 * Returns the <code>ChannelData</code> object corresponding to the
 	 * given index.
@@ -2823,12 +2838,27 @@ class ImViewerModel
 	 * otherwise.
 	 * 
 	 * @param pixelsID The id of the pixels set.
-	 * @param ctx
-	 * @return
+	 * @param ctx The security context.
+	 * @return See above.
 	 */
 	boolean isSame(long pixelsID, SecurityContext ctx)
 	{
 		if (getPixelsID() == pixelsID) //add server check
+			return true;
+		return false;
+	}
+	
+	/** 
+	 * Returns <code>true</code> if it is the same viewer, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param imageID The id of the image.
+	 * @param ctx The security context.
+	 * @return See above.
+	 */
+	boolean isSameImage(long imageID, SecurityContext ctx)
+	{
+		if (getImageID() == imageID) //add server check
 			return true;
 		return false;
 	}

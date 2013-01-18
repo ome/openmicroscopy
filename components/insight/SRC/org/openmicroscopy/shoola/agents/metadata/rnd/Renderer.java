@@ -692,4 +692,12 @@ public interface Renderer
 	/** Posts an event to view the image.*/
 	void viewImage();
 
+	/**
+	 * Invokes when the channels have been modified. Updates the values
+	 * displayed in the measurement tool.
+	 * 
+	 * @param channels The channels to handle.
+	 */
+	void onUpdatedChannels(List<ChannelData> channels);
+
 }
