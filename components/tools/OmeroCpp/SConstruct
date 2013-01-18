@@ -51,7 +51,7 @@ compiler_env["PLATFORM"] = env.get("PLATFORM", "unknown")
 compiler_env["RELEASE"] = (env.isdebug() and "dbg" or "rel")
 compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
 compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
-compiler_env["CPPFLAGS"] = env.get("CPPFLAGS","unknown")
+compiler_env["CXXFLAGS"] = env.get("CXXFLAGS","unknown")
 try:
     compiler_env["CXX"] = env["CC"] # Windows
 except KeyError:
@@ -69,7 +69,7 @@ f.write("""
 #
 # Scons Compile Log : %(timestamp)s
 #
-CPPFLAGS=%(CPPFLAGS)s
+CXXFLAGS=%(CXXFLAGS)s
 CPPPATH=%(CPPPATH)s
 CXX=%(CXX)s
 CXXVERSION=%(CXXVERSION)s

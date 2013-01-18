@@ -130,7 +130,7 @@ else:
 
     skip = False
     ax_pthread_ok = False
-    PTHREAD_CFLAGS = []
+    PTHREAD_CXXFLAGS = []
     PTHREAD_LIBFLAGS = []
 
     if flag == "none":
@@ -139,7 +139,7 @@ else:
 
     elif flag.startswith("-"):
         # AC_MSG_CHECKING([whether pthreads work with $flag])
-        PTHREAD_CFLAGS.append(flag)
+        PTHREAD_CXXFLAGS.append(flag)
 
     elif flag == "pthread-config":
         # AC_CHECK_PROG(ax_pthread_config, pthread-config, yes, no)
@@ -166,12 +166,12 @@ else:
     if not skip:
         if PTHREAD_LIBFLAGS:
             tenv.AppendUnique(LIBFLAGS=PTHREAD_LIBFLAGS)
-        if PTHREAD_CFLAGS:
-            tenv.Append(CXXFLAGS=PTHREAD_CFLAGS)
+        if PTHREAD_CXXFLAGS:
+            tenv.Append(CXXFLAGS=PTHREAD_CXXFLAGS)
         tconf = Configure(tenv, custom_tests = {'CheckPthread' : CheckPthread})
         if tconf.CheckPthread(flag):
             ax_pthread_ok = True
-            Return(["PTHREAD_CFLAGS", "PTHREAD_LIBFLAGS"])
+            Return(["PTHREAD_CXXFLAGS", "PTHREAD_LIBFLAGS"])
         tconf.Finish()
 
     # Various other checks:
@@ -214,4 +214,4 @@ else:
             """
 
         if _flag:
-            PTHREAD_CFLAGS.append(_flag)
+            PTHREAD_CXXFLAGS.append(_flag)
