@@ -38,7 +38,6 @@ TEST(ModelTest, Virtual )
 
 TEST(ModelTest, Toggle )
 {
-  Fixture f;
   PixelsIPtr pix = new PixelsI();
   ASSERT_TRUE( pix->sizeOfSettings() >= 0 );
   pix->unloadCollections();
@@ -47,7 +46,6 @@ TEST(ModelTest, Toggle )
 
 TEST(ModelTest, SimpleCtor )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->isLoaded() );
   ASSERT_TRUE( img->sizeOfPixels() >= 0 );
@@ -55,7 +53,6 @@ TEST(ModelTest, SimpleCtor )
 
 TEST(ModelTest, UnloadedCtor )
 {
-  Fixture f;
   ImageIPtr img = new ImageI(rlong(1),false);
   ASSERT_TRUE( !(img->isLoaded()) );
   ASSERT_THROW( img->sizeOfDatasetLinks(), omero::UnloadedEntityException );
@@ -63,7 +60,6 @@ TEST(ModelTest, UnloadedCtor )
 
 TEST(ModelTest, UnloadCheckPtr )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->isLoaded() );
   // operator bool() is overloaded
@@ -76,7 +72,6 @@ TEST(ModelTest, UnloadCheckPtr )
 
 TEST(ModelTest, UnloadField )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->getDetails() );
   img->unloadDetails();
@@ -85,7 +80,6 @@ TEST(ModelTest, UnloadField )
 
 TEST(ModelTest, Sequences )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_EQ(0, img->sizeOfAnnotationLinks());
   img->unloadAnnotationLinks();
@@ -95,7 +89,6 @@ TEST(ModelTest, Sequences )
 
 TEST(ModelTest, Accessors )
 {
-  Fixture f;
   RStringPtr name = rstring("name");
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( !img->getName() );
@@ -115,14 +108,12 @@ TEST(ModelTest, Accessors )
 
 TEST(ModelTest, UnloadedAccessThrows )
 {
-  Fixture f;
   ImageIPtr unloaded = new ImageI(rlong(1),false);
   ASSERT_THROW( unloaded->getName(), omero::UnloadedEntityException );
 }
 
 TEST(ModelTest, Iterators )
 {
-  Fixture f;
 
   DatasetIPtr d = new DatasetI();
   ImageIPtr image = new ImageI();
@@ -137,7 +128,6 @@ TEST(ModelTest, Iterators )
 
 TEST(ModelTest, ClearSet )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
@@ -149,7 +139,6 @@ TEST(ModelTest, ClearSet )
 
 TEST(ModelTest, UnloadSet )
 {
-  Fixture f;
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->sizeOfPixels() >= 0 );
   img->addPixels( new PixelsI() );
@@ -160,7 +149,6 @@ TEST(ModelTest, UnloadSet )
 
 TEST(ModelTest, RemoveFromSet )
 {
-  Fixture f;
   PixelsIPtr pix = new PixelsI();
   ImageIPtr img = new ImageI();
   ASSERT_TRUE( img->sizeOfPixels() >= 0 );
@@ -174,7 +162,6 @@ TEST(ModelTest, RemoveFromSet )
 
 TEST(ModelTest, LinkGroupAndUser )
 {
-  Fixture f;
 
   ExperimenterIPtr user = new ExperimenterI();
   ExperimenterGroupIPtr group = new ExperimenterGroupI();
@@ -185,7 +172,7 @@ TEST(ModelTest, LinkGroupAndUser )
   user->addGroupExperimenterMapToBoth( map, false );
   group->addGroupExperimenterMapToBoth( map, false );
 
-  typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it; 
+  typedef ExperimenterGroupExperimenterMapSeq::iterator egm_it;
   egm_it beg = user->beginGroupExperimenterMap();
   egm_it end = user->endGroupExperimenterMap();
   int count = 0 ;
@@ -198,7 +185,6 @@ TEST(ModelTest, LinkGroupAndUser )
 
 TEST(ModelTest, LinkViaMap )
 {
-  Fixture f;
   ExperimenterIPtr user = new ExperimenterI();
   user->setFirstName(rstring("test"));
   user->setLastName(rstring("user"));
@@ -216,7 +202,6 @@ TEST(ModelTest, LinkViaMap )
 
 TEST(ModelTest, LinkingAndUnlinking )
 {
-  Fixture f;
 
   DatasetImageLinkIPtr dil;
 
@@ -247,7 +232,6 @@ TEST(ModelTest, LinkingAndUnlinking )
 
 TEST(ModelTest, UnloadedEntityTermination ) {
 
-  Fixture f;
 
   ProjectDatasetLinkIPtr pDL = new ProjectDatasetLinkI();
   ProjectIPtr p = new ProjectI();
@@ -264,7 +248,6 @@ TEST(ModelTest, UnloadedEntityTermination ) {
 
 TEST(ModelTest, PrimaryPixels ) {
 
-    Fixture f;
 
     ImageIPtr i = new ImageI();
 
