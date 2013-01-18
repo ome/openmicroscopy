@@ -1,11 +1,7 @@
 #include <list>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <IceUtil/Handle.h>
 #include <omero/fixture.h>
 #include <omero/util/concurrency.h>
 
@@ -15,11 +11,7 @@ using namespace std;
 
 class BaseThread;
 
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<BaseThread> BaseThreadPtr;
-#else
 typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
-#endif
 
 class BaseThread : public IceUtil::Thread {
 public:
