@@ -7,6 +7,7 @@
 #
 
 import sys, os, glob, exceptions, subprocess
+import optparse
 from SCons.Script.SConscript import *
 from SCons.Script import AddOption, GetOption
 from SCons.SConf import *
@@ -139,7 +140,15 @@ class OmeroEnvironment(SConsEnvironment):
         except KeyError:
             tools = ['default', 'packaging']
 
-        AddOption('--release',
+        # omero_quiet is for internal use in order to
+        # quiet down this instance for re-use.
+        try:
+            self.omero_quiet = kwargs.pop("omero_quiet")
+        except KeyError:
+            self.omero_quiet = False
+
+        try:
+            AddOption('--release',
                   dest='release',
                   type='string',
                   nargs=1,
@@ -147,13 +156,15 @@ class OmeroEnvironment(SConsEnvironment):
                   metavar='RELEASE',
                   help='Release version [debug (default) or Os]')
 
-        AddOption('--arch',
+            AddOption('--arch',
                   dest='arch',
                   type='string',
                   nargs=1,
                   action='store',
                   metavar='ARCH',
                   help='Architecture to build for [x86, x64, or detect (default)]')
+        except optparse.OptionConflictError, e:
+            pass  # These are global so this has been used twice
 
         # Very odd error: using ENV = os.environ, rather than ENV = dict(os.environ)
         # causes *sub*processes to receive a fresh environment with registry values
@@ -285,7 +296,8 @@ class OmeroEnvironment(SConsEnvironment):
                 import warnings
                 warnings.warn("Unknown release value. Using 'debug'")
 
-        print "Debug setting: %s (%s)" % (self._isdbg, RELEASE)
+        if not self.omero_quiet:
+            print "Debug setting: %s (%s)" % (self._isdbg, RELEASE)
         return self._isdbg
 
 
@@ -327,7 +339,8 @@ class OmeroEnvironment(SConsEnvironment):
                 import platform
                 self._bit64 = platform.architecture()[0] == "64bit"
 
-        print "64-Bit build: %s (%s)" % (self._bit64, ARCH)
+        if not self.omero_quiet:
+            print "64-Bit build: %s (%s)" % (self._bit64, ARCH)
         return self._bit64
 
     def icelibs(self):
