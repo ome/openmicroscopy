@@ -106,55 +106,28 @@ import pojos.GroupData;
  * </small>
  * @since 3.0-Beta4
  */
-class ImporterUI 
-	extends TopWindow
+class ImporterUI extends TopWindow
 {
+
+	private static final String TEXT_TITLE_DESCRIPTION =
+			"Select data to import and monitor imports.";
 
 	/** Indicates the percentage of the screen to use to display the viewer. */
 	private static final double SCREEN_RATIO = 0.8;
 	
 	/** The window's title. */
-	private static final String TITLE = "Import Data";
+	private static final String TEXT_TITLE = "Import Data";
 	
 	/** The text displayed to notify the user to refresh. */
-	private static final String	REFRESH_TXT = "New containers added. " +
-			"Please Refresh";
+	private static final String	TEXT_REFRESH =
+			"New containers added. Please Refresh";
 	
 	/** Identifies the style of the document.*/
 	private static final String STYLE = "StyleName";
 	
 	/** The maximum number of characters in the debug text.*/
 	private static final int 	MAX_CHAR = 2000;
-	
-	/** Reference to the <code>Group Private</code> icon. */
-	private static final Icon GROUP_PRIVATE_ICON;
-	
-	/** Reference to the <code>Group RWR---</code> icon. */
-	private static final Icon GROUP_READ_ONLY_ICON;
-	
-	/** Reference to the <code>Group RWRA--</code> icon. */
-	private static final Icon GROUP_READ_LINK_ICON;
-	
-	/** Reference to the <code>Group RWRW--</code> icon. */
-	private static final Icon GROUP_READ_WRITE_ICON;
-	
-	/** Reference to the <code>Group</code> icon. */
-	private static final Icon GROUP_PUBLIC_READ_ICON;
-	
-	/** Reference to the <code>Group</code> icon. */
-	private static final Icon GROUP_PUBLIC_READ_WRITE_ICON;
-	
-	static { 
-		IconManager icons = IconManager.getInstance();
-		GROUP_PRIVATE_ICON = icons.getIcon(IconManager.PRIVATE_GROUP);
-		GROUP_READ_ONLY_ICON = icons.getIcon(IconManager.READ_GROUP);
-		GROUP_READ_LINK_ICON = icons.getIcon(IconManager.READ_LINK_GROUP);
-		GROUP_READ_WRITE_ICON = icons.getIcon(IconManager.READ_WRITE_GROUP);
-		GROUP_PUBLIC_READ_ICON = icons.getIcon(IconManager.PUBLIC_GROUP);
-		GROUP_PUBLIC_READ_WRITE_ICON = icons.getIcon(
-				IconManager.PUBLIC_GROUP);
-	}
-	
+
 	/** Reference to the model. */
 	private ImporterModel	model;
 	
@@ -187,31 +160,6 @@ class ImporterUI
     
     /** The debug text.*/
     private JTextPane	debugTextPane;
-	
-    /**
-     * Returns the icon associated to the group.
-     * 
-     * @param group The group to handle.
-     * @return See above.
-     */
-    private Icon getGroupIcon(GroupData group)
-    {
-    	switch (group.getPermissions().getPermissionsLevel()) {
-	    	case GroupData.PERMISSIONS_PRIVATE:
-	    		return GROUP_PRIVATE_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ:
-	    		return GROUP_READ_ONLY_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_LINK:
-	    		return GROUP_READ_LINK_ICON;
-	    	case GroupData.PERMISSIONS_GROUP_READ_WRITE:
-	    		return GROUP_READ_WRITE_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ:
-	    		return GROUP_PUBLIC_READ_ICON;
-	    	case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
-	    		return GROUP_PUBLIC_READ_WRITE_ICON;
-		}
-    	return null;
-    }
     
 	/**
 	 * Creates the component hosting the debug text.
@@ -259,8 +207,6 @@ class ImporterUI
     private void initMenuItem(JMenuItem item)
     {
         item.setBorder(null);
-        //item.setFont((Font) ImporterAgent.getRegistry().lookup(
-        //              "/resources/fonts/Labels"));
     }
     
     /**
@@ -273,30 +219,30 @@ class ImporterUI
      */
     private void showPersonalMenu(Component c, Point p)
     {
-    	if (p == null) return;
-        if (c == null) throw new IllegalArgumentException("No component.");
-        //if (p == null) throw new IllegalArgumentException("No point.");
-        //if (personalMenu == null) {
-        	personalMenu = new JPopupMenu();
-        	personalMenu.setBorder(
-        			BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        	List<GroupSelectionAction> l = controller.getUserGroupAction();
-        	Iterator<GroupSelectionAction> i = l.iterator();
-        	GroupSelectionAction a;
-        	JCheckBoxMenuItem item;
-        	ButtonGroup buttonGroup = new ButtonGroup();
-        	//ExperimenterData exp = ImporterAgent.getUserDetails();
-        	long id = model.getGroupId();//exp.getDefaultGroup().getId();
-        	while (i.hasNext()) {
-				a = i.next();
-				item = new JCheckBoxMenuItem(a);
-				item.setEnabled(true);
-				item.setSelected(a.isSameGroup(id));
-				initMenuItem(item);
-				buttonGroup.add(item);
-				personalMenu.add(item);
-			}
-        //}
+    	if (p == null)
+    		return;
+    	
+        if (c == null)
+        	throw new IllegalArgumentException("No component.");
+        
+    	personalMenu = new JPopupMenu();
+    	personalMenu.setBorder(
+    			BorderFactory.createBevelBorder(BevelBorder.RAISED));
+    	List<GroupSelectionAction> l = controller.getUserGroupAction();
+    	Iterator<GroupSelectionAction> i = l.iterator();
+    	GroupSelectionAction a;
+    	JCheckBoxMenuItem item;
+    	ButtonGroup buttonGroup = new ButtonGroup();
+    	long id = model.getGroupId();
+    	while (i.hasNext()) {
+			a = i.next();
+			item = new JCheckBoxMenuItem(a);
+			item.setEnabled(true);
+			item.setSelected(a.isSameGroup(id));
+			initMenuItem(item);
+			buttonGroup.add(item);
+			personalMenu.add(item);
+		}
         personalMenu.show(c, p.x, p.y);
     }
     
@@ -328,8 +274,7 @@ class ImporterUI
 		container.setLayout(new BorderLayout(0, 0));
 		
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
-				"and monitor imports.", 
+		TitlePanel tp = new TitlePanel(TEXT_TITLE, "", TEXT_TITLE_DESCRIPTION, 
 				icons.getIcon(IconManager.IMPORT_48));
 		JXPanel p = new JXPanel();
 		JXPanel lp = new JXPanel();
@@ -358,9 +303,7 @@ class ImporterUI
 	private void initComponents()
 	{
 		messageLabel = new JXLabel();
-		//IconManager icons = IconManager.getInstance();
-		//messageLabel.setIcon(icons.getIcon(IconManager.REFRESH));
-		messageLabel.setText(REFRESH_TXT);
+		messageLabel.setText(TEXT_REFRESH);
 		messageLabel.setVisible(false);
 		messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD));
 		controlsBar = buildControls();
@@ -425,11 +368,10 @@ class ImporterUI
     /** Packs the window and resizes it if the screen is too small. */
 	private void packWindow()
 	{
-		//pack();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension size = getSize();
-		int width = (int) (screenSize.width);//*SCREEN_RATIO);
-		int height = (int) (screenSize.height);//*SCREEN_RATIO);
+		int width = (int) (screenSize.width);
+		int height = (int) (screenSize.height);
 		int w = size.width-10;
 		int h = size.height-10;
 		boolean reset = false;
@@ -448,7 +390,7 @@ class ImporterUI
 	/** Creates a new instance. */
 	ImporterUI()
 	{
-		super(TITLE);
+		super(TEXT_TITLE);
 	}
 
 	/**
@@ -482,13 +424,11 @@ class ImporterUI
 	void addComponent(ImportDialog chooser)
 	{
 		if (chooser == null) return;
-		//if (model.isMaster()) chooser.addToolBar(buildToolBar());
-		chooser.addToolBar(buildToolBar());
 		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 		//if in debug mode insert the debug section
-		Boolean b = (Boolean) 
+		Boolean debugEnabled = (Boolean) 
 			ImporterAgent.getRegistry().lookup("/options/Debug");
-		if (b != null && b.booleanValue()) {
+		if (debugEnabled != null && debugEnabled.booleanValue()) {
 			IconManager icons = IconManager.getInstance();
 			ClosableTabbedPaneComponent c = new ClosableTabbedPaneComponent(1, 
 					"Debug Text", icons.getIcon(IconManager.DEBUG));
@@ -518,19 +458,12 @@ class ImporterUI
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		List<FileImportComponent> l;
 		ImporterUIElement element = getSelectedPane();
+		if(element == null)
+			return null;
+		
 		l = element.getMarkedFiles();
 		if (l != null && l.size() > 0)
 			list.addAll(l);
-		/*
-		for (int i = 0; i < comps.length; i++) {
-			if (comps[i] instanceof ImporterUIElement) {
-				element = (ImporterUIElement) comps[i];
-				l = element.getMarkedFiles();
-				if (l != null && l.size() > 0)
-					list.addAll(l);
-			}
-		}
-		*/
 		return list;
 	}
 	
@@ -546,7 +479,6 @@ class ImporterUI
 		String title = "Import #"+total;
 		ImporterUIElement element = new ImporterUIElement(controller, model,
 				uiElementID, n, title, object);
-		//IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
@@ -615,7 +547,6 @@ class ImporterUI
 			}
 		}
 		if (startImport) {
-			//tabs.setIconAt(index, busyIcon);
 			Icon icon = element.startImport(tabs);
 			if (index >=0) tabs.setIconAt(index, icon);
 		}
@@ -628,7 +559,7 @@ class ImporterUI
 	 */
 	ImporterUIElement getSelectedPane()
 	{
-		if (tabs.getSelectedIndex() > 0)
+		if (tabs.getSelectedIndex() > 0 && tabs.getSelectedComponent() instanceof ImporterUIElement)
 			return (ImporterUIElement) tabs.getSelectedComponent();
 		return null;
 	}
@@ -702,15 +633,6 @@ class ImporterUI
 	 */
 	boolean hasFailuresToSend()
 	{
-		/*
-		Iterator<ImporterUIElement> i = uiElements.values().iterator();
-		while (i.hasNext()) {
-			if (i.next().hasFailuresToSend())
-				return true;
-		}
-		return false;
-		*/
-		
 		return hasSelectedFailuresToSend();
 	}
 	
@@ -757,39 +679,6 @@ class ImporterUI
 			//ignore
 		}
 	}
-	
-    /** 
-     * Builds the toolbar when the importer is the entry point.
-     * 
-     * @return See above.
-     */
-    JComboBox buildToolBar()
-    {
-    	Collection set = ImporterAgent.getAvailableUserGroups();
-        if (set == null || set.size() <= 1) return null;
-        ViewerSorter sorter = new ViewerSorter();
-        List sorted = sorter.sort(set);
-        JComboBoxImageObject[] objects = new JComboBoxImageObject[sorted.size()];
-        Iterator i = sorted.iterator();
-        int index = 0;
-        GroupData g;
-        long gid = model.getGroupId();
-        int selected = 0;
-        while (i.hasNext()) {
-        	g = (GroupData) i.next();
-        	if (g.getId() == gid) selected = index;
-        	objects[index] = new JComboBoxImageObject(g, getGroupIcon(g));
-			index++;
-		}
-        JComboBox groups = new JComboBox(objects);
-        groups.setSelectedIndex(selected);
-        JComboBoxImageRenderer rnd = new JComboBoxImageRenderer();
-        groups.setRenderer(rnd);
-        rnd.setPreferredSize(new Dimension(200, 130));
-        groups.setActionCommand(""+ImporterControl.GROUP_BUTTON);
-        groups.addActionListener(controller);
-    	return groups;
-    }
     
     /**
      * Returns <code>true</code> if the selected pane has failures to send,
