@@ -905,7 +905,7 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		if (networkup) return false;
+		if (networkup) return true;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
@@ -1901,10 +1901,9 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private synchronized boolean needDefault(long pixelsID, Object prx)
+	private synchronized void needDefault(long pixelsID, Object prx)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		boolean b = true;
 		try {
 			if (prx instanceof ThumbnailStorePrx) {
 				ThumbnailStorePrx service = (ThumbnailStorePrx) prx;
@@ -1920,10 +1919,9 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
-			b = false;
+			handleConnectionException(e);
 			handleException(e, "Cannot set the rendering defaults.");
 		}
-		return b;
 	}
 	
 	/**
@@ -3200,10 +3198,7 @@ class OMEROGateway
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
-			if (!needDefault(pixelsID, service)) {
-				closeService(ctx, service);
-				throw new RenderingServiceException("Cannot create thumbnail");
-			}
+			needDefault(pixelsID, service);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
 				RenderingDef def = getRenderingDef(ctx, pixelsID, userID);
@@ -3263,10 +3258,7 @@ class OMEROGateway
 		ThumbnailStorePrx service = null;
 		try {
 			service = getThumbnailService(ctx, 1);
-			if (!needDefault(pixelsID, service)) {
-				closeService(ctx, service);
-				throw new RenderingServiceException("Cannot create thumbnail");
-			}
+			needDefault(pixelsID, service);
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
@@ -3379,14 +3371,7 @@ class OMEROGateway
 		RenderingEnginePrx service = getRenderingService(ctx, pixelsID);
 		try {
 			service.lookupPixels(pixelsID);
-			if (!needDefault(pixelsID, service)) {
-				if (service != null) {
-					try {
-						service.close();
-					} catch (Exception e) {}
-				}
-				return null;
-			}
+			needDefault(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
