@@ -232,7 +232,7 @@ CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
         IF eid = 0 OR eid IS NULL THEN
             SELECT INTO eid ome_nextval(''seq_event'');
             INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
-                SELECT eid, -52, ''TRIGGERED'', clock_timestmap(), 0, 0, 0, 0;
+                SELECT eid, -52, ''TRIGGERED'', clock_timestamp(), 0, 0, 0, 0;
         END IF;
         RETURN eid;
     END;'
