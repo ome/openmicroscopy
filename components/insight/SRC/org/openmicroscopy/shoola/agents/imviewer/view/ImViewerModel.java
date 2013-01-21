@@ -311,6 +311,9 @@ class ImViewerModel
     /** The channels.*/
     private List<ChannelData> channels;
     
+    /** The display mode.*/
+    private int displayMode;
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -497,6 +500,10 @@ class ImViewerModel
 		selectedUserID = -1;
 		lastProjTime = -1;
 		lastProjRef = null;
+		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
 	}
 	
 	/** Initializes the {@link #metadataViewer}. */
@@ -2911,17 +2918,23 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getDisplayMode()
+	int getDisplayMode() { return displayMode; }
+    
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
 	{
-		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
-    			LookupNames.DATA_DISPLAY);
-		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
-		switch (value.intValue()) {
+		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
-			return value.intValue();
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
-		return LookupNames.EXPERIMENTER_DISPLAY;
 	}
-    
+
 }

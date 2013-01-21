@@ -41,7 +41,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.ExperimenterData;
@@ -95,6 +98,9 @@ class ImporterModel
 	/** Returns <code>true</code> if it is opened as a standalone app.*/
 	private boolean master;
 	
+	/** The display mode.*/
+    private int displayMode;
+    
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -102,6 +108,10 @@ class ImporterModel
 		experimenterId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
+		Integer value = (Integer) ImporterAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
 	}
 
 	/**
@@ -371,7 +381,7 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		DataObjectCreator loader = new DataObjectCreator(component, ctx, 
+		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
 		loader.load();
 	}
@@ -387,5 +397,29 @@ class ImporterModel
     	Collection l = ImporterAgent.getAvailableUserGroups();
     	return (l.size() <= 1);
     }
+
+    /**
+	 * Returns the display mode.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
+
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+	}
 
 }
