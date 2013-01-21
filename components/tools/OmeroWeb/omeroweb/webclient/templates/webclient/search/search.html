@@ -110,7 +110,7 @@
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     $("#filtersearch").show();
-                    table_selection_changed();
+                    OME.table_selection_changed();
                     return false;
                 });
 
@@ -118,7 +118,7 @@
             {% if init.query %}
                 $("div#content_details").load('{% url load_searching "form" %}?query={{ init.query }}');
                 $("#filtersearch").show();
-                table_selection_changed();
+                OME.table_selection_changed();
                 var query_string = "{{ init.query }}";
                 query_string = query_string.replace("%20", " ");
                 $("input[name='query']").val(query_string);
@@ -134,7 +134,7 @@
                     var delimiter = $("input[name='delimiter']:checked").val();
                     var lines = batch_query.split('\n');
                     var regex = new RegExp("\\w+D\\d+D\\d+".replace(/D/g, delimiter));
-                    for (i in lines) {
+                    for (var i=0; i<lines.length; i++) {
                         if (!regex.test(lines[i])) {
                             alert("Format error at line " + i + ": \n\"" + lines[i] + "\"\n\nDid you select the correct delimiter?");
                             return false;
@@ -144,10 +144,10 @@
                     $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                     $("div#content_details").load('{% url load_searching %}', data);
                     $("#filtersearch").show();
-                    table_selection_changed()
+                    OME.table_selection_changed()
                     return false;
                 });
-                table_selection_changed();     // clear selection (hides acquisition & preview tabs)
+                OME.table_selection_changed();     // clear selection (hides acquisition & preview tabs)
         })
     </script>
 
