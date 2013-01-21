@@ -6307,6 +6307,14 @@ class _ImageWrapper (BlitzObjectWrapper):
             pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
 
+    def getZoomLevelScaling(self):
+        """ Temporary hard-coded example of what's needed for Big Images in FS. See #9813 """
+        if ".svs" in self.getName():
+            return {0: 1.0,
+                    1: 0.25,
+                    2: 0.062489446727078291,
+                    3: 0.031237687848258006};
+
     def setActiveChannels(self, channels, windows=None, colors=None):
         """
         Sets the active channels on the rendering engine.
