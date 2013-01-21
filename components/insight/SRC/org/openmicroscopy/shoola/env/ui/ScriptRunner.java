@@ -144,15 +144,11 @@ public class ScriptRunner
      */
     public void handleResult(Object result)
     { 
-    	//if (result == null) return;
-    	System.err.println(result);
-    	if (result instanceof Boolean) {
-    		Boolean b = (Boolean) result;
-    		if (!b.booleanValue())
-    			onException(MESSAGE_RUN, null); 
+    	if (Boolean.valueOf(false).equals(result)) {
+    		onException(MESSAGE_RUN, null); 
     	} else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
-    	} 
+    	}
     }
 	
 }
