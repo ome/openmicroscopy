@@ -4642,4 +4642,19 @@ class TreeViewerComponent
 	 * @see TreeViewer#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setDisplayMode(int)
+	 */
+	public void setDisplayMode(int index)
+	{
+		if (model.getState() != READY || model.getDisplayMode() == index)
+			return;
+		
+		model.setDisplayMode(index);
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) browser.activate();
+	}
+
 }

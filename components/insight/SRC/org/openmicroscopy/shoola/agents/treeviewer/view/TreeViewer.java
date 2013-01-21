@@ -1147,4 +1147,11 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	int getDisplayMode();
+
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param index The mode to set.
+	 */
+	void setDisplayMode(int index);
 }
