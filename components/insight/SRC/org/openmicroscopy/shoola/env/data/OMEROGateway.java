@@ -3996,9 +3996,10 @@ class OMEROGateway
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
-		//
 		if (of == null) return null;
-		size = of.getSize().getValue();
+		if (size <= 0) {
+			if (of != null) size = of.getSize().getValue();
+		}
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
