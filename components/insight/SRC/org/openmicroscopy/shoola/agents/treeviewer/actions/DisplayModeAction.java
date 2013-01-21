@@ -104,7 +104,7 @@ public class DisplayModeAction
     protected void onBrowserStateChange(Browser browser)
     {
         if (browser == null) return;
-        setEnabled(model.getState() == Browser.READY);
+        setEnabled(model.getState() == TreeViewer.READY);
     }
 	/**
      * Creates a new instance.
