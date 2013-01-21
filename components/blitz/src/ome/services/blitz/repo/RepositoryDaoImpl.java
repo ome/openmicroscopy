@@ -497,44 +497,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ServiceFactory sf, SqlAction sql,
             String repoUuid, CheckedPath checked, String mimetype) {
 
-        final File file = checked.file;
-
-        ome.model.core.OriginalFile ofile =
-                new ome.model.core.OriginalFile();
-
-        // Only non conditional properties.
-        ofile.setName(checked.getName());
-        ofile.setMimetype(mimetype); // null takes DB default
-
-        // This first case deals with registering the repos themselves.
-        if (checked.isRoot) {
-            ofile.setPath(file.getParent());
-        } else { // Path should be relative to root?
-            ofile.setPath(checked.getRelativePath());
-        }
-
-        final boolean mimeDir = PublicRepositoryI.DIRECTORY_MIMETYPE.equals(mimetype);
-        final boolean actualDir = file.isDirectory();
-
-        if (file.exists() && !actualDir) {
-            ofile.setMtime(new Timestamp(file.lastModified()));
-            ofile.setSha1(checked.sha1());
-            ofile.setSize(file.length());
-        } else {
-            ofile.setMtime(new Timestamp(System.currentTimeMillis()));
-            ofile.setSha1("");
-            ofile.setSize(0L);
-            if (actualDir && !mimeDir) {
-                throw new ome.conditions.ValidationException(
-                        "File is a directory but mimetype is: " + mimetype);
-            }
-        }
-        // atime/ctime??
+        ome.model.core.OriginalFile ofile = checked.asOriginalFile(mimetype);
 
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         sql.setFileRepo(ofile.getId(), repoUuid);
 
-        if (mimeDir) {
+        if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
             internalMkdir(checked.file);
         }
 

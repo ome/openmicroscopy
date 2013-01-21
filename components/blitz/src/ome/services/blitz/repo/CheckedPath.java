@@ -23,6 +23,7 @@ import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 
 import java.io.File;
+import java.sql.Timestamp;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -263,5 +264,60 @@ public class CheckedPath {
         sb.append(getName());
         sb.append(")");
         return sb.toString();
+    }
+
+    /**
+     * Creates an {@link ome.model.core.OriginalFile} instance for the given
+     * {@link CheckedPath} even if it doesn't exist. If it does exist,
+     * @param mimetype
+     * @return
+     */
+    public ome.model.core.OriginalFile asOriginalFile(String mimetype) {
+
+        ome.model.core.OriginalFile ofile =
+                new ome.model.core.OriginalFile();
+
+        // Only non conditional properties.
+        ofile.setName(getName());
+        ofile.setMimetype(mimetype); // null takes DB default
+
+        // This first case deals with registering the repos themselves.
+        if (isRoot) {
+            ofile.setPath(file.getParent());
+        } else { // Path should be relative to root?
+            ofile.setPath(getRelativePath());
+        }
+
+        final boolean mimeDir = PublicRepositoryI.DIRECTORY_MIMETYPE.equals(mimetype);
+        final boolean actualDir = file.isDirectory();
+
+        if (file.exists()) {
+            ofile.setMtime(new Timestamp(file.lastModified()));
+            if (actualDir) {
+                // Directories don't have these. TODO: model as a subclass?
+                ofile.setSha1("");
+                ofile.setSize(0L);
+                ofile.setMimetype(PublicRepositoryI.DIRECTORY_MIMETYPE);
+                if (mimetype != null && !mimeDir) {
+                    // This is a directory, but the user has requested something
+                    // else. Throw.
+                    if (actualDir && !mimeDir) {
+                        throw new ome.conditions.ValidationException(
+                                "File is a directory but mimetype is: " + mimetype);
+                    }
+                }
+            } else {
+                ofile.setSha1(sha1());
+                ofile.setSize(file.length());
+            }
+        } else {
+            // File doesn't exist, therefore we know nothing
+            ofile.setSha1("");
+            ofile.setSize(0L);
+        }
+
+        // TODO atime/ctime??
+
+        return ofile;
     }
 }

@@ -322,6 +322,14 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             return ofile;
         }
 
+        if (checked.file.exists()) {
+            omero.grid.UnregisteredFileException ufe
+                = new omero.grid.UnregisteredFileException();
+            ofile = (OriginalFile) new IceMapper().map(checked.asOriginalFile(null));
+            ufe.file = ofile;
+            throw ufe;
+        }
+
         ofile = repositoryDao.register(repoUuid, checked, null, curr);
         checked.setId(ofile.getId().getValue());
         return ofile;

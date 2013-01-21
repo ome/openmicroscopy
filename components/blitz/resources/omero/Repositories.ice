@@ -24,6 +24,26 @@ module omero {
     module grid {
 
         /**
+         * Base repository exception.
+         */
+        exception RepositoryException extends ServerError {
+
+        };
+
+        /**
+         * Specifies that a file is located at the given location
+         * that is not otherwise known by the repository. A
+         * subsequent call to [Repository::register] will create
+         * the given file. The mimetype field of the file may or
+         * may not be set. If it is set, clients are suggested to
+         * either omit the mimetype argument to the register method
+         * or to pass the same value.
+         */
+        exception UnregisteredFileException extends RepositoryException {
+            omero::model::OriginalFile file;
+        };
+
+        /**
          * Client-accessible interface representing a single mount point on the server-side.
          **/
         ["ami"] interface Repository {

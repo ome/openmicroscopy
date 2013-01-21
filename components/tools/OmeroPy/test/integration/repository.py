@@ -529,6 +529,7 @@ class TestDbSync(AbstractRepoTest):
         uuid = self.uuid()
         filename = uuid + "/file.txt"
         fooname = uuid + "/foo.txt"
+        mydir = uuid + "/mydir"
         mrepo = self.getManagedRepo()
 
         mrepo.makeDir(uuid, True)
@@ -540,7 +541,23 @@ class TestDbSync(AbstractRepoTest):
         self.assertEquals(['/%s/file.txt' % uuid], mrepo.list("./"+uuid))
 
         # If we try to create such a file, we should receive an exception
-        self.createFile(mrepo, fooname)
+        try:
+            self.createFile(mrepo, fooname)
+            self.fail("Should have thrown")
+        except omero.grid.UnregisteredFileException, ufe:
+            file = mrepo.register(fooname, None)
+            self.assertEquals(file.path, ufe.file.path)
+            self.assertEquals(file.name, ufe.file.name)
+            self.assertEquals(file.size, ufe.file.size)
+
+        # And if the file is a Dir, we should have a mimetype
+        self.assertPasses(self.raw("mkdir", ["-p", mydir], client=self.root))
+        try:
+            self.createFile(mrepo, mydir)
+            self.fail("Should have thrown")
+        except omero.grid.UnregisteredFileException, ufe:
+            file = mrepo.register(mydir, None)
+            self.assertEquals(file.mimetype, ufe.file.mimetype)
 
 
 if __name__ == '__main__':

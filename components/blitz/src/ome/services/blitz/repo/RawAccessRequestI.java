@@ -143,6 +143,20 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                 CheckedPath checked = servant.checkPath(arg, __current);
                 FileUtils.touch(checked.file);
             }
+        } else if ("mkdir".equals(command)) {
+            boolean parents = false;
+            for (String arg: args) {
+                if ("-p".equals(arg)) {
+                    parents = true;
+                    continue;
+                }
+                CheckedPath checked = servant.checkPath(arg, __current);
+                if (parents) {
+                    FileUtils.forceMkdir(checked.file);
+                } else {
+                    checked.file.mkdir();
+                }
+            }
         } else {
             throw new omero.ApiUsageException(null, null,
                     "Unknown command: " + command);
