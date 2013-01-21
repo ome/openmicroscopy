@@ -318,13 +318,20 @@ jQuery._WeblitzViewport = function (container, server, options) {
           showLoading();
           rcb();
           // if the url query had x and y, pass these to setUpTiles() so we can recenter
-          var cx = _this.loadedImg.current.query.x;
-          var cy = _this.loadedImg.current.query.y;
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref, cx, cy);
+          var cx = _this.loadedImg.current.query.x,
+            cy = _this.loadedImg.current.query.y,
+            img_w = _this.loadedImg.size.width,
+            img_h = _this.loadedImg.size.height,
+            tile_w = _this.loadedImg.tile_size.width,
+            tile_h = _this.loadedImg.tile_size.height,
+            init_zoom = _this.loadedImg.init_zoom,
+            zoom_levels = _this.loadedImg.levels,
+            zoomLevelScaling = _this.loadedImg.zoomLevelScaling;  // may be 'undefined'
+          _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, href, thref, cx, cy, zoomLevelScaling);
       } else {
-	  if (href != _this.viewportimg.attr('src')) {
+    if (href != _this.viewportimg.attr('src')) {
           showLoading();
-	  }
+    }
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);
       }
