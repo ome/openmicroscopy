@@ -23,22 +23,20 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
-import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 /**
  * Action to toggle between the view per users and view per group.
  *
