@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -189,6 +188,9 @@ abstract class DataBrowserModel
     /** The security context.*/
     protected SecurityContext ctx;
     
+	/** The display mode.*/
+    protected int displayMode;
+    
 	/**
 	 * Indicates to load all annotations available if the user can annotate
 	 * and is an administrator/group owner or to only load the user's
@@ -245,6 +247,10 @@ abstract class DataBrowserModel
     	sorter = new ViewerSorter();
     	state = DataBrowser.NEW;
     	this.ctx = ctx;
+    	Integer value = (Integer) DataBrowserAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
     }
     
 	/**
@@ -915,19 +921,25 @@ abstract class DataBrowserModel
 	 * 
 	 * @return See above.
 	 */
-	int getDisplayMode()
+	int getDisplayMode() { return displayMode; }
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
 	{
-		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
-    			LookupNames.DATA_DISPLAY);
-		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
-		switch (value.intValue()) {
+		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
-			return value.intValue();
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
-		return LookupNames.EXPERIMENTER_DISPLAY;
 	}
-	
+
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.

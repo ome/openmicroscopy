@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
@@ -77,7 +78,7 @@ public class DataLoader
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
 	 */
-	public DataLoader(Importer viewer, SecurityContext ctx, Class rootType,
+	public DataLoader(Importer viewer, SecurityContext ctx, Class<?> rootType,
 			boolean refreshImport, boolean changeGroup)
 	{
 		super(viewer, ctx);
@@ -95,8 +96,11 @@ public class DataLoader
 	 */
 	public void load()
 	{
+		long id = -1;
+		if (viewer.getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY)
+			id = getCurrentUserID();
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				getCurrentUserID(), this);	
+				id, this);
 	}
 	
 	/** 
