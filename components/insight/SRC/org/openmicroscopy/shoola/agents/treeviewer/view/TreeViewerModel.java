@@ -1453,6 +1453,7 @@ class TreeViewerModel
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
 				displayMode = value;
+				break;
 			default:
 				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
