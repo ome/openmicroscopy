@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -2493,6 +2494,7 @@ class TreeViewerComponent
 		db.addPropertyChangeListener(controller);
 		//db.activate();
 		view.displayBrowser(db);
+		db.setDisplayMode(model.getDisplayMode());
 		db.activate();
 		model.setDataViewer(db);
 	}
@@ -2624,6 +2626,7 @@ class TreeViewerComponent
 			db.addPropertyChangeListener(controller);
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
+			db.setDisplayMode(model.getDisplayMode());
 			db.activate();
 		}
 		model.setDataViewer(db);
@@ -2799,6 +2802,7 @@ class TreeViewerComponent
 			db.addPropertyChangeListener(controller);
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
+			db.setDisplayMode(model.getDisplayMode());
 			db.activate();
 			model.setDataViewer(db);
 		}
@@ -2908,6 +2912,7 @@ class TreeViewerComponent
 		db.addPropertyChangeListener(controller);
 		view.removeAllFromWorkingPane();
 		view.displayBrowser(db);
+		db.setDisplayMode(model.getDisplayMode());
 		db.activate();
 		model.setDataViewer(db);
 		model.setState(READY);
@@ -2961,7 +2966,7 @@ class TreeViewerComponent
 		if (db != null) {
 			db.addPropertyChangeListener(controller);
 			view.removeAllFromWorkingPane();
-			
+			db.setDisplayMode(model.getDisplayMode());
 			db.activate();
 			view.displayBrowser(db);
 			model.setDataViewer(db);
@@ -3051,6 +3056,7 @@ class TreeViewerComponent
 								parent.getUserObject(), leaves, parent);
 						if (db == null) return;
 						db.addPropertyChangeListener(controller);
+						db.setDisplayMode(model.getDisplayMode());
 						db.activate();
 						view.displayBrowser(db);
 						//db.activate();
@@ -4652,6 +4658,8 @@ class TreeViewerComponent
 		model.setDisplayMode(index);
 		Browser browser = model.getSelectedBrowser();
 		if (browser != null) browser.reActivate();
+		TreeViewerAgent.getRegistry().getEventBus().post(
+				new DisplayModeEvent(model.getDisplayMode()));
 	}
 
 }

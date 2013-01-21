@@ -2935,6 +2935,10 @@ class ImViewerModel
 			default:
 				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
+		if (containers != null) {
+			containers.clear();
+			containers = null;
+		}
 	}
 
 }

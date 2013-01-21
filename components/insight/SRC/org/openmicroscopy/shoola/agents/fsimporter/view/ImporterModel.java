@@ -165,10 +165,11 @@ class ImporterModel
 	 * Creates a new instance.
 	 *
 	 * @param groupID The id to the group selected for the current user.
+	 * @param displayMode Group/Experimenter view.
 	 */
-	ImporterModel(long groupId)
+	ImporterModel(long groupId, int displayMode)
 	{
-		this(groupId, false);
+		this(groupId, false, displayMode);
 	}
 	
 	/** 
@@ -177,12 +178,14 @@ class ImporterModel
 	 * @param groupID The id to the group selected for the current user.
 	 * @param master Pass <code>true</code> if the importer is used a stand-alone
 	 * application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 */
-	ImporterModel(long groupId, boolean master)
+	ImporterModel(long groupId, boolean master, int displayMode)
 	{
 		this.master = master;
 		initialize();
 		setGroupId(groupId);
+		setDisplayMode(displayMode);
 	}
 	
 	/**
@@ -419,6 +422,10 @@ class ImporterModel
 				break;
 			default:
 				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+		if (tags != null) {
+			tags.clear();
+			tags = null;
 		}
 	}
 

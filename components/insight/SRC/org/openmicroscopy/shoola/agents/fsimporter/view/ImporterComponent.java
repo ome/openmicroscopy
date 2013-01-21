@@ -181,6 +181,15 @@ class ImporterComponent
 				model.getGroupId());
 	}
 
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode)
+	{
+		
+	}
 	
 	/** Refreshes the view when a user reconnects.*/
 	void onReconnected()

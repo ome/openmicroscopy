@@ -198,8 +198,18 @@ class MetadataViewerComponent
 	/** Saves before close. */
 	void saveBeforeClose()
 	{
-		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.valueOf(true), 
+		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.valueOf(true),
 				Boolean.valueOf(false));
+	}
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode)
+	{
+		
 	}
 	
 	/** 

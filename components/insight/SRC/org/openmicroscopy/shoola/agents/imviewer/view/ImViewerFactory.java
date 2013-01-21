@@ -350,6 +350,20 @@ public class ImViewerFactory
 		}
 	}
 	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDiplayMode(int displayMode)
+	{
+		Iterator<ImViewer> i = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (ImViewerComponent) i.next();
+			comp.setDisplayMode(displayMode);
+		}
+	}
 	/** 
 	 * Returns the id of the pixels set to copy the rendering settings.
 	 * 

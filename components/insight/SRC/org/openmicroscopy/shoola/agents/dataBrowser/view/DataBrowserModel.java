@@ -938,6 +938,14 @@ abstract class DataBrowserModel
 			default:
 				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
+		if (existingDatasets != null) {
+			existingDatasets.clear();
+			setExistingDatasets(null);
+		}
+		if (existingTags != null) {
+			existingTags.clear();
+			setTags(null);
+		}
 	}
 
     /**
