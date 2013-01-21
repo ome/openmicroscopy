@@ -949,12 +949,13 @@ class ImporterUIElement
 	 */
 	boolean hasFailuresToSend()
 	{
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
+			entry = i.next();
+			fc = entry.getValue();
 			if (fc.hasFailuresToSend()) 
 				return true;
 		}
@@ -969,12 +970,13 @@ class ImporterUIElement
 	 */
 	boolean hasFailuresToReimport()
 	{
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
+			entry = i.next();
+			fc = entry.getValue();
 			if (fc.hasFailuresToReimport()) 
 				return true;
 		}

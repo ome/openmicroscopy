@@ -154,6 +154,13 @@ class ImporterComponent
 		view.initialize(model, controller);
 	}
 	
+	/**
+	 * Resets the identifier of the group.
+	 * 
+	 * @param groupID The id to set.
+	 */
+	void resetGroup(long groupID) { model.setGroupId(groupID); }
+	
 	/** 
 	 * Indicates that the group has been successfully switched if 
 	 * <code>true</code>, unsuccessfully if <code>false</code>.
@@ -286,7 +293,9 @@ class ImporterComponent
 					return;
 				}
 				element = view.getElementToStartImportFor();
-				if (element != null) importData(element);
+				if (element != null) {
+					importData(element);
+				}
 			}	
 			fireStateChange();
 		}
@@ -379,10 +388,8 @@ class ImporterComponent
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
 					return;
 				element.cancelLoading();
-				//if (element.isDone())
 				model.cancel(element.getID());
 			}
-			model.setState(READY);
 		}
 	}
 
@@ -681,7 +688,7 @@ class ImporterComponent
 	{
 		switch (model.getState()) {
 			case DISCARDED:
-			case IMPORTING:
+			//case IMPORTING:
 				return;
 		}
 		if (group == null) return;
