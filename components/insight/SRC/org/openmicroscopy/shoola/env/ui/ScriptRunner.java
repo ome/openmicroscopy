@@ -127,10 +127,8 @@ public class ScriptRunner
     {
         Object o = fe.getPartialResult();
         if (o != null) {
-        	if (o instanceof Boolean) {
-        		Boolean b = (Boolean) o;
-        		if (!b.booleanValue())
-        			onException(MESSAGE_RUN, null); 
+        	if (Boolean.valueOf(false).equals(o)) {
+        		onException(MESSAGE_RUN, null);
         	} else if (o instanceof ProcessCallback) {
         		callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
