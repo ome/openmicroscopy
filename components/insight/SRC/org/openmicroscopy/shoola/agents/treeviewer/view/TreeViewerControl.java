@@ -73,6 +73,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ClearAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateObjectWithChildren;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.CreateTopContainerAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.DisplayModeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.DownloadAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ExitApplicationAction;
@@ -381,7 +382,12 @@ class TreeViewerControl
 	/** Identifies the <code>View In KNIME</code> in the menu. */
 	static final Integer    VIEW_IN_KNIME = Integer.valueOf(74);
 	
-
+	/** Identifies the <code>Display Experimenter</code> in the menu. */
+	static final Integer    DISPLAY_EXPERIMENTER = Integer.valueOf(75);
+	
+	/** Identifies the <code>Display Group</code> in the menu. */
+	static final Integer    DISPLAY_GROUP = Integer.valueOf(76);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -538,17 +544,17 @@ class TreeViewerControl
 		actionsMap.put(VIEW, new ViewImageAction(model));
 		actionsMap.put(NEW_OBJECT, new NewObjectAction(model, 
 								NewObjectAction.NEW_CONTAINERS));
-		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model, 
+		actionsMap.put(EDITOR_NO_SELECTION, new EditorAction(model,
 				EditorAction.NO_SELECTION));
-		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model, 
+		actionsMap.put(EDITOR_WITH_SELECTION, new EditorAction(model,
 				EditorAction.WITH_SELECTION));
 		actionsMap.put(CREATE_TOP_TAG_SET,  
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.TAG_SET));
-		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model, 
+		actionsMap.put(NEW_TAG_OBJECT, new NewObjectAction(model,
 				NewObjectAction.NEW_TAGS));
 		actionsMap.put(TAGGING, new TaggingAction(model));
-		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
+		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model,
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
 		actionsMap.put(IMPORT, new ImportAction(model, false));
@@ -579,6 +585,10 @@ class TreeViewerControl
 		actionsMap.put(AVAILABLE_SCRIPTS, new RunScriptAction(model));
 		actionsMap.put(REMOVE_GROUP, new RemoveGroupNode(model));
 		actionsMap.put(SWITCH_GROUP, new SwitchGroup(model));
+		actionsMap.put(DISPLAY_GROUP, new DisplayModeAction(model,
+				LookupNames.GROUP_DISPLAY));
+		actionsMap.put(DISPLAY_EXPERIMENTER, new DisplayModeAction(model,
+				LookupNames.EXPERIMENTER_DISPLAY));
 	}
 
 	/** 

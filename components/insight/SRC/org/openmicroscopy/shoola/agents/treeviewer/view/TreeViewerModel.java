@@ -187,6 +187,9 @@ class TreeViewerModel
     /** The id of the group the currently selected node is in.*/
     private long selectedGroupId;
     
+    /** The display mode.*/
+    private int displayMode;
+    
     /**
      * Returns the collection of scripts with a UI, mainly the figure scripts.
      * 
@@ -336,6 +339,10 @@ class TreeViewerModel
 		refImage = null;
 		importing = false;
 		sorter = new ViewerSorter();
+		Integer value = (Integer) TreeViewerAgent.getRegistry().lookup(
+				LookupNames.DATA_DISPLAY);
+		if (value == null) value = LookupNames.EXPERIMENTER_DISPLAY;
+		setDisplayMode(value);
 	}
 
 	/**
@@ -1433,17 +1440,22 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getDisplayMode()
+	int getDisplayMode() { return displayMode; }
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
 	{
-		Integer value = (Integer) TreeViewerAgent.getRegistry().lookup(
-				LookupNames.DATA_DISPLAY);
-		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
-		switch (value.intValue()) {
+		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
-				return value.intValue();
+				displayMode = value;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
-		return LookupNames.EXPERIMENTER_DISPLAY; 
 	}
 
 }
