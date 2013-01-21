@@ -77,11 +77,10 @@
                                 if (data) {
                                     if (eval(data.bad)) {
                                         errors = eval(data.errs);
-                                        $.each(errors,function(fieldname,errmsg)
-                                        {
+                                        $.each(errors,function(fieldname,errmsg) {
                                             $("#form-"+field_id + " input#id_" + fieldname).parent().find("p.error").html( errmsg ); //I want the error above the <p> holding the field
-                                            });
-                                        $('#save-'+field_id).attr("disabled","");
+                                        });
+                                        $('#save-'+field_id).removeAttr("disabled");  // re-enable for re-submit
                                     } else {
                                         $("#form-"+field_id).find('input').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
@@ -110,6 +109,9 @@
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
+                                                if ($(this).val().length === 0) {
+                                                    $(this).val("Add Description");     // Reset to placeholder text
+                                                }
                                                 $("#"+field_id+"-"+$(this).attr('name')).html($(this).val().replace(/\n/g, "<br />"));
                                             }
                                         }); // this.each
