@@ -346,15 +346,8 @@ public class SharedResourcesI extends AbstractAmdServant implements
                 });
         } catch (Exception e) {
             IceMapper mapper = new IceMapper();
-            UserException ue = mapper.handleException(e, this.ctx);
-            if (ue instanceof ServerError) {
-                throw (ServerError) ue;
-            } else { // This may not be necessary
-                InternalException ie = new InternalException();
-                ie.initCause(e);
-                IceMapper.fillServerError(ie, e);
-                throw ie;
-            }
+            ServerError ue = mapper.handleServerError(e, this.ctx);
+            throw ue;
         }
 
         // Okay. All's valid.
