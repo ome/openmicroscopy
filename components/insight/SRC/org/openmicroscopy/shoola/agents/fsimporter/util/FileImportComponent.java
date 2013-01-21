@@ -66,7 +66,6 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.ImportException;
@@ -77,7 +76,6 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -368,18 +366,11 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		if (busyLabel.isBusy() && !statusLabel.isCancellable()) 
+		if (busyLabel.isBusy() && !statusLabel.isCancellable())
 			return;
-		String s = CANCEL_TEXT;
-		if (file.isDirectory()) {
-			busyLabel.setBusy(true);
-			busyLabel.setVisible(true);
-			s += " waiting on scanning to finish";
-		} else {
-			busyLabel.setBusy(false);
-			busyLabel.setVisible(false);
-		}
-		statusLabel.setText(s);
+		busyLabel.setBusy(false);
+		busyLabel.setVisible(false);
+		statusLabel.setText(CANCEL_TEXT);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
@@ -404,7 +395,7 @@ public class FileImportComponent
 		DeleteActivityParam p = new DeleteActivityParam(
 				icons.getIcon(IconManager.APPLY_22), l);
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		//UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 		//TODO: review
 		//un.notifyActivity(p);
 		//the row enabled
@@ -633,8 +624,8 @@ public class FileImportComponent
 		if (totalFiles > 1) text += "s";
 		statusLabel.setText(text);
 		
-		Entry entry;
-		Iterator i = files.entrySet().iterator();
+		Entry<File, StatusLabel> entry;
+		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
 		FileImportComponent c;
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -649,8 +640,8 @@ public class FileImportComponent
 			d.setName(file.getName());
 		}
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			f = (File) entry.getKey();
+			entry = i.next();
+			f = entry.getKey();
 			c = new FileImportComponent(f, folderAsContainer, browsable, group,
 					singleGroup);
 			if (f.isFile()) {
@@ -1062,7 +1053,6 @@ public class FileImportComponent
 			}
 		} else {
 			if (components != null) {
-				Entry entry;
 				Iterator<FileImportComponent> i = components.values().iterator();
 				FileImportComponent fc;
 				l = new ArrayList<FileImportComponent>();
@@ -1112,8 +1102,8 @@ public class FileImportComponent
 	 */
 	public boolean hasImportFailed()
 	{
-		if (file.isFile()) return errorBox.isVisible();
-		return false;
+		//if (file.isFile()) return errorBox.isVisible();
+		return errorBox.isVisible();
 	}
 	
 	/**
@@ -1141,6 +1131,8 @@ public class FileImportComponent
 			return false;
 		}
 		if (components == null) {
+			if (errorBox.isVisible())
+				return errorBox.isEnabled() && errorBox.isSelected();
 			return false;
 		}
 		Iterator<FileImportComponent> i = components.values().iterator();
@@ -1200,12 +1192,16 @@ public class FileImportComponent
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
-				if (file.isDirectory() && isCancelled()) {
+				if (file.isDirectory()) {
+					if  (isCancelled()) return SUCCESS;
+					if (errorBox.isVisible()) return FAILURE;
 					return SUCCESS;
 				} else {
 					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
 						return FAILURE;
 				}
+			} else {
+				if (errorBox.isVisible()) return FAILURE;
 			}
 			return SUCCESS;
 		}
@@ -1352,15 +1348,6 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (file.isFile()) {
-			/*
-			if (errorButton != null && errorButton.isVisible()) {
-				if (image instanceof Exception) {
-					l = new ArrayList<FileImportComponent>();
-					if (!reimported) l.add(this);
-					return l;
-				}
-			}
-			*/
 			if (toReImport && !reimported) {
 				l = new ArrayList<FileImportComponent>();
 				l.add(this);
@@ -1368,7 +1355,6 @@ public class FileImportComponent
 			}
 		} else {
 			if (components != null) {
-				Entry entry;
 				Iterator<FileImportComponent> i = components.values().iterator();
 				FileImportComponent fc;
 				l = new ArrayList<FileImportComponent>();
