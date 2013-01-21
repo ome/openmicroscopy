@@ -48,10 +48,9 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -103,6 +102,9 @@ public class ImViewerAgent
     /** Reference to the registry. */
     private static Registry         registry; 
     
+    /** The display mode.*/
+	private int displayMode = -1;
+	
     /**
      * Helper method. 
      * 
@@ -193,7 +195,8 @@ public class ImViewerAgent
         }
         	
         if (view != null) {
-        	view.activate(object.getSettings(), object.getSelectedUserID());
+        	view.activate(object.getSettings(), object.getSelectedUserID(),
+        			displayMode);
         	view.setContext(object.getParent(), object.getGrandParent());
         }
     }
@@ -380,7 +383,8 @@ public class ImViewerAgent
         				evt.getSecurityContext(), ((ImageData) o).getId(),
         				null, true);
         		if (view != null) {
-        			view.activate(null, getUserDetails().getId());
+        			view.activate(null, getUserDetails().getId(),
+        					displayMode);
         			JComponent src = evt.getSource();
         			if (src != null) src.setEnabled(true);
         		}
@@ -488,6 +492,20 @@ public class ImViewerAgent
 			}
 		}
     }
+    
+    /**
+     * Updates the view when the mode is changed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDisplayModeEvent(DisplayModeEvent evt)
+    {
+    	displayMode = evt.getDisplayMode();
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ImViewerFactory.setDiplayMode(displayMode);
+    }
+    
     /**
      * Checks if the passed image is actually opened in the viewer.
      * 
@@ -547,6 +565,7 @@ public class ImViewerAgent
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, SelectChannel.class);
         bus.register(this, ChannelSavedEvent.class);
+        bus.register(this, DisplayModeEvent.class);
     }
 
     /**
@@ -615,6 +634,8 @@ public class ImViewerAgent
 			handleSelectChannel((SelectChannel) e);
         else if (e instanceof ChannelSavedEvent)
 			handleChannelSavedEvent((ChannelSavedEvent) e);
+        else if (e instanceof DisplayModeEvent)
+			handleDisplayModeEvent((DisplayModeEvent) e);
     }
 
 }

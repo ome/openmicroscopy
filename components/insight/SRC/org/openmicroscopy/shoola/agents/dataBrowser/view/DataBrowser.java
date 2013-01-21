@@ -779,4 +779,11 @@ public interface DataBrowser
 	 */
 	int getDisplayMode();
 
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode);
+	
 }
