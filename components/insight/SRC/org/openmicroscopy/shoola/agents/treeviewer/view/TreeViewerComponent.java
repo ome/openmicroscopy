@@ -4651,7 +4651,7 @@ class TreeViewerComponent
 		
 		model.setDisplayMode(index);
 		Browser browser = model.getSelectedBrowser();
-		if (browser != null) browser.activate();
+		if (browser != null) browser.reActivate();
 	}
 
 }
