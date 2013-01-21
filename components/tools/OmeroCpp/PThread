@@ -74,10 +74,9 @@ if flag == "START":
 
     # Create a list of thread flags to try.  Items starting with a "-" are
     # C compiler flags, and other items are library names, except for "none"
-    # which indicates that we try without any flags at all, and "pthread-config"
-    # which is a program returning the flags for the Pth emulation library.
+    # which indicates that we try without any flags at all.
 
-    ax_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+    ax_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -mthreads pthread --thread-safe -mt"
 
     # The ordering *is* (sometimes) important.  Some notes on the
     # individual items follow:
@@ -97,7 +96,6 @@ if flag == "START":
     #      ... -mt is also the pthreads flag for HP/aCC
     # pthread: Linux, etcetera
     # --thread-safe: KAI C++
-    # pthread-config: use pthread-config program (for GNU Pth library)
 
     if platform == 'solaris':
 
@@ -131,71 +129,32 @@ else:
     skip = False
     ax_pthread_ok = False
     PTHREAD_CXXFLAGS = []
-    PTHREAD_LIBFLAGS = []
+    PTHREAD_LDFLAGS = []
 
     if flag == "none":
-        # AC_MSG_CHECKING([whether pthreads work without any flags])
         pass  # Use default value
 
     elif flag.startswith("-"):
-        # AC_MSG_CHECKING([whether pthreads work with $flag])
         PTHREAD_CXXFLAGS.append(flag)
-
-    elif flag == "pthread-config":
-        # AC_CHECK_PROG(ax_pthread_config, pthread-config, yes, no)
-        # if test x"$ax_pthread_config" = xno; then continue; fi
-        try:
-            tenv.ParseConfig('pthread-config --cflags')
-        except OSError:
-            skip = True
+        PTHREAD_LDFLAGS.append(flag)
 
     else:
-            # AC_MSG_CHECKING([for the pthreads library -l$flag])
-            PTHREAD_LIBFLAGS.append("-l"+flag)
-
-    # Check for various functions.  We must include pthread.h,
-    # since some functions may be macros.  (On the Sequent, we
-    # need a special flag -Kthread to make this header compile.)
-    # We check for pthread_join because it is in -lpthread on IRIX
-    # while pthread_create is in libc.  We check for pthread_attr_init
-    # due to DEC craziness with -lpthreads.  We check for
-    # pthread_cleanup_push because it is one of the few pthread
-    # functions on Solaris that doesn't have a non-functional libc stub.
-    # We try pthread_create on general principles.
+            PTHREAD_LDFLAGS.append("-l"+flag)
 
     if not skip:
-        if PTHREAD_LIBFLAGS:
-            tenv.AppendUnique(LIBFLAGS=PTHREAD_LIBFLAGS)
+        if PTHREAD_LDFLAGS:
+            tenv.AppendUnique(LINKFLAGS=PTHREAD_LDFLAGS)
         if PTHREAD_CXXFLAGS:
             tenv.Append(CXXFLAGS=PTHREAD_CXXFLAGS)
         tconf = Configure(tenv, custom_tests = {'CheckPthread' : CheckPthread})
         if tconf.CheckPthread(flag):
             ax_pthread_ok = True
-            Return(["PTHREAD_CXXFLAGS", "PTHREAD_LIBFLAGS"])
+            Return(["PTHREAD_CXXFLAGS", "PTHREAD_LDFLAGS"])
         tconf.Finish()
 
     # Various other checks:
     if ax_pthread_ok:
 
-        # Detect AIX lossage: JOINABLE attribute is called UNDETACHED.
-        # AC_MSG_CHECKING([for joinable pthread attribute])
-        """
-        attr_name=unknown
-        for attr in ("PTHREAD_CREATE_JOINABLE", "PTHREAD_CREATE_UNDETACHED"):
-            AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <pthread.h>],
-                            [int attr = $attr; return attr /* ; */])],
-                [attr_name=$attr; break],
-                [])
-        done
-        AC_MSG_RESULT($attr_name)
-        if test "$attr_name" != PTHREAD_CREATE_JOINABLE; then
-            AC_DEFINE_UNQUOTED(PTHREAD_CREATE_JOINABLE, $attr_name,
-                                [Define to necessary symbol if this constant
-                                uses a non-standard name on your system.])
-        fi
-        """
-
-        # AC_MSG_CHECKING([if more special flags are required for pthreads])
         _flag = None
         for x in ("aix", "freebsd", "darwin"):
             if host_os.startswith(x):
@@ -203,15 +162,6 @@ else:
         for x in ("osf", "hpux"):
             if host_os.startswith(x):
                 _flag = "-D_REENTRANT"
-        if host_os.startswith("solaris"):
-            pass
-            """
-            solaris*)
-            if test "$GCC" = "yes"; then
-                _flag="-D_REENTRANT"
-            else
-                _flag="-mt -D_REENTRANT"
-            """
 
         if _flag:
             PTHREAD_CXXFLAGS.append(_flag)

@@ -38,7 +38,7 @@ if not env.GetOption('clean'):
             env.AppendUnique(CXXFLAGS=PTHREAD_CFLAGS)
         if PTHREAD_LIBFLAGS:
             print "PTHREAD_LIBFLAGS: ", PTHREAD_LIBFLAGS
-            env.AppendUnique(LIBFLAGS=PTHREAD_LIBFLAGS)
+            env.AppendUnique(LINKFLAGS=PTHREAD_LIBFLAGS)
 
 f = open("scons.log", "w")
 f.write(env.Dump())
