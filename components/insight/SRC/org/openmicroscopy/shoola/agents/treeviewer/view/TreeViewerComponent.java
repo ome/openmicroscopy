@@ -4482,17 +4482,14 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		/*
-		TreeImageDisplay node = browser.getLastSelectedDisplay();
-		if (node == null || !(node.getUserObject() instanceof GroupData))
-			return;
-			*/
+
 		TreeImageDisplay node = null;
 		ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
 		browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 		//do not remove the last group.
 		List<TreeImageDisplay> groups = v.getNodes();
-		if (groups.size() == 1) return;
+		if (groups.size() == 1 && 
+			model.getDisplayMode() == TreeViewer.EXPERIMENTER_DISPLAY) return;
 		//Find the node
 		Iterator<TreeImageDisplay> j = groups.iterator();
 		TreeImageDisplay n;
