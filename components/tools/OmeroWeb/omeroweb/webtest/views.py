@@ -622,4 +622,9 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
                 imageIds.append(ws.image.id.val)
         context = {'plate':plate, 'imageIds':imageIds}
 
+    elif obj_type == "dataset":
+        dataset = conn.getObject("Dataset", id)
+        imageIds = [i.getId() for i in dataset.listChildren()]
+        context = {'imageIds':imageIds}
+
     return render_to_response('webtest/demo_viewers/render_performance.html', context)
