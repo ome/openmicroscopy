@@ -359,7 +359,7 @@
                     $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
                     if (parentType === "plate") {
                         // Plate: only allow 'Apply to All' (all images linked to same Channels)
-                        $chNameForm.find("button[name=save]").hide();
+                        $chNameForm.find("button[name=save]").remove();
                     }
                 }
                 var resetChForm = function() {
@@ -367,13 +367,13 @@
                     $chNameForm.find(".confirmButtons").hide();
                     $("#channel_names_display").show();
                     $("#editChannelNames").show();
-                    $("#channel_names_edit").hide();
+                    $chNameForm.hide();
                 }
                 // Workflow starts by displaying the form
                 $("#editChannelNames").click(function(){
                     $("#channel_names_display").hide();
                     $("#editChannelNames").hide();
-                    $("#channel_names_edit").show();
+                    $chNameForm.show();
                 });
                 // Handling of all form buttons. NB: save & apply_confirm buttons submit
                 $chNameForm.find("button").click(function(event){
@@ -390,7 +390,7 @@
                     }
                 });
                 // Form handled by AJAX
-                $("#channel_names_edit").ajaxForm({
+                $chNameForm.ajaxForm({
                     dataType:  'json',
                     success: function(data) {
                         var cnames = data.channelNames;
