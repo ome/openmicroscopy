@@ -2299,7 +2299,12 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     """
     scriptService = conn.getScriptService()
 
-    params = scriptService.getParams(long(scriptId))
+    try:
+        params = scriptService.getParams(long(scriptId))
+    except Exception, ex:
+        if ex.message.lower().startswith("no processor available"):
+            return {'template':'webclient/scripts/no_processor.html', 'scriptId': scriptId}
+        raise ex
     if params == None:
         return HttpResponse()
 
