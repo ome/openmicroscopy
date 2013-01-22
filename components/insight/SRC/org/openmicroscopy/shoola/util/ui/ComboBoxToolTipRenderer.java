@@ -28,7 +28,6 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
 
-import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
 /** 
  * Provides a wrapped renderer for displaying tooltip information on mouse hover
@@ -55,9 +54,6 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 		if (index > -1 && value != null && tooltips != null
 				&& tooltips.size() > index) {
 			list.setToolTipText(tooltips.get(index));
-		}
-		if (value instanceof DataNode) {
-			comp.setEnabled(((DataNode) value).getDataObject().canLink());
 		}
 		return comp;
 	}
