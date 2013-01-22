@@ -140,7 +140,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
         if ("touch".equals(command)) {
             for (String arg : args) {
-                CheckedPath checked = servant.checkPath(arg, __current);
+                CheckedPath checked = servant.checkPath(parse(arg), __current);
                 FileUtils.touch(checked.file);
             }
         } else if ("mkdir".equals(command)) {
@@ -150,12 +150,17 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                     parents = true;
                     continue;
                 }
-                CheckedPath checked = servant.checkPath(arg, __current);
+                CheckedPath checked = servant.checkPath(parse(arg), __current);
                 if (parents) {
                     FileUtils.forceMkdir(checked.file);
                 } else {
                     checked.file.mkdir();
                 }
+            }
+        } else if ("rm".equals(command)) {
+            for (String arg : args) {
+                CheckedPath checked = servant.checkPath(parse(arg), __current);
+                checked.file.delete();
             }
         } else {
             throw new omero.ApiUsageException(null, null,
@@ -163,4 +168,17 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
         }
     }
 
+    /**
+     * Prepend a "./" if necessary to make the path relative.
+     * TODO: this could likely be removed once the prefix is always stripped.
+     *
+     * @param arg
+     * @return
+     */
+    private String parse(String arg) {
+        if (arg.startsWith("/")) {
+            arg = "./" + arg;
+        }
+        return arg;
+    }
 }

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -160,6 +163,91 @@ public interface SqlAction {
      * @return possibly empty list of ids.
      */
     List<Long> findRepoFiles(String repoUuid, String dirname);
+
+    /**
+     * Record-class which matches _fs_deletelog. It will be used both as the
+     * search template for {@link findRepoDeleteLogs(DeleteLog)} as well
+     * as {@link deleteRepoDeleteLogs(DeleteLog)}. As a template, any of the
+     * fields can be null. As a return value, none of the fields will be null.
+     */
+    static class DeleteLog implements RowMapper<DeleteLog> {
+        public Long eventId;
+        public Long fileId;
+        public Long ownerId;
+        public Long groupId;
+        public String path;
+        public String name;
+        public String repo;
+        public DeleteLog mapRow(ResultSet rs, int arg1) throws SQLException {
+            DeleteLog dl = new DeleteLog();
+            dl.eventId = rs.getLong("event_id");
+            dl.fileId = rs.getLong("file_id");
+            dl.ownerId = rs.getLong("owner_id");
+            dl.groupId = rs.getLong("group_id");
+            dl.path = rs.getString("path");
+            dl.name = rs.getString("name");
+            dl.repo = rs.getString("repo");
+            return dl;
+        }
+        public SqlParameterSource args() {
+            MapSqlParameterSource source = new MapSqlParameterSource();
+            source.addValue("eid", eventId, java.sql.Types.BIGINT);
+            source.addValue("eid", eventId, java.sql.Types.BIGINT);
+            source.addValue("fid", fileId, java.sql.Types.BIGINT);
+            source.addValue("oid", ownerId, java.sql.Types.BIGINT);
+            source.addValue("gid", groupId, java.sql.Types.BIGINT);
+            source.addValue("p", path, java.sql.Types.VARCHAR);
+            source.addValue("n", name, java.sql.Types.VARCHAR);
+            source.addValue("r", repo, java.sql.Types.VARCHAR);
+            return source;
+        }
+        public String toString() {
+            boolean first = true;
+            StringBuilder sb = new StringBuilder();
+            sb.append("DeleteLog<");
+            append(sb, first, "event", eventId);
+            append(sb, first, "file", fileId);
+            append(sb, first, "owner", ownerId);
+            append(sb, first, "group", groupId);
+            append(sb, first, "path", path);
+            append(sb, first, "name", name);
+            append(sb, first, "repo", repo);
+            sb.append(">");
+            return sb.toString();
+        }
+        private boolean append(final StringBuilder sb, final boolean first,
+                final String name, final Object o) {
+            if (o != null) {
+                if (!first) {
+                    sb.append(",");
+                }
+                sb.append(name);
+                sb.append("=");
+                sb.append(o.toString());
+                return false;
+            }
+            return first; // No change
+        }
+
+    }
+
+    /**
+     * Find all {@link DeleteLog} entries which match all of the non-null
+     * fields provided in the template.
+     *
+     * @param template non-null.
+     * @return
+     */
+    List<DeleteLog> findRepoDeleteLogs(DeleteLog template);
+
+    /**
+     * Delete all {@link DeleteLog} entries which match all of the non-null
+     * fields provided in the template.
+     *
+     * @param template not-null
+     * @return the number of rows deleted.
+     */
+    int deleteRepoDeleteLogs(DeleteLog template);
 
     String findRepoFilePath(String uuid, long id);
 
@@ -467,6 +555,20 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException e) {
                 return Collections.emptyList();
             }
+        }
+
+        public List<DeleteLog> findRepoDeleteLogs(DeleteLog template) {
+            try {
+                return _jdbc().query(_lookup("find_repo_delete_logs"),
+                        template, template.args());
+            } catch (EmptyResultDataAccessException e) {
+                return Collections.emptyList();
+            }
+        }
+
+        public int deleteRepoDeleteLogs(DeleteLog template) {
+            return _jdbc().update(_lookup("find_repo_delete_logs"),
+                    template.args());
         }
 
         public String findRepoFilePath(String uuid, long id) {

@@ -491,6 +491,36 @@ insert into password values (1,'');
 -- root can now login with omero.rootpass property value
 -- and guest can login with any value
 
+--
+-- FS Resources
+--
+create table _fs_deletelog (
+    event_id bigint not null,
+    file_id bigint not null,
+    owner_id bigint not null,
+    group_id bigint not null,
+    path text not null,
+    name varchar(255) not null,
+    repo varchar(36) not null,
+    params text[2][]);
+
+create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
+    begin
+        if OLD.repo is not null then
+            insert into _fs_deletelog select
+                _current_or_new_event(),
+                OLD.id, OLD.owner_id, OLD.group_id,
+                OLD.path, OLD.name, OLD.repo, OLD.params;
+        end if;
+        return null;
+    END;
+$_fs_log_delete$ LANGUAGE plpgsql;
+
+create trigger _fs_log_delete
+after delete on originalfile
+    for each row execute procedure _fs_log_delete();
+
+
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = '@DBVERSION@' and

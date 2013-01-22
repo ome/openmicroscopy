@@ -8,46 +8,46 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.context.ApplicationListener;
+import org.springframework.transaction.annotation.Transactional;
+
+import Ice.Current;
+import Ice.ObjectAdapter;
+
 import ome.services.blitz.fire.Registry;
+import ome.services.messages.DeleteLogMessage;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+import ome.util.SqlAction.DeleteLog;
 
-import omero.RType;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Response;
-import omero.grid.ManagedRepositoryPrxHelper;
+import omero.constants.SESSIONUUID;
 import omero.grid.RawAccessRequest;
-import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.grid._InternalRepositoryDisp;
-import omero.grid._ManagedRepositoryTie;
-import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
-import org.springframework.transaction.annotation.Transactional;
-
-import Ice.Current;
-import Ice.ObjectAdapter;
 
 /**
  * Base repository class responsible for properly handling directory
@@ -57,7 +57,8 @@ import Ice.ObjectAdapter;
  *
  * @since Beta4.2
  */
-public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
+public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
+    implements ApplicationListener<DeleteLogMessage> {
 
     private final static Log log = LogFactory.getLog(AbstractRepositoryI.class);
 
@@ -108,6 +109,51 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
      */
     public String generateRepoUuid() {
         return UUID.randomUUID().toString();
+    }
+
+    public void onApplicationEvent(DeleteLogMessage dlm) {
+
+        final Ice.Current rootCurrent = new Ice.Current();
+        rootCurrent.ctx = new HashMap<String, String>();
+        rootCurrent.ctx.put(SESSIONUUID.value, p.toString());
+        final RepositoryDao dao = servant.repositoryDao;
+        final DeleteLog template = new DeleteLog();
+        template.repo = repoUuid; // Ourselves!
+        template.fileId = dlm.getFileId();
+        final List<DeleteLog> logs = dao.findRepoDeleteLogs(template,
+                rootCurrent);
+
+        if (logs == null || logs.size() == 0) {
+            // Since no logs are registered with the message
+            // the sender will assume that this isn't a repository
+            // file and will attempt to delete it locally.
+            return; // EARLY EXIT!
+        }
+
+        RawAccessRequestI req = new RawAccessRequestI(null);
+        req.repoUuid = repoUuid;
+        req.command = "rm";
+        for (DeleteLog dl : logs) {
+            req.args = Arrays.asList(dl.path + "/" + dl.name);
+            try {
+                // May be necessary to create a synthetic Ice.Current
+                req.local(this, servant, null /* i.e. as admin */);
+
+                // Only remove the logs if req.local was successful
+                int count = dao.deleteRepoDeleteLogs(template, rootCurrent);
+                if (count != logs.size()) {
+                    log.warn(String.format(
+                        "Failed to remove all delete log entries: %s instead of %s",
+                        count, logs.size()));
+                }
+                dlm.success(dl);
+            } catch (Throwable t) {
+                log.warn("Failed to delete log " + dl, t);
+                dlm.error(dl, t);
+            }
+
+        }
+
     }
 
     /**

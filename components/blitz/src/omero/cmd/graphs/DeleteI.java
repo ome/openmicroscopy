@@ -44,6 +44,7 @@ import omero.cmd.Response;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
+@SuppressWarnings("deprecation")
 public class DeleteI extends Delete implements IRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;
@@ -62,7 +63,6 @@ public class DeleteI extends Delete implements IRequest {
     public Deletion getDeletion() {
         return delegate;
     }
-
 
     public DeleteReport getDeleteReport() {
         DeleteReport rpt = new DeleteReport();

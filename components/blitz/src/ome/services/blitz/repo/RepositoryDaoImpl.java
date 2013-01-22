@@ -1,15 +1,11 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +29,7 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+import ome.util.SqlAction.DeleteLog;
 
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -461,6 +458,28 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
+
+    @SuppressWarnings("unchecked")
+    public List<DeleteLog> findRepoDeleteLogs(final DeleteLog template, Current current) {
+        return (List<DeleteLog>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "findRepoDeleteLogs", template) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return getSqlAction().findRepoDeleteLogs(template);
+            }
+        });
+    }
+
+    public int deleteRepoDeleteLogs(final DeleteLog template, Current current) {
+        return (Integer) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "deleteRepoDeleteLogs", template) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return getSqlAction().deleteRepoDeleteLogs(template);
+            }
+        });
+    }
+
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
         EventContext ec = this.currentContext(new Principal(curr.ctx.get(
                 omero.constants.SESSIONUUID.value)));
@@ -591,4 +610,5 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 Long.toString(file.getDetails().getGroup().getId().getValue()));
         return context;
     }
+
 }

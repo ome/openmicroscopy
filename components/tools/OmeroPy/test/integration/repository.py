@@ -16,6 +16,7 @@ import omero
 
 from omero.callbacks import CmdCallbackI
 from omero.cmd import ERR
+from omero.gateway import BlitzGateway
 from omero.rtypes import rbool
 from omero.rtypes import rstring
 from omero.util.temp_files import create_path
@@ -579,6 +580,39 @@ class TestDbSync(AbstractRepoTest):
         except omero.grid.UnregisteredFileException, ufe:
             file = mrepo.register(mydir, None)
             self.assertEquals(file.mimetype, ufe.file.mimetype)
+
+
+class TestDeleteLog(AbstractRepoTest):
+
+    def testSimpleDelete(self):
+        uuid = self.uuid()
+        print uuid
+        filename = uuid + "/file.txt"
+        mrepo = self.getManagedRepo()
+        mrepo.makeDir(uuid, True)
+        ofile = self.createFile(mrepo, filename)
+        gateway = BlitzGateway(client_obj=self.client)
+
+        # Assert contents of file
+        rfs = mrepo.fileById(ofile.id.val)
+        try:
+            self.assertEquals("hi", rfs.read(0, 2))
+        finally:
+            rfs.close()
+
+        handle = gateway.deleteObjects("/OriginalFile", [ofile.id.val])
+        try:
+            gateway._waitOnCmd(handle)
+        finally:
+            handle.close()
+
+        # Trying to open the file should not throw an UnregisteredFileException
+        # But should just be an empty file.
+        rfs = mrepo.file(filename, "rw")
+        try:
+            self.assertEquals("\x00\x00", rfs.read(0, 2))
+        finally:
+            rfs.close()
 
 
 if __name__ == '__main__':
