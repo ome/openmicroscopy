@@ -50,4 +50,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^webclient_templates/(?P<base_template>[a-z0-9_]+)/', views.webclient_templates, name='webclient_templates'),
     
     url( r'^img_detail/(?:(?P<iid>[0-9]+)/)?$', views.image_viewer, name="webtest_image_viewer"),
+
+    # Test the speed of rendering all planes in an image (E.g. to compare FS)
+    url( r'^render_performance/(?P<imageId>[0-9]+)/', views.render_performance, name='webtest_render_performance' ),
 )
