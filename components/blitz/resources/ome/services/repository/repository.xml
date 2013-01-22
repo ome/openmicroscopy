@@ -44,6 +44,14 @@
     <constructor-arg index="3"><list/></constructor-arg>
   </bean>
 
+  <bean id="filePathSanitizer" class="ome.services.blitz.repo.path.FilePathTransformer" init-method="calculateBaseDir">
+    <property name="pathSanitizer">
+      <bean class="ome.services.blitz.repo.path.MakePathComponentSafe"/>
+    </property>
+    <property name="omeroDataDir" value="${omero.data.dir}"/>
+    <property name="fsSubDir" value="${omero.repo.dir}"/>
+  </bean>
+
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
   <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>
   <bean id="Ice.ObjectAdapter" factory-bean="internalRepositoryConfig" factory-method="getObjectAdapter"/>
