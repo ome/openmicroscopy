@@ -958,11 +958,7 @@ class BrowserModel
 	 * 
 	 * @return See above
 	 */
-	boolean isSingleGroup()
-	{
-		Collection l = TreeViewerAgent.getAvailableUserGroups();
-		return l.size() <= 1;
-	}
+	boolean isSingleGroup() { return getGroups().size() <= 1; }
 	
 	/**
 	 * Returns the display mode. One of the constants defined by 
@@ -971,5 +967,15 @@ class BrowserModel
 	 * @return See above.
 	 */
 	int getDisplayMode() { return parent.getDisplayMode(); }
+	
+	/**
+	 * Returns the groups the user currently logged in is a member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection getGroups()
+	{
+		return TreeViewerAgent.getAvailableUserGroups();
+	}
 
 }
