@@ -1303,6 +1303,13 @@ class LocationDialog extends JDialog implements ActionListener,
 				switchToSelectedGroup();
 			} else if (source == projectsBox) {
 				populateDatasetsBox();
+				//check if the user can add dataset to the selected project
+				DataNode node = (DataNode) projectsBox.getSelectedItem();
+				if (node.isDefaultProject()) {
+					newDatasetButton.setEnabled(true);
+				} else {
+					newDatasetButton.setEnabled(node.getDataObject().canLink());
+				}
 			}
 		}
 	}
