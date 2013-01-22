@@ -933,6 +933,74 @@ omero.version=${omero.version}
         <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
+    <target name="hot-blitz" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${blitz.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-common" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${common.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-model" depends="init">
+        <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
+        <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
+        <property name="targets" value="install"/>
+        <hotdeploy component="${model.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-romio" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${romio.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-server" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${server.comp}" targets="${targets}"/>
+    </target>
+
+    <macrodef name="hotdeploy">
+        <attribute name="targets"/>
+        <attribute name="component"/>
+        <sequential>
+            <for list="@{targets}" param="target">
+                <sequential>
+                    <ant antfile="@{component}/build.xml" dir="@{component}" target="@{target}" inheritAll="false"/>
+                </sequential>
+            </for>
+            <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+            <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Blitz-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Indexer-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="PixelData-0"/>
+            </ice-admin>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="ice-admin">
+        <element name="args" implicit="yes"/>
+        <sequential>
+            <exec executable="python" dir="${dist.dir}" failonerror="true">
+                <arg value="bin/omero"/>
+                <arg value="admin"/>
+                <arg value="ice"/>
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
     <macrodef name="gitdescribe">
 
         <attribute name="regexp" default="^(v.)?(.*?)(-[0-9]+)?((-)g(.*?))?$"/>
