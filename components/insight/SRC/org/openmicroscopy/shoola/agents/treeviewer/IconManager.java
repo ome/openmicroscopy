@@ -519,7 +519,7 @@ public class IconManager
     public static final int           PLATE_ACQUISITION_ANNOTATED = 154;
     
     /** The <code>Tag</code> icon. */
-    public static final int			TAG_OTHER_OWNER = 155;
+    public static final int			TAG_NOT_OWNED = 155;
 
     /** The <code>Login</code> icon. */
     public static final int			LOGIN = 156;
@@ -557,11 +557,62 @@ public class IconManager
     /** The <code>Delete</code> icon. */
     public static final int           REMOVE = 167;
     
+    /** The <code>Image</code> icon. */
+    public static final int           IMAGE_ANNOTATED_NOT_OWNED = 168;
+    
+    /** The <code>Image</code> icon. */
+    public static final int           IMAGE_NOT_OWNED = 169;
+    
+    /** The <code>Dataset</code> icon. */
+    public static final int           DATASET_NOT_OWNED = 170;
+    
+    /** The <code>Project</code> icon. */
+    public static final int           PROJECT_NOT_OWNED = 171;
+    
+    /** The <code>Screen</code> icon. */
+    public static final int           SCREEN_NOT_OWNED = 172;
+    
+    /** The <code>Plate</code> icon. */
+    public static final int           PLATE_NOT_OWNED = 173;
+    
+    /** The <code>Project</code> icon. */
+    public static final int           PROJECT_ANNOTATED_NOT_OWNED = 174;
+    
+    /** The <code>Project</code> icon. */
+    public static final int           PROJECT_TO_REFRESH_NOT_OWNED = 175;
+    
+    /** The <code>Dataset</code> icon. */
+    public static final int           DATASET_ANNOTATED_NOT_OWNED = 176;
+    
+    /** The <code>Dataset</code> icon. */
+    public static final int           DATASET_TO_REFRESH_NOT_OWNED = 177;
+    
+    /** The <code>Dataset</code> icon. */
+    public static final int DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED = 178;
+    
+    /** The <code>Project</code> icon. */
+    public static final int PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED = 179;
+    
+    /** The <code>Screen</code> icon. */
+    public static final int           SCREEN_ANNOTATED_NOT_OWNED = 180;
+    
+    /** The <code>Screen</code> icon. */
+    public static final int           SCREEN_TO_REFRESH_NOT_OWNED = 181;
+    
+    /** The <code>Screen</code> icon. */
+    public static final int SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED = 182;
+    
+    /** The <code>Plate</code> icon. */
+    public static final int           PLATE_ANNOTATED_NOT_OWNED = 183;
+
+    /** The <code>Plate</code> icon. */
+    public static final int TAG_SET_NOT_OWNED = 184;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 167;
+    private static final int          MAX_ID = 184;
 
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -732,7 +783,7 @@ public class IconManager
         relPaths[OWNER_GROUP] = "group_generic16.png";
         relPaths[OWNER_GROUP_48] = "group_generic48.png";
         relPaths[PLATE_ACQUISITION_ANNOTATED] = "plateAcquisition_annotated16.png";
-        relPaths[TAG_OTHER_OWNER] = "nuvola_knotes_group16.png";
+        relPaths[TAG_NOT_OWNED] = "nuvola_knotes_group16.png";
         relPaths[LOGIN] = "nuvola_login16.png";
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[ANALYSIS_RUN] = "nuvola_script_run16.png";
@@ -742,7 +793,34 @@ public class IconManager
         relPaths[MOVE_FAILED_22] = "nuvola_cancel22.png";
         relPaths[MOVE_48] = "nuvola_folder_image48.png";
         relPaths[VIEWER_KNIME] = "knimeIcon16.png";
-        relPaths[REMOVE] = "nuvola_edit_remove_grey16.png";;
+        relPaths[REMOVE] = "nuvola_edit_remove_grey16.png";
+        
+        relPaths[SCREEN_NOT_OWNED] =
+        		"nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[SCREEN_ANNOTATED_NOT_OWNED] =
+        	"nuvola_folder_blue_open_modified_screen_annotated16.png";
+        relPaths[PLATE_ANNOTATED_NOT_OWNED] = "plate_annotated16.png";
+        relPaths[PLATE_NOT_OWNED] = "plate16.png";
+        
+        relPaths[PROJECT_TO_REFRESH_NOT_OWNED] =
+        		"nuvola_folder_darkblue_open_reload16.png";
+        relPaths[DATASET_TO_REFRESH_NOT_OWNED] = "nuvola_folder_image_reload16.png";
+        relPaths[SCREEN_TO_REFRESH_NOT_OWNED] = 
+        	"nuvola_folder_blue_open_modified_screen_reload16.png";
+        relPaths[SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED] =
+        	"nuvola_folder_blue_open_modified_screen_annotated_reload16.png";
+        relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] = 
+        	"tagged_project_darkblue_reload16.png";
+        relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] = 
+        		"tagged_dataset_reload16.png";
+
+        relPaths[PROJECT_ANNOTATED_NOT_OWNED] = "tagged_project_darkblue16.png";
+        relPaths[PROJECT_NOT_OWNED] = "nuvola_folder_darkblue_open16.png";
+        relPaths[DATASET_NOT_OWNED] = "nuvola_folder_image16.png";
+        relPaths[IMAGE_NOT_OWNED] = "nuvola_image16.png";
+        relPaths[DATASET_ANNOTATED_NOT_OWNED] = "tagged_dataset16.png";
+        relPaths[IMAGE_ANNOTATED_NOT_OWNED] = "tagged_image16.png";
+        relPaths[TAG_SET_NOT_OWNED] = "nuvola_knotesRedRed16.png";
     }
     
     /** The sole instance. */
