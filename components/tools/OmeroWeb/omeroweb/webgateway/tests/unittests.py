@@ -572,7 +572,7 @@ class RepositoryApiTest(RepositoryApiBaseTest):
             if metadata['name'] == NAME:
                 mtime = metadata['mtime']
                 break
-        self.assertTrue(mtime)
+        self.assertTrue(mtime, msg="mtime not set in '%s'" % metadata)
         self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
 
     def testRepositoryMkdir(self):
@@ -594,7 +594,7 @@ class RepositoryApiTest(RepositoryApiBaseTest):
                                   server_id=1, conn=self.gateway, _internal=True)
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
-        self.assertTrue(('/' + NAME) in result)
+        self.assertTrue(('/' + NAME) in result, msg="/%s not in '%s'" % (NAME, result))
 
         r = fakeRequest()
         v = views.repository_listfiles(r, klass=self.repoclass, name=self.reponame,
@@ -662,6 +662,7 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
         targetfile = repository.file(self.FILENAME, 'rw')
         targetfile.truncate(0)
         targetfile.write('ABC123', 0, 6)
+        targetfile.close()
 
     def tearDown(self):
         self.loginAsAdmin()
@@ -748,9 +749,11 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         targetfile = repository.file(self.FILENAME_USER, 'rw')
         targetfile.truncate(0)
         targetfile.write('DEF456', 0, 6)
+        targetfile.close()
         targetfile = repository.file(self.FILENAME_USER_DELTEST, 'rw')
         targetfile.truncate(0)
         targetfile.write('GHI789', 0, 6)
+        targetfile.close()
 
     def tearDown(self):
         self.loginAsUser()
@@ -766,8 +769,10 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertTrue(self.FILENAME in files)
-        self.assertTrue(self.FILENAME_USER in files)
+        self.assertTrue(self.FILENAME in files, msg="%s not in '%s'" %
+                        (self.FILENAME, files))
+        self.assertTrue(self.FILENAME_USER in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER, files))
 
     def testListAsUser(self):
         self.loginAsUser()
@@ -777,8 +782,10 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertFalse(self.FILENAME in files)
-        self.assertTrue(self.FILENAME_USER in files)
+        self.assertFalse(self.FILENAME in files, msg="%s in '%s'" %
+                        (self.FILENAME, files))
+        self.assertTrue(self.FILENAME_USER in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER, files))
 
     def testListFilesAsAdmin(self):
         self.loginAsAdmin()
@@ -818,7 +825,8 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
         self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
         result = simplejson.loads(v)['result']
         files = [f.strip('/') for f in result]
-        self.assertTrue(self.FILENAME_USER_DELTEST in files)
+        self.assertTrue(self.FILENAME_USER_DELTEST in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER_DELTEST, files))
 
         r = fakeRequest(REQUEST_METHOD='POST', body='')
         v = views.repository_delete(r, filepath=self.FILENAME_USER_DELTEST,
