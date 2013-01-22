@@ -48,6 +48,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     protected final AtomicReference<BfPixelsWrapper> reader = new AtomicReference<BfPixelsWrapper>();
 
+    private int seriesIndex = 0;
+
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
@@ -78,6 +80,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             }
             // Ensure that we're using the highest resolution level (100%) by
             // default.
+            setSeries(seriesIndex);
             setResolutionLevel(getResolutionLevels() - 1);
         }
         return wrapper;
@@ -103,6 +106,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         // Ensure the reader has been initialized
         reader();
         bfReader.setSeries(series);
+        seriesIndex = series;
     }
 
     /**
