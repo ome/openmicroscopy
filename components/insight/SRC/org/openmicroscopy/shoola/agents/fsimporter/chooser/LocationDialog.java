@@ -58,13 +58,13 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
-import org.openmicroscopy.shoola.util.ui.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
