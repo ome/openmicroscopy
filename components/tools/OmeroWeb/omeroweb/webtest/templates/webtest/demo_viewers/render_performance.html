@@ -98,7 +98,7 @@ $(document).ready(function() {
 
 {% block body %}
 
-Usage: Refresh page, then click button below to EITHER load all images at once OR load sequentially. 
+Usage: Click button below to EITHER load all images at once OR load sequentially. Refresh page to reset.
 
 <hr />
 
@@ -120,7 +120,7 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
 
     {% for zct in zctList %}
         <img id="{{ forloop.counter0 }}" class="plane"
-            src="{% url webgateway.views.render_image image.id 0 0 %}?c=0"
+            src="{% static 'webtest/img/background.png' %}"
             plane="{% url webgateway.views.render_image image.id zct.z zct.t %}?c={{ zct.c }}"/>
     {% endfor %}
 
@@ -130,7 +130,7 @@ Per Plane: <span id="secsPerPlane">0</span> secs.
 
         {% for iid in imageIds %}
         <img id="{{ forloop.counter0 }}" class="plane"
-            src="{% url webgateway.views.render_image iid %}?c=0"
+            src="{% static 'webtest/img/background.png' %}"
             plane="{% url webgateway.views.render_image iid %}"
             thumb="{% url webgateway.views.render_thumbnail iid %}"/>
     {% endfor %}
