@@ -196,6 +196,9 @@ class ToolBar
 	/** The collection of object hosting the groups.*/
 	private Map<JCheckBox, DataMenuItem> groupItems;
 	
+	/** Listens to selection in the groups menu.*/
+	private MouseAdapter usersMenuListener;
+	
 	/** Handles the group and users selection.*/
 	private void handleUsersSelection()
 	{
@@ -386,10 +389,6 @@ class ToolBar
 		Collection groups = model.getGroups();
 		if (groups == null || groups.size() == 0) return;
 		List sortedGroups = sorter.sort(groups);
-		if (groupsMenu == null) {
-			groupsMenu = new JPopupMenu();
-			groupItems = new HashMap<JCheckBox, DataMenuItem>();
-		}
 		groupsMenu.removeAll();
 		groupItems.clear();
 		
@@ -469,27 +468,6 @@ class ToolBar
 		Collection groups = model.getGroups();
 		if (groups == null || groups.size() == 0) return;
 		List sortedGroups = sorter.sort(groups);
-		if (groupsMenu == null) {
-			groupsMenu = new JPopupMenu();
-			groupsMenu.addPopupMenuListener(new PopupMenuListener() {
-				
-				public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
-				
-				/**
-				 * Hides the menu
-				 */
-				public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
-					if (usersMenu != null) usersMenu.setVisible(false);
-				}
-
-				/**
-				 * Hides the menu
-				 */
-				public void popupMenuCanceled(PopupMenuEvent evt) {
-					if (usersMenu != null) usersMenu.setVisible(false);
-				}
-			});
-		}
 		groupsMenu.removeAll();
 		
 		GroupData group;
@@ -503,41 +481,7 @@ class ToolBar
 			});
 			
 		}
-		if (usersMenu == null) {
-			usersMenu = new JPopupMenu();
-		}
-		MouseAdapter l = new MouseAdapter() {
-			
-			/**
-			 * Displays the users belonging to the selected group.
-			 * @see MouseListener#mouseEntered(MouseEvent)
-			 */
-			public void mouseEntered(MouseEvent e) {
-				GroupItem c = (GroupItem) e.getSource();
-				selectedItem = c;
-				usersMenu.setVisible(false);
-				usersMenu.removeAll();
-				usersMenu = new JPopupMenu();
-				//usersMenu.setPopupSize(0, 0);
-				
-				Rectangle r = c.getBounds();
-				usersMenu.add(c.getUsersMenu());
-				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
-
-				Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-				 
-				//Set the size
-				Dimension d = usersMenu.getPreferredSize();
-				Point p1 = c.getLocation();
-				SwingUtilities.convertPointToScreen(p1, c);
-				int h = size.height-p1.y-30; //max size.
-				int diff = p1.y+d.height;
-				if (diff > h)
-					usersMenu.setPopupSize(d.width+20, h);
-				//Set the location
-				usersMenu.show(e.getComponent(), r.width, 0);
-			}
-		};
+		
 		//Determine the group already displayed.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		List<TreeImageDisplay> nodes;
@@ -564,7 +508,7 @@ class ToolBar
 			createGroupMenu(item, size);
 			if (groupIds.contains(group.getId()) || size == 1)
 				item.setGroupSelection(true);
-			item.addMouseListener(l);
+			item.addMouseListener(usersMenuListener);
 			groupsMenu.add(item);
 		}
 		groupsMenu.show(source, p.x, p.y);
@@ -753,10 +697,75 @@ class ToolBar
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
         outerPanel.add(Box.createRigidArea(HBOX));
-        outerPanel.add(Box.createHorizontalGlue());  
+        outerPanel.add(Box.createHorizontalGlue());
         
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(outerPanel));
+    }
+    
+    /** Initializes the components.*/
+    private void initialize()
+    {
+    	sorter = new ViewerSorter();
+        sorter.setCaseSensitive(true);
+        groupsMenu = new JPopupMenu();
+		groupItems = new HashMap<JCheckBox, DataMenuItem>();
+		groupsMenu.addPopupMenuListener(new PopupMenuListener() {
+			
+			public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {}
+			
+			/**
+			 * Hides the menu
+			 */
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
+				if (usersMenu != null) usersMenu.setVisible(false);
+			}
+
+			/**
+			 * Hides the menu
+			 */
+			public void popupMenuCanceled(PopupMenuEvent evt) {
+				if (usersMenu != null) usersMenu.setVisible(false);
+			}
+		});
+		usersMenuListener = new MouseAdapter() {
+			
+			/**
+			 * Displays the users belonging to the selected group.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
+			public void mouseEntered(MouseEvent e) {
+				GroupItem c = (GroupItem) e.getSource();
+				selectedItem = c;
+				if (usersMenu != null) {
+					usersMenu.setVisible(false);
+					usersMenu.removeAll();
+				}
+				usersMenu = new JPopupMenu();
+				
+				//usersMenu.setPopupSize(0, 0);
+				
+				Rectangle r = c.getBounds();
+				usersMenu.add(c.getUsersMenu());
+				usersMenu.add(UIUtilities.buildComponentPanel(addToDisplay));
+				
+				
+				Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+				 
+				//Set the size
+				Dimension d = usersMenu.getPreferredSize();
+				Point p1 = c.getLocation();
+				SwingUtilities.convertPointToScreen(p1, c);
+				int h = size.height-p1.y-30; //max size.
+				int diff = p1.y+d.height;
+				if (diff > h)
+					usersMenu.setPopupSize(d.width+20, h);
+				//Set the location
+				
+				usersMenu.show(e.getComponent(), r.width, 0);
+			}
+		};
+		
     }
     
     /**
@@ -781,8 +790,7 @@ class ToolBar
         this.model = model;
         this.controller = controller;
         this.view = view;
-        sorter = new ViewerSorter();
-        sorter.setCaseSensitive(true);
+        initialize();
         buildGUI();
     }
     
