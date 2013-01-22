@@ -525,6 +525,27 @@ class TestRawAccess(AbstractRepoTest):
 
 class TestDbSync(AbstractRepoTest):
 
+    def testMtime(self):
+        uuid = self.uuid()
+        filename = uuid + "/file.txt"
+        mrepo = self.getManagedRepo()
+
+        mrepo.makeDir(uuid, True)
+        ofile = self.createFile(mrepo, filename)
+        self.assertTrue(ofile.mtime is not None)
+
+    def testFileExists(self):
+        uuid = self.uuid()
+        filename = uuid + "/file.txt"
+        mrepo = self.getManagedRepo()
+
+        mrepo.makeDir(uuid, True)
+        self.assertFalse(mrepo.fileExists(filename))
+
+        self.createFile(mrepo, filename)
+        self.assertTrue(mrepo.fileExists(filename))
+        self.assertTrue("file.txt" in mrepo.list(uuid)[0])
+
     def testNonDbFileNotReturned(self):
         uuid = self.uuid()
         filename = uuid + "/file.txt"
