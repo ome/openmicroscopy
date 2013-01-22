@@ -52,7 +52,7 @@ public class DisplayModeAction
     private static final String NAME_GROUP = "Group Display";
     
     /** The name of the action. */
-    private static final String NAME_EXPERIMENTER = "View Display";
+    private static final String NAME_EXPERIMENTER = "User Display";
     
     /** The description of the action. */
     private static final String DESCRIPTION_EXP = "Display the data per user";
