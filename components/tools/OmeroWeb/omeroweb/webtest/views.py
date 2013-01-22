@@ -591,12 +591,29 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
     context = {}
     if obj_type == 'image':
         image = conn.getObject("Image", id)
-        zctList = []
-        for z in range(image.getSizeZ()):
-            for c in range(image.getSizeC()):
-                for t in range(image.getSizeT()):
-                    zctList.append({'z':z, 'c':c+1, 't':t})
-        context = {'image':image, 'zctList':zctList}
+        image._prepareRenderingEngine()
+
+        # If a 'BIG Image'
+        if image._re.requiresPixelsPyramid():
+            MAX_TILES = 50
+            tileList = []
+            tile_w, tile_h = image._re.getTileSize()
+            cols = image.getSizeX() / tile_w
+            rows = image.getSizeY() / tile_h
+            tileList = [ {'col':c, 'row':r} for r in range(rows) for c in range(cols)]
+            if (len(tileList) > 2*MAX_TILES):
+                tileList = tileList[ (len(tileList)/2):]    # start in middle of list (looks nicer!)
+            tileList = tileList[:MAX_TILES]
+            context = {'tileList': tileList, 'imageId':id}
+        # A regular Image
+        else:
+            zctList = []
+            for z in range(image.getSizeZ()):
+                for c in range(image.getSizeC()):
+                    for t in range(image.getSizeT()):
+                        zctList.append({'z':z, 'c':c+1, 't':t})
+            context = {'zctList':zctList, 'imageId':id}
+    # A Plate
     elif obj_type == 'plate':
         imageIds = []
         plate = conn.getObject("Plate", id)
