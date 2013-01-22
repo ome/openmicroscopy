@@ -492,14 +492,6 @@ public class ManagedRepositoryI extends PublicRepositoryI
         return data;
     }
 
-    public OriginalFile createOriginalFile(String path, Ice.Current __current)
-            throws omero.ServerError {
-        CheckedPath checked = checkPath(path, __current).mustExist();
-        OriginalFile of = repositoryDao.register(getRepoUuid(), checked, null,
-                __current);
-        return of;
-    }
-
     /**
      * Given a path with ending separator or not, this will split everything
      * after the final slash and store it under index==1 while everything else
