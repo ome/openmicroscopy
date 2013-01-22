@@ -1185,6 +1185,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @return see above.
 	 */
 	private Object getParentUserObject(TreeImageDisplay node) {
+		if (node.getParentDisplay() == null) return null;
 		return node.getParentDisplay().getUserObject();
 	}
 	
