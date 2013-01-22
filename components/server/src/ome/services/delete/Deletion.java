@@ -352,40 +352,27 @@ public class Deletion {
                         file = new File(filePath);
                         // Try to remove a _pyramid file if it exists
                         File pyrFile = new File(filePath + PixelsService.PYRAMID_SUFFIX);
-                        if(!deleteSingleFile(pyrFile)) {
-                            failedMap.get(fileType).add(id);
-                            filesFailed++;
-                            bytesFailed += pyrFile.length();
-                        }
+                        deleteSingleFile(pyrFile, fileType, id, failedMap);
+
                         File dir = file.getParentFile();
                         // Now any lock file
                         File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
                                 + BfPyramidPixelBuffer.PYR_LOCK_EXT);
-                        if(!deleteSingleFile(lockFile)) {
-                            failedMap.get(fileType).add(id);
-                            filesFailed++;
-                            bytesFailed += lockFile.length();
-                        }
+                        deleteSingleFile(lockFile, fileType, id, failedMap);
+
                         // Now any tmp files
                         FileFilter tmpFileFilter = new WildcardFileFilter("."
                                 + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
                         File[] tmpFiles = dir.listFiles(tmpFileFilter);
                         if(tmpFiles != null) {
                             for (int i = 0; i < tmpFiles.length; i++) {
-                                if(!deleteSingleFile(tmpFiles[i])) {
-                                    failedMap.get(fileType).add(id);
-                                    filesFailed++;
-                                    bytesFailed += tmpFiles[i].length();
-                                }
+                                deleteSingleFile(tmpFiles[i], fileType, id, failedMap);
                             }
                         }
                     }
+
                     // Finally delete main file for any type.
-                    if(!deleteSingleFile(file)) {
-                        failedMap.get(fileType).add(id);
-                        filesFailed++;
-                        bytesFailed += file.length();
-                    }
+                    deleteSingleFile(file, fileType, id, failedMap);
                 }
             }
         }
@@ -417,19 +404,21 @@ public class Deletion {
     /**
      * Helper to delete and log
      */
-    private boolean deleteSingleFile(File file)
+    private void deleteSingleFile(File file, String fileType, Long id,
+            HashMap<String, ArrayList<Long>> failedMap)
     {
         if (file.exists()) {
             if (file.delete()) {
                 log.debug("DELETED: " + file.getAbsolutePath());
             } else {
                 log.debug("Failed to delete " + file.getAbsolutePath());
-                return false;
+                failedMap.get(fileType).add(id);
+                filesFailed++;
+                bytesFailed += file.length();
             }
         } else {
             log.debug("File " + file.getAbsolutePath() + " does not exist.");
         }
-        return true;
     }
 
 }
