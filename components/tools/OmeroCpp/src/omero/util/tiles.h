@@ -33,10 +33,10 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::Object* upCast(::omero::util::TileData*);
-  ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
-  ::Ice::Object* upCast(::omero::util::TileLoop*);
-  ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileData*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoop*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
 }
 #endif
 

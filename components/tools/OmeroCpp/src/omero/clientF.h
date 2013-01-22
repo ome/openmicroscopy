@@ -15,6 +15,14 @@
 #   include <IceUtil/Handle.h>
 #endif
 
+#ifndef OMERO_API
+#   ifdef OMERO_API_EXPORTS
+#       define OMERO_API ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
+
 namespace omero {
     class client;
     class CallbackI;
@@ -22,7 +30,7 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::Object* upCast(::omero::CallbackI*);
+  OMERO_API ::Ice::Object* upCast(::omero::CallbackI*);
 }
 #endif
 

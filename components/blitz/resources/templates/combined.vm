@@ -169,7 +169,7 @@ Note how the whitespace for the python definitions is important.
 [$hdr] }
 [$hdr] \#if ICE_INT_VERSION / 100 >= 304
 [$hdr] namespace IceInternal {
-[$hdr]   ::Ice::Object* upCast(::omero::model::${PojoI}*);
+[$hdr]   OMERO_API ::Ice::Object* upCast(::omero::model::${PojoI}*);
 [$hdr] }
 [$hdr] #endif
 [$hdr] namespace omero {

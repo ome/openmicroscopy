@@ -47,7 +47,7 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
+  OMERO_API ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
 }
 #endif
 
