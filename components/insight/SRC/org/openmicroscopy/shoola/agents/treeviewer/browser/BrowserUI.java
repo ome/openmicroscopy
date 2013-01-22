@@ -2208,11 +2208,9 @@ class BrowserUI
 	/** Reactivates the tree. */
 	void reActivate()
 	{
-		TreeImageDisplay root = getTreeRoot();
-		root.removeAllChildren();
-		root.removeAllChildrenDisplay();
+		clear();
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
-			ExperimenterData exp = TreeViewerAgent.getUserDetails();
+			ExperimenterData exp = model.getUserDetails();
 			TreeImageDisplay node = buildTreeNodes(exp);
 			if (model.isSelected() && node != null) {
 				expandNode(node, true);
@@ -2222,6 +2220,16 @@ class BrowserUI
 		tm.reload();
 	}
 
+	/** Clear the tree.*/
+	void clear()
+	{
+		TreeImageDisplay root = getTreeRoot();
+		root.removeAllChildren();
+		root.removeAllChildrenDisplay();
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		tm.reload();
+	}
+	
 	/**
 	 * Sets the nodes selecting via other views.
 	 * 
@@ -2353,23 +2361,23 @@ class BrowserUI
     }
 
     /**
-	 * Adds the specified group to the tree.
+	 * Adds the specified groups to the tree.
 	 * 
 	 * @param group The group to add.
 	 */
-	void setUserGroup(GroupData group)
+	void setUserGroup(List<GroupData> groups)
 	{
-		if (group == null) return;
+		if (groups == null || groups.size() == 0) return;
 		ExperimenterData exp = model.getUserDetails();
 		TreeImageSet node;
-		int count = getTreeRoot().getChildCount();
-		node = createGroup(group);
-		node = createExperimenterNode(exp, node);
-    	//if (model.isSelected()) expandNode(node, true);
-		if (count == 0) {
-			DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-			dtm.reload();
+		Iterator<GroupData> i = groups.iterator();
+		while (i.hasNext()) {
+			node = createGroup(i.next());
+			node = createExperimenterNode(exp, node);
+			
 		}
+		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
+		dtm.reload();
     	
 	}
 	

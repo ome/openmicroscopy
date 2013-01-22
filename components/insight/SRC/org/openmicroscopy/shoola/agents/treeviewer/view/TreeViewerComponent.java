@@ -4661,10 +4661,19 @@ class TreeViewerComponent
 	{
 		if (model.getState() != READY || model.getDisplayMode() == index)
 			return;
+		//First check if groups already displayed
 		
+				
 		model.setDisplayMode(index);
-		Browser browser = model.getSelectedBrowser();
-		if (browser != null) browser.reActivate();
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Entry entry;
+		Browser browser;
+		Iterator i = browsers.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
+			browser.changeDisplayMode();
+		}
 		TreeViewerAgent.getRegistry().getEventBus().post(
 				new DisplayModeEvent(model.getDisplayMode()));
 	}
