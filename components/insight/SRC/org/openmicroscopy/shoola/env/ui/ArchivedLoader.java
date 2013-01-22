@@ -125,7 +125,7 @@ public class ArchivedLoader
      */
     public void handleResult(Object result)
     {
-    	if (result == null & !cancelled) onException(MESSAGE_RESULT, null);
+    	if (result == null && !cancelled) onException(MESSAGE_RESULT, null);
     	else {
     		Map m = (Map) result;
     		List l = (List) m.get(Boolean.valueOf(false));
