@@ -2260,11 +2260,8 @@ class BrowserComponent
 		switch (mode) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 				//Check if the user is in more than one group
-				int n = TreeViewerAgent.getAvailableUserGroups().size();
-				if (n == 1) view.reActivate();
-				else { //Add the group.
-					view.setUserGroup(groups);
-				}
+				if (model.isSingleGroup()) view.reActivate();
+				else view.setUserGroup(groups);
 			break;
 			case LookupNames.GROUP_DISPLAY:
 				view.setUserGroup(groups);

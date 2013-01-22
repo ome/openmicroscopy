@@ -84,6 +84,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -391,17 +392,6 @@ class ToolBar
 		List sortedGroups = sorter.sort(groups);
 		groupsMenu.removeAll();
 		groupItems.clear();
-		
-		if (addToDisplay == null) {
-			addToDisplay = new JButton("Update");
-			addToDisplay.addActionListener(new ActionListener() {
-
-				public void actionPerformed(ActionEvent evt) {
-					handleGroupsSelection();
-				}
-			});
-		}
-		
 		GroupData group;
 		//Determine the group already displayed.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -469,18 +459,8 @@ class ToolBar
 		if (groups == null || groups.size() == 0) return;
 		List sortedGroups = sorter.sort(groups);
 		groupsMenu.removeAll();
-		
+		groupItems.clear();
 		GroupData group;
-		if (addToDisplay == null) {
-			addToDisplay = new JButton("Update");
-			addToDisplay.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent arg0) {
-					handleUsersSelection();
-				}
-			});
-			
-		}
 		
 		//Determine the group already displayed.
 		Browser browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -708,6 +688,21 @@ class ToolBar
     {
     	sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
+        addToDisplay = new JButton("Update");
+		addToDisplay.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent evt) {
+				
+				switch (model.getDisplayMode()) {
+					case LookupNames.EXPERIMENTER_DISPLAY:
+						handleUsersSelection();
+						break;
+					case LookupNames.GROUP_DISPLAY:
+						handleGroupsSelection();
+				}
+			}
+		});
+        
         groupsMenu = new JPopupMenu();
 		groupItems = new HashMap<JCheckBox, DataMenuItem>();
 		groupsMenu.addPopupMenuListener(new PopupMenuListener() {
