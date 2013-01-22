@@ -4812,7 +4812,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
             if self.startTime is not None and self.endTime is not None:
                 name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000), datetime.fromtimestamp(self.endTime/1000))
             else:
-                name = "Plate %i" % self.id
+                name = "Run %i" % self.id
         return name
     name = property(getName)
 
