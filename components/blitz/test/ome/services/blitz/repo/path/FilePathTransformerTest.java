@@ -48,16 +48,16 @@ import org.testng.annotations.Test;
 public class FilePathTransformerTest {
     private FilePathTransformer fpt;
     
-    /* TODO: use Spring to create a proper mock test application context, and increase code coverage */
+    /* Doesn't use the filePathSanitizer Spring bean,
+     * to keep the unit tests predictable and self-contained. */
     @BeforeClass
     public void mockSpring() throws IOException {
         final File tempFile = File.createTempFile("test-" + getClass().getSimpleName(), null);
-        final File tempDir = tempFile.getParentFile();
         tempFile.delete();
         tempFile.mkdir();
         this.fpt = new FilePathTransformer();
         this.fpt.setPathSanitizer(new MakePathComponentSafe());
-        this.fpt.setOmeroDataDir(tempDir.getAbsolutePath());
+        this.fpt.setOmeroDataDir(tempFile.getParentFile().getAbsolutePath());
         this.fpt.setFsSubDir(tempFile.getName());
         this.fpt.calculateBaseDir();
     }
@@ -85,13 +85,13 @@ public class FilePathTransformerTest {
      * @return the root directory
      */
     private static File getRootDir() {
-        File dir = new File(".").getAbsoluteFile();
-        do {
-            final File parent = dir.getParentFile();
-            if (parent == null)
-                return dir;
+        File parent = new File(".").getAbsoluteFile();
+        File dir = null;
+        while (parent != null) {
             dir = parent;
-        } while (true);
+            parent = dir.getParentFile();
+        }
+        return dir;
     }
     
     /**
@@ -109,10 +109,7 @@ public class FilePathTransformerTest {
     @Test
     public void testConstructionFromStringPath() {
         final FsFile file = new FsFile("a/b/c");
-        final List<String> expected = new ArrayList<String>();
-        expected.add("a");
-        expected.add("b");
-        expected.add("c");
+        final List<String> expected = Arrays.asList("a", "b", "c");
         Assert.assertEquals(file.getComponents(), expected,
                 "construction from delimited path components should work");
     };
