@@ -85,6 +85,12 @@ public class TreeCellRenderer
 	private static final Icon IMAGE_ANNOTATED_ICON;
 	
 	/** Reference to the <code>Image</code> icon. */
+	private static final Icon IMAGE_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Image</code> icon. */
+	private static final Icon IMAGE_ANNOTATED_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Image</code> icon. */
 	private static final Icon IMAGE_UNREGISTERED_ICON;
 	
 	/** Reference to the <code>Dataset</code> icon. */
@@ -98,6 +104,30 @@ public class TreeCellRenderer
 	
 	/** Reference to the <code>Dataset</code> icon. */
 	private static final Icon DATASET_ANNOTATED_TO_REFRESH_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ANNOTATED_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_TO_REFRESH_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ANNOTATED_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_TO_REFRESH_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
 	
 	/** Reference to the <code>Project</code> icon. */
 	private static final Icon PROJECT_ICON;
@@ -123,11 +153,29 @@ public class TreeCellRenderer
 	/** Reference to the <code>Screen</code> icon. */
 	private static final Icon SCREEN_ANNOTATED_TO_REFRESH_ICON;
 	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_ANNOTATED_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_TO_REFRESH_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+	
 	/** Reference to the <code>Plate</code> icon. */
 	private static final Icon PLATE_ICON;
 	
 	/** Reference to the <code>Plate</code> icon. */
 	private static final Icon PLATE_ANNOTATED_ICON;
+	
+	/** Reference to the <code>Plate</code> icon. */
+	private static final Icon PLATE_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Plate</code> icon. */
+	private static final Icon PLATE_ANNOTATED_NOT_OWNED_ICON;
 	
 	/** Reference to the <code>Plate Acquisition</code> icon. */
 	private static final Icon PLATE_ACQUISITION_ICON;
@@ -142,7 +190,10 @@ public class TreeCellRenderer
 	private static final Icon TAG_SET_ICON;
 	
 	/** Reference to the <code>Tag not owned but used</code> icon. */
-	private static final Icon TAG_OTHER_OWNER_ICON;
+	private static final Icon TAG_NOT_OWNED_ICON;
+	
+	/** Reference to the <code>Tag set owned but used</code> icon. */
+	private static final Icon TAG_SET_NOT_OWNED_ICON;
 	
 	/** Reference to the <code>Tag</code> icon. */
 	private static final Icon PERSONAL_ICON;
@@ -248,29 +299,67 @@ public class TreeCellRenderer
 				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
-		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
+		IMAGE_ANNOTATED_ICON =
+				icons.getIcon(IconManager.IMAGE_ANNOTATED_NOT_OWNED);
+		IMAGE_NOT_OWNED_ICON = icons.getIcon(IconManager.IMAGE_NOT_OWNED);
+		IMAGE_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.IMAGE_ANNOTATED_NOT_OWNED);
 		IMAGE_UNREGISTERED_ICON = icons.getIcon(IconManager.IMAGE_UNREGISTERED);
+		DATASET_NOT_OWNED_ICON = icons.getIcon(IconManager.DATASET_NOT_OWNED);
+		PROJECT_NOT_OWNED_ICON = icons.getIcon(IconManager.PROJECT_NOT_OWNED);
+		SCREEN_NOT_OWNED_ICON = icons.getIcon(IconManager.SCREEN_NOT_OWNED);
+		PLATE_NOT_OWNED_ICON = icons.getIcon(IconManager.PLATE_NOT_OWNED);
 		DATASET_ICON = icons.getIcon(IconManager.DATASET);
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
 		PLATE_ICON = icons.getIcon(IconManager.PLATE);
+	
 		PROJECT_ANNOTATED_ICON = icons.getIcon(IconManager.PROJECT_ANNOTATED);
 		PROJECT_TO_REFRESH_ICON = icons.getIcon(IconManager.PROJECT_TO_REFRESH);
+		PROJECT_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.PROJECT_ANNOTATED_NOT_OWNED);
+		PROJECT_TO_REFRESH_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.PROJECT_TO_REFRESH_NOT_OWNED);
+		
 		DATASET_ANNOTATED_ICON = icons.getIcon(IconManager.DATASET_ANNOTATED);
 		DATASET_TO_REFRESH_ICON = icons.getIcon(IconManager.DATASET_TO_REFRESH);
+		DATASET_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.DATASET_ANNOTATED_NOT_OWNED);
+		DATASET_TO_REFRESH_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.DATASET_TO_REFRESH_NOT_OWNED);
+		
 		DATASET_ANNOTATED_TO_REFRESH_ICON = 
 			icons.getIcon(IconManager.DATASET_ANNOTATED_TO_REFRESH);
 		PROJECT_ANNOTATED_TO_REFRESH_ICON = 
 			icons.getIcon(IconManager.PROJECT_ANNOTATED_TO_REFRESH);
+		DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON = 
+			icons.getIcon(IconManager.DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED);
+		PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON = 
+			icons.getIcon(IconManager.PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED);
+			
 		TAG_ICON = icons.getIcon(IconManager.TAG);
 		TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
-		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
+		TAG_NOT_OWNED_ICON = icons.getIcon(IconManager.TAG_NOT_OWNED);
 		SCREEN_ANNOTATED_ICON = icons.getIcon(IconManager.SCREEN_ANNOTATED);
 		SCREEN_TO_REFRESH_ICON = icons.getIcon(IconManager.SCREEN_TO_REFRESH);
 		SCREEN_ANNOTATED_TO_REFRESH_ICON = 
 			icons.getIcon(IconManager.SCREEN_ANNOTATED_TO_REFRESH);
+		SCREEN_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.SCREEN_ANNOTATED_NOT_OWNED);
+		SCREEN_TO_REFRESH_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.SCREEN_TO_REFRESH_NOT_OWNED);
+		SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON = 
+			icons.getIcon(IconManager.SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED);
+		
 		PLATE_ANNOTATED_ICON = icons.getIcon(IconManager.PLATE_ANNOTATED);
 		PLATE_ACQUISITION_ICON = icons.getIcon(IconManager.PLATE_ACQUISITION);
+		PLATE_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
+				IconManager.PLATE_ANNOTATED_NOT_OWNED);
+		PLATE_ACQUISITION_ANNOTATED_ICON = icons.getIcon(
+				IconManager.PLATE_ACQUISITION_ANNOTATED);
+
+		TAG_SET_NOT_OWNED_ICON = icons.getIcon(IconManager.TAG_SET_NOT_OWNED);
+		
 		PERSONAL_ICON = icons.getIcon(IconManager.PERSONAL);
 		IMAGE_DIRECTORY_ICON = icons.getIcon(IconManager.IMAGE_DIRECTORY);
 		IMAGE_DIRECTORY_UNREGISTERED_ICON = 
@@ -298,8 +387,6 @@ public class TreeCellRenderer
 		EDITOR_EXPERIMENT_ICON = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
 		MOVIE_FOLDER_ICON = icons.getIcon(IconManager.MOVIE_FOLDER);
 		DATE_ICON = icons.getIcon(IconManager.DATE);
-		PLATE_ACQUISITION_ANNOTATED_ICON = icons.getIcon(
-				IconManager.PLATE_ACQUISITION_ANNOTATED);
 	}
 	
 	/** The dimension of the busy label. */
@@ -326,6 +413,9 @@ public class TreeCellRenderer
     /** The location of the text.*/
     private int xText;
     
+    /** The id of the user currently logged in.*/
+    private long userId;
+    
     /**
      * Sets the icon and the text corresponding to the user's object.
      * 
@@ -334,58 +424,110 @@ public class TreeCellRenderer
     private void setIcon(TreeImageDisplay node)
     {
     	Object usrObject = node.getUserObject();
+    	boolean owner = node.isOwner(userId);
+    	if (userId < 0) owner = true;
         Icon icon = FILE_TEXT_ICON;
         if (usrObject instanceof ProjectData) {
         	if (node.isToRefresh()) {
-        		if (node.isAnnotated())
-            		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
-            	else icon = PROJECT_TO_REFRESH_ICON;
+        		if (owner) {
+        			if (node.isAnnotated())
+                		icon = PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+                	else icon = PROJECT_TO_REFRESH_NOT_OWNED_ICON;
+        		} else {
+        			if (node.isAnnotated())
+                		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
+                	else icon = PROJECT_TO_REFRESH_ICON;
+        		}
         	} else {
-        		if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
-            	else icon = PROJECT_ICON;
+        		if (owner) {
+        			if (node.isAnnotated())
+        				icon = PROJECT_ANNOTATED_NOT_OWNED_ICON;
+                	else icon = PROJECT_NOT_OWNED_ICON;
+        		} else {
+        			if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
+                	else icon = PROJECT_ICON;
+        		}
         	}
         } else if (usrObject instanceof DatasetData) {
         	if (node.isToRefresh()) {
-        		if (node.isAnnotated())
-        			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
-                else icon = DATASET_TO_REFRESH_ICON;
+        		if (owner) {
+        			if (node.isAnnotated())
+            			icon = DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+                    else icon = DATASET_TO_REFRESH_NOT_OWNED_ICON;
+        		} else {
+        			if (node.isAnnotated())
+            			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
+                    else icon = DATASET_TO_REFRESH_ICON;
+        		}
         	} else {
-        		if (node.isAnnotated()) icon = DATASET_ANNOTATED_ICON;
-                else icon = DATASET_ICON;
+        		if (owner) {
+        			if (node.isAnnotated()) icon = DATASET_ANNOTATED_ICON;
+                    else icon = DATASET_ICON;
+        		} else {
+        			if (node.isAnnotated())
+        				icon = DATASET_ANNOTATED_NOT_OWNED_ICON;
+                    else icon = DATASET_NOT_OWNED_ICON;
+        		}
         	}
         } else if (usrObject instanceof ImageData) {
-            if (node.isAnnotated()) icon = IMAGE_ANNOTATED_ICON;
-            else {
-            	ImageData o = (ImageData) usrObject;
-            	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
-            	else icon = IMAGE_ICON;
-            }
+        	if (owner) {
+        		if (node.isAnnotated()) icon = IMAGE_ANNOTATED_ICON;
+                else {
+                	ImageData o = (ImageData) usrObject;
+                	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
+                	else icon = IMAGE_ICON;
+                }
+        	} else {
+        		if (node.isAnnotated()) icon = IMAGE_ANNOTATED_NOT_OWNED_ICON;
+                else {
+                	ImageData o = (ImageData) usrObject;
+                	if (o.getId() < 0) icon = IMAGE_UNREGISTERED_ICON;
+                	else icon = IMAGE_NOT_OWNED_ICON;
+                }
+        	}
         } else if (usrObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) usrObject;
         	String ns = tag.getNameSpace();
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-        		icon = TAG_SET_ICON;
-        	else {
+        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+        		if (owner) icon = TAG_SET_ICON;
+        		else icon = TAG_SET_NOT_OWNED_ICON;
+        	} else {
         		icon = TAG_ICON;
         		TreeImageDisplay n = BrowserFactory.getDataOwner(node);
         		if (n != null) {
         			ExperimenterData exp = (ExperimenterData) n.getUserObject();
         			if (!EditorUtil.isUserOwner(tag, exp.getId()))
-        				icon = TAG_OTHER_OWNER_ICON;
+        				icon = TAG_NOT_OWNED_ICON;
         		}
         	}
         } else if (usrObject instanceof ScreenData) {
         	if (node.isToRefresh()) {
-        		if (node.isAnnotated())
-            		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
-            	else icon = SCREEN_TO_REFRESH_ICON;;
+        		if (owner) {
+        			if (node.isAnnotated())
+                		icon = SCREEN_ANNOTATED_TO_REFRESH_ICON;
+                	else icon = SCREEN_TO_REFRESH_ICON;;
+        		} else {
+        			if (node.isAnnotated())
+                		icon = SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+                	else icon = SCREEN_TO_REFRESH_NOT_OWNED_ICON;;
+        		}
         	} else {
-        		if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
-            	else icon = SCREEN_ICON;
+        		if (owner) {
+        			if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
+                	else icon = SCREEN_ICON;
+        		} else {
+        			if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
+                	else icon = SCREEN_ICON;
+        		}
         	}
         } else if (usrObject instanceof PlateData) {
-        	if (node.isAnnotated()) icon = PLATE_ANNOTATED_ICON;
-        	else icon = PLATE_ICON; 
+        	if (owner) {
+        		if (node.isAnnotated()) icon = PLATE_ANNOTATED_ICON;
+            	else icon = PLATE_ICON;
+        	} else {
+        		if (node.isAnnotated()) icon = PLATE_ANNOTATED_NOT_OWNED_ICON;
+            	else icon = PLATE_NOT_OWNED_ICON;
+        	}
         } else if (usrObject instanceof PlateAcquisitionData) {
         	if (node.isAnnotated()) icon = PLATE_ACQUISITION_ANNOTATED_ICON;
         	else icon = PLATE_ACQUISITION_ICON; 
@@ -518,11 +660,13 @@ public class TreeCellRenderer
     /**
      * Creates a new instance.
      * 
+     * @param userId The id of the user currently logged in.
      * @param b Passed <code>true</code> to show the number of children,
      *          <code>false</code> otherwise.
      */ 
-    public TreeCellRenderer(boolean b)
+    public TreeCellRenderer(long userId, boolean b)
     {
+    	this.userId = userId;
         numberChildrenVisible = b;
         selected = false;
         filter = new EditorFileFilter();
@@ -531,8 +675,12 @@ public class TreeCellRenderer
 				backgroundSelectionColor.getBlue(), 100);
     }
     
-    /** Creates a new instance. */
-    public TreeCellRenderer() { this(true); }
+    /**
+     * Creates a new instance.
+     * 
+     * @param userId The id of the user currently logged in.
+     */
+    public TreeCellRenderer(long userId) { this(userId, true); }
     
     /**
      * Overridden to set the icon and the text.

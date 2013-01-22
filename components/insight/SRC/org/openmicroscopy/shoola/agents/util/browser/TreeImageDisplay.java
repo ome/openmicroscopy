@@ -628,6 +628,26 @@ public abstract class TreeImageDisplay
     	this.displayItems = displayItems;
     }
     
+    /**
+     * Returns <code>true</code> if the specified user is the owner of the 
+     * data object, <code>false</code> otherwise.
+     * 
+     * @param userId The id of the user.
+     * @return See above.
+     */
+    public boolean isOwner(long userId)
+    {
+    	Object ho = getUserObject();
+    	if (ho instanceof GroupData || ho instanceof ExperimenterData)
+    		return false;
+    	if (ho instanceof DataObject) {
+    		DataObject data = (DataObject) ho;
+    		if (data.getOwner() != null) {
+    			return data.getOwner().getId() == userId;
+    		}
+    	}
+    	return false;
+    }
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()

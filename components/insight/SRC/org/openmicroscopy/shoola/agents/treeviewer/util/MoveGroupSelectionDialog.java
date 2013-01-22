@@ -503,7 +503,7 @@ public class MoveGroupSelectionDialog
 		treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
-        treeDisplay.setCellRenderer(new TreeCellRenderer());
+        treeDisplay.setCellRenderer(new TreeCellRenderer(userID));
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
