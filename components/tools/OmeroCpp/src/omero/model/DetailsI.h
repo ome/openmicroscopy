@@ -43,7 +43,7 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::Object* upCast(::omero::model::DetailsI*);
+  OMERO_API ::Ice::Object* upCast(::omero::model::DetailsI*);
 }
 #endif
 

@@ -45,8 +45,8 @@ namespace omero {
 
 #if ICE_INT_VERSION / 100 >= 304
 namespace IceInternal {
-  ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
-  ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
+  OMERO_API ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
+  OMERO_API ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
 }
 #endif
 
