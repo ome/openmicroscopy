@@ -178,8 +178,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
                 byte[] hash = md.digest();
                 file.setSha1(Utils.bytesToHex(hash));
 
-                long size = new File(path).length();
+                File f = new File(path);
+                long size = f.length();
                 file.setSize(size);
+                file.setMtime(new java.sql.Timestamp(f.lastModified()));
 
             } catch (RuntimeException re) {
                 // ticket:3140
