@@ -3486,6 +3486,27 @@ class EditorModel
 		return MetadataViewerAgent.getUserDetails();
 	}
 	
+	/**
+	 * Returns the experimenter corresponding to the specified identifier.
+	 * or <code>null</code>.
+	 * 
+	 * @param expID The identifier of the experimenter.
+	 * @return see above.
+	 */
+	ExperimenterData getExperimenter(long expID)
+	{
+		List l = (List) MetadataViewerAgent.getRegistry().lookup(
+				LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == expID) return exp;
+		}
+		return null;
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.
@@ -3499,14 +3520,19 @@ class EditorModel
 			return null;
 		if (o instanceof DataObject) {
 			DataObject data = (DataObject) o;
-			long id = MetadataViewerAgent.getUserDetails().getId();
+			long id = getCurrentUser().getId();
 			if (data.getId() < 0) return null;
 			if (!((DataObject) o).isLoaded()) return null;
 			try {
 				ExperimenterData owner = data.getOwner();
 				if (owner.getId() == id) return null;
-				return owner.getFirstName()+" "+owner.getLastName();
-			} catch (Exception e) {}
+				if (owner.isLoaded())
+					return EditorUtil.formatExperimenter(owner);
+				owner = getExperimenter(owner.getId());
+				if (owner != null)
+					return EditorUtil.formatExperimenter(owner);
+			} catch (Exception e) {
+			}
 		}
 		return null;
 	}
