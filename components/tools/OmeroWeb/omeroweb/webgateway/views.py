@@ -2001,10 +2001,11 @@ def repository_list(request, klass, name=None, filepath=None, conn=None, **kwarg
     root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
-    if repository.fileExists(root, ctx):
+    try:
         result = [f for f in repository.list(root, ctx)
                   if not f.startswith('.')]
-    else:
+    except: # list failed, likely because root does not exist
+        logger.error(traceback.format_exc())
         result = []
     return dict(result=result)
 
@@ -2141,9 +2142,10 @@ def repository_makedir(request, klass, name=None, dirpath=None, conn=None, **kwa
         path = os.path.join(root, fwname, dirpath)
         rdict = {'bad': 'false'}
         force = request.GET.get('force', 'false')
+        parents = request.GET.get('parents', 'true')
         if force == 'true' and repository.fileExists(path):
             return rdict
-        repository.makeDir(path)
+        repository.makeDir(path, parents != 'false')
     except Exception, ex:
         logger.error(traceback.format_exc())
         rdict = {'bad': 'true', 'errs': str(ex)}
