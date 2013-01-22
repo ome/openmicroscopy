@@ -29,6 +29,8 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -44,7 +46,6 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -57,6 +58,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -169,10 +171,10 @@ public class ProjSavingDialog
 	private JComboBox					parentsBox;
 	
 	/** The listener linked to the parents box. */
-	private ActionListener				parentsBoxListener;
+	private ItemListener				parentsBoxListener;
 	
 	/** The listener linked to the datasets box. */
-	private ActionListener				datasetsBoxListener;
+	private ItemListener				datasetsBoxListener;
 	
 	/** The selected container where to import the data. */
 	private DataObject					selectedContainer;
@@ -195,13 +197,11 @@ public class ProjSavingDialog
 	{
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getUIDatasetNodes();
-		List<DataNode> l;
-		if (list == null || list.size() == 0) {
-			l = new ArrayList<DataNode>();
-			l.add(new DataNode(DataNode.createDefaultDataset()));
-		} else l = sorter.sort(list);
+		List<DataNode> l = new ArrayList<DataNode>();
+		l.add(new DataNode(DataNode.createDefaultDataset()));
+		l.addAll(sorter.sort(list));
 		
-		datasetsBox.removeActionListener(datasetsBoxListener);
+		datasetsBox.removeItemListener(datasetsBoxListener);
 		datasetsBox.removeAllItems();
 		
 		populateAndAddTooltipsToComboBox(l, datasetsBox);
@@ -210,27 +210,26 @@ public class ProjSavingDialog
 			selectedContainer instanceof DatasetData) {
 			DatasetData d = (DatasetData) selectedContainer;
 			Iterator<DataNode> i = l.iterator();
+			boolean set = false;
 			while (i.hasNext()) {
 				n = i.next();
-				if (n.getDataObject().getId() == d.getId()) {
+				if (n.getDataObject().getId() == d.getId() &&
+						n.getDataObject().canLink()) {
 					datasetsBox.setSelectedItem(n);
 					selectedDataset = (DatasetData) n.getDataObject();
+					set = true;
 					break;
+				}
+				if (!set) {
+					datasetsBox.setSelectedItem(0);
+					n = (DataNode) datasetsBox.getSelectedItem();
+					selectedDataset = (DatasetData) n.getDataObject();
 				}
 			}
 		} else { // no node selected
-			if (l.size() > 1) {
-				Iterator<DataNode> i = l.iterator();
-				while (i.hasNext()) {
-					n = i.next();
-					if (!n.isDefaultDataset()) {
-						datasetsBox.setSelectedItem(n);
-						break;
-					}
-				}
-			}
+			datasetsBox.setSelectedItem(0);
 		}
-		datasetsBox.addActionListener(datasetsBoxListener);
+		datasetsBox.addItemListener(datasetsBoxListener);
 	}
 	
 	/**
@@ -246,24 +245,43 @@ public class ProjSavingDialog
 			int startZ, int endZ)
 	{
 		parentsBox = new JComboBox();
-		parentsBoxListener = new ActionListener() {
+		
+		parentsBoxListener = new ItemListener() {
 			
-			public void actionPerformed(ActionEvent e) {
-				populateDatasetsBox();
-			}
-		};
-		parentsBox.addActionListener(parentsBoxListener);
-		datasetsBox = new JComboBox();
-		datasetsBoxListener = new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
-				if (node != null) {
-					selectedDataset = (DatasetData) node.getDataObject();
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					DataNode node = (DataNode) parentsBox.getSelectedItem();
+					if (!node.isDefaultNode() &&
+							!node.getDataObject().canLink()) {
+						selectedContainer = null;
+						parentsBox.setSelectedIndex(0);
+					}
+					populateDatasetsBox();
 				}
 			}
 		};
-		datasetsBox.addActionListener(datasetsBoxListener);
+		parentsBox.removeItemListener(parentsBoxListener);
+		datasetsBox = new JComboBox();
+		datasetsBoxListener = new ItemListener() {
+			
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					DataNode node = (DataNode) datasetsBox.getSelectedItem();
+					if (node != null) {
+						if (!node.isDefaultNode() &&
+								!node.getDataObject().canLink()) {
+							//Determine the first dataset that be picked.
+							datasetsBox.setSelectedIndex(0);
+							node = (DataNode) datasetsBox.getSelectedItem();
+							selectedDataset = (DatasetData) node.getDataObject();
+						} else 
+						selectedDataset = (DatasetData) node.getDataObject();
+					}
+				}
+				
+			}
+		};
+		datasetsBox.removeItemListener(datasetsBoxListener);
 		rndSettingsBox = new JCheckBox("Apply same rendering settings");
 		rndSettingsBox.setToolTipText(
 				UIUtilities.formatToolTipText(
@@ -643,7 +661,7 @@ public class ProjSavingDialog
 	public void setContainers(Collection containers)
 	{
 		if (containers == null || containers.size() == 0) return;
-		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.removeItemListener(parentsBoxListener);
 		parentsBox.removeAllItems();
 		datasetsBox.removeAllItems();
 		
@@ -685,13 +703,14 @@ public class ProjSavingDialog
 			for (int i = 0; i < parentsBox.getItemCount(); i++) {
 				n = (DataNode) parentsBox.getItemAt(i);
 				if (n.getDataObject().getId() == 
-					selectedGrandParentContainer.getId()) {
+					selectedGrandParentContainer.getId() &&
+					n.getDataObject().canLink()) {
 					parentsBox.setSelectedIndex(i);
 					break;
 				}
 			}
 		}
-		parentsBox.addActionListener(parentsBoxListener);
+		parentsBox.addItemListener(parentsBoxListener);
 		populateDatasetsBox();
 		buildLocationPane();
 	}
