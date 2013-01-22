@@ -49,8 +49,18 @@
         <ivy:retrieve settingsRef="ivy.${ant.project.name}"
             pattern="${deps.lib.dir}/runtime/[artifact].[ext]"
             conf="client" log="quiet" sync="false" symlink="true"/>
+        <insightBuild target="jar"/>
+    </target>
+
+    <target name="install" depends="package">
+        <publishArtifact haltonmissing="false"/>
+    </target>
+
+
+    <target name="zips" depends="prepare">
         <insightBuild target="dist"/>
         <antcall target="copy-zips" inheritAll="true" inheritRefs="true"/>
+        <publishArtifact/>
     </target>
 
     <target name="clean">
