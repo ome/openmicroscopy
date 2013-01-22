@@ -436,9 +436,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		projectsBox.addItemListener(this);
 		
 		datasetsBox = new JComboBox();
+		datasetsBox.addItemListener(this);
 		
 		screensBox = new JComboBox();
-
+		screensBox.addItemListener(this);
+		
 		// main location panel buttons
 		newProjectButton = new JButton(TEXT_NEW);
 		newProjectButton.setToolTipText(TOOLTIP_NEW_PROJECT);
@@ -858,14 +860,14 @@ class LocationDialog extends JDialog implements ActionListener,
 			ItemListener itemListener) {
 
 		if(comboBox == null || items == null) return;
-		
-		if(itemListener != null)
+		//Only add the item the user can actually select
+		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
 		List<String> tooltips = new ArrayList<String>(items.size());
 		
-		for (DataNode node : items) {		
+		for (DataNode node : items) {
 			String nodeName = node.getFullName();
 			List<String> wrapped = UIUtilities.wrapStyleWord(nodeName);
 			tooltips.add(UIUtilities.formatToolTipText(wrapped));
@@ -1302,13 +1304,27 @@ class LocationDialog extends JDialog implements ActionListener,
 				
 				switchToSelectedGroup();
 			} else if (source == projectsBox) {
-				populateDatasetsBox();
-				//check if the user can add dataset to the selected project
 				DataNode node = (DataNode) projectsBox.getSelectedItem();
+				datasetsBox.setEnabled(true);
+				newDatasetButton.setEnabled(true);
 				if (node.isDefaultProject()) {
 					newDatasetButton.setEnabled(true);
-				} else {
-					newDatasetButton.setEnabled(node.getDataObject().canLink());
+				} else if (!node.getDataObject().canLink()) {
+					projectsBox.setSelectedIndex(0);
+					return;
+				}
+				populateDatasetsBox();
+			} else if (source == datasetsBox) {
+				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				if (!node.isDefaultNode()) {
+					if (!node.getDataObject().canLink())
+						datasetsBox.setSelectedIndex(0);
+				}
+			} else if (source == screensBox) {
+				DataNode node = (DataNode) screensBox.getSelectedItem();
+				if (!node.isDefaultNode()) {
+					if (!node.getDataObject().canLink())
+						screensBox.setSelectedIndex(0);
 				}
 			}
 		}
