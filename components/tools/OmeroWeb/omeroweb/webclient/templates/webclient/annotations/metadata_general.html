@@ -328,6 +328,9 @@
             {% if manager.image or manager.well.getWellSample.image %}
                 // we need to know parent for the 'apply to all'
                 var getParentId = function() {
+                    if (typeof $.jstree === "undefined") {
+                        return;
+                    }
                     var datatree = $.jstree._focused();
                     if (!datatree) return;
                     var sel = datatree.data.ui.selected,
@@ -352,23 +355,25 @@
                     $chNameForm.find("button[name=apply]").hide();  // hide 'apply to all'
                 } else {
                     var parentType = pid.split("-")[0];
-                    $chNameForm.find(".ptype").text( parentType.capitalize() );
+                    $chNameForm.find(".ptype").text( parentType );
                     $chNameForm.find("input[name=parentId]").val(pid).attr('value', pid);
                     if (parentType === "plate") {
                         // Plate: only allow 'Apply to All' (all images linked to same Channels)
-                        $chNameForm.find("button[name=save]").hide();
+                        $chNameForm.find("button[name=save]").remove();
                     }
                 }
                 var resetChForm = function() {
                     $chNameForm.find(".originalButtons").show();
                     $chNameForm.find(".confirmButtons").hide();
                     $("#channel_names_display").show();
-                    $("#channel_names_edit").hide();
+                    $("#editChannelNames").show();
+                    $chNameForm.hide();
                 }
                 // Workflow starts by displaying the form
-                $("#channel_names button").click(function(){
+                $("#editChannelNames").click(function(){
                     $("#channel_names_display").hide();
-                    $("#channel_names_edit").show();
+                    $("#editChannelNames").hide();
+                    $chNameForm.show();
                 });
                 // Handling of all form buttons. NB: save & apply_confirm buttons submit
                 $chNameForm.find("button").click(function(event){
@@ -385,7 +390,7 @@
                     }
                 });
                 // Form handled by AJAX
-                $("#channel_names_edit").ajaxForm({
+                $chNameForm.ajaxForm({
                     dataType:  'json',
                     success: function(data) {
                         var cnames = data.channelNames;
