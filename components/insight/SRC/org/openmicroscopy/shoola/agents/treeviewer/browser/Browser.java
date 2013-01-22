@@ -866,4 +866,8 @@ public interface Browser
 	 * @return See above.
 	 */
 	int getDisplayMode();
+	
+	/** Rebuilds the tree when the display mode is modified.*/
+	void changeDisplayMode();
+
 }

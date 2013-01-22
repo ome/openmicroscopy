@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -1916,7 +1917,7 @@ class BrowserComponent
 			activate();
 		}
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setRepositories(TreeImageDisplay, FSFileSystemView)
@@ -2163,7 +2164,7 @@ class BrowserComponent
 	{
 		if (group == null)
 			throw new IllegalArgumentException("Group cannot be null.");
-		view.setUserGroup(group);
+		view.setUserGroup(Arrays.asList(group));
 	}
 
 	/**
@@ -2232,4 +2233,42 @@ class BrowserComponent
      */
 	public int getDisplayMode() { return model.getDisplayMode(); }
 
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#changeDisplayMode()
+	 */
+	public void changeDisplayMode()
+	{
+		if (model.getBrowserType() == Browser.ADMIN_EXPLORER)
+			return;
+		int mode = model.getDisplayMode();
+		model.setSelectedDisplay(null, true);
+		//view.changeDisplayMode();
+		ExperimenterVisitor v = new ExperimenterVisitor(this, -1);
+		accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
+		List<TreeImageDisplay> nodes = v.getNodes();
+		
+		//Check the group already display
+		//Was in group mode
+		view.clear();
+		List<GroupData> groups = new ArrayList<GroupData>(
+				nodes.size());
+		Iterator<TreeImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) {
+			groups.add((GroupData) i.next().getUserObject());	
+		}
+		switch (mode) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+				//Check if the user is in more than one group
+				int n = TreeViewerAgent.getAvailableUserGroups().size();
+				if (n == 1) view.reActivate();
+				else { //Add the group.
+					view.setUserGroup(groups);
+				}
+			break;
+			case LookupNames.GROUP_DISPLAY:
+				view.setUserGroup(groups);
+		}
+	}
+	
 }
