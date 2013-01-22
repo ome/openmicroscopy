@@ -837,8 +837,8 @@ class PropertiesUI
         	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
         	bar.add(button);
         	p.add(bar, c);
+        	c.gridx++;
     	}
-		c.gridx++;
 		if (sizeRow > 0) {
 			c.ipady = sizeRow;
 			c.gridheight = 2;
@@ -901,11 +901,12 @@ class PropertiesUI
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         JPanel l = UIUtilities.buildComponentPanel(idLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        int w = editName.getIcon().getIconWidth()+4;
-        p.add(layoutEditablefield(null, l));
+        p.add(l);
         l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
-        p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+        p.add(l);
+        int w = editName.getIcon().getIconWidth()+4;
+        //p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
