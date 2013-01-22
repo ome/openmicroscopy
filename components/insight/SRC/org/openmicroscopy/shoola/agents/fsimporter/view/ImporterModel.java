@@ -41,9 +41,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -108,12 +106,20 @@ class ImporterModel
 		experimenterId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
+		checkDefaultDisplayMode();
+	}
+
+	/**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
 		Integer value = (Integer) ImporterAgent.getRegistry().lookup(
     			LookupNames.DATA_DISPLAY);
 		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
 		else setDisplayMode(value.intValue());
 	}
-
+	
 	/**
 	 * Indicates to load all annotations available if the user can annotate
 	 * and is an administrator/group owner or to only load the user's
@@ -415,6 +421,10 @@ class ImporterModel
 	 */
 	void setDisplayMode(int value)
 	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
 		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:

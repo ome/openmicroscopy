@@ -1018,7 +1018,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		projects.clear();
 		datasets.clear();
 		screens.clear();
-		
+	
 		DataNode defaultProject = new DataNode(DataNode.createDefaultProject());
 		List<DataNode> orphanDatasets = new ArrayList<DataNode>();
 		

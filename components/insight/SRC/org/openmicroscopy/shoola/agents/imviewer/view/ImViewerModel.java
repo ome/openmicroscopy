@@ -500,6 +500,14 @@ class ImViewerModel
 		selectedUserID = -1;
 		lastProjTime = -1;
 		lastProjRef = null;
+		checkDefaultDisplayMode();
+	}
+	
+	/**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
 		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
     			LookupNames.DATA_DISPLAY);
 		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
@@ -2927,6 +2935,10 @@ class ImViewerModel
 	 */
 	void setDisplayMode(int value)
 	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
 		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
