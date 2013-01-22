@@ -191,6 +191,16 @@ abstract class DataBrowserModel
 	/** The display mode.*/
     protected int displayMode;
     
+    /**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
+		Integer value = (Integer) DataBrowserAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
+	}
 	/**
 	 * Indicates to load all annotations available if the user can annotate
 	 * and is an administrator/group owner or to only load the user's
@@ -247,10 +257,7 @@ abstract class DataBrowserModel
     	sorter = new ViewerSorter();
     	state = DataBrowser.NEW;
     	this.ctx = ctx;
-    	Integer value = (Integer) DataBrowserAgent.getRegistry().lookup(
-    			LookupNames.DATA_DISPLAY);
-		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
-		else setDisplayMode(value.intValue());
+    	checkDefaultDisplayMode();
     }
     
 	/**
@@ -930,6 +937,10 @@ abstract class DataBrowserModel
 	 */
 	void setDisplayMode(int value)
 	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
 		switch (value) {
 			case LookupNames.EXPERIMENTER_DISPLAY:
 			case LookupNames.GROUP_DISPLAY:
