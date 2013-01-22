@@ -268,7 +268,11 @@ public class CheckedPath {
 
     /**
      * Creates an {@link ome.model.core.OriginalFile} instance for the given
-     * {@link CheckedPath} even if it doesn't exist. If it does exist,
+     * {@link CheckedPath} even if it doesn't exist. If it does exist, then
+     * the size and sha1 value will be properly set. Further, if it's a directory,
+     * the mimetype passed in by the user must either be null, in which case
+     * "Directory" will be used, or must be that correct value.
+     *
      * @param mimetype
      * @return
      */
