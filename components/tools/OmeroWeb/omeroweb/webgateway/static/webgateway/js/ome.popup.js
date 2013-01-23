@@ -44,9 +44,9 @@ OME.openPopup = function(url) {
 };
 
 
-OME.openCenteredWindow = function(url) {
-    var width = 550;
-    var height = 600;
+OME.openCenteredWindow = function(url, w, h) {
+    var width = w ? +w : 550;
+    var height = h ? +h : 600;
     var left = parseInt((screen.availWidth/2) - (width/2), 10);
     var top = 0;
     var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
@@ -54,6 +54,17 @@ OME.openCenteredWindow = function(url) {
     if(!myWindow.closed) {
         myWindow.focus();
     }
+    return false;
+};
+
+
+OME.openScriptWindow = function(event, width, height) {
+    // open script url, providing Data_Type and IDs params in request
+    var script_url = $(event.target).attr('href');
+    if (script_url == "#") return false;
+
+    script_url += "?"+ OME.get_tree_selection();
+    OME.openCenteredWindow(script_url, width, height);
     return false;
 };
 
@@ -115,13 +126,13 @@ OME.get_tree_selection = function() {
 OME.confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
     if ((typeof title == "undefined") || (title === null)) {
-        var title = "Confirm";
+        title = "Confirm";
     }
     if ((typeof width == "undefined") || (width === null)) {
-        var width = 350;
+        width = 350;
     }
     if ((typeof height == "undefined") || (height === null)) {
-        var height = 140;
+        height = 140;
     }
 
     var $dialog = $("#confirm_dialog");

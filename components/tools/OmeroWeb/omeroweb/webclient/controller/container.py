@@ -177,6 +177,29 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
         
+
+    def listFigureScripts(self, objDict=None):
+        """
+        This configures all the Figure Scripts, setting their enabled status given the
+        currently selected object (self.image etc) or batch objects (uses objDict).
+        """
+        figureScripts = []
+        # id is used in url and is mapped to full script path by views.figure_script()
+        splitView = {'id': 'SplitView', 'name':'Split View Figure', 'enabled': False,
+            'tooltip': "Create a figure of images, splitting their channels into separate views"}
+        # Split View Figure is enabled if we have at least one image with SizeC > 1
+        if self.image:
+            splitView['enabled'] = (self.image.getSizeC() > 1)
+        elif objDict is not None:
+            if 'image' in objDict:
+                for i in objDict['image']:
+                    if i.getSizeC() > 1:
+                        splitView['enabled'] = True
+                        break
+        figureScripts.append(splitView)
+        return figureScripts
+
+
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
