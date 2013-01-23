@@ -3519,18 +3519,20 @@ class EditorModel
 		if (o instanceof ExperimenterData || o instanceof GroupData)
 			return null;
 		if (o instanceof DataObject) {
+			ExperimenterData user = getCurrentUser();
 			DataObject data = (DataObject) o;
-			long id = getCurrentUser().getId();
+			long id = user.getId();
 			if (data.getId() < 0) return null;
 			if (!((DataObject) o).isLoaded()) return null;
 			try {
 				ExperimenterData owner = data.getOwner();
-				if (owner.getId() == id) return null;
+				if (owner.getId() == id)
+					return EditorUtil.formatExperimenterInitial(user, false);
 				if (owner.isLoaded())
-					return EditorUtil.formatExperimenter(owner);
+					return EditorUtil.formatExperimenterInitial(owner, false);
 				owner = getExperimenter(owner.getId());
 				if (owner != null)
-					return EditorUtil.formatExperimenter(owner);
+					return EditorUtil.formatExperimenterInitial(owner, false);
 			} catch (Exception e) {
 			}
 		}

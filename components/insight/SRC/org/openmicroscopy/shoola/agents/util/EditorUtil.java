@@ -826,6 +826,33 @@ public class EditorUtil
 		return buf.toString();
 	}
     
+    /**
+     * Formats the specified experimenter. Use the initial of the user
+     * for the first name.
+     * 
+     * @param exp The experimenter to format.
+     * @param capitalize Pass <code>true</code> to capitalize the first letter
+     * <code>false</code> otherwise.
+     * @return See above.
+     */
+	public static String formatExperimenterInitial(ExperimenterData exp, 
+			boolean capitalize)
+	{
+		if (exp == null) return "";
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		StringBuffer buf = new StringBuffer();
+		if (capitalize) buf.append(Character.toUpperCase(s1.charAt(0)));
+		else buf.append(Character.toLowerCase(s1.charAt(0)));
+		buf.append(". ");
+		buf.append(s2);
+		return buf.toString();
+	}
+	
 	/**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
