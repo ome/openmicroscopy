@@ -23,15 +23,15 @@ else
     DL_ARCHIVE=""
     if [ "x$DL_ARCHIVE" == "x" ]; then
 
-    	URL=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/api/xml?xpath=/freeStyleBuild/url/text()"`
-    	FILE=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/api/xml?xpath=//relativePath[contains(.,'server')]/text()"`
+    	URL=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-stable/lastSuccessfulBuild/api/xml?xpath=/freeStyleBuild/url/text()"`
+    	FILE=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-stable/lastSuccessfulBuild/api/xml?xpath=//relativePath[contains(.,'server')]/text()"`
 
     	wget -q "$URL"artifact/$FILE
 
         DL_ARCHIVE=`basename $FILE`
     	DL_FOLDER=${DL_ARCHIVE%.zip}
     else
-        DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/artifact/"
+        DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-stable/lastSuccessfulBuild/artifact/"
         DL_FOLDER=${DL_ARCHIVE%.zip}
     
     	wget $DL_LOC$DL_ARCHIVE
