@@ -12,11 +12,7 @@
 #include <omero/model/ImageI.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Config.h>
-#if ICE_INT_VERSION / 100 >= 304
-#   include <Ice/Handle.h>
-#else
-#   include <IceUtil/Handle.h>
-#endif
+#include <IceUtil/Handle.h>
 #include <functional>
 #include <iostream>
 #include <map>
@@ -131,11 +127,7 @@ T strToNum(const std::string &inputString,
 
 class ChgrpCall;
 
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<ChgrpCall> ChgrpCallPtr;
-#else
 typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
-#endif
 
 class ChgrpCall : public IceUtil::Shared {
 private:
@@ -193,8 +185,9 @@ public:
         if (wait == 0) {
             cout << "Exiting immediately..." << endl;
         } else if (wait < 0) {
-            while (!rsp && wait != 0) {
-                rsp = cb->block(500);
+            bool blocked = true;
+            while (blocked) {
+                blocked = cb->block(500);
             }
         } else {
             int loops = wait * 2;
