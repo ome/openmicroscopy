@@ -1003,8 +1003,15 @@ OMERO Diagnostics %s
 
         try:
             config = omero.config.ConfigXml(str(cfg_xml))
-            config.save()
+            if config.save_on_close:
+                config.save()
+            else:
+                self.ctx.err("%s read-only" % cfg_xml)
         except portalocker.LockException:
+            try:
+                config.close()
+            except:
+                pass
             self.ctx.die(111, "Could not acquire lock on %s" % cfg_xml)
 
         return config
