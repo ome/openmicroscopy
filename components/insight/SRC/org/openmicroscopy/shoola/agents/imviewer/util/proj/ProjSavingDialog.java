@@ -58,7 +58,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -67,10 +66,12 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 
@@ -639,20 +641,47 @@ public class ProjSavingDialog
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
 
 		comboBox.setRenderer(renderer);
-
-		for (DataNode projectNode : dataNodes) {
-			comboBox.addItem(projectNode);
-			
-			String projectName = projectNode.getFullName();
-
-			List<String> tooltipLines = UIUtilities.wrapStyleWord(projectName, 50);
-			
-			tooltips.add(UIUtilities.formatToolTipText(tooltipLines));
+		List<String> lines;
+		ExperimenterData exp;
+		for (DataNode n : dataNodes) {
+			exp = getExperimenter(n.getOwner());
+			comboBox.addItem(n);
+			lines = new ArrayList<String>();
+			if (exp != null) {
+				lines.add("<b>Owner: </b>"+
+						EditorUtil.formatExperimenterInitial(exp, false));
+			}
+			lines.addAll(UIUtilities.wrapStyleWord(n.getFullName()));
+			tooltips.add(UIUtilities.formatToolTipText(lines));
 		}
 
 		renderer.setTooltips(tooltips);
 	}
 	
+    /**
+     * Returns the loaded experimenter corresponding to the specified user.
+     * if the user is not loaded. Returns <code>null</code> if no user 
+     * can be found.
+     * 
+     * @param owner The experimenter to handle.
+     * @return see above.
+     */
+    private ExperimenterData getExperimenter(ExperimenterData owner)
+	{
+    	if (owner == null) return null;
+    	if (owner.isLoaded()) return owner;
+		List l = (List) ImViewerAgent.getRegistry().lookup(
+				LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		long id = owner.getId();
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == id) return exp;
+		}
+		return null;
+	}
 	/** 
 	 * Sets the available containers.
 	 * 
