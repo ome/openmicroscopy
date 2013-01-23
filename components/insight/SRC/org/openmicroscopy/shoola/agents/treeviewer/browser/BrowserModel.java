@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.FSAccessException;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -165,9 +164,9 @@ class BrowserModel
     {
         switch (type) {
             case Browser.PROJECTS_EXPLORER:
-            case Browser.IMAGES_EXPLORER:    
-            case Browser.TAGS_EXPLORER:  
-            case Browser.SCREENS_EXPLORER: 
+            case Browser.IMAGES_EXPLORER:
+            case Browser.TAGS_EXPLORER:
+            case Browser.SCREENS_EXPLORER:
             case Browser.FILES_EXPLORER:
             case Browser.FILE_SYSTEM_EXPLORER:
             case Browser.ADMIN_EXPLORER:
@@ -209,7 +208,7 @@ class BrowserModel
     /**
      * Returns the current state.
      * 
-     * @return One of the state constants defined by the {@link Browser}.  
+     * @return One of the state constants defined by the {@link Browser}.
      */
     int getState() { return state; }
     
@@ -338,7 +337,7 @@ class BrowserModel
         		currentLoader.load();
         	} else if (ho instanceof GroupData) {
         		if (TreeViewerAgent.isAdministrator()) 
-        			ctx = TreeViewerAgent.getAdminContext();;
+        			ctx = TreeViewerAgent.getAdminContext();
         		currentLoader = new AdminLoader(component, ctx,
         				(TreeImageSet) expNode);
         		currentLoader.load();
@@ -360,7 +359,7 @@ class BrowserModel
      * @param containers The collection of <code>DataObject</code>s.
      * @param nodes      The corresponding nodes.
      */
-    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes, 
+    void fireContainerCountLoading(Set containers, Set<TreeImageSet> nodes,
     		TreeImageDisplay refNode)
     {
         if (containers == null || containers.size() == 0) {
@@ -478,7 +477,7 @@ class BrowserModel
      * 
      * @return See above.
      */
-    long getUserID() { return parent.getUserDetails().getId(); }
+    long getUserID() { return getUserDetails().getId(); }
     
     /**
      * Returns the details of the user currently logged in.
@@ -487,8 +486,7 @@ class BrowserModel
      */
     ExperimenterData getUserDetails()
     { 
-    	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
-				LookupNames.CURRENT_USER_DETAILS);
+    	return parent.getUserDetails();
     }
     
     /**
@@ -536,7 +534,7 @@ class BrowserModel
 			state = Browser.LOADING_DATA;
 			//Depending on user roles.
 			if (TreeViewerAgent.isAdministrator()) {
-				currentLoader = new AdminLoader(component, 
+				currentLoader = new AdminLoader(component,
 						TreeViewerAgent.getAdminContext(), null);
 				currentLoader.load();
 			} else {
@@ -546,7 +544,7 @@ class BrowserModel
 		}
 		SecurityContext ctx = getSecurityContext(expNode);
 		if (browserType == Browser.SCREENS_EXPLORER) {
-			currentLoader = new ScreenPlateLoader(component, ctx, expNode, 
+			currentLoader = new ScreenPlateLoader(component, ctx, expNode,
 												ScreenPlateLoader.SCREEN);
 	        currentLoader.load();
 			state = Browser.LOADING_DATA;
@@ -586,9 +584,9 @@ class BrowserModel
      */
     void loadRefreshExperimenterData(
     		Map<SecurityContext, RefreshExperimenterDef> nodes, 
-    		Class type, long id, Object refNode, DataObject toBrowse)
+    		Class<?> type, long id, Object refNode, DataObject toBrowse)
     {
-        Class klass = null;
+        Class<?> klass = null;
         switch (browserType) {
 			case Browser.PROJECTS_EXPLORER:
 				klass = ProjectData.class;
@@ -610,7 +608,7 @@ class BrowserModel
 		}
         state = Browser.LOADING_DATA;
         if (klass == null) return;
-        currentLoader = new RefreshExperimenterDataLoader(component, 
+        currentLoader = new RefreshExperimenterDataLoader(component,
         		getSecurityContext(null), klass,
         					nodes, type, id, refNode, toBrowse);
         currentLoader.load();
