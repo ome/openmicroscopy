@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
@@ -84,15 +83,7 @@ class ImagesModel
 		numberOfImages = images.size();
 		Set visTrees = DataBrowserTranslator.transformImages(images);
         browser = BrowserFactory.createBrowser(visTrees);
-        long currentUserId = getCurrentUser().getId();
-        ExperimenterData owner = null;
-        long id = currentUserId;
-        if (parent instanceof DataObject) {
-        	owner = ((DataObject) parent).getOwner();
-        	if (owner.getId() != currentUserId) id = owner.getId();
-        }
-        if (getDisplayMode() == LookupNames.EXPERIMENTER_DISPLAY)
-        	browser.accept(new DecoratorVisitor(id));
+        browser.accept(new DecoratorVisitor(getCurrentUser().getId()));
         //layoutBrowser();
 	}
 	

@@ -70,5 +70,8 @@ public class DecoratorVisitor
 	 * Required by {@link ImageDisplayVisitor} I/F no-operation in our case
 	 * @see ImageDisplayVisitor#visit(ImageSet)
 	 */
-	public void visit(ImageSet node) {}
+	public void visit(ImageSet node)
+	{
+		node.setNodeDecoration(currentUserID);
+	}
 }

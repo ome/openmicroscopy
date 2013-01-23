@@ -36,7 +36,6 @@ import javax.swing.JLayeredPane;
 
 //Third-party libraries
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -45,6 +44,7 @@ import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -128,6 +128,21 @@ public abstract class ImageDisplay
     private int count;
     
     /**
+     * Returns the owner of the data object or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    protected ExperimenterData getNodeOwner()
+    {
+    	if (hierarchyObject instanceof ExperimenterData ||
+    			hierarchyObject instanceof GroupData)
+    		return null;
+    	if (hierarchyObject instanceof DataObject)
+    		return ((DataObject) hierarchyObject).getOwner();
+    	return null;
+    }
+    
+    /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link ImageDisplayVisitor}.
      * 
@@ -139,7 +154,7 @@ public abstract class ImageDisplay
     {
         switch (type) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
-            case ImageDisplayVisitor.IMAGE_SET_ONLY:    
+            case ImageDisplayVisitor.IMAGE_SET_ONLY:
             case ImageDisplayVisitor.ALL_NODES:
                 return true;
             default:
@@ -293,15 +308,11 @@ public abstract class ImageDisplay
     	IconManager icons = IconManager.getInstance();
     	if (hierarchyObject instanceof DataObject && userID >= 0) {
     		try {
-    			ExperimenterData owner = 
-    					((DataObject) hierarchyObject).getOwner();
+    			ExperimenterData owner =  getNodeOwner();
     			if (owner != null) {
-    				
     				if (userID != owner.getId()) {
     					JLabel l = new JLabel(
-    							icons.getIcon(IconManager.OWNER_8));
-    					//l.setToolTipText("Owner: "+
-    						//	EditorUtil.formatExperimenter(owner));
+    							icons.getIcon(IconManager.NOT_OWNER_8));
     					nodes.add(l);
     				}
     			}
