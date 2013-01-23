@@ -179,7 +179,7 @@ public abstract class TreeImageDisplay
     {
         switch (type) {
             case TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY:
-            case TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY:    
+            case TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY:
             case TreeImageDisplayVisitor.ALL_NODES:
                 return true;
             default:
@@ -191,7 +191,7 @@ public abstract class TreeImageDisplay
      * Constructor used by subclasses.
      * 
      * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  
+     *                        is visualized by this node.
      *                        Never pass <code>null</code>. 
      */
     protected TreeImageDisplay(Object hierarchyObject)
@@ -642,9 +642,8 @@ public abstract class TreeImageDisplay
     		return false;
     	if (ho instanceof DataObject) {
     		DataObject data = (DataObject) ho;
-    		if (data.getOwner() != null) {
+    		if (data.getOwner() != null)
     			return data.getOwner().getId() == userId;
-    		}
     	}
     	return false;
     }

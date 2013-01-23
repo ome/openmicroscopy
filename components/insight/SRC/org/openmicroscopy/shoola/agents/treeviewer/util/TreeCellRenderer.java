@@ -431,33 +431,33 @@ public class TreeCellRenderer
         	if (node.isToRefresh()) {
         		if (owner) {
         			if (node.isAnnotated())
-                		icon = PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
-                	else icon = PROJECT_TO_REFRESH_NOT_OWNED_ICON;
-        		} else {
-        			if (node.isAnnotated())
                 		icon = PROJECT_ANNOTATED_TO_REFRESH_ICON;
                 	else icon = PROJECT_TO_REFRESH_ICON;
+        		} else {
+        			if (node.isAnnotated())
+                		icon = PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+                	else icon = PROJECT_TO_REFRESH_NOT_OWNED_ICON;
         		}
         	} else {
         		if (owner) {
+        			if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
+                	else icon = PROJECT_ICON;
+        		} else {
         			if (node.isAnnotated())
         				icon = PROJECT_ANNOTATED_NOT_OWNED_ICON;
                 	else icon = PROJECT_NOT_OWNED_ICON;
-        		} else {
-        			if (node.isAnnotated()) icon = PROJECT_ANNOTATED_ICON;
-                	else icon = PROJECT_ICON;
         		}
         	}
         } else if (usrObject instanceof DatasetData) {
         	if (node.isToRefresh()) {
         		if (owner) {
         			if (node.isAnnotated())
-            			icon = DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
-                    else icon = DATASET_TO_REFRESH_NOT_OWNED_ICON;
-        		} else {
-        			if (node.isAnnotated())
             			icon = DATASET_ANNOTATED_TO_REFRESH_ICON;
                     else icon = DATASET_TO_REFRESH_ICON;
+        		} else {
+        			if (node.isAnnotated())
+            			icon = DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED_ICON;
+                    else icon = DATASET_TO_REFRESH_NOT_OWNED_ICON;
         		}
         	} else {
         		if (owner) {
@@ -516,8 +516,9 @@ public class TreeCellRenderer
         			if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
                 	else icon = SCREEN_ICON;
         		} else {
-        			if (node.isAnnotated()) icon = SCREEN_ANNOTATED_ICON;
-                	else icon = SCREEN_ICON;
+        			if (node.isAnnotated())
+        				icon = SCREEN_ANNOTATED_NOT_OWNED_ICON;
+                	else icon = SCREEN_NOT_OWNED_ICON;
         		}
         	}
         } else if (usrObject instanceof PlateData) {

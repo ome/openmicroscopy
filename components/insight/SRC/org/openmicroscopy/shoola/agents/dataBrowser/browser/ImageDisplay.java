@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
@@ -107,6 +109,17 @@ public abstract class ImageDisplay
     /** Bound property indicating an annotation visualization. */
     public final static String     ANNOTATE_NODE_PROPERTY = "annotateNode";
     
+    /** The icon for data not owned.*/
+    private final static Icon NOT_OWNED_ICON;
+    
+    /** The icon for annotation.*/
+    private final static Icon ANNOTATION_ICON;
+    
+    static {
+    	IconManager icons = IconManager.getInstance();
+    	NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNER_8);
+    	ANNOTATION_ICON = icons.getIcon(IconManager.ANNOTATION_8);
+    }
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -305,22 +318,15 @@ public abstract class ImageDisplay
     public void setNodeDecoration(long userID)
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
-    	IconManager icons = IconManager.getInstance();
+    	
     	if (hierarchyObject instanceof DataObject && userID >= 0) {
-    		try {
-    			ExperimenterData owner =  getNodeOwner();
-    			if (owner != null) {
-    				if (userID != owner.getId()) {
-    					JLabel l = new JLabel(
-    							icons.getIcon(IconManager.NOT_OWNER_8));
-    					nodes.add(l);
-    				}
-    			}
-    		} catch (Exception e) {}
+    		ExperimenterData owner =  getNodeOwner();
+			if (owner != null && userID != owner.getId())
+				nodes.add(new JLabel(NOT_OWNED_ICON));
         }
     	
-    	if (EditorUtil.isAnnotated(hierarchyObject, count)) 
-    		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
+    	if (EditorUtil.isAnnotated(hierarchyObject, count))
+    		nodes.add(new JLabel(ANNOTATION_ICON));
     	
     	if (nodes.size() > 0) setDecoration(nodes);
     	validate();

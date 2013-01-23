@@ -3523,10 +3523,10 @@ class EditorModel
 				if (owner.getId() == id)
 					return EditorUtil.formatExperimenter(user);
 				if (owner.isLoaded())
-					return EditorUtil.formatExperimenter(user);
+					return EditorUtil.formatExperimenter(owner);
 				owner = getExperimenter(owner.getId());
 				if (owner != null)
-					return EditorUtil.formatExperimenter(user);
+					return EditorUtil.formatExperimenter(owner);
 			} catch (Exception e) {
 			}
 		}

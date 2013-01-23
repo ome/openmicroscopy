@@ -1168,6 +1168,7 @@ class PropertiesUI
         }
 		idLabel.setText(t);
 		String ownerName = model.getOwnerName();
+		ownerLabel.setText("");
 		if (ownerName != null && ownerName.length() > 0)
 			ownerLabel.setText(OWNER_TEXT+ownerName);
 		originalDescription = model.getRefObjectDescription();
