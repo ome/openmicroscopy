@@ -88,6 +88,8 @@ import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
+import omero.model.XmlAnnotation;
+import omero.model.XmlAnnotationI;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -101,6 +103,7 @@ import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding
@@ -491,6 +494,16 @@ public class ModelMapper
     				BooleanAnnotationData.INSIGHT_PUBLISHED_NS));
     		((BooleanAnnotation) annotation).setBoolValue(omero.rtypes.rbool(
     				((BooleanAnnotationData) data).getValue()));
+    	} else if (data instanceof XMLAnnotationData) {
+    		annotation = new XmlAnnotationI();
+    		((XmlAnnotation) annotation).setTextValue(
+    				omero.rtypes.rstring(data.getContentAsString()));
+    		annotation.setDescription(omero.rtypes.rstring(
+    				((TagAnnotationData) data).getTagDescription()));
+    		String ns = data.getNameSpace();
+    		if (ns != null && ns.length() > 0) {
+    			annotation.setNs(omero.rtypes.rstring(ns));
+    		}
     	}
     	return annotation;
     }
