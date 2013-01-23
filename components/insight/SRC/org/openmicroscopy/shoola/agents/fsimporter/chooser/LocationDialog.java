@@ -39,6 +39,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,19 +57,23 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -361,6 +366,30 @@ class LocationDialog extends JDialog implements ActionListener,
 		populateGroupBox(groups, selectedGroup);
 		populateLocationComboBoxes();
 		displayViewFor(dataType);
+	}
+    /**
+     * Returns the loaded experimenter corresponding to the specified user.
+     * if the user is not loaded. Returns <code>null</code> if no user 
+     * can be found.
+     * 
+     * @param owner The experimenter to handle.
+     * @return see above.
+     */
+    private ExperimenterData getExperimenter(ExperimenterData owner)
+	{
+    	if (owner == null) return null;
+    	if (owner.isLoaded()) return owner;
+		List l = (List) ImporterAgent.getRegistry().lookup(
+				LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		long id = owner.getId();
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == id) return exp;
+		}
+		return null;
 	}
 
 	/**
@@ -859,17 +888,23 @@ class LocationDialog extends JDialog implements ActionListener,
 			List<DataNode> items, DataNode selected, 
 			ItemListener itemListener) {
 
-		if(comboBox == null || items == null) return;
+		if (comboBox == null || items == null) return;
 		//Only add the item the user can actually select
 		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
 		List<String> tooltips = new ArrayList<String>(items.size());
-		
+		List<String> wrapped;
+		ExperimenterData exp;
 		for (DataNode node : items) {
-			String nodeName = node.getFullName();
-			List<String> wrapped = UIUtilities.wrapStyleWord(nodeName);
+			exp = getExperimenter(node.getOwner());
+			wrapped = new ArrayList<String>();
+			if (exp != null) {
+				wrapped.add("<b>Owner: </b>"+
+						EditorUtil.formatExperimenterInitial(exp, false));
+			}
+			wrapped.addAll(UIUtilities.wrapStyleWord(node.getFullName()));
 			tooltips.add(UIUtilities.formatToolTipText(wrapped));
 		}
 
