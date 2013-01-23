@@ -2843,8 +2843,8 @@ class _BlitzGateway (object):
         If an image has fewer channels than the max channel index in nameDict, then
         the channel names will not be set for that image.
 
-        @param data_type:   'Image', 'Dataset'
-        @param ids:         Image or Dataset IDs
+        @param data_type:   'Image', 'Dataset', 'Plate'
+        @param ids:         Image, Dataset or Plate IDs
         @param nameDict:    A dict of index:'name' ** 1-based ** E.g. {1:"DAPI", 2:"GFP"}
         @return:            {'imageCount':totalImages, 'updateCount':updateCount}
         """
@@ -5499,7 +5499,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         rv = lc.name
         if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
-        if rv is None or len(str(rv).strip())==0:
+        if rv is None or len(rv.strip())==0:
             rv = self._idx
         return unicode(rv)
 
