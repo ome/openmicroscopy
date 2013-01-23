@@ -29,12 +29,12 @@ import java.util.Set;
  * @since 4.5
  */
 public class MakePathComponentSafe implements StringTransformer {
-    static final Map<Integer, Integer> transformationMatrix;
-    static final Set<String> unsafePrefixes;
-    static final Set<String> unsafeSuffixes;
-    static final Set<String> unsafeNames;
+    protected static final Map<Integer, Integer> transformationMatrix;
+    protected static final Set<String> unsafePrefixes;
+    protected static final Set<String> unsafeSuffixes;
+    protected static final Set<String> unsafeNames;
     
-    static final char safeCharacter = '_';
+    protected static final char safeCharacter = '_';
     
     private static int getCodePoint(char character) {
         final char[] singletonCharacterArray = new char[] {character};

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012 - 2013 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.repo.path;
+package ome.services.blitz.test.utests;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
+
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -63,7 +65,7 @@ enum OperatingSystem {
  * @since 4.5
  */
 @Test(groups = {"fs"})
-public class MakePathComponentSafeTest {
+public class MakePathComponentSafeTest extends MakePathComponentSafe {
     private static final MakePathComponentSafe sanitizer = new MakePathComponentSafe();
     
     private static final OperatingSystem os;
@@ -82,6 +84,7 @@ public class MakePathComponentSafeTest {
 
     /**
      * If the current operating system differs from the given, then skip the current test.
+     * @deprecated migrate to AssumeNG
      * @param os an operating system
      */
     private static void requireOperatingSystem(OperatingSystem os) {
@@ -144,7 +147,7 @@ public class MakePathComponentSafeTest {
     }
     
     /**
-     * Test that the parent directory of the given {@link java.io.File} contains a file of the given name.
+     * Test that the parent directory of the given {@link File} contains a file of the given name.
      * This is used to detect strange phenomena such as accidental reference to Windows NTFS file streams.
      * @param file a file
      * @param expectedName a filename

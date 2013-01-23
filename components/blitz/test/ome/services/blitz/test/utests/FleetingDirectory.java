@@ -17,14 +17,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.repo.path;
+package ome.services.blitz.test.utests;
 
 import java.io.File;
 import java.util.Stack;
 
 /**
- * Creates a nested directory as with {@link java.io.File.mkdirs} while
- * noting state that allows the created directories to later be deleted.
+ * Creates a nested directory as with {@link File#mkdirs} while noting
+ * state that allows the created directories to later be deleted.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 4.5
  */
