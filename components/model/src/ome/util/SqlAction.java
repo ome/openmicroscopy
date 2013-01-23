@@ -78,7 +78,7 @@ public interface SqlAction {
         }
 
     }
-    
+
     /**
      * Stores the current event context information in a temporary table
      * so that triggers can make use of them.
@@ -567,7 +567,7 @@ public interface SqlAction {
         }
 
         public int deleteRepoDeleteLogs(DeleteLog template) {
-            return _jdbc().update(_lookup("find_repo_delete_logs"),
+            return _jdbc().update(_lookup("delete_repo_delete_logs"),
                     template.args());
         }
 

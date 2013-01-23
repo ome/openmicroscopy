@@ -473,7 +473,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
     public int deleteRepoDeleteLogs(final DeleteLog template, Current current) {
         return (Integer) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "deleteRepoDeleteLogs", template) {
-            @Transactional(readOnly = true)
+            @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 return getSqlAction().deleteRepoDeleteLogs(template);
             }
