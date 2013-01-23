@@ -895,17 +895,16 @@ class LocationDialog extends JDialog implements ActionListener,
 		comboBox.removeAllItems();
 
 		List<String> tooltips = new ArrayList<String>(items.size());
-		List<String> wrapped;
+		List<String> lines;
 		ExperimenterData exp;
 		for (DataNode node : items) {
 			exp = getExperimenter(node.getOwner());
-			wrapped = new ArrayList<String>();
+			lines = new ArrayList<String>();
 			if (exp != null) {
-				wrapped.add("<b>Owner: </b>"+
-						EditorUtil.formatExperimenterInitial(exp, false));
+				lines.add("<b>Owner: </b>"+EditorUtil.formatExperimenter(exp));
 			}
-			wrapped.addAll(UIUtilities.wrapStyleWord(node.getFullName()));
-			tooltips.add(UIUtilities.formatToolTipText(wrapped));
+			lines.addAll(UIUtilities.wrapStyleWord(node.getFullName()));
+			tooltips.add(UIUtilities.formatToolTipText(lines));
 		}
 
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();

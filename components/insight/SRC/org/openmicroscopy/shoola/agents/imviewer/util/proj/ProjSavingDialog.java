@@ -648,8 +648,7 @@ public class ProjSavingDialog
 			comboBox.addItem(n);
 			lines = new ArrayList<String>();
 			if (exp != null) {
-				lines.add("<b>Owner: </b>"+
-						EditorUtil.formatExperimenterInitial(exp, false));
+				lines.add("<b>Owner: </b>"+EditorUtil.formatExperimenter(exp));
 			}
 			lines.addAll(UIUtilities.wrapStyleWord(n.getFullName()));
 			tooltips.add(UIUtilities.formatToolTipText(lines));
