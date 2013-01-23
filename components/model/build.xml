@@ -80,7 +80,7 @@
 
 	<target name="_generate-schema" depends="generate" description="Internal developer target which doesn't run codegen">
 		<concat destfile="${resrc.dest}/hibernatetool.properties" append="false">
-hibernate.dialect=${omero.db.dialect}
+hibernate.dialect=${omero.db.generate_dialect}
 		</concat>
 		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="omero.classpath" />
 		<hibernatetool destdir="${target.dir}/generated/ant">
