@@ -691,7 +691,7 @@ public class IconManager
         relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
         relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
-        relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
+        relPaths[TAG_SET] = "nuvola_knotesRed16.png";
         relPaths[ADD_METADATA] = "nuvola_knotesOrange16.png";
         relPaths[ADD_METADATA_48] = "nuvola_kdmconfig48.png";
         relPaths[SCREENS_EXPLORER] ="eclipse_hierarchicalLayout16.png";
@@ -796,31 +796,33 @@ public class IconManager
         relPaths[REMOVE] = "nuvola_edit_remove_grey16.png";
         
         relPaths[SCREEN_NOT_OWNED] =
-        		"nuvola_folder_blue_open_modified_screen16.png";
+        		"nuvola_folder_blue_open_modified_screen_notowned16.png";
         relPaths[SCREEN_ANNOTATED_NOT_OWNED] =
-        	"nuvola_folder_blue_open_modified_screen_annotated16.png";
-        relPaths[PLATE_ANNOTATED_NOT_OWNED] = "plate_annotated16.png";
-        relPaths[PLATE_NOT_OWNED] = "plate16.png";
+        	"nuvola_folder_blue_open_modified_screen_annotated_notowned16.png";
+        relPaths[PLATE_ANNOTATED_NOT_OWNED] = "plate_annotated_notowned16.png";
+        relPaths[PLATE_NOT_OWNED] = "plate_notowned16.png";
         
         relPaths[PROJECT_TO_REFRESH_NOT_OWNED] =
-        		"nuvola_folder_darkblue_open_reload16.png";
+        		"nuvola_folder_darkblue_open_reload_notowned16.png";
         relPaths[DATASET_TO_REFRESH_NOT_OWNED] = "nuvola_folder_image_reload16.png";
         relPaths[SCREEN_TO_REFRESH_NOT_OWNED] = 
-        	"nuvola_folder_blue_open_modified_screen_reload16.png";
+        	"nuvola_folder_blue_open_modified_screen_reload_notowned16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED] =
-        	"nuvola_folder_blue_open_modified_screen_annotated_reload16.png";
-        relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] = 
-        	"tagged_project_darkblue_reload16.png";
-        relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] = 
-        		"tagged_dataset_reload16.png";
+        	"nuvola_folder_blue_open_modified_screen_annotated_reload_notowned16.png";
+        relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] =
+        	"tagged_project_darkblue_reload_notowned16.png";
+        relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] =
+        		"tagged_dataset_reloadnotowned16.png";
 
-        relPaths[PROJECT_ANNOTATED_NOT_OWNED] = "tagged_project_darkblue16.png";
-        relPaths[PROJECT_NOT_OWNED] = "nuvola_folder_darkblue_open16.png";
-        relPaths[DATASET_NOT_OWNED] = "nuvola_folder_image16.png";
-        relPaths[IMAGE_NOT_OWNED] = "nuvola_image16.png";
-        relPaths[DATASET_ANNOTATED_NOT_OWNED] = "tagged_dataset16.png";
-        relPaths[IMAGE_ANNOTATED_NOT_OWNED] = "tagged_image16.png";
-        relPaths[TAG_SET_NOT_OWNED] = "nuvola_knotesRedRed16.png";
+        relPaths[PROJECT_ANNOTATED_NOT_OWNED] =
+        		"tagged_project_darkblue_notowned16.png";
+        relPaths[PROJECT_NOT_OWNED] =
+        		"nuvola_folder_darkblue_open_notowned16.png";
+        relPaths[DATASET_NOT_OWNED] = "nuvola_folder_image_notowned16.png";
+        relPaths[IMAGE_NOT_OWNED] = "nuvola_image_notowned16.png";
+        relPaths[DATASET_ANNOTATED_NOT_OWNED] = "tagged_dataset_notowned16.png";
+        relPaths[IMAGE_ANNOTATED_NOT_OWNED] = "tagged_image_notowned16.png";
+        relPaths[TAG_SET_NOT_OWNED] = "nuvola_knotesRed_notowned16.png";
     }
     
     /** The sole instance. */
