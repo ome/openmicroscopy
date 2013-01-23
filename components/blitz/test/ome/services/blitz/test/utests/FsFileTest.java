@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012 - 2013 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,11 +17,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.blitz.repo.path;
+package ome.services.blitz.test.utests;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import ome.services.blitz.repo.path.FsFile;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -51,5 +53,28 @@ public class FsFileTest {
         Assert.assertTrue(files.add(new FsFile("c/b/a")),
                 "different FsFiles should not be equivalent");
         
+    }
+    
+    @Test
+    public void testChildPathLegal() {
+        final FsFile parent = new FsFile("a/b/c");
+        final FsFile child = new FsFile("a/b/c/d/e");
+        Assert.assertEquals(child.getPathFrom(parent).toString(), "d/e",
+                "unexpected result for relative path");
+    }
+    
+    @Test
+    public void testChildPathSame() {
+        final FsFile path = new FsFile("a/b/c");
+        Assert.assertEquals(path.getPathFrom(path).toString(), "",
+                "relative path to same directory should be empty");
+    }
+    
+    @Test
+    public void testChildPathIllegal() {
+        final FsFile parent = new FsFile("a/c/c");
+        final FsFile child = new FsFile("a/b/c/d/e");
+        Assert.assertNull(child.getPathFrom(parent),
+                "relative path may only be within parent directory");
     }
 }

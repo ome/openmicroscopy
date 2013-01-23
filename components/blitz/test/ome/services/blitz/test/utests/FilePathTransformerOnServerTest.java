@@ -1,0 +1,121 @@
+/*
+ * Copyright (C) 2012 - 2013 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package ome.services.blitz.test.utests;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.blitz.repo.path.StringTransformer;
+
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+/**
+ * @author m.t.b.carroll@dundee.ac.uk
+ * @since 4.5
+ */
+@Test(groups = {"fs"})
+public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase {
+    private FilePathTransformerOnServer fpts;
+    private FilePathTransformerOnClient fptc;
+    private File tempDir;
+    
+    /* Doesn't use the filePathSanitizer Spring bean,
+     * to keep the unit tests predictable and self-contained. */
+    @BeforeClass
+    public void mockSpring() throws IOException {
+        this.tempDir = File.createTempFile("test-" + getClass().getSimpleName(), null);
+        this.tempDir.delete();
+        this.tempDir.mkdir();
+        final StringTransformer transformer = new MakePathComponentSafe();
+        this.fpts = new FilePathTransformerOnServer();
+        this.fpts.setPathSanitizer(transformer);
+        this.fpts.setOmeroDataDir(this.tempDir.getParentFile().getAbsolutePath());
+        this.fpts.setFsSubDir(this.tempDir.getName());
+        this.fpts.calculateBaseDir();
+        this.fptc = new FilePathTransformerOnClient(transformer);
+    }
+    
+    @Test
+    public void testServerPathConversion() throws IOException {
+        final FsFile repositoryPath = new FsFile("wibble/wobble/|]{~`\u00B1\u00A7/\u00F3\u00DF\u20AC\u00C5\u00E6");
+        final File serverPath = fpts.getServerFileFromFsFile(repositoryPath);
+        Assert.assertEquals(fpts.getFsFileFromServerFile(serverPath), repositoryPath,
+                "conversion from legal repository paths to server-local paths and back must return the original");
+    }
+    /**
+     * Test that the given components, when sanitized, become the given repository path,
+     * and that a path of that name can be used for data storage on the server's local filesystem.
+     * @param fsPath the expected repository path for the path components
+     * @param components path components to be sanitized into a repository path
+     * @throws IOException unexpected
+     */
+    private void testClientPath(String fsPath, String... components) throws IOException {
+        final FsFile rootFile = fptc.getFsFileFromClientFile(componentsToFile(), Integer.MAX_VALUE);
+        final FsFile fsFile = fptc.getFsFileFromClientFile(componentsToFile(components), Integer.MAX_VALUE);
+        Assert.assertEquals(fsFile.getPathFrom(rootFile).toString(), fsPath,
+                "client-side file path components do not assemble to form the expected repository path");
+        Assert.assertTrue(fpts.isLegalFsFile(fsFile),
+                "sanitized client-side file paths should be sanitary server-side");
+        final File serverFile = fpts.getServerFileFromFsFile(fsFile);
+        final FleetingDirectory serverDir = new FleetingDirectory(serverFile.getParentFile());
+        final long testContentsOut = System.nanoTime();
+        final long testContentsIn;
+        final DataOutputStream out = new DataOutputStream(new FileOutputStream(serverFile));
+        out.writeLong(testContentsOut);
+        out.close();
+        final DataInputStream in = new DataInputStream(new FileInputStream(serverFile));
+        testContentsIn = in.readLong();
+        in.close();
+        serverFile.delete();
+        serverDir.deleteCreated();
+        Assert.assertEquals(testContentsIn, testContentsOut,
+                "should be able to read and write data with safe file-paths");
+    }
+    
+    @Test
+    public void testClientPathSafety() throws IOException {
+        testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/_.[]", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>");
+    }
+    
+    @Test
+    public void testLegalityCheck() {
+        Assert.assertTrue(fpts.isLegalFsFile(new FsFile("a/b/c")));
+        Assert.assertFalse(fpts.isLegalFsFile(new FsFile("a/*/c")));
+        Assert.assertFalse(fpts.isLegalFsFile(new FsFile("a/b/lpt1")));
+    }
+    
+    @AfterClass
+    public void tearDown() {
+        this.tempDir.delete();
+        this.fpts = null;
+        this.fptc = null;
+    }
+}

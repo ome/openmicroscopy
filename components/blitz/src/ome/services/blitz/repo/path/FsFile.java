@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2012 - 2013 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,9 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * An analog of {@link java.io.File} representing an FS repository file-path.
+ * An analog of {@link File} representing an FS repository file-path.
  * The file-path is relative to the root of the repository. As with
- * {@link java.io.File}, instances of this class are immutable.
+ * {@link File}, instances of this class are immutable.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 4.5
  */
@@ -197,8 +197,8 @@ public class FsFile {
     }
     
     /**
-     * Convert this instance to a {@link java.io.File}
-     * relative to the given {@link java.io.File}.
+     * Convert this instance to a {@link File}
+     * relative to the given {@link File}.
      * @param file parent directory, may be null for a relative return value, 
      * but actually expected to be the repository's root directory
      * @return where this instance should be located in the server-side filesystem
