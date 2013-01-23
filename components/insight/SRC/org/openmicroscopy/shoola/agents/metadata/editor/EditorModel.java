@@ -3527,12 +3527,12 @@ class EditorModel
 			try {
 				ExperimenterData owner = data.getOwner();
 				if (owner.getId() == id)
-					return EditorUtil.formatExperimenterInitial(user, false);
+					return EditorUtil.formatExperimenter(user);
 				if (owner.isLoaded())
-					return EditorUtil.formatExperimenterInitial(owner, false);
+					return EditorUtil.formatExperimenter(user);
 				owner = getExperimenter(owner.getId());
 				if (owner != null)
-					return EditorUtil.formatExperimenterInitial(owner, false);
+					return EditorUtil.formatExperimenter(user);
 			} catch (Exception e) {
 			}
 		}
