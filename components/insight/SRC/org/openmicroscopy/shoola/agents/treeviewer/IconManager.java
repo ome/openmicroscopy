@@ -804,11 +804,12 @@ public class IconManager
         
         relPaths[PROJECT_TO_REFRESH_NOT_OWNED] =
         		"nuvola_folder_darkblue_open_reload_notowned16.png";
-        relPaths[DATASET_TO_REFRESH_NOT_OWNED] = "nuvola_folder_image_reload_notowned16.png";
+        relPaths[DATASET_TO_REFRESH_NOT_OWNED] = 
+        		"nuvola_folder_image_reload_notowned16.png";
         relPaths[SCREEN_TO_REFRESH_NOT_OWNED] = 
         	"nuvola_folder_blue_open_modified_screen_reload_notowned16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED] =
-        	"nuvola_folder_blue_open_modified_screen_annotated_reload_notowned16.png";
+        "nuvola_folder_blue_open_modified_screen_annotated_reload_notowned16.png";
         relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] =
         	"tagged_project_darkblue_reload_notowned16.png";
         relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] =
