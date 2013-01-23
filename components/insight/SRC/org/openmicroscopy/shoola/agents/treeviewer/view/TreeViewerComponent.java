@@ -2995,7 +2995,7 @@ class TreeViewerComponent
 				finder = new NodesFinder((DataObject) data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
-				ExperimenterData exp;
+				ExperimenterData exp = null;
 				MetadataViewer mv = model.getMetadataViewer();
 				int size = nodes.size();
 				if (size == 1) {
@@ -3005,11 +3005,11 @@ class TreeViewerComponent
 					int mode = model.getDisplayMode();
 					while (i.hasNext()) {
 						node = i.next();
-						if (mode == TreeViewer.EXPERIMENTER_DISPLAY)
+						if (mode == TreeViewer.EXPERIMENTER_DISPLAY) {
 							parent = BrowserFactory.getDataOwner(node);
-						else parent = EditorUtil.getDataGroup(node);
+							exp = (ExperimenterData) parent.getUserObject();
+						} else parent = EditorUtil.getDataGroup(node);
 						browser.loadExperimenterData(parent, node);
-						exp = (ExperimenterData) parent.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
 						node.setExpanded(true);
 						mv.setRootObject(node.getUserObject(), exp.getId(),
