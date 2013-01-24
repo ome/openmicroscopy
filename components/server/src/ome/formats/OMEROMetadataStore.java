@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IQuery;
-import ome.api.IUpdate;
 import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.acquisition.Detector;
@@ -85,12 +83,6 @@ public class OMEROMetadataStore
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
-
-    /** OMERO query service */
-    private IQuery iQuery;
-
-    /** OMERO update service */
-    private IUpdate iUpdate;
 
     /** A map of imageIndex vs. Image object ordered by first access. */
     private Map<Integer, Image> imageList = 
@@ -1512,17 +1504,6 @@ public class OMEROMetadataStore
     }
 
     /**
-     * Returns an Experiment model object based on its indexes within the OMERO
-     * data model.
-     * @param experimentIndex Experiment index.
-     * @return See above.
-     */
-    private Experiment getExperiment(int experimentIndex)
-    {
-    	return experimentList.get(experimentIndex);
-    }
-
-    /**
      * Returns a Channel model object based on its indexes within the
      * OMERO data model.
      * @param imageIndex Image index.
@@ -1610,21 +1591,6 @@ public class OMEROMetadataStore
         if (factory == null)
             throw new Exception("Factory argument cannot be null.");
         sf = factory;
-        // Now initialize all our services
-        initializeServices(sf);
-    }
-    
-    /**
-     * Private class used by constructor to initialize the services of the 
-     * service factory.
-     * 
-     * @param factory a non-null, active {@link ServiceFactory}
-     */
-    private void initializeServices(ServiceFactory sf)
-    {
-        // Now initialize all our services
-        iQuery = sf.getQueryService();
-        iUpdate = sf.getUpdateService();
     }
 
     /*
@@ -1644,28 +1610,6 @@ public class OMEROMetadataStore
         experimentList = new LinkedHashMap<Integer, Experiment>();
         otfList = new LinkedHashMap<Instrument, Map<Integer, OTF>>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
-    }
-    
-    /**
-     * The return value of save may not have sorted, ascending identities. This
-     * method is in place to reorder a Pixels list based on the ordered and
-     * saved Image IDs.
-     * @param pixelsList Pixels list to be reordered in place.
-     * @param imageIds Ordered list of Image IDs.
-     */
-    private void reorderPixelsListByImageIds(List<Pixels> pixelsList,
-    		                                 List<Long> imageIds)
-    {
-    	Map<Long, Pixels> imageIdPixelsMap = new HashMap<Long, Pixels>();
-    	for (Pixels pixels : pixelsList)
-    	{
-    		imageIdPixelsMap.put(pixels.getImage().getId(), pixels);
-    	}
-    	for (int i = 0; i < imageIds.size(); i++)
-    	{
-    		Long imageId = imageIds.get(i);
-    		pixelsList.set(i, imageIdPixelsMap.get(imageId));
-    	}
     }
     
     /**
@@ -1907,32 +1851,9 @@ public class OMEROMetadataStore
     	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
     	Image[] imageArray = 
     		imageList.values().toArray(new Image[imageList.size()]);
-    	IObject[] saved = iUpdate.saveAndReturnArray(imageArray);
+    	IObject[] saved = sf.getUpdateService().saveAndReturnArray(imageArray);
     	s1.stop();
     	
-    	// To conform loosely with the method contract, reload a subset of
-    	// the original graph so that it may be manipulated by the caller.
-    	//StopWatch s2 = new CommonsLogStopWatch("omero.buildReturnCollection");
-    	//Parameters p = new Parameters();
-    	//p.addIds(imageIdList);
-    	/*
-    	List<Pixels> toReturn = iQuery.findAllByQuery(
-    			"select p from Pixels as p " +
-    			"left outer join fetch p.channels as c " +
-    			"left outer join fetch p.image as i " +
-    			"left outer join fetch i.annotationLinks as a_link " +
-    			"left outer join fetch a_link.child as a " +
-    			"left outer join fetch a.file " +
-    			"left outer join fetch i.wellSamples as ws " +
-    			"left outer join fetch ws.well as w " +
-    			"left outer join fetch w.plate as pl " +
-    			"left outer join fetch pl.annotationLinks as pl_a_link " +
-    			"left outer join fetch pl_a_link.child as pl_a " +
-    			"left outer join fetch pl_a.file " +
-    			"where i.id in (:ids)", p);
-    	reorderPixelsListByImageIds(toReturn, imageIdList);
-    	pixelsList = new LinkedHashMap<Integer, Pixels>();
-    	*/
     	List<Pixels> toReturn = new ArrayList<Pixels>();
     	Image image;
     	Pixels pixels;
@@ -1978,6 +1899,6 @@ public class OMEROMetadataStore
     		}
     	}
     	Channel[] toSave = channelList.toArray(new Channel[channelList.size()]);
-    	iUpdate.saveArray(toSave);
+    	sf.getUpdateService().saveArray(toSave);
     }
 }
