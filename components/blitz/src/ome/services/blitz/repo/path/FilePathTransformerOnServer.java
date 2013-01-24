@@ -28,10 +28,6 @@ import java.io.IOException;
  * @since 4.5
  */
 public class FilePathTransformerOnServer {
-    /* the OMERO data directory */
-    private String omeroDataDir;
-    /* where the repository should store its files relative to the OMERO data directory */
-    private String fsSubDir;
     /* where the repository should store its files */
     private File baseDirFile;
     /* the parent path components that should be omitted from repository paths */
@@ -83,31 +79,15 @@ public class FilePathTransformerOnServer {
     }
     
     /**
-     * Set the OMERO data directory. Expected to be set as part of Spring bean initialization.
-     * @param omeroDataDir the OMERO data directory
+     * Set the repository root directory, to which {@link FsFile} instances are considered to be relative.
+     * @throws IOException if the absolute path of the root directory could not be found
+     * @throws IllegalArgumentException if the root directory does not exist
+     * @param rootDir the repository root directory
      */
-    public void setOmeroDataDir(String omeroDataDir) {
-        this.omeroDataDir = omeroDataDir;
-    }
-    
-    /**
-     * Set the repository subdirectory in the OMERO data directory.
-     * Expected to be set as part of Spring bean initialization.
-     * @param fsSubDir the subdirectory in which the repository stores files
-     */
-    public void setFsSubDir(String fsSubDir) {
-        this.fsSubDir = fsSubDir;
-    }
-    
-    /**
-     * Set the repository base directory.
-     * Expected to be called through Spring as the bean's <code>init-method</code>.
-     * @throws IOException if the absolute path of the base directory could not be found
-     */
-    public void calculateBaseDir() throws IOException {
-        this.baseDirFile = new File(this.omeroDataDir, this.fsSubDir);
-        if (!this.baseDirFile.isDirectory())
-            throw new IllegalArgumentException(this.baseDirFile.getPath() + " must specify an existing FS repository directory");
+    public void setBaseDirFile(File baseDirFile) {
+        if (!baseDirFile.isDirectory())
+            throw new IllegalArgumentException(baseDirFile.getPath() + " must specify an existing FS repository directory");
+        this.baseDirFile = baseDirFile.getAbsoluteFile();
         this.baseDirFsFile = new FsFile(this.baseDirFile);
     }
 }

@@ -150,6 +150,7 @@ public class FsFile {
     /**
      * Find the relative path of this path from a given parent.
      * Allows adjustment of absolute paths to the repository's root directory.
+     * Matches path component names case-sensitively.
      * @param file a parent path (may be the same as this one)
      * @return the relative path, or null if none exists
      */

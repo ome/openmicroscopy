@@ -3,6 +3,8 @@ package ome.services.blitz.test.utests;
 import java.io.File;
 
 import ome.services.blitz.repo.CheckedPath;
+import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.ValidationException;
 import omero.util.TempFileManager;
 
@@ -16,28 +18,30 @@ public class CheckedPathTest {
 
     File dir;
     CheckedPath root;
+    FilePathTransformerOnServer serverPaths;
 
     @BeforeClass
     public void setup() throws Exception {
         this.dir = TempFileManager.create_path("repo", "test", true);
-        this.root = new CheckedPath(null, this.dir.getAbsolutePath());
+        this.serverPaths = new FilePathTransformerOnServer();
+        this.serverPaths.setBaseDirFile(this.dir);
+        this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
     }
 
     @Test
     public void testCtorWithRootPathPasses() throws Exception {
-        CheckedPath cp = new CheckedPath(this.root, this.dir.getAbsolutePath());
+        CheckedPath cp = new CheckedPath(this.serverPaths, "");
         Assert.assertTrue(cp.isRoot);
     }
 
     @Test(expectedExceptions=ValidationException.class)
     public void testCtorWithPathAboveRootThrows() throws ValidationException {
-        new CheckedPath(this.root, this.dir.getParent());
+        new CheckedPath(this.serverPaths, "..");
     }
 
     @Test
     public void testCtorWithPathBelowRootPasses() throws Exception {
-        CheckedPath cp = new CheckedPath(this.root,
-                new File(this.dir, "foo").getAbsolutePath());
+        CheckedPath cp = new CheckedPath(this.serverPaths, "foo");
         Assert.assertFalse(cp.isRoot);
     }
 
@@ -45,14 +49,13 @@ public class CheckedPathTest {
     public void testMustExistPassesWithExistingFile() throws Exception {
         File f = new File(this.dir, "foo");
         FileUtils.touch(f);
-        CheckedPath cp = new CheckedPath(this.root, f.getPath());
+        CheckedPath cp = new CheckedPath(this.serverPaths, f.getName());
         Assert.assertEquals(cp.mustExist(), cp);
     }
 
     @Test(expectedExceptions=ValidationException.class)
     public void testMustExistThrowsWithNonexistingFile()
             throws ValidationException {
-        new CheckedPath(this.root, "bar");
+        new CheckedPath(this.serverPaths, "bar");
     }
-
 }

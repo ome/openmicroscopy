@@ -47,19 +47,15 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
     private FilePathTransformerOnClient fptc;
     private File tempDir;
     
-    /* Doesn't use the filePathSanitizer Spring bean,
-     * to keep the unit tests predictable and self-contained. */
     @BeforeClass
-    public void mockSpring() throws IOException {
+    public void setup() throws IOException {
         this.tempDir = File.createTempFile("test-" + getClass().getSimpleName(), null);
         this.tempDir.delete();
         this.tempDir.mkdir();
         final StringTransformer transformer = new MakePathComponentSafe();
         this.fpts = new FilePathTransformerOnServer();
         this.fpts.setPathSanitizer(transformer);
-        this.fpts.setOmeroDataDir(this.tempDir.getParentFile().getAbsolutePath());
-        this.fpts.setFsSubDir(this.tempDir.getName());
-        this.fpts.calculateBaseDir();
+        this.fpts.setBaseDirFile(this.tempDir);
         this.fptc = new FilePathTransformerOnClient(transformer);
     }
     
