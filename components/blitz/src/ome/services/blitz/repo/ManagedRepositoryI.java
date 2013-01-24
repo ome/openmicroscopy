@@ -21,12 +21,12 @@ import static omero.rtypes.rstring;
 import static org.apache.commons.io.FilenameUtils.normalize;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +42,7 @@ import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.path.FsFile;
 
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -56,12 +56,10 @@ import omero.model.FilesetI;
 import omero.model.FilesetJobLink;
 import omero.model.FilesetVersionInfo;
 import omero.model.FilesetVersionInfoI;
-import omero.model.IObject;
 import omero.model.IndexingJobI;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
 import omero.model.MetadataImportJobI;
-import omero.model.OriginalFile;
 import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
@@ -159,7 +157,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         ImportLocation location =
-                suggestOnConflict(root.normPath, relPath, basePath, paths, __current);
+                suggestOnConflict(relPath, basePath, paths, __current);
 
         return createImportProcess(fs, location, settings, __current);
     }
@@ -416,15 +414,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @return {@link ImportLocation} instance with the suggested new basePath in the
      *          case of conflicts.
      */
-    protected ImportLocation suggestOnConflict(String trueRoot, String relPath,
+    protected ImportLocation suggestOnConflict(String relPath,
             String basePath, List<String> paths, Ice.Current __current)
             throws omero.ServerError {
 
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
         final List<String> parts = splitElements(basePath);
-        final File relFile = new File(relPath);
-        final File trueFile = new File(trueRoot, relPath);
+        final File trueFile = serverPaths.getServerFileFromFsFile(new FsFile(relPath));
         final URI baseUri = new File(basePath).toURI();
 
         // State that will be updated per loop.
@@ -451,7 +448,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
             }
         
-            final File newBase = new File(relFile, endPart);
+            final File newBase = new File(trueFile, endPart);
             data.sharedPath = normalize(newBase.toString());
             data.usedFiles = new ArrayList<String>(paths.size());
             data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
@@ -464,8 +461,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
             }
     
             try {
-                makeDir(normalize(relFile.toString()) + "/" + endPart,
-                        true, __current);
+                try {
+                    makeDir(serverPaths.getFsFileFromServerFile(newBase).toString(),
+                            true, __current);
+                } catch (IOException e) {
+                    throw new omero.ServerError(stackTraceAsString(e), null,
+                            "could not find absolute path of " + newBase);
+                }
                 break;
             } catch (omero.ServerError se) {
                 log.debug("Trying next directory", se);

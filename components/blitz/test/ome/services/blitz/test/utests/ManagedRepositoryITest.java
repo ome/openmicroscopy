@@ -90,9 +90,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestOnConflict(String trueRoot, String relPath,
+        public ImportLocation suggestOnConflict(String relPath,
                 String basePath, List<String> paths, Ice.Current curr) throws omero.ServerError {
-            return super.suggestOnConflict(trueRoot, relPath, basePath, paths, curr);
+            return super.suggestOnConflict(relPath, basePath, paths, curr);
         }
 
         @Override
@@ -152,8 +152,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     private String getSuggestion(String base, String...paths) throws Exception {
-        ImportLocation l = this.tmri.suggestOnConflict(this.tmpDir.getAbsolutePath(),
-                "template", base, Arrays.asList(paths), curr);
+        ImportLocation l = this.tmri.suggestOnConflict("template", base, Arrays.asList(paths), curr);
         return new File(l.sharedPath).getName();
     }
 
@@ -166,7 +165,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     /**
-     * Ignores all argument paramters to register().
+     * Ignores all argument parameters to register().
      * @param id
      */
     private void assertReturnFile(Long id) {
