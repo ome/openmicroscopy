@@ -1024,13 +1024,10 @@ class LocationDialog extends JDialog implements ActionListener,
 		screens.clear();
 		
 		DataNode defaultProject = new DataNode(DataNode.createDefaultProject());
-		projects.add(defaultProject);
-
 		List<DataNode> orphanDatasets = new ArrayList<DataNode>();
-		orphanDatasets.add(new DataNode(DataNode.createDefaultDataset()));
 		
-		screens.add(new DataNode(DataNode.createDefaultScreen()));
-		
+		List<DataNode> lp = new ArrayList<DataNode>();
+		List<DataNode> ls = new ArrayList<DataNode>();
 		if (treeNodes != null)
 		{
 			for (TreeImageDisplay treeNode : treeNodes) {
@@ -1039,22 +1036,21 @@ class LocationDialog extends JDialog implements ActionListener,
 				if(userObject instanceof ProjectData)
 				{
 					DataNode project = new DataNode((ProjectData) userObject);
-					projects.add(project);
+					lp.add(project);
 
 					List<DataNode> projectDatasets = new ArrayList<DataNode>();
-					DataNode defaultDataset = 
-							new DataNode(DataNode.createDefaultDataset());
-					projectDatasets.add(defaultDataset);
-					
+
 					List children = treeNode.getChildrenDisplay();
-	
+					TreeImageDisplay n;
 					for (Object child : children) {
-						TreeImageDisplay datasetNode = (TreeImageDisplay) child;
-						DataNode dataset = new DataNode(
-								(DatasetData) datasetNode.getUserObject());
-						projectDatasets.add(dataset);
+						n = (TreeImageDisplay) child;
+						projectDatasets.add(new DataNode(
+								(DatasetData) n.getUserObject()));
 					}
-					datasets.put(project, sort(projectDatasets));
+					List<DataNode> list = new ArrayList<DataNode>();
+					list.add(new DataNode(DataNode.createDefaultDataset()));
+					list.addAll(sort(projectDatasets));
+					datasets.put(project, list);
 				}
 				
 				if(userObject instanceof ScreenData)
@@ -1070,11 +1066,16 @@ class LocationDialog extends JDialog implements ActionListener,
 				}	
 			}
 		}
-
-		datasets.put(defaultProject, sort(orphanDatasets));
+		List<DataNode> l = new ArrayList<DataNode>();
+		l.add(new DataNode(DataNode.createDefaultDataset()));
+		l.addAll(sort(orphanDatasets));
+		datasets.put(defaultProject, l);
 		
-		projects = sort(projects);
-		screens = sort(screens);
+		projects.add(defaultProject);
+		projects.addAll(sort(lp));
+		
+		screens.add(new DataNode(DataNode.createDefaultScreen()));
+		screens.addAll(sort(ls));
 	}
 	
 	/**
