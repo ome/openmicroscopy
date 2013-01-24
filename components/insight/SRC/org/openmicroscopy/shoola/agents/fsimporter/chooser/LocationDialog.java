@@ -1056,7 +1056,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				if(userObject instanceof ScreenData)
 				{
 					DataNode screen = new DataNode((ScreenData) userObject);
-					screens.add(screen);
+					ls.add(screen);
 				}
 				
 				if(userObject instanceof DatasetData)
