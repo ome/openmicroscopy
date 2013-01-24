@@ -1002,7 +1002,10 @@ OMERO Diagnostics %s
             cfg_tmp.rename(str(cfg_xml))
 
         try:
-            config = omero.config.ConfigXml(str(cfg_xml))
+            try:
+                config = omero.config.ConfigXml(str(cfg_xml))
+            except Exception, e:
+                self.ctx.die(577, str(e))
             if config.save_on_close:
                 config.save()
             else:

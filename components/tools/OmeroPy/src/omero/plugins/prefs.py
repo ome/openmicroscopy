@@ -157,6 +157,8 @@ class PrefsControl(BaseControl):
             return ConfigXml(str(cfg_xml))
         except portalocker.LockException:
             self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
+        except Exception, e:
+            self.ctx.die(113, str(e))
 
     @with_config
     def all(self, args, config):
