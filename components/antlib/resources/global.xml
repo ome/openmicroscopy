@@ -513,9 +513,6 @@ with OMERO.
             <attribute name="failonerror" default="true"/>
             <element name="args" implicit="true"/>
             <sequential>
-                <copy todir="${basedir}">
-                   <fileset dir="${omero.home}/lib/repository" includes="setuptools*"/>
-                </copy>
                 <exec executable="python" failonerror="@{failonerror}">
                     <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
                     <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
