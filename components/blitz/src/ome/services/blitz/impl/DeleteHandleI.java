@@ -93,7 +93,7 @@ public class DeleteHandleI extends AbstractAmdServant implements
                 for (DeleteCommand command : commands) {
                     if (command != null) {
                         DeleteStepFactory dsf = new DeleteStepFactory(sf.context);
-                        Deletion d = new Deletion(ctx, dsf, afs);
+                        Deletion d = new Deletion(ctx, dsf, afs, this.ctx);
                         req = new DeleteI(d);
                         req.type = command.type;
                         req.id = command.id;

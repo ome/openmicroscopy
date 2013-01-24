@@ -35,8 +35,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -48,6 +46,7 @@ import ome.io.nio.PixelsService;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
+import ome.services.messages.DeleteLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.util.SqlAction;
@@ -100,7 +99,7 @@ public class Deletion {
             ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
                 new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
             DeleteStepFactory dsf = new DeleteStepFactory(this.ctx);
-            return new Deletion(specs, dsf, afs);
+            return new Deletion(specs, dsf, afs, this.ctx);
         }
 
         @Override
@@ -118,6 +117,8 @@ public class Deletion {
     //
     // Ctor/injection state
     //
+
+    private final OmeroContext ctx;
 
     private final DeleteStepFactory factory;
 
@@ -166,11 +167,12 @@ public class Deletion {
     private HashMap<String, long[]> undeletedFiles;
 
     public Deletion(ApplicationContext specs, DeleteStepFactory factory,
-            AbstractFileSystemService afs) {
+            AbstractFileSystemService afs, OmeroContext ctx) {
 
         this.specs = specs;
         this.factory = factory;
         this.afs = afs;
+        this.ctx = ctx;
 
     }
 
@@ -341,9 +343,28 @@ public class Deletion {
                         fileType, type, id,
                         deletedIds));
                 for (Long id : deletedIds) {
+                    file = null; // Clear
                     if (fileType.equals("OriginalFile")) {
-                        filePath = afs.getFilesPath(id);
-                        file = new File(filePath);
+                        // First we give the repositories a chance to delete
+                        // FS-based files.
+                        DeleteLogMessage dlm = new DeleteLogMessage(this, id);
+                        try {
+                            ctx.publishMessage(dlm);
+                        }
+                        catch (Throwable e) {
+                            log.warn("Error on DeleteLogMessage", e);
+                            filesFailed++;
+                            failedMap.get(fileType).add(id);
+                            // No way to calculate size!
+                        }
+                        // Regardless of what type of exception may have been
+                        // thrown above, if no logs were found via the publish
+                        // message, we have to assume that the files are local.
+                        // This may just log that the file doesn't exist.
+                        if (dlm.count() == 0) {
+                            filePath = afs.getFilesPath(id);
+                            file = new File(filePath);
+                        }
                     } else if (fileType.equals("Thumbnail")) {
                         filePath = afs.getThumbnailPath(id);
                         file = new File(filePath);
@@ -352,39 +373,30 @@ public class Deletion {
                         file = new File(filePath);
                         // Try to remove a _pyramid file if it exists
                         File pyrFile = new File(filePath + PixelsService.PYRAMID_SUFFIX);
-                        if(!deleteSingleFile(pyrFile)) {
-                            failedMap.get(fileType).add(id);
-                            filesFailed++;
-                            bytesFailed += pyrFile.length();
-                        }
+                        deleteSingleFile(pyrFile, fileType, id, failedMap);
+
                         File dir = file.getParentFile();
                         // Now any lock file
                         File lockFile = new File(dir, "." + id + PixelsService.PYRAMID_SUFFIX
                                 + BfPyramidPixelBuffer.PYR_LOCK_EXT);
-                        if(!deleteSingleFile(lockFile)) {
-                            failedMap.get(fileType).add(id);
-                            filesFailed++;
-                            bytesFailed += lockFile.length();
-                        }
+                        deleteSingleFile(lockFile, fileType, id, failedMap);
+
                         // Now any tmp files
                         FileFilter tmpFileFilter = new WildcardFileFilter("."
                                 + id + PixelsService.PYRAMID_SUFFIX + "*.tmp");
                         File[] tmpFiles = dir.listFiles(tmpFileFilter);
                         if(tmpFiles != null) {
                             for (int i = 0; i < tmpFiles.length; i++) {
-                                if(!deleteSingleFile(tmpFiles[i])) {
-                                    failedMap.get(fileType).add(id);
-                                    filesFailed++;
-                                    bytesFailed += tmpFiles[i].length();
-                                }
+                                deleteSingleFile(tmpFiles[i], fileType, id, failedMap);
                             }
                         }
                     }
-                    // Finally delete main file for any type.
-                    if(!deleteSingleFile(file)) {
-                        failedMap.get(fileType).add(id);
-                        filesFailed++;
-                        bytesFailed += file.length();
+
+                    // File will be null, for example if this is a repository
+                    // file.
+                    if (file != null) {
+                        // Finally delete main file for any type.
+                        deleteSingleFile(file, fileType, id, failedMap);
                     }
                 }
             }
@@ -413,23 +425,25 @@ public class Deletion {
         }
     }
 
-
     /**
      * Helper to delete and log
      */
-    private boolean deleteSingleFile(File file)
+    private void deleteSingleFile(File file, String fileType, Long id,
+            HashMap<String, ArrayList<Long>> failedMap)
     {
         if (file.exists()) {
             if (file.delete()) {
                 log.debug("DELETED: " + file.getAbsolutePath());
             } else {
                 log.debug("Failed to delete " + file.getAbsolutePath());
-                return false;
+                failedMap.get(fileType).add(id);
+                filesFailed++;
+                bytesFailed += file.length();
             }
         } else {
             log.debug("File " + file.getAbsolutePath() + " does not exist.");
         }
-        return true;
     }
+
 
 }

@@ -1,14 +1,12 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
-
-import Ice.Current;
 
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
+import ome.util.SqlAction.DeleteLog;
 
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -161,5 +159,25 @@ public interface RepositoryDao {
      * field of the current.
      */
     EventContext getEventContext(final Ice.Current current);
+
+    /**
+     * Call {@link SqlAction.findRepoDeleteLogs(DeleteLog)} with the current
+     * context.
+     *
+     * @param template not null.
+     * @param current not null.
+     * @return all the rows found which match the non-null fields on templates
+     */
+    List<DeleteLog> findRepoDeleteLogs(DeleteLog template, final Ice.Current current);
+
+    /**
+     * Call {@link SqlAction.deleteRepoDeleteLogs(DeleteLog)} with the current
+     * context.
+     *
+     * @param template not null.
+     * @param current not null.
+     * @return the number of rows deleted
+     */
+    int deleteRepoDeleteLogs(DeleteLog template, final Ice.Current current);
 
 }
