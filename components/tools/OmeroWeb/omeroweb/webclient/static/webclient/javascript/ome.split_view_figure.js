@@ -266,4 +266,6 @@ $(document).ready(function() {
         }
     });
 
+    // For 'number' fields, only allow numbers input.
+    $(".number").numbersOnly();
 });

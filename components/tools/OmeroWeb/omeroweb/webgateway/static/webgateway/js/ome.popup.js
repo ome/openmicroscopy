@@ -34,6 +34,58 @@ jQuery.fn.alternateRowColors = function() {
   return this;
 };
 
+
+// Call this on an <input> to only allow numbers.
+// I rejects all non-numeric characters but allows paste (then checks value)
+// By default it only allows positive ints.
+// To allow negative or float values use $(".number").numbersOnly({negative:true, float:true});
+jQuery.fn.numbersOnly = function(options) {
+
+    // First, save the current value (assumed to be valid)
+    this.each(function() {
+        $(this).data('numbersOnly', $(this).val());
+    })
+    .keypress(function(event){
+
+        // we allow copy, paste, left or right
+        var allowedChars = [37, 39, 99, 118];
+        if (options && options.negative) {
+            allowedChars.push(45);
+        }
+        if (options && options.float) {
+            allowedChars.push(46);
+        }
+        // Reject keypress if not a number and NOT one of our allowed Chars
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && allowedChars.indexOf(charCode) == -1) {
+            return false;
+        }
+
+        // We've allowed keypress (including paste)...
+        //finally check field value after waiting for keypress to update...
+        var $this = $(this);
+        setTimeout(function(){
+            var n = $this.val();
+            var isNumber = function(n) {
+                if (n.length === 0) {
+                    return true;        // empty strings are allowed
+                }
+                return !isNaN(parseFloat(n)) && isFinite(n);
+            };
+            // If so, save to 'data', otherwise revert to 'data'
+            if (isNumber(n)) {
+                $this.data('numbersOnly', n);     // update
+            } else {
+                $this.val( $this.data('numbersOnly') );
+            }
+        }, 10);
+
+        return true;
+    });
+
+    return this;
+};
+
 OME.openPopup = function(url) {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
     var owindow = window.open(url, '', 'height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
