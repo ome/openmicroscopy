@@ -4662,7 +4662,13 @@ class TreeViewerComponent
 		if (model.getState() != READY || model.getDisplayMode() == index)
 			return;
 		//First check if groups already displayed
-		
+		model.setRndSettings(null);
+		model.setNodesToCopy(null, -1);
+		//remove thumbnails browser
+		view.removeAllFromWorkingPane();
+		model.setDataViewer(null);
+		//reset search
+		clearFoundResults();
 				
 		model.setDisplayMode(index);
 		Map<Integer, Browser> browsers = model.getBrowsers();
