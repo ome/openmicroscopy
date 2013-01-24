@@ -1317,9 +1317,10 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     Edit and save channel names
     """
     image = conn.getObject("Image", imageId)
+    sizeC = image.getSizeC()
     channelNames = {}
     nameDict = {}
-    for i in range(image.getSizeC()):
+    for i in range(sizeC):
         cname = request.REQUEST.get("channel%d" % i, None)
         if cname is not None:
             channelNames["channel%d" % i] = smart_str(cname)
@@ -1330,7 +1331,7 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
             pid = long(parentId.split("-")[1])
-            counts = conn.setChannelNames(ptype, [pid], nameDict)
+            counts = conn.setChannelNames(ptype, [pid], nameDict, channelCount=sizeC)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
     rv = {"channelNames": channelNames}
