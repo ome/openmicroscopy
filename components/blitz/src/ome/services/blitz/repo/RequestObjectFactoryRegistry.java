@@ -60,6 +60,14 @@ public class RequestObjectFactoryRegistry extends
             }
 
         });
+        factories.put(RawAccessRequestI.ice_staticId(), new ObjectFactory(
+                RawAccessRequestI.ice_staticId()) {
+            @Override
+            public Ice.Object create(String name) {
+                return new RawAccessRequestI(reg);
+            }
+
+        });
         return factories;
     }
 

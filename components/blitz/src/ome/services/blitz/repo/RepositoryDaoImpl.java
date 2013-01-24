@@ -1,15 +1,11 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +29,7 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
+import ome.util.SqlAction.DeleteLog;
 
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -461,6 +458,28 @@ public class RepositoryDaoImpl implements RepositoryDao {
         });
     }
 
+
+    @SuppressWarnings("unchecked")
+    public List<DeleteLog> findRepoDeleteLogs(final DeleteLog template, Current current) {
+        return (List<DeleteLog>) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "findRepoDeleteLogs", template) {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return getSqlAction().findRepoDeleteLogs(template);
+            }
+        });
+    }
+
+    public int deleteRepoDeleteLogs(final DeleteLog template, Current current) {
+        return (Integer) executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this, "deleteRepoDeleteLogs", template) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return getSqlAction().deleteRepoDeleteLogs(template);
+            }
+        });
+    }
+
     public omero.sys.EventContext getEventContext(Ice.Current curr) {
         EventContext ec = this.currentContext(new Principal(curr.ctx.get(
                 omero.constants.SESSIONUUID.value)));
@@ -497,44 +516,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
             ServiceFactory sf, SqlAction sql,
             String repoUuid, CheckedPath checked, String mimetype) {
 
-        final File file = checked.file;
-
-        ome.model.core.OriginalFile ofile =
-                new ome.model.core.OriginalFile();
-
-        // Only non conditional properties.
-        ofile.setName(checked.getName());
-        ofile.setMimetype(mimetype); // null takes DB default
-
-        // This first case deals with registering the repos themselves.
-        if (checked.isRoot) {
-            ofile.setPath(file.getParent());
-        } else { // Path should be relative to root?
-            ofile.setPath(checked.getRelativePath());
-        }
-
-        final boolean mimeDir = PublicRepositoryI.DIRECTORY_MIMETYPE.equals(mimetype);
-        final boolean actualDir = file.isDirectory();
-
-        if (file.exists() && !actualDir) {
-            ofile.setMtime(new Timestamp(file.lastModified()));
-            ofile.setSha1(checked.sha1());
-            ofile.setSize(file.length());
-        } else {
-            ofile.setMtime(new Timestamp(System.currentTimeMillis()));
-            ofile.setSha1("");
-            ofile.setSize(0L);
-            if (actualDir && !mimeDir) {
-                throw new ome.conditions.ValidationException(
-                        "File is a directory but mimetype is: " + mimetype);
-            }
-        }
-        // atime/ctime??
+        ome.model.core.OriginalFile ofile = checked.asOriginalFile(mimetype);
 
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         sql.setFileRepo(ofile.getId(), repoUuid);
 
-        if (mimeDir) {
+        if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
             internalMkdir(checked.file);
         }
 
@@ -623,4 +610,5 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 Long.toString(file.getDetails().getGroup().getId().getValue()));
         return context;
     }
+
 }

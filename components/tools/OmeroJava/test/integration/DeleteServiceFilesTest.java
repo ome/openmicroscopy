@@ -124,7 +124,7 @@ public class DeleteServiceFilesTest
         Pixels pix = img.getPrimaryPixels();
         String path = getPath(REF_PIXELS, pix.getId().getValue());
         RepositoryPrx legacy = getLegacyRepository();
-        legacy.create(path);
+        // FIXME: legacy.create(path);
         return img;
     }
 
@@ -145,19 +145,19 @@ public class DeleteServiceFilesTest
 		RepositoryPrx legacy = getLegacyRepository();
 		if(pixels) {
             path = getPath(REF_PIXELS, pix.getId().getValue());
-            legacy.create(path);
+            // FIXME: legacy.create(path);
         }
 		if(pyramid) {
 		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID);
-            legacy.create(path);
+            // FIXME: legacy.create(path);
         }
 		if(lock) {
 		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_LOCK);
-            legacy.create(path);
+            // FIXME: legacy.create(path);
         }
 		if(tmp) {
 		    path = getOtherPixelsPath(pix.getId().getValue(), PyramidFileType.PYRAMID_TMP);
-            legacy.create(path);
+            // FIXME: legacy.create(path);
         }
         return img;
     }
