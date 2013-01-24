@@ -2837,7 +2837,7 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
-    def setChannelNames(self, data_type, ids, nameDict):
+    def setChannelNames(self, data_type, ids, nameDict, channelCount=None):
         """
         Sets and saves new names for channels of specified Images.
         If an image has fewer channels than the max channel index in nameDict, then
@@ -2846,6 +2846,7 @@ class _BlitzGateway (object):
         @param data_type:   'Image', 'Dataset', 'Plate'
         @param ids:         Image, Dataset or Plate IDs
         @param nameDict:    A dict of index:'name' ** 1-based ** E.g. {1:"DAPI", 2:"GFP"}
+        @param channelCount:    If specified, only rename images with this number of channels
         @return:            {'imageCount':totalImages, 'updateCount':updateCount}
         """
 
@@ -2877,7 +2878,10 @@ class _BlitzGateway (object):
         updateCount = 0
         ctx = self.SERVICE_OPTS.copy()
         for p in pix:
-            if p.getSizeC().getValue() < maxIdx:
+            sizeC = p.getSizeC().getValue()
+            if sizeC < maxIdx:
+                continue
+            if channelCount is not None and channelCount != sizeC:  # Filter by channel count
                 continue
             updateCount += 1
             group_id = p.details.group.id.val
