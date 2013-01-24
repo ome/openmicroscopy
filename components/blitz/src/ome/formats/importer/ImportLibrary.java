@@ -459,7 +459,7 @@ public class ImportLibrary implements IObservable
 
         notifyObservers(new ImportEvent.IMPORT_DONE(
                 0, container.getFile().getAbsolutePath(),
-                null, null, 0, null, rv.pixels));
+                null, null, 0, null, rv.pixels, rv.objects));
 
         return rv;
     }

@@ -338,10 +338,13 @@ public class ImportEvent {
 
     public static class IMPORT_DONE extends PROGRESS_EVENT {
         public final List<Pixels> pixels;
+        public final List<IObject> objects;
         public IMPORT_DONE(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, List<Pixels> pixels) {
+                Long pixId, int series, ImportSize size, List<Pixels> pixels,
+                List<IObject> objects) {
             super(index, filename, target, pixId, series, size, null, null);
             this.pixels = pixels;
+            this.objects = objects;
         }
 
         @Override

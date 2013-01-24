@@ -45,6 +45,8 @@ import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.experiment.Experiment;
 import ome.model.experiment.MicrobeamManipulation;
+import ome.model.fs.Fileset;
+import ome.model.fs.FilesetJobLink;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.model.screen.Plate;
@@ -1700,7 +1702,28 @@ public class OMEROMetadataStore
     	log.info("Unique detector settings: " + detectorSettings.size());
     	log.info("Unique logical channels: " + logicalChannels.size());
     }
-    
+
+    /**
+     * For all plates and all image which are not contained within a well,
+     * create a link from the {@link Fileset} to the given object.
+     */
+    private void linkFileset(FilesetJobLink link)
+    {
+        final Fileset fs = link.parent().proxy(); // Unloaded
+        for (Plate plate : plateList.values())
+        {
+            plate.linkFileset(fs);
+        }
+
+        for (Image image : imageList.values())
+        {
+            if (image.sizeOfWellSamples() < 1)
+            {
+                image.linkFileset(fs.proxy());
+            }
+        }
+    }
+
     /**
      * Finds the matching unique settings for an image.
      * @param uniqueSettings Set of existing unique settings.
@@ -1840,11 +1863,13 @@ public class OMEROMetadataStore
      * @return List of the Pixels objects with their attached object graphs
      * that have been saved.
      */
-    public List<Pixels> saveToDB()
+    public List<Pixels> saveToDB(FilesetJobLink link)
     {
     	// Check the entire object graph, optimizing and sections that may
     	// be collapsed.
     	checkAndCollapseGraph();
+    	linkFileset(link);
+    	
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds(). DISABLED until we can find out what is causing
     	// the extreme memory usage on the graph reload.

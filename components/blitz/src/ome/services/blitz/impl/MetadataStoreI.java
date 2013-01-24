@@ -9,6 +9,7 @@ package ome.services.blitz.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import ome.api.IQuery;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStore;
@@ -25,6 +27,7 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.Format;
 import ome.model.screen.Plate;
+import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -58,6 +61,7 @@ import omero.api._MetadataStoreOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.metadatastore.IObjectContainer;
+import omero.model.FilesetJobLink;
 import omero.model.ScriptJob;
 import omero.util.IceMapper;
 
@@ -78,6 +82,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
     private final static Log log = LogFactory.getLog(MetadataStoreI.class);
 
     protected final Set<Long> savedPlates = new HashSet<Long>();
+
+    protected final Set<Long> savedImagesNotInPlates = new HashSet<Long>();
 
     protected OMEROMetadataStore store;
 
@@ -128,23 +134,42 @@ public class MetadataStoreI extends AbstractAmdServant implements
      * 
      * @see #processing()
      */
-    private void parsePixels(List<Pixels> pixels) {
+    private void parsePixels(List<Pixels> pixels, Map<String, List<? extends IObject>> rv, IQuery query) {
         synchronized (savedPlates) {
             for (Pixels p : pixels) {
                 ome.model.core.Image i = p.getImage();
                 if (i != null) {
-                    for (ome.model.screen.WellSample ws : i.unmodifiableWellSamples()) {
-                        ome.model.screen.Well w = ws.getWell();
-                        if (w != null) {
-                            Plate plate = w.getPlate();
-                            if (plate != null) {
-                                savedPlates.add(plate.getId());
+                    if (i.sizeOfWellSamples() < 1) {
+                        savedImagesNotInPlates.add(i.getId());
+                    } else {
+                        for (ome.model.screen.WellSample ws :
+                            i.unmodifiableWellSamples()) {
+                            ome.model.screen.Well w = ws.getWell();
+                            if (w != null) {
+                                Plate plate = w.getPlate();
+                                if (plate != null) {
+                                    savedPlates.add(plate.getId());
+                                }
                             }
                         }
                     }
                 }
             }
         }
+        List<IObject> plates = loadObjects("Plate", query, savedPlates);
+        List<IObject> images = loadObjects("Image", query, savedImagesNotInPlates);
+        rv.put("Plate", plates);
+        rv.put("Image", images);
+        rv.put("Pixels", pixels);
+    }
+
+    private List<IObject> loadObjects(String type, IQuery query, Collection<Long> ids) {
+        if (ids != null && ids.size() > 0) {
+            return query.findAllByQuery(
+                "select p from " + type + " p where p.id in (:ids)",
+                new Parameters().addIds(ids));
+        }
+        return null;
     }
 
     // ~ Service methods
@@ -184,17 +209,22 @@ public class MetadataStoreI extends AbstractAmdServant implements
     }
 
     public void saveToDB_async(final AMD_MetadataStore_saveToDB __cb,
-            final Current __current) throws ServerError {
+            final FilesetJobLink link, final Current __current) throws ServerError {
 
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE_FILTERABLE_COLLECTION_MAP);
+        final ome.model.fs.FilesetJobLink link_ =
+                (ome.model.fs.FilesetJobLink) mapper.reverse(link);
+
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.SimpleWork(
                         this, "saveToDb") {
                     @Transactional(readOnly = false)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        List<Pixels> pix = store.saveToDB();
-                        parsePixels(pix);
-                        return pix;
+                        Map<String, List<? extends IObject>> rv = new HashMap<String, List<? extends IObject>>();
+                        List<Pixels> pix = store.saveToDB(link_);
+                        rv.put("Pixels", pix);
+                        parsePixels(pix, rv, sf.getQueryService());
+                        return rv;
                     }
                 }));
     }
