@@ -170,6 +170,9 @@
                     $IDs.val("");
                 }
             });
+
+            // For 'number' fields, only allow numbers input.
+            $(".number").numbersOnly();
         });
     </script>
 {% endblock %}
