@@ -907,7 +907,10 @@ class LocationDialog extends JDialog implements ActionListener,
 			tooltips.add(UIUtilities.formatToolTipText(lines));
 		}
 
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
+		//To be modified
+		exp = ImporterAgent.getUserDetails();
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
+				exp.getId());
 		renderer.setTooltips(tooltips);
 		comboBox.setModel(new DefaultComboBoxModel(items.toArray()));
 		comboBox.setRenderer(renderer);
