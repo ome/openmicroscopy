@@ -638,9 +638,6 @@ public class ProjSavingDialog
 			JComboBox comboBox) {
 		List<String> tooltips = new ArrayList<String>(dataNodes.size());
 
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer();
-
-		comboBox.setRenderer(renderer);
 		List<String> lines;
 		ExperimenterData exp;
 		for (DataNode n : dataNodes) {
@@ -653,7 +650,11 @@ public class ProjSavingDialog
 			lines.addAll(UIUtilities.wrapStyleWord(n.getFullName()));
 			tooltips.add(UIUtilities.formatToolTipText(lines));
 		}
-
+		//To be modified.
+		exp = ImViewerAgent.getUserDetails();
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
+				exp.getId());
+		comboBox.setRenderer(renderer);
 		renderer.setTooltips(tooltips);
 	}
 	

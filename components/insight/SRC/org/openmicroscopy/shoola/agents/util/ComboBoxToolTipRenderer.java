@@ -25,10 +25,13 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 
 /** 
@@ -39,9 +42,33 @@ import org.openmicroscopy.shoola.agents.util.browser.DataNode;
  */
 public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 	
+	/** 
+	 * The icon indicating that the data object is not owned by the
+	 * specified user.
+	 */
+	private static final Icon NOT_OWNED_ICON;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNED_8);
+	}
+	
 	/** The tool tips to set.*/
 	private List<String> tooltips;
 
+	/** Used to check if the user is the owner of the data.*/
+	private long userID;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param userID The id of the user.
+	 */
+	public ComboBoxToolTipRenderer(long userID)
+	{
+		this.userID = userID;
+	}
+	
 	/**
 	 * Sets the tool tip.
 	 * @see DefaultListCellRenderer#getListCellRendererComponent(JList,
@@ -63,6 +90,13 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 			if (!node.isDefaultNode()) {
 				comp.setEnabled(node.getDataObject().canLink());
 			}
+			if (userID >= 0 && node.getOwner() != null) {
+				if (node.getOwner().getId() != userID 
+						&& comp instanceof JLabel) {
+					((JLabel) comp).setIcon(NOT_OWNED_ICON);
+				}
+			}
+			
 		}
 		return comp;
 	}
