@@ -117,9 +117,10 @@ public:
 
 class CBFixture : virtual public Fixture {
 public:
+
     TestCBPtr run(const RequestPtr& req) {
         ExperimenterPtr user = newUser();
-        client_ptr client = login(user->getOmeName()->getValue());
+        login(user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
         return new TestCB(client, handle);
     }

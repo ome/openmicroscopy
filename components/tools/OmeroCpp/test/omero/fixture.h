@@ -38,11 +38,23 @@ struct Fixture
     protected:
         std::vector<omero::client*> clients;
     public:
+
+        /**
+         * Creates and fills the "root" client_ptr
+         * for later use. This will be closed during
+         * destruction or logout.
+         */
         Fixture();
-        ~Fixture();
+
+        /**
+         * If either the "root" or the "client" client_ptr
+         * instance is true, call __del__().
+         */
+        virtual ~Fixture();
 
         // Fields which should always be present
         omero::client_ptr root;
+        omero::client_ptr client;
 
         // Data graphs
         omero::model::PixelsIPtr pixels();
@@ -60,9 +72,10 @@ struct Fixture
          * Create a new omero::client object by logging
          * in with the username and password. For most
          * users created via Fixture::newUser no password
-         * is necessary.
+         * is necessary. The created login will be stored
+         * as "client".
          */
-        omero::client_ptr login(
+        void login(
                 const std::string& username = std::string(),
                 const std::string& password = std::string());
 
@@ -70,21 +83,19 @@ struct Fixture
          * Like login(username, password) but takes an experimenter
          * object and calls ->getOmeName()->getValue() for you.
          */
-        omero::client_ptr login(
+        void login(
                 const omero::model::ExperimenterPtr& user,
-                const std::string& password = std::string()) {
-            return this->login(user->getOmeName()->getValue(), password);
-        }
+                const std::string& password = std::string());
+
+        /**
+         * Close and null the "root" and "client" fields.
+         */
+        void logout();
 
         /*
          *
          */
-        omero::client_ptr root_login();
-
-        /*
-         *
-         */
-	omero::model::ExperimenterPtr newUser(
+        omero::model::ExperimenterPtr newUser(
                 const omero::model::ExperimenterGroupPtr& g = omero::model::ExperimenterGroupPtr());
 
         /*
