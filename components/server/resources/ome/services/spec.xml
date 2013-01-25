@@ -261,7 +261,7 @@
             <list>
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
+                <value>/OriginalFile+Only;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
                 <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
                 <value>/Image/Pixels/PlaneInfo</value>
@@ -400,13 +400,23 @@
     <bean parent="delSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
+                <value>/OriginalFile/FilesetEntry</value>
+                <value>/Fileset;HARD;/OriginalFile/FilesetEntry</value>
+                <value>/OriginalFile+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/OriginalFile+Only">
+        <constructor-arg>
+            <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
                 <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
                 <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
-                <value>/OriginalFile</value>
+                <value>/OriginalFile+Only</value>
             </list>
         </constructor-arg>
     </bean>
@@ -419,7 +429,7 @@
                 <value>/Fileset/FilesetPlateLink</value>
                 <value>/Plate+FS;HARD;/Fileset/FilesetPlateLink</value>
                 <value>/Fileset/FilesetEntry</value>
-                <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
+                <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
                 <value>/Fileset/FilesetJobLink</value>
                 <value>/Fileset/FilesetJobLink/Job</value>
                 <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
