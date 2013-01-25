@@ -361,6 +361,23 @@
         </constructor-arg>
     </bean>
 
+    <bean parent="delSpec" name="/Fileset">
+        <constructor-arg>
+            <list>
+                <value>/Fileset/FilesetImageLink</value>
+                <value>/Image;HARD;/Fileset/FilesetImageLink</value>
+                <value>/Fileset/FilesetPlateLink</value>
+                <value>/Plate;HARD;/Fileset/FilesetPlateLink</value>
+                <value>/Fileset/FilesetEntry</value>
+                <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
+                <value>/Fileset/FilesetJobLink</value>
+                <value>/Fileset/FilesetJobLink/Job</value>
+                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
+                <value>/Fileset</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <!-- Adding annotation link support. Could be more generic #7301 -->
     <bean parent="delSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="delSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
