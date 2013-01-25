@@ -1,11 +1,17 @@
 #include <list>
 #include <IceUtil/Thread.h>
+#include <IceUtil/Config.h>
+#include <IceUtil/Handle.h>
 #include <omero/fixture.h>
 #include <omero/util/concurrency.h>
 
 using namespace omero::util::concurrency;
 using namespace omero;
 using namespace std;
+
+class BaseThread;
+
+typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
 
 class BaseThread : public IceUtil::Thread {
 public:
@@ -14,8 +20,6 @@ public:
         return IceUtil::Time::milliSeconds(ms);
     };
 };
-
-typedef IceUtil::Handle<BaseThread> BaseThreadPtr;
 
 Event event;
 

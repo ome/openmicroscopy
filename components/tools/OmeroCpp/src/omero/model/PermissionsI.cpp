@@ -11,6 +11,10 @@
 #include <omero/ClientErrors.h>
 #include <omero/Constants.h>
 
+#if ICE_INT_VERSION / 100 >= 304
+::Ice::Object* IceInternal::upCast(::omero::model::PermissionsI* p) { return p; }
+#endif
+
 namespace omero {
 
     namespace model {
