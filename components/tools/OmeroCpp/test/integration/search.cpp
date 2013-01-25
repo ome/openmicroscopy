@@ -62,68 +62,39 @@ StringSet stringSet(string s, string s2, string s3){
     return ss;
 }
 
-class SearchFixture {
-    string _name;
-    Fixture f;
-    omero::client_ptr client;
-    ServiceFactoryPrx sf;
+class SearchFixture : virtual public Fixture {
 public:
-    SearchFixture() {
-    }
-    SearchFixture(string name) {
-	_name = name;
-    }
-    void init() {
-	if (!sf) {
-	    if (_name.empty()) {
-		client = f.login();
-	    } else if (_name == "root") {
-		client = f.root_login();
-	    } else {
-		client = f.login(_name);
-	    }
-	    sf = (*client).getSession();
-	}
-    }
-    SearchFixture root() {
-    	SearchFixture root("root");
-	root.init();
-	root.sf->setSecurityContext(group());
-	return root;
-    }
     ExperimenterGroupPtr group() {
-    	init();
-	return new ExperimenterGroupI(admin()->getEventContext()->groupId, false);
+        return new ExperimenterGroupI(admin()->getEventContext()->groupId, false);
+    }
+    ServiceFactoryPrx sf() {
+        return client->getSession();
     }
     SearchPrx search() {
-	init();
-	return sf->createSearchService();
+        return sf()->createSearchService();
     }
     IAdminPrx admin() {
-	init();
-	return sf->getAdminService();
+        return sf()->getAdminService();
     }
     IQueryPrx query() {
-	init();
-	return sf->getQueryService();
+        return sf()->getQueryService();
     }
     IUpdatePrx update() {
-	init();
-	return sf->getUpdateService();
+        return sf()->getUpdateService();
     }
-    string uuid() {
-	return f.uuid();
+    IAdminPrx rootAdmin() {
+        return root->getSession()->getAdminService();
+    }
+    IUpdatePrx rootUpdate() {
+        return root->getSession()->getUpdateService();
     }
     OriginalFileIPtr createFile() {
-	OriginalFileIPtr file = new OriginalFileI();
-	file->setSize(rlong(0));
-	file->setName(rstring(""));
-	file->setPath(rstring("/"));
-	file->setSha1(rstring(""));
-	return file;
-    }
-    ExperimenterPtr newUser(const ExperimenterGroupPtr& g = ExperimenterGroupPtr()) {
-	return f.newUser(g);
+        OriginalFileIPtr file = new OriginalFileI();
+        file->setSize(rlong(0));
+        file->setName(rstring(""));
+        file->setPath(rstring("/"));
+        file->setSha1(rstring(""));
+        return file;
     }
 };
 
@@ -141,7 +112,7 @@ public:
             ASSERT_GT(search->results().size(), (unsigned int)count); \
         } \
     } else { \
-	if (search->hasNext()) { \
+        if (search->hasNext()) { \
             ASSERT_EQ((unsigned int)0, search->results().size()); \
         } \
     } \
@@ -150,6 +121,7 @@ TEST(SearchTest, RootSearch )
 {
     try {
         SearchFixture f;
+        f.login();
 
         SearchPrx search = f.search();
         search->onlyType("Experimenter");
@@ -158,19 +130,20 @@ TEST(SearchTest, RootSearch )
             ExperimenterIPtr e = ExperimenterIPtr::dynamicCast(search->next());
         }
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
 TEST(SearchTest, IQuerySearch )
 {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     IUpdatePrx update = f.update();
 
     string uuid = f.uuid();
@@ -178,7 +151,7 @@ TEST(SearchTest, IQuerySearch )
     i->setName(rstring(uuid));
     i = ImagePtr::dynamicCast( update->saveAndReturnObject(i) );
 
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     // IQuery provides a simple, stateless method for search
     IObjectList list;
@@ -191,14 +164,14 @@ TEST(SearchTest, Filtering )
 {
     try {
         SearchFixture f;
-	SearchFixture root = f.root();
+        f.login();
 
-	string uuid = f.uuid();
-	ImagePtr i = new_ImageI();
+        string uuid = f.uuid();
+        ImagePtr i = new_ImageI();
         i->setName( rstring(uuid) );
 
         IObjectPtr obj =  f.update()->saveAndReturnObject(i);
-        root.update()->indexObject(obj);
+        f.rootUpdate()->indexObject(obj);
 
         SearchPrx search = f.search();
         search->onlyType("Image");
@@ -237,12 +210,12 @@ TEST(SearchTest, Filtering )
         search->onlyOwnedBy(DetailsIPtr());
 
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
@@ -258,18 +231,22 @@ TEST(SearchTest, Filtering )
 TEST( SearchTest, testByGroupForTags ) {
     try {
     // Set up user and group
-    SearchFixture root = SearchFixture("root");
-    ExperimenterPtr initialUser = root.newUser();
-    SearchFixture f = SearchFixture(initialUser->getOmeName()->getValue());
-    ExperimenterPtr secondUser = root.newUser(f.group());
+    SearchFixture f;
+
+    ExperimenterPtr initialUser = f.newUser();
+    f.login(initialUser->getOmeName()->getValue());
+    ExperimenterPtr secondUser = f.newUser(f.group());
     ExperimenterGroupPtr initialGroup = f.group();
-    SearchFixture f2(secondUser->getOmeName()->getValue());
+
+    SearchFixture f2;
+    f2.login(secondUser->getOmeName()->getValue());
+
     PermissionsPtr perms = new PermissionsI();
     perms->setGroupRead(true);
     perms->setGroupWrite(true);
     perms->setWorldRead(false);
     perms->setWorldWrite(false);
-    root.admin()->changePermissions(initialGroup, perms);
+    f.rootAdmin()->changePermissions(initialGroup, perms);
 
     string groupStr = f.uuid();
     string tagStr = f.uuid();
@@ -300,7 +277,7 @@ TEST( SearchTest, testByGroupForTags ) {
     search->setBatchSize(2);
     assertResults(2, search);
     while (search->hasNext()) {
-	search->results(); // Clear search
+        search->results(); // Clear search
     }
 
     // Let's now add the tag to another tag group as another user
@@ -331,33 +308,37 @@ TEST( SearchTest, testByGroupForTags ) {
     search->byGroupForTags(groupStr);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
 TEST(SearchTest, testByTagForGroup ) {
     try {
     // Set up user and group
-    SearchFixture root = SearchFixture("root");
-    ExperimenterPtr initialUser = root.newUser();
-    SearchFixture f = SearchFixture(initialUser->getOmeName()->getValue());
-    ExperimenterPtr secondUser = root.newUser(f.group());
+    SearchFixture f;
+    ExperimenterPtr initialUser = f.newUser();
+
+    f.login(initialUser->getOmeName()->getValue());
+    ExperimenterPtr secondUser = f.newUser(f.group());
     ExperimenterGroupPtr initialGroup = f.group();
-    SearchFixture f2(secondUser->getOmeName()->getValue());
+
+    SearchFixture f2;
+    f2.login(secondUser->getOmeName()->getValue());
+
     PermissionsPtr perms = new PermissionsI();
     perms->setGroupRead(true);
     perms->setGroupWrite(true);
     perms->setWorldRead(false);
     perms->setWorldWrite(false);
-    root.admin()->changePermissions(initialGroup, perms);
+    f.rootAdmin()->changePermissions(initialGroup, perms);
 
-    string groupStr = f.uuid();;
-    string tagStr = f.uuid();;
+    string groupStr = f.uuid();
+    string tagStr = f.uuid();
 
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(tagStr));
@@ -384,7 +365,7 @@ TEST(SearchTest, testByTagForGroup ) {
     search->setBatchSize(2);
     assertResults(2, search);
     while (search->hasNext()) {
-	search->results(); // Clear search
+        search->results(); // Clear search
     }
 
     // Let's now add another tag to the tag group as another user
@@ -419,25 +400,26 @@ TEST(SearchTest, testByTagForGroup ) {
     //search->byTagForGroups(tagStr);
     //assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
 TEST(SearchTest, testSimpleFullTextSearch ) {
-    
+
     try {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     ImagePtr i = new_ImageI();
     i->setName(rstring(f.uuid()));
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -445,9 +427,9 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
     int count = 0;
     IObjectPtr obj;
     while (search->hasNext()) {
-	obj = search->next();
-	count++;
-	ASSERT_TRUE( obj );
+        obj = search->next();
+        count++;
+        ASSERT_TRUE( obj );
     }
     ASSERT_EQ(1, count);
 
@@ -457,12 +439,12 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
 
     search->close();
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
@@ -472,7 +454,7 @@ vector<string> sa(string array...) {
     vector<string> v;
     static const unsigned int arraySize = sizeof array / sizeof *array ;
     for(int x=0; x < arraySize; x++) {
-	v.push_back(array[x]);
+        v.push_back(array[x]);
     }
     return v;
 }
@@ -578,24 +560,24 @@ TEST(SearchTest, testSomeMustNone ) {
     // Completely empty
     //
     try {
-	search->bySomeMustNone(null, null, null);
-	fail("Should throw");
+        search->bySomeMustNone(null, null, null);
+        fail("Should throw");
     } catch (ApiUsageException aue) {
-	// ok
+        // ok
     }
 
     try {
-	search->bySomeMustNone(sa(), null, null);
-	fail("Should throw");
+        search->bySomeMustNone(sa(), null, null);
+        fail("Should throw");
     } catch (ApiUsageException aue) {
-	// ok
+        // ok
     }
 
     try {
-	search->bySomeMustNone(sa(""), null, null);
-	fail("Should throw");
+        search->bySomeMustNone(sa(""), null, null);
+        fail("Should throw");
     } catch (ApiUsageException aue) {
-	// ok
+        // ok
     }
 
     //
@@ -612,7 +594,8 @@ TEST(SearchTest, testSomeMustNone ) {
 TEST(SearchTest, testAnnotatedWith ) {
     try {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string uuid = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
@@ -620,7 +603,7 @@ TEST(SearchTest, testAnnotatedWith ) {
     tag->setTextValue(rstring(uuid));
     i->linkAnnotation(tag);
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -641,7 +624,7 @@ TEST(SearchTest, testAnnotatedWith ) {
     fa2->setFile(file2);
     i->linkAnnotation(fa2);
     i =  ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     // Properly uses the id
     FileAnnotationIPtr ex2 = new FileAnnotationI();
@@ -659,12 +642,12 @@ TEST(SearchTest, testAnnotatedWith ) {
     byAnnotatedWith(search, txtAnn);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
@@ -680,6 +663,8 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
     i2->setName( rstring("i2") );
 
     SearchFixture f;
+    f.login();
+
     string uuid = f.uuid();;
     TagAnnotationIPtr ta = new TagAnnotationI();
     ta->setTextValue(rstring(uuid));
@@ -712,12 +697,12 @@ TEST(SearchTest, testAnnotatedWithMultiple ) {
     search->byAnnotatedWith(list);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:" << ie.message;
+        FAIL() << "internal exception:" << ie.message;
     } catch (const omero::ApiUsageException& aue) {
-	FAIL() << "api usage exception thrown:" << aue.message;
+        FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 
 }
@@ -733,7 +718,8 @@ TEST(SearchTest, testOnlyIds ) {
     // byTagForGroups, byGroupForTags
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string uuid = f.uuid();;
     ImagePtr i1 = new_ImageI();
     i1->setName( rstring(uuid) );
@@ -747,8 +733,8 @@ TEST(SearchTest, testOnlyIds ) {
     i2 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i2));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    root.update()->indexObject(i1);
-    root.update()->indexObject(i2);
+    f.rootUpdate()->indexObject(i1);
+    f.rootUpdate()->indexObject(i2);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -802,9 +788,11 @@ TEST(SearchTest, testOnlyIds ) {
 
 TEST(SearchTest, testOnlyOwnedByOwner ) {
 
-    SearchFixture root("root");
-    ExperimenterPtr e = root.newUser();
-    SearchFixture f(e->getOmeName()->getValue());
+    SearchFixture f;
+
+    ExperimenterPtr e = f.newUser();
+    f.login(e->getOmeName()->getValue());
+
     DetailsIPtr user = new DetailsI();
     user->setOwner(e);
 
@@ -821,9 +809,9 @@ TEST(SearchTest, testOnlyOwnedByOwner ) {
     // Recreating instance as example
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
-    long id = root.admin()->getEventContext()->userId;
+    long id = f.rootAdmin()->getEventContext()->userId;
     ExperimenterPtr self = new ExperimenterI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setOwner(self);
@@ -911,16 +899,17 @@ TEST(SearchTest, testOnlyOwnedByOwner ) {
 }
 
 TEST(SearchTest, testOnlyOwnedByGroup ) {
-    
-    SearchFixture root("root");
-    ExperimenterPtr e = root.newUser();
-    SearchFixture f(e->getOmeName()->getValue());
+
+    SearchFixture f;
+    ExperimenterPtr e = f.newUser();
+
+    f.login(e->getOmeName()->getValue());
     ExperimenterGroupIPtr g = new ExperimenterGroupI
-	(rlong(f.admin()->getEventContext()->groupId), false);
-    
+        (rlong(f.admin()->getEventContext()->groupId), false);
+
     DetailsIPtr user = new DetailsI();
     user->setGroup( g );
-    
+
     string name = f.uuid();
     ImagePtr i = new_ImageI();
     i->setName( rstring(name) );
@@ -934,9 +923,9 @@ TEST(SearchTest, testOnlyOwnedByGroup ) {
     // Recreating instance as example
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
-    long id = root.admin()->getEventContext()->groupId;
+    long id = f.rootAdmin()->getEventContext()->groupId;
     ExperimenterGroupIPtr self = new ExperimenterGroupI(rlong(id), false);
     DetailsIPtr rootd = new DetailsI();
     rootd->setGroup(self);
@@ -1048,7 +1037,8 @@ omero::RTimePtr now() {
 
 TEST(SearchTest, testOnlyCreateBetween ) {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string name = f.uuid();;
     RTimePtr start = now();
     ImagePtr i = new_ImageI();
@@ -1062,7 +1052,7 @@ TEST(SearchTest, testOnlyCreateBetween ) {
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1163,7 +1153,8 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string name = f.uuid();;
     RTimePtr start = now();
     ImagePtr i = new_ImageI();
@@ -1177,7 +1168,7 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1275,7 +1266,8 @@ TEST(SearchTest, testOnlyModifiedBetween ) {
 TEST(SearchTest, testOnlyAnnotatedBetween ) {
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string name = f.uuid();;
     RTimePtr start = now();
     ImagePtr i = new_ImageI();
@@ -1289,7 +1281,7 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(name));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1387,7 +1379,8 @@ TEST(SearchTest, testOnlyAnnotatedBetween ) {
 TEST(SearchTest, testOnlyAnnotatedBy ) {
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string name = f.uuid();
     string tag = f.uuid();
     ImagePtr i = new_ImageI();
@@ -1401,7 +1394,7 @@ TEST(SearchTest, testOnlyAnnotatedBy ) {
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     t = new TagAnnotationI();
     t->setTextValue(rstring(tag));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1421,7 +1414,7 @@ TEST(SearchTest, testOnlyAnnotatedBy ) {
     assertResults(1, search);
 
     // But if we restrict it to another user, there should be none
-    ExperimenterPtr e = root.newUser();
+    ExperimenterPtr e = f.newUser();
     DetailsIPtr d = new DetailsI();
     d->setOwner(e);
     search->onlyAnnotatedBy(d);
@@ -1462,13 +1455,14 @@ TEST(SearchTest, testOnlyAnnotatedWith ) {
     // ignored by byTagForGroups, byGroupForTags
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string name = f.uuid();
     ImagePtr i = new_ImageI();
     i->setName(rstring(name));
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
 
@@ -1494,7 +1488,7 @@ TEST(SearchTest, testOnlyAnnotatedWith ) {
     link->setParent( i );
     f.update()->saveObject(link);
 
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     // Since we're looking for "no annotations" there should be no results
     search->byFullText(name);
@@ -1510,8 +1504,8 @@ TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
 
     try {
     SearchFixture f;
-    SearchFixture root = f.root();
-    
+    f.login();
+
     string name = f.uuid();;
     ImagePtr onlyTag = new_ImageI();
     onlyTag->setName( rstring(name) );
@@ -1537,7 +1531,7 @@ TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
     arr = f.update()->saveAndReturnArray(arr);
     IObjectList::iterator beg = arr.begin();
     while (beg != arr.end()) {
-	root.update()->indexObject(*beg++);
+        f.rootUpdate()->indexObject(*beg++);
     }
 
     SearchPrx search = f.search();
@@ -1555,12 +1549,12 @@ TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
     search->byFullText(name);
     assertResults(1, search);
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
@@ -1570,7 +1564,8 @@ TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
 TEST(SearchTest, testMergedBatches ) {
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string uuid1 = f.uuid();
     string uuid2 = f.uuid();
     ImagePtr i1 = new_ImageI();
@@ -1579,8 +1574,8 @@ TEST(SearchTest, testMergedBatches ) {
     i2->setName( rstring(uuid2) );
     i1 = ImagePtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
     i2 = ImagePtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
-    root.update()->indexObject(i1);
-    root.update()->indexObject(i2);
+    f.rootUpdate()->indexObject(i1);
+    f.rootUpdate()->indexObject(i2);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1636,8 +1631,8 @@ TEST SearchTest,( testOrderBy ) {
     desc.push_back(i2->getDescription()->getValue());
     desc.push_back(i1->getDescription()->getValue());
     while (search->hasNext()) {
-	ASSERT_EQ(desc.remove(0), ((Image) search->next())
-		     .getDescription());
+        ASSERT_EQ(desc.remove(0), ((Image) search->next())
+                .getDescription());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1645,8 +1640,8 @@ TEST SearchTest,( testOrderBy ) {
     desc.add(i2.getDescription());
     desc.add(i1.getDescription());
     while (search->hasNext()) {
-	ASSERT_EQ(desc.remove(0), ((Image) search->next())
-		     .getDescription());
+        ASSERT_EQ(desc.remove(0), ((Image) search->next())
+                .getDescription());
     }
 
     // Order by descript asc
@@ -1658,8 +1653,8 @@ TEST SearchTest,( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	ASSERT_EQ(asc.remove(0), ((Image) search->next())
-		     .getDescription());
+        ASSERT_EQ(asc.remove(0), ((Image) search->next())
+                .getDescription());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1667,8 +1662,8 @@ TEST SearchTest,( testOrderBy ) {
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
     while (search->hasNext()) {
-	ASSERT_EQ(asc.remove(0), ((Image) search->next())
-		     .getDescription());
+        ASSERT_EQ(asc.remove(0), ((Image) search->next())
+                .getDescription());
     }
 
     // Ordered by id
@@ -1680,7 +1675,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1688,7 +1683,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // Ordered by creation event id
@@ -1700,7 +1695,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1708,7 +1703,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // ordered by creation event time
@@ -1720,7 +1715,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
     // annotated with
     byAnnotatedWith(search, tag);
@@ -1728,7 +1723,7 @@ TEST SearchTest,( testOrderBy ) {
     ids.add(i2.getId());
     ids.add(i1.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(ids.remove(0), search->next().getId());
+        ASSERT_EQ(ids.remove(0), search->next().getId());
     }
 
     // To test multiple sort fields, we add another image with an "a"
@@ -1756,7 +1751,7 @@ TEST SearchTest,( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(multi.remove(0), search->next().getId());
+        ASSERT_EQ(multi.remove(0), search->next().getId());
     }
     // full text
     search->byFullText(uuid);
@@ -1765,7 +1760,7 @@ TEST SearchTest,( testOrderBy ) {
     multi.add(i1.getId());
     multi.add(i2.getId());
     while (search->hasNext()) {
-	ASSERT_EQ(multi.remove(0), search->next().getId());
+        ASSERT_EQ(multi.remove(0), search->next().getId());
     }
 
 }
@@ -1774,7 +1769,8 @@ TEST SearchTest,( testOrderBy ) {
 TEST(SearchTest, testFetchAnnotations ) {
     try {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string uuid = f.uuid();;
     ImagePtr i = new_ImageI();
     i->setName(rstring(uuid));
@@ -1790,7 +1786,7 @@ TEST(SearchTest, testFetchAnnotations ) {
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
@@ -1866,16 +1862,16 @@ TEST(SearchTest, testFetchAnnotations ) {
     params->map = ParamMap();
     params->map["id"] = t->getId();
     t = ImagePtr::dynamicCast(f.query()->findByQuery
-	("select t from Image t join fetch t.annotationLinks where t.id = :id",
-	 params));
+        ("select t from Image t join fetch t.annotationLinks where t.id = :id",
+        params));
     ASSERT_EQ(4, t->sizeOfAnnotationLinks());
     } catch (const omero::InternalException& ie) {
-	FAIL() << "internal exception:"+ie.message;
+        FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
         FAIL() << "api usage exception thrown:" << aue.message;
     } catch (const Ice::UnknownException& ue) {
-	cout << ue << endl;
-	FAIL() << "unknown exception thrown";
+        cout << ue << endl;
+        FAIL() << "unknown exception thrown";
     }
 }
 
@@ -1884,12 +1880,13 @@ TEST(SearchTest, testFetchAnnotations ) {
 
 TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+
     string uuid = f.uuid();;
     CommentAnnotationIPtr ta = new CommentAnnotationI();
     ta->setTextValue(rstring(uuid));
     ta = CommentAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(ta));
-    root.update()->indexObject(ta);
+    f.rootUpdate()->indexObject(ta);
 
     SearchPrx search = f.search();
     search->onlyType("CommentAnnotation");

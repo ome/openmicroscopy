@@ -23,8 +23,8 @@ using namespace omero::sys;
 
 TEST(DeleteTest, testSimpleDelete ) {
     Fixture f;
-    client_ptr c = f.login();
-    ServiceFactoryPrx sf = c->getSession();
+    f.login();
+    ServiceFactoryPrx sf = f.client->getSession();
 
     IQueryPrx iquery = sf->getQueryService();
     IUpdatePrx iupdate = sf->getUpdateService();
@@ -44,7 +44,7 @@ TEST(DeleteTest, testSimpleDelete ) {
     dcs.push_back(dc);
 
     DeleteHandlePrx handle = idelete->queueDelete( dcs );
-    DeleteCallbackIPtr cb = new DeleteCallbackI(c->getObjectAdapter(), handle);
+    DeleteCallbackIPtr cb = new DeleteCallbackI(f.client->getObjectAdapter(), handle);
     cb->loop(10, 500);
 
 }
