@@ -1690,7 +1690,7 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v <= 0) return "";
+		if (v <= 0) return "0 Kb";
 		String s = "";
 		if (v < FileUtils.ONE_KB) 
 			s = String.format("%.1f", (double) v)+" bytes";
