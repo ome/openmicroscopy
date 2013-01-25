@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +63,9 @@ public class ArchivedLoader
 
     /** The file where to export the image. */
     private String					folderPath;
+    
+    /** Flag indicating that the export has been marked to be cancel.*/
+    private boolean cancelled;
     
     /**
      * Notifies that an error occurred.
@@ -108,24 +113,38 @@ public class ArchivedLoader
      * Cancels the ongoing data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    {
+    	cancelled = true;
+    	if (handle != null) handle.cancel();
+    }
  
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
-    	if (result == null) onException(MESSAGE_RESULT, null);
+    {
+    	if (result == null && !cancelled) onException(MESSAGE_RESULT, null);
     	else {
     		Map m = (Map) result;
     		List l = (List) m.get(Boolean.valueOf(false));
     		List files = (List) m.get(Boolean.valueOf(true));
     		if (l != null && l.size() > 0) {
+    			if (!cancelled)
     			onException("Missing "+l.size()+" out of "+files.size()+" " +
     					"files composing the image", null);
-    		} else
-    			activity.endActivity(files.size()); 
+    		} else {
+    			if (cancelled) {
+    				Iterator i = files.iterator();
+    				while (i.hasNext()) {
+						((File) i.next()).delete();
+					}
+    			} else {
+    				activity.endActivity(files.size());
+    			}
+    		}
+    			
     	}
     }
     
