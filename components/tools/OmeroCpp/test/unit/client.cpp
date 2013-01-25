@@ -14,7 +14,7 @@ TEST(ClientTest, UnconfiguredClient )
   Fixture f;
   int argc = 1;
   char* argv[] = {(char*)"--omero.host=localhost", 0};
-  omero::client(argc, argv);
+  omero::client_ptr c = new omero::client(argc, argv);
 }
 
 TEST(ClientTest, ClientWithInitializationData )

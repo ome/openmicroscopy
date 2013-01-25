@@ -22,6 +22,12 @@
 #include <string>
 #include <map>
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <omero/util/concurrency.h>
 
 using namespace std;
@@ -32,6 +38,14 @@ using namespace omero::callbacks;
 using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
+
+class TestCB;
+
+#if ICE_INT_VERSION / 100 >= 304
+typedef IceInternal::Handle<TestCB> TestCBPtr;
+#else
+typedef IceUtil::Handle<TestCB> TestCBPtr;
+#endif
 
 class TestCB: virtual public CmdCallbackI {
 private:
@@ -100,8 +114,6 @@ public:
         ASSERT_TRUE(isCancelled());
     }
 };
-
-typedef IceUtil::Handle<TestCB> TestCBPtr;
 
 class CBFixture : virtual public Fixture {
 public:

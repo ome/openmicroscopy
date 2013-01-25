@@ -14,6 +14,10 @@ using omero::rtypes::rlong;
 using omero::rtypes::rint;
 using omero::rtypes::rbool;
 
+#if ICE_INT_VERSION / 100 >= 304
+::Ice::Object* IceInternal::upCast(::omero::sys::ParametersI* p) { return p; }
+#endif
+
 namespace omero {
 
     namespace sys {
