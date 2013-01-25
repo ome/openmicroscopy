@@ -14,6 +14,12 @@
 #include <Ice/Ice.h>
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/Scripts.h>
@@ -30,6 +36,21 @@
 #endif
 
 namespace omero {
+    namespace callbacks {
+	class ProcessCallbackI;
+	class DeleteCallbackI;
+	class CmdCallbackI;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  OMERO_API ::Ice::Object* upCast(::omero::callbacks::ProcessCallbackI*);
+  OMERO_API ::Ice::Object* upCast(::omero::callbacks::CmdCallbackI*);
+}
+#endif
+
+namespace omero {
 
     namespace callbacks {
 
@@ -40,6 +61,12 @@ namespace omero {
         /*
          * Simple callback which registers itself with the given process.
          */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<ProcessCallbackI> ProcessCallbackIPtr;
+#else
+        typedef IceUtil::Handle<ProcessCallbackI> ProcessCallbackIPtr;
+#endif
+
         class OMERO_API ProcessCallbackI : virtual public omero::grid::ProcessCallback {
 
         // Preventing copy-construction and assigning by value.
@@ -79,9 +106,6 @@ namespace omero {
         };
 
 
-        typedef IceUtil::Handle<ProcessCallbackI> ProcessCallbackIPtr;
-
-
         namespace OME_API_DEL = omero::api::_cpp_delete;
 
         /*
@@ -98,6 +122,8 @@ namespace omero {
          *         errors = cb.block(500);
          *     }
          */
+        typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
+
         class OMERO_API DeleteCallbackI : virtual public IceUtil::Shared {
 
         // Preventing copy-construction and assigning by value.
@@ -124,9 +150,6 @@ namespace omero {
         };
 
 
-        typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
-
-
         /*
          * Callback used for waiting until omero::cmd::HandlePrx will return
          * a non-empty Response. The block(long) method will wait the given number of
@@ -145,6 +168,12 @@ namespace omero {
          *     ResponsePtr rsp = cb.loop(5, 500);
          *
          */
+#if ICE_INT_VERSION / 100 >= 304
+        typedef IceInternal::Handle<CmdCallbackI> CmdCallbackIPtr;
+#else
+        typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
+#endif
+
         class OMERO_API CmdCallbackI : virtual public omero::cmd::CmdCallback {
 
         // Preventing copy-construction and assigning by value.
@@ -296,8 +325,6 @@ namespace omero {
                 const omero::cmd::StatusPtr& status, const Ice::Current& current = Ice::Current());
 
         };
-
-        typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
 
     };
 };
