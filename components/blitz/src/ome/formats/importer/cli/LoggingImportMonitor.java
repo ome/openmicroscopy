@@ -37,6 +37,8 @@ public class LoggingImportMonitor implements IObserver
                 System.out.println(p.getId().getValue());
             }
             System.err.println("Other imported objects:");
+            System.err.print("Fileset:");
+            System.err.println(ev.fileset.getId().getValue());
             for (IObject object : ev.objects) {
                 if (object != null && object.getId() != null) {
                     // Not printing to stdout since the contract at the moment

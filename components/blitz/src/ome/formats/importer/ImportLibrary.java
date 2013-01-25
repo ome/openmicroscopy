@@ -46,6 +46,7 @@ import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.Response;
 import omero.grid.ImportProcessPrx;
+import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.grid.ImportSettings;
 import omero.grid.ManagedRepositoryPrx;
@@ -392,9 +393,11 @@ public class ImportLibrary implements IObservable
         // At this point the import is running, check handle for number of
         // steps.
         final HandlePrx handle = proc.verifyUpload(checksums);
+        final ImportRequest req = (ImportRequest) handle.getRequest();
+        final Fileset fs = req.activity.getParent();
         final CmdCallbackI cb = createCallback(proc, handle, container);
         cb.loop(60*60, 1000); // Wait 1 hr per step.
-        final ImportResponse rsp = getImportResponse(cb, container);
+        final ImportResponse rsp = getImportResponse(cb, container, fs);
         return rsp.pixels;
     }
 
@@ -428,7 +431,7 @@ public class ImportLibrary implements IObservable
      * @return
      */
     public ImportResponse getImportResponse(CmdCallbackI cb,
-            final ImportContainer container)
+            final ImportContainer container, Fileset fs)
     {
         Response rsp = cb.getResponse();
         ImportResponse rv = null;
@@ -459,7 +462,7 @@ public class ImportLibrary implements IObservable
 
         notifyObservers(new ImportEvent.IMPORT_DONE(
                 0, container.getFile().getAbsolutePath(),
-                null, null, 0, null, rv.pixels, rv.objects));
+                null, null, 0, null, rv.pixels, fs, rv.objects));
 
         return rv;
     }
