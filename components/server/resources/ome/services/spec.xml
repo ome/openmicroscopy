@@ -208,7 +208,44 @@
         <constructor-arg>
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
                 <value>/Image+Only</value>
+                <value>/Fileset;HARD;/Image/FilesetImageLink</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Image+WS">
+        <description>
+        Just like /Image but for use within the /Well spec
+        since this is part of a loop: Image->Fileset->Plate->...->Image
+        It does *not* contain a fileset link itself.
+
+        Assuming you're deleting via /Plate, a link to /Fileset in
+        /Plate will take care of the other objects.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
+                <value>/Image+Only</value>
+                <!-- Missing /Fileset here -->
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Image+FS">
+        <description>
+        Just like /Image but for use within the /Fileset spec
+        since this represents a loop: Image->Fileset->Plate->...->Image
+        It does *not* contain a fileset link itself.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
+                <value>/Image+Only</value>
+                <!-- Missing /Fileset here -->
             </list>
         </constructor-arg>
     </bean>
@@ -286,7 +323,7 @@
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
-                <value>/Image;;/Well/WellSample</value>
+                <value>/Image+WS;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink;FORCE</value>
@@ -365,9 +402,9 @@
         <constructor-arg>
             <list>
                 <value>/Fileset/FilesetImageLink</value>
-                <value>/Image;HARD;/Fileset/FilesetImageLink</value>
+                <value>/Image+FS;HARD;/Fileset/FilesetImageLink</value>
                 <value>/Fileset/FilesetPlateLink</value>
-                <value>/Plate;HARD;/Fileset/FilesetPlateLink</value>
+                <value>/Plate+Only;HARD;/Fileset/FilesetPlateLink</value>
                 <value>/Fileset/FilesetEntry</value>
                 <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
                 <value>/Fileset/FilesetJobLink</value>
