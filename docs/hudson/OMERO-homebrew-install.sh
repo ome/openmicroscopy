@@ -10,6 +10,7 @@ export OMERO_ALT=${OMERO_ALT:-ome/alt}
 export BREW_DIR=${BREW_DIR:-/tmp/homebrew}
 export PSQL_DIR=${PSQL_DIR:-/tmp/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
+export JOB_WS=`pwd`
 
 # Remove existing formulas and ome/alt tap
 if ($BREW_DIR/bin/brew --version)
@@ -50,9 +51,7 @@ bin/brew update
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
 # Install homebrew dependencies
-curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > /tmp/omero_homebrew.sh
-chmod +x /tmp/omero_homebrew.sh
-. /tmp/omero_homebrew.sh
+source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
 
 # Install omero
 bin/brew install omero
