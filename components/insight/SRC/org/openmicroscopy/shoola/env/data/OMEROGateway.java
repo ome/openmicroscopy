@@ -8425,4 +8425,24 @@ class OMEROGateway
 		}
 		return null;
 	}
+
+	/**
+	 * Removes the security context.
+	 * 
+	 * @param ctx The security context.
+	 * @throws Throwable Thrown if the connector cannot be closed.
+	 */
+	void removeGroup(SecurityContext ctx) 
+	throws Exception
+	{
+		Connector c = getConnector(ctx);
+		if (c == null) return;
+		isNetworkUp();
+		try {
+			c.close(networkup);
+		} catch (Throwable e) {
+			new Exception("Cannot close the connector", e);
+		}
+	}
+
 }
