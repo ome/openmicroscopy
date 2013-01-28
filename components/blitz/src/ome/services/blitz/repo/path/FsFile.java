@@ -69,7 +69,7 @@ public class FsFile {
             this.components = Collections.emptyList();
             this.path = "";
         } else {
-            this.components = Collections.unmodifiableList(components);
+            this.components = Collections.unmodifiableList(new ArrayList<String>(components));
             final StringBuilder pathBuilder = new StringBuilder();
             for (final String component : components) {
                 if (component == null || component.isEmpty())

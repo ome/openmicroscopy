@@ -70,6 +70,14 @@ public class FilePathTransformerOnServer {
     }
     
     /**
+     * Get the string transformer that is used to make file-path components safe across platforms.
+     * @return the file-path component string transformer
+     */
+    public StringTransformer getPathSanitizer() {
+        return this.pathSanitizer;
+    }
+    
+    /**
      * Set the string transformer that is used to make file-path components safe across platforms.
      * This is not required to be an injective function; two different components may transform to the same.
      * @param pathSanitizer the file-path component string transformer

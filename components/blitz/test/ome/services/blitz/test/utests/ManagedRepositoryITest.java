@@ -2,7 +2,7 @@ package ome.services.blitz.test.utests;
 
 import java.io.File;
 import java.text.DateFormatSymbols;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +21,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
+import ome.services.blitz.repo.path.FsFile;
 
 import omero.grid.ImportLocation;
 import omero.model.OriginalFile;
@@ -90,19 +91,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestOnConflict(String relPath,
-                String basePath, List<String> paths, Ice.Current curr) throws omero.ServerError {
+        public ImportLocation suggestOnConflict(FsFile relPath,
+                FsFile basePath, List<FsFile> paths, Ice.Current curr) throws omero.ServerError {
             return super.suggestOnConflict(relPath, basePath, paths, curr);
         }
 
         @Override
-        public String commonRoot(List<String> paths) {
+        public FsFile commonRoot(List<FsFile> paths) {
             return super.commonRoot(paths);
-        }
-
-        @Override
-        public List<String> splitElements(String path) {
-            return super.splitElements(path);
         }
 
         @Override
@@ -111,12 +107,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public String createTemplateDir(String template, Ice.Current curr) throws omero.ServerError {
+        public FsFile createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
             return super.createTemplateDir(template, curr);
-        }
-
-        public String concat(List<String> elements) {
-            return super.concat(elements);
         }
     }
 
@@ -151,8 +143,16 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         return ec;
     }
 
+    private static List<FsFile> toFsFileList(String... paths) {
+        final List<FsFile> fsFiles = new ArrayList<FsFile>(paths.length);
+        for (final String path : paths)
+            fsFiles.add(new FsFile(path));
+        return fsFiles;
+    }
+    
     private String getSuggestion(String base, String...paths) throws Exception {
-        ImportLocation l = this.tmri.suggestOnConflict("template", base, Arrays.asList(paths), curr);
+        final ImportLocation l = 
+                this.tmri.suggestOnConflict(new FsFile("template"), new FsFile(base), toFsFileList(paths), curr);
         return new File(l.sharedPath).getName();
     }
 
@@ -216,72 +216,18 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testCommonRootReturnsTopLevelWithUncommonPaths() {
-        String expectedCommonRoot = "/";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList("/home/bob/1.jpg",
+        FsFile expectedCommonRoot = new FsFile();
+        FsFile actualCommonRoot = this.tmri.commonRoot(toFsFileList("/home/bob/1.jpg",
                 "/data/alice/1.jpg"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
     @Test
     public void testCommonRootReturnsCommonRootForPathList() {
-        String expectedCommonRoot = "/bob/files/dv";
-        String actualCommonRoot = this.tmri.commonRoot(Arrays.asList(
+        FsFile expectedCommonRoot = new FsFile("/bob/files/dv");
+        FsFile actualCommonRoot = this.tmri.commonRoot(toFsFileList(
                 expectedCommonRoot + "/file1.dv", expectedCommonRoot + "/file2.dv"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
-    }
-
-    void assertSplit(String s, String...elements) {
-        List<String> values = this.tmri.splitElements(s);
-        for (int i = 0; i < elements.length; i++) {
-            assertEquals("Unequal on " + i, elements[i], values.get(i));
-        }
-        assertEquals("Found: " + values, elements.length, values.size());
-    }
-
-    @Test
-    public void testSplitElementsSlash() throws Exception {
-        assertSplit("/", "/", "/");
-    }
-
-    @Test
-    public void testSplitElementsEmpty() throws Exception {
-        assertSplit("", ".", "");
-
-    }
-
-    @Test
-    public void testSplitElementsBlank() throws Exception {
-        assertSplit(" ", ".", " ");
-    }
-
-    @Test
-    public void testSplitElementsAppendsRelNoFinalSeparator() throws Exception {
-        assertSplit("a/b", "a", "b");
-    }
-
-    @Test
-    public void testSplitElementsAppendsFinalRelSeparator() throws Exception {
-        assertSplit("a/b/", "a", "b");
-    }
-
-    @Test
-    public void testSplitElementsAppendsFinalSeparatorRelThree() throws Exception {
-        assertSplit("a/b/c", "a", "b", "c");
-    }
-
-    @Test
-    public void testSplitElementsAppendsAbsNoFinalSeparator() throws Exception {
-        assertSplit("/a/b", "/a", "b");
-    }
-
-    @Test
-    public void testSplitElementsAppendsFinalAbsSeparator() throws Exception {
-        assertSplit("/a/b/", "/a", "b");
-    }
-
-    @Test
-    public void testSplitElementsAppendsFinalSeparatorAbsThree() throws Exception {
-        assertSplit("/a/b/c", "/a", "b", "c");
     }
 
     //
@@ -414,13 +360,15 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     @Test
     public void testTemplateDirSimple() throws Exception {
         assertReturnFile(1L);
-        assertEquals("test", this.tmri.createTemplateDir("test", curr));
+        final FsFile testFile = new FsFile("test");
+        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
     }
 
     @Test
     public void testTemplateDir() throws Exception {
         assertRegisterFails("test");
         assertReturnFile("test__1", 1L);
-        assertEquals("test", this.tmri.createTemplateDir("test", curr));
+        final FsFile testFile = new FsFile("test");
+        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
     }
 }

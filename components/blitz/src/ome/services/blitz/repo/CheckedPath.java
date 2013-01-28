@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +27,6 @@ import java.util.List;
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import ome.util.Utils;
 import ome.services.blitz.repo.path.FilePathTransformerOnServer;
@@ -44,6 +44,7 @@ import omero.ValidationException;
  * a null {@link CheckedPath} object is passed into the constructor the caller
  * indicates that the path is the root path, hence {@link CheckedPath#isRoot}
  * will not be called.
+ * @author m.t.b.carroll@dundee.ac.uk and others
  */
 public class CheckedPath {
 
