@@ -42,6 +42,13 @@ class Environment(object):
         self.user_specified = user_specified
         self.from_os_environ = os.environ.get("OMERO_CONFIG", None)
 
+    def is_non_default(self):
+        if self.user_specified is not None:
+            return self.user_specified
+        elif self.from_os_environ is not None:
+            return self.from_os_environ
+        return None
+
     def set_by_user(self, value):
         self.user_specified = value
 
@@ -82,16 +89,33 @@ class ConfigXml(object):
     def __init__(self, filename, env_config = None, exclusive = True):
         self.logger = logging.getLogger(self.__class__.__name__)    #: Logs to the class name
         self.XML = None                                             #: Parsed XML Element
-        self.env_config = Environment(env_config)                   #: Environment override
         self.filename = filename                                    #: Path to the file to be read and written
-        self.source = open(filename, "a+")                          #: Open file handle
-        self.lock = self._open_lock()                               #: Open file handle for lock
+        self.env_config = Environment(env_config)                   #: Environment override
         self.exclusive = exclusive                                  #: Whether or not an exclusive lock should be acquired
+        self.save_on_close = True
+
         try:
-            self._CloseEx = WindowsError
-        except NameError:
-            self._CloseEx = None
-        if exclusive:
+            # Try to open the file for modification
+            # If this fails, then the file is readonly
+            self.source = open(filename, "a+")                      #: Open file handle
+            self.lock = self._open_lock()                           #: Open file handle for lock
+        except IOError:
+            self.logger.debug("open('%s', 'a+') failed" % filename)
+            self.lock = None
+            self.exclusive = False
+            self.save_on_close = False
+
+            # Before we open the file read-only we need to check
+            # that no other configuration has been requested because
+            # it will not be possible to modify the __ACTIVE__ setting
+            # once it's read-only
+            val = self.env_config.is_non_default()
+            if val is not None:
+                raise Exception("Non-default OMERO_CONFIG on read-only: %s" % val)
+
+            self.source = open(filename, "r")                       #: Open file handle read-only
+
+        if self.exclusive:  # must be "a+"
             try:
                 portalocker.lock(self.lock, portalocker.LOCK_NB|portalocker.LOCK_EX)
             except portalocker.LockException, le:
@@ -253,10 +277,10 @@ class ConfigXml(object):
 
     def close(self):
         try:
-            # If we didn't get an XML instance,
-            # then something has gone wrong and
-            # we should exit.
-            if self.XML is not None:
+            # If we didn't get an XML instance, then something has gone wrong
+            # and we should exit. Similarly, if save_on_close is False, then we
+            # couldn't open the file "a+"
+            if self.XML is not None and self.save_on_close:
                 self.save()
         finally:
             try:
