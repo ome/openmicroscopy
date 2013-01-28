@@ -19,43 +19,53 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui;
+package org.openmicroscopy.shoola.agents.fsimporter.chooser;
+
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+
+import pojos.DataObject;
+import pojos.GroupData;
 
 /** 
- * Provides a wrapped renderer for displaying tooltip information on mouse hover
- *
+ * Provides a Null implementation of import settings, should NEVER be returned.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-import java.awt.Component;
-import java.util.List;
+class NullImportSettings extends ImportLocationSettings {
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComponent;
-import javax.swing.JList;
+	/** Local constant to specify an unknown data type*/
+	private static final int UNKNOWN_DATA_TYPE = -1;
 
-public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
-	List<String> tooltips;
-
-	public Component getListCellRendererComponent(JList list, Object value,
-			int index, boolean isSelected, boolean cellHasFocus) {
-
-		JComponent comp = (JComponent) super.getListCellRendererComponent(list,
-				value, index, isSelected, cellHasFocus);
-
-		if (index > -1 && value != null && tooltips != null
-				&& tooltips.size() > index) {
-			list.setToolTipText(tooltips.get(index));
-		}
-		return comp;
+	/**
+	 * Creates a NullImportSettings with the group @see ImportLocationSettings
+	 * @param group The group to import data in to.
+	 */
+	NullImportSettings(GroupData group) {
+		super(UNKNOWN_DATA_TYPE, group);
 	}
 
 	/**
-	 * Populates the renderer with the tooltips provided
-	 * 
-	 * @param tooltips
+	 * Returns a new Null Data Node
+	 * @return See above.
 	 */
-	public void setTooltips(List<String> tooltips) {
-		this.tooltips = tooltips;
+	public DataNode getImportLocation() {
+		return new DataNode((DataObject) null);
 	}
+
+	/**
+	 * Returns a new Null Data Node
+	 * @return See above.
+	 */
+	public DataNode getParentImportLocation() {
+		return new DataNode((DataObject) null);
+	}
+
+	/**
+	 * Returns false.
+	 * @return See above.
+	 */
+	public boolean isParentFolderAsDataset() {
+		return false;
+	}
+
 }
