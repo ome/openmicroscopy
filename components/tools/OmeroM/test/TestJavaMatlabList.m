@@ -8,7 +8,22 @@ classdef TestJavaMatlabList < TestCase
     methods
         function self = TestJavaMatlabList(name)
             self = self@TestCase(name);
-        end        
+        end
+        
+        % Helper functions
+        function initMatlabArray(self, sizeX, sizeY)
+            self.size = sizeX * sizeY;
+            self.matlabList = ones(sizeX, sizeY);
+        end
+        
+        function initArrayList(self, size)
+            self.size = size;
+            self.javaList = java.util.ArrayList;
+            for i = 1 : self.size
+                self.javaList.add(1);
+            end
+        end
+        
         
         function compareLists(self)
             % Check list types

@@ -5,40 +5,62 @@
 
 classdef TestToJavaList < TestJavaMatlabList
     
+    properties
+        castFun
+    end
+    
     methods
         function self = TestToJavaList(name)
             self = self@TestJavaMatlabList(name);
         end
         
+        % Input parsing test
+        function testWrongMatlabListType(self)
+            self.initMatlabArray(10, 10);
+            assertExceptionThrown(@() toJavaList(self.matlabList),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        function testWrongCastFunType(self)
+            self.initMatlabArray(10, 1);
+            self.castFun = 10;
+            assertExceptionThrown(@() toJavaList(self.matlabList, self.castFun),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        % MatlabList tests
         function testEmptyArray(self)
-            self.size = 0;
-            self.matlabList = ones(1, self.size);
+            self.initMatlabArray(1, 0);
             self.javaList = toJavaList(self.matlabList);
             self.compareLists();
             assertTrue(self.javaList.isEmpty);
         end
         
         function testRowVector(self)
-            self.size = 10;
-            self.matlabList = ones(1, self.size);
+            self.initMatlabArray(1, 10);
             self.javaList = toJavaList(self.matlabList);
             self.compareLists();
         end
         
         function testColumnVector(self)
-            self.size = 10;
-            self.matlabList = ones(self.size, 1);
+            self.initMatlabArray(10, 1);
             self.javaList = toJavaList(self.matlabList);
             self.compareLists();
         end
         
-        function testMatrix(self)
-            self.size = 10;
-            self.matlabList = ones(self.size, self.size);
-            assertExceptionThrown(@() toJavaList(self.matlabList),...
-                'OMERO:toJavaList:wrongInputType');
+        % Casting function
+        function testCastFunHandle(self)
+            self.initMatlabArray(1, 10);
+            self.castFun = @java.lang.Integer;
+            self.javaList = toJavaList(self.matlabList, self.castFun);
+            self.compareLists();
         end
         
+        function testCastFunString(self)
+            self.initMatlabArray(1, 10);
+            self.castFun = 'java.lang.Integer';
+            self.javaList = toJavaList(self.matlabList, self.castFun);
+            self.compareLists();
+        end
     end
-    
 end

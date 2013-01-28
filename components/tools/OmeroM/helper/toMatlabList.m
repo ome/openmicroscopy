@@ -2,9 +2,9 @@ function [matlabList] = toMatlabList(arraylist)
 % Convert a Java ArrayList into a MATLAB vector
 
 % Check input
-assert(isa(arraylist, 'java.util.ArrayList'),...
-    'OMERO:toMatlabList:wrongInputType',...
-    'Input must be a Java array');
+ip = inputParser;
+ip.addRequired('arraylist', @(x) isa(x, 'java.util.ArrayList'));
+ip.parse(arraylist);
 
 % Initialize Matlab list
 matlabList = zeros(arraylist.size(), 1);
