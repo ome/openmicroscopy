@@ -29,7 +29,7 @@
             // double-click handler on image - launches image viewer
             $("#dataIcons img").dblclick(function(event) {
                 var url = $(this).attr('href');
-                openPopup(url);
+                OME.openPopup(url);
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane

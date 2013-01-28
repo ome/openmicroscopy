@@ -28,20 +28,21 @@
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar controller.last_month.year controller.last_month.month %}');     
                 $("div#content_details").empty();
-                table_selection_changed();    // clear selection - E.g. right-hand panel 
+                OME.table_selection_changed();    // clear selection - E.g. right-hand panel 
             });
             $("#nextMonth").click(function() { 
                 $("div#history_calendar").html('<p>{% trans "Loading calendar... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
                 $("div#history_calendar").load('{% url load_calendar controller.next_month.year controller.next_month.month %}');
                 $("div#content_details").empty();
-                table_selection_changed();    // clear selection - E.g. right-hand panel 
+                OME.table_selection_changed();    // clear selection - E.g. right-hand panel 
             });
         })
         
-        function load_details(y,m,d) {
+        if (typeof OME === "undefined"){ OME={}; }
+        OME.load_details = function(y,m,d) {
             $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% static "webgateway/img/spinner.gif" %}"/></p>');
             $("div#content_details").load('{% url load_history %}'+y+'/'+m+'/'+d+'/');
-            table_selection_changed();    // clear selection - E.g. right-hand panel 
+            OME.table_selection_changed();    // clear selection - E.g. right-hand panel 
         }
     </script>
 	
@@ -81,7 +82,7 @@
 				    {% else %}
 	                    <td class="calendar_day">
                        
-						   	<a href="#" onClick="load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" > 
+						   	<a href="#" onClick="OME.load_details('{{ controller.year }}', '{{ controller.month }}', '{{ day.cell.day }}')" > 
    
 								<div class="calendar_numerical_day">
 									<span>{{ day.cell.day }}</span>

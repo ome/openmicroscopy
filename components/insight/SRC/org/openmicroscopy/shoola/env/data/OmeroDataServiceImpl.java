@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -509,6 +508,7 @@ class OmeroDataServiceImpl
 		Map<Boolean, Object> result = 
 			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
 		if (result != null) return result;
+		//Returns the file.
 		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
 				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
 				new File(FilenameUtils.concat(folderPath, name)), null);

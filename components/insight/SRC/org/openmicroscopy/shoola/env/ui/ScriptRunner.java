@@ -61,6 +61,9 @@ public class ScriptRunner
     /** The call-back returned by the server. */
     private ProcessCallback 		callBack;
     
+    /** Flag indicating that the user cancelled the action.*/
+    private boolean cancelled;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String)
@@ -103,7 +106,8 @@ public class ScriptRunner
      * @see UserNotifierLoader#cancel()
      */
     public void cancel()
-    { 
+    {
+    	cancelled = true;
     	try {
     		if (callBack != null) {
     			callBack.cancel();
@@ -123,14 +127,13 @@ public class ScriptRunner
     {
         Object o = fe.getPartialResult();
         if (o != null) {
-        	if (o instanceof Boolean) {
-        		Boolean b = (Boolean) o;
-        		if (!b.booleanValue())
-        			onException(MESSAGE_RUN, null); 
+        	if (Boolean.valueOf(false).equals(o)) {
+        		onException(MESSAGE_RUN, null);
         	} else if (o instanceof ProcessCallback) {
         		callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
             	activity.onCallBackSet();
+            	if (cancelled) cancel();
         	}
         }
     }
@@ -141,14 +144,11 @@ public class ScriptRunner
      */
     public void handleResult(Object result)
     { 
-    	//if (result == null) return;
-    	if (result instanceof Boolean) {
-    		Boolean b = (Boolean) result;
-    		if (!b.booleanValue())
-    			onException(MESSAGE_RUN, null); 
+    	if (Boolean.valueOf(false).equals(result)) {
+    		onException(MESSAGE_RUN, null); 
     	} else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
-    	} 
+    	}
     }
 	
 }

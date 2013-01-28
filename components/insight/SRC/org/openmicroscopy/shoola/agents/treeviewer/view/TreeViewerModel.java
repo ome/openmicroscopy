@@ -1358,7 +1358,9 @@ class TreeViewerModel
 			if (g.getId() == selectedGroupId)
 				return g;
 		}
-		return null;
+		g = TreeViewerAgent.getUserDetails().getDefaultGroup();
+		selectedGroupId = g.getGroupId();
+		return g;
 	}
 	
 	/**

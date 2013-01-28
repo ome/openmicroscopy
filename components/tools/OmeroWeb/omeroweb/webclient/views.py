@@ -1321,8 +1321,8 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     for i in range(image.getSizeC()):
         cname = request.REQUEST.get("channel%d" % i, None)
         if cname is not None:
-            channelNames["channel%d" % i] = str(cname)
-            nameDict[i+1] = str(cname)
+            channelNames["channel%d" % i] = smart_str(cname)
+            nameDict[i+1] = smart_str(cname)
     # If the 'Apply to Dataset' button was used to submit...
     if request.REQUEST.get('confirm_apply', None) is not None:
         parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
@@ -1466,7 +1466,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if (o_type == "well"):
                 obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
+            if o_type == "tag":
+                txtValue = obj.textValue
+            else:
+                txtValue = obj.getName()
+            form = ContainerNameForm(initial={'name': txtValue})
             context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")

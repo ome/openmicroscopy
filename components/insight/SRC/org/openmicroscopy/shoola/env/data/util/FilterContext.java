@@ -222,7 +222,7 @@ public class FilterContext
 	 */
 	public void setTimeInterval(Timestamp fromDate, Timestamp toDate)
 	{
-		if (fromDate != null && fromDate.after(toDate)) {
+		if (fromDate != null && toDate != null && fromDate.after(toDate)) {
 			this.fromDate = toDate;
 			this.toDate = fromDate;
 		} else {

@@ -1373,10 +1373,10 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			
 			chooser.setFileFilter(currentFilter);
 		}
-		
+
 		locationDialog.reset(this.selectedContainer, this.type, this.objects, 
 				currentGroupId);
-
+		
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}

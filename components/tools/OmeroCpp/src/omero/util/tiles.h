@@ -24,10 +24,30 @@
 
 namespace omero {
     namespace util {
+        class TileData;
+        class TileLoopIteration;
+        class TileLoop;
+        class RPSTileLoop;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileData*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoopIteration*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::TileLoop*);
+  OMERO_API ::Ice::Object* upCast(::omero::util::RPSTileLoop*);
+}
+#endif
+
+namespace omero {
+    namespace util {
 
         /**
          * Interface which must be returned from TileLoop.createData
          */
+        typedef IceUtil::Handle<TileData> TileDataPtr;
+
         class OMERO_API TileData : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -41,11 +61,11 @@ namespace omero {
             virtual void close() = 0;
         };
 
-        typedef IceUtil::Handle<TileData> TileDataPtr;
-
         /**
          * Interface to be passed to forEachTile.
          */
+        typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
+
         class OMERO_API TileLoopIteration : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -58,11 +78,11 @@ namespace omero {
                              int tileWidth, int tileHeight, int tileCount) const = 0;
         };
 
-        typedef IceUtil::Handle<TileLoopIteration> TileLoopIterationPtr;
-
         /**
          * Interface to be passed to forEachTile.
          */
+        typedef IceUtil::Handle<TileLoop> TileLoopPtr;
+
         class OMERO_API TileLoop : virtual public IceUtil::Shared {
         private:
             // Preventing copy-construction and assigning by value.
@@ -76,10 +96,7 @@ namespace omero {
                                    int tileHeight, int tileWidth, const TileLoopIterationPtr& iteration);
         };
 
-        typedef IceUtil::Handle<TileLoop> TileLoopPtr;
-
         // Forward defs
-        class RPSTileLoop;
         typedef IceUtil::Handle<RPSTileLoop> RPSTileLoopPtr;
 
         class OMERO_API RPSTileData : virtual public TileData {

@@ -96,7 +96,10 @@ public class ScriptUploader
      * Cancels the on-going data retrieval.
      * @see UserNotifierLoader#cancel()
      */
-    public void cancel() { handle.cancel(); }
+    public void cancel()
+    {
+    	if (handle != null) handle.cancel();
+    }
  
     /** 
      * Feeds the result back to the viewer. 
