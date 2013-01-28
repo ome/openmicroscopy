@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +19,13 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
-import static org.apache.commons.io.FilenameUtils.normalize;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
@@ -43,6 +36,7 @@ import Ice.Current;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.repo.path.StringTransformer;
 
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -67,11 +61,12 @@ import omero.model.UploadJob;
 import omero.sys.EventContext;
 
 /**
- * Extension of the PublicRepository API which onle manages files
+ * Extension of the PublicRepository API which only manages files
  * under ${omero.data.dir}/ManagedRepository.
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
+ * @author m.t.b.carroll@dundee.ac.uk
  * @since 4.5
  */
 public class ManagedRepositoryI extends PublicRepositoryI
@@ -138,21 +133,21 @@ public class ManagedRepositoryI extends PublicRepositoryI
             settings = new ImportSettings(); // All defaults.
         }
 
-        final List<String> paths = new ArrayList<String>();
+        final List<FsFile> paths = new ArrayList<FsFile>();
         for (FilesetEntry entry : fs.copyUsedFiles()) {
-            paths.add(entry.getClientPath().getValue());
+            paths.add(new FsFile(entry.getClientPath().getValue()));
         }
 
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
-        String relPath = expandTemplate(template, __current);
+        FsFile relPath = new FsFile(expandTemplate(template, __current));
 
         // Possibly modified relPath.
         relPath = createTemplateDir(relPath, __current);
 
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
-        String basePath = commonRoot(paths);
+        FsFile basePath = commonRoot(paths);
 
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
@@ -266,7 +261,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final int size = fs.sizeOfUsedFiles();
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
         for (int i = 0; i < size; i++) {
-            final String path = location.usedFiles.get(i);
+            final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
             checked.add(checkPath(path, __current));
         }
 
@@ -282,39 +277,38 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * From a list of paths, calculate the common root path that all share. In
-     * the worst case, that may be "/".
-     * @param paths
-     * @return
+     * the worst case, that may be "/". May not include the last element, the filename.
+     * @param some paths
+     * @return the paths' common root
      */
-    protected String commonRoot(List<String> paths) {
-        List<String> parts = splitElements(paths.get(0));
-        String first = concat(parts.subList(0, parts.size()-1));
-
-        OUTER: while (true)
-        {
-            for (String path : paths)
-            {
-                if (!path.startsWith(first))
-                {
-                    parts = splitElements(first);
-                    first = concat(parts.subList(0, parts.size()-1));
-                    if ("".equals(first)) {
-                        first = "/";
-                    }
-
-                    if (".".equals(first) || "/".equals(first)) {
-                        break OUTER;
-                    }
-                    continue OUTER;
-                }
+    protected FsFile commonRoot(List<FsFile> paths) {
+        final List<String> commonRoot = new ArrayList<String>();
+        int index = 0;
+        boolean isCommon = false;
+        while (true) {
+            String component = null;
+            for (final FsFile path : paths) {
+                final List<String> components = path.getComponents();
+                if (components.size() <= index + 1)  // prohibit very last component
+                    isCommon = false;  // not long enough
+                else if (component == null) {
+                    component = components.get(index);
+                    isCommon = true;  // first path
+                } else  // subsequent long-enough path
+                    isCommon = component.equals(components.get(index));
+                if (!isCommon)
+                    break;
             }
-            break;
+            if (isCommon)
+                commonRoot.add(paths.get(0).getComponents().get(index++));
+            else
+                break;
         }
-        return first;
+        return new FsFile(commonRoot);
     }
 
     /**
-     * Turn the current template into a relative path. Makes uses of the data
+     * Turn the current template into a relative path. Makes use of the data
      * returned by {@link #replacementMap(Ice.Current)}.
      *
      * @param curr
@@ -364,7 +358,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
-        return map;        
+        return map;
     } 
 
     /**
@@ -375,29 +369,32 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * After any exception, append an increment so that a writeable directory
      * exists for the current caller context.
      */
-    protected String createTemplateDir(String relPath, Ice.Current curr) throws ServerError {
-        String[] parts = relPath.split("/");
-        String dir = ".";
-        for (int i = 0; i < parts.length; i++) {
+    protected FsFile createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
+        final List<String> givenPath = relPath.getComponents();
+        if (givenPath.isEmpty())
+            throw new IllegalArgumentException("no template directory");
+        final List<String> adjustedPath = new ArrayList<String>(givenPath.size());
+        for (final String givenComponent : givenPath) {
             int version = 0;
-            dir = FilenameUtils.concat(dir, parts[i]);
-            while (version < 10000) { // Seems a sensible limit.
-                String attempt = dir;
-                if (version != 0) {
-                    attempt = dir+"__"+version;
-                }
+            while (true) {
+                if (version == 0)
+                    adjustedPath.add(givenComponent);
+                else
+                    adjustedPath.add(givenComponent + "__" + version);
                 try {
-                    makeDir(attempt, false, curr);
-                    dir = attempt;
-                    break;
-                }
-                catch (omero.ServerError e) {
+                    makeDir(new FsFile(adjustedPath).toString(), false, curr);
+                    break;  // success
+                } catch (omero.ServerError e) {
                     log.debug("Error on createTemplateDir", e);
-                    version += 1;
+                    adjustedPath.remove(adjustedPath.size() - 1);
+                    if (version++ > 10000) {
+                        log.debug("too many version increments in creation of template directory", e);
+                        throw e;
+                    }
                 }
             }
         }
-        return dir;
+        return new FsFile(adjustedPath);
     }
 
     /**
@@ -407,38 +404,47 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * number to the path ("/my/path/" becomes "/my-1/path" then "/my-2 /path")
      * at the highest part of the path possible.
      *
-     * @param trueRoot Absolute path of the root directory (with true FS
-     *          prefix, e.g. "/OMERO/ManagedRepo")
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
      * @return {@link ImportLocation} instance with the suggested new basePath in the
      *          case of conflicts.
      */
-    protected ImportLocation suggestOnConflict(String relPath,
-            String basePath, List<String> paths, Ice.Current __current)
+    protected ImportLocation suggestOnConflict(FsFile relPath,
+            FsFile basePath, List<FsFile> paths, Ice.Current __current)
             throws omero.ServerError {
 
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
-        final List<String> parts = splitElements(basePath);
-        final File trueFile = serverPaths.getServerFileFromFsFile(new FsFile(relPath));
-        final URI baseUri = new File(basePath).toURI();
 
+        // sanitize paths (should already be sanitary; could introduce conflicts)
+        final StringTransformer sanitizer = serverPaths.getPathSanitizer();
+        basePath = basePath.transform(sanitizer);
+        int index = paths.size();
+        while (--index >= 0)
+            paths.set(index, paths.get(index).transform(sanitizer));
+        
         // State that will be updated per loop.
         Integer version = null;
 
         OUTER:
         while (true) {
+            // note common root of used files, including any non-conflict suffix at the end
+            final FsFile endPart;
+            if (version != null) {
+                final List<String> components = new ArrayList<String>(basePath.getComponents());
+                final int toSuffix = components.size() - 1;
+                if (toSuffix < 0)
+                    throw new IllegalArgumentException("no last component to suffix");
+                components.set(toSuffix, components.get(toSuffix) + "__" + version);
+                endPart = new FsFile(components);
+            } else 
+                endPart = basePath;
 
-            String suffix = (version == null ? null :
-                "__" + Integer.toString(version));
-            String endPart = concatSuffix1(parts, suffix);
-
-            for (String path: paths)
-            {
-                URI pathUri = new File(path).toURI();
-                String relative = baseUri.relativize(pathUri).getPath();
-                if (new File(new File(trueFile, endPart), relative).exists()) {
+            // check for conflict, adjust version number
+            for (final FsFile path : paths) {
+                final FsFile relative = path.getPathFrom(basePath);
+                final FsFile repoPath = FsFile.concatenate(relPath, endPart, relative);
+                if ((serverPaths.getServerFileFromFsFile(repoPath)).exists()) {
                     if (version == null) {
                         version = 1;
                     } else {
@@ -448,27 +454,20 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
             }
         
-            final File newBase = new File(trueFile, endPart);
-            data.sharedPath = normalize(newBase.toString());
+            // try actually making directories, for failure adjust version number
+            final FsFile newBase = FsFile.concatenate(relPath, endPart);
+            data.sharedPath = newBase.toString();
             data.usedFiles = new ArrayList<String>(paths.size());
             data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
-            for (String path : paths) {
-                URI pathUri = new File(path).toURI();
-                String relative = baseUri.relativize(pathUri).getPath();
-                path = normalize(new File(newBase, relative).toString());
-                data.usedFiles.add(path);
-                data.checkedPaths.add(checkPath(path, __current));
+            for (final FsFile path : paths) {
+                final String relativeToEnd = path.getPathFrom(endPart).toString();
+                data.usedFiles.add(relativeToEnd);
+                final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
+                data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
             }
-    
             try {
-                try {
-                    makeDir(serverPaths.getFsFileFromServerFile(newBase).toString(),
-                            true, __current);
-                } catch (IOException e) {
-                    throw new omero.ServerError(stackTraceAsString(e), null,
-                            "could not find absolute path of " + newBase);
-                }
-                break;
+                makeDir(data.sharedPath, true, __current);
+                break;  // success
             } catch (omero.ServerError se) {
                 log.debug("Trying next directory", se);
                 // This directory apparently belongs to some other group
@@ -478,97 +477,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 } else {
                     version = version + 1;
                 }
-                continue;
             }
         }
-
 
         // Assuming we reach here, then we need to make
         // sure that the directory exists since the call
         // to saveFileset() requires the parent dirs to
         // exist.
         for (CheckedPath checked : data.checkedPaths) {
-            makeDir("./"+checked.getRelativePath(), true, __current);
+            makeDir(checked.getRelativePath(), true, __current);
         }
 
         return data;
-    }
-
-    /**
-     * Given a path with ending separator or not, this will split everything
-     * after the final slash and store it under index==1 while everything else
-     * will be stored under index==0. If there is no separator at all, "."
-     * will be used for the path value. Therefore, it should be possible to
-     * use {@link #concat()} to rejoin the parts. In the special case of the
-     * root file ("/"), "/" will be returned both for part and name.
-     *
-     * TODO: Example changing handling of "/" to "./".
-     *
-     * @param path Non-null, preferably normalized path string.
-     * @return A String-list with all path elements split.
-     */
-    protected List<String> splitElements(String normalizedPath) {
-
-        if ("/".equals(normalizedPath)) {
-            return Arrays.asList("/", "/"); // EARLY EXIT
-        }
-
-        File f = new File(normalizedPath);
-        File p = f.getParentFile();
-        if (f.getParentFile() == null) {
-            return Arrays.asList(".", f.getName()); // EARLY EXIT
-        }
-
-        final LinkedList<String> rv = new LinkedList<String>();
-
-        while (f != null) {
-            if ("/".equals(f.getPath())) {
-                // Keep initial slash
-                rv.set(0, "/"+rv.get(0));
-            } else {
-                rv.addFirst(f.getName());
-            }
-            f = p;
-            if (p != null) {
-                p = p.getParentFile();
-            }
-        }
-
-        return rv;
-    }
-
-    /**
-     * Call {@link #concatSuffix1(List<String>, String)} with a null second argument.
-     * @param elements
-     * @return
-     */
-    protected String concat(List<String> elements) {
-        return concatSuffix1(elements, null);
-    }
-
-    /**
-     * Join all the elements with a "/".
-     *
-     * If the suffix argument is non-null, then append it to the first element
-     * which is to be concatenated.
-     * @param elements
-     * @param suffix
-     * @return
-     */
-    protected String concatSuffix1(List<String> elements, String suffix) {
-        StringBuilder sb = new StringBuilder();
-        boolean prepend = false;
-        for (String elt : elements) {
-            if (prepend) {
-                sb.append("/");
-            } else {
-                prepend = true;
-                if (suffix != null) {
-                    elt = elt+suffix;
-                }
-            }
-            sb.append(elt);
-        }
-        return sb.toString();
     }
 }
