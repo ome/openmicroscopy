@@ -309,8 +309,9 @@
                             toolbar_config['delete'] = true;
                         }
                         if(selected.attr("id").indexOf("experimenter")>=0) {
-                            // if experimenter is selected, use 'locked' to enable create
-                            if(selected.attr("rel").indexOf("locked")<=0) {
+                            // if experimenter is selected, use 'user_id' to enable create
+                            var userId = {{ ome.user_id }};
+                            if (userId === {{ ome.user.id }} || userId === -1) {
                                 toolbar_config["addproject"] = true;
                                 toolbar_config['adddataset'] = true;
                                 toolbar_config['addscreen'] = true;

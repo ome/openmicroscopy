@@ -414,12 +414,14 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if user_id is not None:
         form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
         if not form_users.is_valid():
-            user_id = None
+            if user_id != -1:           # All users in group is allowed
+                user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('user_id', -1)
-        if int(user_id) not in userIds:
-            user_id = conn.getEventContext().userId
+        user_id = request.session.get('user_id', None)
+        if user_id is None or int(user_id) not in userIds:
+            if user_id != -1:           # All users in group is allowed
+                user_id = conn.getEventContext().userId
 
     request.session['user_id'] = user_id
 
