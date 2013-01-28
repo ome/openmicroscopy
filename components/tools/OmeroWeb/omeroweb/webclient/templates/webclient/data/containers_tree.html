@@ -24,7 +24,7 @@
 
 <ul>
     <li id="experimenter-0" rel="experimenter{% ifnotequal manager.experimenter.id ome.eventContext.userId %}-locked{% endifnotequal %}">
-        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}{{ ome.user.getFullName }}{% endif %}</a>
+        <a href="#">{% if manager.experimenter %}{{ manager.experimenter.getFullName }}{% else %}All Members{% endif %}</a>
         <ul>
             {% for c in manager.containers.projects %}
             <li id='project-{{ c.id }}' rel="project{% if not c.canEdit %}-locked{% endif %}" class="{{ c.getPermsCss }}">

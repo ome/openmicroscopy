@@ -253,10 +253,12 @@ class BaseContainer(BaseController):
         
     def loadTags(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:       # Load data for all users
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:            
             eid = self.conn.getEventContext().userId
-        
         self.tags = list(self.conn.listTags(eid))
         self.t_size = len(self.tags)
     
@@ -281,7 +283,10 @@ class BaseContainer(BaseController):
         
     def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)  
+            if eid == -1:       # Load data for all users
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page, load_pixels=load_pixels))
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'images': im_list}
@@ -292,10 +297,12 @@ class BaseContainer(BaseController):
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
-        
         pr_list = list(self.conn.listProjects(eid))
         ds_list = list(self.conn.listOrphans("Dataset", eid))
         sc_list = list(self.conn.listScreens(eid))
