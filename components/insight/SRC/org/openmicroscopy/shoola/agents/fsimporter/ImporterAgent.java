@@ -86,6 +86,8 @@ public class ImporterAgent
     
     /** The group id if set.*/
     private long groupId;
+
+	private boolean isMaster;
     
     /**
      * Helper method. 
@@ -211,8 +213,14 @@ public class ImporterAgent
     private void handleReconnectedEvent(ReconnectedEvent evt)
     {
     	if (evt == null) return;
-    	//check if the importer is the master.
+    	
     	ImporterFactory.onReconnected();
+    	
+    	if(isMaster)
+    	{
+    		Importer importer = ImporterFactory.getImporter(getUserDetails().getGroupId(), true);
+    		importer.activate(browserType, null, null);
+    	}
     }
     
     /**
@@ -306,6 +314,7 @@ public class ImporterAgent
      */
     public void activate(boolean master)
     {
+    	this.isMaster = master;
     	if (!master) return;
     	ExperimenterData exp = (ExperimenterData) registry.lookup(
     			LookupNames.CURRENT_USER_DETAILS);
