@@ -811,6 +811,7 @@ public class TaskBarManager
         bus.register(this, SwitchUserGroup.class);
         bus.register(this, LogOff.class);
         bus.register(this, ViewInPluginEvent.class);
+        bus.register(this, RemoveGroupEvent.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
