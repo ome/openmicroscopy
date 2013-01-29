@@ -1,4 +1,4 @@
-function [client,session,gateway]=loadOmero(varargin)
+function [client,session]=loadOmero(varargin)
 % Add OMERO to the MATLAB path and javaclasspath, and optionally login.
 % loadOmero specifies the directory of the current method as an
 % OmeroMatlab toolbox installation, and adds it to the path and the
@@ -41,7 +41,6 @@ function [client,session,gateway]=loadOmero(varargin)
 %   loadOmero;                                 % No constructor called
 %   c = omero.client('localhost');             % Like examples above
 %   s = c.createSession('user','password');
-%   g = s.createGateway();
 %
 %
 % VARARGOUT USAGE: If return values are specified, then loadOmero will
@@ -55,11 +54,9 @@ function [client,session,gateway]=loadOmero(varargin)
 %   % Call omero.client constructor and return. No session created.
 %   client = loadOmero;
 %
-%   % Call omero.client and then createSession and return both. No gateway created.
+%   % Call omero.client and then createSession and return both.
 %   [client, session] = loadOmero;
 %
-%   % Call omero.client, createSession, and createGateway and return.
-%   [client, session, gateway] = loadOmero;
 %
 
 % Check if "omero.client" is already on the classpath, if not
@@ -143,6 +140,3 @@ end
 
 if (nargout <2), return; end
 session = client.createSession();
-
-if (nargout <3), return; end
-gateway = session.createGateway();
