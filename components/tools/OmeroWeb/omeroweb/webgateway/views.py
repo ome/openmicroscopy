@@ -2006,9 +2006,10 @@ def repository_list(request, klass, name=None, filepath=None, conn=None, **kwarg
     root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
+    show_hidden = request.GET.get('hidden', 'false')
     try:
         result = [f for f in repository.list(root, ctx)
-                  if not f.startswith('.')]
+                  if show_hidden or not f.startswith('.')]
     except: # list failed, likely because root does not exist
         logger.error(traceback.format_exc())
         result = []
@@ -2030,6 +2031,7 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     root = os.path.join(unwrap(repository.root().path), fwname)
     if filepath:
         root = os.path.join(root, filepath)
+    show_hidden = request.GET.get('hidden', 'false') == 'true'
 
     owners = dict()
 
@@ -2047,7 +2049,8 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
         logger.error(traceback.format_exc())
         return dict(result=[])
 
-    result = [f for f in result if not f.get('name', '').startswith('.')]
+    result = [f for f in result
+              if show_hidden or not f.get('name', '').startswith('.')]
     for owner in conn.getObjects("Experimenter", owners.keys()):
         owners[owner.id] = owner.simpleMarshal()
     for f in result:
