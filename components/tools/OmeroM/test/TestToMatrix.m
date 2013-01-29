@@ -27,13 +27,13 @@ classdef TestToMatrix < TestCase
         function testWrongBinaryInput(self)
             self.binaryData = 'test';
             assertExceptionThrown(@() toMatrix(self.binaryData, self.pixels),...
-                'OMERO:toMatrix:wrongInputType');
+                'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testWrongPixelsInput(self)
             self.binaryData = 1;
             assertExceptionThrown(@() toMatrix(self.binaryData, 1),...
-                'OMERO:toMatrix:wrongInputType');
+                'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testPlane(self)

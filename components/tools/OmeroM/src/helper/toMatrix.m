@@ -13,10 +13,10 @@ function [mat] = toMatrix(binaryData, pixels)
 %.
 
 % Input check
-assert(isnumeric(binaryData) && isvector(binaryData),...
-    'OMERO:toMatrix:wrongInputType', 'Invalid binary data input');
-assert(isa(pixels,'omero.model.PixelsI'),...
-    'OMERO:toMatrix:wrongInputType', 'Invalid pixels input');
+ip = inputParser;
+ip.addRequired('binaryData', @(x) isnumeric(x) && isvector(x));
+ip.addRequired('pixels', @(x) isa(x, 'omero.model.PixelsI'));
+ip.parse(binaryData, pixels);
 
 % Cast the binary data into the appropriate format
 type = char(pixels.getPixelsType().getValue().getValue());
