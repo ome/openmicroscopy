@@ -73,7 +73,7 @@ if exist('omero.client','class') == 0
     % Add the omero_client jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
-    OmeroClient_Jar = fullfile(findOmero, 'omero_client.jar');
+    OmeroClient_Jar = fullfile(findOmero, 'libs', 'omero_client.jar');
     javaaddpath(OmeroClient_Jar);
     import omero.*;
     
