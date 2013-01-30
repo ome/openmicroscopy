@@ -31,6 +31,8 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.sun.tools.javac.util.Pair;
+
 import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
@@ -73,6 +75,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {
 
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
+    
+    private final static int parentDirsToRetain = 3;
 
     private final String template;
 
@@ -141,10 +145,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // This is the first part of the string which comes after:
         // ManagedRepository/, e.g. %user%/%year%/etc.
         FsFile relPath = new FsFile(expandTemplate(template, __current));
+        // at this point, relPath should not yet exist on the filesystem
 
         // Possibly modified relPath.
         relPath = createTemplateDir(relPath, __current);
-
+        
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
         FsFile basePath = commonRoot(paths);
@@ -358,6 +363,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
+        map.put("filesetId", Long.toString(System.currentTimeMillis() - 1359540000000L));  // TODO: new file set ID
         return map;
     } 
 
@@ -375,28 +381,71 @@ public class ManagedRepositoryI extends PublicRepositoryI
             throw new IllegalArgumentException("no template directory");
         final List<String> adjustedPath = new ArrayList<String>(givenPath.size());
         for (final String givenComponent : givenPath) {
-            int version = 0;
-            while (true) {
-                if (version == 0)
+//            int version = 0;  // TODO: should be obsolete
+//            while (true) {
+//                if (version == 0)
                     adjustedPath.add(givenComponent);
-                else
-                    adjustedPath.add(givenComponent + "__" + version);
+//                else
+//                    adjustedPath.add(givenComponent + "__" + version);
                 try {
                     makeDir(new FsFile(adjustedPath).toString(), false, curr);
-                    break;  // success
+//                    break;  // success
                 } catch (omero.ServerError e) {
-                    log.debug("Error on createTemplateDir", e);
-                    adjustedPath.remove(adjustedPath.size() - 1);
-                    if (version++ > 10000) {
-                        log.debug("too many version increments in creation of template directory", e);
-                        throw e;
-                    }
-                }
+//                    log.debug("Error on createTemplateDir", e);
+//                    adjustedPath.remove(adjustedPath.size() - 1);
+//                    if (version++ > 10000) {
+//                        log.debug("too many version increments in creation of template directory", e);
+//                        throw e;
+//                    }
+//                }
             }
         }
+        // without version suffixing, should now equal relPath
         return new FsFile(adjustedPath);
     }
 
+    /** Return value for {@link #trimPaths}. */
+    private static class Paths {
+        final FsFile basePath;
+        final List<FsFile> fullPaths;
+        
+        Paths(FsFile basePath, List<FsFile> fullPaths) {
+            this.basePath = basePath;
+            this.fullPaths = fullPaths;
+        }
+    }
+    
+    /**
+     * Trim long client-side paths' common root.
+     * @param basePath the common root
+     * @param fullPaths the paths from the common root down to the filename
+     * @return a possibly trimmed common root
+     */
+    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths) {
+        int smallestPathLength;
+        if (fullPaths.isEmpty())
+            smallestPathLength = 1; /* imaginary file name */
+        else {
+            smallestPathLength = Integer.MAX_VALUE;
+            for (final FsFile path : fullPaths) {
+                final int pathLength = path.getComponents().size();
+                if (smallestPathLength > pathLength)
+                    smallestPathLength = pathLength;
+            }
+        }
+        final List<String> basePathComponents = basePath.getComponents();
+        int baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
+        if (baseDirsToTrim < 0)
+            return new Paths(basePath, fullPaths);
+        basePath = new FsFile(basePathComponents.subList(baseDirsToTrim, basePathComponents.size()));
+        final List<FsFile> trimmedPaths = new ArrayList<FsFile>(fullPaths.size());
+        for (final FsFile path : fullPaths) {
+            List<String> pathComponents = path.getComponents();
+            trimmedPaths.add(new FsFile(pathComponents.subList(baseDirsToTrim, pathComponents.size())));
+        }
+        return new Paths(basePath, trimmedPaths);
+    }
+    
     /**
      * Take a relative path that the user would like to see in his or her
      * upload area, and check that none of the suggested paths currently
@@ -412,18 +461,23 @@ public class ManagedRepositoryI extends PublicRepositoryI
     protected ImportLocation suggestOnConflict(FsFile relPath,
             FsFile basePath, List<FsFile> paths, Ice.Current __current)
             throws omero.ServerError {
-
-        // Static elements which will be re-used throughout
-        final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
-
+        final Paths trimmedPaths = trimPaths(basePath, paths);
+        basePath = trimmedPaths.basePath;
+        paths = trimmedPaths.fullPaths;
+        
         // sanitize paths (should already be sanitary; could introduce conflicts)
         final StringTransformer sanitizer = serverPaths.getPathSanitizer();
+        relPath = relPath.transform(sanitizer);
         basePath = basePath.transform(sanitizer);
         int index = paths.size();
         while (--index >= 0)
             paths.set(index, paths.get(index).transform(sanitizer));
         
+        // Static elements which will be re-used throughout
+        final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
+
         // State that will be updated per loop.
+        // TODO: this becomes obsolete, the template should guarantee uniqueness
         Integer version = null;
 
         OUTER:
