@@ -60,7 +60,7 @@ public class ImportEvent {
         public final Integer numDone;
         public final Integer total;
 
-        PROGRESS_EVENT(int index, String filename, IObject target, Long pixId,
+        public PROGRESS_EVENT(int index, String filename, IObject target, Long pixId,
                 int series, ImportSize size, Integer numDone, Integer total) {
             this.index = index;
             this.filename = filename;
@@ -70,6 +70,16 @@ public class ImportEvent {
             this.size = size;
             this.numDone = numDone;
             this.total= total;
+        }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toLog());
+            sb.append(" ");
+            sb.append(String.format("Step: %d of %d",
+                    numDone, total));
+            return sb.toString();
         }
     }
 
@@ -337,6 +347,44 @@ public class ImportEvent {
         }
     }
 
+    // These extra PROGRESS_EVENT classes are added to allow some meaningful
+    // event reporting under FS rather than abusing the ones above
+
+    public static class METADATA_IMPORTED extends PROGRESS_EVENT {
+        public METADATA_IMPORTED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+    }
+
+    public static class THUMBNAILS_GENERATED extends PROGRESS_EVENT {
+        public THUMBNAILS_GENERATED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+    }
+
+    public static class PIXELDATA_PROCESSED extends PROGRESS_EVENT {
+        public PIXELDATA_PROCESSED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+    }
+
+    public static class METADATA_PROCESSED extends PROGRESS_EVENT {
+        public METADATA_PROCESSED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+    }
+
+    public static class OBJECTS_RETURNED extends PROGRESS_EVENT {
+        public OBJECTS_RETURNED(int index, String filename, IObject target,
+                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+    }
+
     public static class IMPORT_DONE extends PROGRESS_EVENT {
         public final List<Pixels> pixels;
         public final Fileset fileset;
@@ -353,7 +401,7 @@ public class ImportEvent {
         @Override
         public String toLog() {
             StringBuilder sb = new StringBuilder();
-            sb.append(super.toLog());
+            sb.append(getClass().getSimpleName());
             sb.append(String.format(" Imported file: %s", filename));
             return sb.toString();
         }

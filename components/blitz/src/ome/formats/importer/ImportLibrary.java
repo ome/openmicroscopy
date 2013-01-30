@@ -416,9 +416,27 @@ public class ImportLibrary implements IObservable
 
         return new CmdCallbackI(oa, category, handle) {
             public void step(int step, int total, Ice.Current current) {
-                notifyObservers(new ImportEvent.PROGRESS_EVENT(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                if (step == 1) {
+                    notifyObservers(new ImportEvent.METADATA_IMPORTED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 2) {
+                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 3) {
+                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 4) {
+                    notifyObservers(new ImportEvent.METADATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 5) {
+                    notifyObservers(new ImportEvent.OBJECTS_RETURNED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                }
             }
         };
     }
