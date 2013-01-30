@@ -19,6 +19,8 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
+
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,6 +37,7 @@ import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.services.blitz.repo.path.FilePathTransformerOnClient;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
 
@@ -75,6 +78,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
     
     private final static int parentDirsToRetain = 3;
+    
+    private static FilePathTransformerOnClient nopClientTransformer = 
+            new FilePathTransformerOnClient(new StringTransformer() {
+                // @Override  since JDK6
+                public String apply(String from) {
+                    return from;
+                }
+    });
 
     private final String template;
 
@@ -145,8 +156,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         FsFile relPath = new FsFile(expandTemplate(template, __current));
         // at this point, relPath should not yet exist on the filesystem
 
-        // Possibly modified relPath.
-        relPath = createTemplateDir(relPath, __current);
+        createTemplateDir(relPath, __current);
         
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -174,7 +184,11 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs);
+        try {
+            container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
+        } catch (IOException e) {
+            // impossible
+        }
 
         return importFileset(fs, settings, __current);
     }
@@ -361,7 +375,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
-        map.put("filesetId", Long.toString(System.currentTimeMillis() - 1359540000000L));  // TODO: new file set ID
+        // TODO: new import set ID
+        map.put("importSetId", Long.toString(System.currentTimeMillis() - 1359540000000L));
         return map;
     } 
 
@@ -370,36 +385,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * {@link #expandTemplate(String, Ice.Current)} and call
      * {@link makeDir(String, boolean, Ice.Current)} on each element of the path
      * starting at the top, until all the directories have been created.
-     * After any exception, append an increment so that a writeable directory
-     * exists for the current caller context.
      */
-    protected FsFile createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
+    protected void createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
         final List<String> givenPath = relPath.getComponents();
         if (givenPath.isEmpty())
             throw new IllegalArgumentException("no template directory");
-        final List<String> adjustedPath = new ArrayList<String>(givenPath.size());
-        for (final String givenComponent : givenPath) {
-//            int version = 0;  // TODO: should be obsolete
-//            while (true) {
-//                if (version == 0)
-                    adjustedPath.add(givenComponent);
-//                else
-//                    adjustedPath.add(givenComponent + "__" + version);
-                try {
-                    makeDir(new FsFile(adjustedPath).toString(), false, curr);
-//                    break;  // success
-                } catch (omero.ServerError e) {
-//                    log.debug("Error on createTemplateDir", e);
-//                    adjustedPath.remove(adjustedPath.size() - 1);
-//                    if (version++ > 10000) {
-//                        log.debug("too many version increments in creation of template directory", e);
-//                        throw e;
-//                    }
-//                }
-            }
+        for (int prefixSize = 1; prefixSize <= givenPath.size(); prefixSize++) {
+            final List<String> pathPrefix = givenPath.subList(0, prefixSize);
+            makeDir(new FsFile(pathPrefix).toString(), false, curr);
         }
-        // without version suffixing, should now equal relPath
-        return new FsFile(adjustedPath);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -474,63 +468,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
 
-        // State that will be updated per loop.
-        // TODO: this becomes obsolete, the template should guarantee uniqueness
-        Integer version = null;
-
-        OUTER:
-        while (true) {
-            // note common root of used files, including any non-conflict suffix at the end
-            final FsFile endPart;
-            if (version != null) {
-                final List<String> components = new ArrayList<String>(basePath.getComponents());
-                final int toSuffix = components.size() - 1;
-                if (toSuffix < 0)
-                    throw new IllegalArgumentException("no last component to suffix");
-                components.set(toSuffix, components.get(toSuffix) + "__" + version);
-                endPart = new FsFile(components);
-            } else 
-                endPart = basePath;
-
-            // check for conflict, adjust version number
-            for (final FsFile path : paths) {
-                final FsFile relative = path.getPathFrom(basePath);
-                final FsFile repoPath = FsFile.concatenate(relPath, endPart, relative);
-                if ((serverPaths.getServerFileFromFsFile(repoPath)).exists()) {
-                    if (version == null) {
-                        version = 1;
-                    } else {
-                        version = version + 1;
-                    }
-                    continue OUTER;
-                }
-            }
-        
-            // try actually making directories, for failure adjust version number
-            final FsFile newBase = FsFile.concatenate(relPath, endPart);
-            data.sharedPath = newBase.toString();
-            data.usedFiles = new ArrayList<String>(paths.size());
-            data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
-            for (final FsFile path : paths) {
-                final String relativeToEnd = path.getPathFrom(endPart).toString();
-                data.usedFiles.add(relativeToEnd);
-                final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
-                data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
-            }
-            try {
-                makeDir(data.sharedPath, true, __current);
-                break;  // success
-            } catch (omero.ServerError se) {
-                log.debug("Trying next directory", se);
-                // This directory apparently belongs to some other group
-                // or is not readable in the current context.
-                if (version == null) {
-                    version = 1;
-                } else {
-                    version = version + 1;
-                }
-            }
+        // try actually making directories
+        final FsFile newBase = FsFile.concatenate(relPath, basePath);
+        data.sharedPath = newBase.toString();
+        data.usedFiles = new ArrayList<String>(paths.size());
+        data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
+        for (final FsFile path : paths) {
+            final String relativeToEnd = path.getPathFrom(basePath).toString();
+            data.usedFiles.add(relativeToEnd);
+            final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
+            data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
         }
+
+        makeDir(data.sharedPath, true, __current);
 
         // Assuming we reach here, then we need to make
         // sure that the directory exists since the call
