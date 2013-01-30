@@ -5692,7 +5692,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _pd = None
     _rm = {}
     _pixels = None
-    _archivedFileCount = None
+    _importedFileCount = None
 
     _pr = None # projection
 
@@ -7350,20 +7350,22 @@ class _ImageWrapper (BlitzObjectWrapper):
         return True
 
     def countArchivedFiles (self):
-        """ Returns the number of Original 'archived' Files linked to primary pixels. Value is cached """
+        """ 
+        Returns the number of Original 'archived' Files linked to primary pixels.
+        Used by L{self.countImportedImageFiles} which also handles FS files.
+        """
 
-        if self._archivedFileCount is None:
-            pid = self.getPixelsId()
-            params = omero.sys.Parameters()
-            params.map = {"pid": rlong(pid)}
-            query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
-            count = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
-            self._archivedFileCount = count[0][0]._val
-        return self._archivedFileCount
+        pid = self.getPixelsId()
+        params = omero.sys.Parameters()
+        params.map = {"pid": rlong(pid)}
+        query = "select count(link.id) from PixelsOriginalFileMap as link where link.child.id=:pid"
+        count = self._conn.getQueryService().projection(query, params, self._conn.SERVICE_OPTS)
+        return count[0][0]._val
 
     def getArchivedFiles (self):
         """
         Returns a generator of L{OriginalFileWrapper}s corresponding to the archived files linked to primary pixels
+        Used by getImportedImageFiles() which also handles FS files.
         """
 
         pid = self.getPixelsId()
@@ -7374,6 +7376,68 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
+
+    def _countFilesetFiles (self):
+        """ Counts the Original Files that are part of the FS Fileset linked to this image """
+
+        params = omero.sys.Parameters()
+        params.map = {'imageId': rlong(self.getId())}
+
+        query = "select fs from Fileset as fs "\
+                "left outer join fetch fs.imageLinks as fil "\
+                "join fetch fil.child as image " \
+                "left outer join fetch fs.usedFiles as usedFile " \
+                "join fetch usedFile.originalFile where image.id=:imageId"
+        queryService = self._conn.getQueryService()
+        filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
+        files = [usedfile for fs in filesets for usedfile in fs.copyUsedFiles()]
+        return len(files)
+
+    def _getFilesetFiles (self):
+        """
+        Returns a generator of L{OriginalFileWrapper}s corresponding FS Fileset for this image
+        """
+
+        params = omero.sys.Parameters()
+        params.map = {'imageId': rlong(self.getId())}
+
+        query = "select fs from Fileset as fs "\
+                "left outer join fetch fs.imageLinks as fil "\
+                "join fetch fil.child as image " \
+                "left outer join fetch fs.usedFiles as usedFile " \
+                "join fetch usedFile.originalFile where image.id=:imageId"
+        queryService = self._conn.getQueryService()
+        filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
+
+        for fs in filesets:
+            for usedfile in fs.copyUsedFiles():
+                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+
+    def countImportedImageFiles (self):
+        """ 
+        Returns a count of the number of Imported files (Archived files for pre-FS images)
+        This will only be 0 if the image was imported pre-FS and original files NOT archived
+        """
+        if self._importedFileCount == None:
+            fCount = self._countFilesetFiles()
+            if fCount > 0:
+                self._importedFileCount = fCount
+            else:
+                self._importedFileCount = self.countArchivedFiles()
+        return self._importedFileCount
+
+    def getImportedImageFiles (self):
+        """
+        Returns a generator of L{OriginalFileWrapper}s corresponding to the Imported image
+        files that created this image. For Images imported pre-FS, this will be the 
+        original files linked to Pixels. For FS Images, it will be the files in the Fileset.
+        This will return nothing for pre-FS images that were not archived at import.
+        """
+
+        if self._countFilesetFiles() > 1:
+            return self._getFilesetFiles()
+
+        return self._getArchivedFiles()
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
