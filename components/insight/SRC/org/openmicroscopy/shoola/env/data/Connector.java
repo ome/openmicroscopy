@@ -638,7 +638,7 @@ class Connector
 		}
 		secureClient.closeSession();
 		//to be on the safe side
-		if (unsecureClient != null) unsecureClient.closeSession();
+		if (unsecureClient != null) unsecureClient.__del__();
 	}
 	
 	/** 
