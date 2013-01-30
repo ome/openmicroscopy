@@ -760,12 +760,16 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         }
 
         for (int t = 0; t < getSizeT(); t++) {
-            try {
-                ByteBuffer buffer = getTimepoint(t).getData();
-                md.update(buffer);
-            } catch (DimensionsOutOfBoundsException e) {
-                // This better not happen. :)
-                throw new RuntimeException(e);
+            for (int c = 0; c < getSizeC(); c++) {
+                for (int z = 0; z < getSizeZ(); z++) {
+                    try {
+                        ByteBuffer buffer = getPlane(z, c, t).getData();
+                        md.update(buffer);
+                    } catch (DimensionsOutOfBoundsException e) {
+                        // This better not happen. :)
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         }
 
