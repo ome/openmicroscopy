@@ -142,7 +142,9 @@ main = tenv.Object("test/gtest/gtest_main.cc")
 fixture = tenv.Object("test/omero/fixture.cpp")
 
 def define_test(dir):
-    test =  tenv.Program("test/%s.exe" % dir,
+    exe = uenv.iswin32() and ".exe" or ""
+    bin = "test/%s/%s%s" % (dir,dir,exe)
+    test =  tenv.Program(bin,
         [gtest, main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
         LIBS = ["omero_client"]+env.icelibs())
     return test
