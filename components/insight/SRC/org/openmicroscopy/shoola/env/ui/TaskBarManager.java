@@ -466,7 +466,7 @@ public class TaskBarManager
 			LogMessage msg = new LogMessage();
 			msg.print("Remove group");
 			msg.print(e);
-			container.getRegistry().getLogger().debug(this, msg);
+			container.getRegistry().getLogger().error(this, msg);
 		}
 	}
 	
