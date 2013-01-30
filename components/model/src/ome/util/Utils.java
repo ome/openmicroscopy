@@ -11,7 +11,6 @@ package ome.util;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -21,6 +20,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.zip.Adler32;
+import java.util.zip.CheckedInputStream;
+import java.util.zip.Checksum;
 
 import ome.model.IObject;
 import ome.model.internal.Permissions;
@@ -208,6 +210,32 @@ public class Utils {
             closeQuietly(fis);
         }
     }
+
+    /**
+     * Reads a file from disk and returns the checksum for it. An IOException
+     * is thrown if anything occurs during reading.
+     */
+    public static long pathToChecksum(String fileName) {
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        CheckedInputStream cis = null;
+        Checksum adler32 = null;
+        try {
+            adler32 = newChecksumAlgorithm();
+            fis = new FileInputStream(fileName);
+            bis = new BufferedInputStream(fis);
+            cis = new CheckedInputStream(bis, adler32);
+            while (cis.read() != -1);
+            return cis.getChecksum().getValue();
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        } finally {
+            closeQuietly(cis);
+            closeQuietly(bis);
+            closeQuietly(fis);
+        }
+    }
+
     /**
      * Calculates a MD5 digest for the given {@link ByteBuffer}
      */
@@ -299,6 +327,10 @@ public class Utils {
             throw new RuntimeException(
                     "Required SHA-1 message digest algorithm unavailable.");
         }
-
     }
+
+    public static Checksum newChecksumAlgorithm() {
+        return new Adler32();
+    }
+
 }
