@@ -356,9 +356,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("group", ec.groupName);
         map.put("groupId", Long.toString(ec.groupId));
         map.put("year", Integer.toString(now.get(Calendar.YEAR)));
-        map.put("month", Integer.toString(now.get(Calendar.MONTH)+1));
+        map.put("month", String.format("%02d", now.get(Calendar.MONTH)+1));
         map.put("monthname", DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)]);
-        map.put("day", Integer.toString(now.get(Calendar.DAY_OF_MONTH)));
+        map.put("day", String.format("%02d", now.get(Calendar.DAY_OF_MONTH)));
         map.put("session", ec.sessionUuid);
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
@@ -416,10 +416,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
     
     /**
-     * Trim long client-side paths' common root.
+     * Trim off the start of long client-side paths.
      * @param basePath the common root
-     * @param fullPaths the paths from the common root down to the filename
-     * @return a possibly trimmed common root
+     * @param fullPaths the full paths from the common root down to the filename
+     * @return possibly trimmed common root and full paths
      */
     protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths) {
         int smallestPathLength;
@@ -440,7 +440,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         basePath = new FsFile(basePathComponents.subList(baseDirsToTrim, basePathComponents.size()));
         final List<FsFile> trimmedPaths = new ArrayList<FsFile>(fullPaths.size());
         for (final FsFile path : fullPaths) {
-            List<String> pathComponents = path.getComponents();
+            final List<String> pathComponents = path.getComponents();
             trimmedPaths.add(new FsFile(pathComponents.subList(baseDirsToTrim, pathComponents.size())));
         }
         return new Paths(basePath, trimmedPaths);
