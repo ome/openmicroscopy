@@ -13,6 +13,7 @@
 #include <omero/ModelF.ice>
 #include <omero/ServicesF.ice>
 #include <omero/Scripts.ice>
+#include <omero/Repositories.ice>
 
 module omero {
 
@@ -50,7 +51,7 @@ module omero {
                 void createRoot() throws ServerError;
                 void updateObjects(omero::metadatastore::IObjectContainerArray objects) throws ServerError;
                 void updateReferences(omero::api::StringStringArrayMap references) throws ServerError;
-                PixelsList saveToDB() throws ServerError;
+                IObjectListMap saveToDB(omero::model::FilesetJobLink activity) throws ServerError;
                 void populateMinMax(DoubleArrayArrayArray imageChannelGlobalMinMax) throws ServerError;
                 idempotent void setPixelsParams(long pixelsId, bool useOriginalFile, StringStringMap params) throws ServerError;
                 omero::grid::InteractiveProcessorList postProcess() throws ServerError;
