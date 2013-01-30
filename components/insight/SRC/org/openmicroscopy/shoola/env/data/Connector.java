@@ -637,6 +637,8 @@ class Connector
 			reServices.clear();
 		}
 		secureClient.closeSession();
+		//to be on the safe side
+		if (unsecureClient != null) unsecureClient.closeSession();
 	}
 	
 	/** 
