@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Transform client-local {@link File} to repository {@link FsFile} path.
+ * Transform client-local {@link File} to repository {@link FsFile} path. Wholly thread-safe.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */

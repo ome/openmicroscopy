@@ -107,8 +107,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public FsFile createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
-            return super.createTemplateDir(template, curr);
+        public void createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
+            super.createTemplateDir(template, curr);
         }
     }
 
@@ -349,28 +349,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testExpandTemplateUnknown() {
-        String expected = "%björk%";
+        String expected = "%bj√∂rk%";
         newEventContext();
-        String actual = this.tmri.expandTemplate("%björk%", curr);
+        String actual = this.tmri.expandTemplate("%bj√∂rk%", curr);
         Assert.assertEquals(expected, actual);
-    }
-
-    //
-    // createTemplateDir()
-    //
-
-    @Test
-    public void testTemplateDirSimple() throws Exception {
-        assertReturnFile(1L);
-        final FsFile testFile = new FsFile("test");
-        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
-    }
-
-    @Test
-    public void testTemplateDir() throws Exception {
-        assertRegisterFails("test");
-        assertReturnFile("test__1", 1L);
-        final FsFile testFile = new FsFile("test");
-        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
     }
 }
