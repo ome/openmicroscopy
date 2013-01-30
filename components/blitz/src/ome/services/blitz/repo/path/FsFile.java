@@ -37,6 +37,9 @@ public class FsFile {
     /** the separator character for delimiting repository path components */
     public static char separatorChar = '/';
 
+    /** the FsFile that has no path components */
+    public static FsFile emptyPath = new FsFile();
+    
     /* the components of this path */
     private final List<String> components;
     /* the string representation of this path

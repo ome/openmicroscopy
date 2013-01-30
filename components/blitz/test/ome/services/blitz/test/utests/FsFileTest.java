@@ -77,4 +77,12 @@ public class FsFileTest {
         Assert.assertNull(child.getPathFrom(parent),
                 "relative path may only be within parent directory");
     }
+    
+    @Test
+    public void testEmptyPathEmptiness() {
+        Assert.assertTrue(FsFile.emptyPath.getComponents().isEmpty(),
+                "the empty path should be empty");
+        Assert.assertTrue(FsFile.emptyPath.toString().isEmpty(),
+                "the empty path should be empty");
+    }
 }
