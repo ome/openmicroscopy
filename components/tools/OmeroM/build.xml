@@ -65,7 +65,17 @@
     </target>
 
     <!-- Disable the tests that cause ./build.py test-unit to fail -->
-    <target name="test-unit" description="No-op"/>
+    <target name="test-unit" description="Run unit tests"  depends="release-zip">
+        <property environment="env"/>
+
+	     <exec executable="matlab">
+	       <env key="MATLABPATH" value="${env.MATLABPATH}:${target.dir}/matlab"/>
+	       <arg value="-nodesktop"/>
+	       <arg value="-nosplash"/>
+	       <arg value="-r"/>
+	       <arg value="loadOmero; runtests ${basedir}/test/unit"/>
+	    </exec>
+    </target>
     <target name="test" description="No-op"/>
     <target name="integration" description="No-op"/>
 
