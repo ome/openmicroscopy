@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -328,6 +329,20 @@ public class FileImportComponent
 	
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
+	
+	/**
+	 * Logs the exception.
+	 * 
+	 * @param e The error to log.
+	 */
+	private void logException(Exception e)
+	{
+		String s = "Error during import: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(e);
+		ImporterAgent.getRegistry().getLogger().warn(this, msg);
+	}
 	
 	/** Displays the error box at the specified location.
 	 * 
@@ -808,7 +823,7 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-
+	
 	/**
 	 * Sets the result of the import.
 	 * 
@@ -829,6 +844,7 @@ public class FileImportComponent
 			try {
 				img.getDefaultPixels();
 			} catch (Exception e) {
+				logException(e);
 				error = e;
 				toReImport = true;
 			}
@@ -908,6 +924,7 @@ public class FileImportComponent
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
 				groupLabel.setVisible(!singleGroup);
+				logException(thumbnail.getError());
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
@@ -992,6 +1009,7 @@ public class FileImportComponent
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(e));
 					exception = e;
+					logException(e);
 					errorButton.setVisible(false);
 					cancelButton.setVisible(false);
 					if (e instanceof ImportException) {
