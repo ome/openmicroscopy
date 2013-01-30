@@ -1607,7 +1607,7 @@ def archived_files(request, iid, conn=None, **kwargs):
         logger.debug("Cannot download archived file becuase Image does not exist.")
         return HttpResponseServerError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
     
-    files = list(image.getArchivedFiles())
+    files = list(image.getImportedImageFiles())
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")

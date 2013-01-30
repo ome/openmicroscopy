@@ -449,15 +449,15 @@
                 
                 <!-- download options -->
                 <span id="download_dropdown">
-                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Image as...">
+                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Options...">
                         <span></span>
                     </button>
                     <ul class="dropdown">
-                        {% if manager.image.countArchivedFiles %}
+                        {% if manager.image.countImportedImageFiles %}
                             <li>
                                 <a id="download-origfile" href="{% url archived_files manager.image.id %}"
-    title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
-                                    Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
+    title="Download {{ manager.image.countImportedImageFiles }} Image file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
+                                    Image file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
                             </li>
                         {% endif %}
                         <li>
