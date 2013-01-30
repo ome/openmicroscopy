@@ -674,15 +674,17 @@ class ImporterComponent
 	{
 		Collection<GroupData> m = loadGroups();
 
-		Iterator i = m.iterator();
+		if (m == null) {
+			ExperimenterData exp = ImporterAgent.getUserDetails();
+			return exp.getDefaultGroup();
+		}
 
 		long id = model.getGroupId();
-		
+
 		for (GroupData group : m) {
 			if (group.getId() == id)
 				return group;
 		}
-		
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		return exp.getDefaultGroup();
 	}
