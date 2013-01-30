@@ -73,7 +73,7 @@ public class CheckedPath {
         final List<String> newComponents = new ArrayList<String>(oldComponents.size());
         for (final String oldComponent : oldComponents)
             if ("..".equals(oldComponent))
-                if (newComponents.isEmpty())
+                if (newComponents.size() == 0)
                     throw new ValidationException(null, null, "Path may not make references above root");
                 else
                     // with Java 1.6 use a Deque
@@ -82,12 +82,12 @@ public class CheckedPath {
                 newComponents.add(oldComponent);
         return new FsFile(newComponents);
     }
-    
+
     /**
      * Construct a CheckedPath from a relative "/"-delimited path rooted at the repository.
-     * The path not contain weird or special-meaning path components, 
+     * The path not contain weird or special-meaning path components,
      * though <q>.</q> and <q>..</q> are understood to have their usual meaning.
-     * An empty path is the repository root. 
+     * An empty path is the repository root.
      * @param serverPaths the server path handling service
      * @param path a repository path
      * @throws ValidationException if the path is empty or contains illegal components
@@ -101,21 +101,21 @@ public class CheckedPath {
         this.file = serverPaths.getServerFileFromFsFile(fsFile);
         breakPath();
     }
-    
+
     private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
         this.original = filePath.getPath();
         this.fsFile = fsFilePath;
         this.file = filePath;
         breakPath();
     }
-    
+
     /**
      * Set parentDir and baseName according to the last separator in the fsFile.
      * @throws ValidationException if the path is empty
      */
     private void breakPath() throws ValidationException {
         final String fullPath = fsFile.toString();
-        this.isRoot = fullPath.isEmpty();
+        this.isRoot = (fullPath.length() == 0);
         final int lastSeparator = fullPath.lastIndexOf(FsFile.separatorChar);
         if (lastSeparator < 0) {
             this.parentDir = "";
@@ -168,7 +168,7 @@ public class CheckedPath {
      */
     public CheckedPath parent() throws ValidationException {
         List<String> components = this.fsFile.getComponents();
-        if (components.isEmpty())
+        if (components.size() == 0)
             throw new ValidationException(null, null, "May not obtain parent of repository root");
         components = components.subList(0, components.size() - 1);
         return new CheckedPath(this.file.getParentFile(), new FsFile(components));
@@ -228,7 +228,7 @@ public class CheckedPath {
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
      }
-    
+
     public String toString() {
         return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }

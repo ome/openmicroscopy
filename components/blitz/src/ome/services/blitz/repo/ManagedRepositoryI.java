@@ -75,7 +75,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {
 
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
-    
+
     private final static int parentDirsToRetain = 3;
 
     private final String template;
@@ -149,7 +149,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         // Possibly modified relPath.
         relPath = createTemplateDir(relPath, __current);
-        
+
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
         FsFile basePath = commonRoot(paths);
@@ -365,7 +365,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("perms", ec.groupPermissions.toString());
         map.put("filesetId", Long.toString(System.currentTimeMillis() - 1359540000000L));  // TODO: new file set ID
         return map;
-    } 
+    }
 
     /**
      * Take the relative path created by
@@ -377,7 +377,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected FsFile createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
         final List<String> givenPath = relPath.getComponents();
-        if (givenPath.isEmpty())
+        if (givenPath.size() == 0)
             throw new IllegalArgumentException("no template directory");
         final List<String> adjustedPath = new ArrayList<String>(givenPath.size());
         for (final String givenComponent : givenPath) {
@@ -408,13 +408,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private static class Paths {
         final FsFile basePath;
         final List<FsFile> fullPaths;
-        
+
         Paths(FsFile basePath, List<FsFile> fullPaths) {
             this.basePath = basePath;
             this.fullPaths = fullPaths;
         }
     }
-    
+
     /**
      * Trim off the start of long client-side paths.
      * @param basePath the common root
@@ -423,7 +423,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths) {
         int smallestPathLength;
-        if (fullPaths.isEmpty())
+        if (fullPaths.size() == 0)
             smallestPathLength = 1; /* imaginary file name */
         else {
             smallestPathLength = Integer.MAX_VALUE;
@@ -445,7 +445,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
         return new Paths(basePath, trimmedPaths);
     }
-    
+
     /**
      * Take a relative path that the user would like to see in his or her
      * upload area, and check that none of the suggested paths currently
@@ -464,7 +464,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final Paths trimmedPaths = trimPaths(basePath, paths);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
-        
+
         // sanitize paths (should already be sanitary; could introduce conflicts)
         final StringTransformer sanitizer = serverPaths.getPathSanitizer();
         relPath = relPath.transform(sanitizer);
@@ -472,7 +472,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         int index = paths.size();
         while (--index >= 0)
             paths.set(index, paths.get(index).transform(sanitizer));
-        
+
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
 
@@ -491,7 +491,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     throw new IllegalArgumentException("no last component to suffix");
                 components.set(toSuffix, components.get(toSuffix) + "__" + version);
                 endPart = new FsFile(components);
-            } else 
+            } else
                 endPart = basePath;
 
             // check for conflict, adjust version number
@@ -507,7 +507,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
                     continue OUTER;
                 }
             }
-        
+
             // try actually making directories, for failure adjust version number
             final FsFile newBase = FsFile.concatenate(relPath, endPart);
             data.sharedPath = newBase.toString();

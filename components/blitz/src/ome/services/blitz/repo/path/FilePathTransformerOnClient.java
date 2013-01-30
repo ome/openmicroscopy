@@ -35,7 +35,7 @@ import java.util.Set;
 public class FilePathTransformerOnClient {
     /* a function to make file-path components safe across platforms */
     private final StringTransformer pathSanitizer;
-    
+
     /**
      * Construct a new client-side file path transformer.
      * @param pathSanitizer a file-path component string transformer
@@ -44,7 +44,7 @@ public class FilePathTransformerOnClient {
     public FilePathTransformerOnClient(StringTransformer pathSanitizer) {
         this.pathSanitizer = pathSanitizer;
     }
-    
+
     /**
      * Given a client-local {@link File}, and a path component depth,
      * returns the corresponding repository path. Must be executed client-side.
@@ -54,11 +54,11 @@ public class FilePathTransformerOnClient {
      * @throws IOException if the absolute path of the {@link File} could not be found
      */
     public FsFile getFsFileFromClientFile(File clientFile, int depth) throws IOException {
-        if (depth < 1) 
+        if (depth < 1)
             throw new IllegalArgumentException("path depth must be strictly positive");
         return new FsFile(new FsFile(clientFile), depth).transform(this.pathSanitizer);
     }
-    
+
     /**
      * Test if the given path component depth suffices for disambiguating the given set of
      * {@link File}s. Must be executed client-side.
@@ -74,7 +74,7 @@ public class FilePathTransformerOnClient {
                 return false;
         return true;
     }
-    
+
     /**
      * Get the smallest path component depth that allows the given set of {@link File}s
      * to be disambiguated. Must be executed client-side.
@@ -92,7 +92,7 @@ public class FilePathTransformerOnClient {
         for (depth = 1; !isDepthSufficient(files, depth); depth++);
         return depth;
     }
-    
+
     /**
      * Get the files that are too similarly named.
      * @param files a set of files
@@ -115,6 +115,6 @@ public class FilePathTransformerOnClient {
         for (final Set<File> similarFiles : filesByFsFile.values())
             if (similarFiles.size() > 1)
                 tooSimilarFiles.add(similarFiles);
-        return tooSimilarFiles.isEmpty() ? null : tooSimilarFiles;
+        return (tooSimilarFiles.size() == 0) ? null : tooSimilarFiles;
     }
 }
