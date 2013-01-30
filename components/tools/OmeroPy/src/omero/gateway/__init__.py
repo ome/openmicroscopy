@@ -7382,16 +7382,11 @@ class _ImageWrapper (BlitzObjectWrapper):
 
         params = omero.sys.Parameters()
         params.map = {'imageId': rlong(self.getId())}
-
-        query = "select fs from Fileset as fs "\
-                "left outer join fetch fs.imageLinks as fil "\
-                "join fetch fil.child as image " \
-                "left outer join fetch fs.usedFiles as usedFile " \
-                "join fetch usedFile.originalFile where image.id=:imageId"
+        query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
+                "left outer join fs.imageLinks as imageLink where imageLink.child.id=:imageId"
         queryService = self._conn.getQueryService()
-        filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
-        files = [usedfile for fs in filesets for usedfile in fs.copyUsedFiles()]
-        return len(files)
+        fscount = queryService.projection(query, params, self._conn.SERVICE_OPTS)
+        return fscount[0][0]._val
 
     def _getFilesetFiles (self):
         """
