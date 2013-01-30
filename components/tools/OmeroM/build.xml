@@ -44,10 +44,7 @@
       <copy todir="${target.dir}/matlab">
         <fileset dir="${etc.dir}"           includes="ice.config"/>
         <fileset dir="${basedir}/src"       includes="**/*"/>
-        <fileset dir="${basedir}/resources" includes="**/*"/>
-        <fileset dir="${target.dir}/libs/"  includes="*"/>
-        <!-- Previous directory structures -->
-        <fileset dir="${basedir}"           includes="functions/**/*,helper/**/*,demo/**/*"/>
+        <fileset dir="${target.dir}"  		includes="libs/*"/>
         <fileset dir="${target.dir}"        includes="omeroVersion.m"/>
       </copy>
       <zip destfile="target/${ivy.module}.zip">
