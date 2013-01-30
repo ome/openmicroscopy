@@ -399,7 +399,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             store.updatePixels(pixList);
         }
 
-        if (reader.isMinMaxSet() == false)
+        if (!reader.isMinMaxSet())
         {
             store.populateMinMax();
         }
