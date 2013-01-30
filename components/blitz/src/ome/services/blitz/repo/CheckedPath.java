@@ -139,7 +139,7 @@ public class CheckedPath {
 
     public String sha1() {
         if (sha1 == null) {
-            sha1 = Utils.bytesToHex(Utils.pathToSha1(file.getPath()));
+            sha1 = Long.toHexString(Utils.pathToChecksum(file.getPath()));
         }
         return sha1;
     }
