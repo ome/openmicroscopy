@@ -260,9 +260,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (step == 0) {
                 return importMetadata((MetadataImportJob) j);
             } else if (step == 1) {
-                return generateThumbnails(null);//(ThumbnailGenerationJob) j);
+                return pixelData(null);//(ThumbnailGenerationJob) j);
             } else if (step == 2) {
-                return pixelData(null);//(PixelDataJob) j); Nulls image
+                return generateThumbnails(null);//(PixelDataJob) j); Nulls image
             } else if (step == 3) {
                 // TODO: indexing and scripting here as well.
                 store.launchProcessing();
