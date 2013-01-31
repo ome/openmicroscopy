@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.FormatException;
@@ -1184,6 +1186,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
             throw new ApiUsageException("In write mode!");
         }
         return delegate().getResolutionLevels();
+    }
+
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        List<Integer> sizes = Arrays.asList(getSizeX(), getSizeY());
+        List<List<Integer>> rv = new ArrayList<List<Integer>>();
+        rv.add(sizes);
+        return rv;
     }
 
     /* (non-Javadoc)

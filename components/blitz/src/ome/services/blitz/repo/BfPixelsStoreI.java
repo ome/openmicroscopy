@@ -14,6 +14,7 @@ import loci.formats.ImageReader;
 import ome.io.bioformats.BfPixelsWrapper;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ServerError;
+import omero.api.AMD_PyramidService_getResolutionDescriptions;
 import omero.api.AMD_PyramidService_getResolutionLevel;
 import omero.api.AMD_PyramidService_getResolutionLevels;
 import omero.api.AMD_PyramidService_getTileSize;
@@ -372,6 +373,13 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
      */
     public void getResolutionLevels_async(
             AMD_PyramidService_getResolutionLevels __cb, Current __current)
+            throws ServerError
+    {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    public void getResolutionDescriptions_async(
+            AMD_PyramidService_getResolutionDescriptions __cb, Current __current)
             throws ServerError
     {
         throw new UnsupportedOperationException("NYI");

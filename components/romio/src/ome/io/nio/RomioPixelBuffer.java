@@ -18,7 +18,9 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -920,6 +922,14 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public int getResolutionLevels()
     {
         return 1;
+    }
+
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        List<Integer> sizes = Arrays.asList(getSizeX(), getSizeY());
+        List<List<Integer>> rv = new ArrayList<List<Integer>>();
+        rv.add(sizes);
+        return rv;
     }
 
     /* (non-Javadoc)

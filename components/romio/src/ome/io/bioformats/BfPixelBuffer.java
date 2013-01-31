@@ -12,10 +12,12 @@ import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import loci.formats.CoreMetadata;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
@@ -526,6 +528,21 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         reader();
         return new Dimension(bfReader.getOptimalTileWidth(),
                              bfReader.getOptimalTileHeight());
+    }
+
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        final List<List<Integer>> rv = new ArrayList<List<Integer>>();
+        final int no = bfReader.getResolutionCount();
+        final List<CoreMetadata> cms = bfReader.getCoreMetadataList();
+        for (int i = 0; i < no; i++)
+        {
+            int coreIndex = bfReader.seriesToCoreIndex(bfReader.getSeries()) + i;
+            CoreMetadata cm = cms.get(coreIndex);
+            List<Integer> sizes = Arrays.asList(cm.sizeX, cm.sizeY);
+            rv.add(sizes);
+        }
+        return rv;
     }
 
     /* (non-Javadoc)
