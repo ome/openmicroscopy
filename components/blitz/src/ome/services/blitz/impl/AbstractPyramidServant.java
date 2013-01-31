@@ -7,14 +7,24 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.BlitzExecutor;
+
+import omero.RType;
+import omero.api.AMD_PyramidService_getResolutionDescriptions;
 import omero.api.AMD_PyramidService_getResolutionLevel;
 import omero.api.AMD_PyramidService_getResolutionLevels;
 import omero.api.AMD_PyramidService_getTileSize;
 import omero.api.AMD_PyramidService_requiresPixelsPyramid;
 import omero.api.AMD_PyramidService_setResolutionLevel;
 import omero.api.PyramidService;
+import omero.api.ResolutionDescription;
+import omero.util.IceMapper;
+import omero.util.IceMapper.ReturnMapping;
+
 import Ice.Current;
 
 /**
@@ -90,4 +100,39 @@ public abstract class AbstractPyramidServant extends AbstractAmdServant {
         callInvokerOnRawArgs(__cb, __current);
     }
 
+    public void getResolutionDescriptions_async(
+            AMD_PyramidService_getResolutionDescriptions __cb, Current __current) {
+        IceMapper mapper = new IceMapper(RESOLUTION_DESCRIPTIONS);
+        callInvokerOnMappedArgs(mapper, __cb, __current);
+    }
+
+    /**
+     * This is a fairly brittle mapping from the List<List<Integer>> created by
+     * the PixelBuffers to the List<ResolutionDescription> which is remotely
+     * provided by Blitz. The assumption is that much of these two levels will
+     * be refactored together and therefore that shouldn't be a long-term
+     * problem.
+     */
+    public final static ReturnMapping RESOLUTION_DESCRIPTIONS = new ReturnMapping() {
+        public Object mapReturnValue(IceMapper mapper, Object value)
+        throws Ice.UserException {
+
+            if (value == null) {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked")
+            List<List<Integer>> sizesArr = (List<List<Integer>>) value;
+            ResolutionDescription[] rv = new ResolutionDescription[sizesArr.size()];
+            for (int i = 0; i < rv.length; i++) {
+                List<Integer> sizes = sizesArr.get(i);
+                ResolutionDescription rd = new ResolutionDescription();
+                rd.sizeX = sizes.get(0);
+                rd.sizeY = sizes.get(1);
+                rv[i] = rd;
+            }
+
+            return rv;
+        }
+    };
 }

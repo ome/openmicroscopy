@@ -15,6 +15,19 @@ module omero {
 
     module api {
 
+        class ResolutionDescription {
+            int sizeX;
+            int sizeY;
+        };
+
+        /**
+         * Description of the geometry of a single resolution level.
+         * Initially this contains simply the sizeX/sizeY so that the
+         * client can calculate percentages. Eventually, this may also
+         * include columns, rows, etc.
+         **/
+        sequence<ResolutionDescription> ResolutionDescriptions;
+
         ["ami", "amd"]
         interface PyramidService extends StatefulServiceInterface {
 
@@ -34,6 +47,13 @@ module omero {
                  * pixels pyramid.
                  **/
                 idempotent int getResolutionLevels() throws ServerError;
+
+                /**
+                 * Retrives a more complete definition of the resolution
+                 * level in question. The size of this array will be of
+                 * length [getResolutionLevels].
+                 **/
+                idempotent ResolutionDescriptions getResolutionDescriptions() throws ServerError;
 
                 /**
                  * Retrieves the active resolution level.
