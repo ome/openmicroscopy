@@ -121,6 +121,22 @@
                     $("#link_info_popup").hide();
                 });
 
+                // show filepath links for images
+                {% if manager.image %}
+                $("#show_fs_files_btn").click(function(){
+                    $("#fs_paths_popup").show();
+                    var fs_input = $("#fs_paths_popup textarea");
+                    $.getJSON("{% url original_file_paths manager.image.id %}",
+                        function(data) {
+                            fs_input.val(data.join("\n"));
+                            fs_input.attr("cols", 50);
+                        });
+                });
+                $("#fs_paths_popup img").click(function(){
+                    $("#fs_paths_popup").hide();
+                });
+                {% endif %}
+
                 // handle submit of Add Comment form
                 $("#add_comment_form").ajaxForm({
                     beforeSubmit: function(data) {
@@ -446,7 +462,16 @@
                     <input type="text" size="30">
                     <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                 </div>
-                
+
+                <!-- FS fileset original file paths -->
+                <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
+                    <span></span>
+                </button>
+                <div id="fs_paths_popup" class="info_popup" style="right:30px; top:30px; padding:4px; display:none; height:50px">
+                    <textarea readonly="true" style="resize:none; width:220px; height:35px"></textarea>
+                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+                </div>
+
                 <!-- download options -->
                 <span id="download_dropdown">
                     <button id="show_download_dropdown" class="btn silver btn_download" title="Download Options...">
