@@ -129,7 +129,8 @@
                     $.getJSON("{% url original_file_paths manager.image.id %}",
                         function(data) {
                             fs_input.val(data.join("\n"));
-                            fs_input.attr("cols", 50);
+                            fs_input.attr("cols", 150);
+                            fs_input.attr("rows", data.length);
                         });
                 });
                 $("#fs_paths_popup img").click(function(){
@@ -463,15 +464,6 @@
                     <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                 </div>
 
-                <!-- FS fileset original file paths -->
-                <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
-                    <span></span>
-                </button>
-                <div id="fs_paths_popup" class="info_popup" style="right:30px; top:30px; padding:4px; display:none; height:50px">
-                    <textarea readonly="true" style="resize:none; width:220px; height:35px"></textarea>
-                    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
-                </div>
-
                 <!-- download options -->
                 <span id="download_dropdown">
                     <button id="show_download_dropdown" class="btn silver btn_download" title="Download Options...">
@@ -492,6 +484,21 @@
                         <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
                     </ul>
                 </span>
+
+                {% if manager.image.countImportedImageFiles %}
+                <!-- FS fileset original file paths -->
+                <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
+                    <span></span>
+                </button>
+                {% endif %}
+            </div>
+
+            <div style="clear:both"></div>
+            <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
+                <div style="margin: 4px">{{ manager.image.countImportedImageFiles }} Image file{{ manager.image.countImportedImageFiles|pluralize:'s'}}:</div>
+                <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
+                <div style="clear:both"></div>
             </div>
 
             <div style="clear:both"></div>
