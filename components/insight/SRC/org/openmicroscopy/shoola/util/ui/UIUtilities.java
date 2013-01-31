@@ -1690,17 +1690,37 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
+		return formatFileSize(v, true);
+	}
+	
+	/**
+	 * Converts the passed value into a string in Mb and returns a string 
+	 * version of it.
+	 * 
+	 * @param v The value to convert.
+	 * @param unit Indicate to add the unit or not.
+	 * @return See above.
+	 */
+	public static String formatFileSize(long v, boolean unit)
+	{
 		if (v <= 0) return "";
-		String s = "";
-		if (v < FileUtils.ONE_KB) 
-			s = String.format("%.1f", (double) v)+" bytes";
-		else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_KB))+" Kb";
-		else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) 
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_MB))+" Mb";
-		else if (v >= FileUtils.ONE_GB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_GB))+" Gb";
-		return s;
+		StringBuffer s = new StringBuffer();
+		String end = "";
+		if (v < FileUtils.ONE_KB) {
+			s.append(String.format("%.1f", (double) v));
+			end = " bytes";
+		} else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB) {
+			s.append(String.format("%.1f", ((double) v/FileUtils.ONE_KB)));
+			end = " Kb";
+		} else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) {
+			s.append(String.format("%.1f", ((double) v/FileUtils.ONE_MB)));
+			end = " Mb";
+		} else if (v >= FileUtils.ONE_GB) {
+			s.append(String.format("%.1f", ((double) v/FileUtils.ONE_GB)));
+			end = " Gb";
+		}
+		if (unit) s.append(end);
+		return s.toString();
 	}
 	
 	/**
