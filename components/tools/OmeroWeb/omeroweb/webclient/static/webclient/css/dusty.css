@@ -139,7 +139,7 @@ button::-moz-focus-inner {
 	.btn_fspath {background: url(../../webgateway/img/icon_fs_path.png )center center no-repeat;}
 	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat;}
 
-	.btn_fspath, .btn_link, #download_dropdown{
+	.btn_fspath, .btn_link {
 	    float:right;
 	    position: relative;
 	    margin-left: 5px;
@@ -176,6 +176,10 @@ button::-moz-focus-inner {
     #download_dropdown .dropdown {
         right: 0px;
         left: auto;
+    }
+    #download_dropdown {
+        float:right;
+        margin-left: 5px;
     }
     #download_dropdown .dropdown:before {
         left: 68% !important;
