@@ -501,13 +501,15 @@ class OmeroDataServiceImpl
 		context.getLogger().debug(this, folderPath);
 		//Check the image is archived.
 		ImageData image = gateway.getImage(ctx, imageID, null);
+		//Pre-FS import
+		Map<Boolean, Object> result = 
+			gateway.getArchivedFiles(ctx, folderPath, image);
+		if (result != null) return result;
+		//Check import FS way.
+		
+		//Returns the file.
 		String name = UIUtilities.removeFileExtension(
 				image.getName())+"."+OMETIFFFilter.OME_TIF;
-		Map<Boolean, Object> result = 
-			gateway.getArchivedFiles(ctx, folderPath,
-					image.getDefaultPixels().getId());
-		if (result != null) return result;
-		//Returns the file.
 		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
 				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
 				new File(FilenameUtils.concat(folderPath, name)), null);

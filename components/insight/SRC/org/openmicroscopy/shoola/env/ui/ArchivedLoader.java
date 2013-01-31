@@ -140,7 +140,7 @@ public class ArchivedLoader
 						((File) i.next()).delete();
 					}
     			} else {
-    				activity.endActivity(files.size());
+    				activity.endActivity(files);
     			}
     		}
     	}
