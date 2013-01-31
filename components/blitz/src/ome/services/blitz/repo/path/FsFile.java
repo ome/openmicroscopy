@@ -57,7 +57,7 @@ public class FsFile {
         final String[] splitBySeparator = path.split("\\" + separator);
         final List<String> components = new ArrayList<String>(splitBySeparator.length);
         for (final String component : splitBySeparator) {
-            if (!component.isEmpty()) 
+            if (!"".equals(component)) 
                 components.add(component);
         }
         return components;
@@ -75,7 +75,7 @@ public class FsFile {
             this.components = Collections.unmodifiableList(new ArrayList<String>(components));
             final StringBuilder pathBuilder = new StringBuilder();
             for (final String component : components) {
-                if (component == null || component.isEmpty())
+                if (component == null || "".equals(component))
                     throw new IllegalArgumentException("each path component must have content");
                 if (component.indexOf(separatorChar) != -1)
                     throw new IllegalArgumentException("path components may not contain a path separator");

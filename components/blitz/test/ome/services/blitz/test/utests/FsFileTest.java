@@ -82,7 +82,7 @@ public class FsFileTest {
     public void testEmptyPathEmptiness() {
         Assert.assertTrue(FsFile.emptyPath.getComponents().isEmpty(),
                 "the empty path should be empty");
-        Assert.assertTrue(FsFile.emptyPath.toString().isEmpty(),
+        Assert.assertEquals(FsFile.emptyPath.toString(), "",
                 "the empty path should be empty");
     }
 }

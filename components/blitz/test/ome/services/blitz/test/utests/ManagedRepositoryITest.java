@@ -261,6 +261,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public void testExpandTemplateMonth() {
         newEventContext();
         String expected = Integer.toString(cal.get(Calendar.MONTH)+1);
+        if (expected.length() == 1)
+            expected = '0' + expected;
         String actual = this.tmri.expandTemplate("%month%", curr);
         Assert.assertEquals(expected, actual);
     }

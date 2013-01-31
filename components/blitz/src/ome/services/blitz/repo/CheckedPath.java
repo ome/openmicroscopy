@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,11 +114,11 @@ public class CheckedPath {
      */
     private void breakPath() throws ValidationException {
         final String fullPath = fsFile.toString();
-        this.isRoot = fullPath.isEmpty();
+        this.isRoot = "".equals(fullPath);
         final int lastSeparator = fullPath.lastIndexOf(FsFile.separatorChar);
         if (lastSeparator < 0) {
             this.parentDir = "";
-            this.baseName = "";
+            this.baseName = fullPath;
         } else {
             this.parentDir = fullPath.substring(0,  lastSeparator);
             this.baseName = fullPath.substring(lastSeparator + 1);
