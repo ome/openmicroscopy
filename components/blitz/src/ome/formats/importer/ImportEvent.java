@@ -199,8 +199,17 @@ public class ImportEvent {
         }
     }
 
-    public static class FILE_UPLOAD_FINISHED extends FILE_UPLOAD_EVENT {
-        public FILE_UPLOAD_FINISHED(String filename, int fileIndex,
+    public static class FILESET_UPLOAD_START extends FILE_UPLOAD_EVENT {
+        public FILESET_UPLOAD_START(String filename, int fileIndex,
+                int fileTotal, Long uploadedBytes, Long contentLength,
+                Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+
+    public static class FILESET_UPLOAD_END extends FILE_UPLOAD_EVENT {
+        public FILESET_UPLOAD_END(String filename, int fileIndex,
                 int fileTotal, Long uploadedBytes, Long contentLength,
                 Exception exception) {
             super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,

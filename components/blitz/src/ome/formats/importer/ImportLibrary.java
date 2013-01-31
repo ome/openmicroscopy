@@ -268,9 +268,6 @@ public class ImportLibrary implements IObservable
             final MessageDigest md, final byte[] buf)
             throws ServerError, IOException {
 
-            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                    null, 0, srcFiles.length, null, null, null));
-
         md.reset();
 
         String digestString = null;
@@ -283,6 +280,10 @@ public class ImportLibrary implements IObservable
             rawFileStore = proc.getUploader(index);
             int rlen = 0;
             long offset = 0;
+
+            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, length, null));
 
             // "touch" the file otherwise zero-length files
             rawFileStore.write(new byte[0], offset, 0);
@@ -332,9 +333,6 @@ public class ImportLibrary implements IObservable
         finally {
             cleanupUpload(rawFileStore, stream);
         }
-
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, index, srcFiles.length, null, null, null));
 
         return digestString;
     }
@@ -386,9 +384,15 @@ public class ImportLibrary implements IObservable
         final MessageDigest md = Utils.newSha1MessageDigest();
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
 
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
+                null, index, srcFiles.length, null, null, null));
+
         for (int i = 0; i < srcFiles.length; i++) {
             checksums.add(uploadFile(proc, srcFiles, i, md, buf));
         }
+
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+                null, index, srcFiles.length, null, null, null));
 
         // At this point the import is running, check handle for number of
         // steps.
