@@ -9,6 +9,7 @@ package ome.formats.importer;
 
 import java.util.List;
 
+import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Pixels;
 
@@ -338,10 +339,15 @@ public class ImportEvent {
 
     public static class IMPORT_DONE extends PROGRESS_EVENT {
         public final List<Pixels> pixels;
+        public final Fileset fileset;
+        public final List<IObject> objects;
         public IMPORT_DONE(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, List<Pixels> pixels) {
+                Long pixId, int series, ImportSize size, List<Pixels> pixels,
+                Fileset fileset, List<IObject> objects) {
             super(index, filename, target, pixId, series, size, null, null);
             this.pixels = pixels;
+            this.fileset = fileset;
+            this.objects = objects;
         }
 
         @Override

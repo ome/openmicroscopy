@@ -38,6 +38,7 @@
 			<zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
+			<parent name="filesetLinks" type="ome.model.fs.FilesetImageLink" target="ome.model.fs.Fileset"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.ObjectiveSettings">
@@ -112,37 +113,6 @@
 			-->
 		</properties>
 	</type>
-
-        <type id="ome.model.fs.FilesetEntry">
-                <properties>
-                    <manyone name="fileset" type="ome.model.fs.Fileset" ordered="true"/>
-                    <required name="originalFile" type="ome.model.core.OriginalFile"/>
-                    <required name="clientPath" type="text"/>
-                </properties>
-        </type>
-        <type id="ome.model.fs.FilesetVersionInfo">
-                <properties>
-                    <required name="bioformatsReader" type="string"/>
-                    <required name="bioformatsVersion" type="string"/>
-                    <required name="omeroVersion" type="string"/>
-                    <required name="osArchitecture" type="string"/>
-                    <required name="osName" type="string"/>
-                    <required name="osVersion" type="string"/>
-                    <required name="locale" type="string"/>
-                </properties>
-        </type>
-        <link id="ome.model.fs.FilesetJobLink">
-		<properties>
-                        <from_parent type="ome.model.fs.Fileset" ordered="true"/>
-                        <to_child type="ome.model.jobs.Job"/>
-		</properties>
-	</link>
-        <type id="ome.model.fs.Fileset" annotated="true">
-                <properties>
-                    <onemany name="usedFiles" type="ome.model.fs.FilesetEntry" inverse="fileset" ordered="true"/>
-                    <child name="jobLinks" type="ome.model.fs.FilesetJobLink" target="ome.model.jobs.Job" ordered="true"/>
-                </properties>
-        </type>
 
 	<type id="ome.model.core.PlaneInfo" annotated="true">
 		<!-- Note: PlaneInfo is called Plane in model-->

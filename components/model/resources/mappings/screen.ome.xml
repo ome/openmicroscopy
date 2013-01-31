@@ -48,6 +48,7 @@
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
+			<parent name="filesetLinks" type="ome.model.fs.FilesetPlateLink" target="ome.model.fs.Fileset"/>
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
 			<zeromany name="plateAcquisitions" type="ome.model.screen.PlateAcquisition" inverse="plate"/>
 		</properties>

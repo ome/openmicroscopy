@@ -133,7 +133,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private String[] usedFiles = null;
 
+    private Map<String, List<IObject>> objects;
+
     private List<Pixels> pixList;
+
+    private List<Image> imageList;
+
+    private List<Plate> plateList;
 
     public ManagedImportRequestI(Registry reg, TileSizes sizes) {
         this.reg = reg;
@@ -268,7 +274,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 store.launchProcessing();
                 return null;
             } else if (step == 4) {
-                return pixList;
+                return objects;
             } else {
                 throw helper.cancel(new ERR(), null, "bad-step",
                         "step", ""+step);
@@ -308,13 +314,25 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (step == 4) {
             ImportResponse rsp = new ImportResponse();
-            rsp.pixels = (List<Pixels>) object;
+            Map<String, List<IObject>> rv = (Map<String, List<IObject>>) object;
+            rsp.pixels = (List) rv.get(Pixels.class.getSimpleName());
+            rsp.objects = new ArrayList<IObject>();
+            addObjects(rsp.objects, rv, Plate.class.getSimpleName());
+            addObjects(rsp.objects, rv, Image.class.getSimpleName());
             helper.setResponseIfNull(rsp);
+        }
+    }
+
+    private void addObjects(List<IObject> objects,
+            Map<String, List<IObject>> rv, String simpleName) {
+        List<IObject> list = rv.get(simpleName);
+        if (list != null) {
+            objects.addAll(list);
         }
     }
 
@@ -338,7 +356,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * @throws FormatException if there is an error parsing metadata.
      * @throws IOException if there is an error reading the file.
      */
-    public List<Pixels> importMetadata(MetadataImportJob mij) throws Throwable {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Map<String, List<IObject>> importMetadata(MetadataImportJob mij) throws Throwable {
         notifyObservers(new ImportEvent.LOADING_IMAGE(
                 shortName, 0, 0, 0));
 
@@ -359,11 +378,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
-        pixList = store.saveToDB();
+        objects = store.saveToDB(activity);
+        pixList = (List) objects.get(Pixels.class.getSimpleName());
+        imageList = (List) objects.get(Image.class.getSimpleName());
+        plateList = (List) objects.get(Plate.class.getSimpleName());
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 
-        return pixList;
+        return objects;
 
     }
 

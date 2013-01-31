@@ -208,7 +208,44 @@
         <constructor-arg>
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
                 <value>/Image+Only</value>
+                <value>/Fileset;HARD;/Image/FilesetImageLink</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Image+WS">
+        <description>
+        Just like /Image but for use within the /Well spec
+        since this is part of a loop: Image->Fileset->Plate->...->Image
+        It does *not* contain a fileset link itself.
+
+        Assuming you're deleting via /Plate, a link to /Fileset in
+        /Plate will take care of the other objects.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
+                <value>/Image+Only</value>
+                <!-- Missing /Fileset here -->
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Image+FS">
+        <description>
+        Just like /Image but for use within the /Fileset spec
+        since this represents a loop: Image->Fileset->Plate->...->Image
+        It does *not* contain a fileset link itself.
+        </description>
+        <constructor-arg>
+            <list>
+                <value>/Image/DatasetImageLink;FORCE</value>
+                <value>/Image/FilesetImageLink;HARD</value>
+                <value>/Image+Only</value>
+                <!-- Missing /Fileset here -->
             </list>
         </constructor-arg>
     </bean>
@@ -224,7 +261,7 @@
             <list>
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
+                <value>/OriginalFile+Only;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
                 <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
                 <value>/Image/Pixels/PlaneInfo</value>
@@ -286,7 +323,7 @@
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
-                <value>/Image;;/Well/WellSample</value>
+                <value>/Image+WS;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink;FORCE</value>
@@ -299,7 +336,20 @@
         <constructor-arg>
             <list>
                 <value>/Plate/ScreenPlateLink;FORCE</value>
+                <value>/Plate/FilesetPlateLink;HARD</value>
                 <value>/Plate+Only</value>
+                <value>/Fileset;HARD;/Plate/FilesetPlateLink</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Plate+FS">
+        <constructor-arg>
+            <list>
+                <value>/Plate/ScreenPlateLink;FORCE</value>
+                <value>/Plate/FilesetPlateLink;HARD</value>
+                <value>/Plate+Only</value>
+                <!-- No fileset here. See /Image+FS for an explanation -->
             </list>
         </constructor-arg>
     </bean>
@@ -350,13 +400,40 @@
     <bean parent="delSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
+                <value>/OriginalFile/FilesetEntry</value>
+                <value>/Fileset;HARD;/OriginalFile/FilesetEntry</value>
+                <value>/OriginalFile+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/OriginalFile+Only">
+        <constructor-arg>
+            <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
                 <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
                 <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
-                <value>/OriginalFile</value>
+                <value>/OriginalFile+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Fileset">
+        <constructor-arg>
+            <list>
+                <value>/Fileset/FilesetImageLink</value>
+                <value>/Image+FS;HARD;/Fileset/FilesetImageLink</value>
+                <value>/Fileset/FilesetPlateLink</value>
+                <value>/Plate+FS;HARD;/Fileset/FilesetPlateLink</value>
+                <value>/Fileset/FilesetEntry</value>
+                <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
+                <value>/Fileset/FilesetJobLink</value>
+                <value>/Fileset/FilesetJobLink/Job</value>
+                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
+                <value>/Fileset</value>
             </list>
         </constructor-arg>
     </bean>

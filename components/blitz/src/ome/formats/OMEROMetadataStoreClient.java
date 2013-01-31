@@ -143,6 +143,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.Filament;
 import omero.model.FilamentType;
 import omero.model.FileAnnotation;
+import omero.model.FilesetJobLink;
 import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.FilterType;
@@ -1639,7 +1640,8 @@ public class OMEROMetadataStoreClient
      * references and saves them into the database.
      * @return List of Pixels after database commit.
      */
-    public List<Pixels> saveToDB()
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Map<String, List<IObject>> saveToDB(FilesetJobLink link)
     {
         try
         {
@@ -1677,7 +1679,8 @@ public class OMEROMetadataStoreClient
 
             delegate.updateObjects(containerArray);
             delegate.updateReferences(referenceStringCache);
-            pixelsList = delegate.saveToDB();
+            Map<String, List<IObject>> rv = delegate.saveToDB(link);
+            pixelsList = (List) rv.get("Pixels");
 
             if (log.isDebugEnabled())
             {
@@ -1688,7 +1691,7 @@ public class OMEROMetadataStoreClient
                     log.debug("Saved Pixels with ID: "  + pixelsId);
                 }
             }
-            return pixelsList;
+            return rv;
         }
         catch (ServerError e)
         {
