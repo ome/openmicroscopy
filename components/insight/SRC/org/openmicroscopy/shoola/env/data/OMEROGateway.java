@@ -3900,7 +3900,6 @@ class OMEROGateway
 			ParametersI param = new ParametersI();
 			long id;
 			if (image.isArchived()) {
-				//FS image.
 				id = image.getDefaultPixels().getId();
 				buffer.append("select ofile from OriginalFile as ofile ");
 				buffer.append("left join ofile.pixelsFileMaps as pfm ");
