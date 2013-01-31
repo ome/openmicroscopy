@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
- * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
