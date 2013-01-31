@@ -421,11 +421,11 @@ public class ImportLibrary implements IObservable
                             0, container.getFile().getAbsolutePath(),
                             null, null, 0, null, step, total));
                 } else if (step == 2) {
-                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
+                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
                             0, container.getFile().getAbsolutePath(),
                             null, null, 0, null, step, total));
                 } else if (step == 3) {
-                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
+                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
                             0, container.getFile().getAbsolutePath(),
                             null, null, 0, null, step, total));
                 } else if (step == 4) {
