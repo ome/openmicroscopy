@@ -281,7 +281,6 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                checksum.update(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -289,7 +288,7 @@ public class ImportLibrary implements IObservable
                         offset, length, null));
             }
 
-            digestString = Long.toHexString(checksum.getValue());
+            digestString = Long.toHexString(Utils.pathToChecksum(file.getPath()));
 
             OriginalFile ofile = rawFileStore.save();
             if (log.isDebugEnabled()) {
