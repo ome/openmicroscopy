@@ -217,6 +217,15 @@ public class ImportEvent {
         }
     }
 
+    public static class FILE_UPLOAD_FINISHED extends FILE_UPLOAD_EVENT {
+        public FILE_UPLOAD_FINISHED(String filename, int fileIndex,
+                int fileTotal, Long uploadedBytes, Long contentLength,
+                Exception exception) {
+            super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
+                    exception);
+        }
+    }
+
     public static class FILE_UPLOAD_CANCELLED extends FILE_UPLOAD_EVENT {
         public FILE_UPLOAD_CANCELLED(String filename, int fileIndex,
                 int fileTotal, Long uploadedBytes, Long contentLength,
