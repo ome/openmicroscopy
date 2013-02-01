@@ -28,6 +28,7 @@ import Ice.ObjectFactory;
 
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
 
 import omero.ServerError;
@@ -225,7 +226,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
             return state.prx; // EARLY EXIT!
         }
 
-        final String path = location.usedFiles.get(i);
+        final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
 
         boolean success = false;
         RawFileStorePrx prx = repo.file(path, "rw", this.current);
@@ -265,7 +266,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         }
 
         for (int i = 0; i < size; i++) {
-            String usedFile = location.usedFiles.get(i);
+            String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
             CheckedPath cp = repo.checkPath(usedFile, this.current);
             String client = hashes.get(i);
             String server = cp.sha1();

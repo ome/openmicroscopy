@@ -1240,8 +1240,12 @@ class OmeroImageServiceImpl
 					Map<File, StatusLabel> files = 
 						new HashMap<File, StatusLabel>();
 					Iterator<String> i = candidates.iterator();
-					while (i.hasNext()) 
-						files.put(new File(i.next()), new StatusLabel());
+					File f;
+					while (i.hasNext()) {
+						f = new File(i.next());
+						files.put(f, new StatusLabel(f.length()));
+					}
+						
 					status.setFiles(files);
 					Boolean v = importCandidates(ctx, files, status, object,
 							ioContainer, list, userID, close, hcs);
@@ -1292,7 +1296,7 @@ class OmeroImageServiceImpl
 		hcs = isHCS(ic.getContainers());
 		while (i.hasNext()) {
 			f = new File(i.next());
-			sl = new StatusLabel();
+			sl = new StatusLabel(f.length());
 			//if (ImportableObject.isHCSFile(f) || hcs) {
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)

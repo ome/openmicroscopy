@@ -17,27 +17,16 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.zip.Checksum;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
-import ome.formats.model.InstanceProvider;
 import ome.util.Utils;
-
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
@@ -56,10 +45,12 @@ import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
-import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -235,7 +226,7 @@ public class ImportLibrary implements IObservable
             final String[] srcFiles, final ImportProcessPrx proc)
     {
 
-        final MessageDigest md = Utils.newSha1MessageDigest();
+        final Checksum checksum = Utils.newChecksumAlgorithm();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
         final int fileTotal = srcFiles.length;
@@ -243,7 +234,7 @@ public class ImportLibrary implements IObservable
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
             try {
-                checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+                checksums.add(uploadFile(proc, srcFiles, i, checksum, buf));
             } catch (ServerError e) {
                 log.error("Server error uploading file.", e);
                 break;
@@ -258,20 +249,16 @@ public class ImportLibrary implements IObservable
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, int index) throws ServerError, IOException
     {
-        final MessageDigest md = Utils.newSha1MessageDigest();
+        final Checksum checksum = Utils.newChecksumAlgorithm();
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
-        return uploadFile(proc, srcFiles, index, md, buf);
+        return uploadFile(proc, srcFiles, index, checksum, buf);
     }
 
     public String uploadFile(final ImportProcessPrx proc,
-            final String[] srcFiles, final int index,
-            final MessageDigest md, final byte[] buf)
+            final String[] srcFiles, final int index, Checksum checksum,
+            final byte[] buf)
             throws ServerError, IOException {
 
-            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                    null, 0, srcFiles.length, null, null, null));
-
-        md.reset();
 
         String digestString = null;
         File file = new File(srcFiles[index]);
@@ -284,6 +271,10 @@ public class ImportLibrary implements IObservable
             int rlen = 0;
             long offset = 0;
 
+            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, length, null));
+
             // "touch" the file otherwise zero-length files
             rawFileStore.write(new byte[0], offset, 0);
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -292,7 +283,6 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                md.update(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -300,8 +290,7 @@ public class ImportLibrary implements IObservable
                         offset, length, null));
             }
 
-            byte[] digest = md.digest();
-            digestString = Utils.bytesToHex(digest);
+            digestString = Long.toHexString(Utils.pathToChecksum(file.getPath()));
 
             OriginalFile ofile = rawFileStore.save();
             if (log.isDebugEnabled()) {
@@ -332,9 +321,6 @@ public class ImportLibrary implements IObservable
         finally {
             cleanupUpload(rawFileStore, stream);
         }
-
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, index, srcFiles.length, null, null, null));
 
         return digestString;
     }
@@ -383,12 +369,18 @@ public class ImportLibrary implements IObservable
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
-        final MessageDigest md = Utils.newSha1MessageDigest();
+        final Checksum checksum = Utils.newChecksumAlgorithm();
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
 
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
+                null, index, srcFiles.length, null, null, null));
+
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+            checksums.add(uploadFile(proc, srcFiles, i, checksum, buf));
         }
+
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+                null, index, srcFiles.length, null, null, null));
 
         // At this point the import is running, check handle for number of
         // steps.
@@ -416,9 +408,27 @@ public class ImportLibrary implements IObservable
 
         return new CmdCallbackI(oa, category, handle) {
             public void step(int step, int total, Ice.Current current) {
-                notifyObservers(new ImportEvent.PROGRESS_EVENT(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                if (step == 1) {
+                    notifyObservers(new ImportEvent.METADATA_IMPORTED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 2) {
+                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 3) {
+                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 4) {
+                    notifyObservers(new ImportEvent.METADATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 5) {
+                    notifyObservers(new ImportEvent.OBJECTS_RETURNED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                }
             }
         };
     }
