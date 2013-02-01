@@ -625,7 +625,7 @@ class Connector
 		throws Throwable
 	{
 		secureClient.setFastShutdown(!networkup);
-		unsecureClient.setFastShutdown(!networkup);
+		if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
 		if (networkup) {
 			shutDownServices(true);
 		} else {
