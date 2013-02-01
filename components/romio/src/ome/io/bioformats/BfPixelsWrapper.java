@@ -17,6 +17,7 @@ import java.util.List;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
@@ -36,12 +37,6 @@ public class BfPixelsWrapper {
 
     private final String path;
 
-    private final int rgbChannels;
-
-    private final int pixelType;
-
-    private final int pixelSize;
-
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
@@ -53,13 +48,6 @@ public class BfPixelsWrapper {
         this.reader = reader;
         reader.setFlattenedResolutions(false);
         reader.setId(path);
-
-        /* Get some data that is widely used elsewhere.
-         * As there are no setters this is reasonable here.
-         */
-        rgbChannels = reader.getRGBChannelCount();
-        pixelType = reader.getPixelType();
-        pixelSize = getBytesPerPixel();
     }
 
     public byte[] getMessageDigest() throws IOException {
@@ -172,15 +160,15 @@ public class BfPixelsWrapper {
      * Get data sizes
      */
     public int getByteWidth() {
-        return pixelSize;
+        return FormatTools.getBytesPerPixel(reader.getPixelType());
     }
 
     public Integer getRowSize() {
-        return getSizeX() * pixelSize;
+        return getSizeX() * getByteWidth();
     }
 
     public Integer getColSize() {
-        return getSizeY() * pixelSize;
+        return getSizeY() * getByteWidth();
     }
 
     public Long getPlaneSize() {
@@ -208,7 +196,7 @@ public class BfPixelsWrapper {
         int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
         int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
-        long tileRowSize = (long) pixelSize * xStripes;
+        long tileRowSize = (long) getByteWidth() * xStripes;
         long cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
 
         return cubeSize;
@@ -251,8 +239,8 @@ public class BfPixelsWrapper {
             byte[] plane = new byte[size];
             getWholePlane(z,c,t,plane);
             for(int y = 0; y < reader.getSizeY(); y++) {
-                System.arraycopy(plane, (y*getRowSize())+(x*pixelSize),
-                    buffer, y*pixelSize, pixelSize);
+                System.arraycopy(plane, (y*getRowSize())+(x*getByteWidth()),
+                    buffer, y*getByteWidth(), getByteWidth());
             }
         } catch (FormatException e) {
             throw new RuntimeException(e);
@@ -367,18 +355,19 @@ public class BfPixelsWrapper {
             throws IOException, FormatException
     {
         int planeNumber;
-        if(rgbChannels == 1) {
+        if (reader.getRGBChannelCount() == 1) {
             planeNumber = reader.getIndex(z, c, t);
             reader.openBytes(planeNumber, plane);
         } else {
             int size = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
-            byte[] fullPlane = new byte[size*rgbChannels];
+            byte[] fullPlane = new byte[size*reader.getRGBChannelCount()];
             planeNumber = reader.getIndex(z, 0, t);
             reader.openBytes(planeNumber, fullPlane);
             if(reader.isInterleaved()) {
-                for(int p = 0; p < size; p += pixelSize) {
-                    System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels,
-                        plane, p, pixelSize);
+                for(int p = 0; p < size; p += getByteWidth()) {
+                    System.arraycopy(fullPlane,
+                        c*getByteWidth() + p*reader.getRGBChannelCount(),
+                        plane, p, getByteWidth());
                 }
             } else {
                 System.arraycopy(fullPlane, c*size, plane, 0, size);
@@ -415,7 +404,7 @@ public class BfPixelsWrapper {
             List<Integer> step, byte[] cube) throws IOException, FormatException {
         int cubeOffset = 0;
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
-        int tileRowSize = pixelSize * xStripes;
+        int tileRowSize = getByteWidth() * xStripes;
         int planeSize = RomioPixelBuffer.safeLongToInteger(getPlaneSize());
         byte[] plane = new byte[planeSize];
         for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
@@ -428,7 +417,7 @@ public class BfPixelsWrapper {
                     int rowOffset = offset.get(1)*getRowSize();
                     if(step.get(0)==1)
                     {
-                        int byteOffset = rowOffset + offset.get(0)*pixelSize;
+                        int byteOffset = rowOffset + offset.get(0)*getByteWidth();
                         for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
                         {
                             System.arraycopy(plane, byteOffset, cube, cubeOffset, tileRowSize);
@@ -440,12 +429,12 @@ public class BfPixelsWrapper {
                     {
                         for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
                         {
-                            int byteOffset = offset.get(0)*pixelSize;
+                            int byteOffset = offset.get(0)*getByteWidth();
                             for(int x = offset.get(0); x < size.get(0)+offset.get(0); x += step.get(0))
                             {
-                                System.arraycopy(plane, rowOffset+byteOffset, cube, cubeOffset, pixelSize);
-                                cubeOffset += pixelSize;
-                                byteOffset += step.get(0)*pixelSize;
+                                System.arraycopy(plane, rowOffset+byteOffset, cube, cubeOffset, getByteWidth());
+                                cubeOffset += getByteWidth();
+                                byteOffset += step.get(0)*getByteWidth();
                             }
                             rowOffset += getRowSize()*step.get(1);
                         }
@@ -458,31 +447,6 @@ public class BfPixelsWrapper {
     }
 
     /**
-     * cgb - stolen from ImportLibrary - is there a better way to do this?
-     *
-     * Retrieves how many bytes per pixel the current plane or section has.
-     * @return the number of bytes per pixel.
-     */
-    private int getBytesPerPixel()
-    {
-        switch(pixelType) {
-            case 0:
-            case 1:
-                return 1;  // INT8 or UINT8
-            case 2:
-            case 3:
-                return 2;  // INT16 or UINT16
-            case 4:
-            case 5:
-            case 6:
-                return 4;  // INT32, UINT32 or FLOAT
-            case 7:
-                return 8;  // DOUBLE
-        }
-        throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
-    }
-
-    /**
      * cgb - created from the methods below?
      *
      * Retrieves how many bytes per pixel the current plane or section has.
@@ -490,50 +454,16 @@ public class BfPixelsWrapper {
      */
     public String getPixelsType()
     {
-        switch(pixelType) {
-            case 0: return "int8";
-            case 1: return "uint8";
-            case 2: return "int16";
-            case 3: return "uint16";
-            case 4: return "int32";
-            case 5: return "uint32";
-            case 6: return "float";
-            case 7: return "double";
-        }
-        throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
+        return FormatTools.getPixelTypeString(reader.getPixelType());
     }
 
 
     public boolean isFloat() {
-        switch(pixelType) {
-            case 6:
-            case 7:
-                return true; // FLOAT or DOUBLE
-            case 0:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-                return false;  // INT8, UINT8, INT16, UINT16, INT32 or UINT32
-        }
-        throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
+        return FormatTools.isFloatingPoint(reader.getPixelType());
     }
 
     public boolean isSigned() {
-        switch(pixelType) {
-            case 0:
-            case 2:
-            case 4:
-            case 6:
-            case 7:
-                return true; // INT8, INT16, INT32, FLOAT or DOUBLE
-            case 1:
-            case 3:
-            case 5:
-                return false;  // UINT8, UINT16 or UINT32
-        }
-        throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
+        return FormatTools.isSigned(reader.getPixelType());
     }
 
     /**
@@ -550,26 +480,26 @@ public class BfPixelsWrapper {
         throws FormatException, IOException
     {
         // We've got nothing to do if the samples are only 8-bits wide.
-        if (pixelSize == 1)
+        if (getByteWidth() == 1)
             return bytes;
 
         boolean isLittleEndian = reader.isLittleEndian();
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         int length;
         if (isLittleEndian) {
-            if (pixelSize == 2) { // short/ushort
+            if (getByteWidth() == 2) { // short/ushort
                 ShortBuffer buf = buffer.asShortBuffer();
                 length = buffer.limit() / 2;
                 for (int i = 0; i < length; i++) {
                     buf.put(i, DataTools.swap(buf.get(i)));
                 }
-            } else if (pixelSize == 4) { // int/uint/float
+            } else if (getByteWidth() == 4) { // int/uint/float
                 IntBuffer buf = buffer.asIntBuffer();
                 length = buffer.limit() / 4;
                 for (int i = 0; i < length; i++) {
                     buf.put(i, DataTools.swap(buf.get(i)));
                 }
-            } else if (pixelSize == 8) // long/double
+            } else if (getByteWidth() == 8) // long/double
             {
                 LongBuffer buf = buffer.asLongBuffer();
                 length = buffer.limit() / 8;
@@ -578,7 +508,7 @@ public class BfPixelsWrapper {
                 }
             } else {
                 throw new FormatException(String.format(
-                        "Unsupported sample bit width: %d", pixelSize));
+                        "Unsupported sample bit width: %d", getByteWidth()));
             }
         }
         // We've got a big-endian file with a big-endian byte array.

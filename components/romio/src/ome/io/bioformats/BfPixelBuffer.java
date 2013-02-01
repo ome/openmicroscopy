@@ -283,7 +283,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             DimensionsOutOfBoundsException {
         final BfPixelsWrapper reader = reader();
         PixelData d;
-        byte[] buffer = new byte[reader.getColSize()];
+
+        int size = RomioPixelBuffer.safeLongToInteger(reader.getStackSize());
+        byte[] buffer = new byte[size];
         reader.getStack(c,t,buffer);
         d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         d.setOrder(isLittleEndian()?
