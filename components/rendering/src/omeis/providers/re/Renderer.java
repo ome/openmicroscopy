@@ -961,6 +961,11 @@ public class Renderer {
         return buffer.getResolutionLevels();
     }
 
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        return buffer.getResolutionDescriptions();
+    }
+
     /**
      * Retrieves the tile size for the pixel store.
      * @return The dimension of the tile or <code>null</code> if the pixel
