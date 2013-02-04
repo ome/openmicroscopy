@@ -140,8 +140,15 @@ public class StatusLabel
 	 */
 	private boolean markedAsDuplicate;
 	
-	/** Creates a new instance. */
-	public StatusLabel()
+	/** The size of the files to upload.*/
+	private long fileSize;
+	
+	/** 
+	 * Creates a new instance.
+	 * 
+	 * @param fileSize The size of the file to upload.
+	 */
+	public StatusLabel(long fileSize)
 	{
 		setForeground(UIUtilities.LIGHT_GREY);
 		maxPlanes = 0;
@@ -152,6 +159,8 @@ public class StatusLabel
 		setText("pending");
 		markedAsCancel = false;
 		cancellable = true;
+		if (fileSize < 0) fileSize = 0;
+		this.fileSize = fileSize;
 	}
 	
 	/** Marks the import has cancelled. */
@@ -294,7 +303,6 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		cancellable = false;
-		
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
 			setText(PREPPING_TEXT);
@@ -345,13 +353,14 @@ public class StatusLabel
 			buffer.append("> ["+ev.filename+"] Image imported successfully!");
 			buffer.append("\n");
 			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.IMPORT_STEP) {
-			ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
-			if (ev.step <= maxPlanes) {   
-				int value = ev.step;
+		} else if (event instanceof ImportEvent.PROGRESS_EVENT) {
+			/*
+			ImportEvent.PROGRESS_EVENT ev = (ImportEvent.PROGRESS_EVENT) event;
+			if (ev.index <= maxPlanes) {
+				int value = ev.index;
 				if (value <= maxPlanes) {
 					String text;
-					seriesCount = ev.seriesCount;
+					seriesCount = ev.series;
 					int series = ev.series;
 					if (seriesCount > 1)
 						text = (series+1)+"/"+seriesCount+": "
@@ -360,7 +369,7 @@ public class StatusLabel
 						text = value+"/"+maxPlanes;
 					setText(text);
 				}
-			}
+			}*/
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
 			numberOfFiles = ev.totalFiles;
@@ -380,7 +389,19 @@ public class StatusLabel
 			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.IMPORT_PROCESSING) {
 			setText("processing");
-		} 
+		} else if (event instanceof ImportEvent.FILE_UPLOAD_STARTED) {
+			setText("Upload started");
+		} else if (event instanceof ImportEvent.FILE_UPLOAD_FINISHED) {
+			setText("Upload completed");
+		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
+			ImportEvent.FILE_UPLOAD_BYTES e =
+					(ImportEvent.FILE_UPLOAD_BYTES) event;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(UIUtilities.formatFileSize(e.uploadedBytes, false));
+			buffer.append("/");
+			buffer.append(UIUtilities.formatFileSize(fileSize));
+			setText(buffer.toString());
+		}
 	}
 
 }

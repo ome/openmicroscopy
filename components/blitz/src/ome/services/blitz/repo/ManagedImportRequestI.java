@@ -19,12 +19,11 @@ package ome.services.blitz.repo;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.Checksum;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
@@ -34,10 +33,6 @@ import loci.formats.MissingLibraryException;
 import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -48,14 +43,12 @@ import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
 import ome.util.Utils;
-
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
@@ -71,6 +64,9 @@ import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.ScriptJob;
 import omero.model.ThumbnailGenerationJob;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Wrapper around {@link FilesetJobLink} instances which need to be handled
@@ -398,9 +394,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             ImportSize size = new ImportSize(fileName,
                     pixList.get(series), reader.getDimensionOrder());
             Pixels pixels = pixList.get(series);
-            MessageDigest md = parseData(fileName, series, size);
-            if (md != null) {
-                String s = Utils.bytesToHex(md.digest());
+            Checksum checksum = parseData(fileName, series, size);
+            if (checksum != null) {
+                String s = Long.toHexString(checksum.getValue());
                 pixels.setSha1(store.toRType(s));
                 saveSha1 = true;
             }
@@ -490,12 +486,12 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     /**
      * Parse the binary data to generate min/max values and
-     * allow an md to be calculated.
+     * allow a checksum to be calculated.
      *
      * @param series
-     * @return The SHA1 message digest for the binary data.
+     * @return The checksum for the binary data.
      */
-    public MessageDigest parseData(
+    public Checksum parseData(
             String fileName, int series,
             ImportSize size)
         throws FormatException, IOException, ServerError
@@ -513,27 +509,20 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             return null;
         }
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-                "Required SHA-1 message digest algorithm unavailable.");
-        }
+        Checksum checksum = Utils.newChecksumAlgorithm();
         int planeNo = 1;
         for (int t = 0; t < size.sizeT; t++) {
             for (int c = 0; c < size.sizeC; c++) {
                 for (int z = 0; z < size.sizeZ; z++) {
                     parseDataByPlane(size, z, c, t,
-                            bytesPerPixel, fileName, md);
+                            bytesPerPixel, fileName, checksum);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
                     planeNo++;
                 }
             }
         }
-        return md;
+        return checksum;
     }
 
 
@@ -546,7 +535,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * @param t The timepoint offset to write to.
      * @param bytesPerPixel Number of bytes per pixel.
      * @param fileName Name of the file.
-     * @param md Current Pixels set message digest.
+     * @param checksum Current Pixels set checksum.
      * @throws FormatException If there is an error reading Pixel data via
      * Bio-Formats.
      * @throws IOException If there is an I/O error reading Pixel data via
@@ -555,7 +544,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private void parseDataByPlane(
             ImportSize size, int z, int c, int t,
             int bytesPerPixel, String fileName,
-            MessageDigest md)
+            Checksum checksum)
         throws FormatException, IOException
     {
         int tileHeight = reader.getOptimalTileHeight();
@@ -597,7 +586,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 arrayBuf = reader.openBytes(
                         planeNumber, arrayBuf, x, y, w, h);
                 try {
-                    md.update(arrayBuf);
+                    checksum.update(arrayBuf, 0, bytesToRead);
                 }
                 catch (Exception e) {
                     // This better not happen. :)

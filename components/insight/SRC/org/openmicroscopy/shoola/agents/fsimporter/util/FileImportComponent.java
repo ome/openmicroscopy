@@ -565,7 +565,7 @@ public class FileImportComponent
 		});
 		errorButton.setVisible(false);
 		
-		statusLabel = new StatusLabel();
+		statusLabel = new StatusLabel(file.length());
 		statusLabel.addPropertyChangeListener(this);
 		deleteButton = new JButton(icons.getIcon(IconManager.DELETE));
 		deleteButton.setActionCommand(""+DELETE_ID);

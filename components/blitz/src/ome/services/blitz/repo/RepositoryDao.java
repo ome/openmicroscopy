@@ -6,6 +6,7 @@ import java.util.List;
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
+import ome.services.blitz.repo.path.FilePathTransformerOnServer;
 import ome.util.SqlAction.DeleteLog;
 
 import omero.SecurityViolation;
@@ -130,7 +131,7 @@ public interface RepositoryDao {
      *
      */
     File getFile(final long id, final Ice.Current current,
-            final String repoUuid, final CheckedPath root);
+            final String repoUuid, final FilePathTransformerOnServer serverPaths);
 
     /**
      * Create a job from an instance provided by either the client or the
