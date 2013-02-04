@@ -29,12 +29,16 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 
 /** 
- * Downloads the archived image.
+ * Downloads the image file(s).
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -50,14 +54,15 @@ public class DownloadArchivedActivity
 	extends ActivityComponent
 {
 
-
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Archived Image " +
-			"downloaded";
+	private static final String		DESCRIPTION_END = "Image downloaded";
+	
+	/** The description of the activity when finished. */
+	private static final String		DESCRIPTION_CREATED = "Downloading Image";
 	
 	/** The description of the activity when cancelled. */
-	private static final String		DESCRIPTION_CANCEL = "Download Archived " +
-			"Image cancelled";
+	private static final String		DESCRIPTION_CANCEL = "Image Download " +
+			"cancelled";
 	
 	/** The parameters to download. */
 	private DownloadArchivedActivityParam parameters;
@@ -79,7 +84,7 @@ public class DownloadArchivedActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
-		initialize("Downloaded Archived Image", parameters.getIcon());
+		initialize(DESCRIPTION_CREATED, parameters.getIcon());
 		messageLabel.setText("in "+parameters.getLocation());
 		this.parameters = parameters;
 	}
@@ -111,10 +116,21 @@ public class DownloadArchivedActivity
 	protected void notifyActivityEnd()
 	{
 		//review
-		type.setText(DESCRIPTION_CREATED);
-		int v = (Integer) result;
+		type.setText(DESCRIPTION_END);
+		List files = (List) result;
+		int v = files.size();
 		String value = null;
-		if (v > 1)
+		if (v == 1) {
+			//Check extension
+			File f = (File) files.get(0);
+			String name = f.getName();
+			if (!name.equals(parameters.getImage().getName()) && 
+				(name.endsWith(OMETIFFFilter.OME_TIF) ||
+				name.endsWith(OMETIFFFilter.OME_TIFF))) {
+				value = "Original Image not available, downloaded as OME-TIFF " +
+						"in "+parameters.getLocation();
+			}
+		} else if (v > 1)
 			value ="All "+v+" files downloaded in "+parameters.getLocation();
 		if (value != null)
 			messageLabel.setText(value);
