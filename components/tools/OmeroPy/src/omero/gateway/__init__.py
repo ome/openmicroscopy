@@ -2061,7 +2061,7 @@ class _BlitzGateway (object):
         
         return self._proxies['config']
 
-    def createRenderingEngine (self):
+    def createRenderingEngine (self, pixelsId=None):
         """
         Creates a new rendering engine.
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
@@ -2069,8 +2069,32 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        
+        if pixelsId is not None:
+            # First check if the proxy we have in hand is suitable...
+            try:
+                pix = self._proxies['rendering']._obj and self._proxies['rendering'].getPixels()
+                if pix is not None and pix.id.val == pixelsId:
+                    return self._proxies['rendering']
+            except omero.ApiException:
+                pass
+
+            # If not, check the activeServices for a RenderingEngine with the right pixels
+            services = self.c.sf.activeServices()
+            logger.debug("Trying to retrieve RenderingEngine from %s active services" % len(services))
+            for service in services:
+                if "RenderingEngine" in service:
+                    reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, 
+                                    service_name=service, preventClose=True)
+                    try:
+                        if reProxy.getPixels().id.val == pixelsId:
+                            reProxy._tainted = True
+                            self._proxies['rendering'] = reProxy
+                            return reProxy
+                    except:
+                        pass
+
         rv = self._proxies['rendering']
+        rv._preventClose = True
         if rv._tainted:
             rv = self._proxies['rendering'] = rv.clone()
         rv.taint()
@@ -3473,7 +3497,7 @@ class ProxyObjectWrapper (object):
     Handles creation of service when requested. 
     """
     
-    def __init__ (self, conn, func_str, cast_to=None, service_name=None):
+    def __init__ (self, conn, func_str, cast_to=None, service_name=None, preventClose=False):
         """
         Initialisation of proxy object wrapper. 
         
@@ -3492,6 +3516,7 @@ class ProxyObjectWrapper (object):
         self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
+        self._preventClose = preventClose
     
     def clone (self):
         """
@@ -3501,7 +3526,6 @@ class ProxyObjectWrapper (object):
         @return:    Cloned service wrapper
         @rtype:     L{ProxyObjectWrapper}
         """
-        
         return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect (self, forcejoin=False): #pragma: no cover
@@ -3544,7 +3568,8 @@ class ProxyObjectWrapper (object):
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
-        
+        if self._preventClose:
+            return
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
             self._obj.close()
         self._obj = None
@@ -3557,7 +3582,6 @@ class ProxyObjectWrapper (object):
         @param conn:    Connection
         @type conn:     L{BlitzGateway}
         """
-        
         self._conn = conn
         self._sf = conn.c.sf
         def cf ():
@@ -5819,7 +5843,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         pid = self.getPrimaryPixels().id
-        re = self._conn.createRenderingEngine()
+        re = self._conn.createRenderingEngine(pid)
         ctx = self._conn.SERVICE_OPTS.copy()
 
         ctx.setOmeroGroup(self.details.group.id.val)
