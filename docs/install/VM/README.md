@@ -5,9 +5,8 @@ The purpose of these scripts is to automate the process of building an OMERO
 virtual machine.
 
 1. Prerequisites:
-
-	A Linux or Mac OS X operating system
-	A recent & working VirtualBox install
+	- A Linux or Mac OS X operating system
+	- A recent and working VirtualBox install
 
 2. Retrieve the OMERO VM scripts:
 	1. Using Git:
@@ -22,7 +21,7 @@ virtual machine.
 
 	3.	Via HTTP by download the scripts manually from:
 		http://git.openmicroscopy.org/?p=ome.git;a=tree;f=docs/install/VM;hb=HEAD
-	& saving ALL of the contents of that directory to a suitable location on your machine. NB. This is the least desirable option and requires more work on your part.
+	and saving ALL of the contents of that directory to a suitable location on your machine. Note this is the least desirable option and requires more work on your part.
 	
 3. Environment Setup:
 
@@ -33,15 +32,13 @@ virtual machine.
 	
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
 
+4. [OPTIONAL] In [setup_omero.sh](setup_omero.sh) you can define whether you wish to build OMERO from source, use the most recent QA build or use the release build by setting the TARGET variable. Valid values for TARGET are QA or SRC or RELEASE. Anything else will cause the latest QA build to be used by default. The is for latest 4.4 QA builds from the Hudson build process. To specify a different build you can adjust the following variables, DL_LOC and DL_ARCHIVE:	
+   - DL_LOC stores the URL from which to retrieve our build e.g. DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/artifact/"
+   - DL_ARCHIVE stores the name of the zip archive to retrieve from DL_LOC because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve e.g. DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
+>>>>>>> Fix Readme to comply with documentation standards
 
-4. [OPTIONAL] In [setup_omero.sh](setup_omero.sh) you can define whether you wish to build OMERO from source, use the most recent QA build or use the release build by setting the TARGET var. Valid values for TARGET are QA or SRC or RELEASE. Anything else will cause the latest QA build to be used by default. The is for latest 4.4 QA builds from the Hudson build process. To specify a different build you can adjust the following vars, DL_LOC & DL_ARCHIVE:
-	
-	DL_LOC stores the URL from which to retrieve our build e.g. DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-4.4/lastSuccessfulBuild/artifact/"
+	If using a release build then you can also alter the RELEASE_ARCHIVE variable to reflect the build of OMERO.server that you want to install. 
 
-	DL_ARCHIVE stores the name of the zip archive to retrieve from DL_LOC because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve e.g. DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"
-
-	If using a release build then you can also alter the RELEASE_ARCHIVE var to reflect the build of OMERO.server that you want to install. 
-	
 7. Run the VM build script:
 
 	```
@@ -50,7 +47,7 @@ virtual machine.
 	
 	e.g. ``$ bash omerovm.sh omero-vm`` to build a VM named omero-vm
 
-8. This should take roughly 8-15 minutes to complete depending upon your machine so go and grab a coffee
+8. This should take roughly 8-15 minutes to complete depending upon your machine.
 
 9. When you see the message "All Done!" you should be able to either:
  	1. Start an OMERO client such as OMERO.insight and connect to your VM
