@@ -6601,16 +6601,18 @@ class OMEROGateway
     {
         isSessionAlive(ctx);
         OMEROMetadataStoreClient omsc = null;
+        OMEROWrapper reader = null;
 		try {
 			omsc = getImportStore(ctx);
-			ImportLibrary library = new ImportLibrary(omsc,
-					new OMEROWrapper(config));
+			reader = new OMEROWrapper(config);
+			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
 
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
 			Image image;
+			reader.close();
 			if (pixels != null && pixels.size() > 0) {
 				int n = pixels.size();
 				long id;
@@ -6652,10 +6654,17 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
+			
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
 			throw new ImportException(e);
 		} finally {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
 			if (omsc != null && close)
 				closeImport(ctx);
 		}
