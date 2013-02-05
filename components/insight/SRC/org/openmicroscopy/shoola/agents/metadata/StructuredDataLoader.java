@@ -104,7 +104,8 @@ public class StructuredDataLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result);
+    	viewer.setMetadata((Map<DataObject, StructuredDataResults>) result,
+    			loaderID);
     }
     
 }
