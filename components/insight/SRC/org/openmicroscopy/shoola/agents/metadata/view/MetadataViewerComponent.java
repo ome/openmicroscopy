@@ -266,7 +266,7 @@ class MetadataViewerComponent
 				e = i.next();
 				node = e.getKey();
 				if (!model.isSameObject(node)) {
-					model.setStructuredDataResults(null);
+					model.setStructuredDataResults(null, loaderID);
 					fireStateChange();
 					return;
 				}
@@ -286,7 +286,7 @@ class MetadataViewerComponent
 			}
 		} else {
 			if (model.isSameSelection(results.keySet())) {
-				model.setStructuredDataResults(results);
+				model.setStructuredDataResults(results, loaderID);
 				model.getEditor().setStructuredDataResults();
 			}
 		}
