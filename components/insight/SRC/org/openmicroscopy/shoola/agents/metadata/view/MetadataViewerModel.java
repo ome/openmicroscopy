@@ -719,9 +719,12 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
+	 * @param loaderID The identifier of the loader
 	 */
-	void setStructuredDataResults(Map<DataObject, StructuredDataResults> data)
+	void setStructuredDataResults(Map<DataObject, StructuredDataResults> data, 
+			int loaderID)
 	{
+		loaders.remove(loaderID);
 		this.data = data;
 		state = MetadataViewer.READY;
 	}
@@ -733,9 +736,9 @@ class MetadataViewerModel
 	 * @param refNode The node of reference.
 	 */
 	void setParentDataResults(StructuredDataResults parentData,
-			DataObject node)
+			DataObject node, int loaderID)
 	{
-		loaders.remove(node);
+		loaders.remove(loaderID);
 		this.parentData = parentData;
 		state = MetadataViewer.READY;
 	}
