@@ -50,6 +50,13 @@ bin/brew update
 
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
+# Merge hombrew-alt PRs
+bin/brew tap $OMERO_ALT || echo "Already tapped"
+bin/brew install scc
+cd Library/Taps/${OMERO_ALT/\//-}
+scc merge master
+cd $BREW_DIR
+
 # Install homebrew dependencies
 source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
 
