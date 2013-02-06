@@ -1338,5 +1338,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		newProjectButton.setEnabled(isEnabled);
 		newDatasetButton.setEnabled(isEnabled);
 		newScreenButton.setEnabled(isEnabled);
+		addButton.setEnabled(isEnabled);
 	}
 }
