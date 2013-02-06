@@ -13,8 +13,7 @@ export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
 
 # Remove existing formulas and ome/alt tap
-if ($BREW_DIR/bin/brew --version)
-then
+if [ -d "$BREW_DIR" ]; then
     cd $BREW_DIR
     if (bin/pip --version)
     then
@@ -34,6 +33,7 @@ then
     fi
 
     echo "Removing Homebrew installation"
+    cd $JOB_WS
     rm -rf $BREW_DIR
 fi
 
