@@ -77,6 +77,20 @@ public class ImportEvent {
             StringBuilder sb = new StringBuilder();
             sb.append(super.toLog());
             sb.append(" ");
+            return sb.toString();
+        }
+    }
+
+    public static class POST_UPLOAD_EVENT extends PROGRESS_EVENT {
+        public POST_UPLOAD_EVENT(int index, String filename, IObject target, Long pixId,
+                int series, ImportSize size, Integer numDone, Integer total) {
+            super(index, filename, target, pixId, series, size, numDone, total);
+        }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toLog());
             sb.append(String.format("Step: %d of %d",
                     numDone, total));
             return sb.toString();
@@ -368,35 +382,35 @@ public class ImportEvent {
     // These extra PROGRESS_EVENT classes are added to allow some meaningful
     // event reporting under FS rather than abusing the ones above
 
-    public static class METADATA_IMPORTED extends PROGRESS_EVENT {
+    public static class METADATA_IMPORTED extends POST_UPLOAD_EVENT {
         public METADATA_IMPORTED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
             super(index, filename, target, pixId, series, size, numDone, total);
         }
     }
 
-    public static class THUMBNAILS_GENERATED extends PROGRESS_EVENT {
+    public static class THUMBNAILS_GENERATED extends POST_UPLOAD_EVENT {
         public THUMBNAILS_GENERATED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
             super(index, filename, target, pixId, series, size, numDone, total);
         }
     }
 
-    public static class PIXELDATA_PROCESSED extends PROGRESS_EVENT {
+    public static class PIXELDATA_PROCESSED extends POST_UPLOAD_EVENT {
         public PIXELDATA_PROCESSED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
             super(index, filename, target, pixId, series, size, numDone, total);
         }
     }
 
-    public static class METADATA_PROCESSED extends PROGRESS_EVENT {
+    public static class METADATA_PROCESSED extends POST_UPLOAD_EVENT {
         public METADATA_PROCESSED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
             super(index, filename, target, pixId, series, size, numDone, total);
         }
     }
 
-    public static class OBJECTS_RETURNED extends PROGRESS_EVENT {
+    public static class OBJECTS_RETURNED extends POST_UPLOAD_EVENT {
         public OBJECTS_RETURNED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
             super(index, filename, target, pixId, series, size, numDone, total);
