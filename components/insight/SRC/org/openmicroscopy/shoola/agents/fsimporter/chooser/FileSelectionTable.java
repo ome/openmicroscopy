@@ -495,13 +495,13 @@ class FileSelectionTable
 	 * Adds the collection of files to the queue.
 	 * 
 	 * @param files The files to add.
-	 * @param fad 	Pass <code>true</code> to indicate to mark the folder as
-	 * 				a dataset, <code>false</code> otherwise.
-	 * @param group The group where to import the file.
+	 * @param settings The import settings.
 	 */
-	void addFiles(List<File> files, boolean fad, GroupData group)
+	void addFiles(List<File> files, ImportLocationSettings settings)
 	{
 		if (files == null || files.size() == 0) return;
+		boolean fad = settings.isParentFolderAsDataset();
+		GroupData group = settings.getImportGroup();
 		enabledControl(true);
 		File f;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
@@ -514,9 +514,9 @@ class FileSelectionTable
 		}
 		Iterator<File> i = files.iterator();
 		boolean multi = !model.isSingleGroup();
-		DataNode node = model.getImportLocation();
+		DataNode node = settings.getImportLocation();
 		if (node.isDefaultNode() && model.getType() != Importer.SCREEN_TYPE)
-			node.setParent(model.getParentImportLocation());
+			node.setParent(settings.getParentImportLocation());
 		String value = null;
 		boolean v = false;
 		long gID = group.getId();
@@ -534,7 +534,7 @@ class FileSelectionTable
 						value = null;
 					}
 				} else {
-					if (model.isParentFolderAsDataset()) {
+					if (fad) {
 						value = f.getParentFile().getName();
 						v = true;
 						element.setToggleContainer(v);
