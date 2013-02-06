@@ -352,6 +352,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		populateUIWithDisplayData();
 	}
 
+    /** Populates the various components.*/
 	private void populateUIWithDisplayData() {
 		convertToDisplayData(objects);
 		populateGroupBox(groups, currentGroup);
