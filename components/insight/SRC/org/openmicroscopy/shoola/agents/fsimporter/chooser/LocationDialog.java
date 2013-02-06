@@ -789,7 +789,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	private void switchToSelectedGroup() {
 		GroupData selectedNewGroup = getSelectedGroup();
 		
-		if(selectedNewGroup.getId() != currentGroup.getId()) {
+		if (selectedNewGroup.getId() != currentGroup.getId()) {
+			currentGroup = selectedNewGroup;
 			setInputsEnabled(false);
 			firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
 					currentGroup, selectedNewGroup);
