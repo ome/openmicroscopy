@@ -80,7 +80,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
-import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -345,10 +344,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Indicates to reload the hierarchies when the import is completed. */
 	private boolean reload;
-
-	/** The import settings that are returned from the location dialogue */
-	private ImportLocationSettings importSettings;
-
+	
 	/**
 	 * The dialog to allow for the user to select the import location.
 	 */
@@ -357,8 +353,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Stores the currently active file filter */
 	private FileFilter currentFilter;
 
-	/** Adds the files to the selection. */
-	private void addFiles(ImportLocationSettings importSettings) {
+	/**
+	 * Adds the files to the selection.
+	 * 
+	 * @param importSettings The import settings.
+	 */
+	private void addFiles(ImportLocationSettings importSettings)
+	{
 		File[] files = chooser.getSelectedFiles();
 		
 		if (files == null || files.length == 0)
@@ -372,8 +373,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		chooser.setSelectedFile(new File("."));
 		
-		table.addFiles(fileList, importSettings.isParentFolderAsDataset(),
-				importSettings.getImportGroup());
+		table.addFiles(fileList, importSettings);
 		importButton.setEnabled(table.hasFilesToImport());
 	}
 
@@ -381,8 +381,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	private void showLocationDialog()
 	{
 		if (locationDialog.centerLocation() == LocationDialog.CMD_ADD) {
-			importSettings = locationDialog.getImportSettings();
-			addFiles(importSettings);
+			addFiles(locationDialog.getImportSettings());
 		}
 	}
 
@@ -1218,16 +1217,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
     /**
-     * Returns <code>true</code> if the folder containing an image has to be
-     * used as a dataset, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean isParentFolderAsDataset()
-    {
-    	return importSettings.isParentFolderAsDataset();
-    }
-    /**
 	 * Returns the name to display for a file.
 	 * 
 	 * @param fullPath
@@ -1249,26 +1238,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	boolean useFolderAsContainer() {
 		return (type != Importer.SCREEN_TYPE);
-	}
-
-	/**
-	 * Returns where to import the file when selected.
-	 * 
-	 * @return See above.
-	 */
-	DataNode getImportLocation() {
-		// based on the selected tab?
-		
-		return importSettings.getImportLocation();
-	}
-
-	/**
-	 * Returns where to import the file when selected.
-	 * 
-	 * @return See above.
-	 */
-	DataNode getParentImportLocation() {
-		return importSettings.getParentImportLocation();
 	}
 
 	/**
