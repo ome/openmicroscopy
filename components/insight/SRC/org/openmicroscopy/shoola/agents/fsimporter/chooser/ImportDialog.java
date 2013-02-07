@@ -1424,8 +1424,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Refreshes the display when the user reconnect to server.
 	 * 
-	 * @param bar
-	 *            The component to add.
+	 * @param availableGroups The available groups.
+	 * @param currentGroupId The selected group.
 	 */
 	public void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
