@@ -261,6 +261,10 @@ class EditorModel
     		img = ((WellSampleData) refObject).getImage();
     	}
 		PixelsData data = img.getDefaultPixels();
+		if (data == null) {
+			largeImage = false;
+			return;
+		}
 		ImageSizeLoader loader = new  ImageSizeLoader(component, 
 				parent.getSecurityContext(), data.getId()); 
 		loader.load();
