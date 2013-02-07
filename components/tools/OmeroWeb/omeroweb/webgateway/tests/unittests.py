@@ -4,6 +4,7 @@
 
 import unittest, time, os, datetime
 import tempfile
+import zlib
 from StringIO import StringIO
 
 #from models import StoredConnection
@@ -567,6 +568,64 @@ class RepositoryApiTest(RepositoryApiBaseTest):
         self.assertTrue('"size": 6' in v)
         self.assertTrue('"mtime": ' in v)
         
+        mtime = None
+        for metadata in simplejson.loads(v)['result']:
+            if metadata['name'] == NAME:
+                mtime = metadata['mtime']
+                break
+        self.assertTrue(mtime, msg="mtime not set in '%s'" % metadata)
+        self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
+
+    def testRepositoryCompressedUpload(self):
+        NAME = 'compressedtest%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
+
+        self.loginmethod()
+        view = views.repository_upload()
+        viewargs = dict(klass=self.repoclass, name=self.reponame,
+                        filepath=NAME, server_id=1,
+                        conn=self.gateway, _internal=True)
+
+        r = fakeRequest(QUERY_STRING='uploads')
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        self.assertTrue('"uploadId": "' in v)
+        uploadid = simplejson.loads(v)['uploadId']
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=1&compressed=gzip'
+                        % uploadid)
+        r._stream = StringIO(zlib.compress('ABC'))
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v, msg=v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=2&compressed=gzip'
+                        % uploadid)
+        r._stream = StringIO(zlib.compress('123'))
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.get(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        parts = simplejson.loads(v)['parts']
+        self.assertEqual(2, len(parts))
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest()
+        v = views.repository_download(r, **viewargs)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('ABC123', v.content)
+
+        r = fakeRequest()
+        viewargs['filepath'] = None
+        v = views.repository_listfiles(r, **viewargs)
+        self.assertTrue('"name": "%s"' % NAME in v)
+        self.assertTrue('"size": 6' in v)
+        self.assertTrue('"mtime": ' in v)
+
         mtime = None
         for metadata in simplejson.loads(v)['result']:
             if metadata['name'] == NAME:
