@@ -298,7 +298,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private Collection<GroupData> groups;
 
 	/** The currently selected group in the groups combo box. */
-	private GroupData currentGroup;
+	//private GroupData currentGroup;
 
 	/** The current possible import location nodes. */
 	private Collection<TreeImageDisplay> objects;
@@ -341,21 +341,24 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.dataType = importDataType;
 		this.objects = objects;
 		this.groups = groups;
-		this.currentGroup = findWithId(groups, currentGroupId);
-		
 		setModal(true);
 		setTitle(TEXT_TITLE);
 		
 		initUIComponents();
 		layoutUI();
 		
-		populateUIWithDisplayData();
+		populateUIWithDisplayData(findWithId(groups, currentGroupId));
 	}
 
-    /** Populates the various components.*/
-	private void populateUIWithDisplayData() {
+    /** 
+     * Populates the various components.
+     * 
+     * @param selectedGroup The selected group.
+     */
+	private void populateUIWithDisplayData(GroupData selectedGroup)
+	{
 		convertToDisplayData(objects);
-		populateGroupBox(groups, currentGroup);
+		populateGroupBox(groups, selectedGroup);
 		populateLocationComboBoxes();
 		displayViewFor(dataType);
 	}
@@ -789,14 +792,9 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void switchToSelectedGroup() {
 		GroupData selectedNewGroup = getSelectedGroup();
-		
-		if (selectedNewGroup.getId() != currentGroup.getId()) {
-			GroupData oldGroup = currentGroup;
-			currentGroup = selectedNewGroup;
-			setInputsEnabled(false);
-			firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
-					oldGroup, currentGroup);
-		}
+		setInputsEnabled(false);
+		firePropertyChange(ImportDialog.PROPERTY_GROUP_CHANGED,
+				null, selectedNewGroup);
 	}
 
 	/**
@@ -805,25 +803,20 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	protected ImportLocationSettings getImportSettings() {
 		
-		ImportLocationSettings importSettings = 
-				new NullImportSettings(currentGroup);
-		
+		GroupData group = getSelectedGroup();
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
 				DataNode project = (DataNode) projectsBox.getSelectedItem();
 				DataNode dataset = (DataNode) datasetsBox.getSelectedItem();
-				importSettings = new ProjectImportLocationSettings(currentGroup, 
+				return new ProjectImportLocationSettings(group,
 						project, dataset);
-				break;
 			case Importer.SCREEN_TYPE:
 				DataNode screen = (DataNode) screensBox.getSelectedItem();
-				importSettings = new ScreenImportLocationSettings(currentGroup,
-						screen);
-				break;
+				return new ScreenImportLocationSettings(group, screen);
 		}
 		
-		return importSettings;
+		return new NullImportSettings(group);
 	}
 
 
@@ -874,7 +867,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		for (DataNode node : items) {		
 			String nodeName = node.getFullName();
-			List<String> wrapped = UIUtilities.wrapStyleWord(nodeName, 50);
+			List<String> wrapped = UIUtilities.wrapStyleWord(nodeName);
 			tooltips.add(UIUtilities.formatToolTipText(wrapped));
 		}
 
@@ -1229,7 +1222,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		this.dataType = type;
 		this.objects = objects;
 		this.container = container;
-		
 		onReconnected(groups, currentGroupId);
 	}
 
@@ -1241,9 +1233,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	void onReconnected(Collection<GroupData> availableGroups,
 			long currentGroupId) {
 		this.groups = availableGroups;
-		this.currentGroup = findWithId(availableGroups, currentGroupId);
-		
-		populateUIWithDisplayData();
+		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId));
 		setInputsEnabled(true);
 	}
 	
@@ -1322,7 +1312,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param group The group to set as selected
 	 */
 	void setSelectedGroup(GroupData group) {
-		this.currentGroup = group;
 		groupsBox.setSelectedItem(group);
 	}
 	
