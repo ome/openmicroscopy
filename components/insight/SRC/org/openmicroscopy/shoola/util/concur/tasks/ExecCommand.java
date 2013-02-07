@@ -256,7 +256,7 @@ class ExecCommand
                 observer.onCancel();  //Trail call to avoid problems if exc.
                 break;
             case EXECUTING:
-            	executor.interrupt();
+            	//executor.interrupt();
                 //Depending on current state of run loop the above may
                 //either result in a transition to CANCELLED or FINISHED.
                 break;

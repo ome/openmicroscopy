@@ -95,6 +95,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -4493,6 +4494,8 @@ class TreeViewerComponent
 			}
 		}
 		if (node == null) return;
+		TreeViewerAgent.getRegistry().getEventBus().post(
+				new RemoveGroupEvent(model.getSecurityContext(node)));
 		GroupData group = (GroupData) node.getUserObject();
 		Map<Integer, Browser> browsers = model.getBrowsers();
 		Iterator i = browsers.entrySet().iterator();

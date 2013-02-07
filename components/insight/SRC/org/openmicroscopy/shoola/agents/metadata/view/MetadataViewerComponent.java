@@ -250,7 +250,8 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setMetadata(Map<DataObject, StructuredDataResults>)
 	 */
-	public void setMetadata(Map<DataObject, StructuredDataResults> results)
+	public void setMetadata(Map<DataObject, StructuredDataResults> results,
+			int loaderID)
 	{
 		if (results == null || results.size() == 0) return;
 		//Need to check the size of the results map.
@@ -265,7 +266,7 @@ class MetadataViewerComponent
 				e = i.next();
 				node = e.getKey();
 				if (!model.isSameObject(node)) {
-					model.setStructuredDataResults(null);
+					model.setStructuredDataResults(null, loaderID);
 					fireStateChange();
 					return;
 				}
@@ -274,10 +275,10 @@ class MetadataViewerComponent
 				if (object == model.getParentRefObject() ||
 					(object instanceof PlateData && node 
 							instanceof WellSampleData)) {
-					model.setParentDataResults(data, node);
+					model.setParentDataResults(data, node, loaderID);
 					model.fireStructuredDataLoading(node);
 				} else {
-					model.setStructuredDataResults(results);
+					model.setStructuredDataResults(results, loaderID);
 					browser.setParents(null, data.getParents());
 					model.getEditor().setStructuredDataResults();
 				}
@@ -285,7 +286,7 @@ class MetadataViewerComponent
 			}
 		} else {
 			if (model.isSameSelection(results.keySet())) {
-				model.setStructuredDataResults(results);
+				model.setStructuredDataResults(results, loaderID);
 				model.getEditor().setStructuredDataResults();
 			}
 		}
