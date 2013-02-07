@@ -1463,7 +1463,7 @@ class AnnotationDataUI
 				if (count != null && count == n) {
 					//Check if the annotation needs to be added
 					annotation = annotations.get(entry.getKey());
-					m = model.getTaggedObjects(annotation);
+					m = model.getObjectsWithAttachments(annotation);
 					if (m.size() < count) {
 						l.add(annotation);
 					}
