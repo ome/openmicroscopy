@@ -15,6 +15,7 @@
 
 import re
 import tempfile
+import zlib
 
 import omero
 import omero.grid
@@ -2239,6 +2240,20 @@ def chunk_copy(source, target, start=None, end=None):
         target.write(chunk)
 
 
+def chunk_decompress_copy(source, target):
+    decompressor = zlib.decompressobj()
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    while True:
+        chunk = source.read(chunk_size)
+        if not chunk:
+            break
+        chunk = decompressor.decompress(chunk)
+        target.write(chunk)
+    chunk = decompressor.flush()
+    if chunk:
+        target.write(chunk)
+
+
 def touch(fname, times=None):
     with file(fname, 'a'):
         os.utime(fname, times)
@@ -2358,10 +2373,16 @@ class repository_upload(django.views.generic.View):
             partNumber = int(request.GET.get('partNumber'))
         except ValueError:
             partNumber = 0
+        compress = request.GET.get('compressed')
+        if compress and compress != 'gzip':
+            raise ValueError('Supported compression methods: gzip')
         if partNumber < 1 or partNumber > 10000:
             raise ValueError('Part number must be between 1 and 10000')
         with file('%s.%05d' % (objectname, partNumber), 'wb') as part:
-            chunk_copy(request, part)
+            if compress == 'gzip':
+                chunk_decompress_copy(request, part)
+            else:
+                chunk_copy(request, part)
         return rdict
 
     @process_request(require_uploadId=True)
