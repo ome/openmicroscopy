@@ -43,6 +43,7 @@
     <dependency org="activation" name="activation" rev="${versions.activation}"/>
     <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
     <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
+    <dependency org="com.google" name="guava-jdk5" rev="${versions.guava}"/>
     <!-- spring -->
     <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0"/>
     <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
