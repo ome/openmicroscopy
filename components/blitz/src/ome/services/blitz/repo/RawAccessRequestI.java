@@ -158,12 +158,15 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                 }
             }
         } else if ("rm".equals(command)) {
-            for (String arg : args) {
-                CheckedPath checked = servant.checkPath(parse(arg), __current);
+            if (args.size() == 1) {
+                CheckedPath checked = servant.checkPath(parse(args.get(0)), __current);
                 if (!checked.file.delete()) {
-                    throw new omero.ApiUsageException(null, null,
-                            "Delete file failed: " + arg);
+                    throw new omero.grid.FileDeleteException(null, null,
+                            "Delete file failed: " + args.get(0));
                 }
+            } else {
+                throw new omero.ApiUsageException(null, null,
+                        "Command: " + command + " takes just one argument");
             }
         } else {
             throw new omero.ApiUsageException(null, null,
