@@ -176,14 +176,13 @@ public class MetadataServiceTest
         link.setChild(data);
         iUpdate.saveAndReturnObject(link);
         
-        List<String> types = new ArrayList<String>();
-        types.add(FILE_ANNOTATION);
         List<Long> ids = new ArrayList<Long>();
         Parameters param = new Parameters();
         List<Long> nodes = new ArrayList<Long>();
         nodes.add(image.getId().getValue());
         Map<Long, List<IObject>> result = 
-        	iMetadata.loadAnnotations(Image.class.getName(), nodes, types, ids, 
+        	iMetadata.loadAnnotations(Image.class.getName(), nodes,
+        			Arrays.asList(FILE_ANNOTATION), ids, 
         		param);
         assertNotNull(result);
         List<IObject> l = result.get(image.getId().getValue());
