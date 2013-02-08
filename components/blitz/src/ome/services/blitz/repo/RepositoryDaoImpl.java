@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +25,8 @@ import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -200,35 +203,23 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
                          final IQuery q = sf.getQueryService();
 
-                         Long id = null;
-                         if (checked.isRoot) {
-                             id = q.findByString(ome.model.core.OriginalFile.class,
-                                     "sha1", repoUuid).getId();
-                         } else {
-                             id = getSqlAction().findRepoFile(repoUuid,
+                         final Long id = getSqlAction().findRepoFile(repoUuid,
                                  checked.getRelativePath(), checked.getName(),
                                  null);
 
-                             if (id == null) {
-                                 throw new ome.conditions.SecurityViolation(
-                                         "No such parent dir: " + checked);
-                             }
+                         if (id == null) {
+                             throw new ome.conditions.SecurityViolation(
+                                     "No such parent dir: " + checked);
                          }
 
                          // Load parent directory to possibly cause
                          // a read sec-vio.
                          q.get(ome.model.core.OriginalFile.class, id);
 
-                         String dirname = null;
-                         if (checked.isRoot) {
-                             dirname = "/";
-                         } else {
-                             dirname = checked.getDirname();
-                         }
                          List<Long> ids = getSqlAction().findRepoFiles(repoUuid,
-                                 dirname);
+                                 checked.getDirname());
 
-                         if (ids == null || ids.size() == 0) {
+                         if (CollectionUtils.isEmpty(ids)) {
                              return Collections.emptyList();
                          }
                          Parameters p = new Parameters();
@@ -441,7 +432,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      */
     public File getFile(final long id, final Ice.Current current,
-            final String repoUuid, final CheckedPath root) {
+            final String repoUuid, final ServerFilePathTransformer serverPaths) {
         return (File) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "getFile", id) {
             @Transactional(readOnly = true)
@@ -453,11 +444,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         return null;
                     }
 
-                    return new File(root.file, path);
+                    return serverPaths.getServerFileFromFsFile(new FsFile(path));
             }
         });
     }
-
 
     @SuppressWarnings("unchecked")
     public List<DeleteLog> findRepoDeleteLogs(final DeleteLog template, Current current) {

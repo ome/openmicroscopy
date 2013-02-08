@@ -46,6 +46,8 @@ import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
@@ -66,7 +68,7 @@ import omero.model.OriginalFile;
 import omero.util.IceMapper;
 
 /**
- * An implementation of he PublicRepository interface
+ * An implementation of the PublicRepository interface
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
@@ -87,8 +89,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     private /*final*/ long id;
 
-    protected /*final*/ CheckedPath root;
-
+    protected /*final*/ ServerFilePathTransformer serverPaths;
+    
     protected final RepositoryDao repositoryDao;
 
     protected OmeroContext context;
@@ -107,12 +109,15 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public void initialize(FileMaker fileMaker, Long id, String repoUuid) throws ValidationException {
         this.id = id;
-        this.root = new CheckedPath(null, fileMaker.getDir());
-        if (root == null || !root.isDirectory()) {
+        File root = new File(fileMaker.getDir());
+        if (!root.isDirectory()) {
             throw new ValidationException(null, null,
                     "Root directory must be a existing, readable directory.");
         }
         this.repoUuid = repoUuid;
+        this.serverPaths = new ServerFilePathTransformer();
+        this.serverPaths.setBaseDirFile(root);
+        this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
     }
 
     /**
@@ -521,7 +526,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     protected CheckedPath checkPath(final String path, final Ice.Current curr)
             throws ValidationException {
-        return new CheckedPath(root, path);
+        return new CheckedPath(this.serverPaths, path);
     }
 
     /**
@@ -535,11 +540,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
-        File file = this.repositoryDao.getFile(id, curr, this.repoUuid, this.root);
+        File file = this.repositoryDao.getFile(id, curr, this.repoUuid, this.serverPaths);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
-        CheckedPath checked = new CheckedPath(root, file.getPath());
+        CheckedPath checked = new CheckedPath(this.serverPaths, file.getPath());
         checked.setId(id);
         return checked;
     }

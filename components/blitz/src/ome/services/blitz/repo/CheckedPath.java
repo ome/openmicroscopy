@@ -18,25 +18,20 @@
 
 package ome.services.blitz.repo;
 
-import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
-
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 
 import ome.util.Utils;
-import ome.services.util.Executor;
-import ome.system.Principal;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.repo.path.FsFile;
 
 import omero.ValidationException;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 
 /**
  * To prevent frequently re-calculating paths and re-creating File objects,
@@ -48,14 +43,16 @@ import omero.model.OriginalFileI;
  * a null {@link CheckedPath} object is passed into the constructor the caller
  * indicates that the path is the root path, hence {@link CheckedPath#isRoot}
  * will not be called.
+ * @author m.t.b.carroll@dundee.ac.uk and others
  */
 public class CheckedPath {
 
-    public final String original;
-    public final String normPath;
-    public final File file;
-    public final boolean isRoot;
-    protected final CheckedPath root;
+    public final FsFile fsFile;
+    public /*final*/ boolean isRoot;
+    protected final File file;
+    private /*final*/ String parentDir;
+    private /*final*/ String baseName;
+    private final String original;  // for error reporting
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
@@ -63,78 +60,68 @@ public class CheckedPath {
     protected String sha1;
     protected String mime;
 
-    public CheckedPath(CheckedPath root, String path)
+    /**
+     * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
+     * TODO: May not actually be necessary.
+     * @param fsFile a file path
+     * @return a file path with "." and ".." processed away
+     * @throws ValidationException if ".." components rise above root
+     */
+    private FsFile processSpecialDirectories(FsFile fsFile) throws ValidationException {
+        final List<String> oldComponents = fsFile.getComponents();
+        final List<String> newComponents = new ArrayList<String>(oldComponents.size());
+        for (final String oldComponent : oldComponents)
+            if ("..".equals(oldComponent))
+                if (newComponents.isEmpty())
+                    throw new ValidationException(null, null, "Path may not make references above root");
+                else
+                    // with Java 1.6 use a Deque
+                    newComponents.remove(newComponents.size() - 1);
+            else if (!".".equals(oldComponent))
+                newComponents.add(oldComponent);
+        return new FsFile(newComponents);
+    }
+    
+    /**
+     * Construct a CheckedPath from a relative "/"-delimited path rooted at the repository.
+     * The path may not contain weird or special-meaning path components, 
+     * though <q>.</q> and <q>..</q> are understood to have their usual meaning.
+     * An empty path is the repository root. 
+     * @param serverPaths the server path handling service
+     * @param path a repository path
+     * @throws ValidationException if the path is empty or contains illegal components
+     */
+    public CheckedPath(ServerFilePathTransformer serverPaths, String path)
             throws ValidationException {
-
-        this.root = root;
         this.original = path;
-
-        if (this.root == null) {
-            // Assumed absolute
-            this.normPath = FilenameUtils.normalizeNoEndSeparator(path);
-            this.file = new File(normPath);
-            this.isRoot = true;
-            return; // EARLY EXIT!
-        }
-
-        path = validate(path);
-
-        // Handle the case where a relative path has been passed in.
-        // It is currently appended to the root file to guarantee that
-        // the object is in the repository.
-        String p = FilenameUtils.normalizeNoEndSeparator(path);
-        File f = new File(p);
-        if (!f.isAbsolute()) {
-            f = new File(root.file, p);
-            p = f.toString();
-        }
-
-        this.normPath = p;
-        this.isRoot = isRoot();
-
-        if (this.isRoot) {
-            this.file = root.file;
-        }
-        else {
-            checkWithin();
-            this.file = f;
-        }
+        this.fsFile = processSpecialDirectories(new FsFile(path));
+        if (!serverPaths.isLegalFsFile(fsFile)) // unsanitary
+            throw new ValidationException(null, null, "Path contains illegal components");
+        this.file = serverPaths.getServerFileFromFsFile(fsFile);
+        breakPath();
     }
-
-    /**
-     * Called before any other action in the constructor to guarantee that
-     * the given path can be further processed. By default, if the value
-     * is null or empty, then a {@link ValidationException} is thrown.
-     */
-    protected String validate(String path) throws ValidationException {
-        if (path == null || path.length() == 0) {
-            throw new ValidationException(null, null, "Path is empty");
-        }
-        return path;
+    
+    private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
+        this.original = filePath.getPath();
+        this.fsFile = fsFilePath;
+        this.file = filePath;
+        breakPath();
     }
-
+    
     /**
-     * Checks if the requested path is the root of this repository.
-     * Used during constructor to prevent unnecessary object creation.
+     * Set parentDir and baseName according to the last separator in the fsFile.
+     * @throws ValidationException if the path is empty
      */
-    protected boolean isRoot() {
-        return normPath.equals(root.normPath);
-    }
-
-    /**
-     * If the path is not the root itself, it must minimally be a subpath
-     * of the root. If not, a {@link ValidationException} is thrown.
-     */
-    protected void checkWithin() throws ValidationException {
-        // Could be replaced by commons-io 2.4 directoryContains.
-        // But for the moment checking based on regionMatches with
-        // case-sensitivity. Note we check against normRootSlash so that
-        // two similar directories at the top-level can't cause issues.
-        final String rootNormSlash = this.root.normPath + File.separator;
-        if (!normPath.regionMatches(false, 0, rootNormSlash, 0,
-                rootNormSlash.length())) {
-            throw new ValidationException(null, null, normPath
-                    + " is not within " + rootNormSlash);
+    private void breakPath() throws ValidationException {
+        final String fullPath = fsFile.toString();
+        this.isRoot = "".equals(fullPath);
+        final int lastSeparator = fullPath.lastIndexOf(FsFile.separatorChar);
+        if (lastSeparator < 0) {
+            this.parentDir = "";
+            this.baseName = fullPath;
+        } else {
+            this.parentDir = fullPath.substring(0,  lastSeparator);
+            this.baseName = fullPath.substring(lastSeparator + 1);
         }
     }
 
@@ -152,7 +139,7 @@ public class CheckedPath {
 
     public String sha1() {
         if (sha1 == null) {
-            sha1 = Utils.bytesToHex(Utils.pathToSha1(normPath));
+            sha1 = Utils.bytesToHex(Utils.pathToSha1(file.getPath()));
         }
         return sha1;
     }
@@ -179,7 +166,11 @@ public class CheckedPath {
      * bad paths will cause a {@link ValidationException} to be thrown.
      */
     public CheckedPath parent() throws ValidationException {
-        return new CheckedPath(root, file.getParent());
+        List<String> components = this.fsFile.getComponents();
+        if (components.isEmpty())
+            throw new ValidationException(null, null, "May not obtain parent of repository root");
+        components = components.subList(0, components.size() - 1);
+        return new CheckedPath(this.file.getParentFile(), new FsFile(components));
     }
 
     /**
@@ -226,44 +217,19 @@ public class CheckedPath {
      * slash.
      */
     protected String getDirname() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getRelativePath());
-        sb.append(getName());
-        sb.append("/");
-        return sb.toString();
+        return this.fsFile.toString() + FsFile.separatorChar;
     }
 
     protected String getName() {
-        return file.getName();
+        return this.baseName;
     }
 
     protected String getRelativePath() {
-        return getRelativePath(file);
-    }
-
-    protected String getRelativePath(File f) {
-
-        String path = null;
-        if (isRoot) {
-            path = file.getParentFile().getAbsolutePath() + "/";
-        } else {
-            path = f.getParent()
-                .substring(root.file.getAbsolutePath().length(), f.getParent().length());
-        }
-
-        // The parent doesn't contain a trailing slash.
-        path = path + "/";
-        return path;
-    }
-
+        return this.parentDir + FsFile.separatorChar;
+     }
+    
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append("(");
-        sb.append(getRelativePath()); // Has slash.
-        sb.append(getName());
-        sb.append(")");
-        return sb.toString();
+        return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }
 
     /**
@@ -284,13 +250,7 @@ public class CheckedPath {
         // Only non conditional properties.
         ofile.setName(getName());
         ofile.setMimetype(mimetype); // null takes DB default
-
-        // This first case deals with registering the repos themselves.
-        if (isRoot) {
-            ofile.setPath(file.getParent());
-        } else { // Path should be relative to root?
-            ofile.setPath(getRelativePath());
-        }
+        ofile.setPath(getRelativePath());
 
         final boolean mimeDir = PublicRepositoryI.DIRECTORY_MIMETYPE.equals(mimetype);
         final boolean actualDir = file.isDirectory();
