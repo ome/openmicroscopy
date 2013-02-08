@@ -101,6 +101,9 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                 codePointsOfTypeControl.add(codePoint);
     }
     
+    /**
+     * Test that the transformation matrix does not correct characters to unsafe ones.
+     */
     @Test
     public void testTransformationMatrixLegality() {
         final Set<Integer> unsafeCodePoints = MakePathComponentSafe.transformationMatrix.keySet();
@@ -109,6 +112,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                     "character substitutions may not be to unsafe characters");
     }
     
+    /**
+     * Test that the safe character is not included in any code points or strings deemed to be unsafe.
+     * (This is an unnecessarily strong criterion, but it is easily met.)
+     */
     @Test
     public void testUnsafeCharacterAvoidance() {
         final Set<Integer> unsafeCodePoints = MakePathComponentSafe.transformationMatrix.keySet();
@@ -123,6 +130,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                     "the safe character may not appear in unsafe strings");
     }
     
+    /**
+     * Test that the unsafe strings for matching are all in upper case,
+     * as the caller's string is upper-cased for matching in {@link MakePathComponentSafe#apply}.
+     */
     @Test
     public void testUnsafeStringCase() {
         final Set<String> unsafeStrings = new HashSet<String>();
@@ -186,6 +197,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                 "ought to be able to create files named " + name);
     }
 
+    /**
+     * On Windows, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
     @Test
     public void testUnsafeCharacterUnsafetyWindows() throws IOException {
         requireOperatingSystem(OperatingSystem.WINDOWS);
@@ -213,6 +228,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
     
+    /**
+     * Test that data can be stored in files named using sanitized unsafe characters.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSanitizedUnsafeCharacterSafety() throws IOException {
         final File tempDir = createTempDir();
@@ -229,6 +248,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
 
+    /**
+     * Test that data can be stored in files named using unsanitized safe characters.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSafeCharacterSafety() throws IOException {
         final File tempDir = createTempDir();
@@ -245,6 +268,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
 
+    /**
+     * Test that data can be stored in files named using sanitized unsafe names.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSanitizedUnsafeNameSafety() throws IOException {
         final File tempDir = createTempDir();
@@ -256,6 +283,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
     
+    /**
+     * Test that data can be stored in files named using sanitized unsafe prefixes.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSanitizedUnsafePrefixSafety() throws IOException {
         final File tempDir = createTempDir();
@@ -272,6 +303,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
     
+    /**
+     * Test that data can be stored in files named using sanitized unsafe suffixes.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSanitizedUnsafeSuffixSafety() throws IOException {
         final File tempDir = createTempDir();
@@ -288,6 +323,11 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
         tempDir.delete();
     }
     
+    /**
+     * Test that safely named files are not renamed in name sanitization.
+     * Checks that those names are preserved upon which BioFormats depends.
+     * @throws IOException unexpected
+     */
     @Test
     public void testSensitiveNameSafety() {
         // Leica OME

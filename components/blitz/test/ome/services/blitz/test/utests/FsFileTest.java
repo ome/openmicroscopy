@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
  */
 @Test(groups = {"fs"})
 public class FsFileTest {
+    /**
+     * Test that {@link FsFile} instances are the same regardless of how they were constructed.
+     */
     @Test
     public void testFsFileConstructorEquivalence() {
         final Set<FsFile> files = new HashSet<FsFile>();
@@ -55,6 +58,9 @@ public class FsFileTest {
         
     }
     
+    /**
+     * Test relative file path query where the child is within the parent.
+     */
     @Test
     public void testChildPathLegal() {
         final FsFile parent = new FsFile("a/b/c");
@@ -63,6 +69,9 @@ public class FsFileTest {
                 "unexpected result for relative path");
     }
     
+    /**
+     * Test relative file path query where the child is the parent.
+     */
     @Test
     public void testChildPathSame() {
         final FsFile path = new FsFile("a/b/c");
@@ -70,6 +79,9 @@ public class FsFileTest {
                 "relative path to same directory should be empty");
     }
     
+    /**
+     * Test relative file path query where the child is not within the parent.
+     */
     @Test
     public void testChildPathIllegal() {
         final FsFile parent = new FsFile("a/c/c");
@@ -78,6 +90,9 @@ public class FsFileTest {
                 "relative path may only be within parent directory");
     }
     
+    /**
+     * Test that empty paths have empty properties.
+     */
     @Test
     public void testEmptyPathEmptiness() {
         Assert.assertTrue(FsFile.emptyPath.getComponents().isEmpty(),

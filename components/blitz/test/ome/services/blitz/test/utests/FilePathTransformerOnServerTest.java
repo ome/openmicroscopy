@@ -47,6 +47,11 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
     private FilePathTransformerOnClient fptc;
     private File tempDir;
     
+    /**
+     * Set up a new test directory as the managed repository,
+     * and initialize file path transformers for server and client.
+     * @throws IOException unexpected
+     */
     @BeforeClass
     public void setup() throws IOException {
         this.tempDir = File.createTempFile("test-" + getClass().getSimpleName(), null);
@@ -59,6 +64,10 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
         this.fptc = new FilePathTransformerOnClient(transformer);
     }
     
+    /**
+     * Test that legal repository paths convert to local server files then back to the original path.
+     * @throws IOException unexpected
+     */
     @Test
     public void testServerPathConversion() throws IOException {
         final FsFile repositoryPath = new FsFile("wibble/wobble/|]{~`\u00B1\u00A7/\u00F3\u00DF\u20AC\u00C5\u00E6");
@@ -66,6 +75,7 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
         Assert.assertEquals(fpts.getFsFileFromServerFile(serverPath), repositoryPath,
                 "conversion from legal repository paths to server-local paths and back must return the original");
     }
+    
     /**
      * Test that the given components, when sanitized, become the given repository path,
      * and that a path of that name can be used for data storage on the server's local filesystem.
@@ -96,11 +106,18 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
                 "should be able to read and write data with safe file-paths");
     }
     
+    /**
+     * Test that a difficult client path is properly sanitized then usable for data storage.
+     * @throws IOException unexpected
+     */
     @Test
     public void testClientPathSafety() throws IOException {
         testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/_.[]", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>");
     }
     
+    /**
+     * Test the ability to check if a given repository path is legal.
+     */
     @Test
     public void testLegalityCheck() {
         Assert.assertTrue(fpts.isLegalFsFile(new FsFile("a/b/c")));
@@ -108,6 +125,9 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
         Assert.assertFalse(fpts.isLegalFsFile(new FsFile("a/b/lpt1")));
     }
     
+    /**
+     * Reverse the actions of {@link #setup()}.
+     */
     @AfterClass
     public void tearDown() {
         this.tempDir.delete();
