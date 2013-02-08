@@ -68,6 +68,9 @@ import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 public class IOUtil
 {
 
+	/** The extension used for the zip.*/
+	public static final String ZIP_EXTENSION = ".zip";
+	
 	/** Filter for Microsoft Word documents. */
 	private static final WordFilter WORD_FILTER;
 	
@@ -292,7 +295,7 @@ public class IOUtil
 	    byte[] buffer = new byte[4096]; // Create a buffer for copying
 	    int bytesRead;
 
-	    String name = zip.getName()+".zip";
+	    String name = zip.getName()+ZIP_EXTENSION;
 	    File f;
 		try {
 			f = new File(zip.getParentFile(), name);
