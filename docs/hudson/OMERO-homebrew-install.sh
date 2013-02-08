@@ -18,7 +18,6 @@ if [ -d "$BREW_DIR" ]; then
     if (bin/pip --version)
     then
         echo "Removing pip-installed packages"
-
         # Remove tables manually
         bin/pip freeze -l | grep tables && bin/pip uninstall -y tables
 
@@ -32,21 +31,22 @@ if [ -d "$BREW_DIR" ]; then
         done
     fi
 
-    echo "Removing Homebrew installation"
+    echo "Removing all components installed under /usr/local"
     cd $JOB_WS
-    rm -rf $BREW_DIR
+    rm -rf $BREW_DIR/*
 fi
 
-# Install Homebrew in BREW_DIR
-mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
+# Install Homebrew in /usr/local
+ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
 cd $BREW_DIR
 
 # Clean cache before any operation to test full installation
 rm -rf $(bin/brew --cache)
 
-# Re-install git and update homebrew
+# Re-install git, update homebrew and run brew doctor
 bin/brew install git
 bin/brew update
+bin/brew doctor
 
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
