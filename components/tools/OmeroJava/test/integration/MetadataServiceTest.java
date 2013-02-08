@@ -8,6 +8,7 @@ package integration;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +144,7 @@ public class MetadataServiceTest
 			if (annotation instanceof FileAnnotation) { //test creation of pojos
 				faData = new FileAnnotationData((FileAnnotation) annotation);
 				assertNotNull(faData);
-				assertTrue(faData.getFileID() == of.getId().getValue());
+				assertEquals(faData.getFileID(), of.getId().getValue());
 			}
 		}
     }
@@ -195,7 +196,7 @@ public class MetadataServiceTest
 			if (o instanceof FileAnnotation) {
 				faData = new FileAnnotationData((FileAnnotation) o);
 				assertNotNull(faData);
-				assertTrue(faData.getFileID() == of.getId().getValue());
+				assertEquals(faData.getFileID(), of.getId().getValue());
 			}
 		}
     }
@@ -237,12 +238,17 @@ public class MetadataServiceTest
 				r = (FileAnnotation) o;
 				count++;
 				if (r.getId().getValue() == data.getId().getValue()) {
-					assertTrue(r.getFile().getId().getValue() 
-							== of.getId().getValue());
+					assertEquals(r.getFile().getId().getValue(),
+							of.getId().getValue());
+					assertEquals(r.getFile().getName().getValue(),
+							of.getName().getValue());
+					assertEquals(r.getFile().getPath().getValue(),
+							of.getPath().getValue());
 				}
 			}
 		}
-        assertTrue(count == result.size());
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
     }
     
     /**
@@ -283,7 +289,7 @@ public class MetadataServiceTest
 			if (o != null && o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				assertNotNull(r.getNs());
-				assertTrue(ns.equals(r.getNs().getValue()));
+				assertEquals(ns, r.getNs().getValue());
 			}
 		}
         
@@ -306,7 +312,7 @@ public class MetadataServiceTest
 				}
 			}
 		}
-        assertTrue(count == 0);
+        assertEquals(count, 0);
     }
    
     /**
@@ -343,7 +349,7 @@ public class MetadataServiceTest
     			tagData = new TagAnnotationData(tagReturned);
     		
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(tagData);
     	//comment
     	CommentAnnotation comment = new CommentAnnotationI();
@@ -363,7 +369,7 @@ public class MetadataServiceTest
     			commentReturned.getId().getValue())
     			commentData = new TextualAnnotationData(commentReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(commentData);
     	
     	//boolean
@@ -384,7 +390,7 @@ public class MetadataServiceTest
     			boolReturned.getId().getValue())
     			boolData = new BooleanAnnotationData(boolReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(boolData);
     	
     	//long
@@ -405,7 +411,7 @@ public class MetadataServiceTest
     			lReturned.getId().getValue())
     			lData = new LongAnnotationData(lReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(lData);
     	//double
     	DoubleAnnotation d = new DoubleAnnotationI();
@@ -425,7 +431,7 @@ public class MetadataServiceTest
     			dReturned.getId().getValue())
     			dData = new DoubleAnnotationData(dReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(dData);
     }
     
@@ -434,7 +440,7 @@ public class MetadataServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testLoadTagSetsNoOrphan() 
+    public void testLoadTagSetsNoOrphan()
     	throws Exception
     {
     	long self = iAdmin.getEventContext().userId;
@@ -473,7 +479,7 @@ public class MetadataServiceTest
 				count++;
 			}
 		}
-    	assertTrue(count == result.size());
+    	assertEquals(result.size(), count);
     }
     
     /**
@@ -634,7 +640,7 @@ public class MetadataServiceTest
         IObject tagData = f.getUpdateService().saveAndReturnObject(tag);
         assertNotNull(tagData);
         //make sure we are not the owner of the tag.
-        assertTrue(tagData.getDetails().getOwner().getId().getValue() == id2);
+        assertEquals(tagData.getDetails().getOwner().getId().getValue(), id2);
     	client.closeSession();
     	
         f = client.createSession(uuid, uuid);
@@ -664,7 +670,7 @@ public class MetadataServiceTest
         	}
         }
         assertTrue(found);
-        assertTrue(result.size() == count);
+        assertEquals(result.size(), count);
         client.closeSession();
     }
     
@@ -683,7 +689,7 @@ public class MetadataServiceTest
         		mmFactory.simpleImage(0));
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
-        link.setChild(tagData);
+        link.setChild((Annotation) tagData.proxy());
         link.setParent(img);
         iUpdate.saveAndReturnObject(link);
         
@@ -704,9 +710,8 @@ public class MetadataServiceTest
         long self = iAdmin.getEventContext().userId;
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(tagData.getId().getValue());
-    	Map result = iMetadata.loadTagContent(ids, param);
+    	Map result = iMetadata.loadTagContent(
+    			Arrays.asList(tagData.getId().getValue()), param);
     	assertNotNull(result);
     	List nodes = (List) result.get(tagData.getId().getValue());
     	assertNotNull(nodes);
@@ -723,7 +728,7 @@ public class MetadataServiceTest
 				if (o.getId().getValue() == pData.getId().getValue()) count++;
 			}
 		}
-    	assertNotNull(count == result.size());
+    	assertEquals(nodes.size(), count);
     }
     
     /**
@@ -762,23 +767,23 @@ public class MetadataServiceTest
     		assertTrue(instrument.sizeOfDichroic() > 0);
     		assertTrue(instrument.sizeOfFilter() > 0);
     		assertTrue(instrument.sizeOfFilterSet() > 0);
-    		assertTrue(instrument.sizeOfLightSource() == 1);
+    		assertEquals(instrument.sizeOfLightSource(), 1);
     		assertTrue(instrument.sizeOfObjective() > 0);
     		assertTrue(instrument.sizeOfOtf() > 0);
     		
-    		assertTrue(instrument.sizeOfDetector() == 
+    		assertEquals(instrument.sizeOfDetector(),
     			data.getDetectors().size());
-    		assertTrue(instrument.sizeOfDichroic() == 
+    		assertEquals(instrument.sizeOfDichroic(),
     			data.getDichroics().size());
-    		assertTrue(instrument.sizeOfFilter() == 
+    		assertEquals(instrument.sizeOfFilter(),
     			data.getFilters().size());
-    		assertTrue(instrument.sizeOfFilterSet() == 
+    		assertEquals(instrument.sizeOfFilterSet(),
     			data.getFilterSets().size());
-    		assertTrue(instrument.sizeOfLightSource() == 
+    		assertEquals(instrument.sizeOfLightSource(),
     			data.getLightSources().size());
-    		assertTrue(instrument.sizeOfObjective() == 
+    		assertEquals(instrument.sizeOfObjective(),
     			data.getObjectives().size());
-    		assertTrue(instrument.sizeOfOtf() == 
+    		assertEquals(instrument.sizeOfOtf(),
     			data.getOTF().size());
     		
     		
@@ -955,7 +960,7 @@ public class MetadataServiceTest
     		}
         	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
         			ids);
-        	assertTrue(channels.size() == pixels.getSizeC().getValue());
+        	assertEquals(channels.size(), pixels.getSizeC().getValue());
         	LogicalChannel loaded;
         	Iterator<LogicalChannel> j = channels.iterator();
         	LightSourceData l;
@@ -963,12 +968,12 @@ public class MetadataServiceTest
         		loaded = j.next();
         		assertNotNull(loaded);
             	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
-            	assertTrue(data.getDetector().getId() == 
+            	assertEquals(data.getDetector().getId(),
             		detector.getId().getValue());
-            	assertTrue(data.getFilterSet().getId() == 
+            	assertEquals(data.getFilterSet().getId(),
             		filterSet.getId().getValue());
             	l = (LightSourceData) data.getLightSource();
-            	assertTrue(l.getId() == laser.getId().getValue());
+            	assertEquals(l.getId(),laser.getId().getValue());
             	assertNotNull(l.getLaserMedium());
             	assertNotNull(l.getType());
             	if (values[k]) {
@@ -980,22 +985,22 @@ public class MetadataServiceTest
             	assertNotNull(loaded.getDetectorSettings().getDetector());
             	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
             	assertNotNull(loaded.getLightPath());
-            	assertNotNull(data.getLightPath().getDichroic().getId() 
-            			== dichroic.getId().getValue());
+            	assertEquals(data.getLightPath().getDichroic().getId(),
+            			dichroic.getId().getValue());
             	assertNotNull(data.getContrastMethod());
             	assertNotNull(data.getIllumination());
             	assertNotNull(data.getMode());
             	//OTF support
             	
-            	assertTrue(data.getOTF().getId() == otf.getId().getValue());
+            	assertEquals(data.getOTF().getId(), otf.getId().getValue());
             	assertNotNull(loaded.getOtf());
-            	assertTrue(loaded.getOtf().getId().getValue() 
-            			== otf.getId().getValue());
+            	assertEquals(loaded.getOtf().getId().getValue(),
+            			otf.getId().getValue());
             	assertNotNull(loaded.getOtf().getFilterSet());
             	assertNotNull(loaded.getOtf().getObjective());
-            	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
+            	assertEquals(loaded.getOtf().getFilterSet().getId().getValue(),
             		filterSet.getId().getValue());
-            	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
+            	assertEquals(loaded.getOtf().getObjective().getId().getValue(),
             		objective.getId().getValue());
             	assertNotNull(loaded.getOtf().getPixelsType());
     		}
