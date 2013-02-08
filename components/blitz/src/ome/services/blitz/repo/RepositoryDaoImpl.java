@@ -23,6 +23,7 @@ import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
+import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
@@ -30,6 +31,7 @@ import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
@@ -72,14 +74,37 @@ public class RepositoryDaoImpl implements RepositoryDao {
     private final static Log log = LogFactory.getLog(RepositoryDaoImpl.class);
 
     protected final Principal principal;
+    protected final Roles roles;
     protected final Executor executor;
     protected final Executor statefulExecutor;
 
-    public RepositoryDaoImpl(Principal principal, Executor executor) {
+    /**
+     * Primary constructor which takes all final fields.
+     *
+     * @param principal
+     * @param roles
+     * @param executor
+     * @param statefulExecutor
+     */
+    public RepositoryDaoImpl(Principal principal, Roles roles,
+            Executor executor, Executor statefulExecutor) {
         this.principal = principal;
+        this.roles = roles;
         this.executor = executor;
-        this.statefulExecutor = executor.getContext().getBean("statefulExecutor",
-                Executor.class);
+        this.statefulExecutor = statefulExecutor;
+    }
+
+    /**
+     * Previous constructor which should no longer be used. Primarily for
+     * simplicity of testing.
+     *
+     * @param principal
+     * @param executor
+     */
+    public RepositoryDaoImpl(Principal principal, Executor executor) {
+        this(principal, new Roles(), executor,
+                executor.getContext().getBean(
+                        "statefulExecutor", Executor.class));
     }
 
     /**
@@ -132,10 +157,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         try {
             ome.model.core.OriginalFile ofile = (ome.model.core.OriginalFile) executor
-                .execute(current.ctx, currentUser(current),
-                        new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
-                    @Transactional(readOnly = true)
-                    public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
+                    .execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
+                        @Transactional(readOnly = true)
+                        public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
                         Long id = getSqlAction().findRepoFile(uuid,
                                 checked.getRelativePath(), checked.getName(),
                                 mimetype);
@@ -152,6 +177,63 @@ public class RepositoryDaoImpl implements RepositoryDao {
             throw wrapSecurityViolation(sv);
         }
 
+    }
+
+    public void createOrFixUserDir(final String repoUuid, final CheckedPath checked,
+            final Current current) throws ServerError {
+
+        final CheckedPath parent = checked.parent();
+
+        try {
+             executor.execute(current.ctx, currentUser(current),
+                            new Executor.SimpleWork(this, "createOrFixUserDir",
+                                    repoUuid, checked) {
+                        @Transactional(readOnly = false)
+                        public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
+
+                // Look for the dir in all groups (
+                Long id = getSqlAction().findRepoFile(repoUuid, checked.getRelativePath(),
+                        checked.getName(), null);
+    
+                ome.model.core.OriginalFile f = null;
+                if (id == null) {
+                    // Doesn't exist. Create dir in the user group
+                    f = _internalRegister(repoUuid, checked,
+                            PublicRepositoryI.DIRECTORY_MIMETYPE,
+                            parent, sf, getSqlAction());           
+                } else {
+                    // Make sure the file is in the user group
+                    try {
+                        f = sf.getQueryService().find(
+                                ome.model.core.OriginalFile.class, id);
+                        if (f != null) {
+                            long groupId = f.getDetails().getGroup().getId();
+                            if (roles.getUserGroupId() == groupId) {
+                                // Null f, since it doesn't need to be reset.
+                                f = null;
+                            }
+                        }
+                    }
+                    catch (ome.conditions.SecurityViolation e) {
+                        // If we aren't allowed to read the file, then likely
+                        // it isn't in the user group so we will move it there.
+                        f = new ome.model.core.OriginalFile(id, false);
+                    }
+  
+                }
+    
+                if (f != null) {
+                    ((LocalAdmin) sf.getAdminService())
+                        .internalMoveToCommonSpace(f);
+                }
+                
+                return null;
+
+            }});
+            
+        } catch (ome.conditions.SecurityViolation sv) {
+            throw wrapSecurityViolation(sv);
+        }
     }
 
     public boolean canUpdate(final omero.model.IObject obj, Ice.Current current) {
@@ -592,12 +674,27 @@ public class RepositoryDaoImpl implements RepositoryDao {
         // passed by the client, but that violates the current working of the
         // API, so using the standard behavior at the moment.
         final OriginalFile file = getOriginalFile(fileId, current);
+        return groupContext(file.getDetails().getGroup().getId().getValue(),
+                current);
+    }
+
+    /**
+     * Creates a copy of the {@link Ice.Current#ctx} map and if groupId is
+     * not null, sets the "omero.group" key to be a string version of the
+     * id.
+     *
+     * @param groupId
+     * @param current
+     * @return
+     */
+    protected Map<String, String> groupContext(Long groupId, Ice.Current current) {
         final Map<String, String> context = new HashMap<String, String>();
         if (current.ctx != null) {
             context.putAll(current.ctx);
         }
-        context.put("omero.group",
-                Long.toString(file.getDetails().getGroup().getId().getValue()));
+        if (groupId != null) {
+            context.put("omero.group", Long.toString(groupId));
+        }
         return context;
     }
 

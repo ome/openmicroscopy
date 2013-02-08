@@ -50,6 +50,15 @@ public interface RepositoryDao {
             String mimetype, Ice.Current current) throws ServerError;
 
     /**
+     * Checks that the given {@link CheckedPath} object exists (via
+     * {@link #findRepoFile(String, CheckedPath, String, Ice.Current)})
+     * and is in the "user" group. If it doesn't exist, it is created; and if
+     * it isn't in the "user" group, it is moved.
+     */
+    void createOrFixUserDir(String uuid, CheckedPath path, Ice.Current current)
+        throws ServerError;
+
+    /**
      * Delegates to IAdmin#canUpdate
      * @param fileId
      * @param current

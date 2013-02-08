@@ -25,6 +25,7 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,7 @@ import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
 
+import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -494,5 +496,44 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return data;
+    }
+
+    /**
+     * Checks for the top-level user directory restriction before calling
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, bolean, Current)}
+     */
+    protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
+            boolean parents, Current __current) throws ResourceError,
+            ServerError {
+        
+        CheckedPath checked = paths.get(0);
+        if (checked.isRoot) {
+            // This shouldn't happen but just in case.
+            throw new ResourceError(null, null, "Cannot re-create root!");
+        } else if (checked.parent().isRoot) {
+            // This is a top-level directory. This must equal
+            // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
+            // be created for the user in the "user" group so that it is
+            // visible globally.
+            String userDirectory = getUserDirectoryName(__current);
+            if (!userDirectory.equals(checked.getName())) {
+                throw new omero.ValidationException(null, null, String.format(
+                        "User-directory name mismatch! (%s<>%s)",
+                        userDirectory, checked.getName()));
+                        
+            }
+            // Now that we know that this is the right directory for the
+            // current user, we make sure that the directory exists and
+            // is in the user group.
+            repositoryDao.createOrFixUserDir(getRepoUuid(), checked, __current);
+        }
+        
+        
+        super.makeCheckedDirs(paths, parents, __current);
+    }
+
+    protected String getUserDirectoryName(Current __current) {
+        EventContext ec = repositoryDao.getEventContext(__current);
+        return String.format("%s_%s", ec.userName, ec.userId);
     }
 }
