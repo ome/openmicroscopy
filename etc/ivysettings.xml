@@ -35,6 +35,10 @@
         <artifact pattern="${ivy.settings.dir}/../target/test-repository/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../target/test-repository/[module]-[revision].ivy"/>
       </filesystem>
+      <filesystem name="bio-formats" checkmodified="true" changingMatcher="regexp" changingPattern=".*DEV.*">
+        <artifact pattern="${ivy.settings.dir}/../components/bioformats/jar/[artifact]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../components/bioformats/jar/[module]-[revision].ivy"/>
+      </filesystem>
       <url name="com.springsource.repository.bundles.release">
         <ivy pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
         <artifact pattern="http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]" />
