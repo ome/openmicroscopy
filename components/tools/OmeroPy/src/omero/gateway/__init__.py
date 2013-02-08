@@ -2176,6 +2176,30 @@ class _BlitzGateway (object):
         """
         return ProxyObjectWrapper(self, 'createExporter')
 
+
+    def closeRenderingEngines (self):
+        """
+        Attempt to close all open Rendering Engines we have in our session.
+        Return a list of [{'pid': pixelsId, 'closed': True}]
+        """
+        services = self.c.sf.activeServices()
+        closed = []
+        for service in services:
+            if "RenderingEngine" in service:
+                rv = {}
+                re = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, service_name=service)
+                try:
+                    rv['pid'] = re.getPixels().id.val
+                except:
+                    pass
+                try:
+                    re.close()
+                    rv['closed'] = True
+                except:
+                    pass
+                closed.append(rv)
+        return closed
+
     #############################
     # Top level object fetchers #
 
