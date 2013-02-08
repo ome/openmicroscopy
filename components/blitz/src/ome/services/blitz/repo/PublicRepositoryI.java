@@ -53,6 +53,7 @@ import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
 
 import omero.InternalException;
+import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
@@ -463,6 +464,25 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
+        makeCheckedDirs(paths, parents, __current);
+
+    }
+
+    /**
+     * Internal method to be used by subclasses to perform any extra checks on
+     * the listed of {@link CheckedPath} instances before allowing the creation
+     * of directories.
+     *
+     * @param paths Not null, not empty.
+     * @param parents "mkdir -p" like flag.
+     * @param __current
+     */
+    protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
+            boolean parents, Current __current) throws ResourceError,
+            ServerError {
+
+        CheckedPath checked;
+
         // Since we now have some number of elements, we start at the most
         // parent element and work our way down through all the parents.
         // If the file exists, then we check its permissions. If it doesn't
@@ -495,12 +515,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 assertFindDir(checked, __current);
             } else {
                 throw new omero.ResourceError(null, null,
-                    "Path exists on disk:" + path);
+                    "Path exists on disk:" + checked.file);
             }
         }
         repositoryDao.register(repoUuid, checked,
                 DIRECTORY_MIMETYPE, __current);
-
     }
 
     //

@@ -615,5 +615,63 @@ class TestDeleteLog(AbstractRepoTest):
             rfs.close()
 
 
+class TestUserTemplate(AbstractRepoTest):
+    """
+    The top-level directories directory under the root
+    of a managed repository are intended solely for
+    individual user use. In other words, creating a directory
+    at the top is only possible if it is your user directory.
+    """
+
+    def userDir(self, client=None):
+        if client == None:
+            client = self.client
+        ec = client.sf.getAdminService().getEventContext()
+        return "%s_%s" % (ec.userName, ec.userId)
+
+    def testCreateUuidFails(self):
+        uuid = self.uuid()
+        mrepo = self.getManagedRepo()
+        self.assertRaises(omero.ValidationException, mrepo.makeDir, uuid, True)
+
+    def testCreateUserDirPasses(self):
+        mrepo = self.getManagedRepo()
+        userDir = self.userDir()
+        mrepo.makeDir(userDir, True)
+
+    def testCreateUuidUnderUserDirPasses(self):
+        mrepo = self.getManagedRepo()
+        userDir = self.userDir()
+        uuid = self.uuid()
+        mydir = "%s/%s" % (userDir, uuid)
+        mrepo.makeDir(mydir, True)
+
+    # If a user should be able to create a file
+    # under her/his own directory regardless of
+    # which group s/he is in.
+    def testUserDirShouldBeGloballyWriteable(self):
+        mrepo = self.getManagedRepo()
+        userDir = self.userDir()
+        aDir = userDir + "/" + self.uuid()
+        aFile = aDir + "/a.txt"
+
+        # Create a first file in one group
+        mrepo.makeDir(aDir, True)
+        self.createFile(mrepo, aFile)
+
+        uid = self.client.sf.getAdminService().getEventContext().userId
+        users = [omero.model.ExperimenterI(uid, False)]
+        group = self.new_group(experimenters=users)
+        self.client.sf.getAdminService().getEventContext() # Refresh
+        self.set_context(self.client, group.id.val)
+
+        # Now write a second file from another group
+        bDir = userDir + "/" + self.uuid()
+        bFile = bDir + "/b.txt"
+        mrepo.makeDir(bDir, True)
+        self.createFile(mrepo, bFile)
+
+
+
 if __name__ == '__main__':
     unittest.main()
