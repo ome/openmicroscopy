@@ -248,6 +248,30 @@ public class MetadataServiceTest
 		}
         assertTrue(count > 0);
         assertEquals(count, result.size());
+        //Same thing but this time passing ome.model.annotations.FileAnnotation
+        result = iMetadata.loadSpecifiedAnnotations(FILE_ANNOTATION,
+        		include, exclude, param);
+        assertNotNull(result);
+       
+        i = result.iterator();
+        count = 0;
+        while (i.hasNext()) {
+			o = i.next();
+			if (o != null && o instanceof FileAnnotation) {
+				r = (FileAnnotation) o;
+				count++;
+				if (r.getId().getValue() == data.getId().getValue()) {
+					assertEquals(r.getFile().getId().getValue(),
+							of.getId().getValue());
+					assertEquals(r.getFile().getName().getValue(),
+							of.getName().getValue());
+					assertEquals(r.getFile().getPath().getValue(),
+							of.getPath().getValue());
+				}
+			}
+		}
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
     }
     
     /**
