@@ -31,9 +31,11 @@ if [ -d "$BREW_DIR" ]; then
         done
     fi
 
-    echo "Removing all components installed under /usr/local"
-    cd $JOB_WS
-    rm -rf $BREW_DIR/*
+    echo "Cleaning Homebrew for reinstallation"
+    if (bin/brew version)
+    then
+        rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
+    fi
 fi
 
 # Install Homebrew in /usr/local
