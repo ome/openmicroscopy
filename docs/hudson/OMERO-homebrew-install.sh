@@ -32,7 +32,7 @@ if [ -d "$BREW_DIR" ]; then
     fi
 
     echo "Cleaning Homebrew for reinstallation"
-    if (bin/brew version)
+    if [ -d "$BREW_DIR/.git" ]
     then
         rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
     fi
@@ -50,9 +50,8 @@ bin/brew list | grep git || bin/brew install git
 
 # Update homebrew and run brew doctor
 bin/brew update
-bin/brew doctor
-
 export PATH=$(bin/brew --prefix)/bin:$PATH
+bin/brew doctor
 
 # Merge hombrew-alt PRs
 bin/brew tap $OMERO_ALT || echo "Already tapped"
