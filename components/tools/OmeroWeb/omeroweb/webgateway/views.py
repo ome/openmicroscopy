@@ -1750,3 +1750,13 @@ def su (request, user, conn=None, **kwargs):
     conn.revertGroupForSession()
     conn.seppuku()
     return True
+
+@login_required()
+@jsonp
+def close_rendering_engines (request, conn=None, **kwargs):
+    """ 
+    Attempt to close any rendering engines we have open 
+    Returns a json list of [{'pid':123, 'closed': True}, ...]
+    """
+    closedDict = conn.closeRenderingEngines()
+    return closedDict

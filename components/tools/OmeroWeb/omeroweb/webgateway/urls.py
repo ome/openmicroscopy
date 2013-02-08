@@ -273,6 +273,8 @@ This url will download the Original Image File(s) archived at import time. If it
 downloaded directly. For multiple files, they are assembled into a zip file on the fly, and this is downloaded.
 """
 
+close_rendering_engines = url( r'^close_rendering_engines/$', 'webgateway.views.close_rendering_engines', name="close_rendering_engines" )
+
 
 urlpatterns = patterns('',
     webgateway,
@@ -314,6 +316,7 @@ urlpatterns = patterns('',
     # switch user
     webgateway_su,
     
+    close_rendering_engines,
     # Debug stuff
 
 )
