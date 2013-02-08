@@ -318,6 +318,7 @@ public class MetadataServiceTest
         
         //now test the exclude condition
         include.clear();
+        //List of name 
         exclude.add(ns);
         result = iMetadata.loadSpecifiedAnnotations(
         		FileAnnotation.class.getName(), 
@@ -1203,4 +1204,52 @@ public class MetadataServiceTest
         assertTrue(count > 0);
         assertEquals(count, result.size());
     }
+    
+    /**
+     * Tests the retrieval of annotations with and without namespaces.
+     * Exclude the annotation with a given name space.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsFileAnnotationNS() 
+    	throws Exception
+    {
+		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+		assertNotNull(of);
+
+		String ns = "include";
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		fa.setNs(omero.rtypes.rstring(ns));
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		
+		fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data2 = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data2);
+		
+        Parameters param = new Parameters();
+        
+        //First test the include condition
+        List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		new ArrayList<String>(), Arrays.asList(ns), param);
+        assertNotNull(result);
+       
+        Iterator<Annotation> i = result.iterator();
+        Annotation o;
+        FileAnnotation r;
+        FileAnnotationData pojo;
+        while (i.hasNext()) {
+			o = i.next();
+			pojo = new FileAnnotationData((FileAnnotation) o);
+			if (data2.getId().getValue() == pojo.getId()) {
+				assertEquals(pojo.getFileName(), of.getName().getValue());
+				assertEquals(pojo.getFilePath(), of.getPath().getValue());
+			}
+		}
+    }
+   
 }
