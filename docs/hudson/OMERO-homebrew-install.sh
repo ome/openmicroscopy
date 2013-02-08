@@ -7,7 +7,7 @@ set -x
 
 export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 export OMERO_ALT=${OMERO_ALT:-ome/alt}
-export BREW_DIR=${BREW_DIR:-/usr/local}
+export BREW_DIR="/usr/local"
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
