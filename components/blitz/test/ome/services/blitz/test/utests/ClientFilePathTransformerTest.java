@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 
@@ -38,11 +38,11 @@ import org.testng.annotations.Test;
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 @Test(groups = {"fs"})
-public class FilePathTransformerOnClientTest extends FilePathTransformerTestBase {
-    private FilePathTransformerOnClient fptc;
+public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
+    private ClientFilePathTransformer fptc;
     
     /**
      * Initialize a client file path transformer.
@@ -50,7 +50,7 @@ public class FilePathTransformerOnClientTest extends FilePathTransformerTestBase
      */
     @BeforeClass
     public void setup() throws IOException {
-        this.fptc = new FilePathTransformerOnClient(new MakePathComponentSafe());
+        this.fptc = new ClientFilePathTransformer(new MakePathComponentSafe());
     }
     
     /**

@@ -26,7 +26,7 @@ import java.util.Stack;
  * Creates a nested directory as with {@link File#mkdirs} while noting
  * state that allows the created directories to later be deleted.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 public class FleetingDirectory {
     /* the directory deletion that should follow *

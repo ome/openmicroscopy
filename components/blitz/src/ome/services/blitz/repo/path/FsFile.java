@@ -31,7 +31,7 @@ import java.util.List;
  * The file-path is relative to the root of the repository. As with
  * {@link File}, instances of this class are immutable.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 public class FsFile {
     /** the separator character for delimiting repository path components */

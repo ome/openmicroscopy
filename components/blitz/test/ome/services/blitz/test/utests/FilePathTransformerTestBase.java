@@ -24,7 +24,7 @@ import java.io.File;
 /**
  * Utility functions for file path transformer testing.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 public class FilePathTransformerTestBase {
     /**

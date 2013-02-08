@@ -46,7 +46,7 @@ import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
-import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.RegisterServantMessage;
@@ -89,10 +89,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     private /*final*/ long id;
 
-    protected /*final*/ FilePathTransformerOnServer serverPaths;
+    protected /*final*/ ServerFilePathTransformer serverPaths;
     
-    // protected /*final*/ CheckedPath root;
-
     protected final RepositoryDao repositoryDao;
 
     protected OmeroContext context;
@@ -117,7 +115,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     "Root directory must be a existing, readable directory.");
         }
         this.repoUuid = repoUuid;
-        this.serverPaths = new FilePathTransformerOnServer();
+        this.serverPaths = new ServerFilePathTransformer();
         this.serverPaths.setBaseDirFile(root);
         this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
     }

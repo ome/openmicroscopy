@@ -67,7 +67,7 @@ import omero.sys.EventContext;
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {

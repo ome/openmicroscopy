@@ -30,18 +30,18 @@ import java.util.Set;
 /**
  * Transform client-local {@link File} to repository {@link FsFile} path.
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
-public class FilePathTransformerOnClient {
+public class ClientFilePathTransformer {
     /* a function to make file-path components safe across platforms */
     private final StringTransformer pathSanitizer;
     
     /**
      * Construct a new client-side file path transformer.
      * @param pathSanitizer a file-path component string transformer
-     * whose behavior corresponds to that passed to {@link FilePathTransformerOnServer#setPathSanitizer} server-side.
+     * whose behavior corresponds to that passed to {@link ServerFilePathTransformer#setPathSanitizer} server-side.
      */
-    public FilePathTransformerOnClient(StringTransformer pathSanitizer) {
+    public ClientFilePathTransformer(StringTransformer pathSanitizer) {
         this.pathSanitizer = pathSanitizer;
     }
     

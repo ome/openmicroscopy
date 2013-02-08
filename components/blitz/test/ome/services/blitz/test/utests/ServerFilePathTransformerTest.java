@@ -26,8 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
-import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.StringTransformer;
@@ -39,12 +39,12 @@ import org.testng.annotations.Test;
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 @Test(groups = {"fs"})
-public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase {
-    private FilePathTransformerOnServer fpts;
-    private FilePathTransformerOnClient fptc;
+public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
+    private ServerFilePathTransformer fpts;
+    private ClientFilePathTransformer fptc;
     private File tempDir;
     
     /**
@@ -58,10 +58,10 @@ public class FilePathTransformerOnServerTest extends FilePathTransformerTestBase
         this.tempDir.delete();
         this.tempDir.mkdir();
         final StringTransformer transformer = new MakePathComponentSafe();
-        this.fpts = new FilePathTransformerOnServer();
+        this.fpts = new ServerFilePathTransformer();
         this.fpts.setPathSanitizer(transformer);
         this.fpts.setBaseDirFile(this.tempDir);
-        this.fptc = new FilePathTransformerOnClient(transformer);
+        this.fptc = new ClientFilePathTransformer(transformer);
     }
     
     /**

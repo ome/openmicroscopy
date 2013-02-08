@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 @Test(groups = {"fs"})
 public class FsFileTest {

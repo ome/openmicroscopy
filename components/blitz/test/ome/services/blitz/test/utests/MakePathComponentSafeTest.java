@@ -41,7 +41,7 @@ import org.testng.annotations.Test;
  * Some file path tests are platform-specific.
  * @see MakePathComponentSafeTest#requireOperatingSystem
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 enum OperatingSystem {
     WINDOWS("Microsoft Windows"),
@@ -62,7 +62,7 @@ enum OperatingSystem {
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
- * @since 4.5
+ * @since 5.0
  */
 @Test(groups = {"fs"})
 public class MakePathComponentSafeTest extends MakePathComponentSafe {

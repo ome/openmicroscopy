@@ -28,7 +28,7 @@ import javax.activation.MimetypesFileTypeMap;
 import org.apache.commons.io.FileUtils;
 
 import ome.util.Utils;
-import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 
 import omero.ValidationException;
@@ -47,12 +47,12 @@ import omero.ValidationException;
  */
 public class CheckedPath {
 
-    public final String original;
-    public final File file;
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
+    protected final File file;
     private /*final*/ String parentDir;
     private /*final*/ String baseName;
+    private final String original;  // for error reporting
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
@@ -84,14 +84,14 @@ public class CheckedPath {
     
     /**
      * Construct a CheckedPath from a relative "/"-delimited path rooted at the repository.
-     * The path not contain weird or special-meaning path components, 
+     * The path may not contain weird or special-meaning path components, 
      * though <q>.</q> and <q>..</q> are understood to have their usual meaning.
      * An empty path is the repository root. 
      * @param serverPaths the server path handling service
      * @param path a repository path
      * @throws ValidationException if the path is empty or contains illegal components
      */
-    public CheckedPath(FilePathTransformerOnServer serverPaths, String path)
+    public CheckedPath(ServerFilePathTransformer serverPaths, String path)
             throws ValidationException {
         this.original = path;
         this.fsFile = processSpecialDirectories(new FsFile(path));
