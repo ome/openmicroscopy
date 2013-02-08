@@ -2061,6 +2061,34 @@ class _BlitzGateway (object):
         
         return self._proxies['config']
 
+    def _recreateRE (self, pixelsId):
+        """
+        We try to lookup Rendering Engines from the server-side 'active services', create a
+        Proxy RenderingEngine and see if it has the correct pixels loaded
+        """
+        # First check if the proxy we have in hand is suitable... (NB: not sure this is ever the case?)
+        try:
+            pix = self._proxies['rendering']._obj and self._proxies['rendering'].getPixels()
+            if pix is not None and pix.id.val == pixelsId:
+                return self._proxies['rendering']
+        except omero.ApiException:
+            pass
+
+        # If not, check the activeServices for a RenderingEngine with the right pixels
+        services = self.c.sf.activeServices()
+        logger.debug("Trying to retrieve RenderingEngine from %s active services" % len(services))
+        for service in services:
+            if "RenderingEngine" in service:
+                reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, 
+                                service_name=service, preventClose=True)
+                try:
+                    if reProxy.getPixels().id.val == pixelsId:
+                        reProxy._tainted = True
+                        self._proxies['rendering'] = reProxy
+                        return reProxy
+                except:
+                    pass
+
     def createRenderingEngine (self, pixelsId=None):
         """
         Creates a new rendering engine.
@@ -2069,30 +2097,6 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
-        if pixelsId is not None:
-            # First check if the proxy we have in hand is suitable...
-            try:
-                pix = self._proxies['rendering']._obj and self._proxies['rendering'].getPixels()
-                if pix is not None and pix.id.val == pixelsId:
-                    return self._proxies['rendering']
-            except omero.ApiException:
-                pass
-
-            # If not, check the activeServices for a RenderingEngine with the right pixels
-            services = self.c.sf.activeServices()
-            logger.debug("Trying to retrieve RenderingEngine from %s active services" % len(services))
-            for service in services:
-                if "RenderingEngine" in service:
-                    reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, 
-                                    service_name=service, preventClose=True)
-                    try:
-                        if reProxy.getPixels().id.val == pixelsId:
-                            reProxy._tainted = True
-                            self._proxies['rendering'] = reProxy
-                            return reProxy
-                    except:
-                        pass
-
         rv = self._proxies['rendering']
         rv._preventClose = True
         if rv._tainted:
@@ -5843,9 +5847,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         pid = self.getPrimaryPixels().id
+
+        # We first try to retrieve an existing RE, already initialised with Pixels
+        re = self._conn._recreateRE(pid)
+        if re is not None:
+            return re
+
+        # None found, so we create a new RE and init with Pixels etc.
         re = self._conn.createRenderingEngine(pid)
         ctx = self._conn.SERVICE_OPTS.copy()
-
         ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
             ctx.setOmeroUser(self.details.owner.id.val)
