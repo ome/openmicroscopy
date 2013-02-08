@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -118,13 +119,23 @@ public class ArchivedLoader
     	if (handle != null) handle.cancel();
     }
  
+	
+    /**
+     * Notifies the user that no archived images were found.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult()
+    {
+    	activity.endActivity(new ArrayList<File>());
+    }
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-    	if (result == null && !cancelled) onException(MESSAGE_RESULT, null);
+    	if (result == null && !cancelled) handleNullResult();
     	else {
     		Map m = (Map) result;
     		List l = (List) m.get(Boolean.valueOf(false));
@@ -140,7 +151,7 @@ public class ArchivedLoader
 						((File) i.next()).delete();
 					}
     			} else {
-    				activity.endActivity(files.size());
+    				activity.endActivity(files);
     			}
     		}
     	}
