@@ -45,8 +45,10 @@ cd $BREW_DIR
 # Clean cache before any operation to test full installation
 rm -rf $(bin/brew --cache)
 
-# Re-install git, update homebrew and run brew doctor
-bin/brew install git
+# Install git if not already installed
+bin/brew list | grep git || bin/brew install git
+
+# Update homebrew and run brew doctor
 bin/brew update
 bin/brew doctor
 
