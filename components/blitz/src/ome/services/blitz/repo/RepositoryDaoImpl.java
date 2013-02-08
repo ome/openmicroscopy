@@ -25,7 +25,7 @@ import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
-import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -432,7 +432,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      */
     public File getFile(final long id, final Ice.Current current,
-            final String repoUuid, final FilePathTransformerOnServer serverPaths) {
+            final String repoUuid, final ServerFilePathTransformer serverPaths) {
         return (File) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "getFile", id) {
             @Transactional(readOnly = true)

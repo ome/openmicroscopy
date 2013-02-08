@@ -3,7 +3,7 @@ package ome.services.blitz.test.utests;
 import java.io.File;
 
 import ome.services.blitz.repo.CheckedPath;
-import ome.services.blitz.repo.path.FilePathTransformerOnServer;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.ValidationException;
 import omero.util.TempFileManager;
@@ -18,12 +18,12 @@ public class CheckedPathTest {
 
     File dir;
     CheckedPath root;
-    FilePathTransformerOnServer serverPaths;
+    ServerFilePathTransformer serverPaths;
 
     @BeforeClass
     public void setup() throws Exception {
         this.dir = TempFileManager.create_path("repo", "test", true);
-        this.serverPaths = new FilePathTransformerOnServer();
+        this.serverPaths = new ServerFilePathTransformer();
         this.serverPaths.setBaseDirFile(this.dir);
         this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
     }
