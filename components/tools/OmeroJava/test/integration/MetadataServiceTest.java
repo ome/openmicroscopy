@@ -1155,4 +1155,52 @@ public class MetadataServiceTest
     	assertEquals(orphan, tagsIds.size());
     	assertEquals(count, 1);
     }
+    
+    /**
+     * Tests the creation of file annotation with an original file
+     * and load it. Loads the annotation using the 
+     * <code>loadSpecifiedAnnotations</code> method. Converts the file
+     * annotation into its corresponding Pojo Object
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsFileAnnotationConvertToPojo() 
+    	throws Exception
+    {
+		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+		assertNotNull(of);
+
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		include, exclude, param);
+        assertNotNull(result);
+       
+        Iterator<Annotation> i = result.iterator();
+        Annotation o;
+        int count = 0;
+        FileAnnotationData pojo;
+        while (i.hasNext()) {
+			o = i.next();
+			if (o != null && o instanceof FileAnnotation) {
+				pojo = new FileAnnotationData( (FileAnnotation) o);
+				count++;
+				if (pojo.getId() == data.getId().getValue()) {
+					assertEquals(pojo.getFileID(), of.getId().getValue());
+					assertEquals(pojo.getFileName(), of.getName().getValue());
+					assertEquals(pojo.getFilePath(), of.getPath().getValue());
+				}
+			}
+		}
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
+    }
 }
