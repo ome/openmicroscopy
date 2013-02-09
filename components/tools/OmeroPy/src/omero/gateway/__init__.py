@@ -2079,8 +2079,7 @@ class _BlitzGateway (object):
         logger.debug("Trying to retrieve RenderingEngine from %s active services" % len(services))
         for service in services:
             if "RenderingEngine" in service:
-                reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, 
-                                service_name=service, preventClose=True)
+                reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, service_name=service)
                 try:
                     if reProxy.getPixels().id.val == pixelsId:
                         reProxy._tainted = True
@@ -2098,7 +2097,6 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         rv = self._proxies['rendering']
-        rv._preventClose = True
         if rv._tainted:
             rv = self._proxies['rendering'] = rv.clone()
         rv.taint()
@@ -5917,6 +5915,13 @@ class _ImageWrapper (BlitzObjectWrapper):
                 logger.debug('on _prepareRE()', exc_info=True)
                 self._re = None
         return self._re is not None
+
+    def preventREClose (self):
+        """ 
+        Set a flag on the RenderingEngine proxy to indicate that we don't want to close it 
+        This means that conn._proxies['rendering'].close() has no effect
+        """
+        self._conn._proxies['rendering']._preventClose = True
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
