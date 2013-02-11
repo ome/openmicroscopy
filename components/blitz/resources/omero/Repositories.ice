@@ -31,6 +31,14 @@ module omero {
         };
 
         /**
+         * Specifies that a file with the given path has failed to
+         * be deleted from the file system.
+         */
+        exception FileDeleteException extends RepositoryException {
+
+        };
+
+        /**
          * Specifies that a file is located at the given location
          * that is not otherwise known by the repository. A
          * subsequent call to [Repository::register] will create
