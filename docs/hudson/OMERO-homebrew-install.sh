@@ -35,10 +35,16 @@ if [ -d "$BREW_DIR" ]; then
         done
     fi
 
-    echo "Cleaning Homebrew for reinstallation"
     if [ -d "$BREW_DIR/.git" ]
     then
+        echo "Cleaning Homebrew for reinstallation"
         rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
+    fi
+
+    if [-d "$BREW_DIR/Library/Taps"]
+    then
+        echo "Cleaning Homebrew taps"
+        rm -rf $BREW_DIR/Library/Taps
     fi
 fi
 
