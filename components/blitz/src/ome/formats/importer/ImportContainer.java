@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import omero.grid.ImportSettings;
 import omero.model.Annotation;
@@ -220,7 +220,7 @@ public class ImportContainer
     }
 
     public void fillData(ImportConfig config, ImportSettings settings, Fileset fs, 
-            FilePathTransformerOnClient sanitizer) throws IOException {
+            ClientFilePathTransformer sanitizer) throws IOException {
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than mis-using ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());

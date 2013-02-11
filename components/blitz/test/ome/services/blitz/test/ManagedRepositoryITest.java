@@ -35,7 +35,7 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.system.Principal;
 
@@ -131,8 +131,8 @@ public class ManagedRepositoryITest extends AbstractServantTest {
     }
 
     public void testBasicImportExample() throws Exception {
-        final FilePathTransformerOnClient clientPaths = 
-                new FilePathTransformerOnClient(new MakePathComponentSafe());
+        final ClientFilePathTransformer clientPaths = 
+                new ClientFilePathTransformer(new MakePathComponentSafe());
         
         File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
         ImportContainer ic = makeFake(tmpDir);

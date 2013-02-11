@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -94,6 +95,9 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     
     private static final Set<Integer> codePointsOfTypeControl;
     
+    private static final TempFileManager tempFileManager =
+            new TempFileManager("test-" + MakePathComponentSafeTest.class.getSimpleName());
+    
     static {
         codePointsOfTypeControl = new HashSet<Integer>();
         for (int codePoint = 0; codePoint < 0x100; codePoint++)
@@ -144,18 +148,6 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             Assert.assertEquals(unsafeString, unsafeString.toUpperCase(),
                     "the unsafe strings should be upper-case");
     }
-
-    /**
-     * Create a temporary directory and return it.
-     * @return a temporary directory
-     * @throws IOException if there is a problem in creating the directory
-     */
-    private File createTempDir() throws IOException {
-        final File tempDir = File.createTempFile("test-" + getClass().getSimpleName(), null);
-        tempDir.delete();
-        tempDir.mkdir();
-        return tempDir;
-    }
     
     /**
      * Test that the parent directory of the given {@link File} contains a file of the given name.
@@ -204,7 +196,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     @Test
     public void testUnsafeCharacterUnsafetyWindows() throws IOException {
         requireOperatingSystem(OperatingSystem.WINDOWS);
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testUnsafeCharacterUnsafetyWindows", null, true);
         for (final int unsafeCodePoint : MakePathComponentSafe.transformationMatrix.keySet()) {
             if (codePointsOfTypeControl.contains(unsafeCodePoint))
                 /* no point testing, one wants to avoid control characters in filenames whatever the operating system permits */
@@ -225,7 +217,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                 // expected
             }
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
     
     /**
@@ -234,7 +226,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testSanitizedUnsafeCharacterSafety() throws IOException {
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testSanitizedUnsafeCharacterSafety", null, true);
         for (final int safeCodePoint : MakePathComponentSafe.transformationMatrix.keySet()) {
             final String unsafeString = new String(new int[] {safeCodePoint}, 0, 1);
             final String unsafeName = "safe" + MakePathComponentSafe.safeCharacter + unsafeString +
@@ -245,7 +237,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
 
     /**
@@ -254,7 +246,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testSafeCharacterSafety() throws IOException {
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testSafeCharacterSafety", null, true);
         final Set<Integer> safeCodePoints = new HashSet<Integer>();
         safeCodePoints.add(Character.codePointAt(new char[] {MakePathComponentSafe.safeCharacter}, 0));
         safeCodePoints.addAll(MakePathComponentSafe.transformationMatrix.values());
@@ -265,7 +257,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
 
     /**
@@ -274,13 +266,13 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testSanitizedUnsafeNameSafety() throws IOException {
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testSanitizedUnsafeNameSafety", null, true);
         for (final String unsafeName : MakePathComponentSafe.unsafeNames) {
             final String safeName = sanitizer.apply(unsafeName);
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
     
     /**
@@ -289,7 +281,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testSanitizedUnsafePrefixSafety() throws IOException {
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testSanitizedUnsafePrefixSafety", null, true);
         for (final String unsafePrefix : MakePathComponentSafe.unsafePrefixes) {
             final String unsafeName = unsafePrefix + MakePathComponentSafe.safeCharacter + "unsafe";
             final String safeName = sanitizer.apply(unsafeName);
@@ -300,7 +292,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
     
     /**
@@ -309,7 +301,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testSanitizedUnsafeSuffixSafety() throws IOException {
-        final File tempDir = createTempDir();
+        final File tempDir = tempFileManager.createPath("testSanitizedUnsafeSuffixSafety", null, true);
         for (final String unsafeSuffix : MakePathComponentSafe.unsafeSuffixes) {
             final String unsafeName = "unsafe" + MakePathComponentSafe.safeCharacter + unsafeSuffix;
             final String safeName = sanitizer.apply(unsafeName);
@@ -320,7 +312,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
-        tempDir.delete();
+        tempFileManager.removePath(tempDir);
     }
     
     /**
