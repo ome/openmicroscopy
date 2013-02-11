@@ -37,7 +37,8 @@ import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.gateway.services.util.ServiceUtilities;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
 
@@ -79,8 +80,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
     private final static int parentDirsToRetain = 3;
     
-    private static FilePathTransformerOnClient nopClientTransformer = 
-            new FilePathTransformerOnClient(new StringTransformer() {
+    /* This class is used in the server-side creation of import containers.
+     * The suggestImportPaths method sanitizes the paths in due course.
+     * From the server side, we cannot imitate ImportLibrary.createImport
+     * in applying client-side specifics to clean up the path. */
+    private static ClientFilePathTransformer nopClientTransformer = 
+            new ClientFilePathTransformer(new StringTransformer() {
                 // @Override  since JDK6
                 public String apply(String from) {
                     return from;
@@ -188,6 +193,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
         } catch (IOException e) {
             // impossible
+            ServiceUtilities.handleException(e, "IO exception from operation without IO");
         }
 
         return importFileset(fs, settings, __current);
@@ -376,7 +382,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
         // TODO: new import set ID
-        map.put("importSetId", Long.toString(System.currentTimeMillis() - 1359540000000L));
+        map.put("importSetId", Long.toString(System.currentTimeMillis() - 1360000000000L));
         return map;
     } 
 

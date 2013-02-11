@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
-import ome.services.blitz.repo.path.FilePathTransformerOnClient;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.Utils;
 
@@ -87,8 +87,8 @@ public class ImportLibrary implements IObservable
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
 
-    private static final FilePathTransformerOnClient sanitizer = 
-            new FilePathTransformerOnClient(new MakePathComponentSafe());
+    private static final ClientFilePathTransformer sanitizer = 
+            new ClientFilePathTransformer(new MakePathComponentSafe());
     
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
