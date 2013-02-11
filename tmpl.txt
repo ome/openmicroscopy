@@ -52,8 +52,8 @@ Watch the  [ImageJ Plugin Movie]("http://cvs.openmicroscopy.org.uk/snapshots/mov
 </tr>
 <tr>
  <th> Windows </th>
- <th> Linux </th>
  <th> Mac OS X </th>
+ <th> Linux </th>
  <th> ImageJ/Fiji </th>
  <th> Matlab </th>
 </tr>

@@ -115,10 +115,11 @@ def find_pkg(repl, fingerprint_url, snapshot_path, snapshot_url, name, path, ign
         raise Exception("Results!=1 for %s (%s): %s" % (name, path, rv))
     path = rv[0]
     hash = hashfile(path)
-    if hash not in ignore_md5:
-        furl = "/".join([fingerprint_url, hash, "api", "xml"])
-        if not check_url(furl):
-            raise Exception("Error accessing %s for %s" % (furl, path))
+    if "SKIP_MD5" not in os.environ:
+        if hash not in ignore_md5:
+            furl = "/".join([fingerprint_url, hash, "api", "xml"])
+            if not check_url(furl):
+                raise Exception("Error accessing %s for %s" % (furl, path))
     repl["@%s@" % name] = snapshot_url + path[len(snapshot_path):]
     repl["@%s_MD5@" % name] = hash
     repl["@%s_BASE@" % name] = os.path.basename(path)

@@ -39,6 +39,8 @@ Regular usage steps consist of:
      - Symlink OMERO-trunk/<BUILDNUMBER> to
          omero/4.4.4
 
+  * Manually copy OMERO-4.4.6.pdf into release dir.
+
   * Run gen.py 4.4.4 <BUILDNUMBER> and save
     the output as the download page on plone.
     If testing (i.e. staging) use:
