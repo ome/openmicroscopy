@@ -148,7 +148,10 @@ class MyWatchManager(pyinotify.WatchManager):
             if self.watchParams[path].getRec():
                 for d in pathModule.path(path).dirs():
                     self.addWatch(str(d), mask)
-            self.log.info('Watch added on: %s', path)
+            if self.isPathWatched(path):
+                self.log.info('Watch added on: %s', path)
+            else:
+                self.log.info('Unable to add watch on: %s', path)
 
     def removeWatch(self, path):
         if self.isPathWatched(path):
