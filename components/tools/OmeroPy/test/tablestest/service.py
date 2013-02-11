@@ -18,6 +18,46 @@ from integration import library as lib
 
 class TestTables(lib.ITest):
 
+    def createMaskCol(self):
+        mask = omero.columns.MaskColumnI('mask', 'desc', None)
+        mask.imageId = [1, 2]
+        mask.theZ = [3, 4]
+        mask.theT = [5, 6]
+        mask.x = [7.0, 8.0]
+        mask.y = [9.0, 10.0]
+        mask.w = [11.0, 12.0]
+        mask.h = [13.0, 14.0]
+        mask.bytes = [[15],[16,17,18,19,20]]
+        return mask
+
+    def checkMaskCol(self, test):
+        def arr(x):
+            import numpy
+            import tables
+            return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
+
+        self.assertEquals(1, test.imageId[0])
+        self.assertEquals(3, test.theZ[0])
+        self.assertEquals(5, test.theT[0])
+        self.assertEquals(7, test.x[0])
+        self.assertEquals(9, test.y[0])
+        self.assertEquals(11, test.w[0])
+        self.assertEquals(13, test.h[0])
+        self.assertEquals([15], arr(test.bytes[0]))
+
+        self.assertEquals(2, test.imageId[1])
+        self.assertEquals(4, test.theZ[1])
+        self.assertEquals(6, test.theT[1])
+        self.assertEquals(8, test.x[1])
+        self.assertEquals(10, test.y[1])
+        self.assertEquals(12, test.w[1])
+        self.assertEquals(14, test.h[1])
+
+        x = [16,17,18,19,20]
+        y = arr(test.bytes[1])
+        for i in range(len(x)):
+            self.assertEquals(x[i], y[i])
+
     def testBlankTable(self):
         grid = self.client.sf.sharedResources()
         repoMap = grid.repositories()
@@ -57,47 +97,13 @@ class TestTables(lib.ITest):
         repoPrx = repoMap.proxies[0]
         table = grid.newTable(repoObj.id.val, "/test")
         self.assert_( table )
-        mask = omero.columns.MaskColumnI('mask', 'desc', None)
-        mask.imageId = [1, 2]
-        mask.theZ = [2, 2]
-        mask.theT = [3, 3]
-        mask.x = [4.0, 4.0]
-        mask.y = [5.0, 5.0]
-        mask.w = [6.0, 6.0]
-        mask.h = [7.0, 7.0]
-        mask.bytes = [[0],[0,1,2,3,4]]
+        mask = self.createMaskCol()
 
         table.initialize([mask])
         table.addData([mask])
         data = table.readCoordinates([0,1])
 
-        def arr(x):
-            import numpy
-            import tables
-            return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
-
-        test = data.columns[0]
-        self.assertEquals(1, test.imageId[0])
-        self.assertEquals(2, test.theZ[0])
-        self.assertEquals(3, test.theT[0])
-        self.assertEquals(4, test.x[0])
-        self.assertEquals(5, test.y[0])
-        self.assertEquals(6, test.w[0])
-        self.assertEquals(7, test.h[0])
-        self.assertEquals([0], arr(test.bytes[0]))
-
-        self.assertEquals(2, test.imageId[1])
-        self.assertEquals(2, test.theZ[1])
-        self.assertEquals(3, test.theT[1])
-        self.assertEquals(4, test.x[1])
-        self.assertEquals(5, test.y[1])
-        self.assertEquals(6, test.w[1])
-        self.assertEquals(7, test.h[1])
-        x = [0,1,2,3,4]
-        y = arr(test.bytes[1])
-        for i in range(len(x)):
-            self.assertEquals(x[i], y[i])
-
+        self.checkMaskCol(data.columns[0])
 
     def test2098(self):
         """
@@ -285,6 +291,159 @@ class TestTables(lib.ITest):
         sr2 = client2.sf.sharedResources()
 
         self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
+
+    def testArrayColumn(self):
+        """
+        A table containing only an array column
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        larr = omero.columns.LongArrayColumnI('longarr', 'desc', 2)
+        larr.values = [[-2, -1], [1, 2]]
+
+        table.initialize([larr])
+        table.addData([larr])
+        data = table.readCoordinates([0,1])
+
+        testl = data.columns[0].values
+        self.assertEquals([-2, -1], testl[0])
+        self.assertEquals([1, 2], testl[1])
+
+    def testArrayColumnSize1(self):
+        """
+        Size one arrays require special handling
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        darr = omero.columns.DoubleArrayColumnI('longarr', 'desc', 1)
+        darr.values = [[0.5], [0.25]]
+
+        table.initialize([darr])
+        table.addData([darr])
+        data = table.readCoordinates([0,1])
+
+        testl = data.columns[0].values
+        self.assertEquals([0.5], testl[0])
+        self.assertEquals([0.25], testl[1])
+
+    def testAllColumnsSameTable(self):
+        """
+        Check all column types can coexist in the same table
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+
+        fcol = omero.columns.FileColumnI('filecol', 'file col')
+        fcol.values = [10, 20]
+        icol = omero.columns.ImageColumnI('imagecol', 'image col')
+        icol.values = [30, 40]
+        rcol = omero.columns.RoiColumnI('roicol', 'roi col')
+        rcol.values = [50, 60]
+        wcol = omero.columns.WellColumnI('wellcol', 'well col')
+        wcol.values = [70, 80]
+        pcol = omero.columns.PlateColumnI('platecol', 'plate col')
+        pcol.values = [90, 100]
+
+        bcol = omero.columns.BoolColumnI('boolcol', 'bool col')
+        bcol.values = [True, False]
+        dcol = omero.columns.DoubleColumnI('doublecol', 'double col')
+        dcol.values = [0.25, 0.5]
+        lcol = omero.columns.LongColumnI('longcol', 'long col')
+        lcol.values = [-1, -2]
+
+        scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
+        scol.values = ["abc", "de"]
+
+        mask = self.createMaskCol()
+
+        larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
+        larr.values = [[-2, -1], [1, 2]]
+        darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
+        darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
+
+        cols = [fcol, icol, rcol, wcol, pcol,
+                bcol, dcol, lcol, scol, mask,
+                larr, darr]
+
+        table.initialize(cols)
+        table.addData(cols)
+        data = table.readCoordinates([0,1])
+
+        testf = data.columns[0].values
+        self.assertEquals(10, testf[0])
+        self.assertEquals(20, testf[1])
+        testi = data.columns[1].values
+        self.assertEquals(30, testi[0])
+        self.assertEquals(40, testi[1])
+        testr = data.columns[2].values
+        self.assertEquals(50, testr[0])
+        self.assertEquals(60, testr[1])
+        testw = data.columns[3].values
+        self.assertEquals(70, testw[0])
+        self.assertEquals(80, testw[1])
+        testp = data.columns[4].values
+        self.assertEquals(90, testp[0])
+        self.assertEquals(100, testp[1])
+
+        testb = data.columns[5].values
+        self.assertEquals(True, testb[0])
+        self.assertEquals(False, testb[1])
+        testd = data.columns[6].values
+        self.assertEquals(0.25, testd[0])
+        self.assertEquals(0.5, testd[1])
+        testl = data.columns[7].values
+        self.assertEquals(-1, testl[0])
+        self.assertEquals(-2, testl[1])
+
+        tests = data.columns[8].values
+        self.assertEquals("abc", tests[0])
+        self.assertEquals("de", tests[1])
+
+        testm = data.columns[9]
+        self.checkMaskCol(testm)
+
+        testla = data.columns[10].values
+        self.assertEquals([-2, -1], testla[0])
+        self.assertEquals([1, 2], testla[1])
+        testda = data.columns[11].values
+        self.assertEquals([-0.25, -0.5], testda[0])
+        self.assertEquals([0.125, 0.0625], testda[1])
+
+        ofile = table.getOriginalFile()
+        print "testAllColumnsSameTable", "OriginalFile:", ofile.getId().val
+
+        # Now try an update
+        updatel = omero.grid.LongColumn('longcol', '', [12345])
+        updatela = omero.grid.LongArrayColumn('longarr', '', 2, [[654, 321]])
+        updateData = omero.grid.Data(
+            rowNumbers = [1], columns = [updatel, updatela])
+        table.update(updateData)
+
+        self.assertEquals(table.getNumberOfRows(), 2)
+        data2 = table.readCoordinates([0,1])
+
+        for n in [0, 1, 2, 3, 4, 5, 6, 8, 11]:
+            self.assertEquals(data.columns[n].values, data2.columns[n].values)
+        self.checkMaskCol(data2.columns[9])
+
+        testl2 = data2.columns[7].values
+        self.assertEquals(-1, testl2[0])
+        self.assertEquals(12345, testl2[1])
+        testla2 = data2.columns[10].values
+        self.assertEquals([-2, -1], testla2[0])
+        self.assertEquals([654, 321], testla2[1])
+
+
+    # TODO: Add tests for error conditions
 
 
 def test_suite():
