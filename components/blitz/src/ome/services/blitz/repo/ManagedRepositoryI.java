@@ -165,7 +165,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         ImportLocation location =
-                suggestOnConflict(relPath, basePath, paths, __current);
+                suggestImportPaths(relPath, basePath, paths, __current);
 
         return createImportProcess(fs, location, settings, __current);
     }
@@ -440,17 +440,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
     /**
      * Take a relative path that the user would like to see in his or her
-     * upload area, and check that none of the suggested paths currently
-     * exist in that location. If they do, then append an incrementing version
-     * number to the path ("/my/path/" becomes "/my-1/path" then "/my-2 /path")
-     * at the highest part of the path possible.
-     *
+     * upload area, and provide an import location instance whose paths
+     * correspond to existing directories corresponding to the sanitized
+     * file paths.
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
-     * @return {@link ImportLocation} instance with the suggested new basePath in the
-     *          case of conflicts.
+     * @return {@link ImportLocation} instance
      */
-    protected ImportLocation suggestOnConflict(FsFile relPath,
+    protected ImportLocation suggestImportPaths(FsFile relPath,
             FsFile basePath, List<FsFile> paths, Ice.Current __current)
             throws omero.ServerError {
         final Paths trimmedPaths = trimPaths(basePath, paths);

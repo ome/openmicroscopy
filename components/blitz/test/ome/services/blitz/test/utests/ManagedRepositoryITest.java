@@ -91,9 +91,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestOnConflict(FsFile relPath,
+        public ImportLocation suggestImportPaths(FsFile relPath,
                 FsFile basePath, List<FsFile> paths, Ice.Current curr) throws omero.ServerError {
-            return super.suggestOnConflict(relPath, basePath, paths, curr);
+            return super.suggestImportPaths(relPath, basePath, paths, curr);
         }
 
         @Override
@@ -152,7 +152,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     
     private String getSuggestion(String base, String...paths) throws Exception {
         final ImportLocation l = 
-                this.tmri.suggestOnConflict(new FsFile("template"), new FsFile(base), toFsFileList(paths), curr);
+                this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), curr);
         return new File(l.sharedPath).getName();
     }
 
