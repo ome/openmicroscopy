@@ -231,10 +231,10 @@ public class UIUtilities
 	public static final long				DAY = 86400000;
 
 	/** Unicode for the squared symbol. */
-	public final static String  			SQUARED_SYMBOL =  "\u00B2";
+	public final static String  			SQUARED_SYMBOL =  "²";
 	
 	/** Unicode for the squared symbol. */
-	public final static String  			DELTA_SYMBOL =  "\u0394";
+	public final static String  			DELTA_SYMBOL =  "Δ";
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";

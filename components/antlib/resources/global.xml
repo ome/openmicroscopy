@@ -535,7 +535,7 @@ with OMERO.
         </macrodef>
 
         <!--
-          The hard-wiring macro is used to allowcertain method interceptors to
+          The hard-wiring macro is used to allow certain method interceptors to
           be hard-wired around method exception *before* any of the "soft"
           spring-wired interceptors (see resources/ome/services/services.xml)
 
