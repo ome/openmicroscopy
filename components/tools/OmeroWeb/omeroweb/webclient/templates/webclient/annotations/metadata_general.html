@@ -130,7 +130,7 @@
                         function(data) {
                             fs_input.val(data.join("\n"));
                             fs_input.attr("cols", 150);
-                            fs_input.attr("rows", data.length);
+                            fs_input.attr("rows", Math.max(3, data.length));
                         });
                 });
                 $("#fs_paths_popup img").click(function(){
