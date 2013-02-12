@@ -651,10 +651,6 @@ TEST(SearchTest, testAnnotatedWith ) {
     }
 }
 
-TEST(SearchTest, testAnnotatedWithNamespace ) {
-    FAIL() << "NYI: via namespace";
-}
-
 TEST(SearchTest, testAnnotatedWithMultiple ) {
     try {
     ImagePtr i1 = new_ImageI();
