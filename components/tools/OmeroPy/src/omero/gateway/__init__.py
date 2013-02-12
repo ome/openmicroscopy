@@ -5743,6 +5743,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _rm = {}
     _pixels = None
     _archivedFileCount = None
+    _reuseREs = False
 
     _pr = None # projection
 
@@ -5871,12 +5872,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         pid = self.getPrimaryPixels().id
 
         # We first try to retrieve an existing RE, already initialised with Pixels
-        re = self._conn._recreateRE(pid)
-        if re is not None:
-            return re
+        if self._reuseREs:
+            re = self._conn._recreateRE(pid)
+            if re is not None:
+                re._preventClose = True
+                return re
 
         # None found, so we create a new RE and init with Pixels etc.
         re = self._conn.createRenderingEngine(pid)
+        # If we're reusing Rendering Engines, set flag to keep it open
+        if self._reuseREs:
+            re._preventClose = True
         ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
@@ -5916,12 +5922,14 @@ class _ImageWrapper (BlitzObjectWrapper):
                 self._re = None
         return self._re is not None
 
-    def preventREClose (self):
-        """ 
-        Set a flag on the RenderingEngine proxy to indicate that we don't want to close it 
-        This means that conn._proxies['rendering'].close() has no effect
+    def reuseREs (self, reuseREs=True):
         """
-        self._conn._proxies['rendering']._preventClose = True
+        Sets a flag that affects how we create & close Rendering Engines.
+        If resuseREs is True, we try to use existing Rendering Engines instead of 
+        always creating a new one. We also ignore the close() method on the RE proxy,
+        so that the Rendering Engine stays open and can be reused again.
+        """
+        self._reuseREs = reuseREs
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
