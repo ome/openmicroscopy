@@ -149,6 +149,8 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Fileset;
+import omero.model.FilesetEntry;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
@@ -3873,9 +3875,7 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		if (image.isArchived())
-			return retrieveArchivedFiles(ctx, folderPath, image);
-		return null;
+		return retrieveArchivedFiles(ctx, folderPath, image);
 	}
 	
 	/**
@@ -3895,14 +3895,27 @@ class OMEROGateway
 	{
 		IQueryPrx service = getQueryService(ctx);
 		List<?> files = null;
+		StringBuffer buffer = new StringBuffer();
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("id", omero.rtypes.rlong(
-					image.getDefaultPixels().getId()));
-			files = service.findAllByQuery(
-					"select ofile from OriginalFile as ofile left join " +
-					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
-					"child where child.id = :id", param);
+			long id;
+			if (image.isArchived()) { //prior to FS
+				id = image.getDefaultPixels().getId();
+				buffer.append("select ofile from OriginalFile as ofile ");
+				buffer.append("left join ofile.pixelsFileMaps as pfm ");
+				buffer.append("left join pfm.child as child ");
+				buffer.append("where child.id = :id");
+			} else {
+				id = image.getId();
+				buffer.append("select fs from Fileset as fs ");
+				buffer.append("left outer join fetch fs.imageLinks as fil ");
+				buffer.append("join fetch fil.child as image ");
+				buffer.append("left outer join fetch fs.usedFiles as usedFile ");
+				buffer.append("join fetch usedFile.originalFile ");
+				buffer.append("where image.id =:id");
+			}
+			param.map.put("id", omero.rtypes.rlong(id));
+			files = service.findAllByQuery(buffer.toString(), param);
 		} catch (Exception e) {
 			handleConnectionException(e);
 			throw new DSAccessException("Cannot retrieve original file", e);
@@ -3910,8 +3923,24 @@ class OMEROGateway
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
+		Iterator<?> i;
+		List<OriginalFile> values = new ArrayList<OriginalFile>();
+		if (!image.isArchived()) {
+			i = files.iterator();
+			Fileset set;
+			List<FilesetEntry> entries;
+			Iterator<FilesetEntry> j;
+			while (i.hasNext()) {
+				set = (Fileset) i.next();
+				entries = set.copyUsedFiles();
+				j = entries.iterator();
+				while (j.hasNext()) {
+					values.add(j.next().getOriginalFile());
+				}
+			}
+		} else values.addAll((List<OriginalFile>) files);
+		
 		RawFileStorePrx store;
-		Iterator<?> i = files.iterator();
 		OriginalFile of;
 		long size;	
 		FileOutputStream stream = null;
@@ -3920,8 +3949,10 @@ class OMEROGateway
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String fullPath;
-		while (i.hasNext()) {
-			of = (OriginalFile) i.next();
+		Iterator<OriginalFile> k;
+		 k = values.iterator();
+		while (k.hasNext()) {
+			of = k.next();
 			store = getRawFileService(ctx);
 			try {
 				store.setFileId(of.getId().getValue()); 
