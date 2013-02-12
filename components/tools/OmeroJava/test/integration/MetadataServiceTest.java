@@ -233,7 +233,7 @@ public class MetadataServiceTest
         int count = 0;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				count++;
 				if (r.getId().getValue() == data.getId().getValue()) {
@@ -309,7 +309,7 @@ public class MetadataServiceTest
         FileAnnotation r;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				assertNotNull(r.getNs());
 				assertEquals(ns, r.getNs().getValue());
@@ -329,7 +329,7 @@ public class MetadataServiceTest
         int count = 0;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				if (r.getNs() != null) {
 					if (ns.equals(r.getNs().getValue())) count++;
@@ -1191,7 +1191,7 @@ public class MetadataServiceTest
         FileAnnotationData pojo;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				pojo = new FileAnnotationData( (FileAnnotation) o);
 				count++;
 				if (pojo.getId() == data.getId().getValue()) {
@@ -1251,5 +1251,5 @@ public class MetadataServiceTest
 			}
 		}
     }
-   
+
 }
