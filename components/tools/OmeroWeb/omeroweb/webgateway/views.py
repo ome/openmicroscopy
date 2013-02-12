@@ -637,6 +637,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                  r, str(conn)))
     img = conn.getObject("Image", iid)
+    if r.get('closeRE', None) == 'false':
+        img.reuseREs()
     if img is None:
         return
     if r.has_key('c'):
@@ -655,8 +657,6 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
         r.has_key('z') and img._re.setDefaultZ(long(r['z'])-1)
         r.has_key('t') and img._re.setDefaultT(long(r['t'])-1)
         img.saveDefaults()
-    if r.get('closeRE', None) == 'false':
-        img.preventREClose()
     return (img, compress_quality)
 
 @login_required()
