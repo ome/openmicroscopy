@@ -19,11 +19,26 @@ from omero.cmd import ERR
 from omero.gateway import BlitzGateway
 from omero.rtypes import rbool
 from omero.rtypes import rstring
+from omero.rtypes import unwrap
 from omero.util.temp_files import create_path
 from omero_version import omero_version
 
 
 class AbstractRepoTest(lib.ITest):
+
+    def setUp(self):
+        super(AbstractRepoTest, self).setUp()
+        mrepo = self.getManagedRepo()
+        user_dir = self.user_dir()
+        unique_dir = user_dir + "/" + self.uuid()
+        mrepo.makeDir(unique_dir, True)
+        self.unique_dir = unique_dir
+
+    def user_dir(self, client=None):
+        if client == None:
+            client = self.client
+        ec = client.sf.getAdminService().getEventContext()
+        return "%s_%s" % (ec.userName, ec.userId)
 
     def all(self, client):
         ctx = dict(client.getImplicitContext().getContext())
@@ -582,11 +597,58 @@ class TestDbSync(AbstractRepoTest):
             self.assertEquals(file.mimetype, ufe.file.mimetype)
 
 
+class TestRecursiveDelete(AbstractRepoTest):
+
+    # treeList is a utility that is useful for
+    # testing recursive deletes.
+    def testTreeList(self):
+        filename = self.unique_dir + "/file.txt"
+        mrepo = self.getManagedRepo()
+        ofile = self.createFile(mrepo, filename)
+
+        # There should me one key in each of the files
+        # NB: globs not currently supported.
+        file_map1 = unwrap(mrepo.treeList(filename))
+        self.assertEquals(1, len(file_map1))
+        dir_map = unwrap(mrepo.treeList(self.unique_dir))
+        self.assertEquals(1, len(dir_map))
+        dir_key = dir_map.keys()[0]
+
+        file_map2 = dir_map[dir_key]["files"]["file.txt"]
+
+        for file_map in (file_map1["file.txt"], file_map2):
+            self.assertEquals(ofile.id.val, file_map["id"], msg=str(file_map))
+            self.assertEquals(ofile.size.val, file_map["size"], msg=str(file_map))
+
+    # In order to prevent dangling files now that
+    # the repository uses the DB strictly for all
+    # FS listings, it's necessary to prevent any
+    # directories from being directly deleted.
+    def testCmdDeleteCantDeleteDirectories(self):
+        mrepo = self.getManagedRepo()
+        dir_map = unwrap(mrepo.treeList(self.unique_dir))
+        self.assertEquals(1, len(dir_map))
+        dir_key = dir_map.keys()[0]
+        id = dir_map[dir_key]["id"]
+
+        gateway = BlitzGateway(client_obj=self.client)
+        handle = gateway.deleteObjects("/OriginalFile", [id])
+        try:
+            self.assertRaises(Exception,
+                    gateway._waitOnCmd, handle, failonerror=True)
+        finally:
+            handle.close()
+
+    # On the other hand, the repository itself can
+    # provide a method which enables recursive delete.
+    def testRecursiveDeleteMethodAvailable(self):
+        pass
+
+
 class TestDeleteLog(AbstractRepoTest):
 
     def testSimpleDelete(self):
         uuid = self.uuid()
-        print uuid
         filename = uuid + "/file.txt"
         mrepo = self.getManagedRepo()
         mrepo.makeDir(uuid, True)
@@ -623,12 +685,6 @@ class TestUserTemplate(AbstractRepoTest):
     at the top is only possible if it is your user directory.
     """
 
-    def userDir(self, client=None):
-        if client == None:
-            client = self.client
-        ec = client.sf.getAdminService().getEventContext()
-        return "%s_%s" % (ec.userName, ec.userId)
-
     def testCreateUuidFails(self):
         uuid = self.uuid()
         mrepo = self.getManagedRepo()
@@ -636,14 +692,14 @@ class TestUserTemplate(AbstractRepoTest):
 
     def testCreateUserDirPasses(self):
         mrepo = self.getManagedRepo()
-        userDir = self.userDir()
-        mrepo.makeDir(userDir, True)
+        user_dir = self.user_dir()
+        mrepo.makeDir(user_dir, True)
 
     def testCreateUuidUnderUserDirPasses(self):
         mrepo = self.getManagedRepo()
-        userDir = self.userDir()
+        user_dir = self.user_dir()
         uuid = self.uuid()
-        mydir = "%s/%s" % (userDir, uuid)
+        mydir = "%s/%s" % (user_dir, uuid)
         mrepo.makeDir(mydir, True)
 
     # If a user should be able to create a file
@@ -651,8 +707,8 @@ class TestUserTemplate(AbstractRepoTest):
     # which group s/he is in.
     def testUserDirShouldBeGloballyWriteable(self):
         mrepo = self.getManagedRepo()
-        userDir = self.userDir()
-        aDir = userDir + "/" + self.uuid()
+        user_dir = self.user_dir()
+        aDir = user_dir + "/" + self.uuid()
         aFile = aDir + "/a.txt"
 
         # Create a first file in one group
@@ -666,7 +722,7 @@ class TestUserTemplate(AbstractRepoTest):
         self.set_context(self.client, group.id.val)
 
         # Now write a second file from another group
-        bDir = userDir + "/" + self.uuid()
+        bDir = user_dir + "/" + self.uuid()
         bFile = bDir + "/b.txt"
         mrepo.makeDir(bDir, True)
         self.createFile(mrepo, bFile)

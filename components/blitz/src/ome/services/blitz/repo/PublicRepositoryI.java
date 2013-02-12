@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -54,6 +55,10 @@ import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
 
 import omero.InternalException;
+import omero.RLong;
+import omero.RMap;
+import omero.RString;
+import omero.RType;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -64,6 +69,9 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RawPixelsStorePrxHelper;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
+import omero.cmd.Delete;
+import omero.cmd.DoAll;
+import omero.cmd.HandlePrx;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
@@ -168,6 +176,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return repositoryDao.getOriginalFiles(repoUuid, checked, __current);
     }
 
+    public RMap treeList(String path, Current __current) throws ServerError {
+        CheckedPath checked = checkPath(path, __current);
+        return repositoryDao.treeList(repoUuid, checked, __current);
+    }
+
+
     /**
      * Register an OriginalFile using its path
      *
@@ -187,14 +201,19 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 mimetype == null ? null : mimetype.getValue(), __current);
     }
 
-    public boolean delete(String path, Current __current) throws ServerError {
-        return checkPath(path, __current).mustEdit().delete();
-    }
 
-    public List<String> deleteFiles(String[] files, Current __current) throws ServerError {
-        List<String> undeleted = new ArrayList<String>();
+    public HandlePrx deletePaths(String[] files, boolean recursive, boolean force,
+            Current __current) throws ServerError {
+
+        final DoAll all = new DoAll();
+        final List<Delete> commands = new ArrayList<Delete>();
+        /*
         for (String path : files) {
-            CheckedPath check = checkPath(path, __current).mustEdit();
+            // treeList() calls checkedPath
+            RMap map = treeList(path, __current);
+            if (map != null && map.getValue() != null) {
+                // Each of the subdirectories
+            }
             boolean deleted = check.delete();
             if (!deleted) {
                 undeleted.add(path);
@@ -211,7 +230,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 }
             }
         }
-        return undeleted;
+        */
+        return null;
     }
 
     /**
