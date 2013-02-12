@@ -252,24 +252,24 @@ public class MetadataServiceTest
         result = iMetadata.loadSpecifiedAnnotations(FILE_ANNOTATION,
         		include, exclude, param);
         assertNotNull(result);
-       
+
         i = result.iterator();
         count = 0;
         while (i.hasNext()) {
-			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
-				r = (FileAnnotation) o;
-				count++;
-				if (r.getId().getValue() == data.getId().getValue()) {
-					assertEquals(r.getFile().getId().getValue(),
-							of.getId().getValue());
-					assertEquals(r.getFile().getName().getValue(),
-							of.getName().getValue());
-					assertEquals(r.getFile().getPath().getValue(),
-							of.getPath().getValue());
-				}
-			}
-		}
+        	o = i.next();
+        	if (o != null && o instanceof FileAnnotation) {
+        		r = (FileAnnotation) o;
+        		count++;
+        		if (r.getId().getValue() == data.getId().getValue()) {
+        			assertEquals(r.getFile().getId().getValue(),
+        					of.getId().getValue());
+        			assertEquals(r.getFile().getName().getValue(),
+        					of.getName().getValue());
+        			assertEquals(r.getFile().getPath().getValue(),
+        					of.getPath().getValue());
+        		}
+        	}
+        }
         assertTrue(count > 0);
         assertEquals(count, result.size());
     }
@@ -1166,18 +1166,18 @@ public class MetadataServiceTest
      */
     @Test
     public void testLoadSpecifiedAnnotationsFileAnnotationConvertToPojo() 
-    	throws Exception
+    		throws Exception
     {
-		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-				mmFactory.createOriginalFile());
-		assertNotNull(of);
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+    	assertNotNull(of);
 
-		FileAnnotationI fa = new FileAnnotationI();
-		fa.setFile(of);
-		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-		assertNotNull(data);
-		
-        Parameters param = new Parameters();
+    	FileAnnotationI fa = new FileAnnotationI();
+    	fa.setFile(of);
+    	FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+    	assertNotNull(data);
+
+    	Parameters param = new Parameters();
         List<String> include = new ArrayList<String>();
         List<String> exclude = new ArrayList<String>();
         List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
