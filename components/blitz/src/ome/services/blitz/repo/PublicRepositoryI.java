@@ -102,7 +102,7 @@ import org.springframework.transaction.annotation.Transactional;
 import Ice.Current;
 
 /**
- * An implementation of he PublicRepository interface
+ * An implementation of the PublicRepository interface.
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
