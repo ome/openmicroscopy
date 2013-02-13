@@ -176,6 +176,30 @@ public class CheckedPath {
     }
 
     /**
+     * Returns a new {@link CheckedPath} that has the given path appended
+     * to the end of this instances path. A check is made that the name does
+     * not contain "/" (i.e. subpaths) nor that it is ".." or ".".
+     *
+     * @param name
+     * @return
+     */
+    public CheckedPath child(String name) throws ValidationException {
+        if (name == null) {
+            throw new ValidationException(null, null, "null name");
+        } else if (".".equals(name) || "..".equals(name)) {
+            throw new ValidationException(null, null,
+                    "Only proper child name is allowed. Not '.' or '..'");
+        } else if (name.contains("/")) {
+            throw new ValidationException(null, null,
+                    "No subpaths allowed. Path contains '/'");
+        }
+        List<String> copy = new ArrayList<String>(this.fsFile.getComponents());
+        copy.add(name);
+        // TODO: This doesn't seem correct.
+        return new CheckedPath(new File(original +"/" + name), new FsFile(copy));
+    }
+
+    /**
      * Checks for existence of the original path, throwing an exception if
      * not present.
      *
@@ -286,4 +310,5 @@ public class CheckedPath {
 
         return ofile;
     }
+
 }
