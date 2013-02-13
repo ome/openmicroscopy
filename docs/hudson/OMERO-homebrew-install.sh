@@ -60,7 +60,7 @@ cd $BREW_DIR
 rm -rf $(bin/brew --cache)
 
 # Install git if not already installed
-bin/brew list | grep git || bin/brew install git
+bin/brew list | grep "\bgit\b" || bin/brew install git
 
 # Update homebrew and run brew doctor
 bin/brew update
