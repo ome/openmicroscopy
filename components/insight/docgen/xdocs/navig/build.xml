@@ -54,7 +54,8 @@
           description="Compile the applet.">
     <javac srcdir="${src.dir}"
            destdir="${compiled.dir}"
-           includeantruntime="no"  
+           includeantruntime="no"
+           encoding="UTF-8"
            deprecation="yes"
            debug="yes"
            debuglevel="lines,vars,source">
