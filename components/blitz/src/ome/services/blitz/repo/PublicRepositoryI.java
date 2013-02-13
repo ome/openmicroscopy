@@ -68,7 +68,7 @@ import omero.model.OriginalFile;
 import omero.util.IceMapper;
 
 /**
- * An implementation of the PublicRepository interface
+ * An implementation of the PublicRepository interface.
  *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  * @author Josh Moore, josh at glencoesoftware.com
