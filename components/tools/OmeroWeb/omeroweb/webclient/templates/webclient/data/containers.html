@@ -650,7 +650,7 @@
                                 "submenu"   : {
                                     {% for grp in myGroups %}
                                         {% ifnotequal grp.id active_group.id %}
-                                            "{{ grp.name }}" : {
+                                            "menuitem{{ grp.id }}" : {
                                                 "label" : "{{ grp.name }}",
                                                 "icon"  : {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
                                                 {% else %}
