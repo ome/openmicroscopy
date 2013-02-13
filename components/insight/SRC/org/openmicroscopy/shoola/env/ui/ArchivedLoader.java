@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * Loads archived image.
+ * Loads the image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,7 +74,7 @@ public class ArchivedLoader
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to download the archived image", 
+    	activity.notifyError("Unable to download the image", 
 				message, ex);
     }
     
@@ -105,8 +106,7 @@ public class ArchivedLoader
      */
     public void load()
     {
-    	long id = image.getDefaultPixels().getId();
-    	handle = mhView.loadArchivedImage(ctx, id, folderPath, this);
+    	handle = mhView.loadArchivedImage(ctx, image.getId(), folderPath, this);
     }
     
     /**
@@ -119,13 +119,23 @@ public class ArchivedLoader
     	if (handle != null) handle.cancel();
     }
  
+	
+    /**
+     * Notifies the user that no archived images were found.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult()
+    {
+    	activity.endActivity(new ArrayList<File>());
+    }
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-    	if (result == null && !cancelled) onException(MESSAGE_RESULT, null);
+    	if (result == null && !cancelled) handleNullResult();
     	else {
     		Map m = (Map) result;
     		List l = (List) m.get(Boolean.valueOf(false));
@@ -141,10 +151,9 @@ public class ArchivedLoader
 						((File) i.next()).delete();
 					}
     			} else {
-    				activity.endActivity(files.size());
+    				activity.endActivity(files);
     			}
     		}
-    			
     	}
     }
     
