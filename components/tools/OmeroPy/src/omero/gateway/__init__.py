@@ -5743,11 +5743,11 @@ class _ImageWrapper (BlitzObjectWrapper):
     _rm = {}
     _pixels = None
     _archivedFileCount = None
-    _reuseREs = False
 
     _pr = None # projection
 
     _invertedAxis = False
+    _reuseREs = False
 
     PROJECTIONS = {
         'normal': -1,
