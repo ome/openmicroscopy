@@ -30,8 +30,10 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /**
  * Checks if the image is a big image or not.
@@ -84,6 +86,21 @@ public class ImageSizeLoader
     public void handleResult(Object result) 
     {
         viewer.setLargeImage((Boolean) result);
+    }
+    
+    /**
+     * Notifies the user that an error has occurred and discards the 
+     * {@link #viewer}.
+     * @see DSCallAdapter#handleException(Throwable)
+     */
+    public void handleException(Throwable exc) 
+    {
+    	viewer.setStatus(false);
+    	String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
     }
 
 }

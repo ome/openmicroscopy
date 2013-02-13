@@ -89,6 +89,7 @@ import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
+import omero.ValidationException;
 import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
@@ -4516,6 +4517,7 @@ class OMEROGateway
 			service.close();
 			return plane;
 		} catch (Throwable e) {
+			if (e instanceof ValidationException) return null;
 			String s = "Cannot retrieve the plane " +
 			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
 			handleFSException(e, s);
