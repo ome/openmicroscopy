@@ -287,14 +287,14 @@ public interface OmeroDataService
 	 * 
 	 * @param ctx The security context.
 	 * @param location The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param imageID The ID of the image.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String location, long pixelsID)
+			String location, long imageID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

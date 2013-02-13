@@ -3861,19 +3861,21 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @param folderPath The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, long pixelsID) 
+			SecurityContext ctx, String folderPath, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		return retrieveArchivedFiles(ctx, folderPath, pixelsID);
+		if (image.isArchived())
+			return retrieveArchivedFiles(ctx, folderPath, image);
+		return null;
 	}
 	
 	/**
@@ -3881,21 +3883,22 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @param folderPath The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, long pixelsID) 
+			SecurityContext ctx, String folderPath, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
-		List files = null;
+		List<?> files = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("id", omero.rtypes.rlong(pixelsID));
+			param.map.put("id", omero.rtypes.rlong(
+					image.getDefaultPixels().getId()));
 			files = service.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
@@ -3908,7 +3911,7 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
-		Iterator i = files.iterator();
+		Iterator<?> i = files.iterator();
 		OriginalFile of;
 		long size;	
 		FileOutputStream stream = null;
