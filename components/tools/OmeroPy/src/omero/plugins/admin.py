@@ -791,7 +791,6 @@ OMERO Diagnostics %s
                 applications.sort()
                 for s in applications:
                     p2 = self.ctx.popen(self._cmd("-e", "application describe %s" % s)) # popen
-                    rv2 = p2.wait()
                     io2 = p2.communicate()
                     if io2[1]:
                         self.ctx.err(io2[1].strip())
