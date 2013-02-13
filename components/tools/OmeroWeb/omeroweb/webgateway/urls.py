@@ -273,6 +273,9 @@ This url will download the Original Image File(s) archived at import time. If it
 downloaded directly. For multiple files, they are assembled into a zip file on the fly, and this is downloaded.
 """
 
+original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgateway.views.original_file_paths', name="original_file_paths" )
+""" Get a json array of path/name strings for original files for the Image"""
+
 
 urlpatterns = patterns('',
     webgateway,
@@ -311,6 +314,7 @@ urlpatterns = patterns('',
     copy_image_rdef_json,
     # download archived_files
     archived_files,
+    original_file_paths,
     # switch user
     webgateway_su,
     

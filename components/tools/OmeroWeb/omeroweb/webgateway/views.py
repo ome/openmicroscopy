@@ -1607,7 +1607,7 @@ def archived_files(request, iid, conn=None, **kwargs):
         logger.debug("Cannot download archived file becuase Image does not exist.")
         return HttpResponseServerError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
     
-    files = list(image.getArchivedFiles())
+    files = list(image.getImportedImageFiles())
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
@@ -1664,6 +1664,25 @@ def archived_files(request, iid, conn=None, **kwargs):
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
+
+
+@login_required()
+@jsonp
+def original_file_paths(request, iid, conn=None, **kwargs):
+    """ Get a list of path/name strings for original files associated with the imgae """
+
+    image = conn.getObject("Image", iid)
+    if image is None:
+        logger.debug("Cannot get original file paths becuase Image does not exist.")
+        return HttpResponseServerError("Cannot get original file paths becuase Image does not exist (id:%s)." % (iid))
+
+    files = list(image.getImportedImageFiles())
+
+    if len(files) == 0:
+        return HttpResponseServerError("This image has no Original Files.")
+
+    fileNames = [ f.getPath() + f.getName() for f in files]
+    return fileNames
 
 
 @login_required()
