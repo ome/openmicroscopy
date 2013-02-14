@@ -129,41 +129,44 @@
    * The app sources is the set of all files within ${base.src.dir} matching
    * app.sources pattern.  The classpath is set to ${app.compile.classpath}.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
-  <target name="compile" 
-          depends="app-init" 
+  <target name="compile"
+          depends="app-init"
           description="Compile the whole app.">
     <javac srcdir="${base.src.dir}" target="1.5"
            source="1.5"
            destdir="${app.compiled.dir}"
-           includeantruntime="no"  
+           includeantruntime="no"
            deprecation="yes"
+           encoding="UTF-8"
            debug="yes"
            debuglevel="lines,vars,source">
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
-    </javac> 
-  	<javac srcdir="${base.src.util.dir}" target="1.5"
-  	           source="1.5"
-  	           destdir="${app.compiled.util.dir}"
-  	           includeantruntime="no"  
-  	           deprecation="yes"
-  	           debug="yes"
-  	           debuglevel="lines,vars,source">
-  	      <classpath refid="app.compile.classpath"/>
-  	      <patternset refid="app.sources"/>
-  	    </javac> 
-  	<javac srcdir="${base.src.svc.dir}" target="1.5"
-  	  	           source="1.5"
-  	  	           destdir="${app.compiled.util.dir}"
-  	  	           includeantruntime="no"  
-  	  	           deprecation="yes"
-  	  	           debug="yes"
-  	  	           debuglevel="lines,vars,source">
-  	  	      <classpath refid="app.compile.classpath"/>
-  	  	      <patternset refid="app.sources"/>
-  	  	    </javac> 
-  </target> 
-	
+    </javac>
+    <javac srcdir="${base.src.util.dir}" target="1.5"
+           source="1.5"
+           destdir="${app.compiled.util.dir}"
+           includeantruntime="no"
+           deprecation="yes"
+           encoding="UTF-8"
+           debug="yes"
+           debuglevel="lines,vars,source">
+      <classpath refid="app.compile.classpath"/>
+      <patternset refid="app.sources"/>
+    </javac>
+    <javac srcdir="${base.src.svc.dir}" target="1.5"
+           source="1.5"
+           destdir="${app.compiled.util.dir}"
+           includeantruntime="no"
+           deprecation="yes"
+           encoding="UTF-8"
+           debug="yes"
+           debuglevel="lines,vars,source">
+      <classpath refid="app.compile.classpath"/>
+      <patternset refid="app.sources"/>
+    </javac>
+  </target>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run the app in its own JVM. 
    * The location of the home directory is passed to the app via the command
