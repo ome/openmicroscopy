@@ -20,9 +20,13 @@ env = OmeroEnvironment(CPPPATH=["src","target"])
 if not env.GetOption('clean'):
 
     conf = Configure(env)
+
+    if not conf.CheckCXX():
+        env.fatal_error("CXX compiler not working. CXX = %s" % env.get("CXX"))
+
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
-        print 'Ice/Ice.h not found'
-        env.Exit(1)
+        env.fatal_error('Ice/Ice.h not found')
+
     conf.Finish()
 
     import sys, traceback as tb
