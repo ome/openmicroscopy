@@ -306,6 +306,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       } else {
         href = server + '/render_split_channel/' + _this.getRelUrl();
       }
+      href = href + '&closeRE=false';
       
       var rcb = function () {
         after_img_load_cb(callback);

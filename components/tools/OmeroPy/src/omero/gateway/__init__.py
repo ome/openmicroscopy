@@ -2061,6 +2061,33 @@ class _BlitzGateway (object):
         
         return self._proxies['config']
 
+    def _recreateRE (self, pixelsId):
+        """
+        We try to lookup Rendering Engines from the server-side 'active services', create a
+        Proxy RenderingEngine and see if it has the correct pixels loaded
+        """
+        # First check if the proxy we have in hand is suitable... (NB: not sure this is ever the case?)
+        try:
+            pix = self._proxies['rendering']._obj and self._proxies['rendering'].getPixels()
+            if pix is not None and pix.id.val == pixelsId:
+                return self._proxies['rendering']
+        except omero.ApiException:
+            pass
+
+        # If not, check the activeServices for a RenderingEngine with the right pixels
+        services = self.c.sf.activeServices()
+        logger.debug("Trying to retrieve RenderingEngine from %s active services" % len(services))
+        for service in services:
+            if "RenderingEngine" in service:
+                reProxy = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, service_name=service)
+                try:
+                    if reProxy.getPixels().id.val == pixelsId:
+                        reProxy._tainted = True
+                        self._proxies['rendering'] = reProxy
+                        return reProxy
+                except:
+                    pass
+
     def createRenderingEngine (self):
         """
         Creates a new rendering engine.
@@ -2147,6 +2174,30 @@ class _BlitzGateway (object):
         @return:    omero.gateway.ProxyObjectWrapper
         """
         return ProxyObjectWrapper(self, 'createExporter')
+
+
+    def closeRenderingEngines (self):
+        """
+        Attempt to close all open Rendering Engines we have in our session.
+        Return a list of [{'pid': pixelsId, 'closed': True}]
+        """
+        services = self.c.sf.activeServices()
+        closed = []
+        for service in services:
+            if "RenderingEngine" in service:
+                rv = {}
+                re = ProxyObjectWrapper(self, None, cast_to=omero.api.RenderingEnginePrx.checkedCast, service_name=service)
+                try:
+                    rv['pid'] = re.getPixels().id.val
+                except:
+                    pass
+                try:
+                    re.close()
+                    rv['closed'] = True
+                except:
+                    pass
+                closed.append(rv)
+        return closed
 
     #############################
     # Top level object fetchers #
@@ -3492,6 +3543,7 @@ class ProxyObjectWrapper (object):
         self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
+        self._preventClose = False
     
     def clone (self):
         """
@@ -3545,6 +3597,8 @@ class ProxyObjectWrapper (object):
         instance of it.
         """
         
+        if self._preventClose:
+            return
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
             self._obj.close()
         self._obj = None
@@ -5698,6 +5752,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     _pr = None # projection
 
     _invertedAxis = False
+    _reuseREs = False
 
     PROJECTIONS = {
         'normal': -1,
@@ -5820,9 +5875,20 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         pid = self.getPrimaryPixels().id
-        re = self._conn.createRenderingEngine()
-        ctx = self._conn.SERVICE_OPTS.copy()
 
+        # We first try to retrieve an existing RE, already initialised with Pixels
+        if self._reuseREs:
+            re = self._conn._recreateRE(pid)
+            if re is not None:
+                re._preventClose = True
+                return re
+
+        # None found, so we create a new RE and init with Pixels etc.
+        re = self._conn.createRenderingEngine()
+        # If we're reusing Rendering Engines, set flag to keep it open
+        if self._reuseREs:
+            re._preventClose = True
+        ctx = self._conn.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(self.details.group.id.val)
         if self._conn.canBeAdmin():
             ctx.setOmeroUser(self.details.owner.id.val)
@@ -5860,6 +5926,15 @@ class _ImageWrapper (BlitzObjectWrapper):
                 logger.debug('on _prepareRE()', exc_info=True)
                 self._re = None
         return self._re is not None
+
+    def reuseREs (self, reuseREs=True):
+        """
+        Sets a flag that affects how we create & close Rendering Engines.
+        If resuseREs is True, we try to use existing Rendering Engines instead of 
+        always creating a new one. We also ignore the close() method on the RE proxy,
+        so that the Rendering Engine stays open and can be reused again.
+        """
+        self._reuseREs = reuseREs
 
     def resetRDefs (self):
         logger.debug('resetRDefs')

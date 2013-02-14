@@ -637,6 +637,8 @@ def _get_prepared_image (request, iid, server_id=None, conn=None, saveDefs=False
                  'retry=%r request=%r conn=%s' % (iid, saveDefs, retry,
                  r, str(conn)))
     img = conn.getObject("Image", iid)
+    if r.get('closeRE', None) == 'false':
+        img.reuseREs()
     if img is None:
         return
     if r.has_key('c'):
@@ -1769,3 +1771,13 @@ def su (request, user, conn=None, **kwargs):
     conn.revertGroupForSession()
     conn.seppuku()
     return True
+
+@login_required()
+@jsonp
+def close_rendering_engines (request, conn=None, **kwargs):
+    """ 
+    Attempt to close any rendering engines we have open 
+    Returns a json list of [{'pid':123, 'closed': True}, ...]
+    """
+    closedDict = conn.closeRenderingEngines()
+    return closedDict

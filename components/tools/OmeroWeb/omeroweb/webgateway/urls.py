@@ -267,6 +267,8 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
+close_rendering_engines = url( r'^close_rendering_engines/$', 'webgateway.views.close_rendering_engines', name="close_rendering_engines" )
+
 archived_files = url( r'^archived_files/download/(?P<iid>[0-9]+)/$', 'webgateway.views.archived_files', name="archived_files" )
 """
 This url will download the Original Image File(s) archived at import time. If it's a single file, this will be
@@ -318,6 +320,7 @@ urlpatterns = patterns('',
     # switch user
     webgateway_su,
     
+    close_rendering_engines,
     # Debug stuff
 
 )
