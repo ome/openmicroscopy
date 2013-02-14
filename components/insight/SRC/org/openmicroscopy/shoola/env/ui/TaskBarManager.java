@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
+import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventResponse;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationRequest;
 import org.openmicroscopy.shoola.env.data.events.ServiceActivationResponse;
@@ -448,6 +449,27 @@ public class TaskBarManager
 		}
 	}
 	
+	/**
+	 * Removes the group.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleRemoveGroupEvent(RemoveGroupEvent evt)
+	{
+		if (evt == null) return;
+		SecurityContext ctx = evt.getContext();
+		try {
+			DataServicesFactory f = 
+				DataServicesFactory.getInstance(container);
+			f.removeGroup(ctx);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Remove group");
+			msg.print(e);
+			container.getRegistry().getLogger().error(this, msg);
+		}
+	}
+	
 	/** Reconnects to the server.*/
 	private void reconnect()
 	{
@@ -789,6 +811,7 @@ public class TaskBarManager
         bus.register(this, SwitchUserGroup.class);
         bus.register(this, LogOff.class);
         bus.register(this, ViewInPluginEvent.class);
+        bus.register(this, RemoveGroupEvent.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -989,6 +1012,8 @@ public class TaskBarManager
         	handleLogOff((LogOff) e);
         else if (e instanceof ViewInPluginEvent)
         	handleViewInPluginEvent((ViewInPluginEvent) e);
+        else if (e instanceof RemoveGroupEvent)
+        	handleRemoveGroupEvent((RemoveGroupEvent) e);
 	}
 
 	/**
