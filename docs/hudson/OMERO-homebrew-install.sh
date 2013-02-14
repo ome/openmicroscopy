@@ -7,10 +7,14 @@ set -x
 
 export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 export OMERO_ALT=${OMERO_ALT:-ome/alt}
-export BREW_DIR=${BREW_DIR:-/tmp/homebrew}
-export PSQL_DIR=${PSQL_DIR:-/tmp/var/postgres}
+export BREW_DIR=${BREW_DIR:-/usr/local}
+export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
+
+###################################################################
+# Homebrew & pip uninstallation
+###################################################################
 
 # Remove existing formulas and ome/alt tap
 if [ -d "$BREW_DIR" ]; then
@@ -18,7 +22,6 @@ if [ -d "$BREW_DIR" ]; then
     if (bin/pip --version)
     then
         echo "Removing pip-installed packages"
-
         # Remove tables manually
         bin/pip freeze -l | grep tables && bin/pip uninstall -y tables
 
@@ -32,30 +35,74 @@ if [ -d "$BREW_DIR" ]; then
         done
     fi
 
-    echo "Removing Homebrew installation"
-    cd $JOB_WS
-    rm -rf $BREW_DIR
+    if [ -d "$BREW_DIR/.git" ]
+    then
+        echo "Cleaning Homebrew for reinstallation"
+        rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
+    fi
+
+    if [-d "$BREW_DIR/Library/Taps"]
+    then
+        echo "Cleaning Homebrew taps"
+        rm -rf $BREW_DIR/Library/Taps
+    fi
 fi
 
-# Install Homebrew in BREW_DIR
-mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
+###################################################################
+# Homebrew installation
+###################################################################
+
+# Install Homebrew in /usr/local
+ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
 cd $BREW_DIR
 
 # Clean cache before any operation to test full installation
 rm -rf $(bin/brew --cache)
 
-# Re-install git and update homebrew
-bin/brew install git
+# Install git if not already installed
+bin/brew list | grep "\bgit\b" || bin/brew install git
+
+# Update homebrew and run brew doctor
 bin/brew update
-
 export PATH=$(bin/brew --prefix)/bin:$PATH
+bin/brew doctor
 
-# Merge hombrew-alt PRs
+###################################################################
+# Python pip installation
+###################################################################
+
+# Python virtualenv/pip support
+if (bin/pip --version)
+then
+    echo "Using existing pip"
+else
+    rm -rf virtualenv.py
+    $CURL "$VENV_URL"
+    python virtualenv.py --no-site-packages .
+fi
+
+# Install scc tools
 bin/brew tap $OMERO_ALT || echo "Already tapped"
 bin/brew install scc
+bin/pip install PyGithub || echo "PyGithub installed"
+bin/pip install argparse || echo "argparse installed"
+
+# Merge homebrew-alt PRs
 cd Library/Taps/${OMERO_ALT/\//-}
 scc merge master
 cd $BREW_DIR
+
+###################################################################
+# Bio-Formats installation
+###################################################################
+
+# Install Bio-Formats
+bin/brew install bioformats
+showinf -version
+
+###################################################################
+# OMERO installation
+###################################################################
 
 # Install homebrew dependencies
 source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
