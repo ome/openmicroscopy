@@ -40,3 +40,22 @@ TEST(AdminTest, getGroup) {
     ASSERT_EQ(g->getId()->getValue(), groups[0]->getId()->getValue());
     ASSERT_GT(g->sizeOfGroupExperimenterMap(), 0);
 }
+
+TEST(AdminTest, setGroup) {
+    Fixture f;
+    f.login();
+    
+    ServiceFactoryPrx sf = f.client->getSession();
+    IAdminPrx admin = sf->getAdminService();
+    
+    Ice::Long uid = admin->getEventContext()->userId;
+    
+    // Add user to new group to test setting default
+    ExperimenterPtr user = admin->getExperimenter(uid);
+    ExperimenterGroupPtr group = f.newGroup();
+    f.addExperimenter(user, group);
+
+    admin->setDefaultGroup(user, group);
+//    ExperimenterGroupPtr defGroup = f.client->getSession()->getAdminService()->getDefaultGroup(uid);
+//    ASSERT_EQ(defGroup->getId()->getValue(), group->getId()->getValue());
+}
