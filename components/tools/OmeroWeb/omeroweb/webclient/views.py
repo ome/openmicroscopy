@@ -337,7 +337,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'well'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'run', 'well'):
+            i = i.replace('run', 'acquisition')   # alternatives for 'acquisition'
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -1316,9 +1317,10 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     Edit and save channel names
     """
     image = conn.getObject("Image", imageId)
+    sizeC = image.getSizeC()
     channelNames = {}
     nameDict = {}
-    for i in range(image.getSizeC()):
+    for i in range(sizeC):
         cname = request.REQUEST.get("channel%d" % i, None)
         if cname is not None:
             channelNames["channel%d" % i] = smart_str(cname)
@@ -1329,7 +1331,7 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
             pid = long(parentId.split("-")[1])
-            counts = conn.setChannelNames(ptype, [pid], nameDict)
+            counts = conn.setChannelNames(ptype, [pid], nameDict, channelCount=sizeC)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
     rv = {"channelNames": channelNames}
@@ -2299,7 +2301,12 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     """
     scriptService = conn.getScriptService()
 
-    params = scriptService.getParams(long(scriptId))
+    try:
+        params = scriptService.getParams(long(scriptId))
+    except Exception, ex:
+        if ex.message.lower().startswith("no processor available"):
+            return {'template':'webclient/scripts/no_processor.html', 'scriptId': scriptId}
+        raise ex
     if params == None:
         return HttpResponse()
 
