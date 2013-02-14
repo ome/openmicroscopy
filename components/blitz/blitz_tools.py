@@ -366,3 +366,8 @@ class OmeroEnvironment(SConsEnvironment):
                 except:
                     pass
         return rv
+
+    def fatal_error(self, message):
+        print "Fatal Error: %s" % message
+        self.Exit(1)
+
