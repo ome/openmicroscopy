@@ -44,10 +44,7 @@
       <copy todir="${target.dir}/matlab">
         <fileset dir="${etc.dir}"           includes="ice.config"/>
         <fileset dir="${basedir}/src"       includes="**/*"/>
-        <fileset dir="${basedir}/resources" includes="**/*"/>
-        <fileset dir="${target.dir}/libs/"  includes="*"/>
-        <!-- Previous directory structures -->
-        <fileset dir="${basedir}"           includes="functions/**/*,helper/**/*,demo/**/*"/>
+        <fileset dir="${target.dir}"        includes="libs/*"/>
         <fileset dir="${target.dir}"        includes="omeroVersion.m"/>
       </copy>
       <zip destfile="target/${ivy.module}.zip">
@@ -68,7 +65,27 @@
     </target>
 
     <!-- Disable the tests that cause ./build.py test-unit to fail -->
-    <target name="test-unit" description="No-op"/>
+    <target name="test-unit" description="Run unit tests"  depends="release-zip">
+        <property environment="env"/>
+        <if>
+            <isset property="env.MATLABPATH"/>
+            <then>
+                <property name="test.path"
+                    value="${env.MATLABPATH}:${target.dir}/matlab"/>
+            </then>
+            <else>
+                <property name="test.path" value="${target.dir}/matlab"/>
+            </else>
+        </if>
+
+        <exec executable="matlab">
+            <env key="MATLABPATH" value="${test.path}"/>
+            <arg value="-nodesktop"/>
+            <arg value="-nosplash"/>
+            <arg value="-r"/>
+            <arg value="loadOmero; runtests ${basedir}/test/unit"/>
+        </exec>
+    </target>
     <target name="test" description="No-op"/>
     <target name="integration" description="No-op"/>
 
