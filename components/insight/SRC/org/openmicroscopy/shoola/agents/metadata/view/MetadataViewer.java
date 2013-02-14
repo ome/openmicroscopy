@@ -247,8 +247,10 @@ public interface MetadataViewer
 	 * Feeds the metadata back to the viewer.
 	 * 
 	 * @param results The result to feed back.
+	 * @param loader The identifier of the loader.
 	 */
-	public void setMetadata(Map<DataObject, StructuredDataResults> results);
+	public void setMetadata(Map<DataObject, StructuredDataResults> results,
+			int loader);
 	
 	/**
 	 * Returns the UI used to select the metadata.

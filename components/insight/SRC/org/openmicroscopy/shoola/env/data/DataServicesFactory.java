@@ -764,4 +764,16 @@ public class DataServicesFactory
 		}
 	}
 
+	/**
+	 * Remove the security group.
+	 * 
+	 * @param ctx The security context to handle.
+	 * @throws Throwable Thrown if the connector cannot be closed.
+	 */
+	public void removeGroup(SecurityContext ctx)
+		throws Exception
+	{
+		omeroGateway.removeGroup(ctx);
+	}
+
 }

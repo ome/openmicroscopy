@@ -6603,16 +6603,18 @@ class OMEROGateway
     {
         isSessionAlive(ctx);
         OMEROMetadataStoreClient omsc = null;
+        OMEROWrapper reader = null;
 		try {
 			omsc = getImportStore(ctx);
-			ImportLibrary library = new ImportLibrary(omsc,
-					new OMEROWrapper(config));
+			reader = new OMEROWrapper(config);
+			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
 
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
 			Image image;
+			reader.close();
 			if (pixels != null && pixels.size() > 0) {
 				int n = pixels.size();
 				long id;
@@ -6654,10 +6656,17 @@ class OMEROGateway
 				}
 			}
 		} catch (Throwable e) {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
+			
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
 			throw new ImportException(e);
 		} finally {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
 			if (omsc != null && close)
 				closeImport(ctx);
 		}
@@ -8427,4 +8436,24 @@ class OMEROGateway
 		}
 		return null;
 	}
+
+	/**
+	 * Removes the security context.
+	 * 
+	 * @param ctx The security context.
+	 * @throws Throwable Thrown if the connector cannot be closed.
+	 */
+	void removeGroup(SecurityContext ctx) 
+	throws Exception
+	{
+		Connector c = getConnector(ctx);
+		if (c == null) return;
+		isNetworkUp();
+		try {
+			c.close(networkup);
+		} catch (Throwable e) {
+			new Exception("Cannot close the connector", e);
+		}
+	}
+
 }
