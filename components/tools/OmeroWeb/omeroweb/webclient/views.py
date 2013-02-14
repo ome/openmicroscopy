@@ -832,6 +832,8 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     Currently this doesn't do much except launch the view-port plugin using the image Id (and share Id if necessary)
     """
 
+    conn.closeRenderingEngines()    # clean-up after previous Preview tab
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
