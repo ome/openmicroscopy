@@ -43,6 +43,10 @@ scons.log
 *.so
 *~
 *generated*
+!/components/specification/Documentation/Generated
+/components/specification/InProgress/scratch.xml
+/components/specification/test/log4j.properties
+/components/validator/WebApp/uploads/
 test-output
 temp-testng-customsuite.xml
 .settings
