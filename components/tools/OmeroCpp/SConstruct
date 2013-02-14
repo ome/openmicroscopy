@@ -27,6 +27,9 @@ if not env.GetOption('clean'):
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
         env.fatal_error('Ice/Ice.h not found')
 
+    if not conf.CheckLib("Ice"):
+        env.fatal_error("Ice library not found")
+
     conf.Finish()
 
     import sys, traceback as tb
