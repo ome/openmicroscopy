@@ -767,6 +767,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     The data and annotations are loaded by the manager. Display of appropriate data is handled by the template.
     """
 
+    conn.closeRenderingEngines()    # clean-up after previous Preview tab
+
     # the index of a field within a well
     index = getIntOrDefault(request, 'index', 0)
 
