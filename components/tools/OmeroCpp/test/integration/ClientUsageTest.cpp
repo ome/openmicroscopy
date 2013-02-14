@@ -56,11 +56,10 @@ TEST(ClientUsageTest, testCreateInsecureClientTicket2099 )
 TEST(ClientUsageTest, testGetStatefulServices )
 {
     Fixture f;
-    omero::client_ptr root = f.root_login();
-    omero::api::ServiceFactoryPrx sf = root->getSession();
+    omero::api::ServiceFactoryPrx sf = f.root->getSession();
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
     sf->createRenderingEngine();
-    std::vector<omero::api::StatefulServiceInterfacePrx> srvs = root->getStatefulServices();
+    std::vector<omero::api::StatefulServiceInterfacePrx> srvs = f.root->getStatefulServices();
     ASSERT_EQ((unsigned int)1, srvs.size());
     try {
         sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
@@ -69,7 +68,7 @@ TEST(ClientUsageTest, testGetStatefulServices )
         // good
     }
     srvs.at(0)->close();
-    srvs = root->getStatefulServices();
+    srvs = f.root->getStatefulServices();
     ASSERT_EQ((unsigned int)0, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }
