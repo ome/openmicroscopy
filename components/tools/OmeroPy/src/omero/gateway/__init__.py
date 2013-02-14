@@ -2088,7 +2088,7 @@ class _BlitzGateway (object):
                 except:
                     pass
 
-    def createRenderingEngine (self, pixelsId=None):
+    def createRenderingEngine (self):
         """
         Creates a new rendering engine.
         This service is special in that it does not get cached inside BlitzGateway so every call to this function
@@ -2096,6 +2096,7 @@ class _BlitzGateway (object):
         
         @return:    omero.gateway.ProxyObjectWrapper
         """
+        
         rv = self._proxies['rendering']
         if rv._tainted:
             rv = self._proxies['rendering'] = rv.clone()
@@ -3523,7 +3524,7 @@ class ProxyObjectWrapper (object):
     Handles creation of service when requested. 
     """
     
-    def __init__ (self, conn, func_str, cast_to=None, service_name=None, preventClose=False):
+    def __init__ (self, conn, func_str, cast_to=None, service_name=None):
         """
         Initialisation of proxy object wrapper. 
         
@@ -3542,7 +3543,7 @@ class ProxyObjectWrapper (object):
         self._service_name = service_name
         self._resyncConn(conn)
         self._tainted = False
-        self._preventClose = preventClose
+        self._preventClose = False
     
     def clone (self):
         """
@@ -3552,6 +3553,7 @@ class ProxyObjectWrapper (object):
         @return:    Cloned service wrapper
         @rtype:     L{ProxyObjectWrapper}
         """
+        
         return ProxyObjectWrapper(self._conn, self._func_str, self._cast_to, self._service_name)
 
     def _connect (self, forcejoin=False): #pragma: no cover
@@ -3594,6 +3596,7 @@ class ProxyObjectWrapper (object):
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
+        
         if self._preventClose:
             return
         if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
@@ -3608,6 +3611,7 @@ class ProxyObjectWrapper (object):
         @param conn:    Connection
         @type conn:     L{BlitzGateway}
         """
+        
         self._conn = conn
         self._sf = conn.c.sf
         def cf ():
@@ -5879,7 +5883,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return re
 
         # None found, so we create a new RE and init with Pixels etc.
-        re = self._conn.createRenderingEngine(pid)
+        re = self._conn.createRenderingEngine()
         # If we're reusing Rendering Engines, set flag to keep it open
         if self._reuseREs:
             re._preventClose = True
