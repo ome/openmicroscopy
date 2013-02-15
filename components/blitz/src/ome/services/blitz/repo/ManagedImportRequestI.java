@@ -622,26 +622,15 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             try
             {
                 MIASReader miasReader = (MIASReader) baseReader;
-                String currentFile = miasReader.getCurrentFile();
-                reader.close();
-                miasReader.setAutomaticallyParseMasks(true);
                 ServiceFactoryPrx sf = store.getServiceFactory();
                 OverlayMetadataStore s = new OverlayMetadataStore();
                 s.initialize(sf, pixelsList, plateIds);
-                reader.setMetadataStore(s);
-                miasReader.close();
-                miasReader.setAutomaticallyParseMasks(true);
-                miasReader.setId(currentFile);
+                miasReader.parseMasks(s);
                 s.complete();
             }
             catch (ServerError e)
             {
                 log.warn("Error while populating MIAS overlays.", e);
-            }
-            finally
-            {
-                reader.close();
-                reader.setMetadataStore(store);
             }
         }
     }
