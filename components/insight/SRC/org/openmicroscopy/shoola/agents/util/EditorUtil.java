@@ -198,11 +198,16 @@ public class EditorUtil
     /** String to represent the micron symbol. */
     public static final String 	MICRONS = "("+UnitsObject.MICRONS+")";
     
-    /** String to represent the celcius symbol. */
-    public static final String 	CELCIUS = "(\u2103)";
+    /** String to represent the celsius symbol. */
+    public static final String 	CELSIUS = "(℃)";
+    
+    /** String to represent the celsius symbol.
+     * @deprecated use {@link #CELSIUS} instead
+     */
+    public static final String  CELCIUS = CELSIUS;
     
     /** String to represent the percent symbol. */
-    public static final String 	PERCENT = "(\u0025)";
+    public static final String 	PERCENT = "(%)";
     
     /** String to represent the millibars symbol. */
     public static final String 	MILLIBARS = "(mb)";
@@ -307,13 +312,13 @@ public class EditorUtil
 	public static final String	REFRACTIVE_INDEX = "Refractive index";
 
 	/** Identifies the Environment <code>temperature</code> field. */
-	public static final String	TEMPERATURE = "Temperature "+CELCIUS;
+	public static final String	TEMPERATURE = "Temperature "+CELSIUS;
 	
 	/** Identifies the Environment <code>Air pressure</code> field. */
 	public static final String	AIR_PRESSURE = "Air Pressure "+MILLIBARS;
 	
 	/** Identifies the Environment <code>Humidity</code> field. */
-	public static final String	HUMIDITY = "Humidy "+PERCENT;
+	public static final String	HUMIDITY = "Humidity "+PERCENT;
 	
 	/** Identifies the Environment <code>CO2 Percent</code> field. */
 	public static final String	CO2_PERCENT = "CO2 Percent "+PERCENT;

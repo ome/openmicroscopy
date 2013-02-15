@@ -40,19 +40,19 @@ public class UnitsObject
 {
 
 	/** Unicode for the degrees symbol. */
-	public final static String DEGREES = "\u00B0";
+	public final static String DEGREES = "°";
 	
 	/** String to represent the picometer symbol. */
     public static final String PICOMETER = "pm";
     
 	/** String to represent the angstrom symbol. */
-    public static final String ANGSTROM = "\u00C5";
+    public static final String ANGSTROM = "Å";
     
 	/** String to represent the nanometer symbol. */
     public static final String NANOMETER = "nm";
     
 	/** String to represent the micron symbol. */
-    public static final String MICRONS = "\u00B5m";
+    public static final String MICRONS = "µm";
     
     /** String to represent the millimeter symbol. */
     public static final String MILLIMETER = "mm";
