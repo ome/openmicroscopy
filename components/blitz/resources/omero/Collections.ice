@@ -109,6 +109,7 @@ module omero {
         sequence<short> ShortArray;
         sequence<int> IntegerArray;
         sequence<long> LongArray;
+        sequence<float> FloatArray;
         sequence<double> DoubleArray;
         sequence<string> StringArray;
         sequence<ByteArray> ByteArrayArray;
@@ -116,6 +117,8 @@ module omero {
         sequence<IntegerArray> IntegerArrayArray;
         sequence<IntegerArrayArray> IntegerArrayArrayArray;
         sequence<LongArray> LongArrayArray;
+        sequence<FloatArray> FloatArrayArray;
+        sequence<FloatArrayArray> FloatArrayArrayArray;
         sequence<DoubleArray> DoubleArrayArray;
         sequence<DoubleArrayArray> DoubleArrayArrayArray;
         sequence<StringArray> StringArrayArray;

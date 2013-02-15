@@ -367,12 +367,14 @@ class TestTables(lib.ITest):
 
         larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
         larr.values = [[-2, -1], [1, 2]]
+        farr = omero.columns.FloatArrayColumnI('floatarr', 'floatarr col', 2)
+        farr.values = [[-0.25, -0.5], [0.125, 0.0625]]
         darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
         darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
 
         cols = [fcol, icol, rcol, wcol, pcol,
                 bcol, dcol, lcol, scol, mask,
-                larr, darr]
+                larr, farr, darr]
 
         table.initialize(cols)
         table.addData(cols)
