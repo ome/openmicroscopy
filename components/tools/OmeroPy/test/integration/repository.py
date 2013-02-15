@@ -599,37 +599,33 @@ class TestDbSync(AbstractRepoTest):
 
 class TestRecursiveDelete(AbstractRepoTest):
 
-    # treeList is a utility that is useful for
-    # testing recursive deletes.
-    def testTreeList(self):
-        filename = self.unique_dir + "/file.txt"
-        mrepo = self.getManagedRepo()
-        ofile = self.createFile(mrepo, filename)
+    def setUp(self):
+        super(TestRecursiveDelete, self).setUp()
+        self.filename = self.unique_dir + "/file.txt"
+        self.mrepo = self.getManagedRepo()
+        self.ofile = self.createFile(self.mrepo, self.filename)
 
         # There should me one key in each of the files
         # NB: globs not currently supported.
-        file_map1 = unwrap(mrepo.treeList(filename))
-        self.assertEquals(1, len(file_map1))
-        dir_map = unwrap(mrepo.treeList(self.unique_dir))
-        self.assertEquals(1, len(dir_map))
-        dir_key = dir_map.keys()[0]
+        self.file_map1 = unwrap(self.mrepo.treeList(self.filename))
+        self.assertEquals(1, len(self.file_map1))
+        self.dir_map = unwrap(self.mrepo.treeList(self.unique_dir))
+        self.assertEquals(1, len(self.dir_map))
+        self.dir_key = self.dir_map.keys()[0]
+        self.file_map2 = self.dir_map[self.dir_key]["files"]["file.txt"]
 
-        file_map2 = dir_map[dir_key]["files"]["file.txt"]
-
-        for file_map in (file_map1["file.txt"], file_map2):
-            self.assertEquals(ofile.id.val, file_map["id"], msg=str(file_map))
-            self.assertEquals(ofile.size.val, file_map["size"], msg=str(file_map))
+    # treeList is a utility that is useful for
+    # testing recursive deletes.
+        for self.file_map in (self.file_map1["file.txt"], self.file_map2):
+            self.assertEquals(self.ofile.id.val, self.file_map["id"])
+            self.assertEquals(self.ofile.size.val, self.file_map["size"])
 
     # In order to prevent dangling files now that
     # the repository uses the DB strictly for all
     # FS listings, it's necessary to prevent any
     # directories from being directly deleted.
     def testCmdDeleteCantDeleteDirectories(self):
-        mrepo = self.getManagedRepo()
-        dir_map = unwrap(mrepo.treeList(self.unique_dir))
-        self.assertEquals(1, len(dir_map))
-        dir_key = dir_map.keys()[0]
-        id = dir_map[dir_key]["id"]
+        id = self.dir_map[self.dir_key]["id"]
 
         gateway = BlitzGateway(client_obj=self.client)
         handle = gateway.deleteObjects("/OriginalFile", [id])
@@ -642,8 +638,11 @@ class TestRecursiveDelete(AbstractRepoTest):
     # On the other hand, the repository itself can
     # provide a method which enables recursive delete.
     def testRecursiveDeleteMethodAvailable(self):
-        pass
-
+        id = self.dir_map[self.dir_key]["id"]
+        handle = self.mrepo.deletePaths([self.unique_dir], True, True)
+        self.waitOnCmd(self.client, handle, passes=True)
+        rv = unwrap(self.mrepo.treeList(self.unique_dir))
+        self.assertEquals(0, len(rv))
 
 class TestDeleteLog(AbstractRepoTest):
 

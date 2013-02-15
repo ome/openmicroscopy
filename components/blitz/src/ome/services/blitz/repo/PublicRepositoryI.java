@@ -223,33 +223,53 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     public HandlePrx deletePaths(String[] files, boolean recursive, boolean force,
             Current __current) throws ServerError {
 
-        final DoAll all = new DoAll();
-        final List<Delete> commands = new ArrayList<Delete>();
-        /*
+        // TODO: This could be refactored to be the default in shared servants
+        final Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
+        final String allId = DoAll.ice_staticId();
+        final String delId = Delete.ice_staticId();
+        final DoAll all = (DoAll) getFactory(allId, adjustedCurr).create(allId);
+        final Ice.ObjectFactory delFactory = getFactory(delId, adjustedCurr);
+        final List<Request> commands = new ArrayList<Request>();
+        all.requests = commands;
+
         for (String path : files) {
             // treeList() calls checkedPath
             RMap map = treeList(path, __current);
-            if (map != null && map.getValue() != null) {
-                // Each of the subdirectories
-            }
-            boolean deleted = check.delete();
-            if (!deleted) {
-                undeleted.add(path);
-            } else {
-                // Now we attempt to clean up any parent directories that are
-                // 1) empty, 2) not the root directory and 3) editable.
-                check = check.parent();
-                while (check != null) {
-                    if (check.isRoot || !check.canEdit()) {
-                        break;
+            _deletePaths(delFactory, map, commands);
+        }
+
+        final FindServiceFactoryMessage msg
+            = new FindServiceFactoryMessage(this, adjustedCurr);
+        publishMessage(msg);
+        final ServiceFactoryI sf = msg.getServiceFactory();
+
+        AMD_submit submit = submitRequest(sf, all, adjustedCurr);
+        return submit.ret;
+    }
+
+    private void _deletePaths(Ice.ObjectFactory delFactory, RMap map, List<Request> commands) {
+        if (map != null && map.getValue() != null) {
+            // Each of the entries
+            for (String key : map.getValue().keySet()) {
+                // We know that the value for any key at the
+                // "top" level is going to be a RMap
+                RMap val = (RMap) map.getValue().get(key);
+                if (val != null && val.getValue() != null) {
+                    if (val.getValue().containsKey("files")) {
+                        // then we need to recurse. files points to the next
+                        // "top" level.
+                        RMap files = (RMap) val.getValue().get("files");
+                        _deletePaths(delFactory, files, commands);
                     }
-                    check.delete();
-                    check = check.parent();
+                    // Now after we've recursed, do the actual delete.
+                    RLong id = (RLong) val.getValue().get("id");
+                    Delete del = (Delete) delFactory.create(null);
+                    del.type = "/OriginalFile";
+                    del.id = id.getValue();
+                    commands.add(del);
                 }
             }
         }
-        */
-        return null;
     }
 
     /**

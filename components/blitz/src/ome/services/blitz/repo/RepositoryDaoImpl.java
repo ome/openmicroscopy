@@ -222,6 +222,20 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final ome.model.core.OriginalFile file
             = findRepoFile(sf, sql, repoUuid, checked, null);
 
+        if (file == null) {
+            if (rv.getValue().size() == 0) {
+                // This is likely the top-level search, and therefore
+                // we can just exit.
+                log.debug("No file found in _treeList: " + checked);
+            } else {
+                // In this case, we've been given data that's now
+                // missing from the DB in the same transaction.
+                // Shouldn't happen.
+                log.warn("No file found in _treeList: " + checked);
+            }
+            return; // EARLY EXIT.
+        }
+
         final String name = file.getName();
         final String mime = file.getMimetype();
         final Long size = file.getSize();
@@ -229,10 +243,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         final RMap subRv = omero.rtypes.rmap();
         final Map<String, RType> subVal = subRv.getValue();
+        rv.put(name, subRv);
         subVal.put("id", omero.rtypes.rlong(id));
         subVal.put("mimetype", omero.rtypes.rstring(mime));
         subVal.put("size", omero.rtypes.rlong(size));
-        rv.put(name, subRv);
 
         if (file.getMimetype() != null && // FIXME: should be set!
                 PublicRepositoryI.DIRECTORY_MIMETYPE.equals(file.getMimetype())) {
