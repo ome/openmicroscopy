@@ -23,7 +23,6 @@ import ome.api.RawFileStore;
 import ome.api.local.LocalAdmin;
 import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
-import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;

@@ -20,6 +20,7 @@ package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -29,6 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import loci.formats.FormatReader;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
@@ -136,11 +140,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Return a template based directory path. The path will be created
-     * by calling {@link #makeDir(String, boolean, Ice.Current)}. Any exception will
-     * be handled by incrementing some part of the template to create a viable
-     * directory.
-     *
-     * @FIXME For the moment only the top-level directory is being incremented.
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
      */
     public ImportProcessPrx importFileset(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
@@ -163,7 +163,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
         FsFile relPath = new FsFile(expandTemplate(template, __current));
         // at this point, relPath should not yet exist on the filesystem
 
-        createTemplateDir(relPath, __current);
+        try {
+            createTemplateDir(relPath, __current);
+        } catch (Throwable t) {
+            System.err.println(this.stackTraceAsString(t));
+        }
+
+        final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
         
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -172,7 +178,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         ImportLocation location =
-                suggestImportPaths(relPath, basePath, paths, __current);
+                suggestImportPaths(relPath, basePath, paths, readerClass, __current);
 
         return createImportProcess(fs, location, settings, __current);
     }
@@ -301,6 +307,31 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     /**
+     * Get the suggested BioFormats Reader for the given Fileset.
+     * @param fs a fileset
+     * @param __current the current ICE context
+     * @return a reader class, or null if none could be found
+     */
+    protected Class<? extends FormatReader> getReaderClass(Fileset fs, Current __current) {
+        for (final Job job : fs.linkedJobList()) {
+            if (job instanceof UploadJob) {
+                final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
+                final String readerName = versionInfo.getBioformatsReader(__current).getValue();
+                final Class<?> potentialReaderClass;
+                try {
+                    potentialReaderClass = Class.forName(readerName);
+                } catch (ClassNotFoundException e) {
+                    continue;
+                }
+                if (FormatReader.class.isAssignableFrom(potentialReaderClass)) {
+                    return (Class<? extends FormatReader>) potentialReaderClass;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
      * @param some paths
@@ -419,24 +450,48 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Trim off the start of long client-side paths.
      * @param basePath the common root
      * @param fullPaths the full paths from the common root down to the filename
+     * @param readerClass BioFormats reader for data, may be null
      * @return possibly trimmed common root and full paths
      */
-    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths) {
-        int smallestPathLength;
-        if (fullPaths.isEmpty())
-            smallestPathLength = 1; /* imaginary file name */
-        else {
-            smallestPathLength = Integer.MAX_VALUE;
-            for (final FsFile path : fullPaths) {
-                final int pathLength = path.getComponents().size();
-                if (smallestPathLength > pathLength)
-                    smallestPathLength = pathLength;
-            }
-        }
+    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths, 
+            Class<? extends FormatReader> readerClass) {
+        // find how many common parent directories to retain according to BioFormats
+        Integer commonParentDirsToRetain = null;
+        final String[] localStylePaths = new String[fullPaths.size()];
+        int index = 0;
+        for (final FsFile fsFile : fullPaths)
+            localStylePaths[index++] = serverPaths.getServerFileFromFsFile(fsFile).getAbsolutePath();
+        try {
+            commonParentDirsToRetain = readerClass.newInstance().getRequiredDirectories(localStylePaths);
+        } catch (Exception e) { }
+        
         final List<String> basePathComponents = basePath.getComponents();
-        int baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
+        final int baseDirsToTrim;
+        if (commonParentDirsToRetain == null) {
+            // no help from BioFormats
+            
+            // find the length of the shortest path, including file name
+            int smallestPathLength;
+            if (fullPaths.isEmpty())
+                smallestPathLength = 1; /* imaginary file name */
+            else {
+                smallestPathLength = Integer.MAX_VALUE;
+                for (final FsFile path : fullPaths) {
+                    final int pathLength = path.getComponents().size();
+                    if (smallestPathLength > pathLength)
+                        smallestPathLength = pathLength;
+                }
+            }
+            
+            // plan to trim to try to retain a certain number of parent directories
+            baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
+        }
+        else
+            // plan to trim the common root according to BioFormats' suggestion
+            baseDirsToTrim = basePathComponents.size() - commonParentDirsToRetain;
         if (baseDirsToTrim < 0)
             return new Paths(basePath, fullPaths);
+        // actually do the trimming
         basePath = new FsFile(basePathComponents.subList(baseDirsToTrim, basePathComponents.size()));
         final List<FsFile> trimmedPaths = new ArrayList<FsFile>(fullPaths.size());
         for (final FsFile path : fullPaths) {
@@ -453,12 +508,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * file paths.
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
+     * @param reader BioFormats reader for data, may be null
      * @return {@link ImportLocation} instance
      */
-    protected ImportLocation suggestImportPaths(FsFile relPath,
-            FsFile basePath, List<FsFile> paths, Ice.Current __current)
-            throws omero.ServerError {
-        final Paths trimmedPaths = trimPaths(basePath, paths);
+    protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader, Ice.Current __current) throws omero.ServerError {
+        final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
         
