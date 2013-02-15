@@ -2052,8 +2052,9 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
 
     result = [f for f in result
               if show_hidden or not f.get('name', '').startswith('.')]
-    for owner in conn.getObjects("Experimenter", owners.keys()):
-        owners[owner.id] = owner.simpleMarshal()
+    if owners.keys():
+        for owner in conn.getObjects("Experimenter", owners.keys()):
+            owners[owner.id] = owner.simpleMarshal()
     for f in result:
         f['owner'] = owners.get(f['owner'])
     return dict(result=result)
