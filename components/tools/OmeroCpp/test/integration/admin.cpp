@@ -53,9 +53,9 @@ TEST(AdminTest, setGroup) {
     // Add user to new group to test setting default
     ExperimenterPtr user = admin->getExperimenter(uid);
     ExperimenterGroupPtr group = f.newGroup();
-    f.addExperimenter(user, group);
+    f.addExperimenter(group, user);
 
     admin->setDefaultGroup(user, group);
-//    ExperimenterGroupPtr defGroup = f.client->getSession()->getAdminService()->getDefaultGroup(uid);
-//    ASSERT_EQ(defGroup->getId()->getValue(), group->getId()->getValue());
+    ExperimenterGroupPtr defGroup = admin->getDefaultGroup(uid);
+    ASSERT_EQ(defGroup->getId()->getValue(), group->getId()->getValue());
 }
