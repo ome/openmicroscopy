@@ -116,14 +116,6 @@ public class ImportEvent {
         }
     }
 
-    public static class ERRORS_CLEARED extends ImportEvent {
-    	public final int index;
-    	
-    	public ERRORS_CLEARED(int index) {
-    		this.index = index;
-    	}
-    }
-    
     // Data-less events
 
     public static class ADD extends ImportEvent {
@@ -132,19 +124,11 @@ public class ImportEvent {
     public static class ERRORS_PENDING extends ImportEvent {
     }
 
-    public static class ERRORS_SEND extends ImportEvent {
-
-    }
-    
     public static class ERRORS_COMPLETE extends ImportEvent {
 
     }
 
     public static class ERRORS_FAILED extends ImportEvent {
-
-    }
-
-    public static class ERRORS_UPLOAD_CANCELLED extends ImportEvent {
 
     }
 
@@ -157,14 +141,6 @@ public class ImportEvent {
     }
 
     public static class LOGGED_OUT extends ImportEvent {
-
-    }
-
-    public static class IMPORT_QUEUE_STARTED extends ImportEvent {
-
-    }
-
-    public static class IMPORT_QUEUE_DONE extends ImportEvent {
 
     }
 
@@ -437,24 +413,6 @@ public class ImportEvent {
             sb.append(String.format(" Imported file: %s", filename));
             return sb.toString();
         }
-    }
-
-    //
-    // Events which should be housed elsewhere
-    //
-
-    public static class QUICKBAR_UPDATE extends ImportEvent {
-
-    }
-
-    public static class GROUP_SET extends ImportEvent {
-	public final String groupName;
-	public final int groupType;
-
-	public GROUP_SET(String groupName, int groupType) {
-		this.groupName = groupName;
-		this.groupType = groupType;
-	}
     }
 
 }
