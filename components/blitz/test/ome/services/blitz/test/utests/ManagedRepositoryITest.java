@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import junit.framework.Assert;
+import loci.formats.FormatReader;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
@@ -91,9 +92,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestImportPaths(FsFile relPath,
-                FsFile basePath, List<FsFile> paths, Ice.Current curr) throws omero.ServerError {
-            return super.suggestImportPaths(relPath, basePath, paths, curr);
+        public ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
+                Class<? extends FormatReader> reader, Ice.Current curr) throws omero.ServerError {
+            return super.suggestImportPaths(relPath, basePath, paths, reader, curr);
         }
 
         @Override
@@ -152,7 +153,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     
     private String getSuggestion(String base, String...paths) throws Exception {
         final ImportLocation l = 
-                this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), curr);
+                this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), null, curr);
         return new File(l.sharedPath).getName();
     }
 

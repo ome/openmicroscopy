@@ -417,8 +417,9 @@ public class ImportCandidates extends DirectoryWalker
                 String[] domains = reader.getReader().getDomains();
                 boolean isSPW = Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
 
-                ImportContainer ic = new ImportContainer(file,
-                        null, null, format, usedFiles, isSPW);
+                final String readerClassName = reader.unwrap().getClass().getCanonicalName();
+                ImportContainer ic = new ImportContainer(file, null, null,
+                        readerClassName, usedFiles, isSPW);
                 ic.setDoThumbnails(config.doThumbnails.get());
                 String configImageName = config.userSpecifiedName.get();
                 if (configImageName == null)
