@@ -3,6 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <bean id="checksumVerifier" class="ome.services.checksum.ChecksumVerifierImpl"/>
+    <bean id="checksumProviderFactory"
+        class="ome.services.checksum.ChecksumProviderFactoryImpl"/>
 
 </beans>
