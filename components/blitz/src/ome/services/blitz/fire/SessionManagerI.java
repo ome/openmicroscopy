@@ -28,6 +28,7 @@ import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
+import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
@@ -288,17 +289,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 // Using static method since we may not have a clientId
                 // in order to look up the SessionI/ServiceFactoryI
                 SessionI.unregisterServant(curr.id, adapter, holder);
-            } else if (event instanceof RegisterServantMessage) {
-                RegisterServantMessage msg = (RegisterServantMessage) event;
+            } else if (event instanceof FindServiceFactoryMessage) {
+                FindServiceFactoryMessage msg = (FindServiceFactoryMessage) event;
                 Ice.Current curr = msg.getCurrent();
                 Ice.Identity id = getServiceFactoryIdentity(curr);
                 ServiceFactoryI sf = getServiceFactory(id);
-                if (sf != null) {
-                    final Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
-                    final Ice.Object servant = msg.getServant();
-                    sf.configureServant(servant); // Sets holder
-                    msg.setProxy(sf.registerServant(newId, servant));
-                }
+                msg.setServiceFactory(id, sf);
             } else if (event instanceof DestroySessionMessage) {
                 DestroySessionMessage msg = (DestroySessionMessage) event;
                 reapSession(msg.getSessionId());

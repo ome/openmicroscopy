@@ -7,6 +7,9 @@
 
 package ome.services.blitz.util;
 
+import java.util.UUID;
+
+import ome.services.blitz.impl.ServiceFactoryI;
 import ome.util.messages.InternalMessage;
 
 /**
@@ -17,32 +20,25 @@ import ome.util.messages.InternalMessage;
  * @author Josh Moore, josh at glencoesoftware.com
  * @see ticket:2253
  */
-public class RegisterServantMessage extends InternalMessage {
+public class RegisterServantMessage extends FindServiceFactoryMessage {
 
     private static final long serialVersionUID = 3409582093802L;
 
     private final transient Ice.Object servant;
 
-    private final transient Ice.Current curr;
-
     private transient Ice.ObjectPrx prx;
 
     public RegisterServantMessage(Object source, Ice.Object servant,
             Ice.Current current) {
-        super(source);
+        super(source, current);
         this.servant = servant;
-        this.curr = current;
     }
 
     public Ice.Object getServant() {
         return this.servant;
     }
 
-    public Ice.Current getCurrent() {
-        return this.curr;
-    }
-
-    public void setProxy(Ice.ObjectPrx prx) {
+    private void setProxy(Ice.ObjectPrx prx) {
         if (this.prx != null) {
             throw new RuntimeException("Proxy can only be set once!");
         }
@@ -51,6 +47,17 @@ public class RegisterServantMessage extends InternalMessage {
 
     public Ice.ObjectPrx getProxy() {
         return this.prx;
+    }
+
+    public void setServiceFactory(Ice.Identity id, ServiceFactoryI sf)
+            throws omero.ServerError {
+        super.setServiceFactory(id, sf);
+        if (sf != null) {
+            final Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
+            final Ice.Object servant = getServant();
+            sf.configureServant(servant); // Sets holder
+            setProxy(sf.registerServant(newId, servant));
+        }
     }
 
 }

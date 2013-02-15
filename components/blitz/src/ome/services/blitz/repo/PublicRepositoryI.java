@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -49,16 +48,18 @@ import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
+import ome.util.messages.InternalMessage;
 
 import omero.InternalException;
 import omero.RLong;
 import omero.RMap;
-import omero.RString;
-import omero.RType;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -69,9 +70,11 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RawPixelsStorePrxHelper;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
+import omero.cmd.AMD_Session_submit;
 import omero.cmd.Delete;
 import omero.cmd.DoAll;
 import omero.cmd.HandlePrx;
+import omero.cmd.Request;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.OriginalFile;
@@ -84,6 +87,22 @@ import omero.util.IceMapper;
  * @author Josh Moore, josh at glencoesoftware.com
  */
 public class PublicRepositoryI implements _RepositoryOperations, ApplicationContextAware {
+
+    public static class AMD_submit implements AMD_Session_submit {
+
+        HandlePrx ret;
+
+        Exception ex;
+
+        public void ice_response(HandlePrx __ret) {
+            this.ret = __ret;
+        }
+
+        public void ice_exception(Exception ex) {
+            this.ex = ex;
+        }
+
+    }
 
     private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
 
@@ -100,7 +119,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     private /*final*/ long id;
 
     protected /*final*/ ServerFilePathTransformer serverPaths;
-    
+
     protected final RepositoryDao repositoryDao;
 
     protected OmeroContext context;
@@ -201,7 +220,6 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 mimetype == null ? null : mimetype.getValue(), __current);
     }
 
-
     public HandlePrx deletePaths(String[] files, boolean recursive, boolean force,
             Current __current) throws ServerError {
 
@@ -252,11 +270,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         CheckedPath checked = checkPath(path, __current);
 
         // See comment below in RawFileStorePrx
-        Ice.Current adjustedCurr = new Ice.Current();
-        adjustedCurr.ctx = __current.ctx;
-        adjustedCurr.operation = __current.operation;
-        String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
-        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+        Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
+
 
         // Check that the file is in the DB and has minimally "r" permissions
         // Sets the ID value on the checked object.
@@ -280,17 +295,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         // See comment below in RawFileStorePrx
         _RawPixelsStoreTie tie = new _RawPixelsStoreTie(rps);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
-        try {
-            this.context.publishMessage(msg);
-        } catch (Throwable t) {
-            if (t instanceof ServerError) {
-                throw (ServerError) t;
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, t);
-                throw ie;
-            }
-        }
+        publishMessage(msg);
         Ice.ObjectPrx prx = msg.getProxy();
         if (prx == null) {
             throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
@@ -370,6 +375,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         final String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
         final Ice.Current adjustedCurr = new Ice.Current();
         adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.adapter = __current.adapter;
         adjustedCurr.operation = __current.operation;
         adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
         return adjustedCurr;
@@ -434,6 +440,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                     throws ServerError {
 
         final RegisterServantMessage msg = new RegisterServantMessage(this, tie, current);
+        publishMessage(msg);
+        Ice.ObjectPrx prx = msg.getProxy();
+        if (prx == null) {
+            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+        }
+        return prx;
+    }
+
+    protected void publishMessage(final InternalMessage msg)
+            throws ServerError, InternalException {
         try {
             this.context.publishMessage(msg);
         } catch (Throwable t) {
@@ -445,11 +461,27 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 throw ie;
             }
         }
-        Ice.ObjectPrx prx = msg.getProxy();
-        if (prx == null) {
-            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+    }
+
+    protected AMD_submit submitRequest(final ServiceFactoryI sf,
+            final omero.cmd.Request req,
+            final Ice.Current current) throws ServerError, InternalException {
+
+        final AMD_submit submit = new AMD_submit();
+        sf.submit_async(submit, req, current);
+        if (submit.ex != null) {
+            IceMapper mapper = new IceMapper();
+            throw mapper.handleServerError(submit.ex, context);
+        } else if (submit.ret == null) {
+            throw new omero.InternalException(null, null,
+                    "No handle proxy found for: " + req);
         }
-        return prx;
+        return submit;
+    }
+
+    protected Ice.ObjectFactory getFactory(String id, Ice.Current current) {
+        final Ice.Communicator ic = current.adapter.getCommunicator();
+        return ic.findObjectFactory(id);
     }
 
     /**
