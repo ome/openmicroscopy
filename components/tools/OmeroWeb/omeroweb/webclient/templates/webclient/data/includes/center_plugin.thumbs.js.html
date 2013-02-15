@@ -51,6 +51,10 @@ $(document).ready(function() {
                 $("#image_icon-"+imgId).addClass('ui-selected');
             }
         });
+        // Also clear well selection if 'plate' selected
+        if (get_selected.attr('id').split("-")[0] === 'plate') {
+            $("td.ui-selected").removeClass("ui-selected");
+        }
     }
 
     // on change of selection in tree, update center panel
@@ -72,6 +76,11 @@ $(document).ready(function() {
                 $("div#content_details").removeAttr('rel');
             }
             return;
+        }
+
+        // If 'well' selected, do nothing here.
+        if (sel_objs[0].id.split("-")[0] === 'well') {
+            return
         }
 
         if (selected.length > 1) {
