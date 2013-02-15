@@ -2108,7 +2108,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     if todelete:
         handle = conn.deleteObjects('/OriginalFile', todelete)
         try:
-            conn._waitOnCmd(handle)
+            conn._waitOnCmd(handle, loops=60)  # wait for 60*500ms = 30s
         finally:
             handle.close()
     # Delete files on disk
