@@ -1394,6 +1394,19 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
+    @RolesAllowed("user")
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.getResolutionDescriptions();
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#getTileSize()
      */

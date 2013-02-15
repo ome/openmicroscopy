@@ -128,6 +128,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
 
     public boolean requiresPixelsPyramid();
 
+    public Object getResolutionDescriptions();
+
     public int getResolutionLevels();
 
     public int getResolutionLevel();

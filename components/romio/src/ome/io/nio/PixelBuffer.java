@@ -693,4 +693,14 @@ public interface PixelBuffer extends Closeable
      * buffer is not tiled.
      **/
     public Dimension getTileSize();
+
+    /**
+     * Return a list of lists each of which has sizeX, sizeY for the resolution
+     * level matching the index of the outer index. For example, if an image
+     * has 2 resolution levels of size 2048x1024 and 1024x512 then this returns:
+     * [[2048,1024],[1024,512]]
+     *
+     * @return
+     */
+    public List<List<Integer>> getResolutionDescriptions();
 }

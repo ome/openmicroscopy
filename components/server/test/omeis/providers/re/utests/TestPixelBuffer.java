@@ -10,6 +10,8 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
@@ -364,6 +366,14 @@ public class TestPixelBuffer implements PixelBuffer {
     {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    public List<List<Integer>> getResolutionDescriptions()
+    {
+        List<Integer> sizes = Arrays.asList(getSizeX(), getSizeY());
+        List<List<Integer>> rv = new ArrayList<List<Integer>>();
+        rv.add(sizes);
+        return rv;
     }
 
     /* (non-Javadoc)

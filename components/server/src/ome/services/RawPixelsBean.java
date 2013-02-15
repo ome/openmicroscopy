@@ -718,6 +718,13 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         return buffer.getResolutionLevels();
     }
 
+    @RolesAllowed("user")
+    public synchronized List<List<Integer>> getResolutionDescriptions()
+    {
+        errorIfNotLoaded();
+        return buffer.getResolutionDescriptions();
+    }
+
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#getTileSize()
      */
