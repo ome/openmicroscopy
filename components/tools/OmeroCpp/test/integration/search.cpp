@@ -1593,52 +1593,62 @@ TEST(SearchTest, testMergedBatches ) {
     assertResults(2, search);
 }
 
-/* FIXME
-TEST SearchTest,( testOrderBy ) {
+TEST(SearchTest, testOrderBy) {
 
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
+    
     string uuid = f.uuid();
+    
     TagAnnotationIPtr tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
-    ImagePtr i1 = new_ImageI();
-    i1->setName(rstring(uuid));
-    i1->setDescription(rstring("a"));
-    i1->linkAnnotation(tag);
-    ImagePtr i2 = new_ImageI();
-    i2->setName(rstring(uuid));
-    i2->setDescription(rstring("b"));
-    i2->linkAnnotation(tag);
-    i1 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    
+    // create some test images
+    const int IMAGE_COUNT = 2;
+    ImagePtr images[IMAGE_COUNT];
+    for (int i = 0; i < IMAGE_COUNT; ++i) {
+        images[i] = new_ImageI();
+        images[i]->setName(rstring(uuid));
+        char desc[] = "a";
+        desc[0] += i;
+        images[i]->setDescription(rstring(desc));
+        images[i]->linkAnnotation(tag);
+    }
+    
+    for (int i = 0; i < IMAGE_COUNT; i++)
+        images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
+    
     // FIXME Thread.sleep(2000L); // Waiting to test creation time ordering better
-    i2 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i2));
-    root.update()->indexObject(i1);
-    root.update()->indexObject(i2);
+    
+    for (int i = 0; i < IMAGE_COUNT; i++)
+        f.rootUpdate()->indexObject(images[i]);;
+    
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
     SearchPrx search = f.search();
     search->onlyType("Image");
 
-    // Order by description desc
+    // Order by description
     search->unordered();
     search->addOrderByDesc("description");
+    
     // full text
     search->byFullText(uuid);
-    StringSet desc;
-    desc.push_back(i2->getDescription()->getValue());
-    desc.push_back(i1->getDescription()->getValue());
-    while (search->hasNext()) {
-        ASSERT_EQ(desc.remove(0), ((Image) search->next())
-                .getDescription());
+    for (int i = 0; i < IMAGE_COUNT && search->hasNext(); ++i) {
+        string expectedDesc = images[i]->getDescription()->getValue();
+        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue();
+        ASSERT_EQ(expectedDesc, actualDesc);
     }
+    
+    /*
     // annotated with
     byAnnotatedWith(search, tag);
-    desc = new ArrayList<string>();
-    desc.add(i2.getDescription());
-    desc.add(i1.getDescription());
+    vector<string> desc;
+    desc.push_back(i2.getDescription());
+    desc.push_back(i1.getDescription());
     while (search->hasNext()) {
-        ASSERT_EQ(desc.remove(0), ((Image) search->next())
+        ASSERT_EQ(desc[0], ImagePtr::dynamicCast(search->next()))
                 .getDescription());
     }
 
@@ -1648,19 +1658,19 @@ TEST SearchTest,( testOrderBy ) {
     // full text
     search->byFullText(uuid);
     List<string> asc = new ArrayList<string>();
-    asc.add(i1.getDescription());
-    asc.add(i2.getDescription());
+    asc.push_back(i1.getDescription());
+    asc.push_back(i2.getDescription());
     while (search->hasNext()) {
-        ASSERT_EQ(asc.remove(0), ((Image) search->next())
+        ASSERT_EQ(asc.erase(0), ImagePtr::dynamicCast(search->next()))
                 .getDescription());
     }
     // annotated with
     byAnnotatedWith(search, tag);
     asc = new ArrayList<string>();
-    asc.add(i1.getDescription());
-    asc.add(i2.getDescription());
+    asc.push_back(i1.getDescription());
+    asc.push_back(i2.getDescription());
     while (search->hasNext()) {
-        ASSERT_EQ(asc.remove(0), ((Image) search->next())
+        ASSERT_EQ(asc.remove(0), ImagePtr::dynamicCast(search->next())
                 .getDescription());
     }
 
@@ -1760,9 +1770,8 @@ TEST SearchTest,( testOrderBy ) {
     while (search->hasNext()) {
         ASSERT_EQ(multi.remove(0), search->next().getId());
     }
-
+     */
 }
-*/
 
 TEST(SearchTest, testFetchAnnotations ) {
     try {
