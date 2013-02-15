@@ -29,7 +29,7 @@ public interface StringTransformer {
      * but will be superseded by Java 8 lambdas anyway./
      
     /**
-     * Transform the given string.
+     * Transform the given string. Thread-safe.
      * @param a string, not null
      * @return the transformed string, not null
      */

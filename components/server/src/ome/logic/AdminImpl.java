@@ -986,7 +986,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      *
      * @param not null object. Should be linked to the current session.
      */
-    private void internalMoveToCommonSpace(IObject obj) {
+    public void internalMoveToCommonSpace(IObject obj) {
         /* Can this next line be removed? - ajp */
         final Session session = osf.getSession();
         obj.getDetails().setGroup(

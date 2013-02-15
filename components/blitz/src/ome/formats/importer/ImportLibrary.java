@@ -36,6 +36,8 @@ import org.apache.commons.logging.LogFactory;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.Utils;
 
 import omero.ServerError;
@@ -85,6 +87,9 @@ public class ImportLibrary implements IObservable
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
 
+    private static final ClientFilePathTransformer sanitizer = 
+            new ClientFilePathTransformer(new MakePathComponentSafe());
+    
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
@@ -197,9 +202,10 @@ public class ImportLibrary implements IObservable
     /**
      * Provide initial configuration to the server in order to create the
      * {@link ImportProcessPrx} which will manage state server-side.
+     * @throws IOException if the used files' absolute path could not be found
      */
     public ImportProcessPrx createImport(final ImportContainer container)
-        throws ServerError {
+        throws ServerError, IOException {
         checkManagedRepo();
         String[] usedFiles = container.getUsedFiles();
         File target = container.getFile();
@@ -213,7 +219,7 @@ public class ImportLibrary implements IObservable
 
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs);
+        container.fillData(new ImportConfig(), settings, fs, sanitizer);
         return repo.importFileset(fs, settings);
 
     }
