@@ -1593,6 +1593,14 @@ TEST(SearchTest, testMergedBatches ) {
     assertResults(2, search);
 }
 
+
+#define assertImageResults(images, size, search, descending) \
+    for (int i = descending? size -1 : 0; i < size && search->hasNext(); i += descending? -1 : 1) { \
+        string expectedDesc = images[i]->getDescription()->getValue(); \
+        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue(); \
+        ASSERT_EQ(expectedDesc, actualDesc); \
+    } \
+
 TEST(SearchTest, testOrderBy) {
 
     SearchFixture f;
@@ -1618,8 +1626,6 @@ TEST(SearchTest, testOrderBy) {
     for (int i = 0; i < IMAGE_COUNT; i++)
         images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
     
-    // FIXME Thread.sleep(2000L); // Waiting to test creation time ordering better
-    
     for (int i = 0; i < IMAGE_COUNT; i++)
         f.rootUpdate()->indexObject(images[i]);;
     
@@ -1635,116 +1641,79 @@ TEST(SearchTest, testOrderBy) {
     
     // full text
     search->byFullText(uuid);
-    for (int i = 0; i < IMAGE_COUNT && search->hasNext(); ++i) {
-        string expectedDesc = images[i]->getDescription()->getValue();
-        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue();
-        ASSERT_EQ(expectedDesc, actualDesc);
-    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
     
-    /*
     // annotated with
     byAnnotatedWith(search, tag);
-    vector<string> desc;
-    desc.push_back(i2.getDescription());
-    desc.push_back(i1.getDescription());
-    while (search->hasNext()) {
-        ASSERT_EQ(desc[0], ImagePtr::dynamicCast(search->next()))
-                .getDescription());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, true);
 
     // Order by descript asc
     search->unordered();
     search->addOrderByAsc("description");
+    
     // full text
     search->byFullText(uuid);
-    List<string> asc = new ArrayList<string>();
-    asc.push_back(i1.getDescription());
-    asc.push_back(i2.getDescription());
-    while (search->hasNext()) {
-        ASSERT_EQ(asc.erase(0), ImagePtr::dynamicCast(search->next()))
-                .getDescription());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
+    
     // annotated with
     byAnnotatedWith(search, tag);
-    asc = new ArrayList<string>();
-    asc.push_back(i1.getDescription());
-    asc.push_back(i2.getDescription());
-    while (search->hasNext()) {
-        ASSERT_EQ(asc.remove(0), ImagePtr::dynamicCast(search->next())
-                .getDescription());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
 
     // Ordered by id
     search->unordered();
     search->addOrderByDesc("id");
+    
     // full text
     search->byFullText(uuid);
-    List<Long> ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
+    
     // annotated with
     byAnnotatedWith(search, tag);
-    ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, true);
 
     // Ordered by creation event id
     search->unordered();
     search->addOrderByDesc("details.creationEvent.id");
+    
     // full text
     search->byFullText(uuid);
-    ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
+    
     // annotated with
     byAnnotatedWith(search, tag);
-    ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, true);
 
     // ordered by creation event time
     search->unordered();
     search->addOrderByDesc("details.creationEvent.time");
+    
     // full text
     search->byFullText(uuid);
-    ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
+    try {
+        search->hasNext();
     }
+    catch (ApiUsageException e) {
+        cout << "** api usage ex: " << e.what();
+    }
+    assertImageResults(images, IMAGE_COUNT, search, false);
+    
     // annotated with
     byAnnotatedWith(search, tag);
-    ids = new ArrayList<Long>();
-    ids.add(i2.getId());
-    ids.add(i1.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(ids.remove(0), search->next().getId());
-    }
+    assertImageResults(images, IMAGE_COUNT, search, true);
 
     // To test multiple sort fields, we add another image with an "a"
     // description, which should could before the other image with the "a"
     // description if we reverse the id order
 
-    Image i3 = new_ImageI();
+    ImagePtr i3 = new_ImageI();
     i3->setName(rstring(uuid));
-    i3->setDescription("a");
+    i3->setDescription(rstring("a"));
     i3->linkAnnotation(tag);
-    i3 = f.update()->saveAndReturnObject(i3);
-    root.update()->indexObject(i3);
-    loginRoot();
+    i3 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i3));
+    f.rootUpdate()->indexObject(i3);
+    
+    //loginRoot();
+    
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
 
@@ -1752,25 +1721,20 @@ TEST(SearchTest, testOrderBy) {
     search->unordered();
     search->addOrderByAsc("description");
     search->addOrderByDesc("id");
+    
     // annotated with
     byAnnotatedWith(search, tag);
-    List<Long> multi = new ArrayList<Long>();
-    multi.add(i3.getId());
-    multi.add(i1.getId());
-    multi.add(i2.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(multi.remove(0), search->next().getId());
-    }
+    /*int is[] = {3, 1, 2};
+    for (int i = 0; i < 3 && search->hasNext(); i++) {
+        string expectedDesc = images[is[i]]->getDescription()->getValue();
+        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue();
+        ASSERT_EQ(expectedDesc, actualDesc);
+    }*/
+    
     // full text
     search->byFullText(uuid);
-    multi = new ArrayList<Long>();
-    multi.add(i3.getId());
-    multi.add(i1.getId());
-    multi.add(i2.getId());
-    while (search->hasNext()) {
-        ASSERT_EQ(multi.remove(0), search->next().getId());
-    }
-     */
+    // order = 3, 1, 2
+    assertImageResults(images, IMAGE_COUNT, search, false);
 }
 
 TEST(SearchTest, testFetchAnnotations ) {
