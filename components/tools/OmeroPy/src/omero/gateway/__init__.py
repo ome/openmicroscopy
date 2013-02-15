@@ -6234,12 +6234,12 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
                 if pos is None:
-                    thumb = tb.getThumbnailByLongestSideDirect
+                    thumb = tb.getThumbnailByLongestSide
                 else:
                     thumb = tb.getThumbnailForSectionByLongestSideDirect
             else:
                 if pos is None:
-                    thumb = tb.getThumbnailDirect
+                    thumb = tb.getThumbnail
                 else:
                     thumb = tb.getThumbnailForSectionDirect
             args = map(lambda x: rint(x), size)
