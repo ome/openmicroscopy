@@ -90,6 +90,8 @@ function PanoJS(viewer, options) {
   if (this.zoomLevel > this.maxZoomLevel) this.zoomLevel = this.maxZoomLevel;
     
   this.initialPan = (options.initialPan ? options.initialPan : PanoJS.INITIAL_PAN);
+  // map Zoom Levels to Scales (only needed if each zoom level is not a factor of 2)
+  this.zoomLevelScaling = options.zoomLevelScaling;   // 'undefined' is handled in this.currentScale()
     
   this.initialized = false;
   this.surface = null;
@@ -592,8 +594,14 @@ PanoJS.prototype.createPrototype = function(src, src_to_load) {
     
 PanoJS.prototype.currentScale = function() {      
     var scale = 1.0;
-    if (this.zoomLevel<this.maxZoomLevel)
-      scale = 1.0 / Math.pow(2, Math.abs(this.zoomLevel-this.maxZoomLevel));
+    if (this.zoomLevel<this.maxZoomLevel) {
+      var zoomDiff = Math.abs(this.zoomLevel-this.maxZoomLevel);
+      if (this.zoomLevelScaling && typeof this.zoomLevelScaling[zoomDiff] != "undefined") {
+        scale = this.zoomLevelScaling[zoomDiff];
+      } else {
+        scale = 1.0 / Math.pow(2, Math.abs(this.zoomLevel-this.maxZoomLevel));
+      }
+    }
     else
     if (this.zoomLevel>this.maxZoomLevel)
       scale = Math.pow(2, Math.abs(this.zoomLevel-this.maxZoomLevel));
@@ -688,9 +696,20 @@ PanoJS.prototype.zoom = function(direction) {
       'y' : (coords.y - this.y)
     };
         
+    var scaleDiff = Math.pow(2, direction);
+
+    // if we're zooming less than 100%, check for non-default scaling as specified by this.zoomLevelScaling
+    if (this.zoomLevel<this.maxZoomLevel || (this.zoomLevel+direction)<this.maxZoomLevel) {
+      var oldZoom = Math.abs(this.zoomLevel-this.maxZoomLevel),
+        newZoom = Math.abs((this.zoomLevel + direction) -this.maxZoomLevel);
+      if (this.zoomLevelScaling && (typeof this.zoomLevelScaling[oldZoom] != "undefined") && this.zoomLevelScaling[newZoom]) {
+        scaleDiff = this.zoomLevelScaling[newZoom] / this.zoomLevelScaling[oldZoom]
+      }
+    }
+
     var after = {
-      'x' : Math.floor(before.x * Math.pow(2, direction)),
-      'y' : Math.floor(before.y * Math.pow(2, direction))
+      'x' : Math.floor(before.x * scaleDiff),
+      'y' : Math.floor(before.y * scaleDiff)
     };
         
     this.x = coords.x - after.x;
