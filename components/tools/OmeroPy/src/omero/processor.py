@@ -411,7 +411,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 link.parent = omero.model.ParseJobI(rlong(jobid), False)
             else:
                 link.parent = omero.model.ScriptJobI(rlong(jobid), False)
-            link.child = ofile
+            link.child = ofile.proxy()
             client.getSession().getUpdateService().saveObject(link)
             self.status("Uploaded %s bytes of %s to %s" % (sz, filename, ofile.id.val))
         except:
