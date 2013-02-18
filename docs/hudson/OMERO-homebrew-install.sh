@@ -41,7 +41,7 @@ if [ -d "$BREW_DIR" ]; then
         rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
     fi
 
-    if [-d "$BREW_DIR/Library/Taps"]
+    if [ -d "$BREW_DIR/Library/Taps" ]
     then
         echo "Cleaning Homebrew taps"
         rm -rf $BREW_DIR/Library/Taps
