@@ -1,5 +1,6 @@
 function unloadOmero(varargin)
-% Remove OMERO from path and javaclasspath.
+% Remove OMERO.matlab from the path and javaclasspath.
+%
 % Remove's all OMERO resources from MATLAB path and javaclasspath
 % silencing any warnings about the given paths not being available.
 % If loadOmero was called from another directory, this method will
@@ -12,6 +13,23 @@ function unloadOmero(varargin)
 % space which hold on to Java objects, which therefore can't be
 % cleaned. Strange JVM/Classpath errors may occcur if you do not
 % clear the variables and then 'clear java' again.
+
+% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% All rights reserved.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with this program; if not, write to the Free Software Foundation, Inc.,
+% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Disabling warnings since we are taking actions
 % that the user doesn't know nor care about. If

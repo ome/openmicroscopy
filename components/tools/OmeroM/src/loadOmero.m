@@ -1,5 +1,6 @@
-function [client,session,gateway]=loadOmero(varargin)
+function [client,session]=loadOmero(varargin)
 % Add OMERO to the MATLAB path and javaclasspath, and optionally login.
+%
 % loadOmero specifies the directory of the current method as an
 % OmeroMatlab toolbox installation, and adds it to the path and the
 % dynamic javaclasspath. (If you have already specified an OMERO jar on
@@ -41,7 +42,6 @@ function [client,session,gateway]=loadOmero(varargin)
 %   loadOmero;                                 % No constructor called
 %   c = omero.client('localhost');             % Like examples above
 %   s = c.createSession('user','password');
-%   g = s.createGateway();
 %
 %
 % VARARGOUT USAGE: If return values are specified, then loadOmero will
@@ -55,12 +55,28 @@ function [client,session,gateway]=loadOmero(varargin)
 %   % Call omero.client constructor and return. No session created.
 %   client = loadOmero;
 %
-%   % Call omero.client and then createSession and return both. No gateway created.
+%   % Call omero.client and then createSession and return both.
 %   [client, session] = loadOmero;
 %
-%   % Call omero.client, createSession, and createGateway and return.
-%   [client, session, gateway] = loadOmero;
 %
+
+% Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+% All rights reserved.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with this program; if not, write to the Free Software Foundation, Inc.,
+% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 
 % Check if "omero.client" is already on the classpath, if not
 % then add the omero_client.jar to the javaclasspath.
@@ -76,7 +92,7 @@ if exist('omero.client','class') == 0
     % Add the omero_client jar to the Java dynamic classpath
     % This will allow the import omero.* statement to pass
     % successfully.
-    OmeroClient_Jar = fullfile(findOmero, 'omero_client.jar');
+    OmeroClient_Jar = fullfile(findOmero, 'libs', 'omero_client.jar');
     javaaddpath(OmeroClient_Jar);
     import omero.*;
     
@@ -143,6 +159,3 @@ end
 
 if (nargout <2), return; end
 session = client.createSession();
-
-if (nargout <3), return; end
-gateway = session.createGateway();
