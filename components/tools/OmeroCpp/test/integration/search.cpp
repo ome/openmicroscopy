@@ -73,6 +73,9 @@ public:
     SearchPrx search() {
         return sf()->createSearchService();
     }
+    SearchPrx rootSearch() {
+        return root->getSession()->createSearchService();
+    }
     IAdminPrx admin() {
         return sf()->getAdminService();
     }
@@ -1593,13 +1596,19 @@ TEST(SearchTest, testMergedBatches ) {
     assertResults(2, search);
 }
 
-
-#define assertImageResults(images, size, search, descending) \
-    for (int i = descending? size -1 : 0; i < size && search->hasNext(); i += descending? -1 : 1) { \
+#define assertImageResults(images, search, descending) \
+    for (int i = descending? images.size() -1 : 0; i < images.size() && search->hasNext(); i += descending? -1 : 1) { \
         string expectedDesc = images[i]->getDescription()->getValue(); \
         string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue(); \
         ASSERT_EQ(expectedDesc, actualDesc); \
-    } \
+    }
+
+#define assertImageResultsList(images, search, is) \
+    for (int i = 0; i < images.size() && search->hasNext(); i++) { \
+        string expectedDesc = images[is[i]]->getDescription()->getValue(); \
+        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue(); \
+        ASSERT_EQ(expectedDesc, actualDesc); \
+    }
 
 TEST(SearchTest, testOrderBy) {
 
@@ -1612,22 +1621,21 @@ TEST(SearchTest, testOrderBy) {
     tag->setTextValue(rstring(uuid));
     
     // create some test images
-    const int IMAGE_COUNT = 2;
-    ImagePtr images[IMAGE_COUNT];
-    for (int i = 0; i < IMAGE_COUNT; ++i) {
-        images[i] = new_ImageI();
-        images[i]->setName(rstring(uuid));
+    vector<ImagePtr> images;
+    for (int i = 0; i < 2; ++i) {
+        ImagePtr image = new_ImageI();
+        image->setName(rstring(uuid));
         char desc[] = "a";
         desc[0] += i;
-        images[i]->setDescription(rstring(desc));
-        images[i]->linkAnnotation(tag);
+        image->setDescription(rstring(desc));
+        image->linkAnnotation(tag);
+        images.push_back(image);
+        
+        images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
     }
     
-    for (int i = 0; i < IMAGE_COUNT; i++)
-        images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
-    
-    for (int i = 0; i < IMAGE_COUNT; i++)
-        f.rootUpdate()->indexObject(images[i]);;
+    for (int i = 0; i < images.size(); i++)
+        f.rootUpdate()->indexObject(images[i]);
     
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
@@ -1641,11 +1649,11 @@ TEST(SearchTest, testOrderBy) {
     
     // full text
     search->byFullText(uuid);
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
     
     // annotated with
     byAnnotatedWith(search, tag);
-    assertImageResults(images, IMAGE_COUNT, search, true);
+    assertImageResults(images, search, true);
 
     // Order by descript asc
     search->unordered();
@@ -1653,11 +1661,11 @@ TEST(SearchTest, testOrderBy) {
     
     // full text
     search->byFullText(uuid);
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
     
     // annotated with
     byAnnotatedWith(search, tag);
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
 
     // Ordered by id
     search->unordered();
@@ -1665,11 +1673,11 @@ TEST(SearchTest, testOrderBy) {
     
     // full text
     search->byFullText(uuid);
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
     
     // annotated with
     byAnnotatedWith(search, tag);
-    assertImageResults(images, IMAGE_COUNT, search, true);
+    assertImageResults(images, search, true);
 
     // Ordered by creation event id
     search->unordered();
@@ -1677,29 +1685,19 @@ TEST(SearchTest, testOrderBy) {
     
     // full text
     search->byFullText(uuid);
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
     
     // annotated with
     byAnnotatedWith(search, tag);
-    assertImageResults(images, IMAGE_COUNT, search, true);
+    assertImageResults(images, search, true);
 
     // ordered by creation event time
     search->unordered();
     search->addOrderByDesc("details.creationEvent.time");
     
-    // full text
-    search->byFullText(uuid);
-    try {
-        search->hasNext();
-    }
-    catch (ApiUsageException e) {
-        cout << "** api usage ex: " << e.what();
-    }
-    assertImageResults(images, IMAGE_COUNT, search, false);
-    
     // annotated with
     byAnnotatedWith(search, tag);
-    assertImageResults(images, IMAGE_COUNT, search, true);
+    assertImageResults(images, search, true);
 
     // To test multiple sort fields, we add another image with an "a"
     // description, which should could before the other image with the "a"
@@ -1710,9 +1708,9 @@ TEST(SearchTest, testOrderBy) {
     i3->setDescription(rstring("a"));
     i3->linkAnnotation(tag);
     i3 = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i3));
-    f.rootUpdate()->indexObject(i3);
+    images.push_back(i3);
     
-    //loginRoot();
+    f.rootUpdate()->indexObject(i3);
     
     tag = new TagAnnotationI();
     tag->setTextValue(rstring(uuid));
@@ -1724,17 +1722,12 @@ TEST(SearchTest, testOrderBy) {
     
     // annotated with
     byAnnotatedWith(search, tag);
-    /*int is[] = {3, 1, 2};
-    for (int i = 0; i < 3 && search->hasNext(); i++) {
-        string expectedDesc = images[is[i]]->getDescription()->getValue();
-        string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue();
-        ASSERT_EQ(expectedDesc, actualDesc);
-    }*/
+    int is[] = {2, 0, 1};
+    assertImageResultsList(images, search, is);
     
     // full text
     search->byFullText(uuid);
-    // order = 3, 1, 2
-    assertImageResults(images, IMAGE_COUNT, search, false);
+    assertImageResults(images, search, false);
 }
 
 TEST(SearchTest, testFetchAnnotations ) {
