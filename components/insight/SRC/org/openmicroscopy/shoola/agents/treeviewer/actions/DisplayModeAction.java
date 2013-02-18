@@ -58,7 +58,7 @@ public class DisplayModeAction
     private static final String DESCRIPTION_EXP = "Display the data per user";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION_GROUP = 
+    private static final String DESCRIPTION_GROUP =
     		"Display the data per group";
     
     /** One of the constants defined by this class.*/
@@ -85,16 +85,16 @@ public class DisplayModeAction
     private void setDetails()
     {
     	switch (index) {
-			case LookupNames.GROUP_DISPLAY:
-				putValue(Action.NAME, NAME_GROUP);
-				putValue(Action.SHORT_DESCRIPTION, 
-		                UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
-				break;
-    		case LookupNames.EXPERIMENTER_DISPLAY:
-    			putValue(Action.NAME, NAME_EXPERIMENTER);
-    			putValue(Action.SHORT_DESCRIPTION, 
-		                UIUtilities.formatToolTipText(DESCRIPTION_EXP));
-		}
+	    	case LookupNames.GROUP_DISPLAY:
+	    		putValue(Action.NAME, NAME_GROUP);
+	    		putValue(Action.SHORT_DESCRIPTION, 
+	    				UIUtilities.formatToolTipText(DESCRIPTION_GROUP));
+	    		break;
+	    	case LookupNames.EXPERIMENTER_DISPLAY:
+	    		putValue(Action.NAME, NAME_EXPERIMENTER);
+	    		putValue(Action.SHORT_DESCRIPTION, 
+	    				UIUtilities.formatToolTipText(DESCRIPTION_EXP));
+    	}
     }
     
     /** 
@@ -103,9 +103,10 @@ public class DisplayModeAction
      */
     protected void onBrowserStateChange(Browser browser)
     {
-        if (browser == null) return;
-        setEnabled(model.getState() == TreeViewer.READY);
+    	if (browser == null) return;
+    	setEnabled(model.getState() == TreeViewer.READY);
     }
+    
 	/**
      * Creates a new instance.
      * 
@@ -113,10 +114,10 @@ public class DisplayModeAction
      */
     public DisplayModeAction(TreeViewer model, int index)
     {
-        super(model);
-        checkIndex(index);
-        setEnabled(true);
-        setDetails();
+    	super(model);
+    	checkIndex(index);
+    	setEnabled(true);
+    	setDetails();
     }
     
     /**
