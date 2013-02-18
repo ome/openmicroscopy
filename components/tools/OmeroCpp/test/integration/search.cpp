@@ -390,18 +390,16 @@ TEST(SearchTest, testByTagForGroup ) {
     search->byTagForGroups(tagStr);
     assertResults(0, search);
 
-    // FIXME: This does not work? (Review for ticket:2067)
-    // Mon Aug  9 18:00:31 BST 201 -- Chris Allan <callan@blackcat.ca>
-    //d->setOwner(new ExperimenterI(secondUser->getId(), false));
-    //search->onlyOwnedBy(d);
-    //search->byTagForGroups(tagStr);
-    //assertResults(1, search);
+    // ticket:2067
+    d->setOwner(new ExperimenterI(secondUser->getId(), false));
+    search->onlyOwnedBy(d);
+    search->byTagForGroups(tagStr);
+    assertResults(1, search);
 
-    // FIXME: This does not work either? (Review for ticket:2067)
-    // Mon Aug  9 18:00:31 BST 2010 -- Chris Allan <callan@blackcat.ca>
-    //search->onlyOwnedBy(DetailsIPtr());
-    //search->byTagForGroups(tagStr);
-    //assertResults(1, search);
+    // ticket:2067
+    search->onlyOwnedBy(DetailsIPtr());
+    search->byTagForGroups(tagStr);
+    assertResults(1, search);
     } catch (const omero::InternalException& ie) {
         FAIL() << "internal exception:"+ie.message;
     } catch (const omero::ApiUsageException& aue) {
