@@ -7,6 +7,7 @@
 package integration;
 
 import java.io.File;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,15 +15,31 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
+import ome.util.Utils;
+
+import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportRequest;
+import omero.grid.ImportResponse;
 import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Fileset;
+import omero.model.IObject;
 import omero.model.OriginalFile;
 import omero.sys.EventContext;
 
@@ -96,11 +113,44 @@ public class ManagedRepositoryTest
 	}
 
 	// Primarily to get code compiling during the major refactoring
-	ImportLocation importFileset(List<String> srcPaths) {
-	    fail("NYI");
-	    return null;
+	ImportLocation importFileset(List<String> srcPaths) throws Exception {
+
+	    // Setup that should be easier, mostl likey be a single ctor on IL
+	    OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
+	    client.initialize(this.client);
+	    OMEROWrapper wrapper = new OMEROWrapper(new ImportConfig());
+	    ImportLibrary lib = new ImportLibrary(client, wrapper);
+
+	    // This should also be simplified.
+	    ImportContainer container = new ImportContainer(new File(srcPaths.get(0)),
+	            null /*target*/, null /*user pixels */, "FakeReader",
+	            srcPaths.toArray(new String[0]), false /*isspw*/);
+
+	    // Now actually use the library.
+	    ImportProcessPrx proc = lib.createImport(container);
+	    
+	    // The following is largely a copy of ImportLibrary.importImage
+        final String[] srcFiles = container.getUsedFiles();
+        final List<String> checksums = new ArrayList<String>();
+        final MessageDigest md = Utils.newSha1MessageDigest();
+        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+
+        for (int i = 0; i < srcFiles.length; i++) {
+            checksums.add(lib.uploadFile(proc, srcFiles, i, md, buf));
+        }
+
+        // At this point the import is running, check handle for number of
+        // steps.
+        final HandlePrx handle = proc.verifyUpload(checksums);
+        final ImportRequest req = (ImportRequest) handle.getRequest();
+        final Fileset fs = req.activity.getParent();
+        final CmdCallbackI cb = lib.createCallback(proc, handle, container);
+        cb.loop(60*60, 1000); // Wait 1 hr per step.
+        final ImportResponse rsp = lib.getImportResponse(cb, container, fs);
+        return req.location;
 	}
 
+	// This should not really be necessary, since it's done by the above!
 	RawFileStorePrx uploadUsedFile(ImportLocation data, String file) {
 	    fail("NYI");
 	    return null;
@@ -320,7 +370,9 @@ public class ManagedRepositoryTest
 		for (String path : data.usedFiles) {
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+
+		assertDeletePaths(data);
+
 		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
@@ -349,7 +401,9 @@ public class ManagedRepositoryTest
 		    touch(uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+
+		assertDeletePaths(data);
+
 		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
@@ -379,7 +433,8 @@ public class ManagedRepositoryTest
 		assertFileDoesNotExist("Something wrong. File does exist!: ", data.usedFiles.get(1));
 
 		// Non-existent file should be silently ignored.
-		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+		assertDeletePaths(data);
+
 		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
@@ -416,7 +471,9 @@ public class ManagedRepositoryTest
 		    touch(uploadUsedFile(data, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles(data.usedFiles.toArray(new String[data.usedFiles.size()]));
+
+		assertDeletePaths(data);
+
 		for (String path : data.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
 		}
@@ -459,7 +516,8 @@ public class ManagedRepositoryTest
 		    touch(uploadUsedFile(data2, path));
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
-		repo.deleteFiles(data1.usedFiles.toArray(new String[data1.usedFiles.size()]));
+		assertDeletePaths(data1);
+		
 		// This set should be gone
 		for (String path : data1.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
@@ -469,6 +527,16 @@ public class ManagedRepositoryTest
 		    assertFileExists("Delete failed. File deleted!: ", path);
 		}
 	}
+
+    protected void assertDeletePaths(ImportLocation data1) throws ServerError,
+            InterruptedException, LockTimeout {
+        HandlePrx handle = repo.deletePaths(
+		        data1.usedFiles.toArray(new String[data1.usedFiles.size()]),
+		        false, false);
+		CmdCallbackI cb = new CmdCallbackI(client, handle);
+		cb.loop(5, 100);
+		assertCmd(cb, true);
+    }
 
     private void assertContains(String usedFile, String destPath)
     {

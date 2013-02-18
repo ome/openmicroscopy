@@ -37,11 +37,11 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     private static class StringReprContains implements Constraint {
 
         final String containedString;
-        
+
         StringReprContains(String containedString) {
             this.containedString = containedString;
         }
-        
+
         public StringBuffer describeTo(StringBuffer arg0) {
             arg0.append("toString contains ");
             arg0.append(containedString);
@@ -54,7 +54,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             }
             return arg0.toString().contains(containedString);
         }
-        
+
     }
 
     Mock daoMock;
@@ -139,7 +139,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         ec.sessionId = -1L;
         ec.eventId = -1L;
         ec.groupPermissions = new PermissionsI();
-        this.daoMock.expects(once()).method("getEventContext")
+        this.daoMock.expects(atLeastOnce()).method("getEventContext")
             .with(ANYTHING).will(returnValue(ec));
         return ec;
     }
@@ -150,9 +150,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             fsFiles.add(new FsFile(path));
         return fsFiles;
     }
-    
+
     private String getSuggestion(String base, String...paths) throws Exception {
-        final ImportLocation l = 
+        final ImportLocation l =
                 this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), null, curr);
         return new File(l.sharedPath).getName();
     }
@@ -184,6 +184,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
+        newEventContext();
         assertReturnFile(0L); // template
         assertReturnFile(1L); // my
         assertReturnFile(2L); // path
@@ -196,6 +197,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testSuggestOnConflictReturnsNewPathOnConflict() throws Exception {
+        newEventContext();
         assertReturnFile(0L); // template
         assertReturnFile(1L); // upload-1
         File upload = new File(this.templateDir, "/upload");
@@ -208,6 +210,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testSuggestOnConflictReturnsBasePathWithEmptyPathsList() throws Exception {
+        newEventContext();
         assertReturnFile(0L); // template
         assertReturnFile(1L); // upload
         String expectedBasePath = "upload";
@@ -355,4 +358,5 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String actual = this.tmri.expandTemplate("%björk%", curr);
         Assert.assertEquals(expected, actual);
     }
+
 }

@@ -161,8 +161,7 @@ public class ManagedContextFixture {
                         if (curr.id.category.equals(getPrincipal().getName())) {
                             try {
                                 Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), curr.id.name);
-                                sf.configureServant(msg.getServant());
-                                msg.setProxy(sf.registerServant(newId, msg.getServant()));
+                                msg.setServiceFactory(newId, sf);
                             } catch (Throwable t) {
                                 throw new MessageException(
                                         "ManagedContextFixture.onApplicationEvent", t);
