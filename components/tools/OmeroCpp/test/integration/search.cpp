@@ -449,35 +449,33 @@ TEST(SearchTest, testSimpleFullTextSearch ) {
     }
 }
 
-/*
 
-vector<string> sa(string array...) {
+
+vector<string> sa(const char* s1 = 0, const char* s2 = 0) {
     vector<string> v;
-    static const unsigned int arraySize = sizeof array / sizeof *array ;
-    for(int x=0; x < arraySize; x++) {
-        v.push_back(array[x]);
-    }
+    if (s1)
+        v.push_back(s1);
+    if (s2)
+        v.push_back(s2);
+    
     return v;
 }
 
 TEST(SearchTest, testSomeMustNone ) {
-    string contained[] = { "abc", "def", "ghi", "123" };
-    string missing[] =  { "jkl", "mno", "pqr", "456" };
-
     SearchFixture f;
-    SearchFixture root = f.root();
+    f.login();
 
     ImagePtr i = new_ImageI();
     i->setName(rstring("abc def ghi"));
     i = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(i));
-    root.update()->indexObject(i);
+    f.rootUpdate()->indexObject(i);
 
     SearchPrx search = f.search();
     search->onlyType("Image");
 
     // Make sure we can find it simply
     search->bySomeMustNone(sa("abc"), sa(), sa());
-    ASSERT_EQ(search->results().size() >= 1);
+    ASSERT_GE(search->results().size(), 1);
 
     //
     // Now we'll try more complicated queries
@@ -485,7 +483,7 @@ TEST(SearchTest, testSomeMustNone ) {
 
     // This should return nothing since none is contained
     search->bySomeMustNone(sa("abc"), sa(), sa("def"));
-    assertResults(search, 0);
+    assertResults(0, search);
 
     // but if the none is not contained should be ok.
     search->bySomeMustNone(sa("abc"), sa("abc"), sa("jkl"));
@@ -497,7 +495,7 @@ TEST(SearchTest, testSomeMustNone ) {
 
     // same, but with a matching none
     search->bySomeMustNone(sa(), sa("abc"), sa("def"));
-    assertResults(search, 0);
+    assertResults(0, search);
 
     // same again, but with non-matching none
     search->bySomeMustNone(sa(), sa("abc"), sa("jkl"));
@@ -513,7 +511,7 @@ TEST(SearchTest, testSomeMustNone ) {
 
     // Missing must
     search->bySomeMustNone(sa("abc"), sa("jkl"), sa());
-    assertResults(search, 0);
+    assertResults(0, search);
 
     // Present must, missing some
     search->bySomeMustNone(sa("jkl"), sa("def"), sa());
@@ -539,16 +537,16 @@ TEST(SearchTest, testSomeMustNone ) {
     // Multiterms
     //
 
-    search->bySomeMustNone(sa("abc", "def"), null, null);
+    search->bySomeMustNone(sa("abc", "def"), sa(), sa());
     assertAtLeastResults(1, search);
 
-    search->bySomeMustNone(null, sa("abc", "def"), null);
+    search->bySomeMustNone(sa(), sa("abc", "def"), sa());
     assertAtLeastResults(1, search);
 
-    search->bySomeMustNone(null, null, sa("abc", "def"));
+    search->bySomeMustNone(sa(), sa(), sa("abc", "def"));
     assertResults(0, search);
 
-    search->bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), null);
+    search->bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa());
     assertAtLeastResults(1, search);
 
     search->bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa("456"));
@@ -561,22 +559,22 @@ TEST(SearchTest, testSomeMustNone ) {
     // Completely empty
     //
     try {
-        search->bySomeMustNone(null, null, null);
-        fail("Should throw");
+        search->bySomeMustNone(sa(), sa(), sa());
+        FAIL() << "Should throw";
     } catch (ApiUsageException aue) {
         // ok
     }
 
     try {
-        search->bySomeMustNone(sa(), null, null);
-        fail("Should throw");
+        search->bySomeMustNone(sa(), sa(), sa());
+        FAIL() << "Should throw";
     } catch (ApiUsageException aue) {
         // ok
     }
 
     try {
-        search->bySomeMustNone(sa(""), null, null);
-        fail("Should throw");
+        search->bySomeMustNone(sa(""), sa(), sa());
+        FAIL() << "Should throw";
     } catch (ApiUsageException aue) {
         // ok
     }
@@ -586,11 +584,10 @@ TEST(SearchTest, testSomeMustNone ) {
     // For the moment these return as expected since the parser splits into
     // keywords.
     //
-    search->bySomeMustNone(sa("\"abc def\""), null, null);
+    search->bySomeMustNone(sa("\"abc def\""), sa(), sa());
     assertAtLeastResults(1, search);
 }
 
-*/
 
 TEST(SearchTest, testAnnotatedWith ) {
     try {
