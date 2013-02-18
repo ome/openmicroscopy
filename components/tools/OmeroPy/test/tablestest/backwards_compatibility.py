@@ -49,8 +49,9 @@ class BackwardsCompatibilityTest(lib.ITest):
         file = os.path.join(dir, file)
 
         tmpf = tempfile.NamedTemporaryFile(delete=False)
-        with bz2.BZ2File(file) as bzf:
-            tmpf.write(bzf.read())
+        bzf = bz2.BZ2File(file)
+        tmpf.write(bzf.read())
+        bzf.close()
         tmpf.close()
 
         ofile = self.client.upload(
