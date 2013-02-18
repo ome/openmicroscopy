@@ -428,12 +428,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      * @param id
      *            long, db id of original file.
-     * @return OriginalFile object.
+     * @return FsFile object.
      *
      */
-    public File getFile(final long id, final Ice.Current current,
-            final String repoUuid, final ServerFilePathTransformer serverPaths) {
-        return (File) executor.execute(current.ctx, currentUser(current),
+    public FsFile getFile(final long id, final Ice.Current current,
+            final String repoUuid) {
+        return (FsFile) executor.execute(current.ctx, currentUser(current),
                 new Executor.SimpleWork(this, "getFile", id) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -444,7 +444,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         return null;
                     }
 
-                    return serverPaths.getServerFileFromFsFile(new FsFile(path));
+                    return new FsFile(path);
             }
         });
     }
