@@ -20,7 +20,6 @@ package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import java.util.Map;
 
 import loci.formats.FormatReader;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.commons.logging.Log;
@@ -162,12 +160,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // ManagedRepository/, e.g. %user%/%year%/etc.
         FsFile relPath = new FsFile(expandTemplate(template, __current));
         // at this point, relPath should not yet exist on the filesystem
-
-        try {
-            createTemplateDir(relPath, __current);
-        } catch (Throwable t) {
-            System.err.println(this.stackTraceAsString(t));
-        }
+        createTemplateDir(relPath, __current);
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
         
@@ -424,15 +417,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * {@link #expandTemplate(String, Ice.Current)} and call
      * {@link makeDir(String, boolean, Ice.Current)} on each element of the path
      * starting at the top, until all the directories have been created.
+     * The full path must not already exist, although a prefix of it may.
      */
     protected void createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
-        final List<String> givenPath = relPath.getComponents();
-        if (givenPath.isEmpty())
+        final List<String> relPathComponents = relPath.getComponents();
+        final int relPathSize = relPathComponents.size();
+        if (relPathSize == 0)
             throw new IllegalArgumentException("no template directory");
-        for (int prefixSize = 1; prefixSize <= givenPath.size(); prefixSize++) {
-            final List<String> pathPrefix = givenPath.subList(0, prefixSize);
-            makeDir(new FsFile(pathPrefix).toString(), false, curr);
+        if (relPathSize > 1) {
+            final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
+            makeDir(new FsFile(pathPrefix).toString(), true, curr);
         }
+        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
