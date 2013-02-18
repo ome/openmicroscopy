@@ -63,10 +63,11 @@ ice_compatibility="${versions.ice}"
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
+        <property name="suite_file" value="${basedir}/test/integration/integration_suite.py"/>
         <run_py failonerror="${test.with.fail}">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
             <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${basedir}/test/integration/integration_suite.py"/>
+            <arg file="${suite_file}"/>
         </run_py>
     </target>
 
