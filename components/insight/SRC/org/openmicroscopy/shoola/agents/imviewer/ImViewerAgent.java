@@ -503,7 +503,7 @@ public class ImViewerAgent
     	displayMode = evt.getDisplayMode();
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
-    	ImViewerFactory.setDiplayMode(displayMode);
+    	ImViewerFactory.setDisplayMode(displayMode);
     }
     
     /**

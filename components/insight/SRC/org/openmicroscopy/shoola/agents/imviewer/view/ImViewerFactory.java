@@ -355,7 +355,7 @@ public class ImViewerFactory
 	 * 
 	 * @param displayMode The value to set.
 	 */
-	public static void setDiplayMode(int displayMode)
+	public static void setDisplayMode(int displayMode)
 	{
 		Iterator<ImViewer> i = singleton.viewers.iterator();
 		ImViewerComponent comp;
