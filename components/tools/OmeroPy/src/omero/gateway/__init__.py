@@ -7384,37 +7384,19 @@ class _ImageWrapper (BlitzObjectWrapper):
             yield OriginalFileWrapper(self._conn, l.parent)
 
     def countFilesetFiles (self):
-        """ Counts the Original Files that are part of the FS Fileset linked to this image """
-
-        if self._filesetFileCount == None:
-            params = omero.sys.Parameters()
-            params.map = {'imageId': rlong(self.getId())}
-            query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
-                    "left outer join fs.imageLinks as imageLink where imageLink.child.id=:imageId"
-            queryService = self._conn.getQueryService()
-            fscount = queryService.projection(query, params, self._conn.SERVICE_OPTS)
-            self._filesetFileCount = fscount[0][0]._val
-        return self._filesetFileCount
+        """ 
+        FS method not implemented here (returns 0). For FS servers, this
+        counts the Original Files that are part of the FS Fileset linked to this image
+        """
+        return 0
 
     def getFilesetFiles (self):
         """
-        Returns a generator of L{OriginalFileWrapper}s corresponding FS Fileset for this image
+        FS method not implemented here (Returns empty generator). For FS servers, this
+        returns a generator of L{OriginalFileWrapper}s corresponding FS Fileset for this image
         """
-
-        params = omero.sys.Parameters()
-        params.map = {'imageId': rlong(self.getId())}
-
-        query = "select fs from Fileset as fs "\
-                "left outer join fetch fs.imageLinks as fil "\
-                "join fetch fil.child as image " \
-                "left outer join fetch fs.usedFiles as usedFile " \
-                "join fetch usedFile.originalFile where image.id=:imageId"
-        queryService = self._conn.getQueryService()
-        filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
-
-        for fs in filesets:
-            for usedfile in fs.copyUsedFiles():
-                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+        for empty in []:
+            yield
 
     def countImportedImageFiles (self):
         """ 
