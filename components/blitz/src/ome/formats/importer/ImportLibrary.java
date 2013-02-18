@@ -268,9 +268,6 @@ public class ImportLibrary implements IObservable
             final MessageDigest md, final byte[] buf)
             throws ServerError, IOException {
 
-            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
-                    null, 0, srcFiles.length, null, null, null));
-
         md.reset();
 
         String digestString = null;
@@ -283,6 +280,10 @@ public class ImportLibrary implements IObservable
             rawFileStore = proc.getUploader(index);
             int rlen = 0;
             long offset = 0;
+
+            notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
+                    file.getAbsolutePath(), index, srcFiles.length,
+                    null, length, null));
 
             // "touch" the file otherwise zero-length files
             rawFileStore.write(new byte[0], offset, 0);
@@ -332,9 +333,6 @@ public class ImportLibrary implements IObservable
         finally {
             cleanupUpload(rawFileStore, stream);
         }
-
-        notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
-                null, index, srcFiles.length, null, null, null));
 
         return digestString;
     }
@@ -386,9 +384,15 @@ public class ImportLibrary implements IObservable
         final MessageDigest md = Utils.newSha1MessageDigest();
         final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
 
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
+                null, index, srcFiles.length, null, null, null));
+
         for (int i = 0; i < srcFiles.length; i++) {
             checksums.add(uploadFile(proc, srcFiles, i, md, buf));
         }
+
+        notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+                null, index, srcFiles.length, null, null, null));
 
         // At this point the import is running, check handle for number of
         // steps.
@@ -416,9 +420,27 @@ public class ImportLibrary implements IObservable
 
         return new CmdCallbackI(oa, category, handle) {
             public void step(int step, int total, Ice.Current current) {
-                notifyObservers(new ImportEvent.PROGRESS_EVENT(
-                        0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                if (step == 1) {
+                    notifyObservers(new ImportEvent.METADATA_IMPORTED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 2) {
+                    notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 3) {
+                    notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 4) {
+                    notifyObservers(new ImportEvent.METADATA_PROCESSED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                } else if (step == 5) {
+                    notifyObservers(new ImportEvent.OBJECTS_RETURNED(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, step, total));
+                }
             }
         };
     }
