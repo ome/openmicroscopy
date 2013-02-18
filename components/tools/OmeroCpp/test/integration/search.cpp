@@ -1499,7 +1499,9 @@ TEST(SearchTest, testOnlyAnnotatedWith ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testOnlyAnnotatedWithMultiple ) {
+// Test failing due to Hibernate bug
+// https://hibernate.onjira.com/browse/HHH-879
+TEST(SearchTest, DISABLED_testOnlyAnnotatedWithMultiple ) {
 
     try {
     SearchFixture f;
@@ -1837,9 +1839,6 @@ TEST(SearchTest, testFetchAnnotations ) {
     }
 }
 
-// bugs
-// =========================================================================
-
 TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     SearchFixture f;
     f.login();
@@ -1856,7 +1855,12 @@ TEST(SearchTest, testCommentAnnotationDoesntTryToLoadUpdateEvent ) {
     assertResults(1, search);
 }
 
-TEST(SearchTest, testExperimenterDoesntTryToLoadOwner ) {
+// bugs
+// =========================================================================
+
+// Test failing due to OMERO server bug
+// https://trac.openmicroscopy.org.uk/ome/ticket/10408
+TEST(SearchTest, DISABLED_testExperimenterDoesntTryToLoadOwner ) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
@@ -1864,7 +1868,9 @@ TEST(SearchTest, testExperimenterDoesntTryToLoadOwner ) {
     assertAtLeastResults(1, search);
 }
 
-TEST(SearchTest, testLookingForExperimenterWithOwner ) {
+// Test failing due to OMERO server bug
+// https://trac.openmicroscopy.org.uk/ome/ticket/10408
+TEST(SearchTest, DISABLED_testLookingForExperimenterWithOwner ) {
     SearchFixture f;
     SearchPrx search = f.search();
     search->onlyType("Experimenter");
