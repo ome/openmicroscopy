@@ -158,9 +158,9 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
                     }
                 }
             } catch (InterruptedException ie) {
-                log.fatal("Interrupted exception during multiple thread handling." +
-				"Other threads may not have been successfully completed.",
-                    ie);
+                log.error("Interrupted exception during multiple thread handling." +
+				        "Other threads may not have been successfully completed.",
+                        ie); // slf4j migration: fatal() to error()
             }
         }
     }

@@ -112,7 +112,7 @@ public class DBEnumCheck {
             });
         } catch (Exception e) {
             final String msg = "Error synchronizing enumerations";
-            log.fatal(msg, e);
+            log.error(msg, e); // slf4j migration: fatal() to error()
             InternalException ie = new InternalException(msg);
             throw ie;
         }
