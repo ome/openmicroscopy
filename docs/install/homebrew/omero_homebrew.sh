@@ -3,10 +3,6 @@
 set -e
 set -u
 
-WITHOUT_POSTGRESQL=${WITHOUT_POSTGRESQL:-false}
-WITHOUT_MPLAYER=${WITHOUT_MPLAYER:-false}
-ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
-OMERO_ALT=${OMERO_ALT:-ome/alt}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
@@ -35,11 +31,6 @@ echo "Using brew installed in $BREW_DIR"
 # intended executable.
 cd "$BREW_DIR"
 
-# Next we must either add the "tap" which will provide
-# the formulae for OMERO if it hasn't been tapped already.
-bin/brew tap | grep -q "$OMERO_ALT" || {
-    bin/brew tap "$OMERO_ALT"
-}
 
 # Python virtualenv/pip support ===================================
 if (bin/pip --version)
@@ -64,24 +55,6 @@ installed(){
     }
 }
 
-# Setup PATH ======================================================
-# ccache is optional but makes things faster for devs
-installed ccache || bin/brew install ccache
-export PATH=`bin/brew --prefix ccache`:`pwd`/bin/:$PATH
-
-# Basic native requirements =======================================
-installed pkg-config || bin/brew install pkg-config # for matplotlib
-installed hdf5 || bin/brew install hdf5 # Used by pytables
-[ "$ICE_VERSION" == "zeroc-ice33" ] &&  (installed berkeley-db46 || bin/brew install berkeley-db46 --without-java)
-installed $OMERO_ALT/$ICE_VERSION || bin/brew install $OMERO_ALT/$ICE_VERSION
-# Requirements for PIL ============================================
-installed libjpeg || bin/brew install libjpeg
-# Requirements for scipy ============================================
-installed gfortran || bin/brew install gfortran
-
-if ! $WITHOUT_MPLAYER; then
-    installed mplayer || bin/brew install mplayer
-fi
 
 ###################################################################
 # PIP INSTALLS
@@ -115,11 +88,6 @@ export HDF5_DIR=`pwd`
 installed Cython || bin/pip install Cython
 installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
-
-# Postgresql
-if ! $WITHOUT_POSTGRESQL; then
-    installed postgresql || bin/brew install postgresql
-fi
 
 echo "Done."
 echo "You can now install OMERO with: 'bin/brew install omero ...'"
