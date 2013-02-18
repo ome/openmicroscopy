@@ -37,8 +37,8 @@ import Ice.StringHolder;
 @RevisionNumber("$Revision: 1175 $")
 public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
-    private final static Logger log = LogFactory
-            .getLog(PermissionsVerifierI.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(PermissionsVerifierI.class);
 
     private final Ring ring;
 

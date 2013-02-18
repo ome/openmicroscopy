@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RenderingDefGraphSpec extends BaseGraphSpec {
 
-    private final static Logger log = LogFactory
-        .getLog(RenderingDefGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(RenderingDefGraphSpec.class);
 
     //
     // Initialization-time values

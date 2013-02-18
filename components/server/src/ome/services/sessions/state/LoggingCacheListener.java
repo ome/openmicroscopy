@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
  */
 class LoggingCacheListener implements CacheEventListener {
 
-    private final static Logger log = LogFactory
-            .getLog(LoggingCacheListener.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(LoggingCacheListener.class);
 
     @Override
     public Object clone() throws CloneNotSupportedException {

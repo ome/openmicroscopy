@@ -33,8 +33,8 @@ import org.springframework.context.ApplicationListener;
 public class LoginAttemptListener implements
         ApplicationListener<LoginAttemptMessage> {
 
-    private final static Logger log = LogFactory
-            .getLog(LoginAttemptListener.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(LoginAttemptListener.class);
 
     private final ConcurrentHashMap<String, AtomicInteger> counts = new ConcurrentHashMap<String, AtomicInteger>();
 

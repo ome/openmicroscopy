@@ -36,8 +36,8 @@ import org.springframework.beans.FatalBeanException;
  */
 public class AnnotationGraphSpec extends AbstractHierarchyGraphSpec {
 
-    private final static Logger log = LogFactory
-        .getLog(AnnotationGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(AnnotationGraphSpec.class);
 
     /**
      * Collection of namespace values (or LIKE values if they contain '%' or

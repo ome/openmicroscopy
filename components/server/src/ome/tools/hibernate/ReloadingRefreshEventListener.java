@@ -39,8 +39,8 @@ public class ReloadingRefreshEventListener implements RefreshEventListener {
 
     private static final long serialVersionUID = 4292680015211981832L;
 
-    private static Logger log = LogFactory
-            .getLog(ReloadingRefreshEventListener.class);
+    private static Logger log = LoggerFactory
+            .getLogger(ReloadingRefreshEventListener.class);
 
     /**
      * @see RefreshEventListener#onRefresh(RefreshEvent)

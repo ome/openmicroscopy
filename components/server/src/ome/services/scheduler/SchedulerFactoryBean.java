@@ -38,8 +38,8 @@ public class SchedulerFactoryBean extends
         ApplicationListener<ContextRefreshedEvent>,
         ApplicationContextAware {
 
-    private final static Logger log = LogFactory
-            .getLog(SchedulerFactoryBean.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(SchedulerFactoryBean.class);
 
     private final Map<String, Trigger> triggers = new HashMap<String, Trigger>();
 

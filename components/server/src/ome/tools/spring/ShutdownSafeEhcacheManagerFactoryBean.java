@@ -18,8 +18,8 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
  */
 public class ShutdownSafeEhcacheManagerFactoryBean extends EhCacheManagerFactoryBean {
 
-    private static final Logger log = LogFactory
-            .getLog(ShutdownSafeEhcacheManagerFactoryBean.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(ShutdownSafeEhcacheManagerFactoryBean.class);
 
     @Override
     public void destroy() {

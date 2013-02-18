@@ -25,8 +25,8 @@ import Ice.Current;
  */
 public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
 
-    private final static Logger log = LogFactory
-            .getLog(InThreadThrottlingStrategy.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(InThreadThrottlingStrategy.class);
 
     private final CurrentDetails cd;
 

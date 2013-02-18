@@ -31,8 +31,8 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 public class SelfCorrectingDataSource extends DelegatingDataSource 
     implements ApplicationListener<UserSignalMessage> {
 
-    private final static Logger log = LogFactory
-            .getLog(SelfCorrectingDataSource.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(SelfCorrectingDataSource.class);
 
     /**
      * Length of time that errors are used in the calculation of

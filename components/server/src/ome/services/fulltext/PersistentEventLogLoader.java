@@ -28,8 +28,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
  */
 public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentEventLogLoader {
 
-    private final static Logger log = LogFactory
-            .getLog(PersistentEventLogLoader.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(PersistentEventLogLoader.class);
 
     /**
      * Called when the configuration database does not contain a valid

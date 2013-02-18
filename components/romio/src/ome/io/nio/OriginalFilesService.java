@@ -28,8 +28,8 @@ import ome.model.core.OriginalFile;
 public class OriginalFilesService extends AbstractFileSystemService {
 
 	/* The logger for this class. */
-	private transient static Logger log = LogFactory
-			.getLog(OriginalFilesService.class);
+	private transient static Logger log = LoggerFactory
+			.getLogger(OriginalFilesService.class);
 
     /**
      * Constructor

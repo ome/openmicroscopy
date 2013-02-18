@@ -26,8 +26,8 @@ import ome.util.Utils;
 public class ThumbnailService extends AbstractFileSystemService {
 
 	/* The logger for this class. */
-	private transient static Logger log = LogFactory
-			.getLog(ThumbnailService.class);
+	private transient static Logger log = LoggerFactory
+			.getLogger(ThumbnailService.class);
 
 	/**
 	 * Constructor

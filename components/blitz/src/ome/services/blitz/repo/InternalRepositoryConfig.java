@@ -23,8 +23,8 @@ import Ice.ObjectAdapter;
  */
 public class InternalRepositoryConfig {
 
-    private final static Logger log = LogFactory
-            .getLog(InternalRepositoryConfig.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(InternalRepositoryConfig.class);
 
     private final Ice.InitializationData id;
 

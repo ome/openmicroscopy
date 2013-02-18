@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LightSourceGraphSpec extends AbstractHierarchyGraphSpec {
 
-    private final static Logger log = LogFactory
-        .getLog(LightSourceGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(LightSourceGraphSpec.class);
 
     //
     // Initialization-time values

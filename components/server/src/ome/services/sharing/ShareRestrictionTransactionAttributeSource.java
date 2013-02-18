@@ -29,8 +29,8 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
 public class ShareRestrictionTransactionAttributeSource implements
         TransactionAttributeSource {
 
-    final private static Logger log = LogFactory
-            .getLog(ShareRestrictionTransactionAttributeSource.class);
+    final private static Logger log = LoggerFactory
+            .getLogger(ShareRestrictionTransactionAttributeSource.class);
 
     final private CurrentDetails current;
 

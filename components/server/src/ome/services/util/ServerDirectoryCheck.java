@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerDirectoryCheck implements Runnable {
 
-    public final static Logger log = LogFactory
-            .getLog(ServerDirectoryCheck.class);
+    public final static Logger log = LoggerFactory
+            .getLogger(ServerDirectoryCheck.class);
 
     final String omeroDataDir;
 

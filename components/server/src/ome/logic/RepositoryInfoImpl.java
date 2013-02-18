@@ -63,8 +63,8 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     public final static double CRITICAL_USAGE = 95.0;
 
     /* The logger for this class. */
-    private transient static Logger log = LogFactory
-            .getLog(RepositoryInfoImpl.class);
+    private transient static Logger log = LoggerFactory
+            .getLogger(RepositoryInfoImpl.class);
 
     /* repository filesystem */
     private transient String datadir;

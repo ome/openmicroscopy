@@ -33,8 +33,8 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
-    public final static Logger log = LogFactory
-            .getLog(DropBoxDirectoryCheck.class);
+    public final static Logger log = LoggerFactory
+            .getLogger(DropBoxDirectoryCheck.class);
 
     final String omeroDataDir;
 

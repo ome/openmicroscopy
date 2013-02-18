@@ -28,8 +28,8 @@ import Ice.Current;
  */
 public class TemporaryRepositoryI extends AbstractRepositoryI {
 
-    private final static Logger log = LogFactory
-            .getLog(TemporaryRepositoryI.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(TemporaryRepositoryI.class);
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
             Executor ex, Principal p, PublicRepositoryI servant) {

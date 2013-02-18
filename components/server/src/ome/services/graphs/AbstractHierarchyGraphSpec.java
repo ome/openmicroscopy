@@ -47,8 +47,8 @@ import org.springframework.beans.FatalBeanException;
  */
 public abstract class AbstractHierarchyGraphSpec extends BaseGraphSpec {
 
-    private final static Logger log = LogFactory
-        .getLog(AbstractHierarchyGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(AbstractHierarchyGraphSpec.class);
 
     /**
      * Whether or not the type of types[i] is abstract. If true, no processing
