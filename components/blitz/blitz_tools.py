@@ -181,7 +181,10 @@ class OmeroEnvironment(SConsEnvironment):
 
         # CXX
         if os.environ.has_key("CXX"):
-            self.Replace(CXX = os.environ["CXX"])
+            os_cxx = os.environ["CXX"]
+            if (os_cxx):
+                print "Overriding env[CXX] (%s) with os.env[CXX] (%s)" % (self["CXX"], os_cxx)
+                self.Replace(CXX = os_cxx)
 
         # CXXFLAGS
         self.AppendUnique(CPPDEFINES=["OMERO_API_EXPORTS","_REENTRANT"])
@@ -366,3 +369,8 @@ class OmeroEnvironment(SConsEnvironment):
                 except:
                     pass
         return rv
+
+    def fatal_error(self, message):
+        print "Fatal Error: %s" % message
+        self.Exit(1)
+
