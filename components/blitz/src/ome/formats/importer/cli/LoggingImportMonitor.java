@@ -52,14 +52,17 @@ public class LoggingImportMonitor implements IObserver
                     System.err.println(object.getId().getValue());
                 }
             }
+        } else if (event instanceof FILESET_UPLOAD_START) {
+            log.info(event.toLog());
+        } else if (event instanceof FILESET_UPLOAD_END) {
+            log.info(event.toLog());
         } else if (event instanceof FILE_UPLOAD_STARTED) {
             FILE_UPLOAD_STARTED ev = (FILE_UPLOAD_STARTED) event;
-            log.info(event.toLog());
+            log.info(event.toLog() + ": " + ev.filename);
         } else if (event instanceof FILE_UPLOAD_COMPLETE) {
             FILE_UPLOAD_COMPLETE ev = (FILE_UPLOAD_COMPLETE) event;
             log.info(event.toLog() + ": " + ev.filename);
-        } else if (event instanceof FILE_UPLOAD_FINISHED) {
-            FILE_UPLOAD_FINISHED ev = (FILE_UPLOAD_FINISHED) event;
+        } else if (event instanceof PROGRESS_EVENT) {
             log.info(event.toLog());
         } else if (log.isDebugEnabled()) {
             log.debug(event.toLog());
