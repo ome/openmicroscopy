@@ -32,7 +32,6 @@ import omero.model.Screen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -449,8 +448,8 @@ public class CommandLineImporter {
         // Let the user know at what level we're logging
         log.info(String.format(
                 "Log levels -- Bio-Formats: %s OMERO.importer: %s",
-                Logger.getLogger("loci").getLevel(),
-                Logger.getLogger("ome.formats").getLevel()));
+                org.apache.log4j.Logger.getLogger("loci").getLevel(),
+                org.apache.log4j.Logger.getLogger("ome.formats").getLevel()));
 
         List<Annotation> annotations =
             toTextAnnotations(annotationNamespaces, textAnnotations);

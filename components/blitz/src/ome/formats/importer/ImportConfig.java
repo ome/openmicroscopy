@@ -38,7 +38,6 @@ import omero.model.FilesetVersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * Utility class which configures the Import.
@@ -273,8 +272,8 @@ public class ImportConfig {
         if (level == null) {
             level = Level.toLevel(ini.getDebugLevel());
         }
-        Logger.getLogger("ome.formats").setLevel(level);
-        Logger.getLogger("loci").setLevel(level);
+        org.apache.log4j.Logger.getLogger("ome.formats").setLevel(level);
+        org.apache.log4j.Logger.getLogger("loci").setLevel(level);
     }
 
     //

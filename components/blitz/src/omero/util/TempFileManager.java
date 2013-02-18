@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 
 /**
@@ -43,7 +42,7 @@ public class TempFileManager {
             console.setTarget(ConsoleAppender.SYSTEM_ERR);
             console.setLayout(new SimpleLayout());
             console.activateOptions();
-            Logger logger = Logger.getLogger("omero");
+            org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
             logger.addAppender(console);
             logger.setLevel(Level.DEBUG);
             logger.addAppender(console);
@@ -469,7 +468,7 @@ public class TempFileManager {
                 console.setTarget(ConsoleAppender.SYSTEM_ERR);
                 console.setLayout(new SimpleLayout());
                 console.activateOptions();
-                Logger logger = Logger.getLogger("omero");
+                org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
                 logger.addAppender(console);
                 logger.setLevel(Level.DEBUG);
                 logger.addAppender(console);
