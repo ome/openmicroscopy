@@ -1187,7 +1187,6 @@ class MetadataViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-<<<<<<< HEAD
 	 * @see MetadataViewer#getStructuredData()
 	 */
 	public Map<DataObject, StructuredDataResults> getAllStructuredData()

@@ -3889,7 +3889,6 @@ class EditorModel
 	}
 	
 	/**
-<<<<<<< HEAD
 	 * Update the channels.
 	 * 
 	 * @param channels The value to set.
