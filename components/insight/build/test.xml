@@ -188,17 +188,18 @@
    * depends on app-init, we defer this check until compile has been called.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="test-compile" depends="test-init,compile">
-    <checkdef ref="app.run.classpath" /> 
-    <javac srcdir="${base.test.dir}" 
+    <checkdef ref="app.run.classpath" />
+    <javac srcdir="${base.test.dir}"
            destdir="${test.compiled.dir}"
-           includeantruntime="no" 
+           includeantruntime="no"
            deprecation="yes"
+           encoding="UTF-8"
            debug="yes"
            debuglevel="lines,vars,source">
       <classpath refid="test.compile.classpath" />
-      <patternset refid="test.sources" /> 
-    </javac> 
-  </target> 
+      <patternset refid="test.sources" />
+    </javac>
+  </target>
    
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run all tests, produce a report, and halt the build upon test failure. 
