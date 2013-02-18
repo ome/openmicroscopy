@@ -54,7 +54,7 @@ public class ReflectionUtils {
             }
         } else {
             Method[] accessors = getGettersAndSetters(o);
-            log.debug(accessors);
+            log.debug(accessors.toString()); // slf4j migration: toString()
             for (int i = 0; i < accessors.length; i++) {
                 Method method = accessors[i];
                 if (method.getName().startsWith("get")) {

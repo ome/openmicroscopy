@@ -304,7 +304,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
                     IObject obj = (IObject) new IceMapper().reverse(file);
                     return sf.getUpdateService().saveAndReturnObject(obj);
                 } catch (Exception e) {
-                    log.error(e);
+                    log.error(e.toString()); // slf4j migration: toString()
                     return null;
                 }
             }

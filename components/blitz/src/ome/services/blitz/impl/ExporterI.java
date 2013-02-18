@@ -288,7 +288,7 @@ public class ExporterI extends AbstractAmdServant implements
                             try {
                                  xmlMetadata = convertXml(retrieve);
                             } catch (ServiceException e) {
-                                log.error(e);
+                                log.error(e.toString()); // slf4j migration: toString()
                                 return null;
                             }
                             if (xmlMetadata != null) {
@@ -315,13 +315,13 @@ public class ExporterI extends AbstractAmdServant implements
                                         return null; // ONLY VALID EXIT
 
                                     } catch (IOException ioe) {
-                                        log.error(ioe);
+                                        log.error(ioe.toString()); // slf4j migration: toString()
 
                                     } catch (TransformerException e) {
-                                        log.error(e);
+                                        log.error(e.toString()); // slf4j migration: toString()
 
                                     } catch (ParserConfigurationException e) {
-                                        log.error(e);
+                                        log.error(e.toString()); // slf4j migration: toString()
                                     }
                                 }
                             }

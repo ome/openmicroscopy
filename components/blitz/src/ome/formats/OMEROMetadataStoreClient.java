@@ -929,7 +929,7 @@ public class OMEROMetadataStoreClient
                 log.debug("Communicator already closed; cannot close " + prx);
             } catch (Exception e) {
                 log.warn("Exception closing " + prx, e);
-                log.debug(e);
+                log.debug(e.toString()); // slf4j migration: toString()
             }
         }
     }

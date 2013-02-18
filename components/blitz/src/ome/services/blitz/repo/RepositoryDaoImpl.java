@@ -731,7 +731,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 throw new ome.conditions.ResourceError("Cannot mkdir " + file);
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             throw new ome.conditions.ResourceError("Cannot mkdir " + file + ":" + e.getMessage());
         }
     }

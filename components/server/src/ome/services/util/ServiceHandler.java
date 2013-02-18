@@ -125,7 +125,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {
-                log.info(finalOutput);
+                log.info(finalOutput.toString()); // slf4j migration: toString()
             }
 
             // Logging long invocations. Very long invocations are indicative

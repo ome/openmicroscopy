@@ -232,21 +232,21 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 reader.close();
             }
         } catch (Throwable e){
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         try {
             if (store != null) {
                 store.logout();
             }
         } catch (Throwable e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         try {
             if (sf != null) {
                 sf.destroy();
             }
         } catch (Throwable e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
     }
 

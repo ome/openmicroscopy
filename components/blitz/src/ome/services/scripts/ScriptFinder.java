@@ -107,7 +107,7 @@ public abstract class ScriptFinder {
 
         } catch (Exception e) {
             // pass in order to throw
-            log.warn(e);
+            log.warn(e.toString()); // slf4j migration: toString()
         }
 
         if (file == null) {

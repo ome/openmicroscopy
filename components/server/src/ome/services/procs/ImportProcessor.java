@@ -59,7 +59,7 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
             // library.importData(pixId, filename, null);//step);
             // }
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         return null;
 

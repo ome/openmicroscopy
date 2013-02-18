@@ -73,7 +73,7 @@ public class Router {
         for (String string : map.keySet()) {
             list.add("--" + string + "=" + map.get(string));
         }
-        log.info(list);
+        log.info(list.toString()); // slf4j migration: toString()
         ProcessBuilder pb = new ProcessBuilder(list.toArray(new String[list
                 .size()]));
         try {

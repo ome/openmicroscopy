@@ -129,7 +129,7 @@ public class ProcessContainer {
                 errors++;
                 log.info(String.format("Removing process [%s] due to error: %s",
                         process, t));
-                log.debug(t);
+                log.debug(t.toString()); // slf4j migration: toString()
             }
         }
         return errors;

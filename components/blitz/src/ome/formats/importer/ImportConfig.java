@@ -678,7 +678,7 @@ public class ImportConfig {
             prefs.flush();
             ini.flushPreferences();
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             throw new RuntimeException(e);
         }
     }

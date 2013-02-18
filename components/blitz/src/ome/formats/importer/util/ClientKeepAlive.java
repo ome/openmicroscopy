@@ -136,7 +136,7 @@ public class ClientKeepAlive implements Runnable, IObservable
                 observer.update(this, event);
             } catch (Exception e)
             {
-                log.error(e);
+                log.error(e.toString()); // slf4j migration: toString()
             }
         }
     }

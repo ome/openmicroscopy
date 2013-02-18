@@ -103,7 +103,7 @@ public class IniFileLoader {
         try {
             userPrefs = new IniFile(userConfigFile, Mode.RW);
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             //throw new RuntimeException("Error accessing ini file", e);
         }
     }
@@ -115,7 +115,7 @@ public class IniFileLoader {
         try {
             userPrefs.flush();
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
     }
 
@@ -497,7 +497,7 @@ public class IniFileLoader {
             Preferences prefs = new IniFile(staticFile, Mode.RO);
             return prefs;
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             throw new RuntimeException(e);
         }
     }

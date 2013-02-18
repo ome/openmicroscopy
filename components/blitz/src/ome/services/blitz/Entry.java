@@ -60,14 +60,14 @@ public class Entry {
             String prop = System.getenv("OMERO_STARTUP_WAIT");
             ms = Integer.valueOf(prop);
         } catch (Exception e) {
-            log.debug(e);
+            log.debug(e.toString()); // slf4j migration: toString()
         }
 
         try {
             log.info(String.format("Waiting %s ms on startup", ms));
             Thread.sleep(ms);
         } catch (InterruptedException e) {
-            log.debug(e);
+            log.debug(e.toString()); // slf4j migration: toString()
         }
     }
 
