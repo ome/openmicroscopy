@@ -104,11 +104,12 @@ showinf -version
 # OMERO installation
 ###################################################################
 
-# Install homebrew dependencies
-source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
-
-# Install omero
+# Install PostgreSQL and OMERO
 bin/brew install omero
+bin/brew install postgres
+
+# Install additional (Python) dependencies
+source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
 
 # Set environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
