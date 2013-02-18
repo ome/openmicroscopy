@@ -53,7 +53,7 @@ public class FullTextIndexer extends SimpleWork {
 
         abstract void go(FullTextSession session);
 
-        abstract void log(Log log);
+        abstract void log(Logger log);
     }
 
     class Purge extends Action {
@@ -68,7 +68,7 @@ public class FullTextIndexer extends SimpleWork {
         }
 
         @Override
-        void log(Log log) {
+        void log(Logger log) {
             log.info(String.format("Purged: %s:Id_%d", type, id));
         }
     }
@@ -85,7 +85,7 @@ public class FullTextIndexer extends SimpleWork {
         }
 
         @Override
-        void log(Log log) {
+        void log(Logger log) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Indexed: %s", obj));
             }

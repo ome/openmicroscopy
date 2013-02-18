@@ -30,7 +30,7 @@ public abstract class ObjectFactoryRegistry {
             this.id = id;
         }
 
-        public void register(Log log, Ice.Communicator ic, boolean strict) {
+        public void register(Logger log, Ice.Communicator ic, boolean strict) {
             if (strict) {
                 ic.addObjectFactory(this, id);
             } else {

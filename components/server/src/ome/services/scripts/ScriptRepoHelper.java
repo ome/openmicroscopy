@@ -132,7 +132,7 @@ public class ScriptRepoHelper {
      * is no lib/script directory. Otherwise, all devs will need to mkdir -p
      * that directory both at the top-level and under blitz/ etc.
      */
-    static File sanityCheck(Log log, File dir) {
+    static File sanityCheck(Logger log, File dir) {
 
         String error = null;
         String testing = System.getProperty("omero.testing", "false").toLowerCase();
