@@ -422,15 +422,6 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
-    /**
-     * Get an {@link OriginalFile} object based on its id. Returns null if
-     * the file does not exist or does not belong to this repo.
-     *
-     * @param id
-     *            long, db id of original file.
-     * @return FsFile object.
-     *
-     */
     public FsFile getFile(final long id, final Ice.Current current,
             final String repoUuid) {
         return (FsFile) executor.execute(current.ctx, currentUser(current),
