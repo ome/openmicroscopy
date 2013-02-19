@@ -363,7 +363,7 @@ class HdfStorage(object):
     def append(self, cols):
         # Optimize!
         arrays = []
-        names = []
+        dtypes = []
         sz = None
         for col in cols:
             if sz is None:
@@ -371,10 +371,13 @@ class HdfStorage(object):
             else:
                 if sz != col.getsize():
                     raise omero.ValidationException("Columns are of differing length")
-            names.extend(col.names())
             arrays.extend(col.arrays())
+            dtypes.extend(col.dtypes())
             col.append(self.__mea) # Potential corruption !!!
-        records = numpy.rec.fromarrays(arrays, names=names)
+
+        # Convert column-wise data to row-wise records
+        records = numpy.array(zip(*arrays), dtype=dtypes)
+
         self.__mea.append(records)
         self.__mea.flush()
 

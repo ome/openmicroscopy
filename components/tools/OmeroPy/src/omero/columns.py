@@ -35,6 +35,9 @@ def columns2definition(cols):
     for i in range(len(cols)):
         column = cols[i]
         instance = column.descriptor(pos=i)
+        if column.name in definition:
+            raise omero.ApiUsageException(
+                None, None, "Duplicate column name: %s" % column.name)
         definition[column.name] = instance
         # Descriptions are handled separately
     return definition
@@ -45,18 +48,24 @@ class AbstractColumn(object):
     """
 
     def __init__(self):
-        d = self.descriptor(0)
+        # Note: don't rely on any properties such as self.name being set if
+        # this has been called through Ice
+        d = self.descriptor(None)
         if isinstance(d, tables.IsDescription):
             cols = d.columns
             try:
                 del cols["_v_pos"]
             except KeyError:
                 pass
-            self.recarrtypes = [None for x in range(len(cols))]
+            self._types = [None] * len(cols)
+            self._subnames = [None] * len(cols)
             for k, v in cols.items():
-                self.recarrtypes[v._v_pos] = ("%s/%s" % (self.name, k), v.recarrtype)
+                self._types[v._v_pos] = v.recarrtype
+                self._subnames[v._v_pos] = "/" + k
+
         else:
-            self.recarrtypes = [(self.name, d.recarrtype)]
+            self._types = [d.recarrtype]
+            self._subnames = [""]
 
     def settable(self, tbl):
         """
@@ -102,19 +111,20 @@ class AbstractColumn(object):
         else:
             self.values = [None for x in range(size)]
 
-    def names(self):
-        """
-        Any method which does not use the "values" field
-        will need to override this method.
-        """
-        return [self.name]
-
     def arrays(self):
         """
         Any method which does not use the "values" field
         will need to override this method.
         """
-        return [numpy.array(self.values, dtype=self.recarrtypes[0][1])]
+        return [self.values]
+
+    def dtypes(self):
+        """
+        Override this method if descriptor() doesn't return the correct data
+        type/size at initialisation- this is mostly a problem for array types
+        """
+        names = [self.name + sn for sn in self._subnames]
+        return zip(names, self._types)
 
     def fromrows(self, rows):
         """
@@ -213,12 +223,13 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         AbstractColumn.settable(self, tbl)
         self.size = getattr(tbl.cols, self.name).dtype.itemsize
 
-    def arrays(self):
+    def dtypes(self):
         """
         Overriding to correct for size.
+        (Testing suggests this may not be necessary, the size appears to be
+        correctly set at initialisation)
         """
-        sz = self.size
-        return [numpy.array(self.values, dtype="S%s"%sz)]
+        return [(self.name, "S", self.size)]
 
     def descriptor(self, pos):
         # During initialization, size might be zero
@@ -226,6 +237,87 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         if not self.size or self.size < 0:
             self.size = 1
         return tables.StringCol(pos=pos, itemsize=self.size)
+
+class AbstractArrayColumn(AbstractColumn):
+    """
+    Additional base logic for array columns
+    """
+
+    def __init__(self):
+        AbstractColumn.__init__(self)
+
+    def settable(self, tbl):
+        AbstractColumn.settable(self, tbl)
+
+        # Pytables 2.1 has the array size in Column.dtype.shape
+        #shape = getattr(tbl.cols, self.name).dtype.shape
+        #self.size = shape[0]
+
+        # Pytables 2.2 and later replaced this with Column.shape
+        #shape = getattr(tbl.cols, self.name).shape
+        #assert(len(shape) == 2)
+        #self.size = shape[1]
+
+        # http://www.pytables.org/trac-bck/ticket/231
+        # http://www.pytables.org/trac-bck/ticket/232
+        # TODO: Clean this up
+
+        # Taken from http://www.pytables.org/trac-bck/changeset/4176
+        column = getattr(tbl.cols, self.name)
+        self.size = column.descr._v_dtypes[column.name].shape[0]
+
+
+    def arrays(self):
+        """
+        Arrays of size 1 have to be converted to scalars, otherwise the
+        column-to-row conversion in HdfStorage.append() will fail.
+        This is messy, but I can't think of a better way.
+        """
+        for v in self.values:
+            if len(v) != self.size:
+                raise omero.ValidationException(
+                    None, None, "Column %s requires arrays of length %d" %
+                    (self.name, self.size))
+
+        if self.size == 1:
+            return [[v[0] for v in self.values]]
+        return [self.values]
+
+    def dtypes(self):
+        """
+        Overriding to correct for size.
+        """
+        return [(self.name, self._types[0], self.size)]
+
+class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.DoubleArrayColumn.__init__(self, name, *args)
+        AbstractArrayColumn.__init__(self)
+
+    def descriptor(self, pos):
+        # During initialization, size might be zero
+        if pos is None:
+            return tables.Float64Col(pos=pos)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+        return tables.Float64Col(pos=pos, shape=self.size)
+
+class LongArrayColumnI(AbstractArrayColumn, omero.grid.LongArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.LongArrayColumn.__init__(self, name, *args)
+        AbstractArrayColumn.__init__(self)
+
+    def descriptor(self, pos):
+        # During initialization, size might be zero
+        if pos is None:
+            return tables.Int64Col(pos=pos)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+        return tables.Int64Col(pos=pos, shape=self.size)
 
 class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
 
@@ -264,19 +356,16 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             h = tables.Float64Col(pos=6)
         return MaskDescription()
 
-    def names(self):
-        return [x[0] for x in self.recarrtypes]
-
     def arrays(self):
         self.__sanitycheck()
         a = [
-            numpy.array(self.imageId, dtype=self.recarrtypes[0][1]),
-            numpy.array(self.theZ, dtype=self.recarrtypes[1][1]),
-            numpy.array(self.theT, dtype=self.recarrtypes[2][1]),
-            numpy.array(self.x, dtype=self.recarrtypes[3][1]),
-            numpy.array(self.y, dtype=self.recarrtypes[4][1]),
-            numpy.array(self.w, dtype=self.recarrtypes[5][1]),
-            numpy.array(self.h, dtype=self.recarrtypes[6][1]),
+            self.imageId,
+            self.theZ,
+            self.theT,
+            self.x,
+            self.y,
+            self.w,
+            self.h,
             ]
         return a
 
@@ -297,13 +386,14 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
             self.w = None
             self.h = None
         else:
-            self.imageId = numpy.zeroes(size, dtype = self.recarrtypes[0][1])
-            self.theZ    = numpy.zeroes(size, dtype = self.recarrtypes[1][1])
-            self.theT    = numpy.zeroes(size, dtype = self.recarrtypes[2][1])
-            self.x       = numpy.zeroes(size, dtype = self.recarrtypes[3][1])
-            self.y       = numpy.zeroes(size, dtype = self.recarrtypes[4][1])
-            self.w       = numpy.zeroes(size, dtype = self.recarrtypes[5][1])
-            self.h       = numpy.zeroes(size, dtype = self.recarrtypes[6][1])
+            dts = self.dtypes()
+            self.imageId = numpy.zeroes(size, dtype = dts[0])
+            self.theZ    = numpy.zeroes(size, dtype = dts[1])
+            self.theT    = numpy.zeroes(size, dtype = dts[2])
+            self.x       = numpy.zeroes(size, dtype = dts[3])
+            self.y       = numpy.zeroes(size, dtype = dts[4])
+            self.w       = numpy.zeroes(size, dtype = dts[5])
+            self.h       = numpy.zeroes(size, dtype = dts[6])
 
     def readCoordinates(self, tbl, rowNumbers):
         self.__sanitycheck()
@@ -392,5 +482,7 @@ ObjectFactories = {
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
     StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
+    DoubleArrayColumnI: ObjectFactory(DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
+    LongArrayColumnI: ObjectFactory(LongArrayColumnI, lambda: LongArrayColumnI()),
     MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
     }
