@@ -28,11 +28,16 @@ class AbstractRepoTest(lib.ITest):
 
     def setUp(self):
         super(AbstractRepoTest, self).setUp()
-        mrepo = self.getManagedRepo()
-        user_dir = self.user_dir()
-        unique_dir = user_dir + "/" + self.uuid()
+        self.unique_dir = self.test_dir()
+
+    def test_dir(self, client=None):
+        if client is None:
+            client = self.client
+        mrepo = self.getManagedRepo(client=client)
+        user_dir = self.user_dir(client=client)
+        unique_dir = user_dir + "/" + self.uuid()  # ok
         mrepo.makeDir(unique_dir, True)
-        self.unique_dir = unique_dir
+        return unique_dir
 
     def user_dir(self, client=None):
         if client == None:
@@ -136,13 +141,10 @@ class AbstractRepoTest(lib.ITest):
         rfs = mrepo2.file(filename, "r", ctx)
         _read(rfs)
 
-    def assertListings(self, mrepo1, uuid):
-        self.assertEquals(["/"+uuid], mrepo1.list("."))
-        self.assertEquals(["/"+uuid+"/b"], mrepo1.list(uuid+"/"))
-        self.assertEquals(["/"+uuid+"/b/c"], mrepo1.list(uuid+"/b/"))
-        self.assertEquals(["/"+uuid+"/b/c/file.txt"],
-                          mrepo1.list(uuid+"/b/c/"))
-
+    def assertListings(self, mrepo1, unique_dir):
+        self.assertEquals([unique_dir+"/b"], mrepo1.list(unique_dir+"/"))
+        self.assertEquals([unique_dir+"/b/c"], mrepo1.list(unique_dir+"/b/"))
+        self.assertEquals([unique_dir+"/b/c/file.txt"], mrepo1.list(unique_dir+"/b/c/"))
 
     def raw(self, command, args, client=None):
         if client == None:
@@ -160,7 +162,7 @@ class AbstractRepoTest(lib.ITest):
     def assertPasses(self, cb, loops=10, wait=500):
         cb.loop(loops, wait)
         rsp = cb.getResponse()
-        if not isinstance(rsp, omero.cmd.OK):
+        if isinstance(rsp, omero.cmd.ERR):
             raise Exception(rsp)
         return rsp
 
@@ -175,7 +177,7 @@ class TestRepository(AbstractRepoTest):
     def testBasicUsage(self):
 
         test_file = __file__
-        remote_base = "./%s/dir1" % self.uuid()
+        remote_base = "./%s/dir1" % self.unique_dir
         remote_file = "%s/test.dv" % remote_base
 
         repoMap = self.client.sf.sharedResources().repositories()
@@ -221,8 +223,8 @@ class TestRepository(AbstractRepoTest):
         for obj, prx in zip(repoMap.descriptions, repoMap.proxies):
             if prx:
                 root = prx.root()
-                assert ".omero" not in prx.list(root.path.val + root.name.val)
-                for x in prx.listFiles(root.path.val + root.name.val):
+                assert ".omero" not in prx.list(".")
+                for x in prx.listFiles("."):
                     assert ".omero" != x.name.val
                 for x in ("id", "path", "name"):
                     a = getattr(obj, x)
@@ -236,7 +238,7 @@ class TestRepository(AbstractRepoTest):
         mrepo = self.getManagedRepo(self.client)
 
         # Create a file in the repo
-        base = self.uuid()
+        base = self.unique_dir
         path = base + "/testManagedRepo.txt"
         mrepo.makeDir(base, True)
         rfs = mrepo.file(path, "rw")
@@ -266,14 +268,14 @@ class TestFileExists(AbstractRepoTest):
 
     def testFileExistsForDirectory(self):
         mrepo = self.getManagedRepo(self.client)
-        base = "./" + self.uuid()
+        base = self.unique_dir + "/t"
         self.assertFalse(mrepo.fileExists(base))
         mrepo.makeDir(base, True)
         self.assertTrue(mrepo.fileExists(base))
 
     def testFileExistsForFile(self):
         mrepo = self.getManagedRepo(self.client)
-        base = "./" + self.uuid()
+        base = self.unique_dir + "/t"
         file = base + "/myfile.txt"
         self.assertFalse(mrepo.fileExists(file))
         mrepo.makeDir(base, True)
@@ -286,6 +288,12 @@ class TestFileExists(AbstractRepoTest):
 
 class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
+    class Fixture(object):
+        def __init__(self, client, repo, testdir):
+            self.client = client
+            self.repo = repo
+            self.testdir = testdir
+
     def setup2RepoUsers(self, perms="rw----"):
         group = self.new_group(perms=perms)
         client1, user1 = self.new_client_and_user(group=group)
@@ -293,119 +301,109 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
         mrepo1 = self.getManagedRepo(client1)
         mrepo2 = self.getManagedRepo(client2)
-        return client1, mrepo1, client2, mrepo2
+
+        testdir1 = self.test_dir(client1)
+        testdir2 = self.test_dir(client2)
+
+        return self.Fixture(client1, mrepo1, testdir1), \
+                self.Fixture(client2, mrepo2, testdir2)
 
     def testTopPrivateGroup(self):
-
-        filename = self.uuid() + ".txt"
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
+        f1, f2 = self.setup2RepoUsers("rw----")
+        filename = f1.testdir + "/file.txt"
 
         # No intermediate directories
-        ofile = self.createFile(mrepo1, filename)
+        ofile = self.createFile(f1.repo, filename)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
-        self.assertWrite(mrepo1, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
+        self.assertWrite(f1.repo, filename, ofile)
 
-        self.assertNoRead(mrepo2, filename, ofile)
+        self.assertNoRead(f2.repo, filename, ofile)
 
-        self.assertEquals(0, len(mrepo2.listFiles(".")))
+        self.assertEquals(0, len(unwrap(f2.repo.treeList("."))))
 
     def testDirPrivateGroup(self):
-
-        uuid = self.uuid()
-        dirname = uuid + "/b/c"
+        f1, f2 = self.setup2RepoUsers("rw----")
+        dirname = f1.testdir + "/b/c"
         filename = dirname + "/file.txt"
 
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rw----")
+        f1.repo.makeDir(dirname, True)
+        ofile = self.createFile(f1.repo, filename)
 
-        mrepo1.makeDir(dirname, True)
-        ofile = self.createFile(mrepo1, filename)
+        self.assertRead(f1.repo, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
+        self.assertListings(f1.repo, f1.testdir)
+        self.assertWrite(f1.repo, filename, ofile)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
-        self.assertListings(mrepo1, uuid)
-        self.assertWrite(mrepo1, filename, ofile)
-
-        self.assertNoRead(mrepo2, filename, ofile)
+        self.assertNoRead(f2.repo, filename, ofile)
         self.assertRaises(omero.SecurityViolation,
-                          mrepo2.listFiles, dirname)
+                          f2.repo.listFiles, dirname)
 
     def testDirReadOnlyGroup(self):
-
-        uuid = self.uuid()
-        dirname = uuid + "/b/c"
+        f1, f2 = self.setup2RepoUsers("rwr---")
+        dirname = f1.testdir + "/b/c"
         filename = dirname + "/file.txt"
 
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwr---")
+        f1.repo.makeDir(dirname, True)
+        ofile = self.createFile(f1.repo, filename)
 
-        mrepo1.makeDir(dirname, True)
-        ofile = self.createFile(mrepo1, filename)
+        self.assertRead(f1.repo, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
+        self.assertListings(f1.repo, f1.testdir)
+        self.assertWrite(f1.repo, filename, ofile)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
-        self.assertListings(mrepo1, uuid)
-        self.assertWrite(mrepo1, filename, ofile)
-
-        self.assertRead(mrepo2, filename, ofile)
-        self.assertRead(mrepo2, filename, ofile, self.all(client2))
-        self.assertListings(mrepo2, uuid)
-        self.assertNoWrite(mrepo2, filename, ofile)
-        self.assertNoDirWrite(mrepo2, dirname)
+        self.assertRead(f2.repo, filename, ofile)
+        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
+        self.assertListings(f2.repo, f1.testdir)
+        self.assertNoWrite(f2.repo, filename, ofile)
+        self.assertNoDirWrite(f2.repo, dirname)
 
     def testDirReadWriteGroup(self):
-
-        uuid = self.uuid()
-        dirname = uuid + "/b/c"
+        f1, f2 = self.setup2RepoUsers("rwrw--")
+        dirname = f1.testdir + "/b/c"
         filename = dirname + "/file.txt"
 
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwrw--")
+        f1.repo.makeDir(dirname, True)
+        ofile = self.createFile(f1.repo, filename)
 
-        mrepo1.makeDir(dirname, True)
-        ofile = self.createFile(mrepo1, filename)
+        self.assertRead(f1.repo, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
+        self.assertListings(f1.repo, f1.testdir)
+        self.assertWrite(f1.repo, filename, ofile)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
-        self.assertListings(mrepo1, uuid)
-        self.assertWrite(mrepo1, filename, ofile)
-
-        self.assertRead(mrepo2, filename, ofile)
-        self.assertRead(mrepo2, filename, ofile, self.all(client2))
-        self.assertWrite(mrepo2, filename, ofile)
-        self.assertListings(mrepo2, uuid)
-        self.assertDirWrite(mrepo2, dirname)
+        self.assertRead(f2.repo, filename, ofile)
+        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
+        self.assertWrite(f2.repo, filename, ofile)
+        self.assertListings(f2.repo, f1.testdir)
+        self.assertDirWrite(f2.repo, dirname)
 
     def testDirReadAnnotateGroup(self):
-
-        uuid = self.uuid()
-        dirname = uuid + "/b/c"
+        f1, f2 = self.setup2RepoUsers("rwra--")
+        dirname = f1.testdir + "/b/c"
         filename = dirname + "/file.txt"
 
-        client1, mrepo1, client2, mrepo2 = self.setup2RepoUsers("rwra--")
+        f1.repo.makeDir(dirname, True)
+        ofile = self.createFile(f1.repo, filename)
 
-        mrepo1.makeDir(dirname, True)
-        ofile = self.createFile(mrepo1, filename)
+        self.assertRead(f1.repo, filename, ofile)
+        self.assertRead(f1.repo, filename, ofile, self.all(f1.client))
+        self.assertListings(f1.repo, f1.testdir)
+        self.assertWrite(f1.repo, filename, ofile)
 
-        self.assertRead(mrepo1, filename, ofile)
-        self.assertRead(mrepo1, filename, ofile, self.all(client1))
-        self.assertListings(mrepo1, uuid)
-        self.assertWrite(mrepo1, filename, ofile)
-
-        self.assertRead(mrepo2, filename, ofile)
-        self.assertRead(mrepo2, filename, ofile, self.all(client2))
-        self.assertListings(mrepo2, uuid)
-        self.assertNoWrite(mrepo2, filename, ofile)
-        self.assertDirWrite(mrepo2, dirname)
+        self.assertRead(f2.repo, filename, ofile)
+        self.assertRead(f2.repo, filename, ofile, self.all(f2.client))
+        self.assertListings(f2.repo, f1.testdir)
+        self.assertNoWrite(f2.repo, filename, ofile)
+        self.assertDirWrite(f2.repo, dirname)
 
     def testMultiGroup(self):
-
-        uuid = self.uuid()
-        dirname = uuid + "/b/c"
-        filename = dirname + "/file.txt"
-
         group1 = self.new_group(perms="rw----")
         client1, user = self.new_client_and_user(group=group1)
         client1.sf.setSecurityContext(group1)
+        testdir1 = self.test_dir(client1)
+        dirname = testdir1 + "/b/c"
+        filename = dirname + "/file.txt"
 
         group2 = self.new_group(experimenters=[user])
         client2 = self.new_client(group=group2, user=user)
@@ -520,62 +518,51 @@ class TestPythonImporter(AbstractRepoTest):
         hashes = self.upload_folder(proc, folder)
         handle = proc.verifyUpload(hashes)
         cb = CmdCallbackI(client, handle)
-        cb.loop(5, 500)
-        rsp = cb.getResponse()
-        if isinstance(rsp, ERR):
-            self.fail(rsp)
-        else:
-            self.assertEquals(1, len(rsp.pixels))
+        rsp = self.assertPasses(cb)
+        self.assertEquals(1, len(rsp.pixels))
 
 class TestRawAccess(AbstractRepoTest):
 
     def testAsNonAdmin(self):
-        uuid = self.uuid()
-        cb = self.raw("touch", ["./"+uuid])
+        uuid = self.unique_dir + "./t.txt"
+        cb = self.raw("touch", [uuid])
         self.assertError(cb)
 
     def testAsAdmin(self):
-        uuid = self.uuid()
-        cb = self.raw("touch", ["./"+uuid])
+        uuid = self.unique_dir + "/t.txt"
+        cb = self.raw("touch", [uuid])
         self.assertError(cb)
 
 class TestDbSync(AbstractRepoTest):
 
     def testMtime(self):
-        uuid = self.uuid()
-        filename = uuid + "/file.txt"
+        filename = self.unique_dir + "/file.txt"
         mrepo = self.getManagedRepo()
 
-        mrepo.makeDir(uuid, True)
         ofile = self.createFile(mrepo, filename)
         self.assertTrue(ofile.mtime is not None)
 
     def testFileExists(self):
-        uuid = self.uuid()
-        filename = uuid + "/file.txt"
+        filename = self.unique_dir + "/file.txt"
         mrepo = self.getManagedRepo()
 
-        mrepo.makeDir(uuid, True)
         self.assertFalse(mrepo.fileExists(filename))
-
         self.createFile(mrepo, filename)
         self.assertTrue(mrepo.fileExists(filename))
-        self.assertTrue("file.txt" in mrepo.list(uuid)[0])
+        self.assertTrue("file.txt" in mrepo.list(self.unique_dir)[0])
 
     def testNonDbFileNotReturned(self):
-        uuid = self.uuid()
-        filename = uuid + "/file.txt"
-        fooname = uuid + "/foo.txt"
-        mydir = uuid + "/mydir"
+        filename = self.unique_dir + "/file.txt"
+        fooname = self.unique_dir + "/foo.txt"
+        mydir = self.unique_dir + "/mydir"
         mrepo = self.getManagedRepo()
 
-        mrepo.makeDir(uuid, True)
         ofile = self.createFile(mrepo, filename)
 
         # foo.txt is created on the backend but doesn't show up.
-        self.assertEquals(['/%s/file.txt' % uuid], mrepo.list("./"+uuid))
+        self.assertEquals(['%s/file.txt' % self.unique_dir], mrepo.list(self.unique_dir))
         self.assertPasses(self.raw("touch", [fooname], client=self.root))
-        self.assertEquals(['/%s/file.txt' % uuid], mrepo.list("./"+uuid))
+        self.assertEquals(['%s/file.txt' % self.unique_dir], mrepo.list(self.unique_dir))
 
         # If we try to create such a file, we should receive an exception
         try:
@@ -647,10 +634,8 @@ class TestRecursiveDelete(AbstractRepoTest):
 class TestDeleteLog(AbstractRepoTest):
 
     def testSimpleDelete(self):
-        uuid = self.uuid()
-        filename = uuid + "/file.txt"
+        filename = self.unique_dir + "/file.txt"
         mrepo = self.getManagedRepo()
-        mrepo.makeDir(uuid, True)
         ofile = self.createFile(mrepo, filename)
         gateway = BlitzGateway(client_obj=self.client)
 
@@ -685,7 +670,7 @@ class TestUserTemplate(AbstractRepoTest):
     """
 
     def testCreateUuidFails(self):
-        uuid = self.uuid()
+        uuid = self.uuid()  # ok
         mrepo = self.getManagedRepo()
         self.assertRaises(omero.ValidationException, mrepo.makeDir, uuid, True)
 
@@ -697,7 +682,7 @@ class TestUserTemplate(AbstractRepoTest):
     def testCreateUuidUnderUserDirPasses(self):
         mrepo = self.getManagedRepo()
         user_dir = self.user_dir()
-        uuid = self.uuid()
+        uuid = self.uuid()  # ok
         mydir = "%s/%s" % (user_dir, uuid)
         mrepo.makeDir(mydir, True)
 
@@ -707,7 +692,7 @@ class TestUserTemplate(AbstractRepoTest):
     def testUserDirShouldBeGloballyWriteable(self):
         mrepo = self.getManagedRepo()
         user_dir = self.user_dir()
-        aDir = user_dir + "/" + self.uuid()
+        aDir = user_dir + "/" + self.uuid()  # ok
         aFile = aDir + "/a.txt"
 
         # Create a first file in one group
@@ -721,7 +706,7 @@ class TestUserTemplate(AbstractRepoTest):
         self.set_context(self.client, group.id.val)
 
         # Now write a second file from another group
-        bDir = user_dir + "/" + self.uuid()
+        bDir = user_dir + "/" + self.uuid()  # ok
         bFile = bDir + "/b.txt"
         mrepo.makeDir(bDir, True)
         self.createFile(mrepo, bFile)
