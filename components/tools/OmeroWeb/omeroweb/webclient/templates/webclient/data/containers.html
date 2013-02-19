@@ -319,6 +319,9 @@
                             if (canCreate) {
                                 toolbar_config["addproject"] = true;
                                 toolbar_config['addscreen'] = true;
+                                if (selected.attr("id").split("-")[0] === "experimenter") {
+                                    toolbar_config["adddataset"] = true;
+                                }
                             }
                         }
                         if(selected.hasClass('canLink')) {
