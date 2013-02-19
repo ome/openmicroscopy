@@ -8450,6 +8450,7 @@ class OMEROGateway
 		if (c == null) return;
 		isNetworkUp();
 		try {
+			connectors.remove(c);
 			c.close(networkup);
 		} catch (Throwable e) {
 			new Exception("Cannot close the connector", e);
