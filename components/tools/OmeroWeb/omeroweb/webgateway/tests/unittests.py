@@ -481,6 +481,9 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
 
     reponame = property(_getRepoName, _setRepoName)
 
+    def _getrepo(self):
+        return views.get_repository(self.gateway, self.repoclass)
+
     def tearDown(self):
         if self.toDelete:
             self.loginAsAdmin()
@@ -706,9 +709,6 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
     If admin creates a file in regular repository, user can read it
     """
 
-    def _getrepo(self):
-        return views.get_repository(self.gateway, self.repoclass)
-
     def setUp(self, repoclass=None, reponame=''):
         super(RepositoryApiPermissionsTest, self).setUp()
         if repoclass is not None:
@@ -911,3 +911,74 @@ class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
                                     server_id=1, conn=self.gateway, _internal=True)
         self.assertEqual(200, v.status_code)
         self.assertEqual('DEF456', v.content)
+
+
+class AnnotationTest(RepositoryApiBaseTest):
+
+    TEST_NS = 'omero.webgateway.annotate_test'
+
+    def setUp(self):
+        super(AnnotationTest, self).setUp()
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
+
+        # clean up from previous failed runs
+        self.obj = self.gateway.getObject('OriginalFile', attributes=dict(name='annotationTest', path='/'))
+        if self.obj:
+            self.obj.removeAnnotations(self.TEST_NS)
+        else:
+            targetfile = repository.file('annotationTest', 'rw')
+            targetfile.truncate(0)
+            targetfile.write('DEF456', 0, 6)
+            targetfile.close()
+            self.obj = self.gateway.getObject('OriginalFile', attributes=dict(name='annotationTest', path='/'))
+
+    def tearDown(self):
+        self.obj.removeAnnotations(self.TEST_NS)
+        repository, repodesc = self._getrepo()
+        repository.delete('annotationTest')
+        super(AnnotationTest, self).tearDown()
+
+    def testAnnotation(self):
+        query = dict(QUERY_STRING='ns=%s' % self.TEST_NS)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('[]', v)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='{"name": "test"}', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        result = simplejson.loads(v)
+        self.assertEqual(1, len(result))
+        self.assertTrue(result[0].has_key('type'))
+        self.assertTrue(result[0].has_key('id'))
+        self.assertTrue(result[0].has_key('value'))
+        self.assertEqual('{"name": "test"}', result[0]['value'])
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='{"testkey": "testvalue"}', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        result = simplejson.loads(v)
+        self.assertEqual(2, len(result))
+
+        r = fakeRequest(REQUEST_METHOD='DELETE', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('[]', v)
