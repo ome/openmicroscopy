@@ -3953,4 +3953,17 @@ class EditorModel
 		return LookupNames.EXPERIMENTER_DISPLAY;
 	}
 
+	/**
+	 * Returns <code>true</code> if the annotations are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAnnotationLoaded()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		return data.isLoaded();
+	}
+
 }
