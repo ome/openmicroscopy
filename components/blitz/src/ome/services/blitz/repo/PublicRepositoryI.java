@@ -46,6 +46,7 @@ import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.util.BlitzExecutor;
@@ -540,11 +541,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
-        File file = this.repositoryDao.getFile(id, curr, this.repoUuid, this.serverPaths);
+        final FsFile file = this.repositoryDao.getFile(id, curr, this.repoUuid);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
-        CheckedPath checked = new CheckedPath(this.serverPaths, file.getPath());
+        final CheckedPath checked = new CheckedPath(this.serverPaths, file.toString());
         checked.setId(id);
         return checked;
     }

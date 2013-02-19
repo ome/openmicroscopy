@@ -6,7 +6,7 @@ import java.util.List;
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.repo.path.FsFile;
 import ome.util.SqlAction.DeleteLog;
 
 import omero.SecurityViolation;
@@ -59,6 +59,13 @@ public interface RepositoryDao {
      */
     boolean canUpdate(IObject obj, Ice.Current current);
 
+    /**
+     * Gets the original file instance for a given file ID.
+     * @param fileId a file ID
+     * @param current applicable ICE context
+     * @return the original file corresponding to the given file ID
+     * @throws SecurityViolation if the query threw a security violation
+     */
     OriginalFile getOriginalFile(long fileId, Ice.Current current)
             throws SecurityViolation;
 
@@ -122,16 +129,17 @@ public interface RepositoryDao {
             final Ice.Current current) throws ServerError;
 
     /**
-     * Get an {@link OriginalFile} object based on its id. Returns null if
-     * the file does not exist or does not belong to this repo.
+     * Get an {@link FsFile} object based on its ID. Returns null if
+     * the file does not exist or does not belong to this repository.
      *
-     * @param id
-     *            long, db id of original file.
-     * @return OriginalFile object.
+     * @param id database ID of the sought original file
+     * @param current current applicable ICE context
+     * @param repoUuid the UUID of the repository containing the original file
+     * @return the requested FsFile object
      *
      */
-    File getFile(final long id, final Ice.Current current,
-            final String repoUuid, final ServerFilePathTransformer serverPaths);
+    FsFile getFile(final long id, final Ice.Current current,
+            final String repoUuid);
 
     /**
      * Create a job from an instance provided by either the client or the
