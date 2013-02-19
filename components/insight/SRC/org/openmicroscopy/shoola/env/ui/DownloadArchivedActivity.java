@@ -29,9 +29,16 @@ package org.openmicroscopy.shoola.env.ui;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * Downloads the archived image.
@@ -46,18 +53,25 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
  * </small>
  * @since 3.0-Beta4
  */
-public class DownloadArchivedActivity 
+public class DownloadArchivedActivity
 	extends ActivityComponent
 {
 
-
 	/** The description of the activity when finished. */
-	private static final String		DESCRIPTION_CREATED = "Archived Image " +
+	private static final String DESCRIPTION_CREATED = "Archived Image " +
 			"downloaded";
 	
 	/** The description of the activity when cancelled. */
-	private static final String		DESCRIPTION_CANCEL = "Download Archived " +
+	private static final String DESCRIPTION_CANCEL = "Download Archived " +
 			"Image cancelled";
+	
+	/** The description of the activity when no archived files found. */
+	private static final String DESCRIPTION_NO_ARCHIVED = "No Archived " +
+			"Image available";
+	
+	/** The description of the activity when no archived files found. */
+	private static final String OPTION_NO_ARCHIVED = "You can download the " +
+			"Image as OME-TIFF";
 	
 	/** The parameters to download. */
 	private DownloadArchivedActivityParam parameters;
@@ -110,14 +124,51 @@ public class DownloadArchivedActivity
 	 */
 	protected void notifyActivityEnd()
 	{
-		//review
+		List<File> files = (List<File>) result;
+		//Handle no file returned.
+		if (files.size() == 0) {
+			type.setText(DESCRIPTION_NO_ARCHIVED);
+			messageLabel.setText(OPTION_NO_ARCHIVED);
+			return;
+		}
 		type.setText(DESCRIPTION_CREATED);
-		int v = (Integer) result;
-		String value = null;
-		if (v > 1)
-			value ="All "+v+" files downloaded in "+parameters.getLocation();
-		if (value != null)
-			messageLabel.setText(value);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("as ");
+		if (files.size() > 1) {//zip the result
+			try {
+				//Create a folder
+				
+				File zipFolder = new File(parameters.getLocation(),
+				FilenameUtils.removeExtension(parameters.getImage().getName()));
+				zipFolder.mkdir();
+				//copy file into the directory
+				Iterator<File> j = files.iterator();
+				File child;
+				while (j.hasNext()) {
+					child = j.next();
+					FileUtils.copyFileToDirectory(child, zipFolder, true);
+					child.delete();
+				}
+				
+				//rename 
+				IOUtil.zipDirectory(zipFolder);
+				messageLabel.setText(zipFolder.getAbsolutePath());
+				//empty folder.
+				File[] entries = zipFolder.listFiles();
+				for (int i = 0; i < entries.length; i++)
+					entries[i].delete();
+				
+				zipFolder.delete();
+				buffer.append(zipFolder.getAbsolutePath());
+				buffer.append(IOUtil.ZIP_EXTENSION);
+				messageLabel.setText(buffer.toString());
+			} catch (Exception e) {
+				registry.getLogger().debug(this, "Cannot create a zip");
+			}
+		} else {
+			buffer.append(files.get(0).getAbsolutePath());
+			messageLabel.setText(buffer.toString());
+		}
 	}
     
 	/** 
