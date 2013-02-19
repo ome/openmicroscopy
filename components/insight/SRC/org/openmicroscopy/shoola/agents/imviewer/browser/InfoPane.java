@@ -35,6 +35,7 @@ import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.UnitsObject;
 
 
 
@@ -56,7 +57,7 @@ class InfoPane
 {
 	
     /** String to represent the micron symbol. */
-    private static final String MICRONS = "(in \u00B5)";
+    private static final String MICRONS = "(in " + UnitsObject.MICRONS + ")";
     
     /** Identifies the <code>SizeX</code> field. */
     private static final String SIZE_X = "Size X";

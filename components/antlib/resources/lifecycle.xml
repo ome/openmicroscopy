@@ -134,6 +134,7 @@ omero.version=${omero.version}
 			sourcepath=""
 			source="${javac.source}"
 			target="${javac.target}"
+			encoding="UTF-8"
 			debug="${javac.debug}"
 			debuglevel="${javac.debuglevel}"
                         deprecation="on"
@@ -210,6 +211,7 @@ omero.version=${omero.version}
 			fork="yes"
 			debug="on"
 			destdir="${testclasses.dir}"
+			encoding="UTF-8"
 			classpathref="omero.test.classpath" >
 			<src path="${test.dir}"/>
 		</javac>
