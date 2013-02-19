@@ -67,8 +67,8 @@ import omero.sys.Filter;
 import omero.sys.Options;
 import omero.sys.Parameters;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.UserException;
 
@@ -84,7 +84,7 @@ import Ice.UserException;
 public class IceMapper extends ome.util.ModelMapper implements
         ReverseModelMapper {
 
-    private static Log log = LogFactory.getLog(IceMapper.class);
+    private static Logger log = LoggerFactory.getLogger(IceMapper.class);
 
     // Return value mapping
     // =========================================================================
