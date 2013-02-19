@@ -495,26 +495,13 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getArchivedFiles(SecurityContext, String, long)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String folderPath, long pixelsID) 
+			String folderPath, long imageID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		context.getLogger().debug(this, folderPath);
 		//Check the image is archived.
-		Pixels pixels = gateway.getPixels(ctx, pixelsID);
-		long imageID = pixels.getImage().getId().getValue();
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		String name = UIUtilities.removeFileExtension(
-				image.getName())+"."+OMETIFFFilter.OME_TIF;
-		Map<Boolean, Object> result = 
-			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
-		if (result != null) return result;
-		//Returns the file.
-		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
-				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
-				new File(FilenameUtils.concat(folderPath, name)), null);
-		Map<Boolean, Object> files = new HashMap<Boolean, Object>();
-		files.put(Boolean.valueOf(true), Arrays.asList(file));
-		return files;
+		return gateway.getArchivedFiles(ctx, folderPath, image);
 	}
 
 	/**
