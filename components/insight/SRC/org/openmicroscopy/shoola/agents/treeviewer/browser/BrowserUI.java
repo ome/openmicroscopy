@@ -135,7 +135,7 @@ class BrowserUI
     	TreeFileSet.EXPERIMENT, TreeFileSet.MOVIE, TreeFileSet.OTHER};
     
     /** The tree hosting the display. */
-    private JTree           		treeDisplay;
+    private DnDTree           treeDisplay;
     
     /** The tool bar hosting the controls. */
     private JToolBar				rightMenuBar;
@@ -2209,6 +2209,8 @@ class BrowserUI
 	void reActivate()
 	{
 		clear();
+		treeDisplay.reset(model.getUserID(),
+	       		TreeViewerAgent.isAdministrator());
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
 			ExperimenterData exp = model.getUserDetails();
 			TreeImageDisplay node = buildTreeNodes(exp);
