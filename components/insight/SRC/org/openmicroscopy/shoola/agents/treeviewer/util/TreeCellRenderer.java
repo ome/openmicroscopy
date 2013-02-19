@@ -681,6 +681,13 @@ public class TreeCellRenderer
      * @param userId The id of the user currently logged in.
      */
     public TreeCellRenderer(long userId) { this(userId, true); }
+
+    /**
+     * Resets the id of the user currently logged in.
+     * 
+     * @param userId The id of the user currently logged in. 
+     */
+    public void reset(long userId) { this.userId = userId; }
     
     /**
      * Overridden to set the icon and the text.
