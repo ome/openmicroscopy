@@ -9,11 +9,11 @@ public class MD5ChecksumProviderImpl implements ChecksumProvider {
 
     private final HashFunction md5 = Hashing.md5();
 
-    public byte[] provideChecksum(byte[] rawData) {
+    public byte[] getChecksum(byte[] rawData) {
         return this.md5.newHasher().putBytes(rawData).hash().asBytes();
     }
 
-    public byte[] provideChecksum(ByteBuffer byteBuffer) {
+    public byte[] getChecksum(ByteBuffer byteBuffer) {
         byte[] result = null;
         if (byteBuffer.hasArray()) {
             result = this.md5.newHasher().putBytes(byteBuffer.array()).hash().asBytes();
@@ -21,7 +21,7 @@ public class MD5ChecksumProviderImpl implements ChecksumProvider {
         return result;
     }
 
-    public byte[] provideChecksum(String filePath) {
+    public byte[] getChecksum(String filePath) {
         throw new UnsupportedOperationException("provideChecksum() not"
                 + "implemented for file path String.");
     }

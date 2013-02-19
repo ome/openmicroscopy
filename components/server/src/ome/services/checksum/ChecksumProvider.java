@@ -9,10 +9,10 @@ public interface ChecksumProvider {
      * Utils.bytesToHex(provideChecksum(buffer));
      */
 
-    byte[] provideChecksum(byte[] buffer);
+    byte[] getChecksum(byte[] buffer);
 
-    byte[] provideChecksum(String fileName);
+    byte[] getChecksum(String fileName);
 
-    byte[] provideChecksum(ByteBuffer buffer);
+    byte[] getChecksum(ByteBuffer buffer);
 
 }
