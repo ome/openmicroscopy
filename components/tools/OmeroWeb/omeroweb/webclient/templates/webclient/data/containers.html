@@ -349,9 +349,9 @@
                                     toolbar_config["unlink"] = true;
                                 }
                             }
-                        }
-                        if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
-                            toolbar_config['paste'] = true;
+                            if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
+                                toolbar_config['paste'] = true;
+                            }
                         }
                     }
                     
