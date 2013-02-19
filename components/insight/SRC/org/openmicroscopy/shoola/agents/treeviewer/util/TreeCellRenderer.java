@@ -299,8 +299,7 @@ public class TreeCellRenderer
 				IconManager.PUBLIC_GROUP);
 		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
-		IMAGE_ANNOTATED_ICON =
-				icons.getIcon(IconManager.IMAGE_ANNOTATED_NOT_OWNED);
+		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
 		IMAGE_NOT_OWNED_ICON = icons.getIcon(IconManager.IMAGE_NOT_OWNED);
 		IMAGE_ANNOTATED_NOT_OWNED_ICON = icons.getIcon(
 				IconManager.IMAGE_ANNOTATED_NOT_OWNED);
