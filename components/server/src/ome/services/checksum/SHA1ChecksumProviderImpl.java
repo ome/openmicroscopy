@@ -19,16 +19,16 @@ public class SHA1ChecksumProviderImpl implements ChecksumProvider {
 
     private static final int BYTEARRAYSIZE = 8192;
 
-    public byte[] provideChecksum(byte[] rawData) {
+    public byte[] getChecksum(byte[] rawData) {
         return this.sha1.newHasher().putBytes(rawData).hash().asBytes();
     }
 
-    public byte[] provideChecksum(ByteBuffer byteBuffer) {
+    public byte[] getChecksum(ByteBuffer byteBuffer) {
         throw new UnsupportedOperationException("provideChecksum() not"
                 + "implemented for ByteBuffer.");
     }
 
-    public byte[] provideChecksum(String filePath) {
+    public byte[] getChecksum(String filePath) {
         FileInputStream fis = null;
         FileChannel fch = null;
         Hasher sha1Hasher = this.sha1.newHasher();
