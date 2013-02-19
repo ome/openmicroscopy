@@ -2211,6 +2211,9 @@ class BrowserUI
 		clear();
 		treeDisplay.reset(model.getUserID(),
 	       		TreeViewerAgent.isAdministrator());
+		TreeCellRenderer renderer = (TreeCellRenderer)
+		treeDisplay.getCellRenderer();
+		renderer.reset(model.getUserID());
 		if (model.getBrowserType() != Browser.ADMIN_EXPLORER) {
 			ExperimenterData exp = model.getUserDetails();
 			TreeImageDisplay node = buildTreeNodes(exp);
