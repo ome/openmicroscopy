@@ -15,8 +15,8 @@ import loci.formats.services.JAIIIOService;
 import ome.conditions.MissingPyramidException;
 import ome.model.core.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 
@@ -35,7 +35,7 @@ public class SimpleBackOff implements BackOff {
 
     private static final int IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB;
 
-    private final static Log log = LogFactory.getLog(SimpleBackOff.class);
+    private final static Logger log = LoggerFactory.getLogger(SimpleBackOff.class);
 
     private final JAIIIOService service;
 

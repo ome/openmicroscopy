@@ -17,8 +17,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +60,7 @@ import omero.util.IceMapper;
 public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
     implements ApplicationListener<DeleteLogMessage> {
 
-    private final static Log log = LogFactory.getLog(AbstractRepositoryI.class);
+    private final static Logger log = LoggerFactory.getLogger(AbstractRepositoryI.class);
 
     private final Ice.ObjectAdapter oa;
 

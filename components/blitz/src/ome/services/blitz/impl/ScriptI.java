@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,7 +88,7 @@ import omero.util.IceMapper;
 public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         ServiceFactoryAware, BlitzOnly {
 
-    private final static Log log = LogFactory.getLog(ScriptI.class);
+    private final static Logger log = LoggerFactory.getLogger(ScriptI.class);
 
     protected ServiceFactoryI factory;
 

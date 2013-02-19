@@ -18,8 +18,8 @@ import loci.formats.ImageReader;
 import ome.conditions.InternalException;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBEnumCheck {
 
-    public final static Log log = LogFactory.getLog(DBEnumCheck.class);
+    public final static Logger log = LoggerFactory.getLogger(DBEnumCheck.class);
 
     public final static Pattern readerClass = Pattern
             .compile("^.*?[.]?([^.]+)Reader$");

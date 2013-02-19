@@ -41,8 +41,8 @@ import omero.model.Rect;
 import omero.model.Roi;
 import omero.model.Label;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the shapes of a IObjectContainerStore and ensures
@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
 public class ShapeProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(ShapeProcessor.class);
+    private Logger log = LoggerFactory.getLogger(ShapeProcessor.class);
 
     /** Exhaustive list of ROI types. */
     private static final List<Class<? extends IObject>> SHAPE_TYPES =

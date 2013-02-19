@@ -41,8 +41,8 @@ import ome.xml.model.enums.EnumerationException;
 import ome.xml.model.primitives.PositiveInteger;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link PixelBuffer} implementation which uses Bio-Formats to
@@ -52,7 +52,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BfPyramidPixelBuffer implements PixelBuffer {
 
-    private final static Log log = LogFactory.getLog(BfPyramidPixelBuffer.class);
+    private final static Logger log = LoggerFactory.getLogger(BfPyramidPixelBuffer.class);
 
     private BfPixelBuffer delegate;
 

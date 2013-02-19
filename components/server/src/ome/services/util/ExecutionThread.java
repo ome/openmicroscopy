@@ -12,8 +12,8 @@ import ome.model.meta.Session;
 import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
  */
 public abstract class ExecutionThread implements Runnable {
 
-    private final static Log log = LogFactory.getLog(ExecutionThread.class);
+    private final static Logger log = LoggerFactory.getLogger(ExecutionThread.class);
 
     final protected SessionManager manager;
     final protected Executor executor;

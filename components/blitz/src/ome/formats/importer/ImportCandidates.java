@@ -38,8 +38,8 @@ import omero.model.PixelsTypeI;
 
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class which given any {@link File} object will determine the correct
@@ -112,7 +112,7 @@ public class ImportCandidates extends DirectoryWalker
 
 	private static final long serialVersionUID = 1L;};
 
-    final private static Log log = LogFactory.getLog(ImportCandidates.class);
+    final private static Logger log = LoggerFactory.getLogger(ImportCandidates.class);
 
     final public static int DEPTH = Integer.valueOf(
             System.getProperty("omero.import.depth","4"));

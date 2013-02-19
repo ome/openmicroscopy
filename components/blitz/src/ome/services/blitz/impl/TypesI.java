@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ome.api.ITypes;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
@@ -103,7 +103,7 @@ public class TypesI extends AbstractAmdServant implements _ITypesOperations {
 
     }
 
-    private final static Log log = LogFactory.getLog(TypesI.class);
+    private final static Logger log = LoggerFactory.getLogger(TypesI.class);
 
     public void getEnumerationsWithEntries_async(
             AMD_ITypes_getEnumerationsWithEntries __cb, Current __current)

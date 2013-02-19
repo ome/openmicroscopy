@@ -49,8 +49,8 @@ import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jmock.Mock;
 import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
@@ -68,7 +68,7 @@ public class AbstractManagedContextTest extends TestCase {
 
     // =========================================================================
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
     
     protected LoginInterceptor loginAop;
 

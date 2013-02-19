@@ -26,8 +26,8 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.commonslog.CommonsLogStopWatch;
@@ -43,7 +43,7 @@ import org.perf4j.commonslog.CommonsLogStopWatch;
  */
 public class ChgrpValidation extends GraphStep {
 
-    final private static Log log = LogFactory.getLog(ChgrpValidation.class);
+    final private static Logger log = LoggerFactory.getLogger(ChgrpValidation.class);
 
     final private OmeroContext ctx;
 

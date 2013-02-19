@@ -57,8 +57,8 @@ import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.batik.transcoder.TranscoderException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.core.io.Resource;
@@ -85,7 +85,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private static final long serialVersionUID = 3047482880497900069L;
 
     /** The logger for this class. */
-    private transient static Log log = LogFactory.getLog(ThumbnailBean.class);
+    private transient static Logger log = LoggerFactory.getLogger(ThumbnailBean.class);
 
     /** The renderer that this service uses for thumbnail creation. */
     private transient Renderer renderer;

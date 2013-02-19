@@ -43,8 +43,8 @@ import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Brian W. Loranger
@@ -53,7 +53,7 @@ import org.apache.commons.logging.LogFactory;
 public class FileUploader implements IObservable
 {
 
-    private static Log         log = LogFactory.getLog(FileUploader.class);
+    private static Logger         log = LoggerFactory.getLogger(FileUploader.class);
 
     private String[] files;
 

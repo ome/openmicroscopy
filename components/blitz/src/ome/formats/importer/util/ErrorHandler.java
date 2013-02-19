@@ -23,8 +23,8 @@ import ome.formats.importer.ImportEvent;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Top of the error handling hierarchy. Will add errors to a queue
@@ -183,7 +183,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
     }
 
-    final protected Log log = LogFactory.getLog(getClass());
+    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     final protected ArrayList<IObserver> observers = new ArrayList<IObserver>();
 

@@ -7,7 +7,7 @@
 
 package ome.services.blitz.util;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import Ice.Logger;
 
@@ -25,7 +25,7 @@ import Ice.Logger;
  */
 public class CommonsLoggingAdapter implements Logger {
 
-    private final Log log;
+    private final Logger log;
 
     public CommonsLoggingAdapter(Log logger) {
         this.log = logger;

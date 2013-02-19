@@ -25,8 +25,8 @@ import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -44,7 +44,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class PixelsServiceTest extends AbstractManagedContextTest {
 
-    private static Log log = LogFactory.getLog(PixelsServiceTest.class);
+    private static Logger log = LoggerFactory.getLogger(PixelsServiceTest.class);
 
     private IPixels pix;
 

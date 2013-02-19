@@ -28,8 +28,8 @@ import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.BeansException;
@@ -52,7 +52,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class SessionCache implements ApplicationContextAware {
 
-    private final static Log log = LogFactory.getLog(SessionCache.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionCache.class);
 
     /**
      * Observer pattern used to refresh sessions in doUpdate.

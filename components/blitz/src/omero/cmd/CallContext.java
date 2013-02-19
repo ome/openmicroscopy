@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.conditions.InternalException;
 import ome.security.basic.CurrentDetails;
@@ -26,7 +26,7 @@ import ome.system.OmeroContext;
  */
 public class CallContext implements MethodInterceptor {
 
-    private static Log log = LogFactory.getLog(CallContext.class);
+    private static Logger log = LoggerFactory.getLogger(CallContext.class);
 
     private final CurrentDetails cd;
 

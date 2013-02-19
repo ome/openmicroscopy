@@ -21,8 +21,8 @@ import java.util.Set;
 
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -36,7 +36,7 @@ import org.xml.sax.helpers.DefaultHandler;
 */
 public class SaxReader {
 
-private static Log log = LogFactory.getLog(SaxReader.class);
+private static Logger log = LoggerFactory.getLogger(SaxReader.class);
 
 /** input file */
 URL xmlFile;
@@ -93,7 +93,7 @@ this(file, new DSLHandler(profile));
 
 class DSLHandler extends DefaultHandler {
 
-    private static Log log = LogFactory.getLog(DSLHandler.class);
+    private static Logger log = LoggerFactory.getLogger(DSLHandler.class);
 
     // Turns output on/off
     public boolean verbose = false;

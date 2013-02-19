@@ -13,8 +13,8 @@ import ome.system.Principal;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -27,7 +27,7 @@ import Ice.Current;
  */
 public class LegacyRepositoryI extends AbstractRepositoryI {
 
-    private final static Log log = LogFactory.getLog(LegacyRepositoryI.class);
+    private final static Logger log = LoggerFactory.getLogger(LegacyRepositoryI.class);
 
     private final OriginalFilesService fs;
 

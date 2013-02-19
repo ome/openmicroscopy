@@ -16,8 +16,8 @@ import java.util.Random;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.jdbc.support.rowset.SqlRowSetMetaData;
@@ -48,7 +48,7 @@ public class OMEData {
             + "Testing results would be unpredictable without test data.\n"
             + "Please fill your database and retry.";
 
-    private static Log log = LogFactory.getLog(OMEData.class);
+    private static Logger log = LoggerFactory.getLogger(OMEData.class);
 
     boolean initialized = false;
 

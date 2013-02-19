@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -33,7 +33,7 @@ import org.apache.log4j.SimpleLayout;
  */
 public class TempFileManager {
 
-    private final static Log log = LogFactory.getLog(TempFileManager.class);
+    private final static Logger log = LoggerFactory.getLogger(TempFileManager.class);
 
     static {
         // Activating logging at a static level

@@ -12,8 +12,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import ome.system.OmeroContext;
 import ome.util.messages.UserSignalMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.util.ResourceUtils;
 
@@ -26,7 +26,7 @@ import sun.misc.SignalHandler;
  */
 public class Entry {
 
-    private final static Log log = LogFactory.getLog(Entry.class);
+    private final static Logger log = LoggerFactory.getLogger(Entry.class);
 
     /**
      * Return code status. Initially -1. On successful start, 0. > 1 on
@@ -168,7 +168,7 @@ public class Entry {
     }
 
     /**
-     * Most ome/omero classes use the {@link Log} and {@link LogFactory}
+     * Most ome/omero classes use the {@link Logger} and {@link LogFactory}
      * classes for logging. The underlying implementation, however, is
      * more complicated. To prevent a dependency on third party jars,
      * the Ice Logger prints to java.util.logging. Log4j is on the class-

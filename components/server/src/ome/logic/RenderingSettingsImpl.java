@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,8 +87,8 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 	public final static double EPSILON = 0.00001;
 	
     /** The logger for this class. */
-    private transient static Log log = 
-        LogFactory.getLog(RenderingSettingsImpl.class);
+    private transient static Logger log = 
+        LoggerFactory.getLogger(RenderingSettingsImpl.class);
 
     /** Reference to the service used to retrieve the pixels data. */
     protected transient PixelsService pixelsData;

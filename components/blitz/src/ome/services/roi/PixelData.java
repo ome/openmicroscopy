@@ -17,8 +17,8 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Strategy for loading and optionally caching pixel data.
@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PixelData {
 
-    protected Log log = LogFactory.getLog(PixelData.class);
+    protected Logger log = LoggerFactory.getLogger(PixelData.class);
 
     protected final PixelsService data;
 

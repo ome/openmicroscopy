@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Set;
 
 // Third-party imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
 import org.hibernate.collection.PersistentCollection;
@@ -54,7 +54,7 @@ import ome.tools.lsid.LsidUtils;
 @RevisionNumber("$Revision$")
 public abstract class HibernateUtils {
 
-    private static Log log = LogFactory.getLog(HibernateUtils.class);
+    private static Logger log = LoggerFactory.getLogger(HibernateUtils.class);
 
     // using Image as an example. All details fields are named the same.
     private static String DETAILS = LsidUtils.parseField(Image.DETAILS);

@@ -10,8 +10,8 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.model.core.OriginalFile;
@@ -28,7 +28,7 @@ import ome.model.core.OriginalFile;
 public class OriginalFilesService extends AbstractFileSystemService {
 
 	/* The logger for this class. */
-	private transient static Log log = LogFactory
+	private transient static Logger log = LogFactory
 			.getLog(OriginalFilesService.class);
 
     /**

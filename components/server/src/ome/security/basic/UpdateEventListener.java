@@ -15,8 +15,8 @@ import ome.annotations.RevisionNumber;
 import ome.model.IObject;
 import ome.model.internal.Details;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.event.PreUpdateEventListener;
 
@@ -38,7 +38,7 @@ public class UpdateEventListener implements PreUpdateEventListener {
 
     private static final long serialVersionUID = -7607753637653567889L;
 
-    private static Log log = LogFactory.getLog(UpdateEventListener.class);
+    private static Logger log = LoggerFactory.getLogger(UpdateEventListener.class);
 
     private final CurrentDetails cd;
 

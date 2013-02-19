@@ -37,8 +37,8 @@ import omero.model.Laser;
 import omero.model.OTF;
 import omero.model.Objective;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the members of an Instrument (Objective, OTF, Arc Laser and
@@ -51,7 +51,7 @@ import org.apache.commons.logging.LogFactory;
 public class InstrumentProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(InstrumentProcessor.class);
+    private Logger log = LoggerFactory.getLogger(InstrumentProcessor.class);
 
     /**
      * Processes the OMERO client side metadata store.

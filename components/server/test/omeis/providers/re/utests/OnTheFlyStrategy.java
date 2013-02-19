@@ -10,8 +10,8 @@ package omeis.providers.re.utests;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.display.QuantumDef;
@@ -25,7 +25,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 public class OnTheFlyStrategy extends QuantumStrategy {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(OnTheFlyStrategy.class);
+    private static Logger log = LoggerFactory.getLogger(OnTheFlyStrategy.class);
 
     /** The lower bound of the decile interval. */
     private double Q1;

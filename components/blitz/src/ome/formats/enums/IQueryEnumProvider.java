@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import omero.RLong;
 import omero.RString;
@@ -50,7 +50,7 @@ import omero.model.IObject;
 public class IQueryEnumProvider implements EnumerationProvider
 {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(IQueryEnumProvider.class);
+    private static Logger log = LoggerFactory.getLogger(IQueryEnumProvider.class);
 
     /** Enumeration cache. */
     private Map<Class<? extends IObject>, HashMap<String, IObject>> enumCache =

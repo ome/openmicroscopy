@@ -33,8 +33,8 @@ import ome.model.stats.StatsInfo;
 import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -50,7 +50,7 @@ public class PixelsService extends AbstractFileSystemService
     implements ApplicationEventPublisherAware {
 
 	/** The logger for this class. */
-	private transient static Log log = LogFactory.getLog(PixelsService.class);
+	private transient static Logger log = LoggerFactory.getLogger(PixelsService.class);
 
 	/** Publisher interface used to publish messages concerning missing
 	 * data and similar. */

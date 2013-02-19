@@ -12,8 +12,8 @@ import java.util.UUID;
 
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to find the "omero.data.dir" environment variable which points to the
@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  */
 class PathUtil {
 
-    private final static Log log = LogFactory.getLog(PathUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(PathUtil.class);
 
     private final static PathUtil instance = new PathUtil();
 

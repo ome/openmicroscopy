@@ -24,8 +24,8 @@ import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class FullTextIndexer extends SimpleWork {
 
-    private final static Log log = LogFactory.getLog(FullTextIndexer.class);
+    private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);
 
     abstract class Action {
         Class type;

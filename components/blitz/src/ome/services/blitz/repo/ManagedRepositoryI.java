@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.FormatReader;
+
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
@@ -64,8 +65,8 @@ import omero.sys.EventContext;
 
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -81,7 +82,7 @@ import Ice.Current;
 public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {
 
-    private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
+    private final static Logger log = LoggerFactory.getLogger(ManagedRepositoryI.class);
     
     private final static int parentDirsToRetain = 3;
     

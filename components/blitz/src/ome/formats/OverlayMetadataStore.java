@@ -45,8 +45,8 @@ import omero.model.Pixels;
 import omero.model.Roi;
 import omero.model.RoiI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Client side metadata store implementation that only deals with overlays. At
@@ -58,7 +58,7 @@ import org.apache.commons.logging.LogFactory;
 public class OverlayMetadataStore extends DummyMetadata
 {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(OverlayMetadataStore.class);
+    private static Logger log = LoggerFactory.getLogger(OverlayMetadataStore.class);
 
     private List<Pixels> pixelsList;
 

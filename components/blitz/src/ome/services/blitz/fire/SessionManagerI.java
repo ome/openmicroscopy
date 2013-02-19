@@ -13,8 +13,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -71,7 +71,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
             .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
 
-    private final static Log log = LogFactory.getLog(SessionManagerI.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionManagerI.class);
 
     protected OmeroContext context;
 

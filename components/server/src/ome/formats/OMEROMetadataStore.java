@@ -60,8 +60,8 @@ import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.perf4j.StopWatch;
 
@@ -81,7 +81,7 @@ import org.perf4j.StopWatch;
 public class OMEROMetadataStore
 {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(OMEROMetadataStore.class);
+    private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;

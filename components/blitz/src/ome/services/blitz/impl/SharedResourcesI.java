@@ -64,8 +64,8 @@ import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.ObjectNotFoundException;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +85,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,
         ParamsHelper.Acquirer { // FIXME
 
-    private final static Log log = LogFactory.getLog(SharedResourcesI.class);
+    private final static Logger log = LoggerFactory.getLogger(SharedResourcesI.class);
 
     private final Set<String> tableIds = new HashSet<String>();
 

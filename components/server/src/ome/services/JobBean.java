@@ -28,8 +28,8 @@ import ome.services.procs.ProcessCallback;
 import ome.system.EventContext;
 import ome.util.ShallowCopy;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -48,7 +48,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     private static final long serialVersionUID = 49809384038000069L;
 
     /** The logger for this class. */
-    private transient static Log log = LogFactory.getLog(JobBean.class);
+    private transient static Logger log = LoggerFactory.getLogger(JobBean.class);
 
     private Long jobId, resetId;
     private transient ITypes iTypes;

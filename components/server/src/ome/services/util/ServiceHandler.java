@@ -32,8 +32,8 @@ import ome.services.messages.RegisterServiceCleanupMessage;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.PropertyValueException;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
@@ -54,7 +54,7 @@ import org.springframework.transaction.CannotCreateTransactionException;
  */
 public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
-    private static Log log = LogFactory.getLog(ServiceHandler.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceHandler.class);
 
     private final CurrentDetails cd;
 

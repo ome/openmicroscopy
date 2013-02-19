@@ -18,8 +18,8 @@ import ome.model.containers.Dataset;
 import ome.model.core.Pixels;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ResourceUtils;
 
 /**
@@ -40,7 +40,7 @@ public class TinyImportFixture //extends ImportFixture
 	/** Hard-coded filename of the image to be imported */
 	public final static String FILENAME = "tinyTest.d3d.dv";
 	
-    Log                        log = LogFactory.getLog(TinyImportFixture.class);
+    Logger                        log = LoggerFactory.getLogger(TinyImportFixture.class);
 
     private Dataset d;
     

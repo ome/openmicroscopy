@@ -13,8 +13,8 @@ import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
@@ -27,7 +27,7 @@ import Ice.ObjectAdapter;
  */
 public class InternalRepositoryI extends AbstractRepositoryI {
 
-    private final static Log log = LogFactory.getLog(InternalRepositoryI.class);
+    private final static Logger log = LoggerFactory.getLogger(InternalRepositoryI.class);
 
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
             Principal p, String repoDir, PublicRepositoryI servant) {

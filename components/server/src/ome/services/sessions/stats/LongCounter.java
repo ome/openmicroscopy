@@ -6,8 +6,8 @@
  */
 package ome.services.sessions.stats;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,7 +27,7 @@ import ome.util.messages.InternalMessage;
  */
 public abstract class LongCounter implements ApplicationEventPublisherAware {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     private ApplicationEventPublisher publisher;
     

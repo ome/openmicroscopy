@@ -16,8 +16,8 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -58,7 +58,7 @@ public class ACLEventListener implements
 
     private static final long serialVersionUID = 3603644089117965153L;
 
-    private static Log log = LogFactory.getLog(ACLEventListener.class);
+    private static Logger log = LoggerFactory.getLogger(ACLEventListener.class);
 
     private final ACLVoter aclVoter;
 

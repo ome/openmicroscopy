@@ -21,8 +21,8 @@ import ome.formats.importer.util.ErrorHandler; // Was previously cli for sending
 import ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT;
 import omero.model.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * test fixture for importing files without a GUI. Sample usage:
@@ -48,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OMEROImportFixture {
 
-    Log log = LogFactory.getLog(OMEROImportFixture.class);
+    Logger log = LoggerFactory.getLogger(OMEROImportFixture.class);
 
     protected OMEROMetadataStoreClient store;
 

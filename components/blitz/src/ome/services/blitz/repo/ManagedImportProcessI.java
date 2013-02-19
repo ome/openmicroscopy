@@ -20,8 +20,8 @@ package ome.services.blitz.repo;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -55,7 +55,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
     implements _ImportProcessOperations, ServiceFactoryAware,
                 ProcessContainer.Process {
 
-    private final static Log log = LogFactory.getLog(ManagedImportProcessI.class);
+    private final static Logger log = LoggerFactory.getLogger(ManagedImportProcessI.class);
 
     static class UploadState {
         final RawFileStorePrx prx;

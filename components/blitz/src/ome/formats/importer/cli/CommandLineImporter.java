@@ -29,8 +29,8 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -42,7 +42,7 @@ import org.apache.log4j.Logger;
  */
 public class CommandLineImporter {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(CommandLineImporter.class);
+    private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";

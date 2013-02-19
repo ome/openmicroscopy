@@ -56,8 +56,8 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -85,7 +85,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware, ApplicationListener {
 
-    private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionManagerImpl.class);
 
     /**
      * The id of this session manager, used to identify its own actions. This

@@ -18,8 +18,8 @@ import ome.system.Principal;
 import ome.system.Server;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -46,7 +46,7 @@ import org.testng.annotations.Test;
  */
 public class Preferences3Test extends TestCase {
 
-    private static Log log = LogFactory.getLog(Preferences3Test.class);
+    private static Logger log = LoggerFactory.getLogger(Preferences3Test.class);
 
     static Properties props;
     static {

@@ -14,8 +14,8 @@ import ome.security.basic.CurrentDetails;
 import ome.services.blitz.util.IceMethodInvoker;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -25,7 +25,7 @@ import Ice.Current;
  */
 public class InThreadThrottlingStrategy extends AbstractThrottlingStrategy {
 
-    private final static Log log = LogFactory
+    private final static Logger log = LogFactory
             .getLog(InThreadThrottlingStrategy.class);
 
     private final CurrentDetails cd;

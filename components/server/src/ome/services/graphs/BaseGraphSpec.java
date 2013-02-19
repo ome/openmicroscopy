@@ -28,8 +28,8 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
@@ -46,7 +46,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  */
 public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
-    private final static Log log = LogFactory.getLog(BaseGraphSpec.class);
+    private final static Logger log = LoggerFactory.getLogger(BaseGraphSpec.class);
 
     //
     // Bean-creation time values

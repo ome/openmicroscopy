@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
@@ -109,7 +109,7 @@ public class Deletion {
 
     }
 
-    private static final Log log = LogFactory.getLog(Deletion.class);
+    private static final Logger log = LoggerFactory.getLogger(Deletion.class);
 
     private static final List<String> fileTypeList = Collections.unmodifiableList(
             Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));

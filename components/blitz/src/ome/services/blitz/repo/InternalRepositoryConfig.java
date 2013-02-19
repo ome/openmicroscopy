@@ -9,8 +9,8 @@ package ome.services.blitz.repo;
 import ome.services.blitz.fire.Registry;
 import omero.util.ModelObjectFactoryRegistry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.ObjectAdapter;
 
@@ -23,7 +23,7 @@ import Ice.ObjectAdapter;
  */
 public class InternalRepositoryConfig {
 
-    private final static Log log = LogFactory
+    private final static Logger log = LogFactory
             .getLog(InternalRepositoryConfig.class);
 
     private final Ice.InitializationData id;

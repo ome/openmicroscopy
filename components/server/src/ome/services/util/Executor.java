@@ -30,8 +30,8 @@ import ome.util.SqlAction;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.springframework.aop.framework.ProxyFactory;
@@ -302,7 +302,7 @@ public interface Executor extends ApplicationContextAware {
 
     public class Impl implements Executor {
 
-        private final static Log log = LogFactory.getLog(Executor.class);
+        private final static Logger log = LoggerFactory.getLogger(Executor.class);
 
         protected OmeroContext context;
         protected InternalServiceFactory isf;

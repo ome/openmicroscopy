@@ -15,8 +15,8 @@ import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import ome.testing.Report;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -26,7 +26,7 @@ import com.jamonapi.MonitorFactory;
 @Test(groups = { "client", "integration", "binary" })
 public class RawPixelStoreTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(RawPixelStoreTest.class);
+    private static Logger log = LoggerFactory.getLogger(RawPixelStoreTest.class);
 
     ServiceFactory sf;
     RawPixelsStore raw;

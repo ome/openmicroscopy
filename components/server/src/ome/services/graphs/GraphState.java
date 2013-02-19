@@ -26,8 +26,8 @@ import ome.system.OmeroContext;
 import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.LoadQueryInfluencers;
 import org.hibernate.engine.SessionImplementor;
@@ -53,7 +53,7 @@ import org.hibernate.exception.ConstraintViolationException;
  */
 public class GraphState implements GraphStep.Callback {
 
-    private final static Log log = LogFactory.getLog(GraphState.class);
+    private final static Logger log = LoggerFactory.getLogger(GraphState.class);
     /**
      * List of each individual {@link GraphStep} which this instance will
      * perform. These are generated during

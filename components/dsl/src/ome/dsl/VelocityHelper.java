@@ -13,8 +13,8 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -28,7 +28,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
  */
 public class VelocityHelper {
 
-    private static Log log = LogFactory.getLog(VelocityHelper.class);
+    private static Logger log = LoggerFactory.getLogger(VelocityHelper.class);
 
     private String macros;
 

@@ -16,8 +16,8 @@ import ome.security.basic.CurrentDetails;
 import ome.security.sharing.SharingACLVoter;
 import ome.system.EventContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 
 /**
@@ -28,7 +28,7 @@ import org.hibernate.Session;
  */
 public class CompositeACLVoter implements ACLVoter {
 
-    private final static Log log = LogFactory.getLog(CompositeACLVoter.class);
+    private final static Logger log = LoggerFactory.getLogger(CompositeACLVoter.class);
 
     private final CurrentDetails cd;
 

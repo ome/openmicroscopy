@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.conditions.ResourceError;
@@ -77,7 +77,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 public class Renderer {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Renderer.class);
+    private static Logger log = LoggerFactory.getLogger(Renderer.class);
     
     /** The maximum number of channels. */
     public static final int		MAX_CHANNELS = 8;

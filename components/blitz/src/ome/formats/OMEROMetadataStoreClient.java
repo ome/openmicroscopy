@@ -208,8 +208,8 @@ import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
@@ -226,7 +226,7 @@ public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
+    private Logger log = LoggerFactory.getLogger(OMEROMetadataStoreClient.class);
 
     private MetadataStorePrx delegate;
 

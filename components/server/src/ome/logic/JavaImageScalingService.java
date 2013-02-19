@@ -10,8 +10,8 @@ package ome.logic;
 // Java imports
 import java.awt.image.BufferedImage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 
@@ -32,7 +32,7 @@ import ome.api.IScale;
  */
 public class JavaImageScalingService implements IScale {
     /** The logger for this class. */
-    private static Log log = LogFactory.getLog(JavaImageScalingService.class);
+    private static Logger log = LoggerFactory.getLogger(JavaImageScalingService.class);
 
     /*
      * (non-Javadoc)

@@ -17,8 +17,8 @@ package ome.services.query;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.conditions.ApiUsageException;
@@ -39,7 +39,7 @@ import ome.parameters.Parameters;
  */
 public class QueryFactory {
 
-    private static Log log = LogFactory.getLog(QueryFactory.class);
+    private static Logger log = LoggerFactory.getLogger(QueryFactory.class);
 
     /**
      * sources available for lookups. This array will never be null.

@@ -19,8 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.conditions.ResourceError;
@@ -66,7 +66,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 class HSBStrategy extends RenderingStrategy {
 	
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(HSBStrategy.class);
+    private static Logger log = LoggerFactory.getLogger(HSBStrategy.class);
     
     /**
      * Retrieves the maximum number of reasonable tasks to schedule based on

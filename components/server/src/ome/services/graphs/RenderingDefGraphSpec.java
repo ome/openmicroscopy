@@ -23,8 +23,8 @@ import java.util.List;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link AbstractHierarchyGraphSpec} specialized for processing light sources.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class RenderingDefGraphSpec extends BaseGraphSpec {
 
-    private final static Log log = LogFactory
+    private final static Logger log = LogFactory
         .getLog(RenderingDefGraphSpec.class);
 
     //

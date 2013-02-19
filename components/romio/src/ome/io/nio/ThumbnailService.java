@@ -12,8 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.conditions.ResourceError;
 import ome.model.display.Thumbnail;
@@ -26,7 +26,7 @@ import ome.util.Utils;
 public class ThumbnailService extends AbstractFileSystemService {
 
 	/* The logger for this class. */
-	private transient static Log log = LogFactory
+	private transient static Logger log = LogFactory
 			.getLog(ThumbnailService.class);
 
 	/**

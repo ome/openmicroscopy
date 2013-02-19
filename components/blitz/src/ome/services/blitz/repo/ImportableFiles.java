@@ -35,8 +35,8 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.ImportCandidates.SCANNING;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  A helper class used to obtain the import candidates
@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ImportableFiles implements IObserver {
 
-    private final static Log log = LogFactory.getLog(ImportableFiles.class);
+    private final static Logger log = LoggerFactory.getLogger(ImportableFiles.class);
     private ImportConfig config;
     private ImportCandidates candidates;
     private List<ImportContainer> containers;

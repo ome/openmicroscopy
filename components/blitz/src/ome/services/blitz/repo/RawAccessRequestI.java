@@ -20,8 +20,9 @@ package ome.services.blitz.repo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -49,7 +50,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
     private static final long serialVersionUID = -303948503984L;
 
-    private static Log log = LogFactory.getLog(RawAccessRequestI.class);
+    private static Logger log = LoggerFactory.getLogger(RawAccessRequestI.class);
 
     private final Registry reg;
 

@@ -22,8 +22,8 @@ import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility to upload {@link File files} or {@link String text} as as an
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileUploader implements Runnable {
 
-    private final static Log log = LogFactory.getLog(FileUploader.class);
+    private final static Logger log = LoggerFactory.getLogger(FileUploader.class);
 
     // Ctor fields
     private final ServiceFactory sf;

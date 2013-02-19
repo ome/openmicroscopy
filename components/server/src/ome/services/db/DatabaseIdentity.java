@@ -9,8 +9,8 @@ package ome.services.db;
 
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the unique identity of this database, consisting of the
@@ -43,7 +43,7 @@ public class DatabaseIdentity {
         return sql.dbUuid();
     }
 
-    private final static Log log = LogFactory.getLog(DatabaseIdentity.class);
+    private final static Logger log = LoggerFactory.getLogger(DatabaseIdentity.class);
 
     private final String authority;
 

@@ -12,8 +12,8 @@ import ome.conditions.InternalException;
 import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBPatchCheck {
 
-    public final static Log log = LogFactory.getLog(DBPatchCheck.class);
+    public final static Logger log = LoggerFactory.getLogger(DBPatchCheck.class);
 
     final SqlAction sql;
     final PreferenceContext prefs;

@@ -10,8 +10,8 @@ package ome.services.util;
 import java.io.File;
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Hook run by the context at startup to create needed directories for the server.
@@ -21,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServerDirectoryCheck implements Runnable {
 
-    public final static Log log = LogFactory
+    public final static Logger log = LogFactory
             .getLog(ServerDirectoryCheck.class);
 
     final String omeroDataDir;

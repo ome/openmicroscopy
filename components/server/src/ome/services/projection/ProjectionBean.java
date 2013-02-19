@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.PermitAll;
@@ -45,7 +45,7 @@ import ome.model.stats.StatsInfo;
 public class ProjectionBean extends AbstractLevel2Service implements IProjection
 {
     /** The logger for this class. */
-    private static Log log = LogFactory.getLog(ProjectionBean.class);
+    private static Logger log = LoggerFactory.getLogger(ProjectionBean.class);
     
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels iPixels;

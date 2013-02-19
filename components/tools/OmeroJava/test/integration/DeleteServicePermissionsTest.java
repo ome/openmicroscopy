@@ -171,7 +171,7 @@ public class DeleteServicePermissionsTest
         Image img = (Image) iUpdate.saveAndReturnObject(
 				mmFactory.createImage());
 
-        // Log the admin into that users group
+        // Logger the admin into that users group
         logRootIntoGroup();
         delete(client, new Delete(
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));

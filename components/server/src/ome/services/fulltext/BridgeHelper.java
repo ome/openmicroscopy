@@ -21,8 +21,8 @@ import ome.model.core.OriginalFile;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.messages.ReindexMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -74,11 +74,11 @@ public abstract class BridgeHelper implements FieldBridge,
         return proxy;
     }
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected ApplicationEventPublisher publisher;
 
-    public final Log logger() {
+    public final Logger logger() {
         return log;
     }
 

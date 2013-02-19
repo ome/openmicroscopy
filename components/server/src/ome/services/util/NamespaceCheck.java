@@ -18,8 +18,8 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.spring.OnContextRefreshedEventListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class NamespaceCheck extends OnContextRefreshedEventListener {
 
-    public final static Log log = LogFactory.getLog(NamespaceCheck.class);
+    public final static Logger log = LoggerFactory.getLogger(NamespaceCheck.class);
 
     public final static String FLIM = "openmicroscopy.org/omero/analysis/flim";
 

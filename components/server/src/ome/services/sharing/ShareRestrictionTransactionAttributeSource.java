@@ -16,8 +16,8 @@ import ome.services.sessions.state.SessionCache;
 import ome.system.EventContext;
 import ome.system.Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAttributeSource;
@@ -29,7 +29,7 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
 public class ShareRestrictionTransactionAttributeSource implements
         TransactionAttributeSource {
 
-    final private static Log log = LogFactory
+    final private static Logger log = LogFactory
             .getLog(ShareRestrictionTransactionAttributeSource.class);
 
     final private CurrentDetails current;

@@ -14,8 +14,8 @@ package omeis.providers.re.metadata;
 // Application-internal dependencies
 import java.awt.Dimension;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
@@ -47,7 +47,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 public class StatsFactory {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(StatsFactory.class);
+    private static Logger log = LoggerFactory.getLogger(StatsFactory.class);
 
 	/** The minimum range. */
 	private static final int RANGE_RGB = 255;

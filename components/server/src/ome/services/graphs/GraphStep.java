@@ -24,8 +24,8 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
@@ -61,7 +61,7 @@ public abstract class GraphStep {
 
     }
 
-    private static Log log = LogFactory.getLog(GraphStep.class);
+    private static Logger log = LoggerFactory.getLogger(GraphStep.class);
 
     /**
      * Used to mark {@link #savepoint} after usage.

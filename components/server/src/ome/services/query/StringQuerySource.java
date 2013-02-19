@@ -20,8 +20,8 @@ package ome.services.query;
 import ome.parameters.Parameters;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * interprets the query id as an HQL query. In this implementation, no parsing
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class StringQuerySource extends QuerySource {
 
-    private static Log log = LogFactory.getLog(StringQuerySource.class);
+    private static Logger log = LoggerFactory.getLogger(StringQuerySource.class);
 
     private final SqlAction sql;
 

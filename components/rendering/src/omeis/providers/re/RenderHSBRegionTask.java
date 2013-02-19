@@ -10,8 +10,8 @@ package omeis.providers.re;
 // Java imports
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 // Application-internal dependencies
 import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
@@ -34,7 +34,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 class RenderHSBRegionTask implements RenderingTask {
 	
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(RenderHSBRegionTask.class);
+    private static Logger log = LoggerFactory.getLogger(RenderHSBRegionTask.class);
 
     /** Buffer to hold the output image's data. */
     private RGBBuffer dataBuffer;

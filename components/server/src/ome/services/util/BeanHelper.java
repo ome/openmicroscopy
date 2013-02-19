@@ -13,8 +13,8 @@ import ome.conditions.InternalException;
 import ome.system.OmeroContext;
 import ome.system.SelfConfigurableService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextAware;
 
 /**
@@ -30,13 +30,13 @@ public class BeanHelper {
 
     private transient Class beanClass;
     
-    private transient Log logger;
+    private transient Logger logger;
 
     private transient OmeroContext applicationContext;
 
     public BeanHelper(Class implementationClass) {
         beanClass = implementationClass;
-        logger = LogFactory.getLog(beanClass);
+        logger = LoggerFactory.getLogger(beanClass);
     }
     
     // ~ Self-configuration
@@ -97,7 +97,7 @@ public class BeanHelper {
         }
     }
     
-    public Log getLogger() {
+    public Logger getLogger() {
         return this.logger;
     }
 

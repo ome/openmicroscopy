@@ -18,8 +18,8 @@ import ome.system.OmeroContext;
 import omero.ServerError;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.Advised;
 import org.springframework.util.Assert;
 
@@ -56,7 +56,7 @@ import org.springframework.util.Assert;
  */
 public class IceMethodInvoker {
 
-    private static Log log = LogFactory.getLog(IceMethodInvoker.class);
+    private static Logger log = LoggerFactory.getLogger(IceMethodInvoker.class);
 
     static class Info {
         Method method;

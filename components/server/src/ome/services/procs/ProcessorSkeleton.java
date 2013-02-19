@@ -12,8 +12,8 @@ import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.model.jobs.Job;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ProcessorSkeleton implements Processor {
 
-    private static Log log = LogFactory.getLog(ProcessorSkeleton.class);
+    private static Logger log = LoggerFactory.getLogger(ProcessorSkeleton.class);
 
     private IQuery query;
     private ITypes types;

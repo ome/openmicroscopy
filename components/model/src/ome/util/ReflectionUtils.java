@@ -18,8 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author josh
@@ -29,10 +29,10 @@ import org.apache.commons.logging.LogFactory;
 @Deprecated
 public class ReflectionUtils {
 
-    private static Log log = LogFactory.getLog(ReflectionUtils.class);
+    private static Logger log = LoggerFactory.getLogger(ReflectionUtils.class);
 
     public static void findFieldsOfClass(Class target, Object o, String path,
-            Log log, Set done) {
+            Logger log, Set done) {
         if (null == path || path.equals("")) {
             path = "\nthis";
         }

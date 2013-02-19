@@ -34,8 +34,8 @@ import omero.constants.CLIENTUUID;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.ObjectFactoryRegistry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.quartz.JobDetail;
@@ -321,7 +321,7 @@ public class MockFixture {
 
     public static class MockRouter extends Glacier2._RouterDisp {
 
-        private final static Log log = LogFactory.getLog(MockRouter.class);
+        private final static Logger log = LoggerFactory.getLogger(MockRouter.class);
 
         private final SessionManagerI sm;
 

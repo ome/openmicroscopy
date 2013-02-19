@@ -22,8 +22,8 @@ import ome.services.messages.ReindexMessage;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -40,7 +40,7 @@ import org.springframework.context.ApplicationListener;
 public abstract class EventLogLoader implements Iterator<EventLog>,
         Iterable<EventLog>, ApplicationListener {
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Currently 100.

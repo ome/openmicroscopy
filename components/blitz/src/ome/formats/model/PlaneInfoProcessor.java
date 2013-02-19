@@ -30,8 +30,8 @@ import ome.util.LSID;
 import omero.metadatastore.IObjectContainer;
 import omero.model.PlaneInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the plane info sets of an IObjectContainerStore and removes
@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 public class PlaneInfoProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(PlaneInfoProcessor.class);
+    private Logger log = LoggerFactory.getLogger(PlaneInfoProcessor.class);
 
     /**
      * Processes the OMERO client side metadata store.

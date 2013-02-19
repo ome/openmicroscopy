@@ -19,7 +19,7 @@ import java.util.Set;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -407,7 +407,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void synchronizeLoginCache() {
 
-        final Log log = getBeanHelper().getLogger();
+        final Logger log = getBeanHelper().getLogger();
         final List<Map<String, Object>> dnIds = ldapUtil.lookupLdapAuthExperimenters();
 
         if (dnIds.size() > 0) {

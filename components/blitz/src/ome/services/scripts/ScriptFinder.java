@@ -26,8 +26,8 @@ import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Looks up an official script based on path for internal use.
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class ScriptFinder {
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Principal principal;
 

@@ -14,8 +14,8 @@ import ome.system.OmeroContext;
 import omero.InternalException;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple base task which contains logic for routing calls reflectively to
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class Task {
 
-    private final static Log log = LogFactory.getLog(Task.class);
+    private final static Logger log = LoggerFactory.getLogger(Task.class);
 
     protected final Object cb;
 

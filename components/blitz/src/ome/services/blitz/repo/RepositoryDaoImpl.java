@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +72,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
-    private final static Log log = LogFactory.getLog(RepositoryDaoImpl.class);
+    private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
     protected final Principal principal;
     protected final Roles roles;

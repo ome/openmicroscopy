@@ -34,8 +34,8 @@ import java.util.List;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -106,7 +106,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     }
 
-    private final static Log log = LogFactory.getLog(PublicRepositoryI.class);
+    private final static Logger log = LoggerFactory.getLogger(PublicRepositoryI.class);
 
     private final static IOFileFilter DEFAULT_SKIP =
             FileFilterUtils.notFileFilter(

@@ -22,8 +22,8 @@ import loci.formats.IFormatReader;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BfPixelsWrapper {
 
-    private final static Log log = LogFactory.getLog(BfPixelsWrapper.class);
+    private final static Logger log = LoggerFactory.getLogger(BfPixelsWrapper.class);
 
     private final IFormatReader reader;
 

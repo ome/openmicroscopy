@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
 
@@ -50,7 +50,7 @@ import ome.system.EventContext;
 public class ThumbnailCtx
 {
     /** Logger for this class. */
-    private static final Log log = LogFactory.getLog(ThumbnailCtx.class);
+    private static final Logger log = LoggerFactory.getLogger(ThumbnailCtx.class);
 
     /** Default thumbnail MIME type. */
     public static final String DEFAULT_MIME_TYPE = "image/jpeg";

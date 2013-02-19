@@ -10,8 +10,8 @@ package ome.services.blitz.impl;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -42,7 +42,7 @@ import omero.model.ScriptJob;
 public class ScriptProcessI extends AbstractAmdServant
     implements _ScriptProcessOperations {
 
-    private static Log log = LogFactory.getLog(ScriptProcess.class);
+    private static Logger log = LoggerFactory.getLogger(ScriptProcess.class);
 
     private final InteractiveProcessorPrx processorPrx;
 

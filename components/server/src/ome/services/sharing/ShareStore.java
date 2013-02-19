@@ -22,8 +22,8 @@ import ome.services.sharing.data.ShareItem;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import Ice.ReadObjectCallback;
@@ -40,7 +40,7 @@ import Ice.UnmarshalOutOfBoundsException;
  */
 public abstract class ShareStore {
 
-    final protected Log log = LogFactory.getLog(this.getClass());
+    final protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     final protected Ice.Communicator ic = Ice.Util.initialize();
 

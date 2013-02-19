@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ome.security.SecuritySystem;
 import ome.services.messages.LoginAttemptMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 
 /**
@@ -33,7 +33,7 @@ import org.springframework.context.ApplicationListener;
 public class LoginAttemptListener implements
         ApplicationListener<LoginAttemptMessage> {
 
-    private final static Log log = LogFactory
+    private final static Logger log = LogFactory
             .getLog(LoginAttemptListener.class);
 
     private final ConcurrentHashMap<String, AtomicInteger> counts = new ConcurrentHashMap<String, AtomicInteger>();

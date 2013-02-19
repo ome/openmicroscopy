@@ -12,8 +12,8 @@ import java.util.Map;
 
 import ome.tools.spring.OnContextRefreshedEventListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -38,7 +38,7 @@ public class SchedulerFactoryBean extends
         ApplicationListener<ContextRefreshedEvent>,
         ApplicationContextAware {
 
-    private final static Log log = LogFactory
+    private final static Logger log = LogFactory
             .getLog(SchedulerFactoryBean.class);
 
     private final Map<String, Trigger> triggers = new HashMap<String, Trigger>();

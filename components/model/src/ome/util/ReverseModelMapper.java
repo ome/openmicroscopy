@@ -13,8 +13,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.ModelBased;

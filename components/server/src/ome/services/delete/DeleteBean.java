@@ -37,8 +37,8 @@ import ome.system.EventContext;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.CBlock;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class DeleteBean extends AbstractLevel2Service implements IDelete {
 
-    public final static Log log = LogFactory.getLog(DeleteBean.class);
+    public final static Logger log = LoggerFactory.getLogger(DeleteBean.class);
 
     /**
      * Loads an {@link Image} graph including: Pixels, Channel, LogicalChannel,

@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.api.local.LocalAdmin;
 import ome.conditions.SecurityViolation;
@@ -41,7 +41,7 @@ import ome.system.SimpleEventContext;
  */
 public class BasicEventContext extends SimpleEventContext {
 
-    private final static Log log = LogFactory.getLog(BasicEventContext.class);
+    private final static Logger log = LoggerFactory.getLogger(BasicEventContext.class);
 
     // Additions beyond simple event context
     // =========================================================================

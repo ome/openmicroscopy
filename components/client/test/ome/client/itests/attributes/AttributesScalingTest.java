@@ -23,8 +23,8 @@ import ome.system.Login;
 import ome.system.ServiceFactory;
 import ome.testing.Report;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,7 +39,7 @@ import com.jamonapi.MonitorFactory;
         "performance", "manual" })
 public class AttributesScalingTest extends TestCase {
 
-    protected static Log log = LogFactory.getLog(AttributesScalingTest.class);
+    protected static Logger log = LoggerFactory.getLogger(AttributesScalingTest.class);
 
     ServiceFactory factory = new ServiceFactory("ome.client.test");
 
