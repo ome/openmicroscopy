@@ -39,6 +39,11 @@ Query bulk annotations table attached to an object specified by
 object type and identifier, optionally traversing object model graph.
 """
 
+annotate = (r'^annotation/(?P<klass>\w+)/(?P<id>\d+)/$', 'webgateway.views.annotate')
+"""
+json method: set, get, update, or delete annotation objects
+"""
+
 repositories = (r'^repositories/$', 'webgateway.views.repositories')
 """
 json method: Returns a list of repositories
@@ -368,6 +373,7 @@ original_file_paths = url( r'^original_file_paths/(?P<iid>[0-9]+)/$', 'webgatewa
 """ Get a json array of path/name strings for original files for the Image"""
 
 urlpatterns = patterns('',
+    annotate,
     repositories,
     repository,
     repository_list,

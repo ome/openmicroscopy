@@ -31,7 +31,7 @@ from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 import django.views.generic
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
@@ -50,7 +50,7 @@ except:
 from cStringIO import StringIO
 
 from omero import client_wrapper, ApiUsageException, InternalException
-from omero.gateway import timeit, TimeIt, OriginalFileWrapper
+from omero.gateway import timeit, TimeIt, OriginalFileWrapper, CommentAnnotationWrapper
 from omeroweb.decorators import ConnCleaningHttpResponse
 
 import Ice
@@ -2464,3 +2464,32 @@ def clean_incomplete_mpus(request, conn, **kwargs):
         if last_change > getattr(settings, 'MPU_TIMEOUT', 60 * 60):
             _delete_upload(master)
     return rdict
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+@login_required()
+@jsonp
+def annotate(request, klass, id, conn=None, **kwargs):
+
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
+    obj = conn.getObject(str(klass), attributes=dict(id=long(id)))
+    ns = request.GET.get('ns', 'omero.webgateway.annotate')
+
+    if request.method == 'GET':
+        return [
+            {
+                'type': type(ann).__name__,
+                'id': ann.id,
+                'value': ann.getValue(),
+            }
+            for ann in obj.listAnnotations(ns)
+        ]
+    elif request.method == 'POST':
+        ann = CommentAnnotationWrapper(conn)
+        ann.setNs(ns)
+        ann.setValue(request.read())
+        obj.linkAnnotation(ann)
+        return dict(result='ok')
+    elif request.method == 'DELETE':
+        obj.removeAnnotations(ns)
+        return dict(result='ok')
