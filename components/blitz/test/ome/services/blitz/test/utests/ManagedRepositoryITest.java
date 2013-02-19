@@ -349,9 +349,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
 
     @Test
     public void testExpandTemplateUnknown() {
-        String expected = "%björk%";
+        String expected = "%bj√∂rk%";
         newEventContext();
-        String actual = this.tmri.expandTemplate("%björk%", curr);
+        String actual = this.tmri.expandTemplate("%bj√∂rk%", curr);
         Assert.assertEquals(expected, actual);
     }
 
