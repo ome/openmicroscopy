@@ -2,7 +2,11 @@ package ome.services.checksum;
 
 public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
 
-    public ChecksumProvider getChecksumProvider(ChecksumType checksumType) {
+    public ChecksumProvider getProvider() {
+        return this.getProvider(ChecksumType.SHA1);
+    }
+
+    public ChecksumProvider getProvider(ChecksumType checksumType) {
         // Dumb implementation for now
         // TODO: remove the switch statement
         switch (checksumType) {
