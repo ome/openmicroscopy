@@ -234,6 +234,11 @@
                     // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
                     } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
 
+                    var position = 0;
+                    // Make sure top level objects get added to jsTree root (current selected may be project or screen)
+                    if ($.inArray(cont_type, ['project', 'screen'])> -1) {
+                        position = "after";
+                    }
                     $.ajax({
                         url: url,
                         //data: $new_cont_form.serialize();
@@ -246,8 +251,7 @@
                         type: "POST",
                         success: function(r){
                             var cont_id = cont_type + "-" + r['id'];
-                            var display_index = 0;
-                            $("#dataTree").jstree("create", selected, display_index, 
+                            $("#dataTree").jstree("create", selected, position, 
                                 { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
@@ -302,21 +306,22 @@
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
                         'paste': false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                    
+                    // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
+                    var userId = {{ ome.user_id }},
+                        canCreate = (userId === {{ ome.user.id }} || userId === -1);
                     var to_paste = inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes || false;
                     if(selected.length > 0) {
                         if(selected.hasClass('canDelete')) {
                             toolbar_config['delete'] = true;
                         }
-                        if(selected.attr("id").indexOf("experimenter")>=0) {
-                            // if experimenter is selected, use 'user_id' to enable create
-                            var userId = {{ ome.user_id }};
-                            if (userId === {{ ome.user.id }} || userId === -1) {
+                        // if top level nodes are selected and we can create...
+                        if($.inArray(selected.attr("id").split("-")[0], ["experimenter", "project", "screen"]) > -1) {
+                            if (canCreate) {
                                 toolbar_config["addproject"] = true;
-                                toolbar_config['adddataset'] = true;
                                 toolbar_config['addscreen'] = true;
                             }
-                        } else if(selected.hasClass('canLink')) {
+                        }
+                        if(selected.hasClass('canLink')) {
                             if(selected.attr("id").indexOf("project")>=0) {
                                 toolbar_config['adddataset'] = true;
                                 if (to_paste && to_paste[0].id.indexOf("dataset")>=0) {  // if wehave a dataset
