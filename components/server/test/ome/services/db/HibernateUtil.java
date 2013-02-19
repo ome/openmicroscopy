@@ -36,7 +36,7 @@ public class HibernateUtil {
             cfg.setProperties(props);
             sessionFactory = cfg.buildSessionFactory();
         } catch (Throwable ex) {
-            log.error(ex);
+            log.error(ex.toString());
             throw new ExceptionInInitializerError(ex);
         }
     }
