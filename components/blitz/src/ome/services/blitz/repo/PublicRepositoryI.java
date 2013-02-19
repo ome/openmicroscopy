@@ -154,7 +154,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     public List<String> list(String path, Current __current) throws ServerError {
         List<OriginalFile> ofiles = listFiles(path, __current);
-        List<String> contents = new ArrayList<String>();
+        List<String> contents = new ArrayList<String>(ofiles.size());
         for (OriginalFile ofile : ofiles) {
             contents.add(ofile.getPath().getValue() + ofile.getName().getValue());
         }
