@@ -397,7 +397,7 @@ class ToolBar
 			 * @see MouseListener#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				displayPath((Component) e.getSource(), e.getPoint());
+				
 			}
 		});
 		
