@@ -24,9 +24,11 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.io.File;
 import java.util.Map;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -54,7 +56,7 @@ import pojos.DataObject;
  * @since 3.0-Beta4
  */
 public class StatusLabel
-	extends JLabel
+	extends JPanel
 	implements IObserver
 {
 
@@ -141,6 +143,12 @@ public class StatusLabel
 	/** The total size of uploaded files.*/
 	private long totalUploadedSize;
 	
+	/** The label displaying the upload information.*/
+	private JLabel uploadLabel;
+	
+	/** The label displaying the general import information.*/
+	private JLabel generalLabel;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -159,15 +167,22 @@ public class StatusLabel
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
-		setForeground(UIUtilities.LIGHT_GREY);
+		uploadLabel = new JLabel();
+		uploadLabel.setForeground(UIUtilities.LIGHT_GREY);
+		generalLabel = new JLabel();
+		generalLabel.setForeground(UIUtilities.LIGHT_GREY);
 		fileSize = "";
 		seriesCount = 0;
 		readerType = "";
 		errorText = FAILURE_TEXT;
-		setText("pending");
+		uploadLabel.setText("pending");
 		markedAsCancel = false;
 		cancellable = true;
 		totalUploadedSize = 0;
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(uploadLabel);
+		add(generalLabel);
+		setOpaque(false);
 	}
 	
 	/**
@@ -244,7 +259,7 @@ public class StatusLabel
 	public void setStatus(String value)
 	{
 		if (value == null) value = "";
-		setText(value);
+		generalLabel.setText(value);
 	}
 	
 	/** 
@@ -319,6 +334,17 @@ public class StatusLabel
 	public boolean isCancellable() { return cancellable; }
 	
 	/**
+	 * Sets the text of the labels.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setText(String text)
+	{
+		generalLabel.setText(text);
+		uploadLabel.setText("");
+	}
+	
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
@@ -328,10 +354,10 @@ public class StatusLabel
 		cancellable = false;
 		//System.err.println(event);
 		if (event instanceof ImportEvent.IMPORT_DONE) {
-			setText("import completed");
+			generalLabel.setText("import completed");
 			endTime = System.currentTimeMillis();
 		} else if (event instanceof ImportCandidates.SCANNING) {
-			if (!markedAsCancel) setText("scanning");
+			if (!markedAsCancel) uploadLabel.setText("scanning");
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			endTime = System.currentTimeMillis();
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
@@ -357,7 +383,7 @@ public class StatusLabel
 				buffer.append(" ");
 			}
 			buffer.append(formatUpload(totalUploadedSize+e.uploadedBytes));
-			setText(buffer.toString());
+			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
@@ -366,13 +392,13 @@ public class StatusLabel
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("upload finished ");
 			buffer.append(formatUpload(totalUploadedSize));
-			setText(buffer.toString());
+			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-			setText("metadata extracted");
+			generalLabel.setText("metadata extracted");
 		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
-			setText("thumbnails generated");
+			generalLabel.setText("thumbnails generated");
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
-			setText("upload started");
+			uploadLabel.setText("upload started");
 		}
 	}
 
