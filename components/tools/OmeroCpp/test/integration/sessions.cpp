@@ -18,9 +18,7 @@ using namespace omero::rtypes;
 TEST(SessionsTest, RootCanCreateSessionForUser )
 {
   Fixture f;
-
-  const omero::client_ptr root = f.root_login();
-  omero::api::ServiceFactoryPrx sf = root->getSession();
+  omero::api::ServiceFactoryPrx sf = f.root->getSession();
   omero::api::ISessionPrx sess = sf->getSessionService();
 
 
@@ -32,9 +30,9 @@ TEST(SessionsTest, RootCanCreateSessionForUser )
   p->eventType = "Test";
   omero::model::SessionPtr session = sess->createSessionWithTimeout(p, 10000L);
 
-  omero::client_ptr user = new omero::client(root->getPropertyMap());
+  omero::client_ptr user = new omero::client(f.root->getPropertyMap());
   user->joinSession(session->getUuid()->getValue());
-  omero::api::ServiceFactoryPrx sf2 = root->getSession();
+  omero::api::ServiceFactoryPrx sf2 = f.root->getSession();
   sf2->closeOnDestroy();
   sf2->getQueryService()->get("Experimenter",0L);
 }

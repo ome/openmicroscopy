@@ -44,8 +44,8 @@ TEST( PermissionsTest, testImmutablePermissions ) {
     ASSERT_THROW(p->setWorldRead(true), omero::ClientError);
 
     Fixture f;
-    const omero::client_ptr client = f.login();
-    ServiceFactoryPrx sf = client->getSession();
+    f.login();
+    ServiceFactoryPrx sf = f.client->getSession();
     IUpdatePrx iupdate = sf->getUpdateService();
 
     CommentAnnotationPtr c = new CommentAnnotationI();
@@ -71,8 +71,8 @@ TEST( PermissionsTest, testClientSet ) {
     myctx["test"] = "value";
 
     Fixture f;
-    const omero::client_ptr client = f.login();
-    ServiceFactoryPrx sf = client->getSession();
+    f.login();
+    ServiceFactoryPrx sf = f.client->getSession();
     IUpdatePrx iupdate = sf->getUpdateService();
 
     CommentAnnotationPtr c = new CommentAnnotationI();
@@ -104,16 +104,15 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     ExperimenterGroupPtr group = f.newGroup("rwr---");
     ExperimenterPtr user1 = f.newUser(group);
     ExperimenterPtr user2 = f.newUser(group);
-    client_ptr client = f.login(user1);
-    IQueryPrx query = client->getSession()->getQueryService();
-    IUpdatePrx update = client->getSession()->getUpdateService();
+    f.login(user1);
+    IQueryPrx query = f.client->getSession()->getQueryService();
+    IUpdatePrx update = f.client->getSession()->getUpdateService();
 
     CommentAnnotationPtr c = new CommentAnnotationI();
     c = CommentAnnotationPtr::dynamicCast( update->saveAndReturnObject(c) );
 
-    assertPerms("creator can ann/edit", client, c, true, true);
-    client = f.login(user2);
-    assertPerms("group member can't ann/edit", client, c, false, false);
-    client = f.root_login();
-    assertPerms("root can ann/edit", client, c, true, true);
+    assertPerms("creator can ann/edit", f.client, c, true, true);
+    f.login(user2);
+    assertPerms("group member can't ann/edit", f.client, c, false, false);
+    assertPerms("root can ann/edit", f.root, c, true, true);
 }
