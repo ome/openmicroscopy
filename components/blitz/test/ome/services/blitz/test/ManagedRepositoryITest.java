@@ -35,6 +35,8 @@ import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.system.Principal;
 
 import omero.api.AMD_RawFileStore_write;
@@ -129,12 +131,14 @@ public class ManagedRepositoryITest extends AbstractServantTest {
     }
 
     public void testBasicImportExample() throws Exception {
-
+        final ClientFilePathTransformer clientPaths = 
+                new ClientFilePathTransformer(new MakePathComponentSafe());
+        
         File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
         ImportContainer ic = makeFake(tmpDir);
         ImportSettings settings = new ImportSettings();
         Fileset fs = new FilesetI();
-        ic.fillData(new ImportConfig(), settings, fs);
+        ic.fillData(new ImportConfig(), settings, fs, clientPaths);
 
         ImportProcessPrx i = repo.importFileset(fs, settings, curr());
         assertNotNull(i);

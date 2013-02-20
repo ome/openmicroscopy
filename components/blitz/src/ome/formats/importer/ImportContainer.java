@@ -27,9 +27,12 @@ import static omero.rtypes.rbool;
 import static omero.rtypes.rstring;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FsFile;
 import omero.grid.ImportSettings;
 import omero.model.Annotation;
 import omero.model.Fileset;
@@ -216,7 +219,8 @@ public class ImportContainer
         this.userPixels = userPixels;
     }
 
-    public void fillData(ImportConfig config, ImportSettings settings, Fileset fs) {
+    public void fillData(ImportConfig config, ImportSettings settings, Fileset fs, 
+            ClientFilePathTransformer sanitizer) throws IOException {
         // TODO: These should possible be a separate option like
         // ImportUserSettings rather than mis-using ImportContainer.
         settings.doThumbnails = rbool(getDoThumbnails());
@@ -238,10 +242,10 @@ public class ImportContainer
         }
 
         // Fill used paths
-        FilesetEntry entry = null;
         for (String usedFile : getUsedFiles()) {
-            entry = new FilesetEntryI();
-            entry.setClientPath(rstring(usedFile));
+            final FilesetEntry entry = new FilesetEntryI();
+            final FsFile fsPath = sanitizer.getFsFileFromClientFile(new File(usedFile), Integer.MAX_VALUE);
+            entry.setClientPath(rstring(fsPath.toString()));
             fs.addFilesetEntry(entry);
         }
 

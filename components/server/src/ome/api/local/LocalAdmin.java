@@ -101,4 +101,10 @@ public interface LocalAdmin extends ome.api.IAdmin {
      * @param obj Not null.
      */
     boolean canAnnotate(IObject obj);
+
+    /**
+     * Unconditionally move an object into the user group (usually id=1).
+     * Here, it will be readable from any group context.
+     */
+    void internalMoveToCommonSpace(IObject obj);
 }

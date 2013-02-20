@@ -19,12 +19,17 @@
 package ome.services.blitz.repo;
 
 import static omero.rtypes.rstring;
+
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import loci.formats.FormatReader;
 
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
@@ -35,9 +40,12 @@ import Ice.Current;
 
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.services.blitz.gateway.services.util.ServiceUtilities;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
 
+import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -75,6 +83,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
     private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
     
     private final static int parentDirsToRetain = 3;
+    
+    /* This class is used in the server-side creation of import containers.
+     * The suggestImportPaths method sanitizes the paths in due course.
+     * From the server side, we cannot imitate ImportLibrary.createImport
+     * in applying client-side specifics to clean up the path. */
+    private static ClientFilePathTransformer nopClientTransformer = 
+            new ClientFilePathTransformer(new StringTransformer() {
+                // @Override  since JDK6
+                public String apply(String from) {
+                    return from;
+                }
+    });
 
     private final String template;
 
@@ -118,11 +138,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Return a template based directory path. The path will be created
-     * by calling {@link #makeDir(String, boolean, Ice.Current)}. Any exception will
-     * be handled by incrementing some part of the template to create a viable
-     * directory.
-     *
-     * @FIXME For the moment only the top-level directory is being incremented.
+     * by calling {@link #makeDir(String, boolean, Ice.Current)}.
      */
     public ImportProcessPrx importFileset(Fileset fs, ImportSettings settings,
             Ice.Current __current) throws omero.ServerError {
@@ -144,9 +160,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // ManagedRepository/, e.g. %user%/%year%/etc.
         FsFile relPath = new FsFile(expandTemplate(template, __current));
         // at this point, relPath should not yet exist on the filesystem
+        createTemplateDir(relPath, __current);
 
-        // Possibly modified relPath.
-        relPath = createTemplateDir(relPath, __current);
+        final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
         
         // The next part of the string which is chosen by the user:
         // /home/bob/myStuff
@@ -155,7 +171,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         ImportLocation location =
-                suggestOnConflict(relPath, basePath, paths, __current);
+                suggestImportPaths(relPath, basePath, paths, readerClass, __current);
 
         return createImportProcess(fs, location, settings, __current);
     }
@@ -174,7 +190,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         final ImportSettings settings = new ImportSettings();
         final Fileset fs = new FilesetI();
-        container.fillData(new ImportConfig(), settings, fs);
+        try {
+            container.fillData(new ImportConfig(), settings, fs, nopClientTransformer);
+        } catch (IOException e) {
+            // impossible
+            ServiceUtilities.handleException(e, "IO exception from operation without IO");
+        }
 
         return importFileset(fs, settings, __current);
     }
@@ -279,6 +300,31 @@ public class ManagedRepositoryI extends PublicRepositoryI
     }
 
     /**
+     * Get the suggested BioFormats Reader for the given Fileset.
+     * @param fs a fileset
+     * @param __current the current ICE context
+     * @return a reader class, or null if none could be found
+     */
+    protected Class<? extends FormatReader> getReaderClass(Fileset fs, Current __current) {
+        for (final Job job : fs.linkedJobList()) {
+            if (job instanceof UploadJob) {
+                final FilesetVersionInfo versionInfo = ((UploadJob) job).getVersionInfo(__current);
+                final String readerName = versionInfo.getBioformatsReader(__current).getValue();
+                final Class<?> potentialReaderClass;
+                try {
+                    potentialReaderClass = Class.forName(readerName);
+                } catch (ClassNotFoundException e) {
+                    continue;
+                }
+                if (FormatReader.class.isAssignableFrom(potentialReaderClass)) {
+                    return (Class<? extends FormatReader>) potentialReaderClass;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
      * @param some paths
@@ -361,7 +407,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
-        map.put("filesetId", Long.toString(System.currentTimeMillis() - 1359540000000L));  // TODO: new file set ID
+        // TODO: new import set ID
+        map.put("importSetId", Long.toString(System.currentTimeMillis() - 1360000000000L));
         return map;
     } 
 
@@ -370,36 +417,18 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * {@link #expandTemplate(String, Ice.Current)} and call
      * {@link makeDir(String, boolean, Ice.Current)} on each element of the path
      * starting at the top, until all the directories have been created.
-     * After any exception, append an increment so that a writeable directory
-     * exists for the current caller context.
+     * The full path must not already exist, although a prefix of it may.
      */
-    protected FsFile createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
-        final List<String> givenPath = relPath.getComponents();
-        if (givenPath.isEmpty())
+    protected void createTemplateDir(FsFile relPath, Ice.Current curr) throws ServerError {
+        final List<String> relPathComponents = relPath.getComponents();
+        final int relPathSize = relPathComponents.size();
+        if (relPathSize == 0)
             throw new IllegalArgumentException("no template directory");
-        final List<String> adjustedPath = new ArrayList<String>(givenPath.size());
-        for (final String givenComponent : givenPath) {
-//            int version = 0;  // TODO: should be obsolete
-//            while (true) {
-//                if (version == 0)
-                    adjustedPath.add(givenComponent);
-//                else
-//                    adjustedPath.add(givenComponent + "__" + version);
-                try {
-                    makeDir(new FsFile(adjustedPath).toString(), false, curr);
-//                    break;  // success
-                } catch (omero.ServerError e) {
-//                    log.debug("Error on createTemplateDir", e);
-//                    adjustedPath.remove(adjustedPath.size() - 1);
-//                    if (version++ > 10000) {
-//                        log.debug("too many version increments in creation of template directory", e);
-//                        throw e;
-//                    }
-//                }
-            }
+        if (relPathSize > 1) {
+            final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
+            makeDir(new FsFile(pathPrefix).toString(), true, curr);
         }
-        // without version suffixing, should now equal relPath
-        return new FsFile(adjustedPath);
+        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -417,24 +446,48 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * Trim off the start of long client-side paths.
      * @param basePath the common root
      * @param fullPaths the full paths from the common root down to the filename
+     * @param readerClass BioFormats reader for data, may be null
      * @return possibly trimmed common root and full paths
      */
-    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths) {
-        int smallestPathLength;
-        if (fullPaths.isEmpty())
-            smallestPathLength = 1; /* imaginary file name */
-        else {
-            smallestPathLength = Integer.MAX_VALUE;
-            for (final FsFile path : fullPaths) {
-                final int pathLength = path.getComponents().size();
-                if (smallestPathLength > pathLength)
-                    smallestPathLength = pathLength;
-            }
-        }
+    protected Paths trimPaths(FsFile basePath, List<FsFile> fullPaths, 
+            Class<? extends FormatReader> readerClass) {
+        // find how many common parent directories to retain according to BioFormats
+        Integer commonParentDirsToRetain = null;
+        final String[] localStylePaths = new String[fullPaths.size()];
+        int index = 0;
+        for (final FsFile fsFile : fullPaths)
+            localStylePaths[index++] = serverPaths.getServerFileFromFsFile(fsFile).getAbsolutePath();
+        try {
+            commonParentDirsToRetain = readerClass.newInstance().getRequiredDirectories(localStylePaths);
+        } catch (Exception e) { }
+        
         final List<String> basePathComponents = basePath.getComponents();
-        int baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
+        final int baseDirsToTrim;
+        if (commonParentDirsToRetain == null) {
+            // no help from BioFormats
+            
+            // find the length of the shortest path, including file name
+            int smallestPathLength;
+            if (fullPaths.isEmpty())
+                smallestPathLength = 1; /* imaginary file name */
+            else {
+                smallestPathLength = Integer.MAX_VALUE;
+                for (final FsFile path : fullPaths) {
+                    final int pathLength = path.getComponents().size();
+                    if (smallestPathLength > pathLength)
+                        smallestPathLength = pathLength;
+                }
+            }
+            
+            // plan to trim to try to retain a certain number of parent directories
+            baseDirsToTrim = smallestPathLength - parentDirsToRetain - (1 /* file name */);
+        }
+        else
+            // plan to trim the common root according to BioFormats' suggestion
+            baseDirsToTrim = basePathComponents.size() - commonParentDirsToRetain;
         if (baseDirsToTrim < 0)
             return new Paths(basePath, fullPaths);
+        // actually do the trimming
         basePath = new FsFile(basePathComponents.subList(baseDirsToTrim, basePathComponents.size()));
         final List<FsFile> trimmedPaths = new ArrayList<FsFile>(fullPaths.size());
         for (final FsFile path : fullPaths) {
@@ -446,20 +499,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
     
     /**
      * Take a relative path that the user would like to see in his or her
-     * upload area, and check that none of the suggested paths currently
-     * exist in that location. If they do, then append an incrementing version
-     * number to the path ("/my/path/" becomes "/my-1/path" then "/my-2 /path")
-     * at the highest part of the path possible.
-     *
+     * upload area, and provide an import location instance whose paths
+     * correspond to existing directories corresponding to the sanitized
+     * file paths.
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
-     * @return {@link ImportLocation} instance with the suggested new basePath in the
-     *          case of conflicts.
+     * @param reader BioFormats reader for data, may be null
+     * @return {@link ImportLocation} instance
      */
-    protected ImportLocation suggestOnConflict(FsFile relPath,
-            FsFile basePath, List<FsFile> paths, Ice.Current __current)
-            throws omero.ServerError {
-        final Paths trimmedPaths = trimPaths(basePath, paths);
+    protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
+            Class<? extends FormatReader> reader, Ice.Current __current) throws omero.ServerError {
+        final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
         
@@ -474,63 +524,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
 
-        // State that will be updated per loop.
-        // TODO: this becomes obsolete, the template should guarantee uniqueness
-        Integer version = null;
-
-        OUTER:
-        while (true) {
-            // note common root of used files, including any non-conflict suffix at the end
-            final FsFile endPart;
-            if (version != null) {
-                final List<String> components = new ArrayList<String>(basePath.getComponents());
-                final int toSuffix = components.size() - 1;
-                if (toSuffix < 0)
-                    throw new IllegalArgumentException("no last component to suffix");
-                components.set(toSuffix, components.get(toSuffix) + "__" + version);
-                endPart = new FsFile(components);
-            } else 
-                endPart = basePath;
-
-            // check for conflict, adjust version number
-            for (final FsFile path : paths) {
-                final FsFile relative = path.getPathFrom(basePath);
-                final FsFile repoPath = FsFile.concatenate(relPath, endPart, relative);
-                if ((serverPaths.getServerFileFromFsFile(repoPath)).exists()) {
-                    if (version == null) {
-                        version = 1;
-                    } else {
-                        version = version + 1;
-                    }
-                    continue OUTER;
-                }
-            }
-        
-            // try actually making directories, for failure adjust version number
-            final FsFile newBase = FsFile.concatenate(relPath, endPart);
-            data.sharedPath = newBase.toString();
-            data.usedFiles = new ArrayList<String>(paths.size());
-            data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
-            for (final FsFile path : paths) {
-                final String relativeToEnd = path.getPathFrom(endPart).toString();
-                data.usedFiles.add(relativeToEnd);
-                final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
-                data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
-            }
-            try {
-                makeDir(data.sharedPath, true, __current);
-                break;  // success
-            } catch (omero.ServerError se) {
-                log.debug("Trying next directory", se);
-                // This directory apparently belongs to some other group
-                // or is not readable in the current context.
-                if (version == null) {
-                    version = 1;
-                } else {
-                    version = version + 1;
-                }
-            }
+        // try actually making directories
+        final FsFile newBase = FsFile.concatenate(relPath, basePath);
+        data.sharedPath = newBase.toString();
+        data.usedFiles = new ArrayList<String>(paths.size());
+        data.checkedPaths = new ArrayList<CheckedPath>(paths.size());
+        for (final FsFile path : paths) {
+            final String relativeToEnd = path.getPathFrom(basePath).toString();
+            data.usedFiles.add(relativeToEnd);
+            final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
+            data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
         }
+
+        makeDir(data.sharedPath, true, __current);
 
         // Assuming we reach here, then we need to make
         // sure that the directory exists since the call
@@ -541,5 +547,44 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return data;
+    }
+
+    /**
+     * Checks for the top-level user directory restriction before calling
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, bolean, Current)}
+     */
+    protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
+            boolean parents, Current __current) throws ResourceError,
+            ServerError {
+        
+        CheckedPath checked = paths.get(0);
+        if (checked.isRoot) {
+            // This shouldn't happen but just in case.
+            throw new ResourceError(null, null, "Cannot re-create root!");
+        } else if (checked.parent().isRoot) {
+            // This is a top-level directory. This must equal
+            // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
+            // be created for the user in the "user" group so that it is
+            // visible globally.
+            String userDirectory = getUserDirectoryName(__current);
+            if (!userDirectory.equals(checked.getName())) {
+                throw new omero.ValidationException(null, null, String.format(
+                        "User-directory name mismatch! (%s<>%s)",
+                        userDirectory, checked.getName()));
+                        
+            }
+            // Now that we know that this is the right directory for the
+            // current user, we make sure that the directory exists and
+            // is in the user group.
+            repositoryDao.createOrFixUserDir(getRepoUuid(), checked, __current);
+        }
+        
+        
+        super.makeCheckedDirs(paths, parents, __current);
+    }
+
+    protected String getUserDirectoryName(Current __current) {
+        EventContext ec = repositoryDao.getEventContext(__current);
+        return String.format("%s_%s", ec.userName, ec.userId);
     }
 }
