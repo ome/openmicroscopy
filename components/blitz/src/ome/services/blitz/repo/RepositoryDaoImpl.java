@@ -283,14 +283,25 @@ public class RepositoryDaoImpl implements RepositoryDao {
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
 
                          final IQuery q = sf.getQueryService();
+                         final Long id;
 
-                         final Long id = getSqlAction().findRepoFile(repoUuid,
-                                 checked.getRelativePath(), checked.getName(),
-                                 null);
+                         if (checked.isRoot) {
+                             id = q.findByString(ome.model.core.OriginalFile.class,
+                                     "sha1", repoUuid).getId();
+                             
+                             if (id == null) {
+                                 throw new ome.conditions.SecurityViolation(
+                                         "No repository with UUID: " + repoUuid);
+                             }
+                         } else {
+                             id = getSqlAction().findRepoFile(repoUuid,
+                                     checked.getRelativePath(), checked.getName(),
+                                     null);
 
-                         if (id == null) {
-                             throw new ome.conditions.SecurityViolation(
-                                     "No such parent dir: " + checked);
+                             if (id == null) {
+                                 throw new ome.conditions.SecurityViolation(
+                                         "No such parent dir: " + checked);
+                             }
                          }
 
                          // Load parent directory to possibly cause
