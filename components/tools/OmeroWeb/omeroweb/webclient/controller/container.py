@@ -320,7 +320,10 @@ class BaseContainer(BaseController):
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
         
