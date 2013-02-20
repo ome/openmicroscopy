@@ -158,6 +158,9 @@ class ToolBar
 	/** View the image.*/
 	private JButton viewButton;
 	
+	/** The Button displaying the path to the file on the server.*/
+	private JButton pathButton;
+	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -385,8 +388,21 @@ class ToolBar
 	    	viewButton.addActionListener(controller);
 		}
 		
+		pathButton = new JButton(icons.getIcon(IconManager.FILE_PATH));
+		pathButton.setToolTipText("Show file paths on the server.");
+		pathButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Loads the path and displays its location
+			 * @see MouseListener#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				displayPath((Component) e.getSource(), e.getPoint());
+			}
+		});
+		
+		UIUtilities.unifiedButtonLookAndFeel(pathButton);
     	UIUtilities.unifiedButtonLookAndFeel(viewButton);
-    	
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -423,11 +439,8 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(viewButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	/*
-    	bar.add(downloadButton);
+    	bar.add(pathButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(exportAsOmeTiffButton);
-    	*/
     	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
@@ -645,6 +658,7 @@ class ToolBar
 		}
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
+    	pathButton.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
@@ -665,6 +679,7 @@ class ToolBar
         			if (downloadItem != null && model.isArchived())
         				downloadItem.setEnabled(true);
         			viewButton.setEnabled(true);
+        			pathButton.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}
