@@ -4,6 +4,6 @@
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <bean id="checksumProviderFactory"
-        class="ome.services.checksum.ChecksumProviderFactoryImpl"/>
+        class="ome.util.checksum.ChecksumProviderFactoryImpl"/>
 
 </beans>

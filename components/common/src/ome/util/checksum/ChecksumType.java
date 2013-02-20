@@ -1,4 +1,4 @@
-package ome.services.checksum;
+package ome.util.checksum;
 
 public enum ChecksumType {
 

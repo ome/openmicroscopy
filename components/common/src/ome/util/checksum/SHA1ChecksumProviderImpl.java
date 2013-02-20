@@ -1,4 +1,4 @@
-package ome.services.checksum;
+package ome.util.checksum;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
