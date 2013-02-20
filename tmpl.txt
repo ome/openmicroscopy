@@ -191,7 +191,7 @@ The source code can also be browsed using the
 [GitHub repository](http://github.com/openmicroscopy/openmicroscopy).
 
 To find out more about using git, you might take a look at 
-[our developer documentation](@DOC_URL@/developers/Development/UsingGit.html).
+[our developer documentation](@DOC_URL@/developers/using-git.html).
 
 
 <p>&nbsp;</p>
