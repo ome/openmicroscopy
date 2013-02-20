@@ -367,12 +367,14 @@ class TestTables(lib.ITest):
 
         larr = omero.columns.LongArrayColumnI('longarr', 'longarr col', 2)
         larr.values = [[-2, -1], [1, 2]]
+        farr = omero.columns.FloatArrayColumnI('floatarr', 'floatarr col', 2)
+        farr.values = [[-8.0, -4.0], [16.0, 32.0]]
         darr = omero.columns.DoubleArrayColumnI('doublearr', 'doublearr col', 2)
         darr.values = [[-0.25, -0.5], [0.125, 0.0625]]
 
         cols = [fcol, icol, rcol, wcol, pcol,
                 bcol, dcol, lcol, scol, mask,
-                larr, darr]
+                larr, farr, darr]
 
         table.initialize(cols)
         table.addData(cols)
@@ -414,7 +416,10 @@ class TestTables(lib.ITest):
         testla = data.columns[10].values
         self.assertEquals([-2, -1], testla[0])
         self.assertEquals([1, 2], testla[1])
-        testda = data.columns[11].values
+        testfa = data.columns[11].values
+        self.assertEquals([-8.0, -4.0], testfa[0])
+        self.assertEquals([16.0, 32.0], testfa[1])
+        testda = data.columns[12].values
         self.assertEquals([-0.25, -0.5], testda[0])
         self.assertEquals([0.125, 0.0625], testda[1])
 
@@ -431,7 +436,7 @@ class TestTables(lib.ITest):
         self.assertEquals(table.getNumberOfRows(), 2)
         data2 = table.readCoordinates([0,1])
 
-        for n in [0, 1, 2, 3, 4, 5, 6, 8, 11]:
+        for n in [0, 1, 2, 3, 4, 5, 6, 8, 11, 12]:
             self.assertEquals(data.columns[n].values, data2.columns[n].values)
         self.checkMaskCol(data2.columns[9])
 
