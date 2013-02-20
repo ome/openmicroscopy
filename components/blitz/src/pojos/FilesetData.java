@@ -30,7 +30,13 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import omero.model.Fileset;
+import omero.model.FilesetEntry;
+import omero.model.OriginalFile;
 
 /** 
  * Wraps a file set object.
@@ -42,9 +48,6 @@ import omero.model.Fileset;
 public class FilesetData
 	extends DataObject
 {
-
-	/** The file set hosted by this component.*/
-	private Fileset set;
 	
 	/**
 	 * Creates a new instance.
@@ -55,7 +58,33 @@ public class FilesetData
 	{
 		if (set == null)
 			throw new IllegalArgumentException("No set specified");
-		this.set = set;
+		setValue(set);
+	}
+	
+	/**
+	 * Returns the collections of absolute paths.
+	 * 
+	 * @return See above.
+	 */
+	public List<String> getAbsolutePaths()
+	{
+		List<String> paths = new ArrayList<String>();
+		Fileset set = (Fileset) asIObject();
+		List<FilesetEntry> entries = set.copyUsedFiles();
+		if (entries == null) return paths;
+		Iterator<FilesetEntry> i = entries.iterator();
+		OriginalFile f;
+		StringBuffer buffer;
+		while (i.hasNext()) {
+			f = i.next().getOriginalFile();
+			buffer = new StringBuffer();
+			if (f.getPath() != null)
+				buffer.append(f.getPath().getValue());
+			if (f.getName() != null)
+				buffer.append(f.getName().getValue());
+			paths.add(buffer.toString());
+		}
+		return paths;
 	}
 	
 }

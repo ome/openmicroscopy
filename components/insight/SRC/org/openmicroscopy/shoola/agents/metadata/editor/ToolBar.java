@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -50,8 +51,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 
 //Third-party libraries
@@ -70,9 +73,13 @@ import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -160,6 +167,9 @@ class ToolBar
 	
 	/** The Button displaying the path to the file on the server.*/
 	private JButton pathButton;
+	
+	/** The component where the mouse clicked occurred.*/
+	private Component component;
 	
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
@@ -393,11 +403,14 @@ class ToolBar
 		pathButton.addMouseListener(new MouseAdapter() {
 			
 			/**
-			 * Loads the path and displays its location
+			 * Loads the image's path and displays its location on the server.
 			 * @see MouseListener#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				
+				location = e.getPoint();
+				component = (Component) e.getSource();
+				if (model.getFileset() != null) displayFileset();
+				else controller.loadFileset();
 			}
 		});
 		
@@ -737,5 +750,40 @@ class ToolBar
 			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
 		}
 	}
+	
+	/** Displays the file set associated to the image.*/
+	void displayFileset()
+	{
+		Set<FilesetData> set = model.getFileset();
+		if (set == null) return;
+		Iterator<FilesetData> i = set.iterator();
+		FilesetData data;
+		MultilineLabel label = new MultilineLabel();
+		StringBuffer buffer = new StringBuffer();
+		List<String> paths;
+		Iterator<String> j;
+		int n = 0;
+		while (i.hasNext()) {
+			data = i.next();
+			paths = data.getAbsolutePaths();
+			j = paths.iterator();
+			n += paths.size();
+			while (j.hasNext()) {
+				buffer.append(j.next());
+				buffer.append(System.getProperty("line.separator"));
+			}
+		}
+		label.setText(buffer.toString());
+		TinyDialog d = new TinyDialog(null, new JScrollPane(label),
+				TinyDialog.CLOSE_ONLY);
+		d.setTitle(n+" File path(s)");
+		d.setModal(true);
+		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		SwingUtilities.convertPointToScreen(location, component);
+		d.setSize(400, 100);
+		d.setLocation(location);
+		d.setVisible(true);
+	}
+	
 }
 

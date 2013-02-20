@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.EnumerationLoader;
 import org.openmicroscopy.shoola.agents.metadata.FileLoader;
+import org.openmicroscopy.shoola.agents.metadata.FilesetLoader;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.ImageSizeLoader;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
@@ -105,6 +106,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -250,6 +252,9 @@ class EditorModel
     
     /** Flag indicating if the image is a big image or not.*/
     private boolean largeImage;
+    
+    /** The file set associated to the image if an image is selected.*/
+    private Set<FilesetData> set;
     
     /** Checks if the image is a large image or not. */
     private void fireLargeImageLoading()
@@ -2265,6 +2270,7 @@ class EditorModel
 	void setRootObject(Object refObject)
 	{ 
 		boolean b = isSameObject(this.refObject);
+		set = null;
 		this.refObject = refObject;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
@@ -3867,6 +3873,30 @@ class EditorModel
 			channel = i.next();
 			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
 		}
+	}
+
+	/**
+	 * Returns the file set associated to the image if any.
+	 * 
+	 * @return See above.
+	 */
+	Set<FilesetData> getFileset() { return set; }
+	
+	/**
+	 * Sets the file set associated to the image if any.
+	 * 
+	 * @param set The value to set.
+	 */
+	void setFileset(Set<FilesetData> set) { this.set = set; }
+	
+	/** Loads the file set if the specified object is an image.*/
+	void fireFilesetLoading()
+	{
+		ImageData img = getImage();
+		if (img == null) return;
+		FilesetLoader loader = new FilesetLoader(component,
+				getSecurityContext(), img.getId());
+		loader.load();
 	}
 
 }

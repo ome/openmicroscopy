@@ -518,6 +518,9 @@ class EditorControl
 	 */
 	FigureDialog getFigureDialog() { return figureDialog; }
 	
+	/** Loads the file set linked to the image.*/
+	void loadFileset() { model.loadFileset(); }
+	
 	/**
 	 * Reacts to state changes in the {@link ImViewer}.
 	 * @see ChangeListener#stateChanged(ChangeEvent)

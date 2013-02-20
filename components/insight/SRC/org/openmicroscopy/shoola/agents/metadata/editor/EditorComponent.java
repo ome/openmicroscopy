@@ -76,6 +76,7 @@ import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
@@ -1185,5 +1186,23 @@ class EditorComponent
 		model.updateChannels(channels);
 		view.showChannelData();
 	}
+	
+    /** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#setFileset(Set)
+	 */
+	public void setFileset(Set<FilesetData> set)
+	{
+		model.setFileset(set);
+		view.displayFileset();
+	}
 
+    /** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#loadFileset()
+	 */
+	public void loadFileset()
+	{
+		model.fireFilesetLoading();
+	}
 }

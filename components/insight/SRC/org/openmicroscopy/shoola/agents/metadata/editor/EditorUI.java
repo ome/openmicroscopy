@@ -1000,6 +1000,9 @@ class EditorUI
 		toolBar.onSizeLoaded();
 	}
 	
+	/** Displays the file set.*/
+	void displayFileset() { toolBar.displayFileset(); }
+	
 	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
