@@ -31,6 +31,7 @@ import javax.swing.JLabel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -52,7 +53,7 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class StatusLabel 
+public class StatusLabel
 	extends JLabel
 	implements IObserver
 {
@@ -104,12 +105,6 @@ public class StatusLabel
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
 	
-	/** The number of planes. This value is used only for some file formats. */
-	private int maxPlanes;
-	
-	/** The number of imported files. */
-	private int numberOfFiles;
-	
 	/** The number of images in a series. */
 	private int seriesCount;
 	
@@ -140,18 +135,55 @@ public class StatusLabel
 	 */
 	private boolean markedAsDuplicate;
 	
+	/** The size of the file.*/
+	private String fileSize;
+	
+	/** The total size of uploaded files.*/
+	private long totalUploadedSize;
+	
+	/** 
+	 * Formats the size of the uploaded data.
+	 * 
+	 * @param value The value to display.
+	 * @return See above.
+	 */
+	private String formatUpload(long value)
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(UIUtilities.formatFileSize(value));
+		buffer.append("/");
+		buffer.append(fileSize);
+		return buffer.toString();
+	}
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
 		setForeground(UIUtilities.LIGHT_GREY);
-		maxPlanes = 0;
-		numberOfFiles = 0;
+		fileSize = "";
 		seriesCount = 0;
 		readerType = "";
 		errorText = FAILURE_TEXT;
 		setText("pending");
 		markedAsCancel = false;
 		cancellable = true;
+		totalUploadedSize = 0;
+	}
+	
+	/**
+	 * Sets the collection of files to import.
+	 * 
+	 * @param usedFiles The value to set.
+	 */
+	public void setUsedFiles(String[] usedFiles)
+	{
+		this.usedFiles = usedFiles;
+		if (usedFiles == null) return;
+		long size = 0;
+		for (int i = 0; i < usedFiles.length; i++) {
+			size += (new File(usedFiles[i])).length();
+		}
+		fileSize = FileUtils.byteCountToDisplaySize(size);
 	}
 	
 	/** Marks the import has cancelled. */
@@ -294,76 +326,11 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		cancellable = false;
-		
-		if (event instanceof ImportEvent.LOADING_IMAGE) {
-			startTime = System.currentTimeMillis();
-			setText(PREPPING_TEXT);
-			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
-			ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("\n");
-			buffer.append("> [" + ev.index + "] Loading image \""+
-					ev.shortName + "\"...\n");
-			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.BEGIN_SAVE_TO_DB) {
-			ImportEvent.BEGIN_SAVE_TO_DB ev = (ImportEvent.BEGIN_SAVE_TO_DB) 
-				event;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("> [" + ev.index + "] "+
-					"Saving metadata for " + "image \""+ev.filename+"\"... ");
-			buffer.append("\n");
-			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
-			setText("analyzing");
-			ImportEvent.LOADED_IMAGE ev = (ImportEvent.LOADED_IMAGE) event;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(" Succesfully loaded.\n");
-			buffer.append("> [" + ev.index + "] Importing metadata for image \""
-					+ev.shortName + "\"... ");
-			buffer.append("\n");
-			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.IMPORT_DONE) {
-			if (numberOfFiles == 1) setText("one file");
-			else if (numberOfFiles == 0) setText("");
-			else setText(numberOfFiles+" files");
+		//System.err.println(event);
+		if (event instanceof ImportEvent.IMPORT_DONE) {
+			setText("import completed");
 			endTime = System.currentTimeMillis();
-		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
-			setText("archiving");
-		} else if (event instanceof ImportEvent.DATASET_STORED) {
-			ImportEvent.DATASET_STORED ev = (ImportEvent.DATASET_STORED) event;
-			StringBuffer buffer = new StringBuffer();
-			maxPlanes = ev.size.imageCount;
-			buffer.append("> [" + ev.series + "] " +
-					"Importing pixel data for image \""+ev.filename+"\"... ");
-			buffer.append("\n");
-			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.DATA_STORED) {
-			StringBuffer buffer = new StringBuffer();
-			ImportEvent.DATA_STORED ev = (ImportEvent.DATA_STORED) event;
-			buffer.append("> Successfully stored with pixels id \""+
-					ev.pixId+ "\".");
-			buffer.append("> ["+ev.filename+"] Image imported successfully!");
-			buffer.append("\n");
-			firePropertyChange(DEBUG_TEXT_PROPERTY, null, buffer.toString());
-		} else if (event instanceof ImportEvent.IMPORT_STEP) {
-			ImportEvent.IMPORT_STEP ev = (ImportEvent.IMPORT_STEP) event;
-			if (ev.step <= maxPlanes) {   
-				int value = ev.step;
-				if (value <= maxPlanes) {
-					String text;
-					seriesCount = ev.seriesCount;
-					int series = ev.series;
-					if (seriesCount > 1)
-						text = (series+1)+"/"+seriesCount+": "
-							+value+"/"+maxPlanes;
-					else
-						text = value+"/"+maxPlanes;
-					setText(text);
-				}
-			}
 		} else if (event instanceof ImportCandidates.SCANNING) {
-			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
-			numberOfFiles = ev.totalFiles;
 			if (!markedAsCancel) setText("scanning");
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			endTime = System.currentTimeMillis();
@@ -378,9 +345,35 @@ public class StatusLabel
 			errorText = "missing required library";
 			cancellable = false;
 			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
-		} else if (event instanceof ImportEvent.IMPORT_PROCESSING) {
-			setText("processing");
-		} 
+		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
+			ImportEvent.FILE_UPLOAD_BYTES e =
+				(ImportEvent.FILE_UPLOAD_BYTES) event;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("uploading ");
+			if (e.fileTotal > 1) {
+				buffer.append(e.fileIndex+1);
+				buffer.append(":");
+				buffer.append(e.fileTotal);
+				buffer.append(" ");
+			}
+			buffer.append(formatUpload(totalUploadedSize+e.uploadedBytes));
+			setText(buffer.toString());
+		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
+			ImportEvent.FILE_UPLOAD_COMPLETE e =
+				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
+			totalUploadedSize += e.uploadedBytes;
+		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("upload finished ");
+			buffer.append(formatUpload(totalUploadedSize));
+			setText(buffer.toString());
+		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
+			setText("metadata extracted");
+		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
+			setText("thumbnails generated");
+		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
+			setText("upload started");
+		}
 	}
 
 }
