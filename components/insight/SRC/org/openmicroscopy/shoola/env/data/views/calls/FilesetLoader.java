@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
