@@ -26,8 +26,10 @@
   </bean>
 
   <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDaoImpl">
-    <constructor-arg ref="repoPrincipal"/>
-    <constructor-arg ref="executor"/>
+    <constructor-arg index="0" ref="repoPrincipal"/>
+    <constructor-arg index="1" ref="roles"/>
+    <constructor-arg index="2" ref="executor"/>
+    <constructor-arg index="3" ref="statefulExecutor"/>
   </bean>
 
   <bean id="processContainer" class="ome.services.blitz.repo.ProcessContainer">

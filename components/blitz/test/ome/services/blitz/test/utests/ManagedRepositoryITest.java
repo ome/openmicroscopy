@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import junit.framework.Assert;
+import loci.formats.FormatReader;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
@@ -91,9 +92,9 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestOnConflict(FsFile relPath,
-                FsFile basePath, List<FsFile> paths, Ice.Current curr) throws omero.ServerError {
-            return super.suggestOnConflict(relPath, basePath, paths, curr);
+        public ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
+                Class<? extends FormatReader> reader, Ice.Current curr) throws omero.ServerError {
+            return super.suggestImportPaths(relPath, basePath, paths, reader, curr);
         }
 
         @Override
@@ -107,8 +108,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public FsFile createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
-            return super.createTemplateDir(template, curr);
+        public void createTemplateDir(FsFile template, Ice.Current curr) throws omero.ServerError {
+            super.createTemplateDir(template, curr);
         }
     }
 
@@ -152,7 +153,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     
     private String getSuggestion(String base, String...paths) throws Exception {
         final ImportLocation l = 
-                this.tmri.suggestOnConflict(new FsFile("template"), new FsFile(base), toFsFileList(paths), curr);
+                this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), null, curr);
         return new File(l.sharedPath).getName();
     }
 
@@ -353,24 +354,5 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         newEventContext();
         String actual = this.tmri.expandTemplate("%björk%", curr);
         Assert.assertEquals(expected, actual);
-    }
-
-    //
-    // createTemplateDir()
-    //
-
-    @Test
-    public void testTemplateDirSimple() throws Exception {
-        assertReturnFile(1L);
-        final FsFile testFile = new FsFile("test");
-        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
-    }
-
-    @Test
-    public void testTemplateDir() throws Exception {
-        assertRegisterFails("test");
-        assertReturnFile("test__1", 1L);
-        final FsFile testFile = new FsFile("test");
-        assertEquals(testFile, this.tmri.createTemplateDir(testFile, curr));
     }
 }

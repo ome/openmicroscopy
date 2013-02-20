@@ -43,7 +43,9 @@ import omero.ValidationException;
  * a null {@link CheckedPath} object is passed into the constructor the caller
  * indicates that the path is the root path, hence {@link CheckedPath#isRoot}
  * will not be called.
- * @author m.t.b.carroll@dundee.ac.uk and others
+ * 
+ * @author josh at glencoesoftware.com
+ * @author m.t.b.carroll@dundee.ac.uk
  */
 public class CheckedPath {
 

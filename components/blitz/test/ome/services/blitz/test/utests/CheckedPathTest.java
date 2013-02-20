@@ -56,6 +56,6 @@ public class CheckedPathTest {
     @Test(expectedExceptions=ValidationException.class)
     public void testMustExistThrowsWithNonexistingFile()
             throws ValidationException {
-        new CheckedPath(this.serverPaths, "bar");
+        new CheckedPath(this.serverPaths, "bar").mustExist();
     }
 }

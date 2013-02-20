@@ -31,6 +31,7 @@ import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.StringTransformer;
+import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -43,6 +44,9 @@ import org.testng.annotations.Test;
  */
 @Test(groups = {"fs"})
 public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
+    private static final TempFileManager tempFileManager =
+            new TempFileManager("test-" + ServerFilePathTransformerTest.class.getSimpleName());
+    
     private ServerFilePathTransformer fpts;
     private ClientFilePathTransformer fptc;
     private File tempDir;
@@ -54,9 +58,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
      */
     @BeforeClass
     public void setup() throws IOException {
-        this.tempDir = File.createTempFile("test-" + getClass().getSimpleName(), null);
-        this.tempDir.delete();
-        this.tempDir.mkdir();
+        this.tempDir = tempFileManager.createPath("unit-test",  null,  true);
         final StringTransformer transformer = new MakePathComponentSafe();
         this.fpts = new ServerFilePathTransformer();
         this.fpts.setPathSanitizer(transformer);
@@ -70,7 +72,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
      */
     @Test
     public void testServerPathConversion() throws IOException {
-        final FsFile repositoryPath = new FsFile("wibble/wobble/|]{~`\u00B1\u00A7/\u00F3\u00DF\u20AC\u00C5\u00E6");
+        final FsFile repositoryPath = new FsFile("wibble/wobble/|]{~`±§/óß€Åæ");
         final File serverPath = fpts.getServerFileFromFsFile(repositoryPath);
         Assert.assertEquals(fpts.getFsFileFromServerFile(serverPath), repositoryPath,
                 "conversion from legal repository paths to server-local paths and back must return the original");
@@ -127,10 +129,11 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
     
     /**
      * Reverse the actions of {@link #setup()}.
+     * @throws IOException unable to delete temporary directory
      */
     @AfterClass
-    public void tearDown() {
-        this.tempDir.delete();
+    public void tearDown() throws IOException {
+        tempFileManager.removePath(this.tempDir);
         this.fpts = null;
         this.fptc = null;
     }
