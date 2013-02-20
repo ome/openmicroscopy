@@ -853,14 +853,14 @@
                         if (data.inst.data.crrm.cp_nodes) {
                             url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
-                                "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                             }
                         } else  {
                             if (data.rslt.cr.attr('rel')!="orphaned") {
                                 url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
                                 d = {
-                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
-                                    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                    "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                                 };
                                 if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
                             } else {
