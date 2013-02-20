@@ -48,7 +48,9 @@ public interface RawFileStore extends StatefulServiceInterface {
 
     /**
      * Returns the size of the file on disk (not as stored in the database since
-     * that value will only be updated on {@link #save()}.
+     * that value will only be updated on {@link #save()}. If the file has not
+     * yet been written to, and therefore does not exist, a
+     * {@link ome.conditions.ResourceError} will be thrown.
      */
     public long size();
 
