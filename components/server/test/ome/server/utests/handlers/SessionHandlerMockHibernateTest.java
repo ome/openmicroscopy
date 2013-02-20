@@ -416,10 +416,6 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
         }
     }
 
-    private InvokedRecorder exactly(int count) {
-        return new InvokedRecorder(count);
-    }
-
     // TODO refactor out to ome.testing
     private class InvokedRecorder implements InvocationMatcher {
         private int actual = 0;

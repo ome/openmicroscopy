@@ -34,7 +34,7 @@
     <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build->default"/>
     <dependency org="antlr" name="antlr" rev="2.7.6" conf="build->default"/>
     <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
-    <dependency org="jmock" name="jmock" rev="1.0.1" conf="build->default"/>
+    <dependency org="jmock" name="jmock-core" rev="1.2.0" conf="build->default"/>
     <dependency org="junit" name="junit" rev="3.8.1" conf="build->default"/>
     <dependency org="findbugs" name="findbugs-ant" rev="${versions.findbugs}" conf="build->default"/>
     <dependency org="jakarta-oro" name="jakarta-oro" rev="2.0.8" conf="build->default"/>
