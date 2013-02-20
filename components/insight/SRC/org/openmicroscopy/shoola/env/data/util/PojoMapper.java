@@ -49,6 +49,7 @@ import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
+import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LongAnnotation;
@@ -70,6 +71,7 @@ import pojos.DatasetData;
 import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
@@ -182,6 +184,8 @@ public class PojoMapper
         	return new ROIData((Roi) object);
         else if (object instanceof Namespace) {
         	return new WorkflowData((Namespace) object);
+        } else if (object instanceof Fileset) {
+        	return new FilesetData((Fileset) object);
         }
         return null;
     }

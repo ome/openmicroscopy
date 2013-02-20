@@ -542,5 +542,11 @@ public class NullRenderingService
 			Target target) throws DSOutOfServiceException, DSAccessException {
 		return null;
 	}
+	
+	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+	throws DSAccessException, DSOutOfServiceException
+	{
+		return null;
+	}
 
 }
