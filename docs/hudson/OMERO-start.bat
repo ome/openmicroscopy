@@ -18,10 +18,13 @@ set ROUTERPREFIX=%OMERO_PREFIX%
 set ROUTER=%ROUTERPREFIX%4064
 set ICE_CONFIG=%cd%\%OMERO_CONFIG%.config
 set OMERO_DATA=%cd%\target\datadir
+set GROUP=hudson_group
+set USER=hudson
+set USERPASSWORD=ome
 
 echo omero.host=localhost >> %ICE_CONFIG%
-echo omero.user=hudson >> %ICE_CONFIG%
-echo omero.pass=ome >> %ICE_CONFIG%
+echo omero.user=%USER% >> %ICE_CONFIG%
+echo omero.pass=%USERPASSWORD% >> %ICE_CONFIG%
 echo omero.rootpass=ome >> %ICE_CONFIG%
 echo omero.host=%OMERO_HOST% >> %ICE_CONFIG%
 echo omero.port=%ROUTER% >> %ICE_CONFIG%
@@ -51,9 +54,9 @@ REM Create a user
 REM
 python bin\omero -s localhost -p %ROUTER% -u root -w ome login
 if errorlevel 1 goto ERROR
-python bin\omero group add hudson_group --perms=rwrw--
+python bin\omero group add %GROUP% --perms=rwrw--
 if errorlevel 1 goto ERROR
-python bin\omero user add --admin hudson Test User hudson_group
+python bin\omero user add --admin %USER% Test User %GROUP% -P %USERPASSWORD$
 if errorlevel 1 goto ERROR
 python bin\omero logout
 if errorlevel 1 goto ERROR
@@ -65,7 +68,7 @@ set FILE=very_small.d3d.dv
 del %FILE%
 wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
 if errorlevel 1 goto ERROR
-python bin\omero login -s localhost -p %ROUTER% -u hudson -w ome
+python bin\omero login -s localhost -p %ROUTER% -u %USER% -w %USERPASSWORD%
 if errorlevel 1 goto ERROR
 python bin\omero import %FILE%
 if errorlevel 1 goto ERROR
