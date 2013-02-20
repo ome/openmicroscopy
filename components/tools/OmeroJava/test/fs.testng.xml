@@ -7,7 +7,9 @@
       </run>
     </groups>
     <classes>
+      <!-- Disabling until Colin has a chance to look at it.
       <class name="integration.DeleteServiceFilesTest"/>
+      -->
       <class name="integration.ManagedRepositoryTest"/>
       <class name="integration.ImportLibraryTest"/>
     </classes>
