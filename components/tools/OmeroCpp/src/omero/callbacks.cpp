@@ -181,9 +181,11 @@ namespace omero {
             poll();
         };
 
-	CmdCallbackI::~CmdCallbackI() {
-            adapter->remove(id); // OK ADAPTER USAGE
-            if (closeHandle) {
+        CmdCallbackI::~CmdCallbackI() {
+            if (adapter) {
+                adapter->remove(id); // OK ADAPTER USAGE
+            }
+            if (closeHandle && handle) {
                 handle->close();
             }
         };

@@ -16,11 +16,11 @@ TEST(GuestTest, GuestLogin )
 {
     try {
         Fixture f;
+        f.login();
 
-	const omero::client_ptr client = f.login();
-	ServiceFactoryPrx sf = client->getSession();
+        ServiceFactoryPrx sf = f.client->getSession();
 
-	sf->getQueryService()->findAll("Experimenter",0);
+        sf->getQueryService()->findAll("Experimenter",0);
 
     } catch (omero::ApiUsageException& aue) {
         cout << aue.message <<endl;
