@@ -7384,21 +7384,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._archivedFileCount = count[0][0]._val
         return self._archivedFileCount
 
-    def getArchivedFiles (self):
-        """
-        Returns a generator of L{OriginalFileWrapper}s corresponding to the archived files linked to primary pixels
-        Used by getImportedImageFiles() which also handles FS files.
-        """
-
-        pid = self.getPixelsId()
-        params = omero.sys.Parameters()
-        params.map = {"pid": rlong(pid)}
-        query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
-        links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
-
-        for l in links:
-            yield OriginalFileWrapper(self._conn, l.parent)
-
     def countFilesetFiles (self):
         """ Counts the Original Files that are part of the FS Fileset linked to this image """
 
@@ -7412,29 +7397,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._filesetFileCount = fscount[0][0]._val
         return self._filesetFileCount
 
-    def getFilesetFiles (self):
-        """
-        Returns a generator of L{OriginalFileWrapper}s corresponding FS Fileset for this image
-        """
-
-        params = omero.sys.Parameters()
-        params.map = {'imageId': rlong(self.getId())}
-
-        query = "select fs from Fileset as fs "\
-                "left outer join fetch fs.imageLinks as fil "\
-                "join fetch fil.child as image " \
-                "left outer join fetch fs.usedFiles as usedFile " \
-                "join fetch usedFile.originalFile where image.id=:imageId"
-        queryService = self._conn.getQueryService()
-        filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
-
-        for fs in filesets:
-            for usedfile in fs.copyUsedFiles():
-                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
-
     def countImportedImageFiles (self):
         """ 
-        Returns a count of the number of Imported files (Archived files for pre-FS images)
+        Returns a count of the number of Imported Image files (Archived files for pre-FS images)
         This will only be 0 if the image was imported pre-FS and original files NOT archived
         """
         fCount = self.countFilesetFiles()
@@ -7445,13 +7410,31 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getImportedImageFiles (self):
         """
         Returns a generator of L{OriginalFileWrapper}s corresponding to the Imported image
-        files that created this image. For Images imported pre-FS, this will be the 
-        original files linked to Pixels. For FS Images, it will be the files in the Fileset.
-        This will return nothing for pre-FS images that were not archived at import.
+        files that created this image, if available.
         """
+        # If we have an FS image, return Fileset files.
         if self.countFilesetFiles() > 0:
-            return self.getFilesetFiles()
-        return self.getArchivedFiles()
+            params = omero.sys.Parameters()
+            params.map = {'imageId': rlong(self.getId())}
+            query = "select fs from Fileset as fs "\
+                    "left outer join fetch fs.imageLinks as fil "\
+                    "join fetch fil.child as image " \
+                    "left outer join fetch fs.usedFiles as usedFile " \
+                    "join fetch usedFile.originalFile where image.id=:imageId"
+            queryService = self._conn.getQueryService()
+            filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
+            for fs in filesets:
+                for usedfile in fs.copyUsedFiles():
+                    yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+
+        # Otherwise, return Original Archived Files
+        pid = self.getPixelsId()
+        params = omero.sys.Parameters()
+        params.map = {"pid": rlong(pid)}
+        query = "select link from PixelsOriginalFileMap link join fetch link.parent as p where link.child.id=:pid"
+        links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
+        for l in links:
+            yield OriginalFileWrapper(self._conn, l.parent)
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
