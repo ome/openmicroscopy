@@ -90,6 +90,11 @@ module omero {
             omero::api::StringArray values;
         };
 
+        class FloatArrayColumn extends Column {
+            long size;
+            omero::api::FloatArrayArray values;
+        };
+
         class DoubleArrayColumn extends Column {
             long size;
             omero::api::DoubleArrayArray values;
