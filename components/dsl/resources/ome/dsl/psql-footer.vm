@@ -494,6 +494,35 @@ insert into password values (1,'');
 --
 -- FS Resources
 --
+
+-- Prevent the deletion of mimetype = "Directory" objects
+-- TODO: also evaluate preventing the change of mimetype
+-- for Directory objects.
+create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
+    begin
+        if OLD.repo is not null then
+            if OLD.mimetype = 'Directory' then
+                --
+                -- If any children are found, prevent deletion
+                --
+                if exists(select id from originalfile
+                           where path = OLD.path || OLD.name || '/'
+                           limit 1) then
+
+                    -- CANCEL DELETE
+                    RAISE EXCEPTION '%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+
+                end if;
+            end if;
+        end if;
+        return OLD; -- proceed
+    end;
+$_fs_dir_delete$ LANGUAGE plpgsql;
+
+create trigger _fs_dir_delete
+before delete on originalfile
+    for each row execute procedure _fs_dir_delete();
+
 create table _fs_deletelog (
     event_id bigint not null,
     file_id bigint not null,
@@ -512,7 +541,7 @@ create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
                 OLD.id, OLD.owner_id, OLD.group_id,
                 OLD.path, OLD.name, OLD.repo, OLD.params;
         end if;
-        return null;
+        return OLD;
     END;
 $_fs_log_delete$ LANGUAGE plpgsql;
 
