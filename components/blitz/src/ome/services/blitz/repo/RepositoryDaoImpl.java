@@ -296,14 +296,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
                 ome.model.core.OriginalFile f = null;
                 if (id == null) {
-                    // Doesn't exist. Create dir in the user group
+                    // Doesn't exist. Create directory
                     f = _internalRegister(repoUuid, checked,
                             PublicRepositoryI.DIRECTORY_MIMETYPE,
                             parent, sf, getSqlAction());
                 } else {
                     // Make sure the file is in the user group
                     try {
-                        f = sf.getQueryService().find(
+                        f = sf.getQueryService().get(
                                 ome.model.core.OriginalFile.class, id);
                         if (f != null) {
                             long groupId = f.getDetails().getGroup().getId();
