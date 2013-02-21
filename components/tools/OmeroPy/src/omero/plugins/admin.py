@@ -424,13 +424,14 @@ Examples:
             # Finally, try to start the service - delete if startup fails
             hscm = win32service.OpenSCManager(None, None, win32service.SC_MANAGER_ALL_ACCESS)
             try:
-                hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
-                win32service.StartService(hs, None)
-                self.ctx.out("Starting %s Windows service." % svc_name)
-            except pywintypes.error, details:
-                self.ctx.out("%s service startup failed: (%s) %s" % (svc_name, details[0], details[2]))
-                win32service.DeleteService(hs)
-                self.ctx.die(202, "%s service deleted." % svc_name)
+                try:
+                    hs = win32service.OpenService(hscm, svc_name, win32service.SC_MANAGER_ALL_ACCESS)
+                    win32service.StartService(hs, None)
+                    self.ctx.out("Starting %s Windows service." % svc_name)
+                except pywintypes.error, details:
+                    self.ctx.out("%s service startup failed: (%s) %s" % (svc_name, details[0], details[2]))
+                    win32service.DeleteService(hs)
+                    self.ctx.die(202, "%s service deleted." % svc_name)
             finally:
                 win32service.CloseServiceHandle(hs)
                 win32service.CloseServiceHandle(hscm)
