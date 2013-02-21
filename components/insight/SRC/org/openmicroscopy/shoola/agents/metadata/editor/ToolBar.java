@@ -793,7 +793,6 @@ class ToolBar
 				TinyDialog d = (TinyDialog) evt.getSource();
 				d.setClosed(true);
 				d.closeWindow();
-				d.setVisible(false);
 			}
 			
 			/** 
