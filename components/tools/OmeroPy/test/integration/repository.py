@@ -631,6 +631,14 @@ class TestRecursiveDelete(AbstractRepoTest):
         rv = unwrap(self.mrepo.treeList(self.unique_dir))
         self.assertEquals(0, len(rv))
 
+    # Trying to get up and out of the current directory
+    # to delete more. Muahahaha...
+    def testDoubleDot(self):
+        naughty = self.unique_dir + "/" + ".." + ".." + ".."
+        handle = self.mrepo.deletePaths([naughty], True, True)
+        self.waitOnCmd(self.client, handle, passes=True)
+
+
 class TestDeleteLog(AbstractRepoTest):
 
     def testSimpleDelete(self):
@@ -710,8 +718,6 @@ class TestUserTemplate(AbstractRepoTest):
         bFile = bDir + "/b.txt"
         mrepo.makeDir(bDir, True)
         self.createFile(mrepo, bFile)
-
-
 
 if __name__ == '__main__':
     unittest.main()
