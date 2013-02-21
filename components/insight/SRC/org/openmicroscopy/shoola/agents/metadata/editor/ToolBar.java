@@ -646,6 +646,7 @@ class ToolBar
     	Object refObject = model.getRefObject();
     	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
+		pathButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
@@ -654,7 +655,7 @@ class ToolBar
     		if (refObject instanceof ImageData) {
     			downloadButton.setEnabled(model.isArchived());
     		}
-    			
+    		pathButton.setEnabled(model.isSingleMode());
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
