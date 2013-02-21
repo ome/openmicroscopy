@@ -11,49 +11,25 @@ else
     CURL="curl ${CURL_OPTS-} -O"
 fi
 
-
 ###################################################################
 # BREW & PIP BASE SYSTEMS
 ###################################################################
 
-# Brew support ===================================================
-
-brew --version || {
-    echo "Please install brew first"
-    exit 1
-}
-
-BREW_DIR="$(dirname $(dirname $(which brew)))"
-echo "Using brew installed in $BREW_DIR"
-
-# Move to BREW_DIR for the rest of this script
-# so that "bin/EXECUTABLE" will pick up the
-# intended executable.
-cd "$BREW_DIR"
-
-
 # Python virtualenv/pip support ===================================
-if (bin/pip --version)
+if (pip --version)
 then
-    echo "Using existing pip"
+    PIP_DIR="$(dirname $(dirname $(which pip)))"
+    echo "Using existing pip installed in $PIP_DIR"
+
+    # Move to PIP_DIR for the rest of this script
+    # so that "bin/EXECUTABLE" will pick up the
+    # intended executable.
+    cd "$PIP_DIR"
 else
     rm -rf virtualenv.py
     $CURL "$VENV_URL"
     python virtualenv.py --no-site-packages .
 fi
-
-
-###################################################################
-# BREW INSTALLS
-###################################################################
-
-installed(){
-    bin/brew info $1 | grep -wq "Not installed" && {
-        return 1
-    } || {
-	echo $1 installed
-    }
-}
 
 
 ###################################################################
@@ -90,5 +66,4 @@ installed numexpr || bin/pip install numexpr
 bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
 
 echo "Done."
-echo "You can now install OMERO with: 'bin/brew install omero ...'"
 
