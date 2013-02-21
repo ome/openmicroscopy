@@ -115,7 +115,7 @@ public class ManagedRepositoryTest
 	// Primarily to get code compiling during the major refactoring
 	ImportLocation importFileset(List<String> srcPaths) throws Exception {
 
-	    // Setup that should be easier, mostl likey be a single ctor on IL
+	    // Setup that should be easier, most likely a single ctor on IL
 	    OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
 	    client.initialize(this.client);
 	    OMEROWrapper wrapper = new OMEROWrapper(new ImportConfig());
@@ -128,7 +128,7 @@ public class ManagedRepositoryTest
 
 	    // Now actually use the library.
 	    ImportProcessPrx proc = lib.createImport(container);
-	    
+
 	    // The following is largely a copy of ImportLibrary.importImage
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
@@ -517,7 +517,7 @@ public class ManagedRepositoryTest
 		    assertFileExists("Upload failed. File does not exist: ", path);
 		}
 		assertDeletePaths(data1);
-		
+
 		// This set should be gone
 		for (String path : data1.usedFiles) {
 		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);

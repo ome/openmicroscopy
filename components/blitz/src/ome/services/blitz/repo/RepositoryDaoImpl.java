@@ -207,7 +207,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         return map;
     }
     /**
-     * Recursive decent for {@link PublicDirectoryI#treeList(String, Current)}.
+     * Recursive descent for {@link PublicDirectoryI#treeList(String, Current)}.
      * This should only really be called on directories, but if it's accidentally
      * called on a non-directory, then we will treat it specially.
      *
@@ -260,12 +260,13 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 try {
                     child = checked.child(subFile.getName());
                     if (child == null) {
-                        throw new omero.ValidationException(null, null, "null!");
+                        // This should never happen.
+                        throw new omero.ValidationException(null, null, "null child!");
                     }
                 } catch (omero.ValidationException ve) {
                     // This can only really happen if the database has very odd
                     // information stored. Issuing a warning and then throwing
-                    // an excception.
+                    // an exception.
                     log.warn(String.format("Validation exception on %s.child(%s)",
                             checked, subFile.getName()), ve);
                     throw new ome.conditions.ValidationException(ve.getMessage());
@@ -376,12 +377,11 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
          try {
              List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
-                     .execute(current.ctx, currentUser(current),
-                             new Executor.SimpleWork(this,
-                             "getOriginalFiles", repoUuid, checked) {
-                         @Transactional(readOnly = true)
+                .execute(current.ctx, currentUser(current),
+                        new Executor.SimpleWork(this,
+                        "getOriginalFiles", repoUuid, checked) {
+                    @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
-
                          return getOriginalFiles(sf, getSqlAction(), repoUuid, checked);
                      }
 
