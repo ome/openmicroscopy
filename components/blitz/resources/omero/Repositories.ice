@@ -176,7 +176,7 @@ module omero {
              * each of the paths into an [omero::cmd::Delete] command and
              * submits all of them via [omero::cmd::DoAll].
              *
-             * If a "recursvely" is true, then directories will be searched
+             * If a "recursively" is true, then directories will be searched
              * and all of their contained files will be placed before them in
              * the delete order. When the directory is removed from the database,
              * it will removed from the filesystem if and only if it is empty.
@@ -184,7 +184,7 @@ module omero {
              * If "recursively" is false, then the delete will produce an error
              * according to the "force" flag.
              *
-             * If, this method attempts the delete of all given
+             * If "force" is false, this method attempts the delete of all given
              * paths in a single transaction, and any failure will cause the
              * entire transaction to fail.
              *

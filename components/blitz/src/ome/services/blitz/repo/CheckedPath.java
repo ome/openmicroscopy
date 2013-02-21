@@ -189,14 +189,15 @@ public class CheckedPath {
         } else if (".".equals(name) || "..".equals(name)) {
             throw new ValidationException(null, null,
                     "Only proper child name is allowed. Not '.' or '..'");
-        } else if (name.contains("/")) {
+        } else if (name.indexOf(FsFile.separatorChar)>=0) {
             throw new ValidationException(null, null,
                     "No subpaths allowed. Path contains '/'");
         }
         List<String> copy = new ArrayList<String>(this.fsFile.getComponents());
         copy.add(name);
         // TODO: This doesn't seem correct.
-        return new CheckedPath(new File(original +"/" + name), new FsFile(copy));
+        return new CheckedPath(new File(original +FsFile.separatorChar + name),
+                new FsFile(copy));
     }
 
     /**

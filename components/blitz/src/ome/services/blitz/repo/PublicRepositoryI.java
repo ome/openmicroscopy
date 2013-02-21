@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -60,6 +61,7 @@ import ome.util.messages.InternalMessage;
 import omero.InternalException;
 import omero.RLong;
 import omero.RMap;
+import omero.RType;
 import omero.ResourceError;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -220,6 +222,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 mimetype == null ? null : mimetype.getValue(), __current);
     }
 
+    /**
+     * Delete paths recursively as described in Repositories.ice. Internally
+     * uses {@link #treeList(String, Ice.Current)} to build the recursive
+     * list of files.
+     *
+     * @param files non-null, preferably non-empty list of files to check.
+     * @param recursive See Repositories.ice for an explanation
+     * @param force See Repositories.ice for an explanation
+     * @param __current Non-null ice context.
+     */
     public HandlePrx deletePaths(String[] files, boolean recursive, boolean force,
             Current __current) throws ServerError {
 
@@ -250,10 +262,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     private void _deletePaths(Ice.ObjectFactory delFactory, RMap map, List<Request> commands) {
         if (map != null && map.getValue() != null) {
             // Each of the entries
-            for (String key : map.getValue().keySet()) {
+            for (RType value : map.getValue().values()) {
                 // We know that the value for any key at the
                 // "top" level is going to be a RMap
-                RMap val = (RMap) map.getValue().get(key);
+                RMap val = (RMap) value;
                 if (val != null && val.getValue() != null) {
                     if (val.getValue().containsKey("files")) {
                         // then we need to recurse. files points to the next
