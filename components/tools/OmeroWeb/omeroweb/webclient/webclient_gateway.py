@@ -2136,7 +2136,23 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         This determines whether we want to show the paths of
         Original Imported Files.
         """
-        return super(ImageWrapper, self).countFilesetFiles() > 0
+        return False
+
+    def getImportedImageFiles (self):
+        """
+        Until we update the BlitzGateway to use the newer
+        getImportedImageFiles() method, we must delegate to
+        the older getArchivedFiles() method.
+        """
+        return super(ImageWrapper, self).getArchivedFiles()
+
+    def countImportedImageFiles (self):
+        """
+        Until we update the BlitzGateway to use the newer
+        countImportedImageFiles() method, we must delegate to
+        the older countArchivedFiles() method.
+        """
+        return super(ImageWrapper, self).countArchivedFiles()
 
 omero.gateway.ImageWrapper = ImageWrapper
 
