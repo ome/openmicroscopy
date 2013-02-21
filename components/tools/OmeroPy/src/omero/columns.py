@@ -289,6 +289,21 @@ class AbstractArrayColumn(AbstractColumn):
         """
         return [(self.name, self._types[0], self.size)]
 
+class FloatArrayColumnI(AbstractArrayColumn, omero.grid.FloatArrayColumn):
+
+    def __init__(self, name = "Unknown", *args):
+        omero.grid.FloatArrayColumn.__init__(self, name, *args)
+        AbstractArrayColumn.__init__(self)
+
+    def descriptor(self, pos):
+        # During initialization, size might be zero
+        if pos is None:
+            return tables.Float32Col(pos=pos)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "Array length must be > 0 (Column: %s)" % self.name)
+        return tables.Float32Col(pos=pos, shape=self.size)
+
 class DoubleArrayColumnI(AbstractArrayColumn, omero.grid.DoubleArrayColumn):
 
     def __init__(self, name = "Unknown", *args):
@@ -482,6 +497,7 @@ ObjectFactories = {
     DoubleColumnI: ObjectFactory(DoubleColumnI, lambda: DoubleColumnI()),
     LongColumnI: ObjectFactory(LongColumnI, lambda: LongColumnI()),
     StringColumnI: ObjectFactory(StringColumnI, lambda: StringColumnI()),
+    FloatArrayColumnI: ObjectFactory(FloatArrayColumnI, lambda: FloatArrayColumnI()),
     DoubleArrayColumnI: ObjectFactory(DoubleArrayColumnI, lambda: DoubleArrayColumnI()),
     LongArrayColumnI: ObjectFactory(LongArrayColumnI, lambda: LongArrayColumnI()),
     MaskColumnI: ObjectFactory(MaskColumnI, lambda: MaskColumnI())
