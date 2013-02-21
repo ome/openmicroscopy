@@ -29,9 +29,13 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -407,6 +411,7 @@ class ToolBar
 			 * @see MouseListener#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
+				if (!pathButton.isEnabled()) return;
 				location = e.getPoint();
 				component = (Component) e.getSource();
 				if (model.getFileset() != null) displayFileset();
@@ -777,7 +782,27 @@ class ToolBar
 		TinyDialog d = new TinyDialog(null, new JScrollPane(label),
 				TinyDialog.CLOSE_ONLY);
 		d.setTitle(n+" File path(s)");
-		d.setModal(true);
+		
+		d.addWindowFocusListener(new WindowFocusListener() {
+			
+			/** 
+			 * Closes the dialog when the window loses focus.
+			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+			 */
+			public void windowLostFocus(WindowEvent evt) {
+				TinyDialog d = (TinyDialog) evt.getSource();
+				d.setClosed(true);
+				d.closeWindow();
+				d.setVisible(false);
+			}
+			
+			/** 
+			 * Required by the I/F but no-operation in our case.
+			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+			 */
+			public void windowGainedFocus(WindowEvent evt) {}
+		});
+		d.setResizable(true);
 		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		SwingUtilities.convertPointToScreen(location, component);
 		d.setSize(400, 100);
