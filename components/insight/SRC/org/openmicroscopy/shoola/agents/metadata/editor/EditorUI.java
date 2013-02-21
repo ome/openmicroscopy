@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -67,6 +69,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -1002,6 +1005,13 @@ class EditorUI
 	
 	/** Displays the file set.*/
 	void displayFileset() { toolBar.displayFileset(); }
+	
+	/**
+	 * Returns the file set.
+	 * 
+	 * @return See above.
+	 */
+	Set<FilesetData> getFileset() { return model.getFileset(); }
 	
 	/**
 	 * Overridden to wrap the description.

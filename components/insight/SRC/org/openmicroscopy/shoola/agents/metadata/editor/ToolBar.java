@@ -168,11 +168,37 @@ class ToolBar
 	private JButton viewButton;
 	
 	/** The Button displaying the path to the file on the server.*/
-	private JButton pathButton;
+	private JMenuItem pathButton;
+	
+	/** Button display the links like path, html.*/
+	private JButton linkButton;
 	
 	/** The component where the mouse clicked occurred.*/
 	private Component component;
 	
+	/** The menu displaying the link option. */
+	private JPopupMenu linkMenu;
+	
+	/** 
+	 * Creates or recycles the link menu.
+	 * 
+	 * @return See above.
+	 */
+    private JPopupMenu createLinkMenu()
+    {
+    	if (linkMenu != null) return linkMenu;
+    	linkMenu = new JPopupMenu();
+		IconManager icons = IconManager.getInstance();
+		pathButton = new JMenuItem(icons.getIcon(IconManager.FILE_PATH));
+		pathButton.setText("Show File Paths...");
+		pathButton.setToolTipText("Show file paths on the server.");
+		pathButton.addActionListener(controller);
+		pathButton.setActionCommand(""+EditorControl.FILE_PATH);
+		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+		linkMenu.add(pathButton);
+    	return linkMenu;
+    }
+    
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -376,7 +402,7 @@ class ToolBar
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				launchOptions((Component) e.getSource(), e.getPoint(), 
+				launchOptions((Component) e.getSource(), e.getPoint(),
 						MetadataViewer.SAVE_OPTION);
 			}
 		});
@@ -399,26 +425,23 @@ class ToolBar
 			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
 	    	viewButton.addActionListener(controller);
 		}
-		
-		pathButton = new JButton(icons.getIcon(IconManager.FILE_PATH));
-		pathButton.setToolTipText("Show file paths on the server.");
-		pathButton.addMouseListener(new MouseAdapter() {
+		linkButton = new JButton(icons.getIcon(IconManager.LINK));
+		linkButton.addMouseListener(new MouseAdapter() {
 			
 			/**
-			 * Loads the image's path and displays its location on the server.
-			 * @see MouseListener#mouseReleased(MouseEvent)
+			 * Launches the dialog when the user releases the mouse.
+			 * MouseAdapter#mouseReleased(MouseEvent)
 			 */
-			public void mouseReleased(MouseEvent e) {
-				if (!pathButton.isEnabled()) return;
+			public void mouseReleased(MouseEvent e)
+			{
 				location = e.getPoint();
 				component = (Component) e.getSource();
-				if (model.getFileset() != null) displayFileset();
-				else controller.loadFileset();
+				createLinkMenu().show(component, location.x, location.y);
 			}
 		});
 		
-		UIUtilities.unifiedButtonLookAndFeel(pathButton);
-    	UIUtilities.unifiedButtonLookAndFeel(viewButton);
+		UIUtilities.unifiedButtonLookAndFeel(linkButton);
+		UIUtilities.unifiedButtonLookAndFeel(viewButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -455,7 +478,7 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(viewButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(pathButton);
+    	bar.add(linkButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
@@ -644,7 +667,7 @@ class ToolBar
     	Object refObject = model.getRefObject();
     	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
-		pathButton.setEnabled(false);
+		if (pathButton != null) pathButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
@@ -653,7 +676,7 @@ class ToolBar
     		if (refObject instanceof ImageData) {
     			downloadButton.setEnabled(model.isArchived());
     		}
-    		pathButton.setEnabled(model.isSingleMode());
+    		if (pathButton != null) pathButton.setEnabled(model.isSingleMode());
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
@@ -675,7 +698,7 @@ class ToolBar
 		}
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
-    	pathButton.setEnabled(false);
+    	if (pathButton != null) pathButton.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
@@ -696,7 +719,7 @@ class ToolBar
         			if (downloadItem != null && model.isArchived())
         				downloadItem.setEnabled(true);
         			viewButton.setEnabled(true);
-        			pathButton.setEnabled(true);
+        			if (pathButton != null) pathButton.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}

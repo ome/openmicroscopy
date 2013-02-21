@@ -204,6 +204,9 @@ class EditorControl
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
 	
+	/** Action ID to load the file path.*/
+	static final int FILE_PATH = 24;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -817,6 +820,10 @@ class EditorControl
 						(DataObject) object, MetadataViewer.IMAGE_J);
 					MetadataViewerAgent.getRegistry().getEventBus().post(event);
 				}
+				break;
+			case FILE_PATH:
+				if (view.getFileset() != null) view.displayFileset();
+				else loadFileset();
 		}
 	}
 
