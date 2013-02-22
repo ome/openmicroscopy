@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -46,9 +47,9 @@ class ProjectImportLocationSettings extends ImportLocationSettings
 	 * @param project The project to import data in to
 	 * @param dataset The dataset to import data in to
 	 */
-	ProjectImportLocationSettings(GroupData group, DataNode project,
-			DataNode dataset) {
-		super(Importer.PROJECT_TYPE, group);
+	ProjectImportLocationSettings(GroupData group, ExperimenterData user,
+			DataNode project, DataNode dataset) {
+		super(Importer.PROJECT_TYPE, group, user);
 		
 		this.importToProject = project;
 		this.importToDataset = dataset;
