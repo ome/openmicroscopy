@@ -53,7 +53,6 @@ public class LdapTest extends MockObjectTestCase {
         File file;
         Mock role;
         Mock sql;
-        Mock cpf;
         LdapImpl ldap;
         LdapConfig config;
         LdapPasswordProvider provider;
@@ -188,14 +187,11 @@ public class LdapTest extends MockObjectTestCase {
         fixture.sql = mock(SqlAction.class);
         SqlAction sql = (SqlAction) fixture.sql.proxy();
 
-        fixture.cpf = mock(ChecksumProviderFactory.class);
-        ChecksumProviderFactory cpf = (ChecksumProviderFactory) fixture.cpf.proxy();
-
         fixture.ldap = new LdapImpl(source, fixture.template,
                 new Roles(), fixture.config, provider, sql);
 
         fixture.provider = new LdapPasswordProvider(
-                new PasswordUtil(sql, cpf), fixture.ldap);
+                new PasswordUtil(sql), fixture.ldap);
         return fixture;
     }
 

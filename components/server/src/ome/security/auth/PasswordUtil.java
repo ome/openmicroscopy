@@ -8,9 +8,6 @@
 package ome.security.auth;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -18,8 +15,8 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.util.SqlAction;
-import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.codec.binary.Base64;
@@ -41,11 +38,8 @@ public class PasswordUtil {
 
     private final SqlAction sql;
 
-    private ChecksumProviderFactory cpf;
-
-    public PasswordUtil(SqlAction sql, ChecksumProviderFactory cpf) {
+    public PasswordUtil(SqlAction sql) {
         this.sql = sql;
-        this.cpf = cpf;
     }
 
     /**
@@ -58,7 +52,7 @@ public class PasswordUtil {
         if (args == null || args.length != 1) {
             throw new IllegalArgumentException("PasswordUtil.main takes 1 arg.");
         }
-        System.out.println(new PasswordUtil(null, null).preparePassword(args[0]));
+        System.out.println(new PasswordUtil(null).preparePassword(args[0]));
     }
 
     public String generateRandomPasswd() {
@@ -129,6 +123,7 @@ public class PasswordUtil {
         }
 
         String hashedText = null;
+        ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         try {
             bytes = cpf.getProvider(ChecksumType.MD5).getChecksum(bytes);
             bytes = Base64.encodeBase64(bytes);

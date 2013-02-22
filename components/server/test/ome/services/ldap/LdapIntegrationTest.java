@@ -208,15 +208,13 @@ public class LdapIntegrationTest extends LdapTest {
 
         InternalServiceFactory isf = new InternalServiceFactory(mCtx);
         SqlAction sql = (SqlAction) mCtx.getBean("simpleSqlAction");
-        ChecksumProviderFactory cpf = (ChecksumProviderFactory)mCtx
-                .getBean("checksumProviderFactory");
         fixture.ldap = new LdapImpl(source, fixture.template, new Roles(),
                 fixture.config, provider(), sql);
         fixture.ldap.setQueryService((LocalQuery) isf.getQueryService());
         fixture.ldap.setUpdateService((LocalUpdate) isf.getUpdateService());
 
         fixture.provider = new LdapPasswordProvider(
-                new PasswordUtil(sql, cpf), fixture.ldap);
+                new PasswordUtil(sql), fixture.ldap);
         fixture.provider.setApplicationContext(mCtx);
         return fixture;
     }
