@@ -94,18 +94,43 @@ public class StructuredDataResults
 	/** The concrete links.*/
 	private Collection<AnnotationLinkData> annotationLinks;
 	
+	/** Flag indicating if the annotations have been loaded or not.*/
+	private boolean loaded;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param relatedObject The object the results are for. 
 	 * 						Mustn't be <code>null</code>.
 	 */
-	public StructuredDataResults(DataObject	relatedObject)
+	public StructuredDataResults(DataObject relatedObject)
+	{
+		this(relatedObject, true);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param relatedObject The object the results are for.
+	 * 						Mustn't be <code>null</code>.
+	 * @param loaded Flag indicating if the annotations have been loaded or not.
+	 * The default value is <code>true</code>
+	 */
+	public StructuredDataResults(DataObject relatedObject, boolean loaded)
 	{
 		if (relatedObject == null)
 			throw new IllegalArgumentException("No object related.");
 		this.relatedObject = relatedObject;
+		this.loaded = loaded;
 	}
+
+	/**
+	 * Returns <code>true</code> if the annotations are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isLoaded() { return loaded; }
 	
 	/**
 	 * Returns the object the results are for.

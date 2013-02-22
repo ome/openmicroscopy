@@ -34,6 +34,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -75,6 +76,9 @@ public class MetadataViewerAgent
 	/** Reference to the registry. */
     private static Registry         registry; 
 
+    /** The display mode.*/
+	private int displayMode = -1;
+	
     /**
      * Helper method. 
      * 
@@ -277,6 +281,19 @@ public class MetadataViewerAgent
 		}
     }
     
+    /**
+     * Updates the view when the mode is changed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDisplayModeEvent(DisplayModeEvent evt)
+    {
+    	displayMode = evt.getDisplayMode();
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	MetadataViewerFactory.setDiplayMode(displayMode);
+    }
+    
     /** Creates a new instance. */
     public MetadataViewerAgent() {}
     
@@ -308,6 +325,7 @@ public class MetadataViewerAgent
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, ChannelSavedEvent.class);
+        bus.register(this, DisplayModeEvent.class);
     }
 
     /**
@@ -348,6 +366,8 @@ public class MetadataViewerAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
 		else if (e instanceof ChannelSavedEvent)
 			handleChannelSavedEvent((ChannelSavedEvent) e);
+		else if (e instanceof DisplayModeEvent)
+			handleDisplayModeEvent((DisplayModeEvent) e);
 	}
-	
+
 }

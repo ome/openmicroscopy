@@ -107,7 +107,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
-
+	
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	

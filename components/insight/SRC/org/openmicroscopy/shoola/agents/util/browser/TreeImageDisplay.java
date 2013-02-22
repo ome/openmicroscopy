@@ -179,7 +179,7 @@ public abstract class TreeImageDisplay
     {
         switch (type) {
             case TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY:
-            case TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY:    
+            case TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY:
             case TreeImageDisplayVisitor.ALL_NODES:
                 return true;
             default:
@@ -191,7 +191,7 @@ public abstract class TreeImageDisplay
      * Constructor used by subclasses.
      * 
      * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  
+     *                        is visualized by this node.
      *                        Never pass <code>null</code>. 
      */
     protected TreeImageDisplay(Object hierarchyObject)
@@ -628,6 +628,25 @@ public abstract class TreeImageDisplay
     	this.displayItems = displayItems;
     }
     
+    /**
+     * Returns <code>true</code> if the specified user is the owner of the 
+     * data object, <code>false</code> otherwise.
+     * 
+     * @param userId The id of the user.
+     * @return See above.
+     */
+    public boolean isOwner(long userId)
+    {
+    	Object ho = getUserObject();
+    	if (ho instanceof GroupData || ho instanceof ExperimenterData)
+    		return false;
+    	if (ho instanceof DataObject) {
+    		DataObject data = (DataObject) ho;
+    		if (data.getOwner() != null)
+    			return data.getOwner().getId() == userId;
+    	}
+    	return false;
+    }
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()

@@ -365,6 +365,23 @@ public class DataBrowserFactory
 	}
 	
 	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDisplayMode(int displayMode)
+	{
+		Iterator<Entry<Object, DataBrowser>> 
+		v = singleton.browsers.entrySet().iterator();
+		Entry<Object, DataBrowser> entry;
+		while (v.hasNext()) {
+			entry = v.next();
+			entry.getValue().setDisplayMode(displayMode);
+		}
+		onGroupSwitched(true);
+	}
+	
+	/**
 	 * Returns <code>true</code> if there are rendering settings to copy,
 	 * <code>false</code> otherwise.
 	 * 
