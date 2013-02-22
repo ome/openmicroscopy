@@ -115,7 +115,7 @@ public class MoveToAction
 		name = group.getName()+"...";
 		putValue(Action.NAME, name);
 		setPermissions();
-		setEnabled(true);
+		setEnabled(false);
 	}
 
 	/**
