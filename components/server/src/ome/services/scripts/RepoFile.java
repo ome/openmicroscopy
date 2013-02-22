@@ -18,6 +18,8 @@ import java.io.File;
 import ome.util.Utils;
 
 import org.apache.commons.io.FilenameUtils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 
 /**
  * File type wrapper for paths which are intended for being stored in the
@@ -127,7 +129,8 @@ public class RepoFile {
         }
 
         public String sha1() {
-            return Utils.bytesToHex(Utils.pathToSha1(path));
+            ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+            return Utils.bytesToHex(cpf.getProvider().getChecksum(path));
         }
 
         @Override

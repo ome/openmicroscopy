@@ -27,6 +27,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
@@ -944,8 +946,9 @@ public class client {
      * Calculates the local sha1 for a file.
      */
     public String sha1(File file) {
+        ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         return Utils.bytesToHex(
-                Utils.pathToSha1(
+                cpf.getProvider().getChecksum(
                         file.getAbsolutePath()));
     }
 
