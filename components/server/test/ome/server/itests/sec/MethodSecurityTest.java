@@ -14,6 +14,8 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,9 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
 
         SessionManager mgr = (SessionManager) this.applicationContext
                 .getBean("sessionManager");
+        final ChecksumProviderFactory cpf =
+                (ChecksumProviderFactory) this.applicationContext
+                .getBean("checksumProviderFactory");
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
@@ -38,7 +43,7 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
         executor.execute(this.loginAop.p, new Executor.SimpleWork(this, "getRoles") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return new PasswordUtil(getSqlAction()).userGroups("root");
+                return new PasswordUtil(getSqlAction(), cpf).userGroups("root");
             }
         });
 

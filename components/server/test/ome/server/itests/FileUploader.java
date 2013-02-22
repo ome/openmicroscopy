@@ -14,12 +14,12 @@ import java.sql.Timestamp;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
 import ome.model.core.OriginalFile;
-import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
-import ome.services.checksum.ChecksumProviderFactory;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,7 +39,6 @@ public class FileUploader implements Runnable {
     private final ServiceFactory sf;
     private final File file;
     private final String text;
-    private final ChecksumProviderFactory cpf;
 
     // Non-configurable fields, calculated by handle* methods
     private long rSize = 0L;
@@ -50,7 +49,10 @@ public class FileUploader implements Runnable {
     // Main target
     private OriginalFile ofile = new OriginalFile();
 
-    public FileUploader(ServiceFactory sf, File file, ChecksumProviderFactory cpf)
+    // Collaborators
+    private final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+
+    public FileUploader(ServiceFactory sf, File file)
             throws Exception {
         if (sf == null || file == null) {
             throw new ApiUsageException("Non null arguments.");
@@ -58,11 +60,9 @@ public class FileUploader implements Runnable {
         this.sf = sf;
         this.file = file;
         this.text = null;
-        this.cpf = cpf;
     }
 
-    public FileUploader(ServiceFactory sf, String text, String name, String path,
-            ChecksumProviderFactory cpf)
+    public FileUploader(ServiceFactory sf, String text, String name, String path)
             throws Exception {
         if (sf == null || text == null || name == null || path == null) {
             throw new ApiUsageException("Non null arguments.");
@@ -70,7 +70,6 @@ public class FileUploader implements Runnable {
         this.sf = sf;
         this.file = null;
         this.text = text;
-        this.cpf = cpf;
         ofile.setName(name);
         ofile.setPath(path);
     }

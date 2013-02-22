@@ -18,8 +18,9 @@ import ome.model.meta.Experimenter;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
-import ome.testing.FileUploader;
+import ome.server.itests.FileUploader;
 import ome.tools.spring.ManagedServiceFactory;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.BeforeClass;
