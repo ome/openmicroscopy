@@ -40,7 +40,7 @@ import ome.services.fulltext.PersistentEventLogLoader;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.testing.FileUploader;
+import ome.server.itests.FileUploader;
 
 import org.hibernate.Session;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
