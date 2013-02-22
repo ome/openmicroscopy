@@ -2880,7 +2880,7 @@ class OMEROGateway
 		try {
 			if (!orphan) {
 				ParametersI po = new ParametersI();
-				po.exp(omero.rtypes.rlong(userID));
+				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 				return PojoMapper.asDataObjects(service.getUserImages(po));
 			} else {
 				StringBuilder sb = new StringBuilder();
@@ -2894,7 +2894,10 @@ class OMEROGateway
 	            		"ws where ws.image = img.id)");
 	            sb.append(" and img.details.owner.id = :userID");
 	            ParametersI param = new ParametersI();
-            	param.addLong("userID", userID);
+	            if (userID >= 0) {
+	            	sb.append(" and img.details.owner.id = :userID");
+	            	param.addLong("userID", userID);
+	            }
             	return PojoMapper.asDataObjects(
             			svc.findAllByQuery(sb.toString(), param));
 			}

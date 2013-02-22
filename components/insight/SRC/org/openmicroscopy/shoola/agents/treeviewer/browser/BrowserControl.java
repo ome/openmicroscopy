@@ -292,18 +292,25 @@ class BrowserControl
         }
         
        
-        if ((display instanceof TreeImageTimeSet) ||  
-        	(display instanceof TreeFileSet)) {
+        TreeImageDisplay node;
+        if (display instanceof TreeImageTimeSet ||
+        		display instanceof TreeFileSet) {
         	view.loadAction(display);
-        	model.loadExperimenterData(BrowserFactory.getDataOwner(display), 
-        			display);
+    		switch (model.getDisplayMode()) {
+				case TreeViewer.GROUP_DISPLAY:
+					node = EditorUtil.getDataGroup(display);
+					break;
+				case TreeViewer.EXPERIMENTER_DISPLAY:
+				default:
+					node = BrowserFactory.getDataOwner(display);
+			}
+        	model.loadExperimenterData(node, display);
         	return;
         }
-        if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
-        		) {//|| (ho instanceof PlateData)) {
+        if (ho instanceof DatasetData || ho instanceof TagAnnotationData) {
         	view.loadAction(display);
         	//Load the data of the logged in user.
-        	TreeImageDisplay node;
+        	
     		switch (model.getDisplayMode()) {
 				case TreeViewer.GROUP_DISPLAY:
 					node = EditorUtil.getDataGroup(display);
