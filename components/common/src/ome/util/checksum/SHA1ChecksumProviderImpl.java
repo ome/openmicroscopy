@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 
 import ome.util.Utils;
 
@@ -35,11 +34,15 @@ public class SHA1ChecksumProviderImpl implements ChecksumProvider {
         try {
             fis = new FileInputStream(filePath);
             fch = fis.getChannel();
-            MappedByteBuffer mbb = fch.map(MapMode.READ_ONLY, 0L, fch.size());
+            MappedByteBuffer mbb = fch.map(FileChannel.MapMode.READ_ONLY, 0L, fch.size());
             byte[] byteArray = new byte[BYTEARRAYSIZE];
             int byteCount;
             while (mbb.hasRemaining()) {
                 byteCount = Math.min(mbb.remaining(), BYTEARRAYSIZE);
+                if (byteCount < BYTEARRAYSIZE) {
+                    // This might be sub-optimal
+                    byteArray = new byte[byteCount];
+                }
                 mbb.get(byteArray, 0, byteCount);
                 sha1Hasher.putBytes(byteArray);
             }
@@ -48,6 +51,7 @@ public class SHA1ChecksumProviderImpl implements ChecksumProvider {
             throw new RuntimeException(io);
         } finally {
             Utils.closeQuietly(fis);
+            Utils.closeQuietly(fch);
         }
     }
 
