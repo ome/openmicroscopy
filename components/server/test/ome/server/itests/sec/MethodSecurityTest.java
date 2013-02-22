@@ -31,9 +31,6 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
 
         SessionManager mgr = (SessionManager) this.applicationContext
                 .getBean("sessionManager");
-        final ChecksumProviderFactory cpf =
-                (ChecksumProviderFactory) this.applicationContext
-                .getBean("checksumProviderFactory");
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
@@ -43,7 +40,7 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
         executor.execute(this.loginAop.p, new Executor.SimpleWork(this, "getRoles") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return new PasswordUtil(getSqlAction(), cpf).userGroups("root");
+                return new PasswordUtil(getSqlAction()).userGroups("root");
             }
         });
 
