@@ -1692,6 +1692,21 @@ class DataBrowserComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see DataBrowser#getDisplayMode()
+	 */
+	public int getDisplayMode() { return model.getDisplayMode(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see DataBrowser#setDisplayMode(int)
+	 */
+	public void setDisplayMode(int displayMode)
+	{
+		model.setDisplayMode(displayMode);
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */

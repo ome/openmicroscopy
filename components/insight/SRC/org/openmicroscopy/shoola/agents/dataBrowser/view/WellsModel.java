@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -64,6 +65,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -245,8 +247,7 @@ class WellsModel
 		this.withThumbnails = withThumbnails;
 		wellDimension = null;
 		this.parent = parent;
-		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells, 
-				DataBrowserAgent.getUserDetails().getId(), 0));
+		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells));
 
 		PlateData plate = (PlateData) parent;
 		columnSequenceIndex = plate.getColumnSequenceIndex();
@@ -392,6 +393,8 @@ class WellsModel
 			//cells.add(cell);
 		}
 		browser = BrowserFactory.createBrowser(samples);
+        browser.accept(new DecoratorVisitor(getCurrentUser().getId()));
+        
 		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 		if (wellDimension == null)
 			wellDimension = new Dimension(ThumbnailProvider.THUMB_MAX_WIDTH,

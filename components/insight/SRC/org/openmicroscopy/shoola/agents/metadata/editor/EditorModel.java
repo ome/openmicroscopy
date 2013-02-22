@@ -850,8 +850,16 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canLink(Object data)
-	{ 
-		return EditorUtil.isUserOwner(data, getUserID());
+	{
+		switch (getDisplayMode()) {
+			case LookupNames.GROUP_DISPLAY:
+				if (data instanceof DataObject)
+					return ((DataObject) data).canLink();
+				return false;
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			default:
+				return EditorUtil.isUserOwner(data, getUserID());
+		}
 	}
 
 	/**
@@ -3472,6 +3480,27 @@ class EditorModel
 		return MetadataViewerAgent.getUserDetails();
 	}
 	
+	/**
+	 * Returns the experimenter corresponding to the specified identifier.
+	 * or <code>null</code>.
+	 * 
+	 * @param expID The identifier of the experimenter.
+	 * @return see above.
+	 */
+	ExperimenterData getExperimenter(long expID)
+	{
+		List l = (List) MetadataViewerAgent.getRegistry().lookup(
+				LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == expID) return exp;
+		}
+		return null;
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.
@@ -3484,15 +3513,22 @@ class EditorModel
 		if (o instanceof ExperimenterData || o instanceof GroupData)
 			return null;
 		if (o instanceof DataObject) {
+			ExperimenterData user = getCurrentUser();
 			DataObject data = (DataObject) o;
-			long id = MetadataViewerAgent.getUserDetails().getId();
+			long id = user.getId();
 			if (data.getId() < 0) return null;
 			if (!((DataObject) o).isLoaded()) return null;
 			try {
 				ExperimenterData owner = data.getOwner();
-				if (owner.getId() == id) return null;
-				return owner.getFirstName()+" "+owner.getLastName();
-			} catch (Exception e) {}
+				if (owner.getId() == id)
+					return EditorUtil.formatExperimenter(user);
+				if (owner.isLoaded())
+					return EditorUtil.formatExperimenter(owner);
+				owner = getExperimenter(owner.getId());
+				if (owner != null)
+					return EditorUtil.formatExperimenter(owner);
+			} catch (Exception e) {
+			}
 		}
 		return null;
 	}
@@ -3867,6 +3903,37 @@ class EditorModel
 			channel = i.next();
 			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
 		}
+	}
+
+	/*** Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode()
+	{
+		Integer value = (Integer) MetadataViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+			return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY;
+	}
+
+	/**
+	 * Returns <code>true</code> if the annotations are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAnnotationLoaded()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		return data.isLoaded();
 	}
 
 }

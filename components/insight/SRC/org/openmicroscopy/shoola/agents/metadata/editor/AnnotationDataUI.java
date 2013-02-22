@@ -305,6 +305,10 @@ class AnnotationDataUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		setBackground(UIUtilities.BACKGROUND);
+		setBorder(new SeparatorOneLineBorder());
+		
 		toReplace = new ArrayList<FileAnnotationData>();
 		IconManager icons = IconManager.getInstance();
 		filter = SHOW_ALL;
@@ -449,12 +453,25 @@ class AnnotationDataUI
 	private void buildGUI()
 	{
 		removeAll();
+		
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
 		content.removeAll();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		JPanel p;
+		
+		if (!model.isAnnotationLoaded()) {
+			l.setText("Annotation could not be loaded");
+			p = UIUtilities.buildComponentPanel(l, 0, 0);
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			p.add(Box.createHorizontalStrut(2));
+			content.add(p);
+			add(content);
+			return;
+		}
+		
+		
 		if (model.isMultiSelection()) {
 			Object refObject = model.getRefObject();
 			StringBuffer buffer = new StringBuffer();
@@ -571,9 +588,7 @@ class AnnotationDataUI
 			c.gridheight = 2;
 			panel.add(UIUtilities.buildComponentPanel(list, 0, 0), c);
 		}
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		setBackground(UIUtilities.BACKGROUND);
-		setBorder(new SeparatorOneLineBorder());
+		
 		add(content);
 	}
 	
