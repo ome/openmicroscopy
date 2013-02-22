@@ -26,6 +26,7 @@ import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.util.ShallowCopy;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +72,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /** the disk space checking service */
     private transient IRepositoryInfo iRepositoryInfo;
 
+    /** the checksum provider factory singleton **/
+    private transient ChecksumProviderFactory checksumProviderFactory;
+
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
     
@@ -111,6 +115,16 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         this.iRepositoryInfo = iRepositoryInfo;
     }
 
+    /**
+     * ChecksumProviderFactory Bean injector
+     * @param cpf a <code>ChecksumProviderFactory</code>
+     */
+    public final void setChecksumProviderFactory(
+            ChecksumProviderFactory checksumProviderFactory) {
+        getBeanHelper().throwIfAlreadySet(this.checksumProviderFactory,
+                checksumProviderFactory);
+        this.checksumProviderFactory = checksumProviderFactory;
+    }
 
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
@@ -141,7 +155,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             String path = ioService.getFilesPath(id);
             try {
 
-                byte[] hash = Utils.pathToSha1(path);
+                byte[] hash = this.checksumProviderFactory.getProvider().getChecksum(path);
                 file.setSha1(Utils.bytesToHex(hash));
 
                 long size = new File(path).length();
