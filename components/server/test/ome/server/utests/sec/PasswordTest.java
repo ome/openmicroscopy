@@ -53,13 +53,11 @@ public class PasswordTest extends MockObjectTestCase {
 
     PasswordProvider provider;
 
-    Mock mockSql, mockLdap, mockCpf;
+    Mock mockSql, mockLdap;
 
     SqlAction sql;
 
     LdapImpl ldap;
-
-    ChecksumProviderFactory cpf;
 
     protected void initJdbc() {
         mockSql = mock(SqlAction.class);
@@ -73,11 +71,6 @@ public class PasswordTest extends MockObjectTestCase {
         ldap = null; // FIXME
         mockLdap.expects(atLeastOnce()).method("getSetting").will(
                 returnValue(setting));
-    }
-
-    protected void initChecksumProvider() {
-        mockCpf = mock(ChecksumProviderFactory.class);
-        cpf = (ChecksumProviderFactory) mockCpf.proxy();
     }
 
     // CONFIGURABLE
@@ -126,8 +119,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesJdbcDefaults() throws Exception {
         initJdbc();
-        initChecksumProvider();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql, cpf));
+        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
 
         userIdReturns1();
         provider.hasPassword("test");
@@ -147,35 +139,31 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesJdbcIgnoreUnknownReturnsFalse() throws Exception {
         initJdbc();
-        initChecksumProvider();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql, cpf));
+        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesJdbcDontIgnoreUnknownReturnsNull() throws Exception {
         initJdbc();
-        initChecksumProvider();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql, cpf), true);
+        provider = new JdbcPasswordProvider(new PasswordUtil(sql), true);
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void testJdbcChangesPassword() throws Exception {
         initJdbc();
-        initChecksumProvider();
         userIdReturns1();
         mockSql.expects(once()).method("update").will(returnValue(1));
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql, cpf));
+        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         provider.changePassword("a", "b");
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
     public void testJdbcThrowsOnBadUsername() throws Exception {
         initJdbc();
-        initChecksumProvider();
         userIdReturnsNull();
-        provider = new JdbcPasswordProvider(new PasswordUtil(sql, cpf));
+        provider = new JdbcPasswordProvider(new PasswordUtil(sql));
         provider.changePassword("a", "b");
     }
 
@@ -183,8 +171,7 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesLdapDefaults() throws Exception {
         initLdap(true);
-        initChecksumProvider();
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap);
 
         String encoded = ((PasswordUtility) provider).encodePassword("test");
         queryForObjectReturns(encoded);
@@ -211,66 +198,59 @@ public class PasswordTest extends MockObjectTestCase {
 
     public void tesLdapIgnoreUnknownCreatesFailsReturnsFalse() throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUser(false);
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapIgnoreUnknownCreatesSucceedsReturnsTrue()
             throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUser(true);
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
         assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapIgnoreUnknownCreatesThrows() throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, true);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, true);
         assertNull(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesFailsReturnsFalse()
             throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUser(false);
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesSucceedsReturnsTrue()
             throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUser(true);
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
         assertTrue(provider.checkPassword("unknown", "anything", false));
     }
 
     public void tesLdapDontIgnoreUnknownCreatesThrows() throws Exception {
         initLdap(true);
-        initChecksumProvider();
         userIdReturnsNull();
         ldapCreatesUserAndThrows();
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap, false);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap, false);
         assertFalse(provider.checkPassword("unknown", "anything", false));
     }
 
     @Test(expectedExceptions = PasswordChangeException.class)
     public void testLdapChangesPasswordThrows() throws Exception {
         initLdap(true);
-        initChecksumProvider();
-        provider = new LdapPasswordProvider(new PasswordUtil(sql, cpf), ldap);
+        provider = new LdapPasswordProvider(new PasswordUtil(sql), ldap);
         provider.changePassword("a", "b");
     }
 

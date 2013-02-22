@@ -98,7 +98,6 @@
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
     <constructor-arg ref="simpleSqlAction"/>
-    <constructor-arg ref="checksumProviderFactory"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">
