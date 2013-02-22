@@ -40,8 +40,8 @@ class NullImportSettings extends ImportLocationSettings {
 	 * Creates a NullImportSettings with the group @see ImportLocationSettings
 	 * @param group The group to import data in to.
 	 */
-	NullImportSettings(GroupData group) {
-		super(UNKNOWN_DATA_TYPE, group);
+	NullImportSettings(GroupData group, ExperimenterData user) {
+		super(UNKNOWN_DATA_TYPE, group, user);
 	}
 
 	/**
