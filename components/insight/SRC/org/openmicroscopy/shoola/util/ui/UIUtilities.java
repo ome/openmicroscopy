@@ -1690,17 +1690,7 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v <= 0) return "0 Kb";
-		String s = "";
-		if (v < FileUtils.ONE_KB) 
-			s = String.format("%.1f", (double) v)+" bytes";
-		else if (v >= FileUtils.ONE_KB && v < FileUtils.ONE_MB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_KB))+" Kb";
-		else if (v >= FileUtils.ONE_MB && v < FileUtils.ONE_GB) 
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_MB))+" Mb";
-		else if (v >= FileUtils.ONE_GB)
-			s = String.format("%.1f", ((double) v/FileUtils.ONE_GB))+" Gb";
-		return s;
+		return FileUtils.byteCountToDisplaySize(v);
 	}
 	
 	/**
