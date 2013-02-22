@@ -44,11 +44,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -451,6 +451,22 @@ class LocationDialog extends JDialog implements ActionListener,
 		return null ;
 	}
 
+	public class SelectableComboBoxModel extends DefaultComboBoxModel
+	{
+	    @Override
+	    public void setSelectedItem(Object anObject) {
+
+	        if (anObject != null && anObject instanceof Selectable<?>) {
+	        	Selectable<?> entry = (Selectable<?>) anObject;
+	            if (entry.isSelectable()) {
+	                super.setSelectedItem(anObject);
+	            }
+	        } else {
+	            super.setSelectedItem(anObject);
+	        }
+	    }
+
+	}
 	/**
 	 * Initialises the UI components of the dialog.
 	 */
@@ -462,6 +478,16 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox.addItemListener(this);
 		
 		usersBox = new JComboBox();
+		usersBox.setRenderer(new ComboBoxToolTipRenderer(ImporterAgent.getUserDetails().getId()));
+
+		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		/*
+		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
+		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
+		model.addElement(new Selectable<String>("Something should be selectable and enabled", true));
+		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
+		*/
+		usersBox.setModel(model);
 		usersBox.addItemListener(this);
 		
 		refreshButton = new JButton(TEXT_REFRESH);
@@ -470,7 +496,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		refreshButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
 		refreshButton.addActionListener(this);
 		
-
 		projectsBox = new JComboBox();
 		projectsBox.addItemListener(this);
 		
