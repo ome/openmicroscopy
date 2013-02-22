@@ -100,7 +100,6 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 						((JLabel) comp).setIcon(NOT_OWNED_ICON);
 					}
 				}
-				
 			}
 		}
 		return comp;

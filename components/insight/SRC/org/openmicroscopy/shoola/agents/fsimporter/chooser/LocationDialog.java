@@ -48,6 +48,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -258,9 +259,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** Component indicating to close the dialog. */
 	private JButton closeButton;
 
-	/** component used to select the import group. */
+	/** Component used to select the import group. */
 	private JComboBox groupsBox;
 
+	/** Component used to select the import user. */
+	private JComboBox usersBox;
+	
 	/** Component used to select the default project. */
 	private JComboBox projectsBox;
 
@@ -328,6 +332,7 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/** The currently selected Screen */
 	private DataNode currentScreen;
+
 	
 	/**
 	 * Creates a new instance.
@@ -456,6 +461,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		groupsBox.addItemListener(this);
 		
+		usersBox = new JComboBox();
+		usersBox.addItemListener(this);
+		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
 		refreshButton.setToolTipText(TOOLTIP_REFRESH);
@@ -551,13 +559,18 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildGroupSelectionPanel() {
 		TableLayout groupLayout = 
-				createTableLayout(TABLE_PREF_PREF, TABLE_PREF);
-		JPanel groupPanel = new JPanel(groupLayout);
+				createTableLayout(TABLE_PREF_PREF_PREF, TABLE_PREF_PREF);
+		final JPanel groupPanel = new JPanel(groupLayout);
         
-		if(groups.size() > 1)
-		{
+		if(groups.size() > 1) {
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
+
+	        groupPanel.add(UIUtilities.setTextFont("User"), "0, 1, r, c");
+	        groupPanel.add(usersBox,"1, 1");
+		} else {
+	        groupPanel.add(UIUtilities.setTextFont("User"), "0, 0, r, c");
+	        groupPanel.add(usersBox,"1, 0");
 		}
        
 		return groupPanel;
@@ -675,6 +688,14 @@ class LocationDialog extends JDialog implements ActionListener,
 		contentPane.add(mainPanel, "1, 1");
 		
 		// resize the window to minimum size
+		setMinimumSize();
+	}
+
+	/**
+	 * Resizes the window and sets the minimum size to the 
+	 * size required by all components.
+	 */
+	private void setMinimumSize() {
 		this.pack();
 		int minHeight = this.getHeight();
 		
@@ -837,21 +858,26 @@ class LocationDialog extends JDialog implements ActionListener,
 	protected ImportLocationSettings getImportSettings() {
 		
 		GroupData group = getSelectedGroup();
+		ExperimenterData user = getSelectedUser();
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
 				DataNode project = getSelectedItem(projectsBox);
 				DataNode dataset = getSelectedItem(datasetsBox);
-				return new ProjectImportLocationSettings(group,
+				return new ProjectImportLocationSettings(group, user,
 						project, dataset);
 			case Importer.SCREEN_TYPE:
-				DataNode screen = getSelectedItem(screensBox);
-				return new ScreenImportLocationSettings(group, screen);
+				DataNode screen = (DataNode) screensBox.getSelectedItem();
+				return new ScreenImportLocationSettings(group, user, screen);
 		}
 		
-		return new NullImportSettings(group);
+		return new NullImportSettings(group, user);
 	}
 
+
+	private ExperimenterData getSelectedUser() {
+		return ImporterAgent.getUserDetails();
+	}
 
 	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips.

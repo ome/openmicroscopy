@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
