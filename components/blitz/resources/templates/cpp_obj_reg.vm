@@ -60,10 +60,11 @@ namespace omero {
 
     class DetailsObjectFactory : virtual public Ice::ObjectFactory {
     protected:
-	const omero::client_ptr client;
+    // This must be stored as a raw pointer to prevent circular ref with client
+	const omero::client* client;
     public:
 	DetailsObjectFactory(
-            const omero::client_ptr& client = omero::client_ptr())
+            const omero::client* client = NULL)
                 : Ice::ObjectFactory(), client(client) { }
 
 	~DetailsObjectFactory() {}
