@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Install OMERO Python dependencies
+# This script was originally part of the Homebrew installation script.
+# It assumes the current directory is the one where Homebrew was installed,
+# i.e. /usr/local in most cases
+
 set -e
 set -u
 
