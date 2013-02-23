@@ -12,7 +12,7 @@ else
 fi
 
 ###################################################################
-# BREW & PIP BASE SYSTEMS
+# PIP BASE SYSTEM
 ###################################################################
 
 # Python virtualenv/pip support ===================================
@@ -36,19 +36,23 @@ fi
 # PIP INSTALLS
 ###################################################################
 
-installed(){
+install(){
     PKG=$1; shift
     bin/pip freeze "$@" | grep -q "^$PKG==" && {
         echo $PKG installed.
     } || {
-        return 1
+        bin/pip install $PKG
     }
 }
 
-# Python requirements =============================================
-installed numpy  || bin/pip install numpy
-installed PIL || bin/pip install PIL
-installed scipy || bin/pip install scipy
+
+# Numpy & PIL
+install numpy
+install PIL
+
+# Scipy (requires Gfortran compiler)
+install scipy || echo "Scipy installation failed. Make sure a fortran compiler is available."
+
 #
 # Various issues with matplotlib. See the following if you have problems:
 # -----------------------------------------------------------------------
@@ -57,13 +61,17 @@ installed scipy || bin/pip install scipy
 #
 export LDFLAGS="-L/usr/X11/lib"
 export CFLAGS="-I/usr/X11/include -I/usr/X11/include/freetype2 -I/usr/X11/include/libpng12"
-installed matplotlib || bin/pip install matplotlib
+install matplotlib
 
 # PyTables requirements ===========================================
 export HDF5_DIR=`pwd`
-installed Cython || bin/pip install Cython
-installed numexpr || bin/pip install numexpr
-bin/pip freeze | grep -q tables-dev || bin/pip install -e $TABLES_GIT#egg=tables
+install Cython
+install numexpr
+
+bin/pip freeze | grep -q tables-dev || {
+    which git && bin/pip install -e $TABLES_GIT#egg=tables ||
+    "Install git in order to install PyTables."
+}
 
 echo "Done."
 
