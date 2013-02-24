@@ -495,16 +495,26 @@ class TestPythonImporter(AbstractRepoTest):
                 rfs.close()
         return ret_val
 
-    def testImportFileset(self):
-        client = self.new_client()
+    def fullImport(self, client):
+        """
+        Re-usable method for a basic import
+        """
         mrepo = self.getManagedRepo(client)
         folder = self.create_test_dir()
         fileset = self.create_fileset(folder)
         settings = self.create_settings()
 
         proc = mrepo.importFileset(fileset, settings)
-        self.assertImport(client, proc, folder)
+        try:
+            self.assertImport(client, proc, folder)
+        finally:
+            proc.close()
 
+    def testImportFileset(self):
+        client = self.new_client()
+        self.fullImport(client)
+
+    # Tests the alternative importPaths method
     def testImportPaths(self):
         client = self.new_client()
         mrepo = self.getManagedRepo(client)
@@ -513,6 +523,23 @@ class TestPythonImporter(AbstractRepoTest):
 
         proc = mrepo.importPaths(paths)
         self.assertImport(client, proc, folder)
+
+    # Assure that the template functionality supports the same user
+    # importing from multiple groups on a given day
+    def testImportsFrom2Groups(self):
+        group1 = self.new_group(perms="rw----")
+        client, user = self.new_client_and_user(group=group1)
+        group2 = self.new_group(perms="rw----",
+                experimenters=[user])
+
+        # from group1
+        self.assertEquals(group1.id.val,
+                client.sf.getAdminService().getEventContext().groupId)
+        self.fullImport(client)
+
+        # then group 2
+        client.sf.setSecurityContext(group2)
+        self.fullImport(client)
 
     def assertImport(self, client, proc, folder):
         hashes = self.upload_folder(proc, folder)
