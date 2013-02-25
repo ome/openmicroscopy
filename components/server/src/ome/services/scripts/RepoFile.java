@@ -27,6 +27,8 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
  */
 public class RepoFile {
 
+    private final static ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+
     /**
      * Somewhat complicated method to turn any path into a unique like path
      * rooted at "/".
@@ -129,7 +131,6 @@ public class RepoFile {
         }
 
         public String sha1() {
-            ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
             return Utils.bytesToHex(cpf.getProvider().getChecksum(path));
         }
 
