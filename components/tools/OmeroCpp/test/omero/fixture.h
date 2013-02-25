@@ -46,12 +46,6 @@ struct Fixture
          */
         Fixture();
 
-        /**
-         * If either the "root" or the "client" client_ptr
-         * instance is true, call __del__().
-         */
-        virtual ~Fixture();
-
         // Fields which should always be present
         omero::client_ptr root;
         omero::client_ptr client;
