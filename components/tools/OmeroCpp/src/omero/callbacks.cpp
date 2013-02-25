@@ -152,20 +152,16 @@ namespace omero {
         //
 
         CmdCallbackI::CmdCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle) :
-            omero::cmd::CmdCallback(),
+            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category) :
             adapter(adapter),
-            handle(handle),
-            closeHandle(closeHandle) {
+            handle(handle) {
                 doinit(category);
         };
 
         CmdCallbackI::CmdCallbackI(
-            const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle) :
-            omero::cmd::CmdCallback(),
+            const omero::client_ptr& client, const omero::cmd::HandlePrx handle) :
             adapter(client->getObjectAdapter()),
-            handle(handle),
-            closeHandle(closeHandle) {
+            handle(handle) {
                 doinit(client->getCategory());
         };
 
@@ -180,15 +176,15 @@ namespace omero {
             // Now check just in case the process exited VERY quickly
             poll();
         };
-
-        CmdCallbackI::~CmdCallbackI() {
+        
+        void CmdCallbackI::close(bool closeHandle) {
             if (adapter) {
                 adapter->remove(id); // OK ADAPTER USAGE
             }
             if (closeHandle && handle) {
                 handle->close();
             }
-        };
+        }
 
         omero::cmd::ResponsePtr CmdCallbackI::getResponse() {
             IceUtil::RecMutex::Lock lock(mutex);

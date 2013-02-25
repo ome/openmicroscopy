@@ -210,31 +210,31 @@ namespace omero {
              */
             omero::cmd::HandlePrx handle;
 
-            /**
-             * Whether or not the destructor should call close
-             * on the handle object.
-             */
-            bool closeHandle;
-
-            /**
-             * First removes self from the adapter so as to no longer receive
-             * notifications, and the calls close on the remote handle if requested.
-             */
-	    virtual ~CmdCallbackI();
-
             omero::cmd::StatusPtr getStatusOrThrow();
 
             void doinit(std::string category);
 
         public:
 
-            CmdCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle = true);
+            CmdCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category);
 
             /**
              * Uses the category from client::getCategory as the id.
              */
-            CmdCallbackI(const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle = true);
+            CmdCallbackI(const omero::client_ptr& client, const omero::cmd::HandlePrx handle);
 
+            /**
+             * First removes self from the adapter so as to no longer receive
+             * notifications, and then calls close on the remote handle if requested.
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close(bool closeHandle = true);
+            
             //
             // Local invcations
             //
