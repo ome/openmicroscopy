@@ -18,9 +18,10 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.SimpleLayout;
+// CGB: Needs replacing with logback equivalent.
+// import org.apache.log4j.ConsoleAppender;
+// import org.apache.log4j.Level;
+// import org.apache.log4j.SimpleLayout;
 
 /**
  * Creates temporary files and folders and makes a best effort to remove them on
@@ -37,15 +38,16 @@ public class TempFileManager {
     static {
         // Activating logging at a static level
         if (System.getenv().containsKey("DEBUG")) {
-            ConsoleAppender console = new ConsoleAppender();
-            console.setName("System.err");
-            console.setTarget(ConsoleAppender.SYSTEM_ERR);
-            console.setLayout(new SimpleLayout());
-            console.activateOptions();
-            org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
-            logger.addAppender(console);
-            logger.setLevel(Level.DEBUG);
-            logger.addAppender(console);
+            // CGB: Needs replacing with logback equivalent.
+            //ConsoleAppender console = new ConsoleAppender();
+            //console.setName("System.err");
+            //console.setTarget(ConsoleAppender.SYSTEM_ERR);
+            //console.setLayout(new SimpleLayout());
+            //console.activateOptions();
+            //org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
+            //logger.addAppender(console);
+            //logger.setLevel(Level.DEBUG);
+            //logger.addAppender(console);
         }
     }
 
@@ -463,15 +465,16 @@ public class TempFileManager {
 
             // Debug may already be activated. See static block above.
             if (args.contains("--debug") && ! System.getenv().containsKey("DEBUG")) {
-                ConsoleAppender console = new ConsoleAppender();
-                console.setName("System.err");
-                console.setTarget(ConsoleAppender.SYSTEM_ERR);
-                console.setLayout(new SimpleLayout());
-                console.activateOptions();
-                org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
-                logger.addAppender(console);
-                logger.setLevel(Level.DEBUG);
-                logger.addAppender(console);
+                // CGB: Needs replacing with logback equivalent.
+                //ConsoleAppender console = new ConsoleAppender();
+                //console.setName("System.err");
+                //console.setTarget(ConsoleAppender.SYSTEM_ERR);
+                //console.setLayout(new SimpleLayout());
+                //console.activateOptions();
+                //org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger("omero");
+                //logger.addAppender(console);
+                //logger.setLevel(Level.DEBUG);
+                //logger.addAppender(console);
             }
 
             if (args.contains("clean")) {

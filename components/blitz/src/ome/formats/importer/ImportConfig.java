@@ -37,7 +37,7 @@ import omero.model.FilesetVersionInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.log4j.Level;
+// import org.apache.log4j.Level; CGB: Needs replacing with logback equivalent.
 
 /**
  * Utility class which configures the Import.
@@ -263,18 +263,19 @@ public class ImportConfig {
         // TODO: add java version info
     }
 
+    //CGB: Need replacing with logback equivalent.
     /**
      * Modifies the Log4j logging level of everything under the
      * <code>ome.format</code> and <code>loci</code> package hierarchically.
      * @param level if null, then {@link #ini#getDebugLevel()} will be used.
      */
-    public void configureDebug(Level level) {
-        if (level == null) {
-            level = Level.toLevel(ini.getDebugLevel());
-        }
-        org.apache.log4j.Logger.getLogger("ome.formats").setLevel(level);
-        org.apache.log4j.Logger.getLogger("loci").setLevel(level);
-    }
+    // public void configureDebug(Level level) {
+    //     if (level == null) {
+    //         level = Level.toLevel(ini.getDebugLevel());
+    //     }
+    //     org.apache.log4j.Logger.getLogger("ome.formats").setLevel(level);
+    //     org.apache.log4j.Logger.getLogger("loci").setLevel(level);
+    // }
 
     //
     // Login methods
