@@ -872,17 +872,30 @@ class OmeroDataServiceImpl
 		}
 		if (images.size() > 0) {
 			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
-			Iterator<DataObject> kk = fsList.iterator();
-			Fileset fs;
-			long imageId;
-			while (kk.hasNext()) {
-				fs = (Fileset) kk.next().asIObject();
-				imageId =
-					fs.copyImageLinks().get(0).getChild().getId().getValue();
-				cmd = new Delete(gateway.createDeleteCommand(
-						ImageData.class.getName()), imageId,
-						images.get(imageId));
-				commands.add(cmd);
+			if (fsList.size() != 0) {
+				Iterator<DataObject> kk = fsList.iterator();
+				Fileset fs;
+				long imageId;
+				while (kk.hasNext()) {
+					fs = (Fileset) kk.next().asIObject();
+					imageId =
+						fs.copyImageLinks().get(0).getChild().getId().getValue();
+					cmd = new Delete(gateway.createDeleteCommand(
+							ImageData.class.getName()), imageId,
+							images.get(imageId));
+					commands.add(cmd);
+				}
+			} else { //Pre-fs data
+				Entry<Long, Map<String, String>> entry;
+				Iterator<Entry<Long, Map<String, String>>> e =
+					images.entrySet().iterator();
+				while (e.hasNext()) {
+					entry = e.next();
+					cmd = new Delete(gateway.createDeleteCommand(
+							ImageData.class.getName()), entry.getKey(),
+							entry.getValue());
+					commands.add(cmd);
+				}
 			}
 		}
 		return gateway.deleteObject(ctx,
