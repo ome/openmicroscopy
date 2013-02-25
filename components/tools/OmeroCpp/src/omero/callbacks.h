@@ -143,7 +143,7 @@ namespace omero {
             OME_API_DEL::DeleteHandlePrx handle;
 	    virtual ~DeleteCallbackI();
         public:
-            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle);
+            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool pool = true);
             virtual omero::RIntPtr block(long ms);
             virtual omero::api::_cpp_delete::DeleteReports loop(int loops, long ms);
             virtual void finished(int errors);

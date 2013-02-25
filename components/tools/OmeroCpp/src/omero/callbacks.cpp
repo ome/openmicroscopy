@@ -92,9 +92,9 @@ namespace omero {
         //
 
         DeleteCallbackI::DeleteCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle) :
+            const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool poll) :
             adapter(adapter),
-            poll(true),
+            poll(poll),
             handle(handle) {
         };
 
