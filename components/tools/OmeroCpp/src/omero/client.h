@@ -187,10 +187,6 @@ namespace omero {
 	 */
 	~client();
 
-	/*
-	 * Implements the ~client logic as in OmeroPy and OmeroJava
-	 */
-	 void __del__();
 
 	// Accessors
 	// ==============================================================

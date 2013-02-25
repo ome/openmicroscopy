@@ -277,16 +277,12 @@ namespace omero {
     // --------------------------------------------------------------------
 
     client::~client() {
-        __del__();
+        try {
+            closeSession();
+        } catch (const std::exception& ex) {
+            std::cout << "WARNING: ignoring exception - " << ex.what() << std::endl;
+        }
     }
-
-    void client::__del__() {
-	try {
-	    closeSession();
-	} catch (const std::exception& ex) {
-            std::cout << ex.what() << std::endl;
-	}
-  }
 
 
     // Acessors
@@ -482,7 +478,7 @@ namespace omero {
 		__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
 		//__sf->subscribe("/public/HeartBeat", raw);
 	} catch (...) {
-		__del__();
+		closeSession();
 		throw;
 	}
 
@@ -548,8 +544,7 @@ namespace omero {
 
 	IceUtil::RecMutex::Lock lock(mutex);
 
-	omero::api::ServiceFactoryPrx oldSf = __sf;
-	__sf = omero::api::ServiceFactoryPrx();
+    __sf = NULL;
 
 	Ice::ObjectAdapterPtr oldOa = __oa;
 	__oa = Ice::ObjectAdapterPtr();
