@@ -370,6 +370,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <property name="test.dir" value="${tools.comp}/OmeroJava/test"/>
             <property name="unit.suite" value="fs.testng.xml"/>
         </ant>
+        <ant antfile="${tools.comp}/OmeroPy/build.xml" dir="${tools.comp}/OmeroPy" target="python-integration" inheritall="false">
+            <property name="suite_file" value="${tools.comp}/OmeroPy/test/integration/fs_suite.py"/>
+        </ant>
     </target>
 
     <target name="test-report" description="Joins test results into a single report">

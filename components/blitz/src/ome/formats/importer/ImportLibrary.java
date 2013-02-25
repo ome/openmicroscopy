@@ -195,8 +195,9 @@ public class ImportLibrary implements IObservable
             throws ServerError
     {
         checkManagedRepo();
-        List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
-        return undeleted;
+        // FIXME List<String> undeleted = repo.deleteFiles(container.getUsedFiles());
+        // return undeleted;
+        return null;
     }
 
     /**

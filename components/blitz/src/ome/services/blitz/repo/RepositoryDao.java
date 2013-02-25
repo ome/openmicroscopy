@@ -3,12 +3,15 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.util.List;
 
+import Ice.Current;
+
 import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
 import ome.util.SqlAction.DeleteLog;
 
+import omero.RMap;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.model.Fileset;
@@ -48,6 +51,19 @@ public interface RepositoryDao {
      */
     OriginalFile findRepoFile(String uuid, CheckedPath checked,
             String mimetype, Ice.Current current) throws ServerError;
+
+    /**
+     * Look up all original files at a given path, recursively, in a single
+     * transaction.
+     *
+     * @param repoUuid
+     * @param checked
+     * @param __current
+     * @return
+     * @throws ServerError
+     */
+    RMap treeList(String repoUuid, CheckedPath checked, Current __current)
+            throws ServerError;
 
     /**
      * Checks that the given {@link CheckedPath} object exists (via

@@ -35,6 +35,10 @@ import ome.system.ServiceFactory;
 import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
 
+import omero.RLong;
+import omero.RMap;
+import omero.RString;
+import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.model.Fileset;
@@ -160,15 +164,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                             new Executor.SimpleWork(this, "findRepoFile", uuid, checked, mimetype) {
                         @Transactional(readOnly = true)
                         public ome.model.core.OriginalFile doWork(Session session, ServiceFactory sf) {
-                        Long id = getSqlAction().findRepoFile(uuid,
-                                checked.getRelativePath(), checked.getName(),
-                                mimetype);
-                        if (id == null) {
-                            return null;
-                        } else {
-                            return sf.getQueryService().get(
-                                    ome.model.core.OriginalFile.class, id);
-                        }
+                        return findRepoFile(sf, getSqlAction(), uuid, checked, mimetype);
                     }
                 });
             return (OriginalFile) new IceMapper().map(ofile);
@@ -176,6 +172,111 @@ public class RepositoryDaoImpl implements RepositoryDao {
             throw wrapSecurityViolation(sv);
         }
 
+    }
+
+    protected ome.model.core.OriginalFile findRepoFile(ServiceFactory sf,
+            SqlAction sql, final String uuid, final CheckedPath checked,
+            final String mimetype) {
+
+        Long id = sql.findRepoFile(uuid,
+                checked.getRelativePath(), checked.getName(),
+                mimetype);
+        if (id == null) {
+            return null;
+        } else {
+            return sf.getQueryService().get(
+                    ome.model.core.OriginalFile.class, id);
+        }
+    }
+
+    public RMap treeList(final String repoUuid, final CheckedPath checked,
+            Current current) throws ServerError {
+
+        final RMap map = omero.rtypes.rmap();
+        executor.execute(current.ctx, currentUser(current),
+                new Executor.SimpleWork(this,
+                "treeList", repoUuid, checked) {
+
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                _treeList(map, repoUuid, checked, sf, getSqlAction());
+                return null;
+            }
+        });
+
+        return map;
+    }
+    /**
+     * Recursive descent for {@link PublicDirectoryI#treeList(String, Current)}.
+     * This should only really be called on directories, but if it's accidentally
+     * called on a non-directory, then we will treat it specially.
+     *
+     * @param rv The {@link RMap} which should be filled for a given level.
+     * @param path
+     * @param __current
+     * @throws ServerError
+     */
+    private void _treeList(RMap rv, String repoUuid, CheckedPath checked,
+            ServiceFactory sf, SqlAction sql) {
+
+        final ome.model.core.OriginalFile file
+            = findRepoFile(sf, sql, repoUuid, checked, null);
+
+        if (file == null) {
+            if (rv.getValue().size() == 0) {
+                // This is likely the top-level search, and therefore
+                // we can just exit.
+                log.debug("No file found in _treeList: " + checked);
+            } else {
+                // In this case, we've been given data that's now
+                // missing from the DB in the same transaction.
+                // Shouldn't happen.
+                log.warn("No file found in _treeList: " + checked);
+            }
+            return; // EARLY EXIT.
+        }
+
+        final String name = file.getName();
+        final String mime = file.getMimetype();
+        final Long size = file.getSize();
+        final Long id = file.getId();
+
+        final RMap subRv = omero.rtypes.rmap();
+        final Map<String, RType> subVal = subRv.getValue();
+        rv.put(name, subRv);
+        subVal.put("id", omero.rtypes.rlong(id));
+        subVal.put("mimetype", omero.rtypes.rstring(mime));
+        subVal.put("size", omero.rtypes.rlong(size));
+
+        if (file.getMimetype() != null && // FIXME: should be set!
+                PublicRepositoryI.DIRECTORY_MIMETYPE.equals(file.getMimetype())) {
+
+            // Now we recurse
+            List<ome.model.core.OriginalFile> subFiles
+                = getOriginalFiles(sf, sql, repoUuid, checked);
+
+            for (ome.model.core.OriginalFile subFile : subFiles) {
+                CheckedPath child = null;
+                try {
+                    child = checked.child(subFile.getName());
+                    if (child == null) {
+                        // This should never happen.
+                        throw new omero.ValidationException(null, null, "null child!");
+                    }
+                } catch (omero.ValidationException ve) {
+                    // This can only really happen if the database has very odd
+                    // information stored. Issuing a warning and then throwing
+                    // an exception.
+                    log.warn(String.format("Validation exception on %s.child(%s)",
+                            checked, subFile.getName()), ve);
+                    throw new ome.conditions.ValidationException(ve.getMessage());
+                }
+
+                final RMap subFilesRv = omero.rtypes.rmap();
+                _treeList(subFilesRv, repoUuid, child, sf, sql);
+                subVal.put("files", subFilesRv);
+            }
+        }
     }
 
     public void createOrFixUserDir(final String repoUuid, final CheckedPath checked,
@@ -193,17 +294,17 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 // Look for the dir in all groups (
                 Long id = getSqlAction().findRepoFile(repoUuid, checked.getRelativePath(),
                         checked.getName(), null);
-    
+
                 ome.model.core.OriginalFile f = null;
                 if (id == null) {
-                    // Doesn't exist. Create dir in the user group
+                    // Doesn't exist. Create directory
                     f = _internalRegister(repoUuid, checked,
                             PublicRepositoryI.DIRECTORY_MIMETYPE,
-                            parent, sf, getSqlAction());           
+                            parent, sf, getSqlAction());
                 } else {
                     // Make sure the file is in the user group
                     try {
-                        f = sf.getQueryService().find(
+                        f = sf.getQueryService().get(
                                 ome.model.core.OriginalFile.class, id);
                         if (f != null) {
                             long groupId = f.getDetails().getGroup().getId();
@@ -218,18 +319,18 @@ public class RepositoryDaoImpl implements RepositoryDao {
                         // it isn't in the user group so we will move it there.
                         f = new ome.model.core.OriginalFile(id, false);
                     }
-  
+
                 }
-    
+
                 if (f != null) {
                     ((LocalAdmin) sf.getAdminService())
                         .internalMoveToCommonSpace(f);
                 }
-                
+
                 return null;
 
             }});
-            
+
         } catch (ome.conditions.SecurityViolation sv) {
             throw wrapSecurityViolation(sv);
         }
@@ -276,54 +377,63 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
          try {
              List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
-                 .execute(current.ctx, currentUser(current),
-                         new Executor.SimpleWork(this,
-                         "getOriginalFiles", repoUuid, checked) {
-                     @Transactional(readOnly = true)
+                .execute(current.ctx, currentUser(current),
+                        new Executor.SimpleWork(this,
+                        "getOriginalFiles", repoUuid, checked) {
+                    @Transactional(readOnly = true)
                      public List<ome.model.core.OriginalFile> doWork(Session session, ServiceFactory sf) {
-
-                         final IQuery q = sf.getQueryService();
-                         final Long id;
-
-                         if (checked.isRoot) {
-                             id = q.findByString(ome.model.core.OriginalFile.class,
-                                     "sha1", repoUuid).getId();
-                             
-                             if (id == null) {
-                                 throw new ome.conditions.SecurityViolation(
-                                         "No repository with UUID: " + repoUuid);
-                             }
-                         } else {
-                             id = getSqlAction().findRepoFile(repoUuid,
-                                     checked.getRelativePath(), checked.getName(),
-                                     null);
-
-                             if (id == null) {
-                                 throw new ome.conditions.SecurityViolation(
-                                         "No such parent dir: " + checked);
-                             }
-                         }
-
-                         // Load parent directory to possibly cause
-                         // a read sec-vio.
-                         q.get(ome.model.core.OriginalFile.class, id);
-
-                         List<Long> ids = getSqlAction().findRepoFiles(repoUuid,
-                                 checked.getDirname());
-
-                         if (CollectionUtils.isEmpty(ids)) {
-                             return Collections.emptyList();
-                         }
-                         Parameters p = new Parameters();
-                         p.addIds(ids);
-                         return q.findAllByQuery(
-                                 "select o from OriginalFile o where o.id in (:ids)", p);
+                         return getOriginalFiles(sf, getSqlAction(), repoUuid, checked);
                      }
+
                  });
              return (List<OriginalFile>) new IceMapper().map(oFiles);
          } catch (ome.conditions.SecurityViolation sv) {
              throw wrapSecurityViolation(sv);
          }
+    }
+
+    protected List<ome.model.core.OriginalFile> getOriginalFiles(
+            ServiceFactory sf, SqlAction sql,
+            final String repoUuid,
+            final CheckedPath checked) {
+
+            final IQuery q = sf.getQueryService();
+            final Long id;
+
+            if (checked.isRoot) {
+                id = q.findByString(ome.model.core.OriginalFile.class,
+                        "sha1", repoUuid).getId();
+
+                if (id == null) {
+                    throw new ome.conditions.SecurityViolation(
+                            "No repository with UUID: " + repoUuid);
+                }
+            } else {
+                id = sql.findRepoFile(repoUuid,
+                        checked.getRelativePath(), checked.getName(),
+                        null);
+
+                if (id == null) {
+                    throw new ome.conditions.SecurityViolation(
+                            "No such parent dir: " + checked);
+                }
+            }
+
+            // Load parent directory to possibly cause
+            // a read sec-vio.
+            q.get(ome.model.core.OriginalFile.class, id);
+
+            List<Long> ids = sql.findRepoFiles(repoUuid,
+                    checked.getDirname());
+
+            if (CollectionUtils.isEmpty(ids)) {
+                return Collections.emptyList();
+            }
+            Parameters p = new Parameters();
+            p.addIds(ids);
+            return q.findAllByQuery(
+                    "select o from OriginalFile o where o.id in (:ids)", p);
+
     }
 
     public Fileset saveFileset(final String repoUuid, final Fileset _fs,

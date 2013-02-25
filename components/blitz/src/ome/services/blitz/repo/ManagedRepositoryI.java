@@ -428,7 +428,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
             makeDir(new FsFile(pathPrefix).toString(), true, curr);
         }
-        makeDir(relPath.toString(), false, curr);
+        makeDir(relPath.toString(), true, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -551,28 +551,48 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
     /**
      * Checks for the top-level user directory restriction before calling
-     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, bolean, Current)}
+     * {@link PublicRepositoryI#makeCheckedDirs(LinkedList<CheckedPath>, boolean, Current)}
      */
     protected void makeCheckedDirs(final LinkedList<CheckedPath> paths,
             boolean parents, Current __current) throws ResourceError,
             ServerError {
-        
-        CheckedPath checked = paths.get(0);
-        if (checked.isRoot) {
-            // This shouldn't happen but just in case.
-            throw new ResourceError(null, null, "Cannot re-create root!");
-        } else if (checked.parent().isRoot) {
-            // This is a top-level directory. This must equal
-            // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
-            // be created for the user in the "user" group so that it is
-            // visible globally.
-            String userDirectory = getUserDirectoryName(__current);
-            if (!userDirectory.equals(checked.getName())) {
-                throw new omero.ValidationException(null, null, String.format(
-                        "User-directory name mismatch! (%s<>%s)",
-                        userDirectory, checked.getName()));
-                        
+
+        final String expanded = expandTemplate(template, __current);
+        final FsFile asfsfile = new FsFile(expanded);
+        final List<String> components = asfsfile.getComponents();
+
+        // hard-coded assumptions: the first element of the template must match
+        // user_id and the last is unique in someway (and therefore won't be
+        // handled specially.
+        for (int i = 0; i < paths.size(); i++) {
+
+            CheckedPath checked = paths.get(i);
+            if (checked.isRoot) {
+                // This shouldn't happen but just in case.
+                throw new ResourceError(null, null, "Cannot re-create root!");
             }
+            
+            if (i>0 && i>(components.size()-1)) {
+                // we always check at least one path element, but after that
+                // we only need to check as far as one less than the size of
+                // the template
+                break;
+            }
+
+            if (checked.parent().isRoot) {
+                // This is a top-level directory. This must equal
+                // "%USERNAME%_%USERID%", in which case if it doesn't exist, it will
+                // be created for the user in the "user" group so that it is
+                // visible globally.
+                String userDirectory = getUserDirectoryName(__current);
+                if (!userDirectory.equals(checked.getName())) {
+                    throw new omero.ValidationException(null, null, String.format(
+                            "User-directory name mismatch! (%s<>%s)",
+                            userDirectory, checked.getName()));
+                            
+                }
+            }
+
             // Now that we know that this is the right directory for the
             // current user, we make sure that the directory exists and
             // is in the user group.

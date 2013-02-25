@@ -286,6 +286,13 @@
         primary key (Image_id, owner_id)
     );;
 
+    create table count_Image_filesetLinks_by_owner (
+        Image_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Image_id, owner_id)
+    );;
+
     create table count_Job_originalFileLinks_by_owner (
         Job_id int8 not null,
         count int8 not null,
@@ -364,6 +371,13 @@
     );;
 
     create table count_Plate_annotationLinks_by_owner (
+        Plate_id int8 not null,
+        count int8 not null,
+        owner_id int8 not null,
+        primary key (Plate_id, owner_id)
+    );;
+
+    create table count_Plate_filesetLinks_by_owner (
         Plate_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -2495,6 +2509,11 @@
         foreign key (Image_id) 
         references image  ;;
 
+    alter table count_Image_filesetLinks_by_owner 
+        add constraint FK_count_to_Image_filesetLinks 
+        foreign key (Image_id) 
+        references image  ;;
+
     alter table count_Job_originalFileLinks_by_owner 
         add constraint FK_count_to_Job_originalFileLinks 
         foreign key (Job_id) 
@@ -2552,6 +2571,11 @@
 
     alter table count_Plate_annotationLinks_by_owner 
         add constraint FK_count_to_Plate_annotationLinks 
+        foreign key (Plate_id) 
+        references plate  ;;
+
+    alter table count_Plate_filesetLinks_by_owner 
+        add constraint FK_count_to_Plate_filesetLinks 
         foreign key (Plate_id) 
         references plate  ;;
 

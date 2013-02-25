@@ -134,18 +134,68 @@ module omero {
             void makeDir(string path, bool parents) throws ServerError;
 
             /**
-             * Delete the path at the given location. If the file cannot be deleted
-             * for operating system reasons, a false will be returned, otherwise true.
-             * If a deletion is not permitted, then an exception will be thrown.
+             * Similar to [list] but recursive and returns only primitive
+             * values for the file at each location. Guaranteed for each
+             * path is only the values id and mimetype.
+             *
+             * After a call to unwrap, the returned [omero::RMap] for a call
+             * to treeList("/user_1/dir0") might look something like:
+             *
+             * <pre>
+             *  {
+             *      "/user_1/dir0/file1.txt" :
+             *      {
+             *          "id":10,
+             *          "mimetype":
+             *          "binary",
+             *          "size": 10000L
+             *      },
+             *
+             *      "/user_1/dir0/dir1" :
+             *      {
+             *          "id": 100,
+             *          "mimetype": "Directory",
+             *          "size": 0L,
+             *          "files":
+             *          {
+             *              "/user_1/dir0/dir1/file1indir.txt" :
+             *              {
+             *                  "id": 1,
+             *                  "mimetype": "png",
+             *                  "size": 500
+             *              }
+             *           }
+             *     }
+             *  }
+             * </pre>
              **/
-            bool delete(string path) throws ServerError;
+            omero::RMap treeList(string path) throws ServerError;
 
             /**
-             * Delete several individual paths as with [delete] but rather than
-             * a single boolean return all the paths for which a delete is not
-             * possible. If [delete] would throw, so would this method.
+             * Delete several individual paths. Internally, this converts
+             * each of the paths into an [omero::cmd::Delete] command and
+             * submits all of them via [omero::cmd::DoAll].
+             *
+             * If a "recursively" is true, then directories will be searched
+             * and all of their contained files will be placed before them in
+             * the delete order. When the directory is removed from the database,
+             * it will removed from the filesystem if and only if it is empty.
+             *
+             * If "recursively" is false, then the delete will produce an error
+             * according to the "force" flag.
+             *
+             * If "force" is false, this method attempts the delete of all given
+             * paths in a single transaction, and any failure will cause the
+             * entire transaction to fail.
+             *
+             * If "force" is true, however, then all the other deletes will succeed.
+             * which could possibly leave dangling files within no longer extant
+             * directories.
+             *
              **/
-            omero::api::StringSet deleteFiles(omero::api::StringArray paths) throws ServerError;
+            omero::cmd::Handle* deletePaths(omero::api::StringArray paths,
+                                            bool recursively,
+                                            bool force) throws ServerError;
 
         };
 
