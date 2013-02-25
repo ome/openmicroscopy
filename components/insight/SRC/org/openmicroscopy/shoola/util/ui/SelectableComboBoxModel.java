@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
