@@ -52,7 +52,6 @@ import omero.model.Event;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
-import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -87,6 +86,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -874,16 +874,19 @@ class OmeroDataServiceImpl
 			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
 			if (fsList.size() != 0) {
 				Iterator<DataObject> kk = fsList.iterator();
-				Fileset fs;
+				FilesetData fs;
 				long imageId;
+				List<Long> imageIds;
 				while (kk.hasNext()) {
-					fs = (Fileset) kk.next().asIObject();
-					imageId =
-						fs.copyImageLinks().get(0).getChild().getId().getValue();
-					cmd = new Delete(gateway.createDeleteCommand(
-							ImageData.class.getName()), imageId,
-							images.get(imageId));
-					commands.add(cmd);
+					fs = (FilesetData) kk.next();
+					imageIds = fs.getImageIds();
+					if (imageIds.size() > 0) {
+						imageId = imageIds.get(0);
+						cmd = new Delete(gateway.createDeleteCommand(
+								ImageData.class.getName()), imageId,
+								images.get(imageId));
+						commands.add(cmd);
+					}
 				}
 			} else { //Pre-fs data
 				Entry<Long, Map<String, String>> entry;
