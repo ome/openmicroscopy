@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -450,23 +449,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		return null ;
 	}
-
-	public class SelectableComboBoxModel extends DefaultComboBoxModel
-	{
-	    @Override
-	    public void setSelectedItem(Object anObject) {
-
-	        if (anObject != null && anObject instanceof Selectable<?>) {
-	        	Selectable<?> entry = (Selectable<?>) anObject;
-	            if (entry.isSelectable()) {
-	                super.setSelectedItem(anObject);
-	            }
-	        } else {
-	            super.setSelectedItem(anObject);
-	        }
-	    }
-
-	}
+	
 	/**
 	 * Initialises the UI components of the dialog.
 	 */
