@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.util.ui;
  * Provides a wrapper class for a selectable option
  *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
- * @since Beta4.4
+ * @since 4.4
  */
 public class Selectable<T> {
 

@@ -26,7 +26,7 @@ import javax.swing.DefaultComboBoxModel;
 /** 
  * Provides support for having unselectable items in the list.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
- * @since Beta4.4
+ * @since 4.4
  */
 public class SelectableComboBoxModel extends DefaultComboBoxModel
 {
