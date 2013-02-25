@@ -84,9 +84,19 @@ namespace omero {
              * freely. The object will not be nulled, but may be closed server-side.
              */
             omero::grid::ProcessPrx process;
-	    virtual ~ProcessCallbackI();
         public:
             ProcessCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::grid::ProcessPrx& process, bool poll = true);
+            
+            /**
+             * First removes self from the adapter so as to no longer receive notifications
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close();
 
             /**
              * Should only be used if the default logic of the process methods is kept
@@ -141,9 +151,20 @@ namespace omero {
              * freely. The object will not be nulled, but may be closed server-side.
              */
             OME_API_DEL::DeleteHandlePrx handle;
-	    virtual ~DeleteCallbackI();
         public:
             DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool pool = true);
+            
+            /**
+             * closes the remote handle
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close();
+            
             virtual omero::RIntPtr block(long ms);
             virtual omero::api::_cpp_delete::DeleteReports loop(int loops, long ms);
             virtual void finished(int errors);

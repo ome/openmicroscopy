@@ -53,8 +53,9 @@ namespace omero {
 
         };
 
-	ProcessCallbackI::~ProcessCallbackI() {
-            this->adapter->remove(this->id);
+        void ProcessCallbackI::close() {
+            if (adapter)
+                adapter->remove(id);
         };
 
         std::string ProcessCallbackI::block(long ms) {
@@ -98,8 +99,9 @@ namespace omero {
             handle(handle) {
         };
 
-	DeleteCallbackI::~DeleteCallbackI() {
-            handle->close();
+        void DeleteCallbackI::close() {
+            if (handle)
+                handle->close();
         };
 
         DeleteReports DeleteCallbackI::loop(int loops, long ms) {
