@@ -414,6 +414,23 @@ class OMEROGateway
 	private NetworkChecker networkChecker;
 	
 	/**
+	 * Creates the query to load the file set corresponding to a given image.
+	 * 
+	 * @return See above.
+	 */
+	private String createFileSetQuery()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("select fs from Fileset as fs ");
+		buffer.append("left outer join fetch fs.imageLinks as fil ");
+		buffer.append("join fetch fil.child as image ");
+		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
+		buffer.append("join fetch usedFile.originalFile ");
+		buffer.append("where image.id =:id");
+		return buffer.toString();
+	}
+	
+	/**
 	 * Checks if the network is up.
 	 * @throws Exception Throw
 	 */
@@ -3895,27 +3912,24 @@ class OMEROGateway
 	{
 		IQueryPrx service = getQueryService(ctx);
 		List<?> files = null;
-		StringBuffer buffer = new StringBuffer();
+		String query;
 		try {
 			ParametersI param = new ParametersI();
 			long id;
 			if (image.isArchived()) { //prior to FS
+				StringBuffer buffer = new StringBuffer();
 				id = image.getDefaultPixels().getId();
 				buffer.append("select ofile from OriginalFile as ofile ");
 				buffer.append("left join ofile.pixelsFileMaps as pfm ");
 				buffer.append("left join pfm.child as child ");
 				buffer.append("where child.id = :id");
+				query = buffer.toString();
 			} else {
 				id = image.getId();
-				buffer.append("select fs from Fileset as fs ");
-				buffer.append("left outer join fetch fs.imageLinks as fil ");
-				buffer.append("join fetch fil.child as image ");
-				buffer.append("left outer join fetch fs.usedFiles as usedFile ");
-				buffer.append("join fetch usedFile.originalFile ");
-				buffer.append("where image.id =:id");
+				query = createFileSetQuery();
 			}
 			param.map.put("id", omero.rtypes.rlong(id));
-			files = service.findAllByQuery(buffer.toString(), param);
+			files = service.findAllByQuery(query, param);
 		} catch (Exception e) {
 			handleConnectionException(e);
 			throw new DSAccessException("Cannot retrieve original file", e);
@@ -8489,6 +8503,33 @@ class OMEROGateway
 		} catch (Throwable e) {
 			new Exception("Cannot close the connector", e);
 		}
+	}
+
+	/**
+	 * Loads the file set corresponding to the specified image.
+	 * 
+	 * @param ctx The security context.
+	 * @param imageId The image's id.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		if (!networkup) return null;
+		IQueryPrx service = getQueryService(ctx);
+		try {
+			ParametersI param = new ParametersI();
+			param.map.put("id", omero.rtypes.rlong(imageId));
+			return PojoMapper.asDataObjects(service.findAllByQuery(
+					createFileSetQuery(), param));
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the file set");
+		}
+		return new HashSet<DataObject>();
 	}
 
 }

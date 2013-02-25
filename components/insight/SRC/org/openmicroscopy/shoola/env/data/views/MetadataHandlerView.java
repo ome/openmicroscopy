@@ -467,4 +467,14 @@ public interface MetadataHandlerView
 	public CallHandle loadTabularData(SecurityContext ctx, 
 		TableParameters parameters, long userID, AgentEventListener observer);
 	
+	/**
+	 * Loads the specified tabular data.
+	 * 
+	 * @param ctx The security context.
+	 * @param imageId The id of the image.
+	 * @param userID The id of the experimenter or <code>-1</code>.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadFileset(SecurityContext ctx,
+		long imageId, AgentEventListener observer);
 }

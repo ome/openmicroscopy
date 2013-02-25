@@ -32,12 +32,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -50,8 +53,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 
 //Third-party libraries
@@ -70,9 +75,13 @@ import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JavaFilter;
 import org.openmicroscopy.shoola.util.filter.file.MatlabFilter;
 import org.openmicroscopy.shoola.util.filter.file.PythonFilter;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.WellSampleData;
@@ -158,6 +167,38 @@ class ToolBar
 	/** View the image.*/
 	private JButton viewButton;
 	
+	/** The Button displaying the path to the file on the server.*/
+	private JMenuItem pathButton;
+	
+	/** Button display the links like path, html.*/
+	private JButton linkButton;
+	
+	/** The component where the mouse clicked occurred.*/
+	private Component component;
+	
+	/** The menu displaying the link option. */
+	private JPopupMenu linkMenu;
+	
+	/** 
+	 * Creates or recycles the link menu.
+	 * 
+	 * @return See above.
+	 */
+    private JPopupMenu createLinkMenu()
+    {
+    	if (linkMenu != null) return linkMenu;
+    	linkMenu = new JPopupMenu();
+		IconManager icons = IconManager.getInstance();
+		pathButton = new JMenuItem(icons.getIcon(IconManager.FILE_PATH));
+		pathButton.setText("Show File Paths...");
+		pathButton.setToolTipText("Show file paths on the server.");
+		pathButton.addActionListener(controller);
+		pathButton.setActionCommand(""+EditorControl.FILE_PATH);
+		pathButton.setEnabled(model.isSingleMode() && model.getImage() != null);
+		linkMenu.add(pathButton);
+    	return linkMenu;
+    }
+    
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -361,7 +402,7 @@ class ToolBar
 			 */
 			public void mouseReleased(MouseEvent e)
 			{
-				launchOptions((Component) e.getSource(), e.getPoint(), 
+				launchOptions((Component) e.getSource(), e.getPoint(),
 						MetadataViewer.SAVE_OPTION);
 			}
 		});
@@ -384,9 +425,23 @@ class ToolBar
 			viewButton.setActionCommand(""+EditorControl.VIEW_IMAGE);
 	    	viewButton.addActionListener(controller);
 		}
+		linkButton = new JButton(icons.getIcon(IconManager.LINK));
+		linkButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Launches the dialog when the user releases the mouse.
+			 * MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e)
+			{
+				location = e.getPoint();
+				component = (Component) e.getSource();
+				createLinkMenu().show(component, location.x, location.y);
+			}
+		});
 		
-    	UIUtilities.unifiedButtonLookAndFeel(viewButton);
-    	
+		UIUtilities.unifiedButtonLookAndFeel(linkButton);
+		UIUtilities.unifiedButtonLookAndFeel(viewButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveAsButton);
 		UIUtilities.unifiedButtonLookAndFeel(saveButton);
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
@@ -423,11 +478,8 @@ class ToolBar
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(viewButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	/*
-    	bar.add(downloadButton);
+    	bar.add(linkButton);
     	bar.add(Box.createHorizontalStrut(5));
-    	bar.add(exportAsOmeTiffButton);
-    	*/
     	bar.add(saveAsButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
@@ -615,6 +667,7 @@ class ToolBar
     	Object refObject = model.getRefObject();
     	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
+		if (pathButton != null) pathButton.setEnabled(false);
     	if ((refObject instanceof ImageData) || 
     			(refObject instanceof WellSampleData)) {
     		rndButton.setEnabled(!model.isRendererLoaded());
@@ -623,7 +676,7 @@ class ToolBar
     		if (refObject instanceof ImageData) {
     			downloadButton.setEnabled(model.isArchived());
     		}
-    			
+    		if (pathButton != null) pathButton.setEnabled(model.isSingleMode());
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
@@ -645,6 +698,7 @@ class ToolBar
 		}
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
+    	if (pathButton != null) pathButton.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
@@ -665,6 +719,7 @@ class ToolBar
         			if (downloadItem != null && model.isArchived())
         				downloadItem.setEnabled(true);
         			viewButton.setEnabled(true);
+        			if (pathButton != null) pathButton.setEnabled(true);
     			} catch (Exception e) {}
         	}
     	}
@@ -722,5 +777,59 @@ class ToolBar
 			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
 		}
 	}
+	
+	/** Displays the file set associated to the image.*/
+	void displayFileset()
+	{
+		Set<FilesetData> set = model.getFileset();
+		if (set == null) return;
+		Iterator<FilesetData> i = set.iterator();
+		FilesetData data;
+		MultilineLabel label = new MultilineLabel();
+		StringBuffer buffer = new StringBuffer();
+		List<String> paths;
+		Iterator<String> j;
+		int n = 0;
+		while (i.hasNext()) {
+			data = i.next();
+			paths = data.getAbsolutePaths();
+			j = paths.iterator();
+			n += paths.size();
+			while (j.hasNext()) {
+				buffer.append(j.next());
+				buffer.append(System.getProperty("line.separator"));
+			}
+		}
+		label.setText(buffer.toString());
+		TinyDialog d = new TinyDialog(null, new JScrollPane(label),
+				TinyDialog.CLOSE_ONLY);
+		d.setTitle(n+" File path(s)");
+		
+		d.addWindowFocusListener(new WindowFocusListener() {
+			
+			/** 
+			 * Closes the dialog when the window loses focus.
+			 * @see WindowFocusListener#windowLostFocus(WindowEvent)
+			 */
+			public void windowLostFocus(WindowEvent evt) {
+				TinyDialog d = (TinyDialog) evt.getSource();
+				d.setClosed(true);
+				d.closeWindow();
+			}
+			
+			/** 
+			 * Required by the I/F but no-operation in our case.
+			 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
+			 */
+			public void windowGainedFocus(WindowEvent evt) {}
+		});
+		d.setResizable(true);
+		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		SwingUtilities.convertPointToScreen(location, component);
+		d.setSize(400, 100);
+		d.setLocation(location);
+		d.setVisible(true);
+	}
+	
 }
 
