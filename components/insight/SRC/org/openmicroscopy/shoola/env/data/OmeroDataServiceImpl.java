@@ -872,28 +872,31 @@ class OmeroDataServiceImpl
 		}
 		if (images.size() > 0) {
 			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
-			if (fsList.size() != 0) {
-				Iterator<DataObject> kk = fsList.iterator();
-				FilesetData fs;
-				long imageId;
-				List<Long> imageIds;
-				while (kk.hasNext()) {
-					fs = (FilesetData) kk.next();
-					imageIds = fs.getImageIds();
-					if (imageIds.size() > 0) {
-						imageId = imageIds.get(0);
-						cmd = new Delete(gateway.createDeleteCommand(
-								ImageData.class.getName()), imageId,
-								images.get(imageId));
-						commands.add(cmd);
-					}
+			List<Long> all = new ArrayList<Long>();
+			Iterator<DataObject> kk = fsList.iterator();
+			FilesetData fs;
+			long imageId;
+			List<Long> imageIds;
+			while (kk.hasNext()) {
+				fs = (FilesetData) kk.next();
+				imageIds = fs.getImageIds();
+				if (imageIds.size() > 0) {
+					imageId = imageIds.get(0);
+					cmd = new Delete(gateway.createDeleteCommand(
+							ImageData.class.getName()), imageId,
+							images.get(imageId));
+					commands.add(cmd);
+					all.addAll(imageIds);
 				}
-			} else { //Pre-fs data
-				Entry<Long, Map<String, String>> entry;
-				Iterator<Entry<Long, Map<String, String>>> e =
-					images.entrySet().iterator();
-				while (e.hasNext()) {
-					entry = e.next();
+			}
+			
+			//Now check that all the ids are covered.
+			Entry<Long, Map<String, String>> entry;
+			Iterator<Entry<Long, Map<String, String>>> e =
+				images.entrySet().iterator();
+			while (e.hasNext()) {
+				entry = e.next();
+				if (!all.contains(entry.getKey())) { //pre-fs data.
 					cmd = new Delete(gateway.createDeleteCommand(
 							ImageData.class.getName()), entry.getKey(),
 							entry.getValue());
