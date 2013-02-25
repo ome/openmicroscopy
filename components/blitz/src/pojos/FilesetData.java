@@ -23,19 +23,17 @@
  */
 package pojos;
 
-
-
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
+import omero.model.FilesetImageLink;
 import omero.model.OriginalFile;
 
 /** 
@@ -87,4 +85,22 @@ public class FilesetData
 		return paths;
 	}
 	
+	/**
+	 * Returns the collection of images related to the file set.
+	 * 
+	 * @return See above.
+	 */
+	public List<Long> getImageIds()
+	{
+		List<Long> ids = new ArrayList<Long>();
+		Fileset fs = (Fileset) asIObject();
+		List<FilesetImageLink> links = fs.copyImageLinks();
+		if (links == null || links.size() == 0) return ids;
+		Iterator<FilesetImageLink> i = links.iterator();
+		while (i.hasNext()) {
+			ids.add(i.next().getChild().getId().getValue());
+		}
+		return ids;
+	}
+
 }
