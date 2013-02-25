@@ -426,7 +426,7 @@ class OMEROGateway
 		buffer.append("join fetch fil.child as image ");
 		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
 		buffer.append("join fetch usedFile.originalFile ");
-		buffer.append("where image.id =:id");
+		buffer.append("where image.id in (:imageIds)");
 		return buffer.toString();
 	}
 	
@@ -8509,21 +8509,25 @@ class OMEROGateway
 	 * Loads the file set corresponding to the specified image.
 	 * 
 	 * @param ctx The security context.
-	 * @param imageId The image's id.
+	 * @param imageIds The collection of images id.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+	Set<DataObject> getFileSet(SecurityContext ctx, Collection<Long> imageIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
 		IQueryPrx service = getQueryService(ctx);
 		try {
+			List<RType> l = new ArrayList<RType>();
+			Iterator<Long> j = imageIds.iterator();
+			while (j.hasNext())
+				l.add(omero.rtypes.rlong(j.next()));
 			ParametersI param = new ParametersI();
-			param.map.put("id", omero.rtypes.rlong(imageId));
+			param.add("imageIds", omero.rtypes.rlist(l));
 			return PojoMapper.asDataObjects(service.findAllByQuery(
 					createFileSetQuery(), param));
 		} catch (Exception e) {

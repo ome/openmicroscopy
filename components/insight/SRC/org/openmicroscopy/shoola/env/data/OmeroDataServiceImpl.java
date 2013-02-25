@@ -52,6 +52,7 @@ import omero.model.Event;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
+import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -800,7 +801,8 @@ class OmeroDataServiceImpl
 		List<DataObject> contents;
 		String ns;
 		Iterator<DataObject> k;
-		List<GroupData> groups = null;
+		Map<Long, Map<String, String>>
+		images = new HashMap<Long, Map<String, String>>();
 		while (i.hasNext()) {
 			contents = null;
 			object = i.next();
@@ -850,18 +852,37 @@ class OmeroDataServiceImpl
 					}
 				}
 			}
-			cmd = new Delete(gateway.createDeleteCommand(
-					data.getClass().getName()), data.getId(), options);
-			commands.add(cmd);
-			if (contents != null && contents.size() > 0) {
-				k = contents.iterator();
-				DataObject d;
-				while (k.hasNext()) {
-					d = k.next();
-					cmd = new Delete(gateway.createDeleteCommand(
-							d.getClass().getName()), d.getId(), options);
-					commands.add(cmd);
+			if (data instanceof ImageData) {
+				images.put(data.getId(), options);
+			} else {
+				cmd = new Delete(gateway.createDeleteCommand(
+						data.getClass().getName()), data.getId(), options);
+				commands.add(cmd);
+				if (contents != null && contents.size() > 0) {
+					k = contents.iterator();
+					DataObject d;
+					while (k.hasNext()) {
+						d = k.next();
+						cmd = new Delete(gateway.createDeleteCommand(
+								d.getClass().getName()), d.getId(), options);
+						commands.add(cmd);
+					}
 				}
+			}
+		}
+		if (images.size() > 0) {
+			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
+			Iterator<DataObject> kk = fsList.iterator();
+			Fileset fs;
+			long imageId;
+			while (kk.hasNext()) {
+				fs = (Fileset) kk.next().asIObject();
+				imageId =
+					fs.copyImageLinks().get(0).getChild().getId().getValue();
+				cmd = new Delete(gateway.createDeleteCommand(
+						ImageData.class.getName()), imageId,
+						images.get(imageId));
+				commands.add(cmd);
 			}
 		}
 		return gateway.deleteObject(ctx,
