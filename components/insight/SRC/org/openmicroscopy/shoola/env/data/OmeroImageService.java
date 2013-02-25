@@ -30,6 +30,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -837,6 +839,21 @@ public interface OmeroImageService
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
 	public Boolean isLargeImage(SecurityContext ctx, long pixelsId)
+		throws DSAccessException, DSOutOfServiceException;
+
+	/**
+	 * Loads the file set corresponding to the specified image.
+	 * 
+	 * @param ctx The security context.
+	 * @param imageId The identifier of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 * @throws ProcessException If an error occurred while running the script.
+	 */
+	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException;
 
 }

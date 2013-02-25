@@ -76,7 +76,7 @@ public class TinyDialogUI
     public static final int MAX_HEIGHT = 300;
     
     /** The thickness of the frame's border. */
-    static final int        BORDER_THICKNESS = 1;
+    static final int        BORDER_THICKNESS = 2;
 
     /** The color of the frame's border. */
     static final Color      BORDER_COLOR = new Color(99, 130, 191);

@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileUploader;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.FilesetLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
@@ -424,4 +425,16 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadFileset(SecurityContext, long,
+	 * AgentEventListener)
+	 */
+	public CallHandle loadFileset(SecurityContext ctx, long imageId,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FilesetLoader(ctx, imageId);
+		return cmd.exec(observer);
+	}
+
 }

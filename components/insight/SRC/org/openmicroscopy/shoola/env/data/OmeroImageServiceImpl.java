@@ -1938,4 +1938,14 @@ class OmeroImageServiceImpl
 		return gateway.isLargeImage(ctx, pixelsId);
 	}
 	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getFileSet(SecurityContext, long)
+	 */
+	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.getFileSet(ctx, imageId);
+	}
+
 }
