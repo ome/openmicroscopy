@@ -379,10 +379,18 @@
   CREATE INDEX i_filesetentry_group ON filesetentry(group_id);
   CREATE INDEX i_FilesetEntry_fileset ON filesetentry(fileset);
   CREATE INDEX i_FilesetEntry_originalFile ON filesetentry(originalFile);
+  CREATE INDEX i_filesetimagelink_owner ON filesetimagelink(owner_id);
+  CREATE INDEX i_filesetimagelink_group ON filesetimagelink(group_id);
+  CREATE INDEX i_FilesetImageLink_parent ON filesetimagelink(parent);
+  CREATE INDEX i_FilesetImageLink_child ON filesetimagelink(child);
   CREATE INDEX i_filesetjoblink_owner ON filesetjoblink(owner_id);
   CREATE INDEX i_filesetjoblink_group ON filesetjoblink(group_id);
   CREATE INDEX i_FilesetJobLink_parent ON filesetjoblink(parent);
   CREATE INDEX i_FilesetJobLink_child ON filesetjoblink(child);
+  CREATE INDEX i_filesetplatelink_owner ON filesetplatelink(owner_id);
+  CREATE INDEX i_filesetplatelink_group ON filesetplatelink(group_id);
+  CREATE INDEX i_FilesetPlateLink_parent ON filesetplatelink(parent);
+  CREATE INDEX i_FilesetPlateLink_child ON filesetplatelink(child);
   CREATE INDEX i_filesetversioninfo_owner ON filesetversioninfo(owner_id);
   CREATE INDEX i_filesetversioninfo_group ON filesetversioninfo(group_id);
   CREATE INDEX i_filter_owner ON filter(owner_id);
@@ -767,7 +775,9 @@ CREATE SEQUENCE seq_filamenttype; INSERT INTO _lock_ids (name, id) SELECT 'seq_f
 CREATE SEQUENCE seq_fileset; INSERT INTO _lock_ids (name, id) SELECT 'seq_fileset', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetentry; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetentry', nextval('_lock_seq');
+CREATE SEQUENCE seq_filesetimagelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetimagelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetjoblink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetjoblink', nextval('_lock_seq');
+CREATE SEQUENCE seq_filesetplatelink; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetplatelink', nextval('_lock_seq');
 CREATE SEQUENCE seq_filesetversioninfo; INSERT INTO _lock_ids (name, id) SELECT 'seq_filesetversioninfo', nextval('_lock_seq');
 CREATE SEQUENCE seq_filter; INSERT INTO _lock_ids (name, id) SELECT 'seq_filter', nextval('_lock_seq');
 CREATE SEQUENCE seq_filterset; INSERT INTO _lock_ids (name, id) SELECT 'seq_filterset', nextval('_lock_seq');
@@ -1246,7 +1256,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO4.5DEV',  3,    'OMERO4.5DEV',   0,             'Initializing');
+             values ('OMERO5.0DEV',  1,    'OMERO5.0DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -2070,6 +2080,35 @@ insert into password values (1,'');
 --
 -- FS Resources
 --
+
+-- Prevent the deletion of mimetype = "Directory" objects
+-- TODO: also evaluate preventing the change of mimetype
+-- for Directory objects.
+create or replace function _fs_dir_delete() returns trigger AS $_fs_dir_delete$
+    begin
+        if OLD.repo is not null then
+            if OLD.mimetype = 'Directory' then
+                --
+                -- If any children are found, prevent deletion
+                --
+                if exists(select id from originalfile
+                           where path = OLD.path || OLD.name || '/'
+                           limit 1) then
+
+                    -- CANCEL DELETE
+                    RAISE EXCEPTION '%%', 'Directory('||OLD.id||')='||OLD.path||OLD.name||'/ is not empty!';
+
+                end if;
+            end if;
+        end if;
+        return OLD; -- proceed
+    end;
+$_fs_dir_delete$ LANGUAGE plpgsql;
+
+create trigger _fs_dir_delete
+before delete on originalfile
+    for each row execute procedure _fs_dir_delete();
+
 create table _fs_deletelog (
     event_id bigint not null,
     file_id bigint not null,
@@ -2088,7 +2127,7 @@ create or replace function _fs_log_delete() returns trigger AS $_fs_log_delete$
                 OLD.id, OLD.owner_id, OLD.group_id,
                 OLD.path, OLD.name, OLD.repo, OLD.params;
         end if;
-        return null;
+        return OLD;
     END;
 $_fs_log_delete$ LANGUAGE plpgsql;
 
@@ -2099,9 +2138,9 @@ after delete on originalfile
 
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
-  where currentVersion = 'OMERO4.5DEV' and
-        currentPatch = 3 and
-        previousVersion = 'OMERO4.5DEV' and
+  where currentVersion = 'OMERO5.0DEV' and
+        currentPatch = 1 and
+        previousVersion = 'OMERO5.0DEV' and
         previousPatch = 0;
 
 COMMIT;

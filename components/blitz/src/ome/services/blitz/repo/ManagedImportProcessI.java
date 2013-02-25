@@ -28,9 +28,11 @@ import Ice.ObjectFactory;
 
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
 
+import omero.InternalException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.AMD_Session_submit;
@@ -74,22 +76,6 @@ public class ManagedImportProcessI extends AbstractAmdServant
         void setOffset(long offset) {
             this.offset = offset;
         }
-    }
-
-    static class AMD_submit implements AMD_Session_submit {
-
-        HandlePrx ret;
-
-        Exception ex;
-
-        public void ice_response(HandlePrx __ret) {
-            this.ret = __ret;
-        }
-
-        public void ice_exception(Exception ex) {
-            this.ex = ex;
-        }
-
     }
 
     /**
@@ -285,22 +271,15 @@ public class ManagedImportProcessI extends AbstractAmdServant
 
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
+
         final String reqId = ImportRequest.ice_staticId();
-        final ObjectFactory of = this.current.adapter.getCommunicator().findObjectFactory(reqId);
-        final AMD_submit submit = new AMD_submit();
-        final ImportRequest req = (ImportRequest) of.create(reqId);
+        final ImportRequest req = (ImportRequest)
+                repo.getFactory(reqId, this.current).create(reqId);
         req.repoUuid = repo.getRepoUuid();
         req.activity = link;
         req.location = location;
         req.settings = settings;
-        sf.submit_async(submit, req, this.current);
-        if (submit.ex != null) {
-            IceMapper mapper = new IceMapper();
-            throw mapper.handleServerError(submit.ex, repo.context);
-        } else if (submit.ret == null) {
-            throw new omero.InternalException(null, null,
-                    "No handle proxy found for: " + req);
-        }
+        final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
         return submit.ret;
     }

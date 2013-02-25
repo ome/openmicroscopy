@@ -24,6 +24,7 @@ import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Delete;
 import omero.cmd.DeleteRsp;
+import omero.grid.RawAccessRequest;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
@@ -406,7 +407,12 @@ public class DeleteServiceFilesTest
 	{
 	    String path = getPath(klass, id);
 	    RepositoryPrx legacy = getLegacyRepository();
-	    legacy.delete(path);
+	    // For admins only. Primarily a test feature.
+	    RawAccessRequest raw = new RawAccessRequest();
+	    raw.repoUuid = legacy.root().getSha1().getValue();
+	    raw.command = "rm";
+	    raw.args = Arrays.asList(path);
+	    doChange(client, factory, raw, true);
 	}
 
 	/**

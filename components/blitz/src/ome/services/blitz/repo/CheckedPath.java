@@ -43,7 +43,7 @@ import omero.ValidationException;
  * a null {@link CheckedPath} object is passed into the constructor the caller
  * indicates that the path is the root path, hence {@link CheckedPath#isRoot}
  * will not be called.
- * 
+ *
  * @author josh at glencoesoftware.com
  * @author m.t.b.carroll@dundee.ac.uk
  */
@@ -83,12 +83,12 @@ public class CheckedPath {
                 newComponents.add(oldComponent);
         return new FsFile(newComponents);
     }
-    
+
     /**
      * Construct a CheckedPath from a relative "/"-delimited path rooted at the repository.
-     * The path may not contain weird or special-meaning path components, 
+     * The path may not contain weird or special-meaning path components,
      * though <q>.</q> and <q>..</q> are understood to have their usual meaning.
-     * An empty path is the repository root. 
+     * An empty path is the repository root.
      * @param serverPaths the server path handling service
      * @param path a repository path
      * @throws ValidationException if the path is empty or contains illegal components
@@ -102,14 +102,14 @@ public class CheckedPath {
         this.file = serverPaths.getServerFileFromFsFile(fsFile);
         breakPath();
     }
-    
+
     private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
         this.original = filePath.getPath();
         this.fsFile = fsFilePath;
         this.file = filePath;
         breakPath();
     }
-    
+
     /**
      * Set parentDir and baseName according to the last separator in the fsFile.
      * @throws ValidationException if the path is empty
@@ -176,6 +176,29 @@ public class CheckedPath {
     }
 
     /**
+     * Returns a new {@link CheckedPath} that has the given path appended
+     * to the end of this instances path. A check is made that the name does
+     * not contain "/" (i.e. subpaths) nor that it is ".." or ".".
+     *
+     * @param name
+     * @return
+     */
+    public CheckedPath child(String name) throws ValidationException {
+        if (name == null) {
+            throw new ValidationException(null, null, "null name");
+        } else if (".".equals(name) || "..".equals(name)) {
+            throw new ValidationException(null, null,
+                    "Only proper child name is allowed. Not '.' or '..'");
+        } else if (name.indexOf(FsFile.separatorChar)>=0) {
+            throw new ValidationException(null, null,
+                    "No subpaths allowed. Path contains '/'");
+        }
+        List<String> copy = new ArrayList<String>(this.fsFile.getComponents());
+        copy.add(name);
+        return new CheckedPath(new File(original, name), new FsFile(copy));
+    }
+
+    /**
      * Checks for existence of the original path, throwing an exception if
      * not present.
      *
@@ -229,7 +252,7 @@ public class CheckedPath {
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
      }
-    
+
     public String toString() {
         return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }
@@ -286,4 +309,5 @@ public class CheckedPath {
 
         return ofile;
     }
+
 }

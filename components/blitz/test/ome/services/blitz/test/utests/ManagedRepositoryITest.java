@@ -15,10 +15,12 @@ import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
+import org.jmock.core.constraint.IsEqual;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.services.blitz.fire.Registry;
+import ome.services.blitz.repo.CheckedPath;
 import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
@@ -34,14 +36,34 @@ import omero.util.TempFileManager;
 @Test(groups = {"fs"})
 public class ManagedRepositoryITest extends MockObjectTestCase {
 
-    private static class StringReprContains implements Constraint {
+    private static class CheckedPathIs implements Constraint {
+        private final FsFile path;
 
+        CheckedPathIs(String path) {
+            this.path = new FsFile(path);
+        }
+
+        public StringBuffer describeTo(StringBuffer buffer) {
+            buffer.append("checked path is ");
+            buffer.append(path);
+            return buffer;
+        }
+
+        public boolean eval(Object o) {
+            if (o instanceof CheckedPath) {
+                return path.equals(((CheckedPath) o).fsFile);
+            }
+            return false;
+        }
+    }
+
+    private static class StringReprContains implements Constraint {
         final String containedString;
-        
+
         StringReprContains(String containedString) {
             this.containedString = containedString;
         }
-        
+
         public StringBuffer describeTo(StringBuffer arg0) {
             arg0.append("toString contains ");
             arg0.append(containedString);
@@ -54,7 +76,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             }
             return arg0.toString().contains(containedString);
         }
-        
+
     }
 
     Mock daoMock;
@@ -75,6 +97,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     Registry reg;
     Ice.Current curr;
     Calendar cal;
+    long uniqueId;
 
     /**
      * Overrides protected methods from parent class for testing
@@ -82,13 +105,14 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
      * @author bpindelski
      */
     public class TestManagedRepositoryI extends ManagedRepositoryI {
+        public static final String UUID = "fake-uuid";
 
         public TestManagedRepositoryI(String template,
                 RepositoryDao repositoryDao) throws Exception {
             super(template, repositoryDao);
             File dir = TempFileManager.create_path("mng-repo.", ".test", true);
             initialize(new FileMaker(dir.getAbsolutePath()),
-                    -1L /*id*/, "fake-uuid");
+                    -1L /*id*/, UUID);
         }
 
         @Override
@@ -126,6 +150,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         this.curr = new Ice.Current();
         this.curr.ctx = new HashMap<String, String>();
         this.curr.ctx.put(omero.constants.SESSIONUUID.value, "TEST");
+        this.uniqueId = System.nanoTime();
 
     }
 
@@ -139,7 +164,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         ec.sessionId = -1L;
         ec.eventId = -1L;
         ec.groupPermissions = new PermissionsI();
-        this.daoMock.expects(once()).method("getEventContext")
+        this.daoMock.expects(atLeastOnce()).method("getEventContext")
             .with(ANYTHING).will(returnValue(ec));
         return ec;
     }
@@ -150,10 +175,11 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             fsFiles.add(new FsFile(path));
         return fsFiles;
     }
-    
+
     private String getSuggestion(String base, String...paths) throws Exception {
-        final ImportLocation l = 
-                this.tmri.suggestImportPaths(new FsFile("template"), new FsFile(base), toFsFileList(paths), null, curr);
+        final String template = this.tmri.expandTemplate("%user%_%userId%/" + this.uniqueId, curr);
+        final ImportLocation l =
+                this.tmri.suggestImportPaths(new FsFile(template), new FsFile(base), toFsFileList(paths), null, curr);
         return new File(l.sharedPath).getName();
     }
 
@@ -163,6 +189,12 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             .with(ANYTHING /*uuid*/, new StringReprContains(checkedPathString),
                     eq("Directory"), ANYTHING)
             .will(returnValue(of));
+    }
+
+    private void assertCreateOrFixUserDir() {
+        final IsEqual isUuid = eq(TestManagedRepositoryI.UUID);
+        final Constraint isUserDir = new CheckedPathIs("_-1");
+        daoMock.expects(once()).method("createOrFixUserDir").with(isUuid, isUserDir, eq(curr));
     }
 
     /**
@@ -184,32 +216,57 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
-        assertReturnFile(0L); // template
-        assertReturnFile(1L); // my
-        assertReturnFile(2L); // path
+        newEventContext();
+        /* three occasions in suggestOnConflict:
+        /* - test the common root in version incrementing */
+        /* - create the parent directory of my/path/foo */
+        /* - create the parent directory of my/path/bar */
+        long id = 0;
+        /* loop for each of the above three suggestOnConflict events */
+        for (int i = 0; i < 3; i++) {
+            assertCreateOrFixUserDir();
+            assertReturnFile(id++);  /* %user%_%userId% */
+            assertReturnFile(id++);  /* unique ID */
+            assertReturnFile(id++);  /* my */
+            assertReturnFile(id++);  /* path */
+        }
         new File(this.tmpDir, "/my/path");
         String expectedBasePath = "path";
         String suggestedBasePath = getSuggestion("/my/path", "/my/path/foo", "/my/path/bar");
-
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
     @Test
-    public void testSuggestOnConflictReturnsNewPathOnConflict() throws Exception {
-        assertReturnFile(0L); // template
-        assertReturnFile(1L); // upload-1
+    public void testSuggestOnConflictReturnsSamePathOnConflict() throws Exception {
+        newEventContext();
+        /* three occasions in suggestOnConflict:
+        /* - test the common root in version incrementing */
+        /* - create the parent directory of upload/foo */
+        /* - create the parent directory of upload/bar */
+        long id = 0;
+        /* loop for each of the above three suggestOnConflict events */
+        for (int i = 0; i < 3; i++) {
+            assertCreateOrFixUserDir();
+            assertReturnFile(id++);  /* %user%_%userId% */
+            assertReturnFile(id++);  /* unique ID */
+            assertReturnFile(id++);  /* upload */
+        }
         File upload = new File(this.templateDir, "/upload");
         upload.mkdirs();
         FileUtils.touch(new File(upload, "foo"));
-        String expectedBasePath = "upload-1";
+        String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload", "/upload/foo", "/upload/bar");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
     }
 
     @Test
     public void testSuggestOnConflictReturnsBasePathWithEmptyPathsList() throws Exception {
-        assertReturnFile(0L); // template
-        assertReturnFile(1L); // upload
+        newEventContext();
+        assertCreateOrFixUserDir();
+        long id = 0;
+        assertReturnFile(id++);  /* %user%_%userId% */
+        assertReturnFile(id++);  /* unique ID */
+        assertReturnFile(id++);  /* upload */
         String expectedBasePath = "upload";
         String suggestedBasePath = getSuggestion("/upload");
         Assert.assertEquals(expectedBasePath, suggestedBasePath);
@@ -355,4 +412,5 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         String actual = this.tmri.expandTemplate("%björk%", curr);
         Assert.assertEquals(expected, actual);
     }
+
 }
