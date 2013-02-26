@@ -212,7 +212,7 @@ More information is available at:
         uid_list = []
         for user in users:
             [uid, u] = self.find_user(a, user, fatal = False)
-            if uid:
+            if uid is not None:
                 uid_list.append(uid)
         if not uid_list:
             self.error_no_user_found(fatal = True)
