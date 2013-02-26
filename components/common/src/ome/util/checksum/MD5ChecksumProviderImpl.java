@@ -46,18 +46,19 @@ public class MD5ChecksumProviderImpl implements ChecksumProvider {
      * @see ChecksumProvider#getChecksum(ByteBuffer)
      */
     public byte[] getChecksum(ByteBuffer byteBuffer) {
-        byte[] result = null;
         if (byteBuffer.hasArray()) {
-            result = this.md5.newHasher().putBytes(byteBuffer.array()).hash().asBytes();
+            return this.md5.newHasher().putBytes(byteBuffer.array()).hash().asBytes();
+        } else {
+            throw new IllegalArgumentException("Supplied ByteBuffer has " +
+                    "inaccesible array.");
         }
-        return result;
     }
 
     /**
      * @see ChecksumProvider#getChecksum(String)
      */
     public byte[] getChecksum(String filePath) {
-        throw new UnsupportedOperationException("provideChecksum() not"
+        throw new UnsupportedOperationException("Method not "
                 + "implemented for file path String.");
     }
 

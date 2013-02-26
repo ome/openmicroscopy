@@ -33,23 +33,39 @@ import org.testng.annotations.Test;
 public class SHA1ChecksumProviderImplTest {
 
     private SHA1ChecksumProviderImpl sha1;
+    private File smallFile, mediumFile, bigFile;
 
-    // Using SHA1('abc') as test vector value
-    private static String TESTVECTOR = "a9993e364706816aba3e25717850c26c9cd0d89d";
+    // SHA1('abc')
+    private static String ABC_SHA1 = "a9993e364706816aba3e25717850c26c9cd0d89d";
 
-    private static String SMALLFILESHA1 = "89336a1baf365cf51b67105019beca71b858c227";
+    // SHA1('')
+    private static String EMPTYARRAY_SHA1 = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
 
-    private static String BIGFILESHA1 = "c5362b32b0fbacb6ec4be7bc40b647405a8f73ce";
+    // file < 8192 Bytes
+    private static String SMALLFILE_SHA1 = "89336a1baf365cf51b67105019beca71b858c227";
+
+    // file == 8192 Bytes
+    private static String MEDIUMFILE_SHA1 = "733982976662e28c682650f1066d62071cd7538a";
+
+    // file > 8192 Bytes
+    private static String BIGFILE_SHA1 = "c5362b32b0fbacb6ec4be7bc40b647405a8f73ce";
 
     @BeforeClass
     protected void setUp() throws Exception {
+        try {
+            this.smallFile = ResourceUtils.getFile("classpath:cruisecontrol-test.txt");
+            this.mediumFile = ResourceUtils.getFile("classpath:test.txt");
+            this.bigFile = ResourceUtils.getFile("classpath:test.bmp");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("IOException during test set up.");
+        }
         this.sha1 = new SHA1ChecksumProviderImpl();
     }
 
     @Test
     public void testGetChecksumWithByteArray() {
         String actual = Utils.bytesToHex(this.sha1.getChecksum("abc".getBytes()));
-        Assert.assertEquals(actual, TESTVECTOR);
+        Assert.assertEquals(actual, ABC_SHA1);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
@@ -58,41 +74,39 @@ public class SHA1ChecksumProviderImplTest {
         this.sha1.getChecksum(nullArray);
     }
 
+    @Test
+    public void testGetChecksumWithEmptyByteArray() {
+        String actual = Utils.bytesToHex(this.sha1.getChecksum("".getBytes()));
+        Assert.assertEquals(actual, EMPTYARRAY_SHA1);
+    }
+
     @Test(expectedExceptions = UnsupportedOperationException.class)
-    public void testGetChecksumWithByteBuffer() {
+    public void testGetChecksumWithByteBufferShouldThrowUOE() {
         this.sha1.getChecksum(ByteBuffer.allocateDirect(0));
     }
 
     @Test
     public void testGetChecksumWithSmallFilePathString() {
-        File smallFile = null;
-
-        try {
-            smallFile = ResourceUtils.getFile("classpath:cruisecontrol-test.txt");
-        } catch (FileNotFoundException e) {
-            Assert.fail("Test data cannot be accessed. Failing the test.");
-        }
-
         String actual = Utils.bytesToHex(this.sha1
-                .getChecksum(smallFile.getAbsolutePath()));
+                .getChecksum(this.smallFile.getAbsolutePath()));
 
-        Assert.assertEquals(actual, SMALLFILESHA1);
+        Assert.assertEquals(actual, SMALLFILE_SHA1);
+    }
+
+    @Test
+    public void testGetChecksumWithMediumFilePathString() {
+        String actual = Utils.bytesToHex(this.sha1
+                .getChecksum(this.mediumFile.getAbsolutePath()));
+
+        Assert.assertEquals(actual, MEDIUMFILE_SHA1);
     }
 
     @Test
     public void testGetChecksumWithBigFilePathString() {
-        File bigFile = null;
-
-        try {
-            bigFile = ResourceUtils.getFile("classpath:test.bmp");
-        } catch (FileNotFoundException e) {
-            Assert.fail("Test data cannot be accessed. Failing the test.");
-        }
-
         String actual = Utils.bytesToHex(this.sha1
-                .getChecksum(bigFile.getAbsolutePath()));
+                .getChecksum(this.bigFile.getAbsolutePath()));
 
-        Assert.assertEquals(actual, BIGFILESHA1);
+        Assert.assertEquals(actual, BIGFILE_SHA1);
     }
     
 }

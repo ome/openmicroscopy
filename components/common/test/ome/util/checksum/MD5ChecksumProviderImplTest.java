@@ -31,8 +31,11 @@ public class MD5ChecksumProviderImplTest {
 
     private MD5ChecksumProviderImpl md5;
 
-    // Using MD5('abc') as test vector value
-    private static String TESTVECTOR = "900150983cd24fb0d6963f7d28e17f72";
+    // MD5('abc')
+    private static String ABC_MD5 = "900150983cd24fb0d6963f7d28e17f72";
+
+    // MD5('')
+    private static String EMPTYARRAY_MD5 = "d41d8cd98f00b204e9800998ecf8427e";
 
     @BeforeClass
     protected void setUp() throws Exception {
@@ -42,30 +45,36 @@ public class MD5ChecksumProviderImplTest {
     @Test
     public void testGetChecksumWithByteArray() {
         String actual = Utils.bytesToHex(this.md5.getChecksum("abc".getBytes()));
-        Assert.assertEquals(actual, TESTVECTOR);
+        Assert.assertEquals(actual, ABC_MD5);
     }
 
     @Test(expectedExceptions = NullPointerException.class)
-    public void testGetChecksumWithEmptyByteArrayShouldThrowNPE() {
+    public void testGetChecksumWithNullByteArrayShouldThrowNPE() {
         byte nullArray[] = null;
         this.md5.getChecksum(nullArray);
+    }
+
+    @Test
+    public void testGetChecksumWithEmptyByteArray() {
+        String actual = Utils.bytesToHex(this.md5.getChecksum("".getBytes()));
+        Assert.assertEquals(actual, EMPTYARRAY_MD5);
     }
 
     @Test
     public void testGetChecksumWithByteBuffer() {
         String actual = Utils.bytesToHex(this.md5.getChecksum(
                 ByteBuffer.wrap("abc".getBytes())));
-        Assert.assertEquals(actual, TESTVECTOR);
+        Assert.assertEquals(actual, ABC_MD5);
     }
 
-    @Test
-    public void testGetChecksumWithEmptyByteBufferReturnsNull() {
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void testGetChecksumWithEmptyByteBufferShouldThrowIAE() {
         byte[] actual = this.md5.getChecksum(ByteBuffer.allocateDirect(0));
         Assert.assertNull(actual);
     }
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
-    public void testGetChecksumWithBogusFilePathStringShouldThrowUOE() {
+    public void testGetChecksumWithFilePathStringShouldThrowUOE() {
         this.md5.getChecksum("foobar/biz/buz");
     }
 

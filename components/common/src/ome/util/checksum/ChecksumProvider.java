@@ -36,10 +36,12 @@ public interface ChecksumProvider {
 
     /**
      * Returns a checksum of a byte array. If the array is null, throws NPE.
-     * An empty array doesn't guarantee any predictable result.
+     * Note that, although checksum results are consistent for any given hash
+     * function and byte array, different hash functions may calculate different
+     * checksums for an empty array despite its lack of content.
      *
      * @param buffer The input byte array.
-     * @return Checksum ytes inside an array.
+     * @return Checksum bytes inside an array.
      */
     byte[] getChecksum(byte[] buffer);
 
@@ -54,7 +56,7 @@ public interface ChecksumProvider {
 
     /**
      * Returns a checksum of a byte buffer. If the array underlying the byte
-     * buffer is not accesible, returns null.
+     * buffer is not accessible, throws an IllegalArgumentException.
      *
      * @param buffer The input byte buffer.
      * @return Checksum bytes inside an array.

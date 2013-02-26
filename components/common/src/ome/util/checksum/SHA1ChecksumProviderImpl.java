@@ -55,7 +55,7 @@ public class SHA1ChecksumProviderImpl implements ChecksumProvider {
      * @see ChecksumProvider#getChecksum(ByteBuffer)
      */
     public byte[] getChecksum(ByteBuffer byteBuffer) {
-        throw new UnsupportedOperationException("provideChecksum() not"
+        throw new UnsupportedOperationException("Method not "
                 + "implemented for ByteBuffer.");
     }
 
