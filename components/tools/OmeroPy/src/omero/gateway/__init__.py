@@ -52,7 +52,7 @@ except: #pragma: nocover
 from cStringIO import StringIO
 from math import sqrt
 
-from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap
+from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble, unwrap, wrap
 
 def omero_type(val):
     """
@@ -3252,6 +3252,31 @@ class _BlitzGateway (object):
                 '/Plate':['/Image'],
                 '/Well':[],
                 '/Annotation':[] }
+
+        if graph_spec == "/Image":
+            imgsToDelete = []
+            imgsWithFs = []
+            images = self.getObjects("Image", obj_ids)
+            for i in images:
+                # if we share filesets, remove duplicates
+                if i.countFilesetFiles() > 0:
+                    imgsWithFs.append(i.getId())
+                else:
+                    imgsToDelete.append(i.getId())
+            if len(imgsWithFs) > 0:
+                params = omero.sys.Parameters()
+                params.map = {'imageIds': wrap(imgsWithFs)}
+                query = "select fs from Fileset as fs "\
+                        "left outer join fetch fs.imageLinks as fil "\
+                        "join fetch fil.child as image " \
+                        "where image.id in (:imageIds)"
+                queryService = self.getQueryService()
+                filesets = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
+                for fs in filesets:
+                    for fsImgLink in fs.copyImageLinks():
+                        imgsToDelete.append(fsImgLink.child.id.val)
+                        break
+            obj_ids = imgsToDelete
 
         if not deleteChildren:
             try:
