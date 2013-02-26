@@ -86,6 +86,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -800,7 +801,8 @@ class OmeroDataServiceImpl
 		List<DataObject> contents;
 		String ns;
 		Iterator<DataObject> k;
-		List<GroupData> groups = null;
+		Map<Long, Map<String, String>>
+		images = new HashMap<Long, Map<String, String>>();
 		while (i.hasNext()) {
 			contents = null;
 			object = i.next();
@@ -850,16 +852,54 @@ class OmeroDataServiceImpl
 					}
 				}
 			}
-			cmd = new Delete(gateway.createDeleteCommand(
-					data.getClass().getName()), data.getId(), options);
-			commands.add(cmd);
-			if (contents != null && contents.size() > 0) {
-				k = contents.iterator();
-				DataObject d;
-				while (k.hasNext()) {
-					d = k.next();
+			if (data instanceof ImageData) {
+				images.put(data.getId(), options);
+			} else {
+				cmd = new Delete(gateway.createDeleteCommand(
+						data.getClass().getName()), data.getId(), options);
+				commands.add(cmd);
+				if (contents != null && contents.size() > 0) {
+					k = contents.iterator();
+					DataObject d;
+					while (k.hasNext()) {
+						d = k.next();
+						cmd = new Delete(gateway.createDeleteCommand(
+								d.getClass().getName()), d.getId(), options);
+						commands.add(cmd);
+					}
+				}
+			}
+		}
+		if (images.size() > 0) {
+			Set<DataObject> fsList = gateway.getFileSet(ctx, images.keySet());
+			List<Long> all = new ArrayList<Long>();
+			Iterator<DataObject> kk = fsList.iterator();
+			FilesetData fs;
+			long imageId;
+			List<Long> imageIds;
+			while (kk.hasNext()) {
+				fs = (FilesetData) kk.next();
+				imageIds = fs.getImageIds();
+				if (imageIds.size() > 0) {
+					imageId = imageIds.get(0);
 					cmd = new Delete(gateway.createDeleteCommand(
-							d.getClass().getName()), d.getId(), options);
+							ImageData.class.getName()), imageId,
+							images.get(imageId));
+					commands.add(cmd);
+					all.addAll(imageIds);
+				}
+			}
+			
+			//Now check that all the ids are covered.
+			Entry<Long, Map<String, String>> entry;
+			Iterator<Entry<Long, Map<String, String>>> e =
+				images.entrySet().iterator();
+			while (e.hasNext()) {
+				entry = e.next();
+				if (!all.contains(entry.getKey())) { //pre-fs data.
+					cmd = new Delete(gateway.createDeleteCommand(
+							ImageData.class.getName()), entry.getKey(),
+							entry.getValue());
 					commands.add(cmd);
 				}
 			}

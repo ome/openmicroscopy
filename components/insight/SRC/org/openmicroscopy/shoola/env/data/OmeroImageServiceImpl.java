@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1945,7 +1946,7 @@ class OmeroImageServiceImpl
 	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		return gateway.getFileSet(ctx, imageId);
+		return gateway.getFileSet(ctx, Arrays.asList(imageId));
 	}
 
 }
