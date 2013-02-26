@@ -23,8 +23,8 @@ import ome.dsl.SaxReader;
 import ome.dsl.SemanticType;
 import ome.dsl.VelocityHelper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 
 public class ExampleUsageTest extends TestCase {
 
-    private static Logger log = LoggerFactory.getLogger(ExampleUsageTest.class);
+    private static Log log = LogFactory.getLog(ExampleUsageTest.class);
 
     SaxReader sr;
 
