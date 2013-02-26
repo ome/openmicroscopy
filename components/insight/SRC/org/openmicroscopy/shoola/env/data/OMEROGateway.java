@@ -3923,12 +3923,15 @@ class OMEROGateway
 				buffer.append("left join ofile.pixelsFileMaps as pfm ");
 				buffer.append("left join pfm.child as child ");
 				buffer.append("where child.id = :id");
+				param.map.put("id", omero.rtypes.rlong(id));
 				query = buffer.toString();
 			} else {
 				id = image.getId();
+				List<RType> l = new ArrayList<RType>();
+				l.add(omero.rtypes.rlong(id));
+				param.add("imageIds", omero.rtypes.rlist(l));
 				query = createFileSetQuery();
 			}
-			param.map.put("id", omero.rtypes.rlong(id));
 			files = service.findAllByQuery(query, param);
 		} catch (Exception e) {
 			handleConnectionException(e);
@@ -8522,7 +8525,7 @@ class OMEROGateway
 		if (!networkup) return null;
 		IQueryPrx service = getQueryService(ctx);
 		try {
-			List<RType> l = new ArrayList<RType>();
+			List<RType> l = new ArrayList<RType>(imageIds.size());
 			Iterator<Long> j = imageIds.iterator();
 			while (j.hasNext())
 				l.add(omero.rtypes.rlong(j.next()));
