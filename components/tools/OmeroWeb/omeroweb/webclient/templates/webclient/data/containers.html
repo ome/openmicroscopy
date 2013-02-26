@@ -236,7 +236,7 @@
 
                     var position = 0;
                     // Make sure top level objects get added to jsTree root (current selected may be project or screen)
-                    if ($.inArray(cont_type, ['project', 'screen'])> -1) {
+                    if (($.inArray(cont_type, ['project', 'screen'])> -1) && (selected.attr("rel") !== 'experimenter')) {
                         position = "after";
                     }
                     $.ajax({
