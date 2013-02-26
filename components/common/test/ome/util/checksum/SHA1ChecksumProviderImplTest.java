@@ -80,11 +80,6 @@ public class SHA1ChecksumProviderImplTest {
         Assert.assertEquals(actual, EMPTYARRAY_SHA1);
     }
 
-    @Test(expectedExceptions = UnsupportedOperationException.class)
-    public void testGetChecksumWithByteBufferShouldThrowUOE() {
-        this.sha1.getChecksum(ByteBuffer.allocateDirect(0));
-    }
-
     @Test
     public void testGetChecksumWithSmallFilePathString() {
         String actual = Utils.bytesToHex(this.sha1
