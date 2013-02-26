@@ -692,7 +692,7 @@
                                 // need to disable all the group submenu items we created above
                                 {% for grp in myGroups %}
                                     {% ifnotequal grp.id active_group.id %}
-                                        config["chgrp"]["submenu"]["{{ grp.name }}"]["_disabled"] = true;
+                                        config["chgrp"]["submenu"]["menuitem{{ grp.id }}"]["_disabled"] = true;
                                     {% endifnotequal %}
                                 {% endfor %}
                             }
