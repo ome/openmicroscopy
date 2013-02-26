@@ -504,18 +504,21 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate') or kw.has_key('acquisition'):
-            fields = manager.getNumberOfFields()
-            if fields is not None:
-                form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
-                if index == 0:
-                    index = fields[0]
-            show = request.REQUEST.get('show', None)
-            if show is not None:
-                select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                context['select_wells'] = ",".join(select_wells)
-            context['baseurl'] = reverse('webgateway').rstrip('/')
-            context['form_well_index'] = form_well_index
-            template = "webclient/data/plate.html"
+            if view == 'tree':  # Only used when pasting Plate into Screen - load Acquisition in tree
+                template = "webclient/data/container_subtree.html"
+            else:
+                fields = manager.getNumberOfFields()
+                if fields is not None:
+                    form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                    if index == 0:
+                        index = fields[0]
+                show = request.REQUEST.get('show', None)
+                if show is not None:
+                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
+                    context['select_wells'] = ",".join(select_wells)
+                context['baseurl'] = reverse('webgateway').rstrip('/')
+                context['form_well_index'] = form_well_index
+                template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':

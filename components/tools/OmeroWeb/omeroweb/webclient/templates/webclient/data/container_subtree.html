@@ -36,3 +36,13 @@
     {% endfor %}
     {% endif %}
 {% endif %}
+
+{% if manager.plate %}
+    {% if manager.plate.countPlateAcquisitions %}
+        {% for e in manager.plate.listPlateAcquisitions %}
+            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
+                <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
+            </li>
+        {% endfor %}
+    {% endif %}
+{% endif %}
