@@ -956,13 +956,10 @@ class BaseContainer(BaseController):
                 if parent[0] != destination[0]:
                     up_spl = None
                     spls = list(self.plate.getParentLinks()) #gets every links for child
-                    if len(spls) == 1:
-                        # gets old parent to delete
-                        if spls[0].parent.id.val == long(parent[1]):
-                            up_spl = spls[0]
-                            self.conn.deleteObjectDirect(up_spl._obj)
-                    else:
-                        return 'This plate is linked in multiple places. Please unlink the plate first.'
+                    for spl in spls:
+                        if spl.parent.id.val == long(parent[1]):
+                            self.conn.deleteObjectDirect(spl._obj)
+                            break
             else:
                 return 'Destination not supported.'
         else:
