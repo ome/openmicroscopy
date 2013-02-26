@@ -43,7 +43,7 @@ public interface ChecksumProvider {
      * @param buffer The input byte array.
      * @return Checksum bytes inside an array.
      */
-    byte[] getChecksum(byte[] buffer);
+    byte[] getChecksum(byte[] byteArray);
 
     /**
      * Returns a checksum of a file identified by a path. Throws a
@@ -61,6 +61,6 @@ public interface ChecksumProvider {
      * @param buffer The input byte buffer.
      * @return Checksum bytes inside an array.
      */
-    byte[] getChecksum(ByteBuffer buffer);
+    byte[] getChecksum(ByteBuffer byteBuffer);
 
 }

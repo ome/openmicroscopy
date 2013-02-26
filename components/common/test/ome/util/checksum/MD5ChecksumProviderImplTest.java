@@ -73,9 +73,4 @@ public class MD5ChecksumProviderImplTest {
         Assert.assertNull(actual);
     }
 
-    @Test(expectedExceptions = UnsupportedOperationException.class)
-    public void testGetChecksumWithFilePathStringShouldThrowUOE() {
-        this.md5.getChecksum("foobar/biz/buz");
-    }
-
 }
