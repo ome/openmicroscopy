@@ -1333,7 +1333,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @return see above.
 	 */
 	private DataNode getSelectedItem(JComboBox comboBox) {
-		return ((Selectable<DataNode>) comboBox.getSelectedItem()).getObject();
+		Object selectedItem = comboBox.getSelectedItem();
+		if(selectedItem == null)
+			return null;
+		return ((Selectable<DataNode>) selectedItem).getObject();
 	}
 	
 	/**
