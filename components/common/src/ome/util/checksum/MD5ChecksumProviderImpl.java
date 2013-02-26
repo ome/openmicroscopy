@@ -50,7 +50,7 @@ public class MD5ChecksumProviderImpl implements ChecksumProvider {
             return this.md5.newHasher().putBytes(byteBuffer.array()).hash().asBytes();
         } else {
             throw new IllegalArgumentException("Supplied ByteBuffer has " +
-                    "inaccesible array.");
+                    "inaccessible array.");
         }
     }
 
