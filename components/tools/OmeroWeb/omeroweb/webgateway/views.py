@@ -2480,10 +2480,15 @@ def annotate(request, klass, id, conn=None, **kwargs):
             for ann in obj.listAnnotations(ns)
         ]
     elif request.method == 'POST':
-        ann = CommentAnnotationWrapper(conn)
-        ann.setNs(ns)
-        ann.setValue(request.read())
-        obj.linkAnnotation(ann)
+        ann = obj.getAnnotation(ns)
+        if not ann:
+            ann = CommentAnnotationWrapper(conn)
+            ann.setNs(ns)
+            ann.setValue(request.read())
+            obj.linkAnnotation(ann)
+        else:
+            ann.setValue(request.read())
+            ann.save()
         return dict(result='ok')
     elif request.method == 'DELETE':
         obj.removeAnnotations(ns)
