@@ -24,25 +24,33 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import pojos.ExperimenterData;
 
 /** 
- * 
- * Provides a wrapper to display the experimenter
+ * Provides a wrapper to display the experimenter 
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since 4.4
  */
 public class ExperimenterDisplay  {
 
+	/** The user being wrapped */
 	private ExperimenterData data;
 	
+	/** Creates an instance wrapping this user data for display */
 	public ExperimenterDisplay(ExperimenterData data)
 	{
 		this.data = data;
 	}
 	
+	/**
+	 * Returns a formatted representation of this user "{firstName} {lastName}"
+	 */
 	public String toString()
 	{
 		return String.format("%s %s", data.getFirstName(), data.getLastName());
 	}
 
+	/**
+	 * Returns the wrapped user data.
+	 * @return see above.
+	 */
 	public ExperimenterData getData() {
 		return data;
 	}
