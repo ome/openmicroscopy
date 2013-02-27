@@ -900,7 +900,8 @@ class LocationDialog extends JDialog implements ActionListener,
 
 
 	private ExperimenterData getSelectedUser() {
-		return ImporterAgent.getUserDetails();
+		Selectable<ExperimenterDisplay> selectedItem = (Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
+		return selectedItem.getObject().getData();
 	}
 
 	/**
@@ -950,7 +951,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<String> lines;
 		ExperimenterData exp;
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
-		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		SelectableComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<DataNode> selected = null;
 		
 		for (DataNode node : items) {
@@ -1465,6 +1466,22 @@ class LocationDialog extends JDialog implements ActionListener,
 				storeCurrentSelections();
 				
 				switchToSelectedGroup();
+			} else if(source == usersBox) {
+				ExperimenterData selectedImportUser = getSelectedUser();
+				// de select the projects / datasets not owned by that user
+				if(projectsBox.getModel() instanceof SelectableComboBoxModel)
+				{
+					SelectableComboBoxModel projectsModel = (SelectableComboBoxModel) projectsBox.getModel();
+					for (int i = 0; i < projectsModel.getSize(); i++) {
+						Selectable<DataNode> project = (Selectable<DataNode>) projectsModel.getElementAt(i);
+						if(!project.getObject().isDefaultNode())
+						{
+							boolean isSelectable = selectedImportUser.getId() == project.getObject().getOwner().getId();
+							project.setSelectable(isSelectable);
+						}
+					}
+				}
+
 			} else if (source == projectsBox) {
 				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);
