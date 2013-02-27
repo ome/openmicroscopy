@@ -424,7 +424,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     request.session['user_id'] = user_id
 
     if conn.isAdmin():  # Admin can see all groups
-        myGroups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("system", "user", "guest")]
+        myGroups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
     else:
         myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
