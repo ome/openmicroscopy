@@ -42,6 +42,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -60,6 +61,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -645,13 +647,27 @@ class LocationDialog extends JDialog implements ActionListener,
 		}
 		
 		if (selectedGroupItem != null)
+		{
 			groupsBox.setSelectedItem(selectedGroupItem);
-
+			displayUsers(usersBox, selectedGroup, null);
+		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
 		renderer.setPreferredSize(new Dimension(200, 130));
 		groupsBox.setRenderer(renderer);
 		
 		groupsBox.addItemListener(this);
+	}
+
+	private boolean canImportForUserInGroup(
+			GroupData selectedGroup, ExperimenterData user) {
+		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
+		boolean isGroupOwner = false;
+		Set<ExperimenterData> leaders = (Set<ExperimenterData>) selectedGroup.getLeaders();
+		for (ExperimenterData leader : leaders) {
+			if(leader.getId() == loggedInUser.getId())
+				isGroupOwner = true;
+		}
+		return user.getId() == loggedInUser.getId() || TreeViewerAgent.isAdministrator() || isGroupOwner;
 	}
 
 	/**
@@ -963,6 +979,55 @@ class LocationDialog extends JDialog implements ActionListener,
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
 				loggedInUser.getId());
 		renderer.setTooltips(tooltips);
+		comboBox.setModel(model);
+		comboBox.setRenderer(renderer);
+		
+		if (selected != null)
+			comboBox.setSelectedItem(selected);
+
+		if(itemListener != null)
+			comboBox.addItemListener(itemListener);
+	}
+	
+	
+	/**
+	 * Populates the JComboBox with the user details provided adding hover tooltips, 
+	 * selecting the specified item and attaching the listener.
+	 * @param comboBox The JComboBox to populate
+	 * @param nodes The items to populate the box with
+	 * @param topItem The item to add at the top of the JComboBox
+	 * @param select The item to select in the JComboBox
+	 * @param itemListener An item listener to add for the JComboBox
+	 */
+	private void displayUsers(JComboBox comboBox, GroupData group, 
+			ItemListener itemListener) {
+
+		if (comboBox == null || group == null) return;
+		//Only add the item the user can actually select
+		if (itemListener != null)
+			comboBox.removeItemListener(itemListener);
+		comboBox.removeAllItems();
+
+		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
+		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		Selectable<ExperimenterDisplay> selected = null;
+		
+		Collection<ExperimenterData> members = (Collection<ExperimenterData>) group.getExperimenters();
+		for (ExperimenterData user : members) {	
+			boolean canImportAs = canImportForUserInGroup(group, user);
+			System.out.println(String.format("%s :canImportAs: %s = %s",loggedInUser.getUserName(), user.getUserName(), canImportAs));
+			Selectable<ExperimenterDisplay> comboBoxItem = 
+					new Selectable<ExperimenterDisplay>(new ExperimenterDisplay(user), canImportAs);
+			if(user.getId() == loggedInUser.getId())
+				selected = comboBoxItem;
+			
+			model.addElement(comboBoxItem);
+		}
+
+		//To be modified
+		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
+				loggedInUser.getId());
+		//renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
 		comboBox.setRenderer(renderer);
 		
