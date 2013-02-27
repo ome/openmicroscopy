@@ -2095,6 +2095,12 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     repository, description = get_repository(conn, klass, name)
     todelete = []
 
+    async = request.GET.get('async') == 'true'
+    try:
+        timeout = int(request.GET.get('timeout', '30'))
+    except ValueError:
+        timeout = 30
+
     path, fname = os.path.split(filepath)
     path += '/' if path != '' else ''
     objs = conn.getObjects('OriginalFile', attributes=dict(name=fname, path='/'+path))
@@ -2108,21 +2114,48 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
                     _delete(f.path.val[1:] + f.name.val)
         _delete(path + fname)
 
+    rdict = {
+        'matched_ids': todelete,
+        'async': async,
+        }
+
     # Delete objects in database
     if todelete:
         handle = conn.deleteObjects('/OriginalFile', todelete)
-        try:
-            conn._waitOnCmd(handle, loops=60)  # wait for 60*500ms = 30s
-        finally:
-            handle.close()
-    # Delete files on disk
-    try:
-        repository.delete(filepath, ctx)
-    except:
-        pass
 
-    rdict = {'matched_ids': todelete}
+        if async:
+            # return immediately
+            request.session['deletes'][str(handle)] = {
+                'filepath': filepath,
+                }
+            rdict['handle'] = str(handle)
+
+        else:
+            # Wait until delete completes
+            try:
+                conn._waitOnCmd(handle, loops=timeout * 2)  # loops are 500ms
+            finally:
+                handle.close()
+            # Delete files on disk
+            try:
+                repository.delete(filepath, ctx)
+            except:
+                pass
+
     return rdict
+
+
+@login_required()
+@jsonp
+def repository_delete_status(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    json method: Get status for asynchronous delete
+    """
+    strhandle = request.GET.get('handle')
+    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(strhandle))
+
+
+
 
 
 @login_required()

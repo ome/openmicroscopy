@@ -503,6 +503,72 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
         self.toDelete.append((repoclass or self.repoclass, reponame or self.reponame, filename))
 
 
+class DeletePerformanceTest(RepositoryApiBaseTest):
+
+    def setUp(self):
+        super(DeletePerformanceTest, self).setUp()
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
+        self.loginmethod = self.loginAsAuthor
+
+    def _makeDir(self, dirpath):
+        repository, description = self._getrepo()
+        root = unwrap(repository.root().path)
+        fwname = OriginalFileWrapper(conn=self.gateway, obj=description).getName()
+        path = os.path.join(root, fwname, dirpath)
+        repository.makeDir(path, True)
+        self.deleteLater(dirpath)
+
+    def _createOriginalFiles(self, directory, count):
+        repository, description = self._getrepo()
+        fwname = OriginalFileWrapper(conn=self.gateway, obj=description).getName()
+        root = os.path.join(unwrap(repository.root().path), fwname)
+        self._makeDir(directory)
+        for i in range(count):
+            targetfile = repository.file(os.path.join(root, directory, 'file%s.txt' % i), 'rw')
+            targetfile.truncate(0)
+            targetfile.write('ABC123', 0, 6)
+            targetfile.close()
+        fulldir = os.path.join(root, directory) + '/'
+        l = repository.listFiles(fulldir)
+        return [unwrap(x.id) for x in l]
+
+    #def testDeleteCallback(self):
+    #    self.loginmethod()
+    #    name = 'delete_test_%s' % time.time()
+    #    ids = self._createOriginalFiles(name, 200)
+    #    print ids
+    #    handle = self.gateway.deleteObjects('/OriginalFile', ids)
+    #    try:
+    #        print handle.getStatus()
+    #        print dir(handle.getStatus())
+    #        for i in range(10):
+    #            time.sleep(1)
+    #            print handle.getStatus()
+    #    finally:
+    #        handle.close()
+
+    def testCanAnnotateAndEdit(self):
+        self.loginAsAdmin()
+        directory = 'perm_test_%s' % time.time()
+        ids = self._createOriginalFiles(directory, 1)
+        repository, description = self._getrepo()
+        fwname = OriginalFileWrapper(conn=self.gateway, obj=description).getName()
+        root = os.path.join(unwrap(repository.root().path), fwname)
+        fulldir = os.path.join(root, directory) + '/'
+        l = repository.listFiles(fulldir)
+        w = OriginalFileWrapper(conn=self.gateway, obj=l[0])
+        for prop in dir(w):
+            if prop.startswith('can'):
+                print prop, getattr(w, prop)()
+        self.loginAsAuthor()
+        w = OriginalFileWrapper(conn=self.gateway, obj=l[0])
+        for prop in dir(w):
+            if prop.startswith('can'):
+                print prop, getattr(w, prop)()
+
+
+
 class RepositoryApiTest(RepositoryApiBaseTest):
     """
     Admin can upload and read file in regular repository, and can create

@@ -78,6 +78,11 @@ repository_delete = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete/
 json method: Delete specified file or directory
 """
 
+repository_delete_status = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete/status/$', 'webgateway.views.repository_delete_status')
+"""
+json method: Get status for asynchronous delete
+"""
+
 repository_root = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/root/$', 'webgateway.views.repository_root')
 """
 json method: Returns the root and name property of a repository
