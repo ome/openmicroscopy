@@ -1520,6 +1520,8 @@ class LocationDialog extends JDialog implements ActionListener,
 							selectedImportUser));
 				}
 			}
+			projectsBox.setSelectedIndex(0);
+			datasetsBox.setSelectedIndex(0);
 		}
 	}
 
