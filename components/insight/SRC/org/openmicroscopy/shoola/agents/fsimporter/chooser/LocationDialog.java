@@ -101,6 +101,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	
 	// table design presets
 
+
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
 	
@@ -136,6 +137,9 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** The title of the dialog. */
 	private static String TEXT_TITLE =
 			"Import Location - Select where to import your data.";
+
+	/** Text for import as a user */
+	private static final String TEXT_IMPORT_AS = "Import As";
 	
 	/** Text for projects */
 	private static final String TEXT_PROJECTS = "Projects";
@@ -463,16 +467,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox.addItemListener(this);
 		
 		usersBox = new JComboBox();
-		usersBox.setRenderer(new ComboBoxToolTipRenderer(ImporterAgent.getUserDetails().getId()));
-
-		DefaultComboBoxModel model = new SelectableComboBoxModel();
-		/*
-		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
-		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
-		model.addElement(new Selectable<String>("Something should be selectable and enabled", true));
-		model.addElement(new Selectable<String>("Something should be disabled and non selectable", false));
-		*/
-		usersBox.setModel(model);
 		usersBox.addItemListener(this);
 		
 		refreshButton = new JButton(TEXT_REFRESH);
@@ -576,10 +570,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
 
-	        groupPanel.add(UIUtilities.setTextFont("User"), "0, 1, r, c");
+	        groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), "0, 1, r, c");
 	        groupPanel.add(usersBox,"1, 1");
 		} else {
-	        groupPanel.add(UIUtilities.setTextFont("User"), "0, 0, r, c");
+	        groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), "0, 0, r, c");
 	        groupPanel.add(usersBox,"1, 0");
 		}
        
@@ -658,16 +652,26 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox.addItemListener(this);
 	}
 
-	private boolean canImportForUserInGroup(
-			GroupData selectedGroup, ExperimenterData user) {
+	/**
+	 * Determines if the logged in user is allowed to import data for the user 
+	 * in to the selected group. Returns true if the logged in user is the user, 
+	 * is a system administrator or is an owner of the group
+	 * @param user The user to import data for
+	 * @param selectedGroup The group to import data in to
+	 * @return
+	 */
+	private boolean canImportForUserInGroup(ExperimenterData user, 
+			GroupData selectedGroup) {
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		boolean isGroupOwner = false;
-		Set<ExperimenterData> leaders = (Set<ExperimenterData>) selectedGroup.getLeaders();
+		Set<ExperimenterData> leaders = 
+				(Set<ExperimenterData>) selectedGroup.getLeaders();
 		for (ExperimenterData leader : leaders) {
 			if(leader.getId() == loggedInUser.getId())
 				isGroupOwner = true;
 		}
-		return user.getId() == loggedInUser.getId() || TreeViewerAgent.isAdministrator() || isGroupOwner;
+		return user.getId() == loggedInUser.getId() || 
+				TreeViewerAgent.isAdministrator() || isGroupOwner;
 	}
 
 	/**
@@ -899,16 +903,20 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 
+	/**
+	 * Returns the selected user in the users combobox
+	 * @return see above.
+	 */
 	private ExperimenterData getSelectedUser() {
-		Selectable<ExperimenterDisplay> selectedItem = (Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
+		Selectable<ExperimenterDisplay> selectedItem = 
+				(Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
 		return selectedItem.getObject().getData();
 	}
 
 	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips.
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 */
 	private void displayItemsWithTooltips(JComboBox comboBox,
 			List<DataNode> listItems) {
@@ -919,8 +927,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Populates the JComboBox with the items provided adding hover tooltips 
 	 * and selecting the specified item.
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 * @param selected The item to select in the JComboBox
 	 */
 	private void displayItemsWithTooltips(JComboBox comboBox, 
@@ -932,29 +939,28 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Populates the JComboBox with the items provided adding hover tooltips, 
 	 * selecting the specified item and attaching the listener.
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 * @param select The item to select in the JComboBox
 	 * @param itemListener An item listener to add for the JComboBox
 	 */
 	private void displayItems(JComboBox comboBox,
-			List<DataNode> items, DataNode select, 
+			List<DataNode> listItems, DataNode select, 
 			ItemListener itemListener) {
 
-		if (comboBox == null || items == null) return;
+		if (comboBox == null || listItems == null) return;
 		//Only add the item the user can actually select
 		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
-		List<String> tooltips = new ArrayList<String>(items.size());
+		List<String> tooltips = new ArrayList<String>(listItems.size());
 		List<String> lines;
 		ExperimenterData exp;
 		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		SelectableComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<DataNode> selected = null;
 		
-		for (DataNode node : items) {
+		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
 			if (exp != null) {
@@ -970,7 +976,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			Selectable<DataNode> comboBoxItem = 
 					new Selectable<DataNode>(node, selectable);
-			if(select != null && node.getDataObject().getId() == select.getDataObject().getId())
+			if(select != null && 
+			   node.getDataObject().getId() == select.getDataObject().getId())
 				selected = comboBoxItem;
 			
 			model.addElement(comboBoxItem);
@@ -992,19 +999,17 @@ class LocationDialog extends JDialog implements ActionListener,
 	
 	
 	/**
-	 * Populates the JComboBox with the user details provided adding hover tooltips, 
-	 * selecting the specified item and attaching the listener.
+	 * Populates the JComboBox with the user details provided, 
+	 * selecting the logged in user and attaching the item listener.
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
-	 * @param select The item to select in the JComboBox
+	 * @param group The group being displayed
 	 * @param itemListener An item listener to add for the JComboBox
 	 */
 	private void displayUsers(JComboBox comboBox, GroupData group, 
 			ItemListener itemListener) {
 
 		if (comboBox == null || group == null) return;
-		//Only add the item the user can actually select
+
 		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
@@ -1013,22 +1018,21 @@ class LocationDialog extends JDialog implements ActionListener,
 		DefaultComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<ExperimenterDisplay> selected = null;
 		
-		Collection<ExperimenterData> members = (Collection<ExperimenterData>) group.getExperimenters();
+		Collection<ExperimenterData> members = 
+				(Collection<ExperimenterData>) group.getExperimenters();
 		for (ExperimenterData user : members) {	
-			boolean canImportAs = canImportForUserInGroup(group, user);
-			System.out.println(String.format("%s :canImportAs: %s = %s",loggedInUser.getUserName(), user.getUserName(), canImportAs));
+			boolean canImportAs = canImportForUserInGroup(user, group);
+			ExperimenterDisplay display = new ExperimenterDisplay(user);
 			Selectable<ExperimenterDisplay> comboBoxItem = 
-					new Selectable<ExperimenterDisplay>(new ExperimenterDisplay(user), canImportAs);
+					new Selectable<ExperimenterDisplay>(display, canImportAs);
 			if(user.getId() == loggedInUser.getId())
 				selected = comboBoxItem;
 			
 			model.addElement(comboBoxItem);
 		}
 
-		//To be modified
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
 				loggedInUser.getId());
-		//renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
 		comboBox.setRenderer(renderer);
 		
@@ -1467,20 +1471,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				
 				switchToSelectedGroup();
 			} else if(source == usersBox) {
-				ExperimenterData selectedImportUser = getSelectedUser();
-				// de select the projects / datasets not owned by that user
-				if(projectsBox.getModel() instanceof SelectableComboBoxModel)
-				{
-					SelectableComboBoxModel projectsModel = (SelectableComboBoxModel) projectsBox.getModel();
-					for (int i = 0; i < projectsModel.getSize(); i++) {
-						Selectable<DataNode> project = (Selectable<DataNode>) projectsModel.getElementAt(i);
-						if(!project.getObject().isDefaultNode())
-						{
-							boolean isSelectable = selectedImportUser.getId() == project.getObject().getOwner().getId();
-							project.setSelectable(isSelectable);
-						}
-					}
-				}
+				changeUserSelection();
 
 			} else if (source == projectsBox) {
 				DataNode node = getSelectedItem(projectsBox);
@@ -1507,6 +1498,42 @@ class LocationDialog extends JDialog implements ActionListener,
 				}
 			}
 		}
+	}
+
+	/**
+	 * Performs the required operations to set the enabled/disabled options of 
+	 * the projectsBox model when an import user is selected
+	 */
+	private void changeUserSelection() {
+		ExperimenterData selectedImportUser = getSelectedUser();
+		// de select the projects / datasets not owned by that user
+		if(projectsBox.getModel() instanceof SelectableComboBoxModel)
+		{
+			SelectableComboBoxModel projectsModel = 
+					(SelectableComboBoxModel) projectsBox.getModel();
+			for (int i = 0; i < projectsModel.getSize(); i++) {
+				Selectable<DataNode> project = 
+						(Selectable<DataNode>) projectsModel.getElementAt(i);
+				if(!project.getObject().isDefaultNode())
+				{
+					project.setSelectable(isOwnedBy(project, 
+							selectedImportUser));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Helper function to determine if the Selectable<DataNode> is owned by 
+	 * the user
+	 * @param selectableNode The node to check ownership of
+	 * @param user The user to test ownership against
+	 * @return see above.
+	 */
+	private boolean isOwnedBy(Selectable<DataNode> selectableNode,
+			ExperimenterData user) {
+		return user.getId() == selectableNode.getObject().getOwner().getId();
+		
 	}
 
 	/**
