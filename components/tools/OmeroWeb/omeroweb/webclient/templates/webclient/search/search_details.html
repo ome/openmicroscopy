@@ -66,6 +66,7 @@
     
 
     <div>
+    {% block search_results %}
         {% if manager.c_size %}
         
         <table id="dataTable" class="tablesorter">
@@ -130,4 +131,5 @@
             <p class="center_message message_nodata">{% trans "No results found" %}</p>
         {% endif %}
 
+    {% endblock %}
     </div>
