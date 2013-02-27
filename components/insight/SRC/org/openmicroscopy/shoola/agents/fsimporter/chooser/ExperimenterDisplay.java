@@ -42,4 +42,8 @@ public class ExperimenterDisplay  {
 	{
 		return String.format("%s %s", data.getFirstName(), data.getLastName());
 	}
+
+	public ExperimenterData getData() {
+		return data;
+	}
 }

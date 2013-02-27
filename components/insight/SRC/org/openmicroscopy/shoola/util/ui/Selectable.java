@@ -21,6 +21,8 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
+import pojos.ExperimenterData;
+
 /** 
  * Provides a wrapper class for a selectable option
  *
@@ -70,5 +72,9 @@ public class Selectable<T> {
 	public String toString()
 	{
 		return obj.toString();
+	}
+
+	public void setSelectable(boolean isSelectable) {
+		this.selectable = isSelectable;
 	}
 }
