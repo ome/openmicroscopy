@@ -146,6 +146,7 @@ module omero {
         dictionary<string, ShapeList>                  StringShapeListMap;
         dictionary<long,   ShapeList>                  LongShapeListMap;
         dictionary<int,    ShapeList>                  IntShapeListMap;
+        dictionary<long,   AnnotationList>             LongAnnotationListMap;
 
     };
 
