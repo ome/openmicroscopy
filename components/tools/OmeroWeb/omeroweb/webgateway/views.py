@@ -2098,6 +2098,14 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     conn.SERVICE_OPTS.setOmeroGroup('-1')
     ctx = conn.SERVICE_OPTS.copy()
     repository, description = get_repository(conn, klass, name)
+
+    # Delete files on disk
+    try:
+        repository.delete(filepath, ctx)
+    except Exception, e:
+        logger.error(traceback.format_exc())
+
+    # Delete objects in database
     todelete = []
 
     async = request.GET.get('async') == 'true'
@@ -2114,9 +2122,13 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         # recursively collect all file IDs below the given path
         def _delete(path):
             if repository.fileExists(path, ctx):
-                for f in repository.listFiles(path, ctx):
-                    todelete.append(f.id.val)
-                    _delete(f.path.val[1:] + f.name.val)
+                try:
+                    for f in repository.listFiles(path, ctx):
+                        todelete.append(f.id.val)
+                        _delete(f.path.val[1:] + f.name.val)
+                except Exception, e:
+                    logger.error(traceback.format_exc())
+                    pass
         _delete(path + fname)
 
     rdict = {
@@ -2124,7 +2136,6 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         'async': async,
         }
 
-    # Delete objects in database
     if todelete:
         handle = conn.deleteObjects('/OriginalFile', todelete)
 
@@ -2141,11 +2152,6 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
                 conn._waitOnCmd(handle, loops=timeout * 2)  # loops are 500ms
             finally:
                 handle.close()
-            # Delete files on disk
-            try:
-                repository.delete(filepath, ctx)
-            except:
-                pass
 
     return rdict
 

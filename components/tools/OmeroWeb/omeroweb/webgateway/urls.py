@@ -78,7 +78,7 @@ repository_delete = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete/
 json method: Delete specified file or directory
 """
 
-repository_delete_status = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete/status/$', 'webgateway.views.repository_delete_status')
+repository_delete_status = (r'^repositories/(?P<klass>\w+)(?:-(?P<name>[^/]+))?/delete-status/$', 'webgateway.views.repository_delete_status')
 """
 json method: Get status for asynchronous delete
 """
@@ -385,6 +385,7 @@ urlpatterns = patterns('',
     repository_listfiles,
     repository_sha,
     repository_delete,
+    repository_delete_status,
     repository_root,
     repository_makedir,
     repository_download,
