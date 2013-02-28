@@ -2477,6 +2477,8 @@ def annotate(request, klass, id, conn=None, **kwargs):
 
     conn.SERVICE_OPTS.setOmeroGroup('-1')
     obj = conn.getObject(str(klass), attributes=dict(id=long(id)))
+    if not obj:
+        return []
     ns = request.GET.get('ns', 'omero.webgateway.annotate')
 
     if request.method == 'GET':
