@@ -43,6 +43,12 @@ module omero {
                 idempotent omero::model::Instrument loadInstrument(long id) throws ServerError;
                 idempotent IObjectList loadAnnotationsUsedNotOwned(string annotationType, long userID) throws ServerError;
                 omero::RLong countAnnotationsUsedNotOwned(string annotationType, long userID) throws ServerError;
+                idempotent LongAnnotationListMap loadSpecifiedAnnotationsLinkedTo(string annotationType,
+                                                                   omero::api::StringSet include,
+                                                                   omero::api::StringSet exclude,
+                                                                   string rootNodeType,
+                                                                   omero::sys::LongList rootNodeIds,
+                                                                   omero::sys::Parameters options) throws ServerError;
             };
 
     };

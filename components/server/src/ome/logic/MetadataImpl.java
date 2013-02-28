@@ -25,6 +25,7 @@ import ome.api.IMetadata;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.model.IAnnotated;
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.FileAnnotation;
@@ -42,10 +43,16 @@ import ome.model.acquisition.LightEmittingDiode;
 import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
 import ome.model.annotations.Annotation;
+import ome.model.containers.Dataset;
 import ome.model.containers.Project;
+import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
+import ome.model.core.Pixels;
+import ome.model.screen.Plate;
+import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
+import ome.model.screen.Well;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindAnnotationsQueryDefinition;
 import ome.services.query.Query;
@@ -120,21 +127,46 @@ public class MetadataImpl
     	return sb;
     }
     
-	/**
+    /**
 	 * Retrieves the annotation of the given type.
 	 * 
-	 * @param <A>	  The annotation returned.
 	 * @param type    The type of annotation to retrieve.
 	 * @param include The collection of name spaces to include.
 	 * @param exclude The collection of name spaces to exclude.
+	 * @param rootType The type of objects the annotations are linked to.
+	 * @param rootNodeIds The identifiers of the objects.
 	 * @param options The options if any.
 	 * @return See above.
 	 */
-	private <A extends Annotation> List<A> getAnnotation(@NotNull Class type, 
-    		Set<String> include, Set<String> exclude, Parameters options)
+	private List<IObject> getAnnotation(@NotNull Class type,
+    		Set<String> include, Set<String> exclude, Class rootType,
+    		Set<Long> rootNodeIds, Parameters options)
     {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("select ann from Annotation as ann ");
+		StringBuilder sb = new StringBuilder();
+		if (rootType == null)
+			sb.append("select ann from Annotation as ann ");
+		else if (Image.class.getName().equals(rootType.getName()))
+			sb.append("select l from ImageAnnotationLink as l ");
+		else if (Dataset.class.getName().equals(rootType.getName()))
+			sb.append("select l from DatasetAnnotationLink as l ");
+		else if (Project.class.getName().equals(rootType.getName()))
+			sb.append("select l from ProjectAnnotationLink as l ");
+		else if (Screen.class.getName().equals(rootType.getName()))
+			sb.append("select l from ScreenAnnotationLink as l ");
+		else if (Plate.class.getName().equals(rootType.getName()))
+			sb.append("select l from PlateAnnotationLink as l ");
+		else if (PlateAcquisition.class.getName().equals(rootType.getName()))
+			sb.append("select l from PlateAcquisitionAnnotationLink as l ");
+		else if (Well.class.getName().equals(rootType.getName()))
+			sb.append("select l from WellAnnotationLink as l ");
+		else if (Pixels.class.getName().equals(rootType.getName()))
+				sb.append("select l from PixelsAnnotationLink as l ");
+
+		if (rootType != null) {
+			sb.append("left outer join fetch l.parent ");
+			sb.append("left outer join fetch l.child as ann ");
+		}
+    	
     	sb.append("left outer join fetch ann.details.creationEvent ");
     	sb.append("left outer join fetch ann.details.owner ");
     	sb.append("where ann member of "+type.getName());
@@ -154,7 +186,27 @@ public class MetadataImpl
     		sb.append(" and (ann.ns is null or ann.ns not in (:exclude))");
     		param.addSet("exclude", exclude);
     	}
+    	
+    	if (rootNodeIds != null && rootNodeIds.size() > 0) {
+    		sb.append(" and l.parent.id in (:rootNodeIds)");
+    		param.addSet("rootNodeIds", rootNodeIds);
+    	}
     	return iQuery.findAllByQuery(sb.toString(), param);
+    }
+	
+	/**
+	 * Retrieves the annotation of the given type.
+	 * 
+	 * @param type    The type of annotation to retrieve.
+	 * @param include The collection of name spaces to include.
+	 * @param exclude The collection of name spaces to exclude.
+	 * @param options The options if any.
+	 * @return See above.
+	 */
+	private List<IObject> getAnnotation(@NotNull Class type, 
+    		Set<String> include, Set<String> exclude, Parameters options)
+    {
+		return getAnnotation(type, include, exclude, null, null, options);
     }
 	
 	/**
@@ -608,9 +660,10 @@ public class MetadataImpl
     		@NotNull Class type, Set<String> include, Set<String> exclude,
     		 Parameters options)
     {
-    	List<A> list = getAnnotation(type, include, exclude, options);
+    	List<IObject> list = getAnnotation(type, include, exclude, options);
+    	Iterator<IObject> i;
     	if (FILE_TYPE.equals(type.getName()) && list != null) {
-    		Iterator<A> i = list.iterator();
+    		i = list.iterator();
     		FileAnnotation fa;
     		OriginalFile of;
     		List<Annotation> toRemove = new ArrayList<Annotation>();
@@ -625,8 +678,12 @@ public class MetadataImpl
     		if (toRemove.size() > 0) list.removeAll(toRemove);
     	}
     	if (list == null) return new HashSet<A>();
-    	
-    	return new HashSet<A>(list);
+    	Set<A> set = new HashSet<A>(list.size());
+    	i = list.iterator();
+    	while (i.hasNext()) {
+			set.add((A) i.next());
+		}
+    	return set;
     }
     
     /**
@@ -951,4 +1008,50 @@ public class MetadataImpl
     	return -1L;
     }
 
+    /**
+     * Implemented as specified by the {@link IMetadata} I/F
+     * @see IMetadata#loadSpecifiedAnnotationsLinkedTo(Class, Set, Set, Class, Set, Parameters)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public <A extends Annotation> Map<Long, Set<A>> loadSpecifiedAnnotationsLinkedTo(
+    		@NotNull Class type, Set<String> include, Set<String> exclude,
+    		@NotNull Class rootNodeType,
+    		@NotNull @Validate(Long.class) Set<Long> rootNodeIds,
+    		Parameters options)
+    {
+    	//First depending on the class
+    	List<IObject> list = getAnnotation(type, include, exclude, rootNodeType,
+    			rootNodeIds, options);
+    	Map<Long, Set<A>> map = new HashMap<Long, Set<A>>(rootNodeIds.size());
+    	if (list == null) return map;
+    	Iterator<IObject> i = list.iterator();
+    	ILink object;
+    	Set<A> set;
+    	Long parentID;
+    	A ann;
+    	FileAnnotation fa;
+		OriginalFile of;
+    	while (i.hasNext()) {
+			object = (ILink) i.next();
+			parentID = object.getParent().getId();
+			set = map.get(parentID);
+			if (set == null) {
+				set = new HashSet<A>();
+				map.put(parentID, set);
+			}
+			ann = (A) object.getChild();
+			if (FILE_TYPE.equals(type.getName())) {
+				fa = (FileAnnotation) ann;
+				if (fa.getFile() != null) {
+					of = iQuery.findByQuery(LOAD_ORIGINAL_FILE, 
+							new Parameters().addId(fa.getFile().getId()));
+					fa.setFile(of);
+				}
+			}
+			set.add(ann);
+		}
+    	return map;
+    }
+    
 }
