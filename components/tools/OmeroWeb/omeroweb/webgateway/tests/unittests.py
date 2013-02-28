@@ -31,7 +31,7 @@ from django.utils import simplejson
 
 CLIENT_BASE='test'
 
-def fakeRequest (body=None, **kwargs):
+def fakeRequest (body=None, session_key=None, **kwargs):
     def bogus_request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -64,7 +64,7 @@ def fakeRequest (body=None, **kwargs):
             r._stream = StringIO(body)
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
             engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        r.session = engine.SessionStore()
+        r.session = engine.SessionStore(session_key)
         qlen = len(r.REQUEST.dicts)
         def setQuery (**query):
             r.REQUEST.dicts = r.REQUEST.dicts[:qlen]
@@ -503,10 +503,10 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
         self.toDelete.append((repoclass or self.repoclass, reponame or self.reponame, filename))
 
 
-class DeletePerformanceTest(RepositoryApiBaseTest):
+class AsyncDeleteTest(RepositoryApiBaseTest):
 
     def setUp(self):
-        super(DeletePerformanceTest, self).setUp()
+        super(AsyncDeleteTest, self).setUp()
         self.repoclass = "ManagedRepository"
         self.reponame = None
         self.loginmethod = self.loginAsAuthor
@@ -525,48 +525,49 @@ class DeletePerformanceTest(RepositoryApiBaseTest):
         root = os.path.join(unwrap(repository.root().path), fwname)
         self._makeDir(directory)
         for i in range(count):
-            targetfile = repository.file(os.path.join(root, directory, 'file%s.txt' % i), 'rw')
+            name = os.path.join(root, directory, 'file%s.txt' % i)
+            targetfile = repository.file(name, 'rw')
             targetfile.truncate(0)
             targetfile.write('ABC123', 0, 6)
             targetfile.close()
+            self.deleteLater(name)
         fulldir = os.path.join(root, directory) + '/'
         l = repository.listFiles(fulldir)
         return [unwrap(x.id) for x in l]
 
-    #def testDeleteCallback(self):
-    #    self.loginmethod()
-    #    name = 'delete_test_%s' % time.time()
-    #    ids = self._createOriginalFiles(name, 200)
-    #    print ids
-    #    handle = self.gateway.deleteObjects('/OriginalFile', ids)
-    #    try:
-    #        print handle.getStatus()
-    #        print dir(handle.getStatus())
-    #        for i in range(10):
-    #            time.sleep(1)
-    #            print handle.getStatus()
-    #    finally:
-    #        handle.close()
+    def testDeleteCallback(self):
+        self.loginmethod()
+        name = 'delete_test_%s' % time.time()
+        ids = self._createOriginalFiles(name, 100)
+        r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=true')
+        response = views.repository_delete(r, klass=self.repoclass,
+            name=self.reponame, filepath=name, conn=self.gateway,
+            server_id=1, _internal=True)
+        session_key = r.session.session_key
+        response = simplejson.loads(response)
+        self.assertEqual(100 + 1, response['total']) # files plus containing dir
+        self.assertEqual(True, response['async'])
+        self.assertTrue(response.has_key('handle'))
+        strhandle = response['handle']
 
-    def testCanAnnotateAndEdit(self):
-        self.loginAsAdmin()
-        directory = 'perm_test_%s' % time.time()
-        ids = self._createOriginalFiles(directory, 1)
-        repository, description = self._getrepo()
-        fwname = OriginalFileWrapper(conn=self.gateway, obj=description).getName()
-        root = os.path.join(unwrap(repository.root().path), fwname)
-        fulldir = os.path.join(root, directory) + '/'
-        l = repository.listFiles(fulldir)
-        w = OriginalFileWrapper(conn=self.gateway, obj=l[0])
-        for prop in dir(w):
-            if prop.startswith('can'):
-                print prop, getattr(w, prop)()
-        self.loginAsAuthor()
-        w = OriginalFileWrapper(conn=self.gateway, obj=l[0])
-        for prop in dir(w):
-            if prop.startswith('can'):
-                print prop, getattr(w, prop)()
+        for i in range(100):
+            r = fakeRequest(session_key=session_key, QUERY_STRING='handle=' + strhandle)
+            response = views.repository_delete_status(r, klass=self.repoclass,
+                name=self.reponame, conn=self.gateway, server_id=1, _internal=True)
+            response = simplejson.loads(response)
+            self.assertFalse(response.has_key('error'))
+            self.assertEqual(100 + 1, response['total'])
+            self.assertTrue(response.has_key('steps'))
+            self.assertTrue(response.has_key('complete'))
+            if response['steps'] < response['total']:
+                self.assertFalse(response['complete'])
+            else:
+                self.assertTrue(response['complete'])
+                break
+            time.sleep(0.1)
 
+        self.assertEqual(response['steps'], response['total'])
+        self.assertTrue(response['complete'])
 
 
 class RepositoryApiTest(RepositoryApiBaseTest):
