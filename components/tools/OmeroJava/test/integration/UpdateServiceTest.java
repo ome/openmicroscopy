@@ -85,6 +85,8 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
+import omero.model.XmlAnnotation;
+import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.testng.annotations.Test;
@@ -109,6 +111,7 @@ import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Collections of tests for the <code>IUpdate</code> service.
@@ -1946,5 +1949,23 @@ public class UpdateServiceTest
         	assertTrue(shape.getPoints1().size() == 2);
         	assertTrue(shape.getPoints2().size() == 2);
 		}
+    }
+    
+    /**
+     * Tests to create a XML annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateXmlAnnotation()
+    	throws Exception 
+    {
+		XmlAnnotation term = new XmlAnnotationI();
+		term.setTextValue(omero.rtypes.rstring("xml"));
+		term = (XmlAnnotation) iUpdate.saveAndReturnObject(term);
+		assertNotNull(term);
+    	linkAnnotationAndObjects(term);
+    	XMLAnnotationData data = new XMLAnnotationData(term);
+    	assertNotNull(data);
+    	assertEquals(data.getText(), term.getTextValue().getValue());
     }
 }
