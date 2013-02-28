@@ -2095,37 +2095,34 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     ctx = conn.SERVICE_OPTS.copy()
     repository, description = get_repository(conn, klass, name)
 
-    # Delete files on disk
-    try:
-        repository.delete(filepath, ctx)
-    except Exception, e:
-        logger.error(traceback.format_exc())
-
-    # Delete objects in database
-    todelete = []
-
     async = request.GET.get('async') == 'true'
     try:
         timeout = int(request.GET.get('timeout', '30'))
     except ValueError:
         timeout = 30
 
+    # Collect objects to be deleted
+    todelete = []
     path, fname = os.path.split(filepath)
     path += '/' if path != '' else ''
     objs = conn.getObjects('OriginalFile', attributes=dict(name=fname, path='/'+path))
     for obj in objs:
-        todelete.append(obj.id)
         # recursively collect all file IDs below the given path
         def _delete(path):
-            if repository.fileExists(path, ctx):
-                try:
-                    for f in repository.listFiles(path, ctx):
-                        todelete.append(f.id.val)
-                        _delete(f.path.val[1:] + f.name.val)
-                except Exception, e:
-                    logger.error(traceback.format_exc())
-                    pass
+            try:
+                for f in repository.listFiles(path, ctx):
+                    todelete.append(f.id.val)
+                    _delete(f.path.val[1:] + f.name.val)
+            except Exception, e:
+                pass
         _delete(path + fname)
+        todelete.append(obj.id)
+
+    # Delete files on disk
+    try:
+        repository.delete(filepath, ctx)
+    except Exception, e:
+        logger.error(traceback.format_exc())
 
     rdict = {
         'total': len(todelete),
@@ -2133,6 +2130,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         'async': async,
         }
 
+    # Delete objects in database
     if todelete:
         handle = conn.deleteObjects('/OriginalFile', todelete)
 
@@ -2141,6 +2139,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
             request.session.setdefault('deletes', dict())[str(handle)] = {
                 'filepath': filepath,
                 'total': len(todelete),
+                'todelete': todelete,
                 }
             request.session.save()
             rdict['handle'] = str(handle)
@@ -2162,13 +2161,15 @@ def repository_delete_status(request, klass, name=None, filepath=None, conn=None
     json method: Get status for asynchronous delete
     """
     strhandle = str(request.GET.get('handle'))
-    total = request.session.setdefault('deletes', dict()).get(strhandle, dict()).get('total', -1)
+    info = request.session.setdefault('deletes', dict()).get(strhandle, dict())
+    total = info.get('total', -1)
     if total == -1:
         return dict(error='Invalid handle')
     handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(strhandle))
-    steps = handle.getStatus().steps
+    status = handle.getStatus()
+    steps = status.steps
     rdict = dict(total=total, steps=steps, complete=False)
-    if steps >= total:
+    if steps >= total and status.stopTime > 0:
         request.session['deletes'].pop(strhandle)
         request.session.save()
         handle.close()
