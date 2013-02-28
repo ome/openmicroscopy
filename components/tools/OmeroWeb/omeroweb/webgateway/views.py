@@ -2028,7 +2028,6 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     if filepath:
         root = os.path.join(root, filepath)
     show_hidden = request.GET.get('hidden', 'false') == 'true'
-    permissions = request.GET.get('permissions', 'false') == 'true'
 
     owners = dict()
 
@@ -2038,9 +2037,6 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
         owner = w.details.owner.id.val
         owners[owner] = None
         rv['owner'] = owner
-        if permissions:
-            rv.update((prop, getattr(w, prop)()) for prop in dir(w)
-                if prop.startswith('can'))
         return rv
 
     try:
@@ -2127,6 +2123,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         _delete(path + fname)
 
     rdict = {
+        'total': len(todelete),
         'matched_ids': todelete,
         'async': async,
         }
@@ -2136,9 +2133,11 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
 
         if async:
             # return immediately
-            request.session['deletes'][str(handle)] = {
+            request.session.setdefault('deletes', dict())[str(handle)] = {
                 'filepath': filepath,
+                'total': len(todelete),
                 }
+            request.session.save()
             rdict['handle'] = str(handle)
 
         else:
@@ -2157,11 +2156,19 @@ def repository_delete_status(request, klass, name=None, filepath=None, conn=None
     """
     json method: Get status for asynchronous delete
     """
-    strhandle = request.GET.get('handle')
+    strhandle = str(request.GET.get('handle'))
+    total = request.session.setdefault('deletes', dict()).get(strhandle, dict()).get('total', -1)
+    if total == -1:
+        return dict(error='Invalid handle')
     handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(strhandle))
-
-
-
+    steps = handle.getStatus().steps
+    rdict = dict(total=total, steps=steps, complete=False)
+    if steps >= total:
+        request.session['deletes'].pop(strhandle)
+        request.session.save()
+        handle.close()
+        rdict['complete'] = True
+    return rdict
 
 
 @login_required()
