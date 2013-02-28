@@ -49,6 +49,10 @@ public class XMLAnnotationData
 	extends AnnotationData
 {
 
+	/**  The name space used to identify modulo concept. */
+    public static final String MODULO_NS = 
+    	omero.constants.namespaces.NSMODULO.value;
+    
     /** Creates a new instance. */
     public XMLAnnotationData()
     {
