@@ -154,16 +154,18 @@ namespace omero {
         //
 
         CmdCallbackI::CmdCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category) :
+            const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle) :
             adapter(adapter),
-            handle(handle) {
+            handle(handle),
+            closeHandle(closeHandle){
                 doinit(category);
         };
 
         CmdCallbackI::CmdCallbackI(
-            const omero::client_ptr& client, const omero::cmd::HandlePrx handle) :
+            const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle) :
             adapter(client->getObjectAdapter()),
-            handle(handle) {
+            handle(handle),
+            closeHandle(closeHandle){
                 doinit(client->getCategory());
         };
 
@@ -179,7 +181,7 @@ namespace omero {
             poll();
         };
         
-        void CmdCallbackI::close(bool closeHandle) {
+        void CmdCallbackI::close() {
             if (adapter) {
                 adapter->remove(id); // OK ADAPTER USAGE
             }
@@ -244,7 +246,7 @@ namespace omero {
             if (found) {
                 return getResponse();
             } else {
-                int waited = (ms/1000) * loops;
+                int waited = (ms/1000.0) * loops;
                 stringstream ss;
                 ss << "Cmd unfinished after " << waited << "seconds.";
                 throw LockTimeout("", "", ss.str(), 5000L, waited);
