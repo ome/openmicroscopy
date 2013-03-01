@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -69,6 +70,9 @@ public class ImportableFile
 	
 	/** The node of reference if set. */
 	private Object refNode;
+
+	/** The user importing data for */
+	private ExperimenterData user;
 
 	/**
 	 * Creates a new instance.
@@ -203,5 +207,19 @@ public class ImportableFile
 		newObject.status = new StatusLabel();
 		return newObject;
 	}
+	
+	/**
+	 * Sets the user.
+	 * 
+	 * @param user The user to import data and set as the owner.
+	 */
+	public void setUser(ExperimenterData user) { this.user = user;}
+	
+	/**
+	 * Returns the user.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getUser() { return user;}
 
 }
