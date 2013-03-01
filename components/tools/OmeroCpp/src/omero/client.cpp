@@ -277,6 +277,10 @@ namespace omero {
     // --------------------------------------------------------------------
 
     client::~client() {
+        __del__();
+    }
+
+    void client::__del__() {
         try {
             closeSession();
         } catch (const std::exception& ex) {
@@ -478,7 +482,7 @@ namespace omero {
 		__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
 		//__sf->subscribe("/public/HeartBeat", raw);
 	} catch (...) {
-		closeSession();
+		__del__();
 		throw;
 	}
 
