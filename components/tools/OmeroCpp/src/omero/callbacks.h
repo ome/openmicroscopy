@@ -231,18 +231,24 @@ namespace omero {
              */
             omero::cmd::HandlePrx handle;
 
+            /**
+             * Whether or not the destructor should call close
+             * on the handle object.
+             */
+            bool closeHandle;
+
             omero::cmd::StatusPtr getStatusOrThrow();
 
             void doinit(std::string category);
 
         public:
 
-            CmdCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category);
+            CmdCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle = true);
 
             /**
              * Uses the category from client::getCategory as the id.
              */
-            CmdCallbackI(const omero::client_ptr& client, const omero::cmd::HandlePrx handle);
+            CmdCallbackI(const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle = true);
 
             /**
              * First removes self from the adapter so as to no longer receive
@@ -254,7 +260,7 @@ namespace omero {
              * double delete, as we'd be calling back into the servant manager to remove us,
              * when it's already in the process of doing the remove/deletion.
              */
-            void close(bool closeHandle = true);
+            void close();
             
             //
             // Local invcations
