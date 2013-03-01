@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -47,10 +50,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
@@ -59,7 +58,9 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /**
@@ -512,6 +513,7 @@ class FileSelectionTable
 			importable.setLocation(dne.getParent(), dataset);
 			importable.setRefNode(dne.getRefNode());
 			importable.setGroup(element.getGroup());
+			importable.setUser(element.getUser());
 			files.add(importable);
 		}
 		return files;
@@ -567,6 +569,7 @@ class FileSelectionTable
 		if (files == null || files.size() == 0) return;
 		boolean fad = settings.isParentFolderAsDataset();
 		GroupData group = settings.getImportGroup();
+		ExperimenterData user = settings.getImportUser();
 		enabledControl(true);
 		File f;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
@@ -589,7 +592,7 @@ class FileSelectionTable
 		while (i.hasNext()) {
 			f = i.next();
 			if (allowAddToQueue(inQueue, f, gID)) {
-				element = new FileElement(f, model.getType(), group);
+				element = new FileElement(f, model.getType(), group, user);
 				element.setName(f.getName());
 				value = null;
 				v = false;
