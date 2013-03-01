@@ -285,6 +285,10 @@ namespace omero {
     // --------------------------------------------------------------------
 
     client::~client() {
+        __del__();
+    }
+
+    void client::__del__() {
         try {
             closeSession();
         } catch (const std::exception& ex) {
