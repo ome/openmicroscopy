@@ -292,7 +292,7 @@ namespace omero {
         try {
             closeSession();
         } catch (const std::exception& ex) {
-            std::cout << "WARNING: ignoring exception - " << ex.what() << std::endl;
+            std::cout << ex.what() << std::endl;
         }
     }
 
