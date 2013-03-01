@@ -2033,6 +2033,7 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     if filepath:
         root = os.path.join(root, filepath)
     show_hidden = request.GET.get('hidden', 'false') == 'true'
+    permissions = request.GET.get('permissions', 'false') == 'true'
 
     owners = dict()
 
@@ -2042,6 +2043,9 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
         owner = w.details.owner.id.val
         owners[owner] = None
         rv['owner'] = owner
+        if permissions:
+            rv.update((prop, getattr(w, prop)()) for prop in dir(w)
+                if prop.startswith('can'))
         return rv
 
     try:
