@@ -60,6 +60,12 @@ public final class ContainerConfigInit
 	extends InitializationTask 
 {
 
+	/** Indicates the fiji title.*/
+	private static final String FIJI = "fiji";
+	
+	/** Indicates the ImageJ2 title.*/
+	private static final String IMAGE_J2 = "imaje2";
+	
 	/**
 	 * Handles the plugin dependencies. Returns <code>true</code> if the
 	 * dependencies are found, <code>false</code> otherwise.
@@ -157,6 +163,10 @@ public final class ContainerConfigInit
     		PluginInfo info;
     		switch (v.intValue()) {
     			case LookupNames.IMAGE_J:
+    				String title = IJ.getInstance().getTitle();
+    				title = title.toLowerCase();
+    				if (FIJI.equals(title) || IMAGE_J2.equals(title))
+    					break;
     				while (i.hasNext()) {
 						info = i.next();
 						b = handlePluginDependencies(info);
