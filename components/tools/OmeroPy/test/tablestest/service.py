@@ -292,6 +292,28 @@ class TestTables(lib.ITest):
 
         self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
 
+    def test9971checkStringLength(self):
+        """
+        Throw an error when an attempt is made to insert a string column
+        wider than the StringColumn size
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
+        table.initialize([scol])
+
+        # 3 characters should work, 4 should cause an error
+        scol.values = ['abc']
+        table.addData([scol])
+        data = table.readCoordinates(range(table.getNumberOfRows()))
+        self.assertEquals(['abc'], data.columns[0].values)
+        scol.values = ['abcd']
+        self.assertRaises(omero.ValidationException, table.addData, [scol])
+
+
     def testArrayColumn(self):
         """
         A table containing only an array column
