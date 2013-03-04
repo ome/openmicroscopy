@@ -14,14 +14,13 @@
         seem to work for sub-packages and we CANNOT have ome.dsl.* tests
         on the package path as their CLASSPATH is not setup correctly
         in this context and they will fail.
-
+      -->
       <package name="ome.conditions.*"/>
       <package name="ome.model.*"/>
       <package name="ome.params.*"/>
       <package name="ome.system.*"/>
       <package name="ome.testing.*"/>
       <package name="ome.util.*"/>
-      -->
       <package name="ome.util.checksum"/>
     </packages>
   </test>
