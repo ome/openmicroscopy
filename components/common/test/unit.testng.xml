@@ -21,7 +21,6 @@
       <package name="ome.system.*"/>
       <package name="ome.testing.*"/>
       <package name="ome.util.*"/>
-      <package name="ome.util.checksum"/>
     </packages>
   </test>
 </suite>
