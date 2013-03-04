@@ -1,5 +1,5 @@
-function images = getImages(session, ids)
-% Get a list of Images from a list of IDs
+function images = getImages(session, varargin)
+% Retrieve image objects from the server
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -18,4 +18,9 @@ function images = getImages(session, ids)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-images = getObjects(session, 'image', ids);
+% Input check
+ip = inputParser;
+ip.addOptional('ids', [], @isvector);
+ip.parse(varargin{:});
+
+images = getObjects(session, 'image', ip.Results.ids);

@@ -1,5 +1,5 @@
-function screens = getScreens(session, ids)
-% Get a list of scrren objects from input IDs
+function screens = getScreens(session, varargin)
+% Retrieve screen objects from the server
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -18,4 +18,9 @@ function screens = getScreens(session, ids)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-screens = getObjects(session, 'screen', ids);
+% Input check
+ip = inputParser;
+ip.addOptional('ids', [], @isvector);
+ip.parse(varargin{:});
+
+screens = getObjects(session, 'screen', ip.Results.ids);

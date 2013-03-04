@@ -1,5 +1,5 @@
-function plates = getPlates(session, ids)
-% Retrieve a list of plates from a set of IDs
+function plates = getPlates(session, varargin)
+% Retrieve plate objects from the server
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -18,4 +18,9 @@ function plates = getPlates(session, ids)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-plates = getObjects(session, 'plate', ids);
+% Input check
+ip = inputParser;
+ip.addOptional('ids', [], @isvector);
+ip.parse(varargin{:});
+
+plates = getObjects(session, 'plate', ip.Results.ids);
