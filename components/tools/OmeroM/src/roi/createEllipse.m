@@ -26,7 +26,7 @@ ip.addRequired('rx', @isscalar);
 ip.addOptional('ry', rx, @isscalar);
 ip.parse(x, y, rx, varargin{:});
 
-% Create Rectangle shape
+% Create an Ellipse shape
 ellipse = omero.model.EllipseI;
 ellipse.setCx(rdouble(x));
 ellipse.setCy(rdouble(y));

@@ -19,14 +19,15 @@ function rectangle = createRectangle(x, y, w, h)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check input
+ispositivescalar = @(x) isscalar(x) && x > 0;
 ip = inputParser;
 ip.addRequired('x', @isscalar);
 ip.addRequired('y', @isscalar);
-ip.addRequired('w', @isscalar);
-ip.addRequired('h', @isscalar);
+ip.addRequired('w', ispositivescalar);
+ip.addRequired('h', ispositivescalar);
 ip.parse(x, y, w, h)
 
-% Create Rectangle shape
+% Create a Rectangle shape
 rectangle = omero.model.RectI;
 rectangle.setX(rdouble(x));
 rectangle.setY(rdouble(y));
