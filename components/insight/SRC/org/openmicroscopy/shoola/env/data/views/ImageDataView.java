@@ -285,7 +285,7 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle importFiles(ImportableObject context,
-			long userID, long groupID, AgentEventListener observer);
+			AgentEventListener observer);
 
 	/**
 	 * Monitors the passed directory.
