@@ -25,6 +25,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;

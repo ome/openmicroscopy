@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.testing;
+package ome.server.itests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,11 +14,12 @@ import java.sql.Timestamp;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
 import ome.model.core.OriginalFile;
-import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,7 +49,11 @@ public class FileUploader implements Runnable {
     // Main target
     private OriginalFile ofile = new OriginalFile();
 
-    public FileUploader(ServiceFactory sf, File file) throws Exception {
+    // Collaborators
+    private final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+
+    public FileUploader(ServiceFactory sf, File file)
+            throws Exception {
         if (sf == null || file == null) {
             throw new ApiUsageException("Non null arguments.");
         }
@@ -89,7 +94,7 @@ public class FileUploader implements Runnable {
 
         // Non-configurable
         ofile.setSize(rSize);
-        ofile.setSha1(Utils.bufferToSha1(rBuf));
+        ofile.setSha1(Utils.bytesToHex(this.cpf.getProvider().getChecksum(rBuf)));
 
     }
 
@@ -112,7 +117,7 @@ public class FileUploader implements Runnable {
 
         rSize = buf.length;
         rBuf = buf;
-        rSha1 = Utils.bufferToSha1(buf);
+        rSha1 = Utils.bytesToHex(this.cpf.getProvider().getChecksum(buf));
 
         assert ofile.getName() != null;
         assert ofile.getPath() != null;
@@ -128,7 +133,7 @@ public class FileUploader implements Runnable {
         rBuf = new byte[(int) rSize];
         FileInputStream fis = new FileInputStream(file);
         assert (int) rSize == fis.read(rBuf) : "read whole file";
-        rSha1 = Utils.bufferToSha1(rBuf);
+        rSha1 = Utils.bytesToHex(this.cpf.getProvider().getChecksum(rBuf));
 
         if (ofile.getName() == null) {
             ofile.setName(file.getName());

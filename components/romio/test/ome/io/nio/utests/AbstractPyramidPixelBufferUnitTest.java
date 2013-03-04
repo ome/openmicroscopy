@@ -19,6 +19,9 @@ import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.io.FileUtils;
 
@@ -101,10 +104,11 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
         short tileCount = (short) Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int tileWidth,
                             int tileHeight, int tileCount) {
+                ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
                 byte[] tile = new byte[tileWidth * tileHeight * bytesPerPixel];
                 ByteBuffer.wrap(tile).asShortBuffer().put(0, (short) tileCount);
                 hashDigests.add(ome.util.Utils.bytesToHex(
-                        ome.util.Utils.calculateMessageDigest(tile)));
+                        cpf.getProvider(ChecksumType.MD5).getChecksum(tile)));
                 try
                 {
                     pixelBuffer.setTile(
