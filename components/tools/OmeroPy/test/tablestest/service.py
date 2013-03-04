@@ -470,7 +470,7 @@ class TestTables(lib.ITest):
         self.assertEquals([654, 321], testla2[1])
 
 
-    def test10431uninitialisedTableAddData(self):
+    def test10431uninitialisedTableReadWrite(self):
         """
         Return an error when attempting to read/write an uninitialised table
         """
