@@ -1,5 +1,12 @@
 function mask = createMask(x, y, m)
-% Create a Mask shape object from input mask
+% CREATEMASK Create a Mask shape object from input mask
+%
+%   Examples:
+%
+%      mask = createMask(ones(20, 30));
+%      mask = createMask(10, 10, ones(20, 30));
+%
+% See also: SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

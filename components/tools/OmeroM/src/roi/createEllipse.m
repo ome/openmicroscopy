@@ -1,5 +1,12 @@
 function ellipse = createEllipse(x, y, rx, varargin)
-% Create a ellipse shape object from a set of coordinates and radii
+% CREATEELLIPSE Create a ellipse shape object from a set of coordinates and radii
+%
+%   Examples:
+%
+%      ellipse = createEllipse(10, 10, 5);
+%      ellipse = createEllipse(10, 10, 5, 8);
+%
+% See also: CREATERECTANGLE, SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
