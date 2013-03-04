@@ -1077,12 +1077,16 @@ class OmeroImageServiceImpl
 	 * ImportableFile, long, long, boolean)
 	 */
 	public Object importFile(ImportableObject object,
-		ImportableFile importable, long userID, boolean close) 
+		ImportableFile importable, boolean close) 
 		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
+		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
+		long userID = loggedIn.getId();
+		if (importable.getUser() != null)
+			userID = importable.getUser().getId();
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
 		if (status.isMarkedAsCancel()) {
