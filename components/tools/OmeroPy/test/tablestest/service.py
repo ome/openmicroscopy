@@ -470,6 +470,24 @@ class TestTables(lib.ITest):
         self.assertEquals([654, 321], testla2[1])
 
 
+    def test10431uninitialisedTableAddData(self):
+        """
+        Return an error when attempting to read/write an uninitialised table
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        lcol = omero.columns.LongColumnI('longcol', 'long col')
+
+        self.assertRaises(omero.ApiUsageException, table.addData, [lcol])
+        self.assertRaises(omero.ApiUsageException, table.read, [0], 0, 0)
+        self.assertRaises(omero.ApiUsageException, table.slice, [], [])
+        self.assertRaises(omero.ApiUsageException, table.getWhereList,
+                          '', None, 0, 0, 0)
+
+
     # TODO: Add tests for error conditions
 
 
