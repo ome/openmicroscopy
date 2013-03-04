@@ -40,6 +40,7 @@ import javax.swing.JMenuItem;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImporterFactory;
@@ -88,7 +89,10 @@ public class ImporterAgent
     private long groupId;
 
 	private boolean isMaster;
-    
+	
+	/** The display mode.*/
+	private int displayMode = -1;
+
     /**
      * Helper method. 
      * 
@@ -167,7 +171,7 @@ public class ImporterAgent
     {
     	if (evt == null) return;
     	long groupId = evt.getGroup();
-    	Importer importer = ImporterFactory.getImporter(groupId);
+    	Importer importer = ImporterFactory.getImporter(groupId, displayMode);
     	if (importer != null) {
     		int t;
     		switch (evt.getType()) {
@@ -216,9 +220,10 @@ public class ImporterAgent
     	
     	ImporterFactory.onReconnected();
     	
-    	if(isMaster)
+    	if (isMaster)
     	{
-    		Importer importer = ImporterFactory.getImporter(getUserDetails().getGroupId(), true);
+    		Importer importer = ImporterFactory.getImporter(
+    				getUserDetails().getGroupId(), true, displayMode);
     		importer.activate(browserType, null, null);
     	}
     }
@@ -256,13 +261,26 @@ public class ImporterAgent
     	Map<Long, Map<Long, List<TreeImageDisplay>>> map = evt.getData();
     	objects = map;
     	if (!ImporterFactory.doesImporterExist()) return;
-    	Importer importer = ImporterFactory.getImporter(groupId);
+    	Importer importer = ImporterFactory.getImporter(groupId, displayMode);
     	if (importer == null || map == null || map.size() == 0) return;
     	GroupData group = importer.getSelectedGroup();
     	if (group == null) return;
     	List<Object> l = handleContainers(group.getId());
     	if (l == null || l.size() == 0) return;
     	importer.setContainers(l, true, false, browserType);
+    }
+    
+    /**
+     * Updates the view when the mode is changed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDisplayModeEvent(DisplayModeEvent evt)
+    {
+    	displayMode = evt.getDisplayMode();
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ImporterFactory.setDiplayMode(displayMode);
     }
     
     /** Registers the agent with the tool bar.*/
@@ -327,7 +345,7 @@ public class ImporterAgent
     	}
     	long id = -1;
     	if (gp != null) id = gp.getId();
-    	Importer importer = ImporterFactory.getImporter(id, true);
+    	Importer importer = ImporterFactory.getImporter(id, true, displayMode);
     	if (importer != null) {
     		Environment env = (Environment) registry.lookup(LookupNames.ENV);
     		int type = Importer.PROJECT_TYPE;
@@ -370,6 +388,7 @@ public class ImporterAgent
         bus.register(this, BrowserSelectionEvent.class);
         bus.register(this, ExperimenterLoadedDataEvent.class);
         bus.register(this, ChangeUserGroupEvent.class);
+        bus.register(this, DisplayModeEvent.class);
         browserType = getDefaultBrowser();
         groupId = -1;
         register();
@@ -382,7 +401,7 @@ public class ImporterAgent
     public boolean canTerminate()
     { 
     	if (!ImporterFactory.doesImporterExist()) return true;
-    	Importer importer = ImporterFactory.getImporter(-1);
+    	Importer importer = ImporterFactory.getImporter(groupId, displayMode);
     	if (importer == null) return true;
     	return !importer.hasOnGoingImport();
     }
@@ -420,7 +439,8 @@ public class ImporterAgent
     	} else if (e instanceof ChangeUserGroupEvent) {
     		ChangeUserGroupEvent evt = (ChangeUserGroupEvent) e;
     		groupId = evt.getGroupID();
-    	}
+    	} else if (e instanceof DisplayModeEvent)
+			handleDisplayModeEvent((DisplayModeEvent) e);
     }
 
 }

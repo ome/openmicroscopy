@@ -29,7 +29,6 @@ import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -79,11 +78,15 @@ public class ImporterFactory
 	 * Returns a {@link Importer}.
 	 * 
 	 * @param groupId The identifier of the current group.
+	 * @param master Pass <code>true</code> if the importer is used a 
+	 *               stand-alone application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 * @return See above.
 	 */
-	public static Importer getImporter(long groupId, boolean master)
+	public static Importer getImporter(long groupId, boolean master, int
+			displayMode)
 	{
-		ImporterModel model = new ImporterModel(groupId, master);
+		ImporterModel model = new ImporterModel(groupId, master, displayMode);
 		return singleton.getImporter(model);
 	}
 	
@@ -91,13 +94,12 @@ public class ImporterFactory
 	 * Returns a {@link Importer}.
 	 * 
 	 * @param groupId The identifier of the current group.
-	 * @param master Pass <code>true</code> if the importer is used a 
-	 * stand-alone application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 * @return See above.
 	 */
-	public static Importer getImporter(long groupId)
+	public static Importer getImporter(long groupId, int displayMode)
 	{
-		return getImporter(groupId, false);
+		return getImporter(groupId, false, displayMode);
 	}
 
 	/**
@@ -132,6 +134,16 @@ public class ImporterFactory
 		}
 	}
 	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDiplayMode(int displayMode)
+	{
+		if (singleton.importer == null) return;
+		((ImporterComponent) singleton.importer).setDisplayMode(displayMode);
+	}
 	
 	/** 
 	 * Returns the <code>window</code> menu. 

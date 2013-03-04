@@ -306,12 +306,11 @@ public interface ImageDataView
 	 * Loads the specified image.
 	 * 
 	 * @param ctx The security context.
-	 * @param imageID 	The id of the image to load.
-	 * @param userID	The id of the user.
-	 * @param observer	Call-back handler.
+	 * @param imageID The id of the image to load.
+	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle loadImage(SecurityContext ctx, long imageID, long userID,
+	public CallHandle loadImage(SecurityContext ctx, long imageID,
 			AgentEventListener observer);
 	
 	/**
@@ -319,7 +318,7 @@ public interface ImageDataView
 	 * 
 	 * @param ctx The security context.
 	 * @param imageID 	The id of the image.
-	 * @param pixelsID 	The id of the pixels set.	
+	 * @param pixelsID 	The id of the pixels set.
 	 * @param channels 	The channels to map.
 	 * @param param 	The parameters to create the movie.
 	 * @param observer	Call-back handler.

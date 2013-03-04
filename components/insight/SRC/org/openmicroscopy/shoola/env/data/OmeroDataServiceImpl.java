@@ -196,21 +196,16 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}. 
-	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long,
-	 * long)
+	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long)
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
-			long userID, long groupID)
+			long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		ParametersI param = new ParametersI();
 		if (rootNodeIDs == null) {
-			ExperimenterData exp = 
-				(ExperimenterData) context.lookup(
-						LookupNames.CURRENT_USER_DETAILS);
-			if (userID < 0) userID = exp.getId();
-			param.exp(omero.rtypes.rlong(userID));
+			if (userID >= 0) param.exp(omero.rtypes.rlong(userID));
 		}
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
@@ -553,7 +548,7 @@ class OmeroDataServiceImpl
 		
 		ParametersI po = new ParametersI();
 		po.leaves();
-		po.exp(omero.rtypes.rlong(userID));
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		if (startTime != null) 
 			po.startTime(omero.rtypes.rtime(startTime.getTime()));
 		if (endTime != null) 
@@ -595,7 +590,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
-			throw new IllegalArgumentException("No scontext defined.");
+			throw new IllegalArgumentException("No security context defined.");
 		if (context == null)
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
@@ -607,7 +602,7 @@ class OmeroDataServiceImpl
 					gateway.searchByTime(ctx, context));
 			return results;
 		}
-		Object result = gateway.performSearch(ctx, context); 
+		Object result = gateway.performSearch(ctx, context);
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
@@ -619,11 +614,14 @@ class OmeroDataServiceImpl
 		Set images;
 		DataObject img;
 		List owners = context.getOwners();
-		Set<Long> ownerIDs = new HashSet<Long>(owners.size());
-		k = owners.iterator();
-		while (k.hasNext()) {
-			ownerIDs.add(((DataObject) k.next()).getId());
+		Set<Long> ownerIDs = new HashSet<Long>();
+		if (owners != null) {
+			k = owners.iterator();
+			while (k.hasNext()) {
+				ownerIDs.add(((DataObject) k.next()).getId());
+			}
 		}
+		if (m == null) return results;
 		
 		Set<DataObject> nodes;
 		Object v;

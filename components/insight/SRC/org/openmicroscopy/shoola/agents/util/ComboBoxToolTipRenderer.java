@@ -19,7 +19,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui;
+package org.openmicroscopy.shoola.agents.util;
+
+import java.awt.Component;
+import java.util.List;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
+
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
+import org.openmicroscopy.shoola.util.ui.IconManager;
+
 
 /** 
  * Provides a wrapped renderer for displaying tooltip information on mouse hover
@@ -27,16 +40,40 @@ package org.openmicroscopy.shoola.util.ui;
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
  */
-import java.awt.Component;
-import java.util.List;
-
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JComponent;
-import javax.swing.JList;
-
 public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
-	List<String> tooltips;
+	
+	/** 
+	 * The icon indicating that the data object is not owned by the
+	 * specified user.
+	 */
+	private static final Icon NOT_OWNED_ICON;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNED_8);
+	}
+	
+	/** The tool tips to set.*/
+	private List<String> tooltips;
 
+	/** Used to check if the user is the owner of the data.*/
+	private long userID;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param userID The id of the user.
+	 */
+	public ComboBoxToolTipRenderer(long userID)
+	{
+		this.userID = userID;
+	}
+	
+	/**
+	 * Sets the tool tip.
+	 * @see DefaultListCellRenderer#getListCellRendererComponent(JList,
+	 * Object, int, boolean, boolean)
+	 */
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
 
@@ -47,13 +84,27 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 				&& tooltips.size() > index) {
 			list.setToolTipText(tooltips.get(index));
 		}
+		comp.setEnabled(true);
+		if (value instanceof DataNode) {
+			DataNode node = (DataNode) value;
+			if (!node.isDefaultNode()) {
+				comp.setEnabled(node.getDataObject().canLink());
+			}
+			if (userID >= 0 && node.getOwner() != null) {
+				if (node.getOwner().getId() != userID 
+						&& comp instanceof JLabel) {
+					((JLabel) comp).setIcon(NOT_OWNED_ICON);
+				}
+			}
+			
+		}
 		return comp;
 	}
 
 	/**
 	 * Populates the renderer with the tooltips provided
 	 * 
-	 * @param tooltips
+	 * @param tooltips The value to set.
 	 */
 	public void setTooltips(List<String> tooltips) {
 		this.tooltips = tooltips;

@@ -626,12 +626,23 @@ class ImViewerComponent
 		return !isOriginalSettings();
 	}
 	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode)
+	{
+		
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#activate(RndProxyDef, long)
+	 * @see ImViewer#activate(RndProxyDef, long, int)
 	 */
-	public void activate(RndProxyDef settings, long userID)
+	public void activate(RndProxyDef settings, long userID, int displayMode)
 	{
+		model.setDisplayMode(displayMode);
 		switch (model.getState()) {
 			case NEW:
 				model.setAlternativeSettings(settings, userID);
@@ -3436,6 +3447,12 @@ class ImViewerComponent
 		model.setChannels(channels);
 		view.onChannelUpdated();
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getDisplayMode()
+	 */
+	public int getDisplayMode() { return model.getDisplayMode(); }
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

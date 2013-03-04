@@ -94,17 +94,20 @@ public final class AgentsInit
 			Agent agent = (Agent) agentInstance;
 			info.setAgent(agent);
 			info.setRegistry(reg);
+			Registry containerRegistry = container.getRegistry();
 			//Register the master
 			if (info.isActive()) {
 				if (info.getNumber() == value && 
 					value == LookupNames.IMPORTER_ENTRY) {
-					container.getRegistry().bind(LookupNames.MASTER,
+					containerRegistry.bind(LookupNames.MASTER,
 							LookupNames.MASTER_IMPORTER);
 				} else if (info.getNumber() == value  && 
 						value == LookupNames.EDITOR_ENTRY)
-					container.getRegistry().bind(LookupNames.MASTER,
+					containerRegistry.bind(LookupNames.MASTER,
 						LookupNames.MASTER_EDITOR);
 			}
+			reg.bind(LookupNames.DATA_DISPLAY,
+					containerRegistry.lookup(LookupNames.DATA_DISPLAY));
 		} catch (Exception e) {
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);

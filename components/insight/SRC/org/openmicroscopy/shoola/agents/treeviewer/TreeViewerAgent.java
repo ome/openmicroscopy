@@ -504,7 +504,6 @@ public class TreeViewerAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
-        
         EventBus bus = registry.getEventBus();
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
