@@ -61,12 +61,6 @@ namespace omero {
         /*
          * Simple callback which registers itself with the given process.
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<ProcessCallbackI> ProcessCallbackIPtr;
-#else
-        typedef IceUtil::Handle<ProcessCallbackI> ProcessCallbackIPtr;
-#endif
-
         class OMERO_API ProcessCallbackI : virtual public omero::grid::ProcessCallback {
 
         // Preventing copy-construction and assigning by value.
@@ -132,8 +126,7 @@ namespace omero {
          *         errors = cb.block(500);
          *     }
          */
-        typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
-
+        
         class OMERO_API DeleteCallbackI : virtual public IceUtil::Shared {
 
         // Preventing copy-construction and assigning by value.
@@ -189,11 +182,6 @@ namespace omero {
          *     ResponsePtr rsp = cb.loop(5, 500);
          *
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<CmdCallbackI> CmdCallbackIPtr;
-#else
-        typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
-#endif
 
         class OMERO_API CmdCallbackI : virtual public omero::cmd::CmdCallback {
 
@@ -201,7 +189,7 @@ namespace omero {
         private:
             CmdCallbackI& operator=(const CmdCallbackI& rv);
             CmdCallbackI(CmdCallbackI&);
-
+            
 	protected:
 
             Ice::ObjectAdapterPtr adapter;
@@ -352,6 +340,36 @@ namespace omero {
                 const omero::cmd::StatusPtr& status, const Ice::Current& current = Ice::Current());
 
         };
+        
+        // This wrapper allows for having two different destructors for callbacks
+        // one that is called when Ice frees the callback and one when other code does
+        // In the case where Ice does the freeing, we don't need to do anything in the destructor,
+        // and in the case where all non Ice references go out of scope, we need to close
+        // the callback to prevent keeping it open until session close
+        template <typename T>
+        class CallbackWrapper : public IceUtil::Handle<T> {
+        public:
+            CallbackWrapper(T* p) : IceUtil::Handle<T>(p) {}
+            CallbackWrapper() {}
+            
+            ~CallbackWrapper() {
+                // When our last non Ice reference goes out of scope, we need to close the callback
+                // this would be a ref count of 2 or less, as Ice always holds a refernce to this object while it's active
+                // this effectively makes the Ice reference a weak one, without having to change the Ice code
+                if (this->_ptr && this->_ptr->__getRef() <= 2) {
+                    try {
+                        this->_ptr->close();
+                    }
+                    catch (Ice::ObjectAdapterDeactivatedException e) {
+                        // Okay to ignore as this should only happen when the session is closed before this is called
+                    }
+                }
+            }
+        };
+        
+        typedef CallbackWrapper<CmdCallbackI> CmdCallbackIPtr;
+        typedef CallbackWrapper<ProcessCallbackI> ProcessCallbackIPtr;
+        typedef CallbackWrapper<DeleteCallbackI> DeleteCallbackIPtr;
 
     };
 };

@@ -173,8 +173,7 @@ namespace omero {
             this->id = Ice::Identity();
             this->id.name = IceUtil::generateUUID();
             this->id.category = category;
-            const omero::cmd::CmdCallbackPtr ptr(this);
-            Ice::ObjectPrx prx = adapter->add(ptr, id);
+            Ice::ObjectPrx prx = adapter->add(this, id);
             omero::cmd::CmdCallbackPrx cb = omero::cmd::CmdCallbackPrx::uncheckedCast(prx);
             handle->addCallback(cb);
             // Now check just in case the process exited VERY quickly
