@@ -28,7 +28,7 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
-import ome.testing.FileUploader;
+import ome.server.itests.FileUploader;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;

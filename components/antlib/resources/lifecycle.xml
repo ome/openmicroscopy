@@ -184,6 +184,7 @@ omero.version=${omero.version}
 				<path refid="omero.test.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
 				<pathelement location="${classes.dir}"/>
+				<pathelement location="${test.dir}"/>
 			</classpath>
 			<files/>
 			<jvmarg value="-Xmx${javac.maxmem}"/>
