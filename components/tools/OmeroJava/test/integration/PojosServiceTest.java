@@ -1336,4 +1336,63 @@ public class PojosServiceTest
         	fail("Only Project type is supported.");
 		} catch (Exception e) {}
     }
+    
+    /**
+     * Test to load container hierarchy with no plate specified
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoPlateSpecified() 
+    	throws Exception 
+    {
+    	//first create a screen
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+        List results = iContainer.loadContainerHierarchy(
+        		Plate.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        int count = 0;
+        IObject object;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (!(object instanceof Plate)) {
+				count++;
+			}
+		}
+        assertEquals(count, 0);
+    }
+    
+    /**
+     * Test to load container hierarchy with plate specified.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyPlateSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Plate.class.getName(), ids, param);
+        assertEquals(results.size(), 1);
+        Iterator i = results.iterator();
+        PlateData plate;
+        while (i.hasNext()) {
+			plate = new  PlateData((Plate) i.next());
+			assertEquals(plate.getId(), p.getId().getValue());
+		}
+    }
 }
