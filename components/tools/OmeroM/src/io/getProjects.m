@@ -1,5 +1,5 @@
-function projects = getProjects(session, ids)
-% Get a list of datasets
+function projects = getProjects(session, varargin)
+% Retrieve project objects from the server
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -18,4 +18,9 @@ function projects = getProjects(session, ids)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-projects = getObjects(session, 'project', ids);
+% Input check
+ip = inputParser;
+ip.addOptional('ids', [], @isvector);
+ip.parse(varargin{:});
+
+projects = getObjects(session, 'project', ip.Results.ids);

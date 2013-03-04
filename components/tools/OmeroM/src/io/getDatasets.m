@@ -1,5 +1,5 @@
-function datasets = getDatasets(session, ids)
-% Get a list of datasets
+function datasets = getDatasets(session, varargin)
+% Retrieve dataset objects from the server
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -18,4 +18,9 @@ function datasets = getDatasets(session, ids)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-datasets = getObjects(session, 'dataset', ids);
+% Check input
+ip = inputParser;
+ip.addOptional('ids', [], @isvector);
+ip.parse(varargin{:});
+
+datasets = getObjects(session, 'dataset', ip.Results.ids);

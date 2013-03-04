@@ -1,5 +1,5 @@
 function objects = getObjects(session, type, ids)
-% Retrieve objects from a given type given a set of IDs
+% Retrieve objects from a given type
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -24,7 +24,7 @@ objectNames = {objectTypes.name};
 ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
-ip.addRequired('ids', @isvector);
+ip.addRequired('ids', @(x) isvector(x) || isempty(x));
 ip.parse(session, type, ids);
 objectType = objectTypes(strcmp(type, objectNames));
 
