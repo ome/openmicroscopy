@@ -29,6 +29,7 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.context.support.FileSystemXmlApplicationContext;

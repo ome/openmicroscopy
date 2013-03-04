@@ -14,6 +14,8 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
