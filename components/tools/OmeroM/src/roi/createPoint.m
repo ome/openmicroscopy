@@ -1,5 +1,11 @@
 function point = createPoint(x, y)
-% Create a point shape object from a set of coordinates
+%CREATEPOINT Create a Point shape object from a set of coordinates
+%
+%   Example:
+%
+%       point = createPoint(10, 10);
+%
+% See also: SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

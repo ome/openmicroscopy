@@ -1,5 +1,11 @@
 function rectangle = createRectangle(x, y, w, h)
-% Create a rectangle shape object from a set of coordinates and dimensions
+% CREATERECTANGLE Create a rectangle shape object from a set of coordinates and dimensions
+%
+%   Examples:
+%
+%      rectangle = createRectangle(10, 10, 5, 8);
+%
+% See also: CREATEELLIPSE, SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

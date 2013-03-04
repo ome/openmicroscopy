@@ -1,5 +1,14 @@
 function polygon = createPolygon(x, y)
-% Create a Polygon shape object from a set of input vectors
+% CREATEPOLYGON Create a Polygon shape object from a set of input vectors
+%
+%   POLYGON = CREATEPOLYGON(X, Y) creates a closed geometrical figure which
+%   contour is defined by a series of points of coordinates (X, Y)
+%
+%   Example:
+%
+%      p = createPolygon([10 15], [10 20]);
+%
+% See also: CREATEPOLYLINE, SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

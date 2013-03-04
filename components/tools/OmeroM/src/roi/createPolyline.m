@@ -1,5 +1,14 @@
 function polyline = createPolyline(x, y)
-% Create a Polyline shape object from a set of input vectors
+% CREATEPOLYLINE Create a Polyline shape object from a set of input vectors
+%
+%   POLYGON = CREATEPOLYLINE(X, Y) creates an open geometrical figure which
+%   contour is defined by a series of points of coordinates (X, Y)
+%
+%   Example:
+%
+%      p = createPolyline([10 15], [10 20]);
+%
+% See also: CREATEPOLYGON, SETSHAPECOORDINATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

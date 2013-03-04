@@ -1,5 +1,10 @@
 function shape = setShapeCoordinates(shape, z, c, t)
-% Set the Z, C and T values of any omero.model.Shape object
+% SETSHAPECOORDINATES Set the Z, C and T values of any Shape object
+%
+%   Example:
+%
+%      setShapeCoordinates(shape, 0, 0, 0);
+%
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
