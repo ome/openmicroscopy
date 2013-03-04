@@ -311,6 +311,9 @@ class ImViewerModel
     /** The channels.*/
     private List<ChannelData> channels;
     
+    /** The display mode.*/
+    private int displayMode;
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -497,6 +500,18 @@ class ImViewerModel
 		selectedUserID = -1;
 		lastProjTime = -1;
 		lastProjRef = null;
+		checkDefaultDisplayMode();
+	}
+	
+	/**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
+		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
 	}
 	
 	/** Initializes the {@link #metadataViewer}. */
@@ -2901,8 +2916,41 @@ class ImViewerModel
 		if (refUnits != null) return refUnits.getUnits();
 		double size = getPixelsSizeX();
 		if (size < 0) return UnitsObject.MICRONS;
-		refUnits = EditorUtil.transformSize(size); 
+		refUnits = EditorUtil.transformSize(size);
 		return refUnits.getUnits();
 	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
     
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+		if (containers != null) {
+			containers.clear();
+			containers = null;
+		}
+	}
+
 }

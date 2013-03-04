@@ -75,7 +75,6 @@ public interface OmeroDataService
 	 * @param withLeaves Passed <code>true</code> to retrieve the images,
 	 *                   <code>false</code> otherwise.
 	 * @param userID The identifier of the selected user.
-	 * @param groupID The identifier of the selected user.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -83,7 +82,7 @@ public interface OmeroDataService
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
-			long userID, long groupID)
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

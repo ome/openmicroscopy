@@ -308,4 +308,11 @@ public interface Importer
 	 */
 	boolean isMaster();
 
+	/**
+	 * Returns the display mode.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
+	
 }

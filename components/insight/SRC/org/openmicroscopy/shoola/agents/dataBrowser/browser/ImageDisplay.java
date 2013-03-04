@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
@@ -40,8 +42,11 @@ import javax.swing.JLayeredPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -104,6 +109,17 @@ public abstract class ImageDisplay
     /** Bound property indicating an annotation visualization. */
     public final static String     ANNOTATE_NODE_PROPERTY = "annotateNode";
     
+    /** The icon for data not owned.*/
+    private final static Icon NOT_OWNED_ICON;
+    
+    /** The icon for annotation.*/
+    private final static Icon ANNOTATION_ICON;
+    
+    static {
+    	IconManager icons = IconManager.getInstance();
+    	NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNER_8);
+    	ANNOTATION_ICON = icons.getIcon(IconManager.ANNOTATION_8);
+    }
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -125,6 +141,21 @@ public abstract class ImageDisplay
     private int count;
     
     /**
+     * Returns the owner of the data object or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    protected ExperimenterData getNodeOwner()
+    {
+    	if (hierarchyObject instanceof ExperimenterData ||
+    			hierarchyObject instanceof GroupData)
+    		return null;
+    	if (hierarchyObject instanceof DataObject)
+    		return ((DataObject) hierarchyObject).getOwner();
+    	return null;
+    }
+    
+    /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link ImageDisplayVisitor}.
      * 
@@ -136,7 +167,7 @@ public abstract class ImageDisplay
     {
         switch (type) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
-            case ImageDisplayVisitor.IMAGE_SET_ONLY:    
+            case ImageDisplayVisitor.IMAGE_SET_ONLY:
             case ImageDisplayVisitor.ALL_NODES:
                 return true;
             default:
@@ -281,36 +312,33 @@ public abstract class ImageDisplay
      * Adds an <code>Annotated</code> icon if the object 
      * has annotation linked to it. Adds an <code>Owner</code> icon if
      * the owner is not the user currently logged in.
+     * 
+     * @param userID The id of the user currently logged in.
      */
-    public void setNodeDecoration()
+    public void setNodeDecoration(long userID)
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
-    	IconManager icons = IconManager.getInstance();
-    	/*
-    	if (hierarchyObject instanceof DataObject) {
-    		try {
-    			ExperimenterData owner = 
-    				((DataObject) hierarchyObject).getOwner();
-        		if (owner != null) {
-        			ExperimenterData exp = DataBrowserAgent.getUserDetails();
-        			if (exp.getId() != owner.getId()) {
-        				JLabel l = new JLabel(
-        						icons.getIcon(IconManager.OWNER_8));
-        				l.setToolTipText("Owner: "+
-        						EditorUtil.formatExperimenter(
-        						DataBrowserAgent.getExperimenter(
-        								owner.getId())));
-        				nodes.add(l);
-        			}
-        		}
-			} catch (Exception e) {}
-    	}
-    	*/
-    	if (EditorUtil.isAnnotated(hierarchyObject, count)) 
-    		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
+    	
+    	if (hierarchyObject instanceof DataObject && userID >= 0) {
+    		ExperimenterData owner =  getNodeOwner();
+			if (owner != null && userID != owner.getId())
+				nodes.add(new JLabel(NOT_OWNED_ICON));
+        }
+    	
+    	if (EditorUtil.isAnnotated(hierarchyObject, count))
+    		nodes.add(new JLabel(ANNOTATION_ICON));
     	
     	if (nodes.size() > 0) setDecoration(nodes);
+    	validate();
+    	repaint();
     }
+    
+    /**
+     * Adds an <code>Annotated</code> icon if the object 
+     * has annotation linked to it. Adds an <code>Owner</code> icon if
+     * the owner is not the user currently logged in.
+     */
+    public void setNodeDecoration() { setNodeDecoration(-1); }
     
     /** 
      * Sets the annotation count.

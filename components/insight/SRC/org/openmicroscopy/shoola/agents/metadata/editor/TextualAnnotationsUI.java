@@ -252,6 +252,8 @@ class TextualAnnotationsUI
 		
 		previousComments = new JScrollPane();
 		previousComments.setBorder(null);
+		setBorder(new SeparatorOneLineBorder());
+		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -273,8 +275,7 @@ class TextualAnnotationsUI
 	private void buildGUI()
 	{
 		removeAll();
-    	setBorder(new SeparatorOneLineBorder());
-		setBackground(UIUtilities.BACKGROUND_COLOR);
+    	if (!model.isAnnotationLoaded()) return;
 		JScrollPane pane = new JScrollPane(commentArea);
 		Dimension d = pane.getPreferredSize();
 		pane.getViewport().setPreferredSize(new Dimension(d.width, 60));

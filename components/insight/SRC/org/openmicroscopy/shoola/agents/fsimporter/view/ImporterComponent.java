@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
@@ -180,6 +181,15 @@ class ImporterComponent
 				model.getGroupId());
 	}
 
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode)
+	{
+		
+	}
 	
 	/** Refreshes the view when a user reconnects.*/
 	void onReconnected()
@@ -576,9 +586,7 @@ class ImporterComponent
 				return;
 		}
 		if (chooser == null) return;
-		ExperimenterData exp = ImporterAgent.getUserDetails();
-		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
-				model.getGroupId());
+		Set nodes = TreeViewerTranslator.transformHierarchy(result);
 		chooser.reset(nodes, type, model.getGroupId());
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
@@ -740,5 +748,11 @@ class ImporterComponent
 	 * @see Importer#isMaster()
 	 */
 	public boolean isMaster() { return model.isMaster(); }
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#getDisplayMode()
+	 */
+	public int getDisplayMode() { return model.getDisplayMode(); }
 
 }

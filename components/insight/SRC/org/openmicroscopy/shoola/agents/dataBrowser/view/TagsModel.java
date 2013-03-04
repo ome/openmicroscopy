@@ -84,14 +84,11 @@ public class TagsModel
 			throw new IllegalArgumentException("No dataObjects.");
 		this.dataObjects = dataObjects;
 		this.parent = parent;
-		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees;
 		if (withImages) 
-			visTrees = DataBrowserTranslator.transformHierarchy(dataObjects, 
-					userID, 0);
+			visTrees = DataBrowserTranslator.transformHierarchy(dataObjects);
 		else 
-			visTrees = DataBrowserTranslator.transformImages(dataObjects, 
-					userID, 0);
+			visTrees = DataBrowserTranslator.transformImages(dataObjects);
         browser = BrowserFactory.createBrowser(visTrees);
         //layoutBrowser();
         

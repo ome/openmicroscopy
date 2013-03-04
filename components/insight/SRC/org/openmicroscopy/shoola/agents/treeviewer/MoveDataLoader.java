@@ -85,7 +85,7 @@ public class MoveDataLoader
     public void load()
     {
     	handle = dmView.loadContainerHierarchy(ctx, type, null, false, userID,
-    			ctx.getGroupID(), this);	
+    			this);	
     }
 
     /**

@@ -399,8 +399,7 @@ public class DnDTree
 		super();
 		defaultCursor = getCursor();
 		dropLocation = -1;
-		this.userID = userID;
-		this.administrator = administrator;
+		reset(userID, administrator);
 		setDragEnabled(true);
 		dropTargetNode = null;
 		dragSource = new DragSource();
@@ -416,6 +415,20 @@ public class DnDTree
 		});
 	}
 
+	/** 
+	 * Resets the values.
+	 * 
+	 * @param userID The identifier of the user currently logged in.
+	 * @param administrator Pass <code>true</code> to indicate that the user
+	 *                      currently logged in an administrator,
+	 *                      <code>false</code> otherwise.
+	 */
+	public void reset(long userID, boolean administrator)
+	{
+		this.userID = userID;
+		this.administrator = administrator;
+	}
+	
     /** Resets.*/
     public void reset() { dropTargetNode = null; }
     
