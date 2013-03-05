@@ -37,6 +37,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
@@ -45,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -63,10 +65,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-//Third-party libraries
-
 import org.jdesktop.swingx.JXTaskPane;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -81,6 +80,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.UnitsObject;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
 import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DatasetData;
@@ -319,20 +319,12 @@ class PropertiesUI
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	namePane = createTextPane();
     	editableName = false;
-    	/*
-    	namePane.addMouseListener(new MouseAdapter() {
-    		public void mousePressed(MouseEvent e) {
-    			if (e.getClickCount() == 2)
-    				editField(namePanel, namePane, editName, true);
-    		}
-		});
-		*/
     	typePane = createTextPane();
     	typePane.setEditable(false);
-    	//namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
     	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+    	
     	descriptionPane = new OMEWikiComponent(false);
     	try {
     		descriptionPane.installObjectFormatters();
@@ -341,28 +333,11 @@ class PropertiesUI
 		}
     	
     	descriptionPane.setFont(newFont);
-    	//descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
-    	//descriptionPane.installDefaultRegEx();
-    	//descriptionPane.addPropertyChangeListener(controller);
-    	
-    	//descriptionPane.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	//descriptionPane.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-    	
-    	descriptionPane.addPropertyChangeListener(this);
-    	//descriptionPane.setLineWrap(true);
-    	//descriptionPane.setColumns(20);
-    	/*
-    	descriptionPane.addMouseListener(new MouseAdapter() {
-    		public void mousePressed(MouseEvent e) {
-    			if (e.getClickCount() == 2)
-    				editField(descriptionPanel, descriptionPane, 
-    						editDescription, true);
-    		}
-		});
-		*/
     	descriptionPane.setEnabled(false);
     	descriptionPane.setAllowOneClick(true);
     	descriptionPane.addFocusListener(this);
+    	descriptionPane.addPropertyChangeListener(this);
+    	
     	defaultBorder = namePane.getBorder();
     	namePane.setFont(f.deriveFont(Font.BOLD));
     	typePane.setFont(f.deriveFont(Font.BOLD));
@@ -1499,17 +1474,6 @@ class PropertiesUI
 	{
 		Object src = e.getSource();
 		if (src == namePane) {
-			/*
-			editField(namePanel, namePane, editName, false);
-			String text = namePane.getText();
-			editName.setEnabled(true);
-			if (text == null || text.trim().length() == 0) {
-				namePane.getDocument().removeDocumentListener(this);
-				namePane.setText(modifiedName);
-				namePane.getDocument().addDocumentListener(this);
-			}
-			*/
-			//namePane.setCaretPosition(0);
 			String text = namePane.getText();
 			editName.setEnabled(true);
 			namePane.setEditable(false);
@@ -1521,20 +1485,6 @@ class PropertiesUI
 						Boolean.valueOf(false), Boolean.valueOf(true));
 			}
 		} else if (src == descriptionPane) {
-			/*
-			editField(descriptionPanel, descriptionPane, editDescription, 
-					false);
-			editDescription.setEnabled(true);
-			String text = descriptionPane.getText();
-			if (text == null || text.trim().length() == 0) {
-				descriptionPane.getDocument().removeDocumentListener(this);
-				descriptionPane.setText(DEFAULT_DESCRIPTION_TEXT);
-				descriptionPane.getDocument().addDocumentListener(this);
-			}
-			descriptionPane.select(0, 0);
-			*/
-			//editField(descriptionPanel, descriptionPane, editDescription, 
-			//		false);
 			String text = descriptionPane.getText();
 			editDescription.setEnabled(true);
 			if (text == null || text.trim().length() == 0) {
@@ -1557,14 +1507,6 @@ class PropertiesUI
 		Object src = e.getSource();
 		if (src == namePane) {
 			String text = namePane.getText();
-			if (text != null) {
-				
-				//namePane.selectAll();
-				//int n = text.length()-1;
-				//if (n >= 0) namePane.setCaretPosition(n);
-			}
-			//namePane.select(0, 0);
-			//namePane.setCaretPosition(0);
 		}
 	}
 	
