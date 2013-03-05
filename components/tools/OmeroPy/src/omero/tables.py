@@ -527,6 +527,20 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         False if this resource can be cleaned up. (Resources API)
         """
         self.logger.debug("Checking %s" % self)
+        try:
+            identity = self.factory.ice_getIdentity()
+            clientSession = self.factory.getSessionService().getSession(
+                identity.name)
+
+            if clientSession.getClosed():
+                # Is this ever possible? So far
+                # Ice.ObjectNotExistException always seems to be thrown
+                self.logger.info("Client session %s closed" % identity.name)
+                return False
+        except Ice.ObjectNotExistException:
+            self.logger.info("Client session %s not found" % identity.name)
+            return False
+
         return True
 
     def cleanup(self):
