@@ -87,6 +87,7 @@ import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
 import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -479,7 +480,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setName(filename);
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
-            file.setSha1(Utils.bytesToHex(cpf.getProvider().getChecksum(data)));
+            file.setSha1(Utils.bytesToHex(
+                    cpf.getProvider(ChecksumType.SHA1).getChecksum(data)));
             file.setMimetype(mimetype);
             FileAnnotation fa = new FileAnnotation();
             fa.setNs(NSEXPERIMENTERPHOTO);

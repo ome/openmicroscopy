@@ -31,6 +31,7 @@ import ome.model.core.OriginalFile;
 import ome.util.ShallowCopy;
 import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -190,7 +191,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             try {
-                byte[] hash = this.checksumProviderFactory.getProvider().getChecksum(path);
+                byte[] hash = this.checksumProviderFactory
+                        .getProvider(ChecksumType.SHA1).getChecksum(path);
                 file.setSha1(Utils.bytesToHex(hash));
 
                 File f = new File(path);

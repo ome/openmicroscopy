@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
@@ -948,7 +949,7 @@ public class client {
     public String sha1(File file) {
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         return Utils.bytesToHex(
-                cpf.getProvider().getChecksum(
+                cpf.getProvider(ChecksumType.SHA1).getChecksum(
                         file.getAbsolutePath()));
     }
 

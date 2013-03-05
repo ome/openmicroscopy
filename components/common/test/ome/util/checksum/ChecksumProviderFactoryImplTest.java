@@ -33,12 +33,6 @@ public class ChecksumProviderFactoryImplTest {
     }
 
     @Test
-    public void testGetProvider() {
-        ChecksumProvider cp = this.cpf.getProvider();
-        Assert.assertEquals(cp.getClass(), SHA1ChecksumProviderImpl.class);
-    }
-
-    @Test
     public void testGetProviderWithSHA1ChecksumType() {
         ChecksumProvider cp = this.cpf.getProvider(ChecksumType.SHA1);
         Assert.assertEquals(cp.getClass(), SHA1ChecksumProviderImpl.class);
