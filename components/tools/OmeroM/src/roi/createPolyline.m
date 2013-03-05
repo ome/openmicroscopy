@@ -28,12 +28,11 @@ function polyline = createPolyline(x, y)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check input
+islongvector = @(x) isvector(x) && numel(x) >= 2;
 ip = inputParser;
-ip.addRequired('x', @isvector);
-ip.addRequired('y', @isvector);
+ip.addRequired('x', islongvector);
+ip.addRequired('y', @(y) islongvector(y) && numel(y) == numel(x));
 ip.parse(x, y);
-assert(numel(x) == numel(y), 'x and y must have the same number of elements');
-assert(numel(x) >= 2, 'x and y are scalars, use createPoint(x,y) instead');
 
 % Create Polyline shape
 polyline = omero.model.PolylineI;
