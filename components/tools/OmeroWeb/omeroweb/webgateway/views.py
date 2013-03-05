@@ -2149,7 +2149,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
                 'total': len(todelete) + len(remaining),
                 'todelete': todelete,
                 'remaining': remaining,
-                'currenthandle': handle,
+                'currenthandle': str(handle),
                 }
             request.session.save()
             rdict['handle'] = str(handle)
@@ -2188,7 +2188,7 @@ def repository_delete_status(request, klass, name=None, filepath=None, conn=None
             handle = conn.deleteObjects('/OriginalFile', todelete)
             request.session['deletes'][strhandle]['todelete'] = todelete
             request.session['deletes'][strhandle]['remaining'] = remaining
-            request.session['deletes'][strhandle]['currenthandle'] = handle
+            request.session['deletes'][strhandle]['currenthandle'] = str(handle)
         else:
             request.session['deletes'].pop(strhandle)
             rdict['complete'] = True
