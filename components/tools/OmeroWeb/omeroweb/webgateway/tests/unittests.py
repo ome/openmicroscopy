@@ -535,39 +535,46 @@ class AsyncDeleteTest(RepositoryApiBaseTest):
         l = repository.listFiles(fulldir)
         return [unwrap(x.id) for x in l]
 
-    def testDeleteCallback(self):
+    def testDeleteCallback(self, count=100, checkinterval=1):
         self.loginmethod()
         name = 'delete_test_%s' % time.time()
-        ids = self._createOriginalFiles(name, 100)
+        ids = self._createOriginalFiles(name, count)
         r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=true')
         response = views.repository_delete(r, klass=self.repoclass,
             name=self.reponame, filepath=name, conn=self.gateway,
             server_id=1, _internal=True)
         session_key = r.session.session_key
         response = simplejson.loads(response)
-        self.assertEqual(100 + 1, response['total']) # files plus containing dir
+        self.assertEqual(count + 1, response['total']) # files plus containing dir
         self.assertEqual(True, response['async'])
         self.assertTrue(response.has_key('handle'))
         strhandle = response['handle']
 
-        for i in range(100):
+        starttime = datetime.datetime.now()
+        while True:
             r = fakeRequest(session_key=session_key, QUERY_STRING='handle=' + strhandle)
             response = views.repository_delete_status(r, klass=self.repoclass,
                 name=self.reponame, conn=self.gateway, server_id=1, _internal=True)
             response = simplejson.loads(response)
             self.assertFalse(response.has_key('error'))
-            self.assertEqual(100 + 1, response['total'])
+            self.assertEqual(count + 1, response['total'])
             self.assertTrue(response.has_key('steps'))
             self.assertTrue(response.has_key('complete'))
             if response['steps'] < response['total']:
                 self.assertFalse(response['complete'])
-            else:
-                self.assertTrue(response['complete'])
+            elif response['complete']:
                 break
-            time.sleep(0.1)
+            time.sleep(checkinterval)
+        endtime = datetime.datetime.now()
+        print "Deleted %s OriginalFile objects in %s with check interval %ss" % (count, endtime - starttime, checkinterval)
 
         self.assertEqual(response['steps'], response['total'])
         self.assertTrue(response['complete'])
+
+    #def testDeleteCallback(self):
+    #    for c in range(2, 4):
+    #        for i in range(2):
+    #            self._testDeleteCallback(10 ** c, 5 ** i)
 
 
 class RepositoryApiTest(RepositoryApiBaseTest):
