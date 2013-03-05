@@ -100,28 +100,6 @@ public class TermAnnotationData extends AnnotationData {
     }
     
     /**
-     * Returns the namespace of the term.
-     * 
-     * @return See above.
-     */
-    public String getNameSpace()
-    {
-    	RString value = asAnnotation().getNs();
-    	if (value == null) return "";
-        return value.getValue();
-    }
-    
-    /**
-     * Returns the namespace of the term.
-     * 
-     * @param The value to set. 
-     */
-    public void setNameSpace(String name)
-    {
-    	asAnnotation().setNs(rstring(name));
-    }
-      
-    /**
      * Returns the textual content of the annotation.
      *
      * @see AnnotationData#getContent()
