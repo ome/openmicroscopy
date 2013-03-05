@@ -64,6 +64,21 @@ classdef TestROI < TestCase
             self.setShapeCoordinates();
         end
         
+        % Line
+        function testLine(self)
+            x = [10 20];
+            y = [5 8];
+            self.shape = createLine(x, y);
+            
+            assertTrue(isa(self.shape, 'omero.model.LineI'));
+            assertEqual(self.shape.getX1().getValue(), x(1));
+            assertEqual(self.shape.getX2().getValue(), x(2));
+            assertEqual(self.shape.getY1().getValue(), y(1));
+            assertEqual(self.shape.getY2().getValue(), y(2));
+
+            self.setShapeCoordinates();
+        end
+        
         % Polyline
         function testPolyline(self)
             x = 1:5;
