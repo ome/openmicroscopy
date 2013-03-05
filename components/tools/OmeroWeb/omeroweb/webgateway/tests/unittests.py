@@ -535,11 +535,11 @@ class AsyncDeleteTest(RepositoryApiBaseTest):
         l = repository.listFiles(fulldir)
         return [unwrap(x.id) for x in l]
 
-    def testDeleteCallback(self, count=100, checkinterval=1):
+    def testDeleteCallback(self, count=100, checkinterval=1, batchsize=100):
         self.loginmethod()
         name = 'delete_test_%s' % time.time()
         ids = self._createOriginalFiles(name, count)
-        r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=true')
+        r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=true&batchsize=%s' % batchsize)
         response = views.repository_delete(r, klass=self.repoclass,
             name=self.reponame, filepath=name, conn=self.gateway,
             server_id=1, _internal=True)
@@ -566,15 +566,16 @@ class AsyncDeleteTest(RepositoryApiBaseTest):
                 break
             time.sleep(checkinterval)
         endtime = datetime.datetime.now()
-        print "Deleted %s OriginalFile objects in %s with check interval %ss" % (count, endtime - starttime, checkinterval)
+        print "Deleted %s OriginalFile objects in %s with batch size %s and check interval %ss" % (
+                count, endtime - starttime, batchsize, checkinterval
+             )
 
         self.assertEqual(response['steps'], response['total'])
         self.assertTrue(response['complete'])
 
-    #def testDeleteCallback(self):
-    #    for c in range(2, 4):
-    #        for i in range(2):
-    #            self._testDeleteCallback(10 ** c, 5 ** i)
+    def _testDeleteCallback(self):
+        for c in range(1, 5):
+            self._testDeleteCallback(500 * c)
 
 
 class RepositoryApiTest(RepositoryApiBaseTest):
