@@ -1,5 +1,20 @@
 function datasets = getDatasets(session, varargin)
-% Retrieve dataset objects from the server
+% GETDATASETS Retrieve dataset objects from the OMERO server
+%
+%   datasets = getDatasets(session) returns all the datasets owned by the
+%   session user in the context of the session group.
+%
+%   datasets = getDatasets(session, ids) returns all the datasets
+%   identified by the input ids owned by the session user in the context of
+%   the session group.
+%
+%   Examples:
+%
+%      datasets = getDatasets(session);
+%      datasets = getDatasets(session, ids);
+%
+% See also: GETOBJECTS, GETPROJECTS, GETIMAGES
+
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

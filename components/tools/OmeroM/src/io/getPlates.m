@@ -1,5 +1,19 @@
 function plates = getPlates(session, varargin)
-% Retrieve plate objects from the server
+% GETPLATES Retrieve plate objects from the OMERO server
+%
+%   plates = getPlates(session) returns all the plates owned by the
+%   session user in the context of the session group.
+%
+%   plates = getPlates(session, ids) returns all the plates identified by
+%   the input ids owned by the session user in the context of the session
+%   group.
+%
+%   Examples:
+%
+%      plates = getPlates(session);
+%      plates = getPlates(session, ids);
+%
+% See also: GETOBJECTS, GETSCREENS, GETIMAGES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

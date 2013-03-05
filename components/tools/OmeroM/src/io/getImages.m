@@ -1,5 +1,19 @@
 function images = getImages(session, varargin)
-% Retrieve image objects from the server
+% GETIMAGES Retrieve image objects from the OMERO server
+%
+%   images = getImages(session) returns all the images owned by the session
+%   user in the context of the session group.
+%
+%   images = getImages(session, ids) returns all the images identified by
+%   the input ids owned by the session user in the context of the session
+%   group.
+%
+%   Examples:
+%
+%      images = getImages(session);
+%      images = getImages(session, ids);
+%
+% See also: GETOBJECTS, GETPROJECTS, GETDATASETS, GETPLATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

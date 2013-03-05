@@ -1,5 +1,19 @@
 function screens = getScreens(session, varargin)
-% Retrieve screen objects from the server
+% GETSCREENS Retrieve screen objects from the OMERO server
+%
+%   screens = getScreens(session) returns all the screens owned by the
+%   session user in the context of the session group.
+%
+%   screens = getScreens(session, ids) returns all the screens identified
+%   by the input ids owned by the session user in the context of the
+%   session group.
+%
+%   Examples:
+%
+%      screens = getScreens(session);
+%      screens = getScreens(session, ids);
+%
+% See also: GETOBJECTS, GETPLATES, GETIMAGES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
