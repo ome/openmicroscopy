@@ -44,7 +44,6 @@ from omero.model import EllipseI
 from omero.model import LineI
 from omero.model import RectI
 from omero.model import PointI
-from omero.model import TextI
 from omero.model import PolylineI
 from omero.model import PolygonI
 from omero.model import PathI
