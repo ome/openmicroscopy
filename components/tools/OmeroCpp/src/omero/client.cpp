@@ -169,13 +169,6 @@ namespace omero {
         if (group.length() > 0) {
             ctx->put("omero.group", group);
         }
-
-	// Register the default client callback.
-	__oa = __ic->createObjectAdapter("omero.ClientCallback");
-	CallbackIPtr cb = new CallbackI(__ic, __oa);
-	__oa->add(cb, __ic->stringToIdentity("ClientCallback/" + __uuid)) ;
-	__oa->activate();
-
     }
 
     // --------------------------------------------------------------------
@@ -446,7 +439,17 @@ namespace omero {
 	    try {
                 std::map<string, string> ctx = getImplicitContext()->getContext();
                 ctx[omero::constants::AGENT] = __agent;
-		prx = getRouter(__ic)->createSession(username, password);
+                prx = getRouter(__ic)->createSession(username, password);
+            
+                // Register the default client callback.
+                Ice::Identity id = Ice::Identity();
+                id.name = __uuid;
+                id.category = getRouter(__ic)->getCategoryForClient();
+                
+                __oa = __ic->createObjectAdapterWithRouter("omero.ClientCallback", getRouter(__ic));
+                __oa->activate();
+                __oa->add(new CallbackI(__ic, __oa), id);
+            
 		break;
 	    } catch (const omero::WrappedCreateSessionException& wrapped) {
 		if (!wrapped.concurrency) {
