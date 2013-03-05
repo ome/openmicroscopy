@@ -497,8 +497,8 @@ public class UpdateServiceTest
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
         l  = (ImageAnnotationLink) o1;
-        assertTrue(l.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(l.getParent().getId().getValue() == i.getId().getValue());
+        assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(), i.getId().getValue());
         
         //Project
         Project p = (Project) iUpdate.saveAndReturnObject(
@@ -509,8 +509,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(pl);
         assertNotNull(o1);
         pl  = (ProjectAnnotationLink) o1;
-        assertTrue(pl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(pl.getParent().getId().getValue() == p.getId().getValue());
+        assertEquals(pl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(pl.getParent().getId().getValue(), p.getId().getValue());
         
         //Dataset
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -521,8 +521,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(dl);
         assertNotNull(o1);
         dl  = (DatasetAnnotationLink) o1;
-        assertTrue(dl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(dl.getParent().getId().getValue() == d.getId().getValue());
+        assertEquals(dl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(dl.getParent().getId().getValue(), d.getId().getValue());
         
         //Screen
         Screen s = (Screen) iUpdate.saveAndReturnObject(
@@ -533,8 +533,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(sl);
         assertNotNull(o1);
         sl  = (ScreenAnnotationLink) o1;
-        assertTrue(sl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(sl.getParent().getId().getValue() == s.getId().getValue());
+        assertEquals(sl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(sl.getParent().getId().getValue(), s.getId().getValue());
         
         //Plate
         Plate pp = (Plate) iUpdate.saveAndReturnObject(
@@ -545,8 +545,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(ppl);
         assertNotNull(o1);
         ppl  = (PlateAnnotationLink) o1;
-        assertTrue(ppl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(ppl.getParent().getId().getValue() == pp.getId().getValue());
+        assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
     }
     
     /**
