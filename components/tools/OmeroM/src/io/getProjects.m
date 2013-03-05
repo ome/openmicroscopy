@@ -1,5 +1,19 @@
 function projects = getProjects(session, varargin)
-% Retrieve project objects from the server
+% GETPROJECTS Retrieve project objects from the server
+%
+%   projects = getProjects(session) returns all the projects owned by the
+%   session user in the context of the session group.
+%
+%   projects = getProjects(session, ids) returns all the projects
+%   identified by the input ids owned by the session user in the context of
+%   the session group.
+%
+%   Examples:
+%
+%      projects = getProjects(session);
+%      projects = getProjects(session, ids);
+%
+% See also: GETOBJECTS, GETDATASETS, GETIMAGES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

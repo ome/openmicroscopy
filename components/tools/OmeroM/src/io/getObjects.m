@@ -1,5 +1,21 @@
 function objects = getObjects(session, type, ids)
-% Retrieve objects from a given type
+% GETOBJECTS Retrieve objects from a given type from the OMERO server
+%
+%   objects = getObjects(session, type) returns all the objects of the
+%   specified type owned by the session user in the context of the session
+%   group.
+%
+%   objects = getObjects(session, type, ids) returns all the objects of the
+%   specified type and identified by the input ids owned by the session
+%   user in the context of the session group.
+%
+%   Examples:
+%
+%      objects = getObjects(session, type);
+%      objects = getObjects(session, type, ids);
+%
+% See also: GETOBJECTTYPES
+
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

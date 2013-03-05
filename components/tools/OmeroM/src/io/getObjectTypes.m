@@ -1,6 +1,12 @@
 function types = getObjectTypes()
-% Return a dictionary of objects types
+% GETOBJECTTYPES Return a dictionary of OMERO objects types
 %
+%   types = getObjectTypes() returns a dictionary of OMERO object types
+%   organized as an array of structures with three fields: name, class and
+%   Iobject.
+%
+% See also: GETOBJECTS
+
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
 %
