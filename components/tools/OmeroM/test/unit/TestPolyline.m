@@ -32,26 +32,20 @@ classdef TestPolyline < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createPolyline()
+        end
         
         function createPolyline(self)
             self.shape = createPolyline(self.x, self.y);
-        end        
+        end
         
         function testSimplePolyline(self)
-            self.createPolyline();
-            
             assertTrue(isa(self.shape, 'omero.model.PolylineI'));
             assertEqual(char(self.shape.getPoints().getValue()),...
                 sprintf('%g,%g ', self.x, self.y));
         end
         
-
-        function testShapeCoordinates(self)
-            self.createPolyline();
-            self.setShapeCoordinates();
-        end
-        
-
         function testNonMatchingDimensions(self)
             self.x = [10 20];
             assertExceptionThrown(@() self.createPolyline(),...
@@ -63,13 +57,11 @@ classdef TestPolyline < TestShape
             assertExceptionThrown(@() self.createPolyline(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-                
+        
         function testScalarY(self)
             self.y = 1;
             assertExceptionThrown(@() self.createPolyline(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
-        
     end
 end

@@ -1,4 +1,4 @@
-function shape = setShapeCoordinates(shape, z, c, t)
+function shape = setShapeCoordinates(shape, varargin)
 % SETSHAPECOORDINATES Set the Z, C and T values of any Shape object
 %
 %   Example:
@@ -24,14 +24,31 @@ function shape = setShapeCoordinates(shape, z, c, t)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check input
+isvalidimension = @(x) (isscalar(x) && x >= 0) || isempty(x);
 ip = inputParser;
 ip.addRequired('shape', @(x) isa(shape, 'omero.model.Shape'));
-ip.addOptional('z', 0, @isscalar);
-ip.addOptional('c', 0, @isscalar);
-ip.addOptional('t', 0, @isscalar);
-ip.parse(shape, z, c, t)
+ip.addOptional('z', [], isvalidimension);
+ip.addOptional('c', [], isvalidimension);
+ip.addOptional('t', [], isvalidimension);
+ip.parse(shape, varargin{:})
 
-% Set shape coordinates
-shape.setTheZ(rint(ip.Results.z));
-shape.setTheC(rint(ip.Results.c));
-shape.setTheT(rint(ip.Results.t));
+% Set the Z-dimension
+if ~isempty(ip.Results.z),
+    shape.setTheZ(rint(ip.Results.z));
+else
+    shape.setTheZ([]);
+end
+
+% Set the C-dimension
+if ~isempty(ip.Results.c),
+    shape.setTheC(rint(ip.Results.c));
+else
+    shape.setTheC([]);
+end
+
+% Set the T-dimension
+if ~isempty(ip.Results.t),
+    shape.setTheT(rint(ip.Results.t));
+else
+    shape.setTheT([]);
+end
