@@ -26,11 +26,12 @@ function ellipse = createEllipse(x, y, rx, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check input
+isposscalar = @(x) isscalar(x) && x > 0;
 ip = inputParser;
 ip.addRequired('x', @isscalar);
 ip.addRequired('y', @isscalar);
-ip.addRequired('rx', @isscalar);
-ip.addOptional('ry', rx, @isscalar);
+ip.addRequired('rx', isposscalar);
+ip.addOptional('ry', rx, isposscalar);
 ip.parse(x, y, rx, varargin{:});
 
 % Create an Ellipse shape
