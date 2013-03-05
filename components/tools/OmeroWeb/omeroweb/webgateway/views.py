@@ -2099,6 +2099,10 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
         timeout = int(request.GET.get('timeout', '30'))
     except ValueError:
         timeout = 30
+    try:
+        batchsize = int(request.GET.get('batchsize', '0'))
+    except ValueError:
+        batchsize = 0
 
     # Collect objects to be deleted
     todelete = []
@@ -2125,20 +2129,27 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
 
     rdict = {
         'total': len(todelete),
-        'matched_ids': todelete,
         'async': async,
         }
 
     # Delete objects in database
     if todelete:
+
+        remaining = []
+        if async and batchsize > 0:
+            todelete, remaining = todelete[:batchsize], todelete[batchsize:]
+
         handle = conn.deleteObjects('/OriginalFile', todelete)
 
         if async:
             # return immediately
             request.session.setdefault('deletes', dict())[str(handle)] = {
                 'filepath': filepath,
-                'total': len(todelete),
+                'batchsize': batchsize,
+                'total': len(todelete) + len(remaining),
                 'todelete': todelete,
+                'remaining': remaining,
+                'currenthandle': handle,
                 }
             request.session.save()
             rdict['handle'] = str(handle)
@@ -2164,15 +2175,24 @@ def repository_delete_status(request, klass, name=None, filepath=None, conn=None
     total = info.get('total', -1)
     if total == -1:
         return dict(error='Invalid handle')
-    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(strhandle))
+    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(info['currenthandle']))
     status = handle.getStatus()
-    steps = status.steps
-    rdict = dict(total=total, steps=steps, complete=False)
-    if steps >= total and status.stopTime > 0:
-        request.session['deletes'].pop(strhandle)
-        request.session.save()
+    remaining = info['remaining']
+    todelete = info['todelete']
+    batchsize = info['batchsize']
+    rdict = dict(total=total, steps=status.steps + total - len(remaining) - len(todelete), complete=False)
+    if status.stopTime > 0:
         handle.close()
-        rdict['complete'] = True
+        if remaining:
+            todelete, remaining = remaining[:batchsize], remaining[batchsize:]
+            handle = conn.deleteObjects('/OriginalFile', todelete)
+            request.session['deletes'][strhandle]['todelete'] = todelete
+            request.session['deletes'][strhandle]['remaining'] = remaining
+            request.session['deletes'][strhandle]['currenthandle'] = handle
+        else:
+            request.session['deletes'].pop(strhandle)
+            rdict['complete'] = True
+        request.session.save()
     return rdict
 
 
