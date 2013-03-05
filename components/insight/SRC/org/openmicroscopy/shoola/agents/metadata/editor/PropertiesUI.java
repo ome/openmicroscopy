@@ -881,7 +881,6 @@ class PropertiesUI
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(l);
         int w = editName.getIcon().getIconWidth()+4;
-        //p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
         l.setBackground(UIUtilities.BACKGROUND_COLOR);
         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
@@ -906,8 +905,6 @@ class PropertiesUI
         	p.add(Box.createVerticalStrut(5));
         	descriptionPanel = layoutEditablefield(editDescription, 
         			descriptionPane, 5);
-        	 //descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
-		
         	pane = new JScrollPane(descriptionPanel);
         	pane.setHorizontalScrollBarPolicy(
         			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -915,16 +912,6 @@ class PropertiesUI
         	Dimension d = pane.getPreferredSize();
         	pane.getViewport().setPreferredSize(new Dimension(d.width, HEIGHT));
         	p.add(pane);
-         } else if (refObject instanceof FileData) {
-        	 /*
-        	 FileData f = (FileData) refObject;
-        	 if (f.isImage()) {
-        		 p.add(Box.createVerticalStrut(5));
-            	 descriptionPanel = layoutEditablefield(null, 
-            			 			descriptionPane, 80);
-            	 p.add(descriptionPanel);
-        	 }
-        	 */
          }
          p.add(Box.createVerticalStrut(5));
          return p;
@@ -1502,9 +1489,7 @@ class PropertiesUI
 	 * source.
 	 * @see FocusListener#focusGained(FocusEvent)
 	 */
-	public void focusGained(FocusEvent e)
-	{
-	}
+	public void focusGained(FocusEvent e) { }
 	
 	/** 
 	 * Listens to property changes fired by the {@link #descriptionPane}.
