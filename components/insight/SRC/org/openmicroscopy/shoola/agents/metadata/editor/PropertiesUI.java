@@ -1504,10 +1504,6 @@ class PropertiesUI
 	 */
 	public void focusGained(FocusEvent e)
 	{
-		Object src = e.getSource();
-		if (src == namePane) {
-			String text = namePane.getText();
-		}
 	}
 	
 	/** 
