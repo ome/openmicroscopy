@@ -510,6 +510,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.stamp = time.time()
         self.storage.incr(self)
 
+        self._closed = False
+
     def assert_write(self):
         """
         Checks that the current user can write to the given object
@@ -527,18 +529,21 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         False if this resource can be cleaned up. (Resources API)
         """
         self.logger.debug("Checking %s" % self)
+        if self._closed:
+            return False
+
+        idname = 'UNKNOWN'
         try:
-            identity = self.factory.ice_getIdentity()
-            clientSession = self.factory.getSessionService().getSession(
-                identity.name)
+            idname = self.factory.ice_getIdentity().name
+            clientSession = self.factory.getSessionService().getSession(idname)
 
             if clientSession.getClosed():
                 # Is this ever possible? So far
                 # Ice.ObjectNotExistException always seems to be thrown
-                self.logger.info("Client session %s closed" % identity.name)
+                self.logger.info("Client session %s closed" % idname)
                 return False
         except Ice.ObjectNotExistException:
-            self.logger.info("Client session %s not found" % identity.name)
+            self.logger.info("Client session %s not found" % idname)
             return False
 
         return True
@@ -570,6 +575,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
+
+        self._closed = True
 
         if self.file_obj is not None and self.can_write:
             fid = self.file_obj.id.val
