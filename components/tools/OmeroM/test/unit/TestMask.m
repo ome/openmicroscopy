@@ -35,6 +35,9 @@ classdef TestMask < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createMask()
+        end
         
         function createMask(self, coordinates)
             if nargin < 2 || coordinates
@@ -44,13 +47,10 @@ classdef TestMask < TestShape
             end
             self.w = size(self.mask, 2);
             self.h = size(self.mask, 1);
-        end   
+        end
         
         % Mask
         function testSimpleMask(self)
-
-            self.createMask();
-            
             assertTrue(isa(self.shape, 'omero.model.MaskI'));
             assertEqual(self.shape.getX().getValue(), self.x);
             assertEqual(self.shape.getY().getValue(), self.y);
@@ -69,13 +69,6 @@ classdef TestMask < TestShape
             assertEqual(self.shape.getHeight().getValue(), self.h);
             assertEqual(self.shape.getBytes(), int8(self.mask(:)));
         end
-        
-
-        function testShapeCoordinates(self)
-            self.createMask();
-            self.setShapeCoordinates();
-        end
-        
     end
 end
 

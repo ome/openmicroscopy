@@ -32,24 +32,19 @@ classdef TestPoint < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createPoint()
+        end
         
         function createPoint(self)
-            self.shape = createPoint(self.x, self.y);            
+            self.shape = createPoint(self.x, self.y);
         end
         
-        function testValidRectangle(self)
-            self.createPoint();
-            
+        function testValidPoint(self)
             assertTrue(isa(self.shape, 'omero.model.PointI'));
             assertEqual(self.shape.getCx().getValue(), self.x);
-            assertEqual(self.shape.getCy().getValue(), self.y);            
+            assertEqual(self.shape.getCy().getValue(), self.y);
         end
-        
-        function testShapeCoordinates(self)
-            self.createPoint();
-            self.setShapeCoordinates();
-        end
-        
         
         function testEmptyInput(self)
             self.x = [];
@@ -62,6 +57,5 @@ classdef TestPoint < TestShape
             assertExceptionThrown(@() self.createPoint(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
     end
 end

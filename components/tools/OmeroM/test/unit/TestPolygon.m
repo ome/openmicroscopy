@@ -32,26 +32,20 @@ classdef TestPolygon < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createPolygon()
+        end
         
         function createPolygon(self)
             self.shape = createPolygon(self.x, self.y);
-        end        
+        end
         
         function testSimplePolygon(self)
-            self.createPolygon();
-            
             assertTrue(isa(self.shape, 'omero.model.PolygonI'));
             assertEqual(char(self.shape.getPoints().getValue()),...
                 sprintf('%g,%g ', self.x, self.y));
         end
         
-
-        function testShapeCoordinates(self)
-            self.createPolygon();
-            self.setShapeCoordinates();
-        end
-        
-
         function testNonMatchingDimensions(self)
             self.x = [10 20];
             assertExceptionThrown(@() self.createPolygon(),...
@@ -63,13 +57,11 @@ classdef TestPolygon < TestShape
             assertExceptionThrown(@() self.createPolygon(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-                
+        
         function testScalarY(self)
             self.y = 1;
             assertExceptionThrown(@() self.createPolygon(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
-        
     end
 end

@@ -34,14 +34,15 @@ classdef TestRectangle < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createRectangle()
+        end
         
         function createRectangle(self)
-            self.shape = createRectangle(self.x, self.y, self.w, self.h);            
+            self.shape = createRectangle(self.x, self.y, self.w, self.h);
         end
         
         function testValidRectangle(self)
-            self.createRectangle();
-            
             assertTrue(isa(self.shape, 'omero.model.RectI'));
             assertEqual(self.shape.getX().getValue(), self.x);
             assertEqual(self.shape.getY().getValue(), self.y);
@@ -49,22 +50,14 @@ classdef TestRectangle < TestShape
             assertEqual(self.shape.getHeight().getValue(), self.h);
         end
         
-        function testShapeCoordinates(self)
-            self.createRectangle();
-            self.setShapeCoordinates();
-        end
-        
-        
         function testNegativeHeight(self)
             self.h = -1;
             assertExceptionThrown(@() self.createRectangle(), 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-                
+        
         function testNegativeWidth(self)
             self.w = -1;
             assertExceptionThrown(@() self.createRectangle(), 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
-        
     end
 end

@@ -32,27 +32,21 @@ classdef TestLine < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createLine();
+        end
         
         function createLine(self)
             self.shape = createLine(self.x, self.y);
         end
         
         function testSimpleLine(self)
-            self.createLine();
-            
             assertTrue(isa(self.shape, 'omero.model.LineI'));
             assertEqual(self.shape.getX1().getValue(), self.x(1));
             assertEqual(self.shape.getX2().getValue(), self.x(2));
             assertEqual(self.shape.getY1().getValue(), self.y(1));
             assertEqual(self.shape.getY2().getValue(), self.y(2));
         end
-        
-        
-        function testShapeCoordinates(self)
-            self.createLine();
-            self.setShapeCoordinates();
-        end
-        
         
         function testScalarX(self)
             self.x = 1;
@@ -77,6 +71,5 @@ classdef TestLine < TestShape
             assertExceptionThrown(@() self.createLine(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
     end
 end

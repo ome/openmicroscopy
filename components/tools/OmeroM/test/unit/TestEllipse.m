@@ -34,6 +34,9 @@ classdef TestEllipse < TestShape
             self = self@TestShape(name);
         end
         
+        function setUp(self)
+            self.createEllipse()
+        end
         
         function createEllipse(self, iscircle)
             if nargin<2 || ~iscircle
@@ -44,8 +47,6 @@ classdef TestEllipse < TestShape
         end
         
         function testSimpleEllipse(self)
-            self.createEllipse();
-            
             assertTrue(isa(self.shape, 'omero.model.EllipseI'));
             assertEqual(self.shape.getCx().getValue(), self.x);
             assertEqual(self.shape.getCy().getValue(), self.y);
@@ -61,13 +62,6 @@ classdef TestEllipse < TestShape
             assertEqual(self.shape.getCy().getValue(), self.y);
             assertEqual(self.shape.getRx().getValue(), self.rx);
             assertEqual(self.shape.getRy().getValue(), self.rx);
-            
-            self.setShapeCoordinates();
-        end
-        
-        function testShapeCoordinates(self)
-            self.createEllipse();
-            self.setShapeCoordinates();
         end
         
         function testNegativeRadiusX(self)
@@ -81,7 +75,5 @@ classdef TestEllipse < TestShape
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
-        
-        
     end
 end

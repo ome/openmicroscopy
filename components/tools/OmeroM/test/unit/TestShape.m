@@ -33,13 +33,18 @@ classdef TestShape < TestCase
         function self = TestShape(name)
             self = self@TestCase(name);
         end
-               
         
         % Shape coordinates test function
-        function setShapeCoordinates(self)
+        function testDefaultCoordinates(self)
+            if isempty(self.shape), return; end
+            
             assertTrue(isempty(self.shape.getTheZ()));
             assertTrue(isempty(self.shape.getTheC()));
             assertTrue(isempty(self.shape.getTheT()));
+        end
+        
+        function testNonEmptyCoordinates(self)
+            if isempty(self.shape), return; end
             
             setShapeCoordinates(self.shape, self.z, self.c, self.t);
             assertEqual(self.shape.getTheZ().getValue(), self.z);
@@ -47,5 +52,13 @@ classdef TestShape < TestCase
             assertEqual(self.shape.getTheT().getValue(), self.t);
         end
         
+        function testEmptyCoordinates(self)
+            if isempty(self.shape), return; end
+            
+            setShapeCoordinates(self.shape);
+            assertTrue(isempty(self.shape.getTheZ()));
+            assertTrue(isempty(self.shape.getTheC()));
+            assertTrue(isempty(self.shape.getTheT()));
+        end
     end
 end
