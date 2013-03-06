@@ -442,7 +442,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			isNetworkUp();
-			connected = true;
 			c.ping();
 		} catch (Exception e) {
 			handleConnectionException(e);
