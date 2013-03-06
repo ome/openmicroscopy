@@ -69,6 +69,24 @@ classdef TestMask < TestShape
             assertEqual(self.shape.getHeight().getValue(), self.h);
             assertEqual(self.shape.getBytes(), int8(self.mask(:)));
         end
+        
+        function testLogicalInput(self)
+            self.mask = logical(self.mask);
+            self.createMask();
+            
+            assertTrue(isa(self.shape, 'omero.model.MaskI'));
+            assertEqual(self.shape.getX().getValue(), self.x);
+            assertEqual(self.shape.getY().getValue(), self.y);
+            assertEqual(self.shape.getWidth().getValue(), self.w);
+            assertEqual(self.shape.getHeight().getValue(), self.h);
+            assertEqual(self.shape.getBytes(), int8(self.mask(:)));
+        end
+        
+        function testNullMask(self)
+            self.mask = ones(0,0);
+            assertExceptionThrown(@() self.createMask(),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
     end
 end
 

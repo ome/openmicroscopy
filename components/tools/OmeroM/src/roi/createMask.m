@@ -25,16 +25,17 @@ function mask = createMask(x, y, m)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-if nargin == 1, 
+if nargin == 1,
     mask = createMask(0, 0, x);
     return
 end
 
 % Check input
+isvalidmaskinput = @(x) (isnumeric(x) || islogical(x)) && numel(x) > 0;
 ip = inputParser;
 ip.addRequired('x', @isscalar);
 ip.addRequired('y', @isscalar);
-ip.addRequired('m', @isnumeric);
+ip.addRequired('m', isvalidmaskinput);
 ip.parse(x, y, m);
 
 % Create Mask shape
