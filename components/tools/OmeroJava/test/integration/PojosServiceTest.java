@@ -152,7 +152,7 @@ public class PojosServiceTest
         ids.add(p.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Project.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ProjectData project;
         Set<DatasetData> datasets;
@@ -160,13 +160,13 @@ public class PojosServiceTest
         DatasetData dataset;
         while (i.hasNext()) {
 			project = new  ProjectData((Project) i.next());
-			assertTrue(project.getId() == p.getId().getValue());
+			assertEquals(project.getId(), p.getId().getValue());
 			datasets = project.getDatasets();
-			assertTrue(datasets.size() == 1);
+			assertEquals(datasets.size(), 1);
 			j = datasets.iterator();
 			while (j.hasNext()) {
 				dataset = j.next();
-				assertTrue(dataset.getId() == d.getId().getValue());
+				assertEquals(dataset.getId(), d.getId().getValue());
 			}
 		}
     }
@@ -196,7 +196,7 @@ public class PojosServiceTest
         ids.add(p.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Screen.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -204,13 +204,13 @@ public class PojosServiceTest
         PlateData plate;
         while (i.hasNext()) {
 			screen = new  ScreenData((Screen) i.next());
-			assertTrue(screen.getId() == p.getId().getValue());
+			assertEquals(screen.getId(), p.getId().getValue());
 			plates = screen.getPlates();
-			assertTrue(plates.size() == 1);
+			assertEquals(plates.size(), 1);
 			j = plates.iterator();
 			while (j.hasNext()) {
 				plate = j.next();
-				assertTrue(plate.getId() == d.getId().getValue());
+				assertEquals(plate.getId(), d.getId().getValue());
 			}
 		}
     }
@@ -244,7 +244,7 @@ public class PojosServiceTest
         ids.add(p.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Screen.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -252,13 +252,13 @@ public class PojosServiceTest
         PlateData plate;
         while (i.hasNext()) {
 			screen = new  ScreenData((Screen) i.next());
-			assertTrue(screen.getId() == p.getId().getValue());
+			assertEquals(screen.getId(), p.getId().getValue());
 			plates = screen.getPlates();
-			assertTrue(plates.size() == 1);
+			assertEquals(plates.size(), 1);
 			j = plates.iterator();
 			while (j.hasNext()) {
 				plate = j.next();
-				assertTrue(plate.getId() == d.getId().getValue());
+				assertEquals(plate.getId(), d.getId().getValue());
 			}
 		}
     }
@@ -293,7 +293,7 @@ public class PojosServiceTest
 				count++;
 			}
 		}
-        assertTrue(count == 0);
+        assertEquals(count, 0);
     }
 
     /**
@@ -326,7 +326,7 @@ public class PojosServiceTest
 				count++;
 			}
 		}
-        assertTrue(count == 0);
+        assertEquals(count, 0);
     }
     
     /**
@@ -364,7 +364,7 @@ public class PojosServiceTest
 				}
 			}
 		}
-        assertTrue(value == 1);
+        assertEquals(value, 1);
     }
     
     /**
@@ -400,7 +400,7 @@ public class PojosServiceTest
 				}
 			}
 		}
-        assertTrue(value == 1);
+        assertEquals(value, 1);
     }
     
     /**
@@ -427,7 +427,7 @@ public class PojosServiceTest
         ids.add(d.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Dataset.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -437,7 +437,7 @@ public class PojosServiceTest
 			dataset = new  DatasetData((Dataset) i.next());
 			if (dataset.getId() == d.getId().getValue()) {
 				images = dataset.getImages();
-				assertTrue(images.size() == 1);
+				assertEquals(images.size(), 1);
 				j = images.iterator();
 				while (j.hasNext()) {
 					image = j.next();
@@ -445,7 +445,7 @@ public class PojosServiceTest
 							image.asImage().getDetails().getUpdateEvent());
 					assertTrue(
 					image.asImage().getDetails().getUpdateEvent().isLoaded());
-					assertTrue(image.getId() == img.getId().getValue());
+					assertEquals(image.getId(), img.getId().getValue());
 				}
 			} 
 		}
@@ -476,7 +476,7 @@ public class PojosServiceTest
         ids.add(d.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Dataset.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         DatasetData dataset;
         Set<ImageData> images;
@@ -487,7 +487,7 @@ public class PojosServiceTest
 			dataset = new  DatasetData((Dataset) i.next());
 			if (dataset.getId() == d.getId().getValue()) {
 				images = dataset.getImages();
-				assertTrue(images.size() == 1);
+				assertEquals(images.size(), 1);
 				j = images.iterator();
 				while (j.hasNext()) {
 					image = j.next();
@@ -520,12 +520,12 @@ public class PojosServiceTest
     	List<Long> ids = new ArrayList<Long>();
     	ids.add(d1.getId().getValue());
     	ids.add(d2.getId().getValue());
-    	Map m = iContainer.getCollectionCount(Dataset.class.getName(), 
+    	Map m = iContainer.getCollectionCount(Dataset.class.getName(),
     			DatasetData.IMAGE_LINKS, ids, p);
     	Long v = (Long) m.get(d1.getId().getValue());
-    	assertTrue(v.longValue() == 1);
+    	assertEquals(v.longValue(), 1);
     	v = (Long) m.get(d2.getId().getValue());
-    	assertTrue(v.longValue() == 0);
+    	assertEquals(v.longValue(), 0);
     }
     
     /**
@@ -559,12 +559,12 @@ public class PojosServiceTest
 				count++;
 				
 		}
-    	assertTrue(count == 1);
+    	assertEquals(count, 1);
     	param = new ParametersI();
     	param.exp(rlong(fixture.e.getId().getValue()));
     	images = iContainer.getImages(Dataset.class.getName(), ids, 
     			param);
-    	assertTrue(images.size() == 0);
+    	assertEquals(images.size(), 0);
     }
 
     /**
@@ -602,12 +602,12 @@ public class PojosServiceTest
 				count++;
 			}	
 		}
-    	assertTrue(count == 1);
+    	assertEquals(count, 1);
     	param = new ParametersI();
     	param.exp(rlong(fixture.e.getId().getValue()));
     	images = iContainer.getImages(Dataset.class.getName(), ids, 
     			param);
-    	assertTrue(images.size() == 0);
+    	assertEquals(images.size(), 0);
     }
 
     /**
@@ -642,7 +642,7 @@ public class PojosServiceTest
 		param.map.put("parentID", d.getId());
 		param.map.put("childID", i1.getId());
     	List l = iQuery.findAllByQuery(sql, param);
-    	assertTrue(l.size() == 1);
+    	assertEquals(l.size(), 1);
     }
     
     /**
@@ -734,12 +734,12 @@ public class PojosServiceTest
 		List<Image> images = f.getContainerService().getImages(
 				Dataset.class.getName(), ids, p);
 		assertNotNull(images);
-		assertTrue(images.size() == 1);
+		assertEquals(images.size(), 1);
 		Iterator<Image> i = images.iterator();
 		
 		//Should only retrieve images from group2 
 		while (i.hasNext()) {
-			assertTrue(i.next().getId().getValue() == image2.getId().getValue());
+			assertEquals(i.next().getId().getValue(), image2.getId().getValue());
 		}
 		
 		client.getSession().setSecurityContext(
@@ -747,12 +747,12 @@ public class PojosServiceTest
 		images = f.getContainerService().getImages(
 				Dataset.class.getName(), ids, p);
 		assertNotNull(images);
-		assertTrue(images.size() == 1);
+		assertEquals(images.size(), 1);
 		i = images.iterator();
 		
 		//Should only retrieve images from group2 
 		while (i.hasNext()) {
-			assertTrue(i.next().getId().getValue() == image1.getId().getValue());
+			assertEquals(i.next().getId().getValue(), image1.getId().getValue());
 		}
     }
     
@@ -793,9 +793,9 @@ public class PojosServiceTest
     	//Should have one project.
     	List results = iContainer.findContainerHierarchies(
         		Project.class.getName(), ids, param);
-    	assertTrue(results.size() == 1);
+    	assertEquals(results.size(), 1);
     	Image pp = (Image) results.get(0);
-    	assertTrue(pp.getId().getValue() == i.getId().getValue());
+    	assertEquals(pp.getId().getValue(), i.getId().getValue());
     }
     
     /**
@@ -825,7 +825,7 @@ public class PojosServiceTest
     	   if (p.getId().getValue() == object.getId().getValue())
     		   value++;
        }
-       assertTrue(value == 0);
+       assertEquals(value, 0);
     }
     
     /**
@@ -855,7 +855,7 @@ public class PojosServiceTest
     	   if (p.getId().getValue() == object.getId().getValue())
     		   value++;
        }
-       assertTrue(value == 0);
+       assertEquals(value, 0);
     }
 
     /**
@@ -895,8 +895,8 @@ public class PojosServiceTest
 				count++;
 			}
 		}
-		assertTrue(result.size() == count);
-		assertTrue(value == 1);
+		assertEquals(result.size(), count);
+		assertEquals(value, 1);
 		//
 		gc = new GregorianCalendar(gc.get(Calendar.YEAR), 
 				gc.get(Calendar.MONTH), 
@@ -906,7 +906,7 @@ public class PojosServiceTest
 		po.leaves();
 		po.startTime(omero.rtypes.rtime(startTime));
 		result = iContainer.getImagesByOptions(po);
-		assertTrue(result.size() == 0);
+		assertEquals(result.size(), 0);
     } 
 
     /**
@@ -1004,15 +1004,15 @@ public class PojosServiceTest
 		//Check if acquisition data are loaded.
 		Image test = (Image) results.get(0);
 		assertNotNull(test);
-		assertTrue(test.getId().getValue() == image.getId().getValue());
+		assertEquals(test.getId().getValue(), image.getId().getValue());
 		assertNotNull(test.getObjectiveSettings());
 		assertNotNull(test.getImagingEnvironment());
 		assertNotNull(test.getStageLabel());
-		assertTrue(test.getObjectiveSettings().getId().getValue() == 
+		assertEquals(test.getObjectiveSettings().getId().getValue(),
 			settings.getId().getValue());
-		assertTrue(test.getImagingEnvironment().getId().getValue() == 
+		assertEquals(test.getImagingEnvironment().getId().getValue(),
 			env.getId().getValue());
-		assertTrue(test.getStageLabel().getId().getValue() == 
+		assertEquals(test.getStageLabel().getId().getValue(),
 			label.getId().getValue());
     }
     
@@ -1057,7 +1057,7 @@ public class PojosServiceTest
         ids.add(p.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Project.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ProjectData project;
         Set<DatasetData> datasets;
@@ -1154,7 +1154,7 @@ public class PojosServiceTest
         ids.add(s.getId().getValue());
         List results = iContainer.loadContainerHierarchy(
         		Screen.class.getName(), ids, param);
-        assertTrue(results.size() == 1);
+        assertEquals(results.size(), 1);
         Iterator i = results.iterator();
         ScreenData screen;
         Set<PlateData> plates;
@@ -1335,5 +1335,64 @@ public class PojosServiceTest
             		Dataset.class.getName(), ids, param);
         	fail("Only Project type is supported.");
 		} catch (Exception e) {}
+    }
+    
+    /**
+     * Test to load container hierarchy with no plate specified
+     * loaded
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyNoPlateSpecified() 
+    	throws Exception 
+    {
+    	//first create a screen
+    	long self = factory.getAdminService().getEventContext().userId;
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	Plate p2 = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	ParametersI param = new ParametersI();
+    	param.exp(omero.rtypes.rlong(self));
+        List results = iContainer.loadContainerHierarchy(
+        		Plate.class.getName(), new ArrayList(), param);
+        assertTrue(results.size() > 0);
+        Iterator i = results.iterator();
+        int count = 0;
+        IObject object;
+        while (i.hasNext()) {
+        	object = (IObject) i.next();
+			if (!(object instanceof Plate)) {
+				count++;
+			}
+		}
+        assertEquals(count, 0);
+    }
+    
+    /**
+     * Test to load container hierarchy with plate specified.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyPlateSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Plate.class.getName(), ids, param);
+        assertEquals(results.size(), 1);
+        Iterator i = results.iterator();
+        PlateData plate;
+        while (i.hasNext()) {
+			plate = new  PlateData((Plate) i.next());
+			assertEquals(plate.getId(), p.getId().getValue());
+		}
     }
 }
