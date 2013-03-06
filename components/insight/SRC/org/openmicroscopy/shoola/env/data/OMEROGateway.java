@@ -2255,12 +2255,15 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @param name  The user's name.
+	 * @param connectionError Pass <code>true</code> to handle the connection 
+	 * error, <code>false</code> otherwise.
 	 * @return The {@link ExperimenterData} of the current user.
 	 * @throws DSOutOfServiceException If the connection is broken, or
 	 * logged in.
 	 * @see IPojosPrx#getUserDetails(Set, Map)
 	 */
-	ExperimenterData getUserDetails(SecurityContext ctx, String name)
+	ExperimenterData getUserDetails(SecurityContext ctx, String name,
+			boolean connectionError)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
@@ -2269,7 +2272,7 @@ class OMEROGateway
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
-			handleConnectionException(e);
+			if (connectionError) handleConnectionException(e);
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
 		}
@@ -2381,7 +2384,7 @@ class OMEROGateway
 					connector = new Connector(ctx, secureClient, entryEncrypted,
 							encrypted);
 					connectors.add(connector);
-					exp = getUserDetails(ctx, userName);
+					exp = getUserDetails(ctx, userName, true);
 				} catch (Exception e) {
 				}
 			}
