@@ -110,6 +110,9 @@ class DataBrowserComponent
 
 	/** The maximum number of entries before switching to the table view. */
 	private static final String MAX_ENTRIES = "/views/MAX_ENTRIES";
+
+	/* The filtering message to display in modal dialogs. */
+	private static final String FILTERING_MSG = "Currently filtering data. Please wait.";
 	
 	/** The Model sub-component. */
 	private DataBrowserModel     model;
@@ -291,16 +294,29 @@ class DataBrowserComponent
 			setSelectedDisplay(nodes.get(0));
 			return;
 		}
+		
+		final List<ImageNode> visibleNodes = model.getBrowser().getVisibleImageNodes();
+		final List<Long> visibleObjectIds = new ArrayList<Long>(visibleNodes.size());
+		for (final ImageNode visibleNode : visibleNodes) {
+			final Object hierarchyObject = visibleNode.getHierarchyObject();
+			if (hierarchyObject instanceof ImageData)
+				visibleObjectIds.add(((ImageData) hierarchyObject).getId());
+		}
+		
 		List<Object> others = new ArrayList<Object>();
 		List<Object> objects = new ArrayList<Object>();
+		objects.add(others);
+		
+		for (final ImageDisplay node : nodes) {
+			final Object hierarchyObject = node.getHierarchyObject();
+			if (!(hierarchyObject instanceof ImageData) ||
+				visibleObjectIds.contains(((ImageData) hierarchyObject).getId()))
+				others.add(hierarchyObject);
+		}
 		
 		ImageDisplay node = nodes.get(0);
 		Object object = node.getHierarchyObject();
-		Iterator<ImageDisplay> i = nodes.iterator();
-		while (i.hasNext()) {
-			others.add(i.next().getHierarchyObject());
-		}
-		objects.add(others);
+		
 		if (object instanceof DataObject) {
 			Object parent = null;
 			if (object instanceof WellSampleData) {
@@ -422,7 +438,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -456,7 +472,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -507,7 +523,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filtering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}		
 		Browser browser = model.getBrowser();
@@ -573,7 +589,7 @@ class DataBrowserComponent
 		}
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		if (context.isNameOnly()) {
@@ -1051,7 +1067,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -1071,7 +1087,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();

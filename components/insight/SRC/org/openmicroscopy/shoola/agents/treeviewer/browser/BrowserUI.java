@@ -183,7 +183,7 @@ class BrowserUI
     private long eventHandledTime = Long.MIN_VALUE;
     
     /* If a mouse event delayed handling tree selection, because
-     * a corresponding tree selection event has not yet been seen. */
+     * a corresponding tree selection event had not yet been seen. */
     private boolean delayedHandlingTreeSelection = false;
     
     /** Flag indicating if it is a right-click.*/
@@ -220,7 +220,6 @@ class BrowserUI
     	return bar;
     }
     
-
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
