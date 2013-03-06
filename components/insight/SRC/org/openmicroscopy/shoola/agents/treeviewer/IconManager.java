@@ -811,7 +811,7 @@ public class IconManager
         relPaths[SCREEN_ANNOTATED_TO_REFRESH_NOT_OWNED] =
         "nuvola_folder_blue_open_modified_screen_annotated_reload_notowned16.png";
         relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] =
-        	"tagged_project_darkblue_reload_notowned16.png";
+        	"tagged_project_darkblue_annotated_reload_notowned16.png";
         relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] =
         		"tagged_dataset_reload_notowned16.png";
 
