@@ -361,6 +361,7 @@ class HdfStorage(object):
 
     @locked
     def append(self, cols):
+        self.__initcheck()
         # Optimize!
         arrays = []
         dtypes = []
@@ -387,6 +388,7 @@ class HdfStorage(object):
 
     @stamped
     def update(self, stamp, data):
+        self.__initcheck()
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
