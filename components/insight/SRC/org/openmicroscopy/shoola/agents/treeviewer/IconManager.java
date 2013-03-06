@@ -813,7 +813,7 @@ public class IconManager
         relPaths[PROJECT_ANNOTATED_TO_REFRESH_NOT_OWNED] =
         	"tagged_project_darkblue_reload_notowned16.png";
         relPaths[DATASET_ANNOTATED_TO_REFRESH_NOT_OWNED] =
-        		"tagged_dataset_reloadnotowned16.png";
+        		"tagged_dataset_reload_notowned16.png";
 
         relPaths[PROJECT_ANNOTATED_NOT_OWNED] =
         		"tagged_project_darkblue_notowned16.png";
