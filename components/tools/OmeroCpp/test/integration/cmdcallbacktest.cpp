@@ -74,10 +74,13 @@ public:
         event.set();
     }
 
-    void assertSteps(int expected) {
+    void assertSteps() {
         IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(expected, steps);
-
+        
+        // Not guranteed to get called for all steps, as the callback can
+        // get added on the server after the operation has already started
+        // if there is network latency
+        ASSERT_GE(steps, 1);
     }
 
     void assertFinished(int expectedSteps = -1) {
@@ -103,9 +106,7 @@ public:
              << "params:" << ss << "\n";
         }
 
-        if (expectedSteps >= 0) {
-            assertSteps(expectedSteps);
-        }
+        assertSteps();
     }
 
     void assertCancelled() {
@@ -162,21 +163,21 @@ TEST(CmdCallbackTest, testTimingFinishesOnLatch) {
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->event.wait(IceUtil::Time::milliSeconds(1500));
     ASSERT_EQ(1, cb->finished);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testTimingFinishesOnBlock) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->block(1500);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testTimingFinishesOnLoop) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->loop(3, 500);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testDoNothingFinishesOnLatch) {
