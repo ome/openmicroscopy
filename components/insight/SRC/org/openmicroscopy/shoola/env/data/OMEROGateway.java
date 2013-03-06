@@ -937,7 +937,7 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		if (networkup) return true;
+		//if (networkup) return true;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
