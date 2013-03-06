@@ -19,9 +19,6 @@
 
 package ome.util.checksum;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -29,6 +26,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import ome.util.Utils;
+
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
 
 /**
  * Abstract skeleton class implementing {@link ChecksumProvider} and providing
@@ -42,10 +42,12 @@ import ome.util.Utils;
  */
 public class AbstractChecksumProvider implements ChecksumProvider {
 
+    private final HashFunction hashFunction;
+
+    private Hasher hasher;
+
     // Array size for buffered file reads
     private static final int BYTEARRAYSIZE = 8192;
-
-    private final HashFunction hashFunction;
 
     /**
      * Protected ctor. There should not be an instance of this class.
@@ -53,24 +55,38 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      */
     protected AbstractChecksumProvider(HashFunction hashFunction) {
         this.hashFunction = hashFunction;
+        this.hasher = this.hashFunction.newHasher();
     }
 
     /**
-     * @see ChecksumProvider#getChecksum(byte[])
+     * @see ChecksumProvider#putBytes(byte[])
      */
-    public byte[] getChecksum(byte[] byteArray) {
-        return hashFunction.newHasher().putBytes(byteArray).hash().asBytes();
+    public ChecksumProvider putBytes(byte[] byteArray) {
+        this.hasher.putBytes(byteArray);
+        return this;
     }
 
     /**
-     * @see ChecksumProvider#getChecksum(String)
+     * @see ChecksumProvider#putBytes(ByteBuffer)
      */
-    public byte[] getChecksum(String fileName) {
+    public ChecksumProvider putBytes(ByteBuffer byteBuffer) {
+        if (byteBuffer.hasArray()) {
+            this.hasher.putBytes(byteBuffer.array());
+            return this;
+        } else {
+            throw new IllegalArgumentException("Supplied ByteBuffer has " +
+                    "inaccessible array.");
+        }
+    }
+
+    /**
+     * @see ChecksumProvider#putBytes(String)
+     */
+    public ChecksumProvider putBytes(String filePath) {
         FileInputStream fis = null;
         FileChannel fch = null;
-        Hasher hasher = this.hashFunction.newHasher();
         try {
-            fis = new FileInputStream(fileName);
+            fis = new FileInputStream(filePath);
             fch = fis.getChannel();
             MappedByteBuffer mbb = fch.map(FileChannel.MapMode.READ_ONLY, 0L,
                     fch.size());
@@ -79,9 +95,9 @@ public class AbstractChecksumProvider implements ChecksumProvider {
             while (mbb.hasRemaining()) {
                 byteCount = Math.min(mbb.remaining(), BYTEARRAYSIZE);
                 mbb.get(byteArray, 0, byteCount);
-                hasher.putBytes(byteArray, 0, byteCount);
+                this.hasher.putBytes(byteArray, 0, byteCount);
             }
-            return hasher.hash().asBytes();
+            return this;
         } catch (IOException io) {
             throw new RuntimeException(io);
         } finally {
@@ -90,17 +106,27 @@ public class AbstractChecksumProvider implements ChecksumProvider {
         }
     }
 
+    public ChecksumProvider reset() {
+        this.hasher = this.hashFunction.newHasher();
+        return this;
+    }
+
     /**
-     * @see ChecksumProvider#getChecksum(ByteBuffer)
+     * @see ChecksumProvider#toByteChecksum()
      */
-    public byte[] getChecksum(ByteBuffer byteBuffer) {
-        if (byteBuffer.hasArray()) {
-            return this.hashFunction.newHasher().putBytes(byteBuffer.array())
-                    .hash().asBytes();
-        } else {
-            throw new IllegalArgumentException("Supplied ByteBuffer has " +
-                    "inaccessible array.");
-        }
+    public byte[] toByteChecksum() {
+        byte[] result = this.hasher.hash().asBytes();
+        this.reset();
+        return result;
+    }
+
+    /**
+     * @see ChecksumProvider#toStringChecksum()
+     */
+    public String toStringChecksum() {
+        String result = Utils.bytesToHex(this.hasher.hash().asBytes());
+        this.reset();
+        return result;
     }
 
 }
