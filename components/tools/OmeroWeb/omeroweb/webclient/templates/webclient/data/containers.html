@@ -558,6 +558,8 @@
                                     return false;
                                 if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
                                     return false;
+                                if (!m.cr.hasClass("canLink"))
+                                    return false;
                                 return true;
                             }
                         }
