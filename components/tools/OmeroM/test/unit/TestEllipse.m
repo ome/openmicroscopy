@@ -75,5 +75,17 @@ classdef TestEllipse < TestShape
             assertExceptionThrown(@() self.createEllipse(),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
+        
+        function testZeroRadiusX(self)
+            self.rx = 0;
+            assertExceptionThrown(@() self.createEllipse(),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        function testZeroRadiusY(self)
+            self.ry = 0;
+            assertExceptionThrown(@() self.createEllipse(),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
     end
 end
