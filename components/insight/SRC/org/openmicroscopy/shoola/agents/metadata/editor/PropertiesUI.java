@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import info.clearthought.layout.TableLayout;
-import info.clearthought.layout.TableLayoutConstraints;
 
 import java.awt.Component;
 import java.awt.Container;
