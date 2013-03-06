@@ -2572,16 +2572,13 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		connected = false;
-		clear();
-		
-		Iterator<Connector> i;
-		try {
-			i = connectors.iterator();
-			while (i.hasNext()) {
+		Iterator<Connector> i = connectors.iterator();
+		while (i.hasNext()) {
+			try {
 				i.next().close(networkup);
+			} catch (Throwable t) {
+				connected = false;
 			}
-		} catch (Throwable t) {
-			connected = false;
 		}
 		if (!networkup) return false;
 		if (connected) return connected;
