@@ -67,6 +67,9 @@ public class ConnectionExceptionHandler
 	/** String identifying the connection refused exception.*/
 	private static final String REFUSED = "Ice::ConnectionRefusedException";
 	
+	/** String identifying the connection lost exception.*/
+	private static final String LOST = "Ice::ConnectionLostException";
+
 	/**
 	 * Handles the <code>Ice.UnknownException</code>.
 	 * Returns the index depending on the unknown message.
@@ -80,6 +83,8 @@ public class ConnectionExceptionHandler
 		UnknownException ex = (UnknownException) e;
 		if (ex.unknown.contains(REFUSED))
 			index = SERVER_OUT_OF_SERVICE;
+		else if (ex.unknown.contains(LOST))
+			index = LOST_CONNECTION;
 		return index;
 	}
 	
