@@ -7407,6 +7407,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return fCount
         return self.countArchivedFiles()
 
+    def getArchivedFiles (self):
+        """
+        Returns a generator of L{OriginalFileWrapper}s corresponding to the archived files linked to primary pixels
+        ** Deprecated ** Use L{getImportedImageFiles}.
+        """
+        return self.getImportedImageFiles()
+
     def getImportedImageFiles (self):
         """
         Returns a generator of L{OriginalFileWrapper}s corresponding to the Imported image
