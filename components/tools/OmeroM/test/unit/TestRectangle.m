@@ -59,5 +59,15 @@ classdef TestRectangle < TestShape
             self.w = -1;
             assertExceptionThrown(@() self.createRectangle(), 'MATLAB:InputParser:ArgumentFailedValidation');
         end
+        
+        function testZeroHeight(self)
+            self.h = 0;
+            assertExceptionThrown(@() self.createRectangle(), 'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        function testZeroWidth(self)
+            self.w = 0;
+            assertExceptionThrown(@() self.createRectangle(), 'MATLAB:InputParser:ArgumentFailedValidation');
+        end
     end
 end
