@@ -52,13 +52,46 @@ classdef TestShape < TestCase
             assertEqual(self.shape.getTheT().getValue(), self.t);
         end
         
-        function testEmptyCoordinates(self)
+        function testEmptyInput(self)
             if isempty(self.shape), return; end
             
             setShapeCoordinates(self.shape);
             assertTrue(isempty(self.shape.getTheZ()));
             assertTrue(isempty(self.shape.getTheC()));
             assertTrue(isempty(self.shape.getTheT()));
+        end
+        
+        function testEmptyCoordinates(self)
+            if isempty(self.shape), return; end
+            
+            setShapeCoordinates(self.shape, [], [], []);
+            assertTrue(isempty(self.shape.getTheZ()));
+            assertTrue(isempty(self.shape.getTheC()));
+            assertTrue(isempty(self.shape.getTheT()));
+        end
+        
+        function testNegativeZ(self)
+            if isempty(self.shape), return; end
+            
+            f = @() setShapeCoordinates(self.shape, -1, self.c, self.t);
+            assertExceptionThrown(f,...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        function testNegativeC(self)
+            if isempty(self.shape), return; end
+            
+            f = @() setShapeCoordinates(self.shape, self.z, -1, self.t);
+            assertExceptionThrown(f,...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+        end
+        
+        function testNegativeT(self)
+            if isempty(self.shape), return; end
+            
+            f = @() setShapeCoordinates(self.shape, self.z, self.c, -1);
+            assertExceptionThrown(f,...
+                'MATLAB:InputParser:ArgumentFailedValidation');
         end
     end
 end
