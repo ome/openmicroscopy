@@ -152,9 +152,9 @@
 
         OME.remove_nodes = function(tree, selected) {
             if (selected.length>0) {
-                var images = selected.filter('li[id|=image]');
-                var datasets = selected.filter('li[id|=dataset]');
-                var plates = selected.filter('li[id|=plate]');
+                var images = selected.filter('li[id*=image]');      // id='copy_image-123' if just pasted
+                var datasets = selected.filter('li[id*=dataset]');
+                var plates = selected.filter('li[id*=plate]');
                 var removeTxt = "Remove ";
                 if (images.length > 0) {
                     removeTxt += images.length + " Image" + ((images.length>1) && "s from their" || " from its") +" Dataset";
