@@ -292,6 +292,28 @@ class TestTables(lib.ITest):
 
         self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
 
+    def test9971checkStringLength(self):
+        """
+        Throw an error when an attempt is made to insert a string column
+        wider than the StringColumn size
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
+        table.initialize([scol])
+
+        # 3 characters should work, 4 should cause an error
+        scol.values = ['abc']
+        table.addData([scol])
+        data = table.readCoordinates(range(table.getNumberOfRows()))
+        self.assertEquals(['abc'], data.columns[0].values)
+        scol.values = ['abcd']
+        self.assertRaises(omero.ValidationException, table.addData, [scol])
+
+
     def testArrayColumn(self):
         """
         A table containing only an array column
@@ -446,6 +468,24 @@ class TestTables(lib.ITest):
         testla2 = data2.columns[10].values
         self.assertEquals([-2, -1], testla2[0])
         self.assertEquals([654, 321], testla2[1])
+
+
+    def test10431uninitialisedTableReadWrite(self):
+        """
+        Return an error when attempting to read/write an uninitialised table
+        """
+        grid = self.client.sf.sharedResources()
+        repoMap = grid.repositories()
+        repoObj = repoMap.descriptions[0]
+        table = grid.newTable(repoObj.id.val, "/test")
+        self.assert_( table )
+        lcol = omero.columns.LongColumnI('longcol', 'long col')
+
+        self.assertRaises(omero.ApiUsageException, table.addData, [lcol])
+        self.assertRaises(omero.ApiUsageException, table.read, [0], 0, 0)
+        self.assertRaises(omero.ApiUsageException, table.slice, [], [])
+        self.assertRaises(omero.ApiUsageException, table.getWhereList,
+                          '', None, 0, 0, 0)
 
 
     # TODO: Add tests for error conditions

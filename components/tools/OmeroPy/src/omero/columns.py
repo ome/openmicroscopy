@@ -223,6 +223,17 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
         AbstractColumn.settable(self, tbl)
         self.size = getattr(tbl.cols, self.name).dtype.itemsize
 
+    def arrays(self):
+        """
+        Check for strings longer than the initialised column width
+        """
+        for v in self.values:
+            if len(v) > self.size:
+                raise omero.ValidationException(
+                    None, None, "Maximum string length in column %s is %d" %
+                    (self.name, self.size))
+        return [self.values]
+
     def dtypes(self):
         """
         Overriding to correct for size.
@@ -233,9 +244,12 @@ class StringColumnI(AbstractColumn, omero.grid.StringColumn):
 
     def descriptor(self, pos):
         # During initialization, size might be zero
-        # to prevent exceptions we set it to 1
-        if not self.size or self.size < 0:
-            self.size = 1
+        # to prevent exceptions we temporarily assume size 1
+        if pos is None:
+            return tables.StringCol(pos=pos, itemsize=1)
+        if self.size < 1:
+            raise omero.ApiUsageException(
+                None, None, "String size must be > 0 (Column: %s)" % self.name)
         return tables.StringCol(pos=pos, itemsize=self.size)
 
 class AbstractArrayColumn(AbstractColumn):
