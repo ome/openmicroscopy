@@ -50,7 +50,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.border.Border;
@@ -1333,10 +1332,15 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @return see above.
 	 */
 	private DataNode getSelectedItem(JComboBox comboBox) {
-		Object selectedItem = comboBox.getSelectedItem();
-		if(selectedItem == null)
-			return null;
-		return ((Selectable<DataNode>) selectedItem).getObject();
+		Object compareItem = comboBox.getSelectedItem();
+		if(compareItem instanceof Selectable<?>)
+		{
+			Selectable<?> selectable = (Selectable<?>) compareItem;
+			Object innerItem = selectable.getObject();
+			if(innerItem instanceof DataNode)
+				return (DataNode) innerItem;
+		}
+		return null;
 	}
 	
 	/**
