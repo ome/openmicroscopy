@@ -2577,7 +2577,7 @@ class OMEROGateway
 			try {
 				i.next().close(networkup);
 			} catch (Throwable t) {
-				connected = false;
+				//no need to handle exception.
 			}
 		}
 		if (!networkup) return false;
