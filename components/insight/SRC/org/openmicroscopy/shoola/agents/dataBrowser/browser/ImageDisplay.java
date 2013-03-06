@@ -223,7 +223,7 @@ public abstract class ImageDisplay
      * 
      * @return A <i>read-only</i> set containing all the child nodes.
      */
-    public Set getChildrenDisplay() 
+    public Set<ImageDisplay> getChildrenDisplay() 
     { 
         return Collections.unmodifiableSet(childrenDisplay);
     }
@@ -387,19 +387,19 @@ public abstract class ImageDisplay
         if (!checkAlgoType(algoType))
             throw new IllegalArgumentException("Algorithm not supported.");
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        Iterator i = childrenDisplay.iterator();
+        Iterator<ImageDisplay> i = childrenDisplay.iterator();
         ImageDisplay child;
         switch (algoType) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
+                    child = i.next();
                     child.accept(visitor, algoType);
                 }
                 if (this instanceof ImageNode) doAccept(visitor);
                 break;
             case ImageDisplayVisitor.IMAGE_SET_ONLY:
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
+                    child = i.next();
                     if (child instanceof ImageSet)
                         child.accept(visitor, algoType);
                 }
@@ -408,7 +408,7 @@ public abstract class ImageDisplay
             case ImageDisplayVisitor.ALL_NODES:
             	//doAccept(visitor);
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
+                    child = i.next();
                     child.accept(visitor, algoType);
                 }
                 doAccept(visitor);

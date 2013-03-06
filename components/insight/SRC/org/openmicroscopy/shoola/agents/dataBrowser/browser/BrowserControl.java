@@ -37,6 +37,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +49,7 @@ import javax.swing.SwingUtilities;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.SelectionVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RowSelectionVisitor;
@@ -559,7 +561,15 @@ class BrowserControl
 			view.accept(visitor);
 			shiftDown = me.isShiftDown();
 			if (!shiftDown) source = null;
-			model.setSelectedDisplays(visitor.getSelected());
+			final List<ImageDisplay> selectedDisplays = new ArrayList<ImageDisplay>();
+			final List<ImageNode> visibleNodes = model.getVisibleImageNodes();
+			final Colors colors = Colors.getInstance();
+			for (final ImageDisplay node : visitor.getSelected())
+			    if (visibleNodes.contains(node))
+			        selectedDisplays.add(node);
+			    else
+			        node.setHighlight(colors.getDeselectedHighLight(node));
+			model.setSelectedDisplays(selectedDisplays);
 			return;
 		}
     	source = null;
