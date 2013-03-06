@@ -182,6 +182,9 @@ class BrowserUI
     /* The time when the latest tree selection event was handled. */
     private long eventHandledTime = Long.MIN_VALUE;
     
+    /* The time when the latest mouse press event occurred. */
+    private long mousePressedTime;
+    
     /* If a mouse event delayed handling tree selection, because
      * a corresponding tree selection event has not yet been seen. */
     private boolean delayedHandlingTreeSelection = false;
@@ -355,7 +358,7 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                if (me.getWhen() > eventHandledTime)
+                if (mousePressedTime > eventHandledTime)
                 	/* have not yet seen the tree selection event */
                 	delayedHandlingTreeSelection = true;
                 else
@@ -410,7 +413,7 @@ class BrowserUI
     }
     
     /**
-     * Handles the mouse moved event. Displays the properties fo the
+     * Handles the mouse moved event. Displays the properties of the
      * the nodes the mouse is over.
      * 
      * @param e	The mouse event to handle.
@@ -976,9 +979,10 @@ class BrowserUI
         //treeDisplay.requestFocus();
         treeDisplay.addMouseListener(new MouseAdapter() {
            public void mousePressed(MouseEvent e)
-           { 
-        	   rightClickPad = UIUtilities.isMacOS() && 
-				SwingUtilities.isLeftMouseButton(e) && e.isControlDown();
+           {
+        	   mousePressedTime = e.getWhen();
+        	   rightClickPad = UIUtilities.isMacOS() &&
+        	           SwingUtilities.isLeftMouseButton(e) && e.isControlDown();
         	   rightClickButton = SwingUtilities.isRightMouseButton(e);
         	   ctrl = e.isControlDown();
         	   if (UIUtilities.isMacOS()) ctrl = e.isMetaDown();
