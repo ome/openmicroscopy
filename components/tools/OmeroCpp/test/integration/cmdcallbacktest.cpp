@@ -170,7 +170,6 @@ TEST(CmdCallbackTest, testTimingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->event.wait(IceUtil::Time::milliSeconds(1500));
-    ASSERT_EQ(1, cb->finished);
     cb->assertFinished();
 }
 
