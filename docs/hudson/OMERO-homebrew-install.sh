@@ -11,6 +11,7 @@ export BREW_DIR=${BREW_DIR:-/usr/local}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
+export BREW_OPTS=${BREW_OPTS:-}
 
 ###################################################################
 # Homebrew & pip uninstallation
@@ -97,7 +98,7 @@ cd $BREW_DIR
 ###################################################################
 
 # Install Bio-Formats
-bin/brew install bioformats
+bin/brew install bioformats $BREW_OPTS
 showinf -version
 
 ###################################################################
@@ -105,7 +106,7 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero
+bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
 # Install additional Python dependencies
