@@ -44,7 +44,6 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -125,13 +124,13 @@ class BrowserModel
 	{
 	    if (node instanceof ImageNode) return;
 	    JComponent desktop = node.getInternalDesktop();
-	    Collection children = node.getChildrenDisplay();
+	    Collection<ImageDisplay> children = node.getChildrenDisplay();
 	    if (children == null) return;
 	    //desktop.removeAll();
-	    Iterator i = children.iterator();
+	    Iterator<ImageDisplay> i = children.iterator();
 	    ImageDisplay child;
 	    while (i.hasNext()) {
-	        child = (ImageDisplay) i.next();
+	        child = i.next();
 	        if (!node.containsImages()) addToDesktop(child);
 	        else desktop.add(child);
 	    }
@@ -143,11 +142,11 @@ class BrowserModel
 	 * @param toSelect		The collection of selected nodes.
 	 * @param toDeselect	The collection of deselected nodes.
 	 */
-	private void setNodesColor(Collection toSelect, Collection toDeselect)
+	private void setNodesColor(Collection<ImageDisplay> toSelect, Collection<ImageDisplay> toDeselect)
     {
     	//paint the nodes
         Colors colors = Colors.getInstance();
-        Iterator i;
+        Iterator<ImageDisplay> i;
         ImageDisplay node;
         ImageDisplay primary = null;
         if (selectedDisplays.size() > 0) primary = selectedDisplays.get(0);
@@ -155,7 +154,7 @@ class BrowserModel
         if (toDeselect != null && toDeselect.size() > 0) {
         	i = toDeselect.iterator();
             while (i.hasNext()) {
-            	node = (ImageDisplay) i.next();
+            	node = i.next();
             	if (node != null) {
             		if (toSelect != null) {
             			if (!toSelect.contains(node))
@@ -169,7 +168,7 @@ class BrowserModel
         if (toSelect != null && toSelect.size() > 0) {
         	 i = toSelect.iterator();
              while (i.hasNext()) {
-     			node = (ImageDisplay) i.next();
+     			node = i.next();
      			node.setHighlight(colors.getSelectedHighLight(node, 
      					isSameNode(node, primary)));
      		}
@@ -217,12 +216,8 @@ class BrowserModel
 	    if (view == null) throw new NullPointerException("No view.");
 	    rootDisplay = view;
 	    selectedDisplays = new ArrayList<ImageDisplay>();
-	    originalNodes = new HashSet<ImageDisplay>();
+	    originalNodes = new HashSet<ImageDisplay>(rootDisplay.getChildrenDisplay());
 	    titleBarVisible = true;
-	    Collection nodes = rootDisplay.getChildrenDisplay();
-	    Iterator i = nodes.iterator();
-	    while (i.hasNext()) 
-			originalNodes.add((ImageDisplay) i.next());
 	}
 	
     /**
@@ -231,7 +226,7 @@ class BrowserModel
      * @param newNode The selected node.
      * @param nodes   The previously selected nodes.
      */
-    void onNodeSelected(ImageDisplay newNode, Set nodes)
+    void onNodeSelected(ImageDisplay newNode, Set<ImageDisplay> nodes)
     {
         if (newNode == null) return;
         rootDisplay.setTitle(currentPathString(newNode));
@@ -326,19 +321,19 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getRootNodes()
 	 */
-	public Collection getRootNodes() { return rootDisplay.getChildrenDisplay(); }
+	public Collection<ImageDisplay> getRootNodes() { return rootDisplay.getChildrenDisplay(); }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDisplays()
 	 */
-	public Collection getSelectedDisplays() { return selectedDisplays; }
+	public Collection<ImageDisplay> getSelectedDisplays() { return selectedDisplays; }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDataObjects()
 	 */
-	public Collection getSelectedDataObjects()
+	public Collection<DataObject> getSelectedDataObjects()
 	{ 
 		if (selectedDisplays == null) return null;
 		Iterator<ImageDisplay> i = selectedDisplays.iterator();
@@ -360,14 +355,8 @@ class BrowserModel
 	 */
 	public ImageDisplay getLastSelectedDisplay()
 	{ 
-	    Iterator i = selectedDisplays.iterator();
-	    int index = 0;
-	    while (i.hasNext()) {
-	        if (index == (selectedDisplays.size()-1)) 
-	            return (ImageDisplay) i.next();
-	        index++;
-	    }
-	    return null;  
+		final int size = selectedDisplays.size();
+		return size < 1 ? null : selectedDisplays.get(size - 1);
 	}
 	
 	/**
@@ -425,7 +414,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getImageNodes()
 	 */
-	public Set getImageNodes()
+	public Set<ImageDisplay> getImageNodes()
 	{ 
 	    //Note: avoid caching b/c we don't know yet what we are going
 	    //to do with updates
@@ -535,16 +524,16 @@ class BrowserModel
 	public void resetChildDisplay()
 	{
 	    rootDisplay.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	    Collection rootChildren = rootDisplay.getChildrenDisplay();
+	    Collection<ImageDisplay> rootChildren = rootDisplay.getChildrenDisplay();
 	    JComponent desktop = rootDisplay.getInternalDesktop();
 	    desktop.removeAll();
-	    Iterator i;
+	    Iterator<ImageDisplay> i;
 	    switch (selectedLayout.getIndex()) {
 			case LayoutFactory.SQUARY_LAYOUT:
 				 i = rootChildren.iterator();
 			        ImageDisplay child;
 			        while (i.hasNext()) {
-			            child = (ImageDisplay) i.next();
+			            child = i.next();
 			            desktop.add(child);
 			            addToDesktop(child);
 			        }
@@ -553,7 +542,7 @@ class BrowserModel
 			case LayoutFactory.FLAT_LAYOUT:
 				 i = getImageNodes().iterator();
 			        while (i.hasNext()) 
-			            desktop.add((ImageDisplay) i.next());   
+			            desktop.add(i.next());   
 		}
 	    rootDisplay.setCursor(
 	            Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -566,13 +555,9 @@ class BrowserModel
 	 */
 	public void setSelectedNodes(List<DataObject> nodes)
 	{
-		if (nodes == null || nodes.size() == 0) {
+		if (nodes == null || nodes.isEmpty()) {
 			if (selectedDisplays == null) return;
-			List<ImageDisplay> l = new ArrayList<ImageDisplay>();
-			Iterator<ImageDisplay> i = selectedDisplays.iterator();
-			while (i.hasNext()) {
-				l.add(i.next());
-			}
+			List<ImageDisplay> l = new ArrayList<ImageDisplay>(selectedDisplays);
 			selectedDisplays.clear();
 			setNodesColor(null, l);
 			return;
@@ -581,7 +566,7 @@ class BrowserModel
 		rootDisplay.accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
 		//to reset color if parent is selected.
-		Collection selected = getSelectedDisplays();
+		Collection<ImageDisplay> selected = getSelectedDisplays();
 		setNodesColor(found, selected);
 		if (found.size() == 0) {
 			if (selected == null || selected.size() == 0) {
@@ -605,6 +590,15 @@ class BrowserModel
 	{
 		ResetNodesVisitor visitor = new ResetNodesVisitor(nodes, true);
 		rootDisplay.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		final Set<DataObject> visibleDataObjects = getVisibleImages();
+		final Collection<DataObject> selectedDataObjects = getSelectedDataObjects();
+		final Set<ImageDisplay> nodesWithVisibleSelectedDataObjects = new HashSet<ImageDisplay>();
+		for (final ImageDisplay filterNode : nodes) {
+			final Object hierarchyObject = filterNode.getHierarchyObject();
+			if (visibleDataObjects.contains(hierarchyObject) && selectedDataObjects.contains(hierarchyObject))
+				nodesWithVisibleSelectedDataObjects.add(filterNode);
+		}
+		setNodesSelection(nodesWithVisibleSelectedDataObjects);
 	}
 
 	/**
@@ -667,11 +661,15 @@ class BrowserModel
 	{
 		if (nodes == null) return;
 		setNodesColor(nodes, getSelectedDisplays());
-		Iterator<ImageDisplay> i = nodes.iterator();
-		boolean multiSelection = nodes.size() > 1;
-		
-		while (i.hasNext()) 
-			setSelectedDisplay(i.next(), multiSelection, true);
+		final HashSet<ImageDisplay> previouslySelectedDisplays = new HashSet<ImageDisplay>(this.selectedDisplays);
+		previouslySelectedDisplays.removeAll(nodes);
+		for (final ImageDisplay previouslySelectedDisplay : previouslySelectedDisplays)
+			removeSelectedDisplay(previouslySelectedDisplay);
+		boolean multiSelection = false;
+		for (final ImageDisplay node : nodes) {
+			setSelectedDisplay(node, multiSelection, true);
+			multiSelection = true;
+		}
 	}
 	
 	/**
@@ -734,13 +732,13 @@ class BrowserModel
 	 */
 	public void markUnmodifiedNodes(Class type, Collection<Long> ids)
 	{
-		Iterator i = selectedDisplays.iterator();
+		Iterator<ImageDisplay> i = selectedDisplays.iterator();
 		ImageDisplay node;
 		Object ho;
 		long id;
 		Colors colors = Colors.getInstance();
 		while (i.hasNext()) {
-			node = (ImageDisplay) i.next();
+			node = i.next();
 			ho = node.getHierarchyObject();
 			if (ho.getClass().equals(type) && ho instanceof DataObject) {
 				id = ((DataObject) ho).getId();
@@ -762,11 +760,8 @@ class BrowserModel
 	    thumbSelected = false;
 	    //popupPoint = null; //TEST mouse click
 	    this.multiSelection = multiSelection;
-	    Set<ImageDisplay> oldValue = 
-	    					new HashSet<ImageDisplay>(selectedDisplays.size());
-	    Iterator i = selectedDisplays.iterator();
-	    while (i.hasNext())
-	        oldValue.add((ImageDisplay) i.next());
+	    final Set<ImageDisplay> oldValue =
+	    		new HashSet<ImageDisplay>(this.selectedDisplays);
 	    
 	    if (!multiSelection) selectedDisplays.clear();
 	    int n = selectedDisplays.size();
@@ -796,10 +791,7 @@ class BrowserModel
 			thumbSelected = false;
 		    this.multiSelection = true;
 		    Set<ImageDisplay> oldValue = 
-		    	new HashSet<ImageDisplay>(selectedDisplays.size());
-		    Iterator<ImageDisplay> i = selectedDisplays.iterator();
-		    while (i.hasNext())
-		    	oldValue.add(i.next());
+		    	new HashSet<ImageDisplay>(selectedDisplays);
 		    selectedDisplays = nodes;
 		    firePropertyChange(SELECTED_DATA_BROWSER_NODES_DISPLAY_PROPERTY,
 	    			oldValue, nodes);
