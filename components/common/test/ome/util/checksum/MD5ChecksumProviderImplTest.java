@@ -19,58 +19,29 @@
 
 package ome.util.checksum;
 
-import java.nio.ByteBuffer;
+import java.util.EnumMap;
 
-import ome.util.Utils;
-
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class MD5ChecksumProviderImplTest {
+@Test
+public class MD5ChecksumProviderImplTest
+    extends AbstractChecksumProviderIntegrationTest {
 
-    private MD5ChecksumProviderImpl md5;
-
-    // MD5('abc')
-    private static String ABC_MD5 = "900150983cd24fb0d6963f7d28e17f72";
-
-    // MD5('')
-    private static String EMPTYARRAY_MD5 = "d41d8cd98f00b204e9800998ecf8427e";
+    private static EnumMap<ChecksumTestVector, String> map =
+            new EnumMap<ChecksumTestVector, String>(ChecksumTestVector.class);
 
     @BeforeClass
-    protected void setUp() throws Exception {
-        this.md5 = new MD5ChecksumProviderImpl();
+    public void setUp() {
+        map.put(ChecksumTestVector.ABC, "900150983cd24fb0d6963f7d28e17f72");
+        map.put(ChecksumTestVector.EMPTYARRAY, "d41d8cd98f00b204e9800998ecf8427e");
+        map.put(ChecksumTestVector.SMALLFILE, "b384ecf5b00f018808f7de12b9a25261");
+        map.put(ChecksumTestVector.MEDIUMFILE, "29de50b1cecadf8946ac3e5aae2385fe");
+        map.put(ChecksumTestVector.BIGFILE, "24c462d241a6576c774b0667cc699691");
     }
 
-    @Test
-    public void testGetChecksumWithByteArray() {
-        String actual = Utils.bytesToHex(this.md5.getChecksum("abc".getBytes()));
-        Assert.assertEquals(actual, ABC_MD5);
-    }
-
-    @Test(expectedExceptions = NullPointerException.class)
-    public void testGetChecksumWithNullByteArrayShouldThrowNPE() {
-        byte nullArray[] = null;
-        this.md5.getChecksum(nullArray);
-    }
-
-    @Test
-    public void testGetChecksumWithEmptyByteArray() {
-        String actual = Utils.bytesToHex(this.md5.getChecksum("".getBytes()));
-        Assert.assertEquals(actual, EMPTYARRAY_MD5);
-    }
-
-    @Test
-    public void testGetChecksumWithByteBuffer() {
-        String actual = Utils.bytesToHex(this.md5.getChecksum(
-                ByteBuffer.wrap("abc".getBytes())));
-        Assert.assertEquals(actual, ABC_MD5);
-    }
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void testGetChecksumWithEmptyByteBufferShouldThrowIAE() {
-        byte[] actual = this.md5.getChecksum(ByteBuffer.allocateDirect(0));
-        Assert.assertNull(actual);
+    public MD5ChecksumProviderImplTest() {
+        super(new MD5ChecksumProviderImpl(), map);
     }
 
 }
