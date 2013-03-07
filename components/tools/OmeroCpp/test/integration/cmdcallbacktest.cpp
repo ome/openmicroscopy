@@ -41,11 +41,7 @@ using namespace omero::sys;
 
 class TestCB;
 
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<TestCB> TestCBPtr;
-#else
-typedef IceUtil::Handle<TestCB> TestCBPtr;
-#endif
+typedef CallbackWrapper<TestCB> TestCBPtr;
 
 class TestCB: virtual public CmdCallbackI {
 private:
