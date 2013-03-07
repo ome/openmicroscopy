@@ -25,6 +25,8 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import org.apache.commons.codec.binary.Hex;
+
 import ome.util.Utils;
 
 import com.google.common.hash.HashFunction;
@@ -124,7 +126,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsString()
      */
     public String checksumAsString() {
-        String result = Utils.bytesToHex(this.hasher.hash().asBytes());
+        String result = Hex.encodeHexString(this.hasher.hash().asBytes());
         this.reset();
         return result;
     }

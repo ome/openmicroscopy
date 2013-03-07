@@ -33,6 +33,7 @@ import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -193,7 +194,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             try {
                 byte[] hash = this.checksumProviderFactory
                         .getProvider(ChecksumType.SHA1).putBytes(path).checksumAsBytes();
-                file.setSha1(Utils.bytesToHex(hash));
+                file.setSha1(Hex.encodeHexString(hash));
 
                 File f = new File(path);
                 long size = f.length();
