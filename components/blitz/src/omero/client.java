@@ -948,9 +948,8 @@ public class client {
      */
     public String sha1(File file) {
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
-        return Utils.bytesToHex(
-                cpf.getProvider(ChecksumType.SHA1).getChecksum(
-                        file.getAbsolutePath()));
+        return cpf.getProvider(ChecksumType.SHA1).putBytes(
+                        file.getAbsolutePath()).checksumAsString();
     }
 
     public OriginalFile upload(File file) throws ServerError, IOException {
