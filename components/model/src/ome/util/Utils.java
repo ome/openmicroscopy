@@ -236,6 +236,7 @@ public class Utils {
      *            the byte[] to convert
      * @return String the converted byte[]
      */
+    @Deprecated
     public static String bytesToHex(byte[] data) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
@@ -247,6 +248,7 @@ public class Utils {
     /**
      * Standard algorithm to convert a byte into a hex representation.
      */
+    @Deprecated
     public static String byteToHex(byte data) {
         StringBuffer buf = new StringBuffer();
         buf.append(toHexChar(data >>> 4 & 0x0F));
@@ -257,6 +259,7 @@ public class Utils {
     /**
      * Standard algorithm to convert an int into a hex char.
      */
+    @Deprecated
     public static char toHexChar(int i) {
         if (0 <= i && i <= 9) {
             return (char) ('0' + i);
