@@ -112,18 +112,18 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     }
 
     /**
-     * @see ChecksumProvider#toByteChecksum()
+     * @see ChecksumProvider#checksumAsBytes()
      */
-    public byte[] toByteChecksum() {
+    public byte[] checksumAsBytes() {
         byte[] result = this.hasher.hash().asBytes();
         this.reset();
         return result;
     }
 
     /**
-     * @see ChecksumProvider#toStringChecksum()
+     * @see ChecksumProvider#checksumAsString()
      */
-    public String toStringChecksum() {
+    public String checksumAsString() {
         String result = Utils.bytesToHex(this.hasher.hash().asBytes());
         this.reset();
         return result;

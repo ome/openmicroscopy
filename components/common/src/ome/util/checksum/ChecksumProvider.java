@@ -81,7 +81,7 @@ public interface ChecksumProvider {
      *
      * @return <code>byte[]</code> The checksum in a byte array.
      */
-    byte[] toByteChecksum();
+    byte[] checksumAsBytes();
 
     /**
      * Returns a <code>String</code> representing the checksum in hex form.
@@ -89,5 +89,5 @@ public interface ChecksumProvider {
      *
      * @return <code>String</code> The hexadecimal value of the checksum.
      */
-    String toStringChecksum();
+    String checksumAsString();
 }
