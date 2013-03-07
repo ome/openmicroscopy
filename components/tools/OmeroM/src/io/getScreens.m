@@ -8,6 +8,10 @@ function screens = getScreens(session, varargin)
 %   by the input ids owned by the session user in the context of the
 %   session group.
 %
+%   By default, getScreens() loads all the plates attached to the screens.
+%   This may have consequences in terms of loading time depending on the
+%   number of screens to load and plates attached to them.
+%
 %   Examples:
 %
 %      screens = getScreens(session);
