@@ -37,4 +37,8 @@ ip = inputParser;
 ip.addOptional('ids', [], @isvector);
 ip.parse(varargin{:});
 
-projects = getObjects(session, 'project', ip.Results.ids);
+% Indicate to load the Project/Dataset/Images graph
+parameters = omero.sys.ParametersI();
+parameters.leaves();
+
+projects = getObjects(session, 'project', ip.Results.ids, parameters);
