@@ -95,8 +95,7 @@ public class FileUploader implements Runnable {
 
         // Non-configurable
         ofile.setSize(rSize);
-        ofile.setSha1(Utils.bytesToHex(
-                this.cpf.getProvider(ChecksumType.SHA1).getChecksum(rBuf)));
+        ofile.setSha1(this.cpf.getProvider(ChecksumType.SHA1).putBytes(rBuf).checksumAsString());
 
     }
 
@@ -119,8 +118,7 @@ public class FileUploader implements Runnable {
 
         rSize = buf.length;
         rBuf = buf;
-        rSha1 = Utils.bytesToHex(
-                this.cpf.getProvider(ChecksumType.SHA1).getChecksum(buf));
+        rSha1 = this.cpf.getProvider(ChecksumType.SHA1).putBytes(buf).checksumAsString();
 
         assert ofile.getName() != null;
         assert ofile.getPath() != null;
@@ -136,8 +134,7 @@ public class FileUploader implements Runnable {
         rBuf = new byte[(int) rSize];
         FileInputStream fis = new FileInputStream(file);
         assert (int) rSize == fis.read(rBuf) : "read whole file";
-        rSha1 = Utils.bytesToHex(
-                this.cpf.getProvider(ChecksumType.SHA1).getChecksum(rBuf));
+        rSha1 = this.cpf.getProvider(ChecksumType.SHA1).putBytes(rBuf).checksumAsString();
 
         if (ofile.getName() == null) {
             ofile.setName(file.getName());

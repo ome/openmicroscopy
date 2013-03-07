@@ -157,7 +157,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             try {
 
                 byte[] hash = this.checksumProviderFactory
-                        .getProvider(ChecksumType.SHA1).getChecksum(path);
+                        .getProvider(ChecksumType.SHA1).putBytes(path).checksumAsBytes();
                 file.setSha1(Utils.bytesToHex(hash));
 
                 long size = new File(path).length();

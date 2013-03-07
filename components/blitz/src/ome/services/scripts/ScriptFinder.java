@@ -87,8 +87,8 @@ public abstract class ScriptFinder {
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         try {
             final byte[] buf = FileUtils.readFileToByteArray(source);
-            final String sha1 = Utils.bytesToHex(
-                    cpf.getProvider(ChecksumType.SHA1).getChecksum(buf));
+            final String sha1 = cpf.getProvider(ChecksumType.SHA1)
+                    .putBytes(buf).checksumAsString();
             log.debug("Loading script: " + sha1);
 
             Parameters p = new Parameters();

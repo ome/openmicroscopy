@@ -72,9 +72,8 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                     ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
                     final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
                             tileWidth, tileHeight);
-                    String readDigest = ome.util.Utils.bytesToHex(
-                            cpf.getProvider(ChecksumType.MD5).getChecksum(
-                                    tile.getData()));
+                    String readDigest = cpf.getProvider(ChecksumType.MD5)
+                            .putBytes(tile.getData()).checksumAsString();
                     String writtenDigest = hashDigests.get(tileCount);
                     if (!writtenDigest.equals(readDigest))
                     {

@@ -587,8 +587,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         file.setPath(FilenameUtils.getFullPath(path));
         file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
-        file.setSha1(Utils.bytesToHex(
-                cpf.getProvider(ChecksumType.SHA1).getChecksum(script.getBytes())));
+        file.setSha1(cpf.getProvider(ChecksumType.SHA1)
+                .putBytes(script.getBytes()).checksumAsString());
         return updateFile(file, current);
     }
 
