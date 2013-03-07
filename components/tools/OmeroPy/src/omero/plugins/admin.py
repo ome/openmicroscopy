@@ -46,6 +46,8 @@ try:
 except ImportError:
     has_win32 = False
 
+DEFAULT_WAIT = 300
+
 HELP="""Administrative tools including starting/stopping OMERO.
 
 Environment variables:
@@ -79,23 +81,25 @@ class AdminControl(BaseControl):
         self.actions = {}
 
         class Action(object):
-            def __init__(this, name, help):
+            def __init__(this, name, help, wait=False):
                 this.parser = sub.add_parser(name, help=help, description=help)
                 this.parser.set_defaults(func=getattr(self, name))
                 self.actions[name] = this.parser
+                if wait:
+                    this.parser.add_argument("--wait", type=float, default=DEFAULT_WAIT, help="Seconds to wait for operation")
 
         Action("start", """Start icegridnode daemon and waits for required components to come up, i.e. status == 0
 
              If the first argument can be found as a file, it will
              be deployed as the application descriptor rather than
              etc/grid/default.xml. All other arguments will be used
-             as targets to enable optional sections of the descriptor""")
+             as targets to enable optional sections of the descriptor""", wait=True)
 
         Action("startasync", """The same as start but returns immediately.""",)
 
-        Action("restart", """stop && start""",)
+        Action("restart", """stop && start""", wait=True)
 
-        Action("restartasync", """The same as restart but returns as soon as starting has begun.""",)
+        Action("restartasync", """The same as restart but returns as soon as starting has begun.""", wait=True)
 
         Action("status", """Status of server.
              Returns with 0 status if a node ping is successful
@@ -105,7 +109,7 @@ class AdminControl(BaseControl):
                  omero admin status && echo "server started"
             """)
 
-        Action("stop", """Initiates node shutdown and waits for status to return a non-0 value""")
+        Action("stop", """Initiates node shutdown and waits for status to return a non-0 value""", wait=True)
 
         Action("stopasync", """The same as stop but returns immediately.""")
 
@@ -119,9 +123,9 @@ class AdminControl(BaseControl):
 
         Action("diagnostics", """Run a set of checks on the current, preferably active server""")
 
-        Action("waitup", """Used by start after calling startasync to wait on status==0""")
+        Action("waitup", """Used by start after calling startasync to wait on status==0""", wait=True)
 
-        Action("waitdown", """Used by stop after calling stopasync to wait on status!=0""")
+        Action("waitdown", """Used by stop after calling stopasync to wait on status!=0""", wait=True)
 
         reindex = Action("reindex", """Re-index the Lucene index
 
@@ -526,16 +530,16 @@ Examples:
         """
         self.check_access(os.R_OK)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
-        count = 30
+        count, loop_secs, time_msg = self.loops_and_wait(args)
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(43, "\nFailed to startup some components after 5 minutes")
+                self.ctx.die(43, "\nFailed to startup some components after %s" % time_msg)
             elif 0 == self.status(args, node_only = False):
                 break
             else:
                 self.ctx.out(".", newline = False)
-                self.ctx.sleep(10)
+                self.ctx.sleep(loop_secs)
 
     def waitdown(self, args):
         """
@@ -543,19 +547,36 @@ Examples:
         """
         self.check_access(os.R_OK)
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
-        count = 30
+        count, loop_secs, time_msg = self.loops_and_wait(args)
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(44, "\nFailed to shutdown some components after 5 minutes")
+                self.ctx.die(44, "\nFailed to shutdown some components after %s" % time_msg)
                 return False
             elif 0 != self.status(args, node_only = True):
                 break
             else:
                 self.ctx.out(".", newline = False)
-                self.ctx.sleep(10)
+                self.ctx.sleep(loop_secs)
         self.ctx.rv = 0
         return True
+
+    def loops_and_wait(self, args):
+        """
+        If present, get the wait time from the args argument
+        and calculate the number of loops and the wait time
+        needed. If not present in args, use a default value.
+        """
+
+        if not hasattr(args, "wait"):
+            # This might happen if a new command starts using
+            # waitup/waitdown without setting wait=True for
+            # Action()
+            args.wait = DEFAULT_WAIT
+
+        total_secs = args.wait
+        loop_secs = total_secs / 30.0
+        return 30, loop_secs, "%s seconds" % total_secs
 
     @with_config
     def stopasync(self, args, config):
