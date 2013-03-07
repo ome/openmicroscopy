@@ -38,21 +38,10 @@ Fixture::Fixture()
     client = omero::client_ptr();
 }
 
-Fixture::~Fixture()
-{
-    logout();
-}
-
 void Fixture::logout()
 {
-    if (root) {
-        root->__del__();
-        root = omero::client_ptr();
-    }
-    if (client) {
-        client->__del__();
-        client = omero::client_ptr();
-    }
+    root = NULL;
+    client = NULL;
 }
 
 
@@ -88,10 +77,6 @@ void Fixture::printUnexpected()
 }
 
 void Fixture::login(const std::string& username, const std::string& password) {
-    if (client) {
-        client->__del__();
-        client = omero::client_ptr();
-    }
     client = new omero::client();
     client->createSession(username, password);
     client->getSession()->closeOnDestroy();
