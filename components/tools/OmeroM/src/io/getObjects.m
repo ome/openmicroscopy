@@ -1,18 +1,19 @@
-function objects = getObjects(session, type, ids)
+function objects = getObjects(session, type, ids, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
-%   objects = getObjects(session, type) returns all the objects of the
-%   specified type owned by the session user in the context of the session
-%   group.
-%
 %   objects = getObjects(session, type, ids) returns all the objects of the
-%   specified type and identified by the input ids owned by the session
+%   specified type, identified by the input ids and owned by the session
 %   user in the context of the session group.
+%
+%   objects = getObjects(session, type, ids, parameters) returns all the
+%   objects of the specified type, identified by the input ids, owned by
+%   the session user in the context of the session group using the supplied
+%   loading parameters.
 %
 %   Examples:
 %
-%      objects = getObjects(session, type);
 %      objects = getObjects(session, type, ids);
+%      objects = getObjects(session, type, ids, parameters);
 %
 % See also: GETOBJECTTYPES
 
@@ -41,24 +42,21 @@ ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
-ip.parse(session, type, ids);
+ip.addOptional('parameters', omero.sys.ParametersI(),...
+    @(x) isa(x, 'omero.sys.ParametersI'));
+ip.parse(session, type, ids, varargin{:});
 objectType = objectTypes(strcmp(type, objectNames));
 
-% Create container service
-proxy = session.getContainerService();
-
-% Create parameters
-parameters = omero.sys.ParametersI();
-
-% Load the images if loading Projects or Datasets
-if ismember(type, {'project', 'dataset'}), parameters.leaves(); end
-
-% Read current user id from session
+% Add the current user id to the loading parameters
+parameters = ip.Results.parameters;
 userId = session.getAdminService().getEventContext().userId;
 parameters.exp(rlong(userId));
 
-% Load objects
-ids = toJavaList(ids, 'java.lang.Long');
+% Create list of objects to load
+ids = toJavaList(ip.Results.ids, 'java.lang.Long');
+
+% Create container service to load objects
+proxy = session.getContainerService();
 if strcmp(type, 'image'),
     objectList = proxy.getImages(objectType.class, ids, parameters);
 else
