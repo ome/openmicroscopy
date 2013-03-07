@@ -8,6 +8,10 @@ function projects = getProjects(session, varargin)
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
+%   By default, getProjects() loads the entire projects/datasets/images
+%   graph. This may have consequences in terms of loading time depending on
+%   the number of projects to load and datasets/images in the graph.
+%
 %   Examples:
 %
 %      projects = getProjects(session);

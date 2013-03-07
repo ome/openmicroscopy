@@ -8,6 +8,10 @@ function datasets = getDatasets(session, varargin)
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
+%   By default, getDatasets() loads all the images attached to the datasets.
+%   This may have consequences in terms of loading time depending on the
+%   number of datasets to load and images in the datasets.
+%
 %   Examples:
 %
 %      datasets = getDatasets(session);
