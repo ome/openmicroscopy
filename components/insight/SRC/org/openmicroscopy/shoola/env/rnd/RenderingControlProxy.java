@@ -31,6 +31,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,10 +54,13 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingModel;
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -859,6 +863,15 @@ class RenderingControlProxy
         this.ctx = ctx;
         slaves = new ArrayList<RenderingControl>();
         checker = new NetworkChecker();
+        UserCredentials uc = (UserCredentials)
+        		context.lookup(LookupNames.USER_CREDENTIALS);
+        String ip = null;
+        try {
+			ip = InetAddress.getByName(uc.getHostName()).getHostAddress();
+		} catch (Exception e) {
+			//ignore
+		}
+        checker = new NetworkChecker(ip);
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         lastAction = System.currentTimeMillis();

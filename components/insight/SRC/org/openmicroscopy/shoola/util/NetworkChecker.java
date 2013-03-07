@@ -28,7 +28,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 
 //Third-party libraries
@@ -46,6 +48,31 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class NetworkChecker {
 
+	
+	/**
+	 * The IP Address of the server the client is connected to
+	 * or <code>null</code>.
+	 */
+	private String ipAddress;
+	
+	/** Creates a new instance.
+	 */
+	public NetworkChecker()
+	{
+		this(null);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param ipAddress The IP address of the server the client is connected to
+	 * or <code>null</code>.
+	 */
+	public NetworkChecker(String ipAddress)
+	{
+		this.ipAddress = ipAddress;
+	}
+	
 	/**
 	 * Returns <code>true</code> if the network is still up, otherwise
 	 * throws an <code>UnknownHostException</code>.
@@ -78,6 +105,7 @@ public class NetworkChecker {
 		*/
 		//tmp code
 		boolean networkup = false;
+		List<String> ips = new ArrayList<String>();
 		if (UIUtilities.isLinuxOS()) {
 			try {
 				Socket s = new Socket("www.openmicroscopy.org.uk", 80);
@@ -108,11 +136,22 @@ public class NetworkChecker {
 							}
 						}
 						if (networkup) break;
+					} else {
+						String ip;
+						while (e.hasMoreElements()) {
+							ia = (InetAddress) e.nextElement();
+							ip = ia.getHostAddress();
+							if (!ips.contains(ip))
+								ips.add(ip);
+						}
 					}
 				}
 			}
 		}
 		if (!networkup) {
+			if (ipAddress != null) {
+				if (ips.contains(ipAddress)) return true;
+			}
 			throw new UnknownHostException("Network is down.");
 		}
 		return networkup;

@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -2152,7 +2153,6 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
-		networkChecker = new NetworkChecker();
 	}
 	
 	/**
@@ -2379,6 +2379,14 @@ class OMEROGateway
 			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			serverVersion = getConfigService().getVersion();
+			String ip = null;
+	        try {
+				ip = InetAddress.getByName(hostName).getHostAddress();
+			} catch (Exception e) {
+				//ignore
+			}
+
+			networkChecker = new NetworkChecker(ip);
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
