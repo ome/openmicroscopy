@@ -16,5 +16,6 @@
     <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
     <!-- Other -->
     <dependency org="com.google" name="guava-jdk5" rev="${versions.guava}"/>
+    <dependency org="commons-codec" name="commons-codec" rev="${versions.commons-codec}"/>
   </dependencies>
 </ivy-module>
