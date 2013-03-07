@@ -1029,6 +1029,7 @@ OMERO Diagnostics %s
         xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
 
         cfg = config.as_map()
+        config.close()  # Early close. See #9800
         for x in ("name", "user", "host", "port"): # NOT passing password on command-line
             k = "omero.db.%s" % x
             if k in cfg:
