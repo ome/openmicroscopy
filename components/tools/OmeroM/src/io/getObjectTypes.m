@@ -39,3 +39,6 @@ types(4).Iobject = @omero.model.ScreenI;
 types(5).name = 'plate';
 types(5).class = 'omero.model.Plate';
 types(5).Iobject = @omero.model.PlateI;
+types(6).name = 'plateacquisition';
+types(6).class = 'omero.model.PlateAcquisition';
+types(6).Iobject = @omero.model.PlateAcquisitionI;
