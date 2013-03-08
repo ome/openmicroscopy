@@ -47,6 +47,12 @@ ip.addOptional('parameters', omero.sys.ParametersI(),...
 ip.parse(session, type, ids, varargin{:});
 objectType = objectTypes(strcmp(type, objectNames));
 
+% Use getImages function if retrieving images
+if strcmp(type, 'image'),
+    objects = getImages(session, ids);
+    return
+end
+
 % Add the current user id to the loading parameters
 parameters = ip.Results.parameters;
 userId = session.getAdminService().getEventContext().userId;
@@ -57,11 +63,7 @@ ids = toJavaList(ip.Results.ids, 'java.lang.Long');
 
 % Create container service to load objects
 proxy = session.getContainerService();
-if strcmp(type, 'image'),
-    objectList = proxy.getImages(objectType.class, ids, parameters);
-else
-    objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
-end
+objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
 
 % Convert java.util.ArrayList into Matlab arrays
 nObjects = objectList.size();
