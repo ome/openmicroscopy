@@ -28,6 +28,7 @@
         $('body').click(function(event) {
             //if (event.target.id != 'groupsUsersButton') {
                 $("#groupList").css('visibility', 'hidden');
+                $('#listViewPort').css('visibility', 'hidden');
             //}
         });
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
@@ -35,55 +36,71 @@
         $("#groupsUsersButton").click(function(e){
             // show menu
             $('#groupList').css('visibility', 'visible');
+            $('#listViewPort').css('visibility', 'visible');
             list_style.top = '0px';
+            console.log("DROPDOWN_HEIGHT", DROPDOWN_HEIGHT, "excess_h", excess_h, $("#listViewPort").height());
             return false;
         });
         // on hover-out, hide drop-down menus
-        $("#groupList").hover(function(){}, function(){
-            $(this).css('visibility', 'hidden');
-        });
+        // $("#groupList").hover(function(){}, function(){
+        //     $(this).css('visibility', 'hidden');
+        // });
         
         var DROPDOWN_HEIGHT = $(document).height()-100;
         var h = $("#groupList").height() + 10;
         var excess_h = h - DROPDOWN_HEIGHT;
 
+        console.log("DROPDOWN_HEIGHT", DROPDOWN_HEIGHT, "excess_h", excess_h, $("#listViewPort").height());
+
         // We scroll the Groups list via mouse position if it is too long to display
         $("#listViewPort")
-            .mousemove(function(event){
-                if ($(event.target).hasClass('switch_to_group')) {
-                    var yPos = event.pageY - this.offsetTop;
-                    var yFraction = (yPos-20) / (DROPDOWN_HEIGHT - 50)
-                    if (yFraction > 1) yFraction = 1;
-                    if (yFraction < 0) yFraction = 0;
-                    var offset_h = (yFraction * excess_h) >> 0      // fast convert to int
-                    list_style.top = '-'+ offset_h + 'px';
-                }
-            })
+            // .mousemove(function(event){
+            //     if ($(event.target).hasClass('switch_to_group')) {
+            //         var yPos = event.pageY - this.offsetTop;
+            //         var yFraction = (yPos-20) / (DROPDOWN_HEIGHT - 50)
+            //         if (yFraction > 1) yFraction = 1;
+            //         if (yFraction < 0) yFraction = 0;
+            //         var offset_h = (yFraction * excess_h) >> 0      // fast convert to int
+            //         list_style.top = '-'+ offset_h + 'px';
+            //     }
+            // })
             .css({
                 'height': DROPDOWN_HEIGHT+'px'
             })
-            .addClass("dropdown");
+            //.addClass("dropdown");
 
-        $("#groupList").css({
-            'position':'relative',
-            'top':'0px'
-        });
+        // $("#groupList").css({
+        //     'position':'relative',
+        //     'top':'0px'
+        // });
         
-        // make sure any long list of Users do not disappear outside of dropdown viewport
-        $("#groupList ul").css({
-            'max-height': (DROPDOWN_HEIGHT-20)+'px'
-        });
-        var viewPort_bottom = DROPDOWN_HEIGHT + $('#listViewPort').offset().top;
+        // // make sure any long list of Users do not disappear outside of dropdown viewport
+        // $("#groupList ul").css({
+        //     'max-height': (DROPDOWN_HEIGHT-20)+'px'
+        // });
+        //var viewPort_bottom = DROPDOWN_HEIGHT; // + $('#listViewPort').offset().top;
+        var listH = $("#groupList").height();
         $("#groupList").children("li").hover(function(){
-            var $ul = $(this).children('ul');
+            var $this = $(this);
+            var liOffset = $this.offset().top - $this.parent().offset().top;
+            
+            var $ul = $this.children('ul');
             var h = $ul.height();
-            var top = $ul.offset().top;
-            var bottom = top+h;
-            var bottomOff = bottom-viewPort_bottom;
+            var bottom = liOffset + h;
+            var bottomOff = bottom-listH;
             if (bottomOff > 0) {
-                bottomOff += 10;
-                $ul.css('top', '-'+bottomOff+'px');
+                liOffset = liOffset - bottomOff;
             }
+            console.log(liOffset, bottomOff);
+            $ul.css('top', liOffset +'px');
+            // var h = $ul.height();
+            // var top = $ul.offset().top;
+            // var bottom = top+h;
+            // var bottomOff = bottom-viewPort_bottom;
+            // if (bottomOff > 0) {
+            //     bottomOff += 10;
+            //     $ul.css('top', '-'+bottomOff+'px');
+            // }
         });
 
     });
@@ -111,10 +128,11 @@
             <span>{{ active_group.name }}</span><span>{{ active_user.getFullName }}</span>
         </div>
 
-        <div id="listViewPort">
-        <ul id="groupList" class="sub_menu dropdown">
+        <div id="listViewPort" style="overflow-y:scroll; z-index:999; background: white; visibility: hidden">
+
+        <ul id="groupList" class="submenu dropdown">
             {% for grp in groups %}
-                <li title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
+                <li style="position:static" title="Click to switch Group" {% ifequal grp.id eContext.context.groupId %}class="current_group"{% endifequal %}>
                     <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}" class="switch_to_group">
                         <img
                         {% if grp.getDetails.getPermissions.isGroupWrite %} src="{% static 'webclient/image/group_green16.png' %}"
@@ -129,7 +147,7 @@
                         {% endif %} />
                         {{ grp.getName }}
                     </a>
-                    <ul title="Switch to this Group and User">
+                    <ul title="Switch to this Group and User" style="top:0px">
                         <li>
                             {% ifequal grp.id active_group.id %}
                             <a href="{{ current_url }}?experimenter=-1">
@@ -140,37 +158,6 @@
                                 All members
                             </a>
                         </li>
-                        {% if grp.leaders %}
-                            <li class="non_selectable"><strong>Owners</strong></li>
-                            {% for user in grp.leaders %}
-                                <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
-                                    <!-- if this user is in current group, we just switch user -->
-                                    {% ifequal grp.id active_group.id %}
-                                    <a href="{{ current_url }}?experimenter={{user.id}}">
-                                    <!-- otherwise we switch group too -->
-                                    {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
-                                    {% endifequal %}
-                                        {{ user.getFullName }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        {% endif %}
-                        
-                        {% if grp.colleagues %}
-                            <li class="non_selectable"><strong>Members</strong></li>
-                            {% for user in grp.colleagues %}
-                                <li {% ifequal user.id experimenter %}class="current_user"{% endifequal %}>
-                                    {% ifequal grp.id active_group.id %}
-                                    <a href="{{ current_url }}?experimenter={{user.id}}">
-                                    {% else %}
-                                    <a href="{% url change_active_group %}?active_group={{grp.id}}&url={{ current_url }}?experimenter={{user.id}}">
-                                    {% endifequal %}
-                                        {{ user.getFullName }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        {% endif %}
                     </ul>
 
                 </li>
