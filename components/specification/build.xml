@@ -43,23 +43,22 @@
                 file="${basedir}/Released-Schema/additions/jar/XMLSchema.xsd" />
 
             <!-- 2003-FC V2 -->
-            <schema namespace="http://www.openmicroscopy.org/Schemas/AnalysisChain/2003-FC"
-                file="${basedir}/Released-Schema/2003-FC/V2/AnalysisChain.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/AnalysisModule/2003-FC"
+            <!-- No namespace is defined for AnalysisChain in this release -->
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/AnalysisModule.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/BinaryFile/2003-FC"
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/BinaryFile.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/CA/2003-FC" 
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/CA/RC1/CA.xsd" 
                 file="${basedir}/Released-Schema/2003-FC/V2/CA.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/CLI/2003-FC"
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/CLI.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/MLI/2003-FC"
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/MLI.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/OME/2003-FC"
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/ome.xsd" />
-            <schema namespace="http://www.openmicroscopy.org/Schemas/STD/2003-FC"
+            <schema namespace="http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/STD.xsd" />
-            <schema namespace="http://openmicroscopy.com/Schemas/DataHistory/2003-FC"
+            <schema namespace="http://openmicroscopy.com/XMLschemas/DataHistory/IR3/DataHistory.xsd"
                 file="${basedir}/Released-Schema/2003-FC/V2/DataHistory.xsd" />
 
             <!-- 2007-06 V2 -->
