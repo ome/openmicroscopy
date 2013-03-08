@@ -12,8 +12,6 @@ try:
     vers = Ice.stringVersion()
     vers = vers.split(".")
     compat = compat.split(".")
-    print vers
-    print compat
     if compat[0:2] != vers[0:2]:
         raise Exception("Ice version mismatch: %s <> %s",
                         ".".join(vers), ".".join(compat))
