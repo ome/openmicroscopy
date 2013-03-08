@@ -66,13 +66,4 @@ proxy = session.getContainerService();
 objectList = proxy.loadContainerHierarchy(objectType.class, ids, parameters);
 
 % Convert java.util.ArrayList into Matlab arrays
-nObjects = objectList.size();
-if nObjects >= 1
-    % Initialize array
-    objects(1 : nObjects) = objectType.Iobject();
-    for i = 1 : nObjects
-        objects(i) = objectList.get(i-1);
-    end
-else
-    objects = [];
-end
+objects = toMatlabList(objectList);

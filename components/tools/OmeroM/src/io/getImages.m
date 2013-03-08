@@ -46,19 +46,10 @@ parameters.exp(rlong(userId));
 proxy = session.getContainerService();
 if ~isempty(ip.Results.ids),
     ids = toJavaList(ip.Results.ids, 'java.lang.Long');
-    imageList = proxy.getImages(objectType.class, ids, parameters);
+    imageList = proxy.getImages('omero.model.Image', ids, parameters);
 else
     imageList = proxy.getUserImages(parameters);
 end
 
 % Convert java.util.ArrayList into Matlab arrays
-nImages = imageList.size();
-if nImages >= 1
-    % Initialize array
-    images(1 : nImages) = omero.model.ImageI();
-    for i = 1 : nImages
-        images(i) = imageList.get(i-1);
-    end
-else
-    images = [];
-end
+images = toMatlabList(imageList);
