@@ -38,7 +38,7 @@ function projects = getProjects(session, varargin)
 
 % Input check
 ip = inputParser;
-ip.addOptional('ids', [], @isvector);
+ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
 ip.parse(varargin{:});
 
 % Indicate to load the Project/Dataset/Images graph
