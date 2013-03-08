@@ -34,7 +34,31 @@ function images = getImages(session, varargin)
 
 % Input check
 ip = inputParser;
-ip.addOptional('ids', [], @isvector);
+ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
 ip.parse(varargin{:});
 
-images = getObjects(session, 'image', ip.Results.ids);
+% Add the current user id to the loading parameters
+parameters = omero.sys.ParametersI();
+userId = session.getAdminService().getEventContext().userId;
+parameters.exp(rlong(userId));
+
+% Create container service to load objects
+proxy = session.getContainerService();
+if ~isempty(ip.Results.ids),
+    ids = toJavaList(ip.Results.ids, 'java.lang.Long');
+    imageList = proxy.getImages(objectType.class, ids, parameters);
+else
+    imageList = proxy.getUserImages(parameters);
+end
+
+% Convert java.util.ArrayList into Matlab arrays
+nImages = imageList.size();
+if nImages >= 1
+    % Initialize array
+    images(1 : nImages) = omero.model.ImageI();
+    for i = 1 : nImages
+        images(i) = imageList.get(i-1);
+    end
+else
+    images = [];
+end
