@@ -1,19 +1,19 @@
-function plates = getPlates(session, varargin)
-% GETPLATES Retrieve plate objects from the OMERO server
+function plates = getPlateAcquisitions(session, varargin)
+% GETPLATEACQUISITIONS Retrieve plate acquisition objects from the OMERO server
 %
-%   plates = getPlates(session) returns all the plates owned by the
-%   session user in the context of the session group.
+%   plates = getPlateAcquisitions(session) returns all the plateruns owned
+%   by the session user in the context of the session group.
 %
-%   plates = getPlates(session, ids) returns all the plates identified by
-%   the input ids owned by the session user in the context of the session
-%   group.
+%   plates = getPlateAcquisitions(session, ids) returns all the plate runs
+%   identified by the input ids owned by the session user in the context of
+%   the session group.
 %
 %   Examples:
 %
-%      plates = getPlates(session);
-%      plates = getPlates(session, ids);
+%      plates = getPlateAcquisitions(session);
+%      plates = getPlateAcquisitions(session, ids);
 %
-% See also: GETOBJECTS, GETSCREENS, GETIMAGES
+% See also: GETOBJECTS, GETPLATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -34,7 +34,7 @@ function plates = getPlates(session, varargin)
 
 % Input check
 ip = inputParser;
-ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('ids', [], @isvector);
 ip.parse(varargin{:});
 
-plates = getObjects(session, 'plate', ip.Results.ids);
+plates = getObjects(session, 'plateacquisition', ip.Results.ids);
