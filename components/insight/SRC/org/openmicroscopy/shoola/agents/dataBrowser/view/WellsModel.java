@@ -242,7 +242,7 @@ class WellsModel
 			boolean withThumbnails)
 	{
 		super(ctx);
-		if (wells == null) 
+		if (wells == null)
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
 		wellDimension = null;
