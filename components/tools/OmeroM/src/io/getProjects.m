@@ -8,6 +8,11 @@ function projects = getProjects(session, varargin)
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
+%   projects = getProjects(session, ids, loaded) returns all the projects
+%   identified by the input ids owned by the session user in the context of
+%   the session group. The loaded bolean specified whether the
+%   projects/datasets/images should be loaded.
+%
 %   By default, getProjects() loads the entire projects/datasets/images
 %   graph. This may have consequences in terms of loading time depending on
 %   the number of projects to load and datasets/images in the graph.
@@ -16,6 +21,8 @@ function projects = getProjects(session, varargin)
 %
 %      projects = getProjects(session);
 %      projects = getProjects(session, ids);
+%      projects = getProjects(session, ids, false);
+%      projects = getProjects(session, [], false);
 %
 % See also: GETOBJECTS, GETDATASETS, GETIMAGES
 
@@ -39,10 +46,11 @@ function projects = getProjects(session, varargin)
 % Input check
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('loaded', true, @islogical);
 ip.parse(varargin{:});
 
-% Indicate to load the Project/Dataset/Images graph
 parameters = omero.sys.ParametersI();
-parameters.leaves();
+% Indicate to load the Project/Dataset/Images graph
+if ip.Results.loaded, parameters.leaves(); end
 
 projects = getObjects(session, 'project', ip.Results.ids, parameters);

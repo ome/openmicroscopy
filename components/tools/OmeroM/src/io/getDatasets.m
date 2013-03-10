@@ -8,6 +8,11 @@ function datasets = getDatasets(session, varargin)
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
+%   projects = getDatasets(session, ids, loaded) returns all the datasets
+%   identified by the input ids owned by the session user in the context of
+%   the session group. The loaded bolean specified whether the images
+%   attached to the datasets should be loaded.
+%
 %   By default, getDatasets() loads all the images attached to the datasets.
 %   This may have consequences in terms of loading time depending on the
 %   number of datasets to load and images in the datasets.
@@ -16,6 +21,8 @@ function datasets = getDatasets(session, varargin)
 %
 %      datasets = getDatasets(session);
 %      datasets = getDatasets(session, ids);
+%      datasets = getDatasets(session, ids, false);
+%      datasets = getDatasets(session, [], false);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 
@@ -40,10 +47,11 @@ function datasets = getDatasets(session, varargin)
 % Check input
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('loaded', true, @islogical);
 ip.parse(varargin{:});
 
-% Indicate to load the Project/Dataset/Images graph
 parameters = omero.sys.ParametersI();
-parameters.leaves();
+% Indicate to load the images attached to the datasets
+if ip.Results.loaded, parameters.leaves(); end
 
 datasets = getObjects(session, 'dataset', ip.Results.ids, parameters);
