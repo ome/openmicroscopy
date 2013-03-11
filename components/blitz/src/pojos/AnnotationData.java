@@ -43,7 +43,6 @@ public abstract class AnnotationData extends DataObject {
         }
         try {
             Annotation a = annotationClass.newInstance();
-            a.setNs(rstring(""));
             setValue(a);
         } catch (Exception e) {
             throw new IllegalArgumentException("Unkown annotation type: "
