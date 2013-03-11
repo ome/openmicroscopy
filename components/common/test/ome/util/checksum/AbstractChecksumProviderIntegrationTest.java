@@ -35,11 +35,6 @@ import org.testng.annotations.Test;
  * checksum algorithm implementation is added. This class should be ignored by
  * TestNG.
  *
- * This class interacts with the file system when reading files of different
- * sizes. This is a way of testing efficient byte array reads from files when
- * calculating checksums. If the byte array size is changed in the code, the
- * files used for testing should be updated accordingly.
- *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
  */
@@ -50,9 +45,6 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     private File smallFile, mediumFile, bigFile;
 
     private EnumMap<ChecksumTestVector, String> checksumValues;
-
-    public AbstractChecksumProviderIntegrationTest() {
-    }
 
     public AbstractChecksumProviderIntegrationTest(ChecksumProvider cp,
             EnumMap<ChecksumTestVector, String> checksumValues) {
@@ -168,6 +160,16 @@ public abstract class AbstractChecksumProviderIntegrationTest {
                 .checksumAsString();
         Assert.assertEquals(actual, this.checksumValues
                 .get(ChecksumTestVector.ABC));
+    }
+
+    @Test
+    public void testChecksumAsStringWithMixedPutBytes() {
+        String actual = this.checksumProvider
+                .putBytes("abc".getBytes())
+                .putBytes(this.smallFile.getAbsolutePath())
+                .checksumAsString();
+        Assert.assertEquals(actual, this.checksumValues
+                .get(ChecksumTestVector.SMALLFILE));
     }
 
 }
