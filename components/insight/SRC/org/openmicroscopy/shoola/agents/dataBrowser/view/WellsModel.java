@@ -96,7 +96,7 @@ class WellsModel
 	private Dimension 			wellDimension;
 	
 	/** The collection of nodes hosting the wells. */
-	private List				wellNodes;
+	private List<ImageDisplay> wellNodes;
 	
 	/** The collection of nodes used to display cells e.g. A-1. */
 	private Set<CellDisplay> 	cells;
@@ -128,13 +128,13 @@ class WellsModel
 	 * @param nodes The nodes to sort.
 	 * @return See above.
 	 */
-	private List sortByRow(Set nodes)
+	private List<ImageDisplay> sortByRow(Set nodes)
 	{
-		List l = new ArrayList();
+		List<ImageDisplay> l = new ArrayList<ImageDisplay>();
 		if (nodes == null) return l;
 		Iterator i = nodes.iterator();
 		while (i.hasNext()) {
-			l.add(i.next());
+			l.add((ImageDisplay) i.next());
 		}
 		Comparator c = new Comparator() {
             public int compare(Object o1, Object o2)
@@ -258,7 +258,7 @@ class WellsModel
         rows = -1;
         columns = -1;
         int row, column;
-		Iterator j = wellNodes.iterator();
+		Iterator<ImageDisplay> j = wellNodes.iterator();
 		WellImageSet node;
 		ImageNode selected;
 		int f;
