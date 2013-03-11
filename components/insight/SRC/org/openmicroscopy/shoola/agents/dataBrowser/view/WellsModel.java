@@ -472,16 +472,16 @@ class WellsModel
 		if (index < 0 || index >= fieldsNumber) return;
 		selectedField = index;
 		Set<ImageDisplay> samples = new HashSet<ImageDisplay>();
-		List l = getNodes();
-		Iterator i = l.iterator();
+		List<ImageDisplay> l = getNodes();
+		Iterator<ImageDisplay> i = l.iterator();
 		WellImageSet well;
 		int row = -1;
 		int col = -1;
-		Collection c = browser.getSelectedDisplays(); 
+		Collection<ImageDisplay> c = browser.getSelectedDisplays();
 		Map<Integer, Integer> location = new HashMap<Integer, Integer>();
 		WellSampleNode selected;
 		if (c != null && c.size() > 0) {
-			Iterator j = c.iterator();
+			Iterator<ImageDisplay> j = c.iterator();
 			Object object;
 			while (j.hasNext()) {
 				object = j.next();
@@ -546,8 +546,8 @@ class WellsModel
 	{
 		if (cell == null) return;
 		List<DataObject> results = new ArrayList<DataObject >();
-		List l = getNodes();
-		Iterator i = l.iterator();
+		List<ImageDisplay> l = getNodes();
+		Iterator<ImageDisplay> i = l.iterator();
 		WellImageSet well;
 		int index = cell.getIndex();
 		if (cell.getType() == CellDisplay.TYPE_HORIZONTAL) {
@@ -619,8 +619,8 @@ class WellsModel
 	 */
 	WellImageSet getWell(int row, int column)
 	{
-		List l = getNodes();
-		Iterator i = l.iterator();
+		List<ImageDisplay> l = getNodes();
+		Iterator<ImageDisplay> i = l.iterator();
 		WellImageSet well;
 		while (i.hasNext()) {
 			well = (WellImageSet) i.next();
@@ -639,11 +639,10 @@ class WellsModel
 	 */
 	DataBrowserLoader createFieldsLoader(int row, int column)
 	{
-		List l = getNodes();
-		Iterator i = l.iterator();
+		List<ImageDisplay> l = getNodes();
+		Iterator<ImageDisplay> i = l.iterator();
 		ImageSet node;
 		List<DataObject> images = new ArrayList<DataObject>();
-		ImageNode selected;
 		WellSampleData data;
 		Thumbnail thumb;
 		WellImageSet wis;
@@ -687,8 +686,8 @@ class WellsModel
 			Collection ids)
 	{
 		if (!withThumbnails) return null;
-		List l = getNodes();
-		Iterator i = l.iterator();
+		List<ImageDisplay> l = getNodes();
+		Iterator<ImageDisplay> i = l.iterator();
 		ImageSet node;
 		List<DataObject> images = new ArrayList<DataObject>();
 		ImageNode selected;
