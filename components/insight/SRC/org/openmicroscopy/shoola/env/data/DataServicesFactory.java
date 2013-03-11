@@ -745,7 +745,7 @@ public class DataServicesFactory
 				if (env != null && env.isRunAsPlugin())
 					title = "Exit Plugin";
 				MessageBox box = new MessageBox(
-						singleton.registry.getTaskBar().getFrame(),
+						DataServicesFactory.registry.getTaskBar().getFrame(),
 						title, message,
 						IconManager.getInstance().getIcon(
 								IconManager.INFORMATION_MESSAGE_48));
