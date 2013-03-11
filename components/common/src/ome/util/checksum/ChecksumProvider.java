@@ -77,7 +77,8 @@ public interface ChecksumProvider {
 
     /**
      * Returns a byte array representation of the calculated checksum.
-     * Internally this method resets the object state.
+     * Internally this method calls {@link ChecksumProvider#reset()}.
+     * Subsequent calls to this method will yield unspecified results.
      *
      * @return <code>byte[]</code> The checksum in a byte array.
      */
@@ -85,7 +86,8 @@ public interface ChecksumProvider {
 
     /**
      * Returns a <code>String</code> representing the checksum in hex form.
-     * Internally this method resets the object state.
+     * Internally this method calls {@link ChecksumProvider#reset()}.
+     * Subsequent calls to this method will yield unspecified results.
      *
      * @return <code>String</code> The hexadecimal value of the checksum.
      */
