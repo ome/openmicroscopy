@@ -279,7 +279,8 @@ public abstract class ImageDisplay
     public void removeAllChildrenDisplay()
     {
     	Iterator<ImageDisplay> i = childrenDisplay.iterator();
-        Set<ImageDisplay> toRemove = new HashSet<ImageDisplay>(childrenDisplay.size());
+        Set<ImageDisplay> toRemove = 
+        		new HashSet<ImageDisplay>(childrenDisplay.size());
         while (i.hasNext())
             toRemove.add(i.next());
         i = toRemove.iterator();
