@@ -65,15 +65,18 @@ public class LookupNames
 	/** 
 	 * Field associated to the <code>ImageJ</code> plugin.
 	 */
-	public static final int IMAGE_J = 100;
+	public static final int IMAGE_J = 1;
 	
 	/** 
 	 * Field associated to the <code>Knime</code> plugin.
 	 */
-	public static final int KNIME = 101;
+	public static final int KNIME = 2;
 	
 	/** Field to access the plugin.*/
 	public static final String PLUGIN = "Plugin";
+	
+	/** Field to access the plugin dependencies and information.*/
+	public static final String PLUGINS = "/plugins";
 	
 	/** 
 	 * Field indicating the value associated to the
