@@ -330,6 +330,8 @@ class WellsModel
 			if (fieldsNumber < f) fieldsNumber = f;
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
+			//set the title to Row/Column
+			node.formatWellSampleTitle();
 			samples.add(selected);
 			b = false;
 			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
