@@ -41,3 +41,20 @@ TEST(ClientTest, ClientWithInitializationData2 )
   std::string s = c->getProperty("omero.host");
   ASSERT_EQ("localhost", s);
 }
+
+TEST(ClientTest, BlockSizeDefault)
+{
+  int argc = 0;
+  char* argv[] = {0};
+  omero::client_ptr c = new omero::client(argc, argv);
+  ASSERT_EQ(5000000, c->getDefaultBlockSize());
+}
+
+TEST(ClientTest, BlockSize1MB)
+{
+
+  int argc = 1;
+  char* argv[] = {(char*)"--omero.block_size=1000000", 0};
+  omero::client_ptr c = new omero::client(argc, argv);
+  ASSERT_EQ(1000000, c->getDefaultBlockSize());
+}

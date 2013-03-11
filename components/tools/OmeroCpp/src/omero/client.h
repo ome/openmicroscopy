@@ -249,6 +249,12 @@ namespace omero {
          */
         std::map<std::string, std::string> getPropertyMap(const Ice::PropertiesPtr& props = Ice::PropertiesPtr()) const;
 
+        /*
+         * Returns the user-configured "omero.block_size" property or
+         * omero::constants::DEFAULTBLOCKSIZE if none is set.
+         */
+        int getDefaultBlockSize() const;
+
         // Session management
         // ================================================================
 

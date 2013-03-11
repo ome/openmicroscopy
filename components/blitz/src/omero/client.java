@@ -299,6 +299,13 @@ public class client {
         id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 
+        // Setting default block size
+        String blockSize = id.properties.getProperty("omero.block_size");
+        if (blockSize == null || blockSize.length() == 0) {
+            id.properties.setProperty("omero.block_size", Integer
+                    .toString(omero.constants.DEFAULTBLOCKSIZE.value));
+        }
+
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
         if (messageSize == null || messageSize.length() == 0) {
@@ -559,6 +566,18 @@ public class client {
             rv.putAll(prefixed);
         }
         return rv;
+    }
+
+    /**
+     * Returns the user configured setting for "omero.block_size"
+     * or {@link omero.constants.DEFAULTBLOCKSIZE} if none is set.
+     */
+    public int getDefaultBlockSize() {
+        try {
+            return Integer.valueOf(getProperty("omero.block_size"));
+        } catch (Exception e) {
+            return omero.constants.DEFAULTBLOCKSIZE.value;
+        }
     }
 
     // Session management

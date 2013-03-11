@@ -52,6 +52,14 @@ namespace omero {
             id.properties->setProperty("Ice.GC.Interval", ssgcInt.str());
         }
 
+        // Setting block size
+        std::string blockSize = id.properties->getProperty("omero.block_size");
+        if ( blockSize.length() == 0 ) {
+            stringstream ssmsgsize;
+            ssmsgsize << omero::constants::DEFAULTBLOCKSIZE;
+            id.properties->setProperty("omero.block_size", ssmsgsize.str());
+        }
+
         // Setting MessageSizeMax
         std::string messageSize = id.properties->getProperty("Ice.MessageSizeMax");
         if ( messageSize.length() == 0 ) {
@@ -380,6 +388,20 @@ namespace omero {
 
     std::string client::getProperty(const std::string& key) const {
         return getCommunicator()->getProperties()->getProperty(key);
+    }
+
+    // --------------------------------------------------------------------
+
+
+    int client::getDefaultBlockSize() const {
+        try {
+            std::stringstream ss(getProperty("omero.block_size"));
+            int num;
+            ss >> num;
+            return num;
+        } catch (...) {
+            return omero::constants::DEFAULTBLOCKSIZE;
+        }
     }
 
 
