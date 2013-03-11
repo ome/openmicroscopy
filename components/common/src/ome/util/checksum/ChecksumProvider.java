@@ -22,11 +22,13 @@ package ome.util.checksum;
 import java.nio.ByteBuffer;
 
 /**
- * A provider producing checksums or message digests (depending on the
+ * A fluent interface producing checksums or message digests (depending on the
  * implementing class) of a given type of input. The object's internal state
  * represents the current checksum value and each call to <code>putBytes()</code>
- * updates this object's internal state. This is a fluent interface allowing
- * for method chaining.
+ * updates this object's internal state, with the caveat that
+ * {@link ChecksumProvider#putBytes(String)} has priority above any other
+ * <code>putBytes()</code> calls and they should not be intermixed. This object
+ * can only return a checksum for a file or byte structure, never both.
  * <br/>
  * Inside the <code>ome.util.checksum</code> package, the term <i>checksum</i>
  * is understood as an "umbrella" term covering checksums, message digests and

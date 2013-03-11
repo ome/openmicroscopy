@@ -19,18 +19,15 @@
 
 package ome.util.checksum;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 
-import org.apache.commons.codec.binary.Hex;
-
-import ome.util.Utils;
-
+import com.google.common.base.Optional;
+import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
+import com.google.common.io.Files;
 
 /**
  * Abstract skeleton class implementing {@link ChecksumProvider} and providing
@@ -47,6 +44,8 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     private final HashFunction hashFunction;
 
     private Hasher hasher;
+
+    private Optional<HashCode> optionalHashCode = Optional.absent();
 
     // Array size for buffered file reads
     private static final int BYTEARRAYSIZE = 8192;
@@ -85,31 +84,18 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(String)
      */
     public ChecksumProvider putBytes(String filePath) {
-        FileInputStream fis = null;
-        FileChannel fch = null;
         try {
-            fis = new FileInputStream(filePath);
-            fch = fis.getChannel();
-            MappedByteBuffer mbb = fch.map(FileChannel.MapMode.READ_ONLY, 0L,
-                    fch.size());
-            byte[] byteArray = new byte[BYTEARRAYSIZE];
-            int byteCount;
-            while (mbb.hasRemaining()) {
-                byteCount = Math.min(mbb.remaining(), BYTEARRAYSIZE);
-                mbb.get(byteArray, 0, byteCount);
-                this.hasher.putBytes(byteArray, 0, byteCount);
-            }
+            this.optionalHashCode = Optional.of(
+                    Files.hash(new File(filePath), this.hashFunction));
             return this;
         } catch (IOException io) {
             throw new RuntimeException(io);
-        } finally {
-            Utils.closeQuietly(fis);
-            Utils.closeQuietly(fch);
         }
     }
 
     public ChecksumProvider reset() {
         this.hasher = this.hashFunction.newHasher();
+        this.optionalHashCode = Optional.absent();
         return this;
     }
 
@@ -117,7 +103,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsBytes()
      */
     public byte[] checksumAsBytes() {
-        byte[] result = this.hasher.hash().asBytes();
+        byte[] result = this.pickChecksum().asBytes();
         this.reset();
         return result;
     }
@@ -126,9 +112,13 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsString()
      */
     public String checksumAsString() {
-        String result = Hex.encodeHexString(this.hasher.hash().asBytes());
+        String result = this.pickChecksum().toString();
         this.reset();
         return result;
     }
 
+    private HashCode pickChecksum() {
+        return this.optionalHashCode.isPresent() ?
+                this.optionalHashCode.get() : this.hasher.hash();
+    }
 }
