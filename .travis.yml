@@ -4,7 +4,7 @@ jdk:
   - openjdk7
 
 before_install:
-    - sudo apt-get update -qq
+    - sudo apt-get install -qq git
     - sudo apt-get install -qq zeroc-ice34
     - sudo apt-get install -qq python-imaging python-numpy python-tables
 
