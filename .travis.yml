@@ -3,6 +3,23 @@ language: java
 jdk:
   - openjdk7
 
+env:
+  - TESTBUILD=components/bioformats/build.xml
+  - TESTBUILD=components/blitz/build.xml
+  - TESTBUILD=components/common/build.xml
+  - TESTBUILD=components/insight/build.xml
+  - TESTBUILD=components/model/build.xml
+  - TESTBUILD=components/rendering/build.xml
+  - TESTBUILD=components/romio/build.xml
+  - TESTBUILD=components/server/build.xml
+  - TESTBUILD=components/specification/build.xml
+  - TESTBUILD=components/tools/OmeroCpp/build.xml
+  - TESTBUILD=components/tools/OmeroFS/build.xml
+  - TESTBUILD=components/tools/OmeroJava/build.xml
+  - TESTBUILD=components/tools/OmeroM/build.xml
+  - TESTBUILD=components/tools/OmeroPy/build.xml
+  - TESTBUILD=components/tools/OmeroWeb/build.xml
+
 before_install:
     - sudo apt-get install -qq git
     - sudo apt-get install -qq zeroc-ice34
@@ -10,4 +27,4 @@ before_install:
 
 install: python build.py build-all
 
-script: python build.py test-unit-all
+script: python build.py -f $TESTBUILD test
