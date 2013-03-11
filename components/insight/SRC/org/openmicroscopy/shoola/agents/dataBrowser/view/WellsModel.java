@@ -242,7 +242,7 @@ class WellsModel
 			boolean withThumbnails)
 	{
 		super(ctx);
-		if (wells  == null) 
+		if (wells == null)
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
 		wellDimension = null;
@@ -273,12 +273,9 @@ class WellsModel
 		Color color;
 		boolean b;
 		validWells = new ArrayList<WellGridElement>();
-		boolean titleRow, titleColumn;
 		int minRow = -1;
 		int minColumn = -1;
 		while (j.hasNext()) {
-			titleRow = false;
-			titleColumn = false;
 			node = (WellImageSet) j.next();
 			row = node.getRow();
 			column = node.getColumn();
@@ -312,14 +309,12 @@ class WellsModel
 			if (row > rows) rows = row;
 			if (column > columns) columns = column;
 			
-			if (minRow < 0 || minRow == row) {
+			if (minRow < 0 || minRow > row) {
 				minRow = row;
-				titleRow = true;
 			}
 			
-			if (minColumn < 0 || minColumn == column) {
+			if (minColumn < 0 || minColumn > column) {
 				minColumn = column;
-				titleColumn = true;
 			}
 			columnSequence = "";
 			if (columnSequenceIndex == PlateData.ASCENDING_LETTER)
@@ -336,8 +331,6 @@ class WellsModel
 			if (fieldsNumber < f) fieldsNumber = f;
 			node.setSelectedWellSample(selectedField);
 			selected = node.getSelectedWellSample();
-			if (titleColumn || titleRow)
-				node.formatWellSampleTitle();
 			samples.add(selected);
 			b = false;
 			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
@@ -347,12 +340,16 @@ class WellsModel
 			validWells.add(new WellGridElement(row, column, b));
 		}
 		//
-		if (minRow > 0 || minColumn > 0) {
+		if (minRow >= 0 || minColumn >= 0) {
 			j = wellNodes.iterator();
 			while (j.hasNext()) {
 				node = (WellImageSet) j.next();
-				node.setIndentRow(minRow);
-				node.setIndentColumn(minColumn);
+				if (minRow > 0)
+				    node.setIndentRow(minRow);
+				if (minColumn > 0)
+				    node.setIndentColumn(minColumn);
+				if (node.getRow() == minRow || node.getColumn() == minColumn)
+				    node.formatWellSampleTitle();
 			}
 		}
 		
