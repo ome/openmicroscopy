@@ -168,9 +168,7 @@ public class StatusLabel
 	public StatusLabel()
 	{
 		uploadLabel = new JLabel();
-		uploadLabel.setForeground(UIUtilities.LIGHT_GREY);
 		generalLabel = new JLabel();
-		generalLabel.setForeground(UIUtilities.LIGHT_GREY);
 		fileSize = "";
 		seriesCount = 0;
 		readerType = "";
