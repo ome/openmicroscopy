@@ -2009,7 +2009,7 @@ class TreeViewerComponent
 			}
 		}
 		MessageBox box = new MessageBox(view, "Change group", "Are you " +
-		"you want to move the selected items to another group?");
+		"sure you want to move the selected items to another group?");
 		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 		//if we are here moving data.
 		i = elements.keySet().iterator();
