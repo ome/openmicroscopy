@@ -350,7 +350,7 @@ class OMEROGateway
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.REGION_PATH+"Populate_ROI.py");
+				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.ANALYSIS_PATH+"FLIM.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
@@ -6307,8 +6307,8 @@ class OMEROGateway
 				of = j.next();
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
-				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)) { 
-					//&&!SCRIPTS_UI_AVAILABLE.contains(v)) {
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)
+					&& !SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
