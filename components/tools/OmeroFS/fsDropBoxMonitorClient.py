@@ -642,14 +642,8 @@ class MonitorClientI(monitors.MonitorClient):
                     self.log.error("%s not found !" % t)
                 self.log.error("***** end of output from importer-cli *****")
         finally:
-            try:
-                remove_path(t)
-            except:
-                self.log.error("Failed to remove temporary file: %s" % t)
-            try:
-                remove_path(to)
-            except:
-                self.log.error("Failed to remove temporary file: %s" % to)
+            remove_path(t)
+            remove_path(to)
 
         return imageId
 
