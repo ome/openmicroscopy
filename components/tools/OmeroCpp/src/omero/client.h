@@ -40,8 +40,8 @@ namespace omero {
      */
     class OMERO_API Callable {
     public:
-	Callable() {};
-	void operator()() {};
+        Callable() {};
+        void operator()() {};
     };
 
     /*
@@ -62,12 +62,12 @@ namespace omero {
      */
     class OMERO_API client : public IceUtil::Shared {
 
-	// Preventing copy-construction and assigning by value.
+        // Preventing copy-construction and assigning by value.
     private:
-	client& operator=(const client& rv);
-	client(client&);
+        client& operator=(const client& rv);
+        client(client&);
 
-	// These are the central instances provided by this class.
+        // These are the central instances provided by this class.
     protected:
 
         /*
@@ -75,56 +75,56 @@ namespace omero {
          */
         bool __insecure;
 
-	/*
+        /*
          * See setAgent(string)
-	 */
-	std::string __agent;
+        */
+        std::string __agent;
 
-	/*
-	 * Identifier for this client instance. Multiple client uuids may be
-	 * attached to a single session uuid.
-	 */
-	std::string __uuid;
+        /*
+        * Identifier for this client instance. Multiple client uuids may be
+        * attached to a single session uuid.
+        */
+        std::string __uuid;
 
-	/*
-	 * InitializationData from the last communicator used to create
-	 * ic if nulled after closeSession(). A pointer is used since
-	 * ID is a simple struct.
-	 */
-	Ice::InitializationData __previous;
+       /*
+        * InitializationData from the last communicator used to create
+        * ic if nulled after closeSession(). A pointer is used since
+        * ID is a simple struct.
+        */
+        Ice::InitializationData __previous;
 
-	/*
-	 * Ice.ObjectAdapter containing the ClientCallback for
-	 * this instance.
-	 */
-	Ice::ObjectAdapterPtr __oa;
+       /*
+        * Ice.ObjectAdapter containing the ClientCallback for
+        * this instance.
+        */
+        Ice::ObjectAdapterPtr __oa;
 
-	/*
-	 * Single communicator for this omero::client. Nullness is used as
-	 * a test of what state the client is in, therefore all access is
-	 * synchronized by locking on mutex.
-	 */
-	Ice::CommunicatorPtr __ic;
+       /*
+        * Single communicator for this omero::client. Nullness is used as
+        * a test of what state the client is in, therefore all access is
+        * synchronized by locking on mutex.
+        */
+        Ice::CommunicatorPtr __ic;
 
-	/*
-	 * Single session for this omero::client. Nullness is used as a test
-	 * of what state the client is in, like ic, therefore all access is
-	 * synchronized by locking on mutex.
-	 */
-	omero::api::ServiceFactoryPrx __sf;
+        /*
+         * Single session for this omero::client. Nullness is used as a test
+         * of what state the client is in, like ic, therefore all access is
+         * synchronized by locking on mutex.
+         */
+        omero::api::ServiceFactoryPrx __sf;
 
-	/*
-	 * Lock (mutex) for all access to ic and sf
-	 */
-	IceUtil::RecMutex mutex;
+        /*
+         * Lock (mutex) for all access to ic and sf
+         */
+        IceUtil::RecMutex mutex;
 
-	/*
-	 * Initializes the current client via an InitializationData instance.
-	 * This is called by all of the constructors, but may also be called
-	 * on createSession() if a previous call to closeSession() has nulled
-	 * the Ice::Communicator.
-	 */
-	void init(const Ice::InitializationData& id);
+        /*
+         * Initializes the current client via an InitializationData instance.
+         * This is called by all of the constructors, but may also be called
+         * on createSession() if a previous call to closeSession() has nulled
+         * the Ice::Communicator.
+         */
+        void init(const Ice::InitializationData& id);
 
     public:
 
@@ -132,27 +132,27 @@ namespace omero {
          * Sets all the values in props as configuration properties.
          * Primarily for use with createClient
          */
-	client(const std::map<std::string, std::string>& props, bool secure = true);
+        client(const std::map<std::string, std::string>& props, bool secure = true);
 
-	/*
-	 * Creates an Ice::Communicator from command-line arguments. These
-	 * are parsed via Ice::Properties::parseIceCommandLineOptions(args) and
-	 * Ice::Properties::parseCommandLineOptions("omero", args)
-	 */
-	client(int& argc, char* argv[],
-	       const Ice::InitializationData& id = Ice::InitializationData());
+        /*
+         * Creates an Ice::Communicator from command-line arguments. These
+         * are parsed via Ice::Properties::parseIceCommandLineOptions(args) and
+         * Ice::Properties::parseCommandLineOptions("omero", args)
+         */
+        client(int& argc, char* argv[],
+               const Ice::InitializationData& id = Ice::InitializationData());
 
-	/*
-	 * Default constructor which can only parse the ICE_CONFIG environment
-	 * variable in a manner similar to that of the --Ice.Config file.
-	 */
-	client(const Ice::InitializationData& id = Ice::InitializationData());
+        /*
+         * Default constructor which can only parse the ICE_CONFIG environment
+         * variable in a manner similar to that of the --Ice.Config file.
+         */
+        client(const Ice::InitializationData& id = Ice::InitializationData());
 
-	/*
-	 * Creates an Ice::Communicator pointing at the given server and port,
-	 * which defaults to omero::constants::GLACIER2PORT if none is given.
-	 */
-	client(const std::string& host, int port = omero::constants::GLACIER2PORT);
+        /*
+         * Creates an Ice::Communicator pointing at the given server and port,
+         * which defaults to omero::constants::GLACIER2PORT if none is given.
+         */
+        client(const std::string& host, int port = omero::constants::GLACIER2PORT);
 
         /*
          * Sets the omero.model.Session#getUserAgent() string for
@@ -182,37 +182,37 @@ namespace omero {
         */
         client_ptr createClient(bool secure);
 
-	/*
-	 * Calls closeSession() and ignores all exceptions.
-	 */
-	~client();
+        /*
+         * Calls closeSession() and ignores all exceptions.
+         */
+        ~client();
 
-	/*
-	 * Implements the ~client logic as in OmeroPy and OmeroJava
-	 */
-	 void __del__();
+        /*
+         * Implements the ~client logic as in OmeroPy and OmeroJava
+         */
+         void __del__();
 
-	// Accessors
-	// ==============================================================
+        // Accessors
+        // ==============================================================
 
 
-	/*
-	 * Returns the Ice::Communicator for this instance or throws
-	 * an exception if null.
-	 */
-	Ice::CommunicatorPtr getCommunicator() const;
+        /*
+         * Returns the Ice::Communicator for this instance or throws
+         * an exception if null.
+         */
+        Ice::CommunicatorPtr getCommunicator() const;
 
-	/*
-	 * Returns the Ice::ObjectAdapter for this instance or throws
-	 * an exception if null.
-	 */
-	Ice::ObjectAdapterPtr getObjectAdapter() const;
+        /*
+         * Returns the Ice::ObjectAdapter for this instance or throws
+         * an exception if null.
+         */
+        Ice::ObjectAdapterPtr getObjectAdapter() const;
 
-	/*
-	 * Returns the current active session or throws an exception if none
-	 * has been created via createSession() since the last closeSession()
-	 */
-	omero::api::ServiceFactoryPrx getSession() const;
+        /*
+         * Returns the current active session or throws an exception if none
+         * has been created via createSession() since the last closeSession()
+         */
+        omero::api::ServiceFactoryPrx getSession() const;
 
         /*
          * Returns the UUID for the current session without making a remote call.
@@ -227,21 +227,21 @@ namespace omero {
          */
         std::string getCategory() const;
 
-	/*
-	 * Returns the Ice::ImplicitContext which defiens what properties
-	 * will be sent on every method invocation.
-	 */
-	Ice::ImplicitContextPtr getImplicitContext() const;
+        /*
+         * Returns the Ice::ImplicitContext which defiens what properties
+         * will be sent on every method invocation.
+         */
+        Ice::ImplicitContextPtr getImplicitContext() const;
 
-	/*
-	 * Returns the active Ice.Properties for this instance.
-	 */
-	Ice::PropertiesPtr getProperties() const;
+        /*
+         * Returns the active Ice.Properties for this instance.
+         */
+        Ice::PropertiesPtr getProperties() const;
 
-	/*
-	 * Returns the property value for this key or the empty string if none.
-	 */
-	std::string getProperty(const std::string& key) const;
+        /*
+         * Returns the property value for this key or the empty string if none.
+         */
+        std::string getProperty(const std::string& key) const;
 
         /*
          * Returns all properties which are prefixed with "omero." or "Ice."
@@ -249,41 +249,41 @@ namespace omero {
          */
         std::map<std::string, std::string> getPropertyMap(const Ice::PropertiesPtr& props = Ice::PropertiesPtr()) const;
 
-	// Session management
-	// ================================================================
+        // Session management
+        // ================================================================
 
-	/*
-	 * Uses the given uuid as name and password to rejoin a running session.
-	 */
-	omero::api::ServiceFactoryPrx joinSession(const std::string& sessionUuid);
+        /*
+         * Uses the given uuid as name and password to rejoin a running session.
+         */
+        omero::api::ServiceFactoryPrx joinSession(const std::string& sessionUuid);
 
-	/*
-	 * Creates a session. Calling this method while a session is
-	 * active will throw an exception. It should only be used again,
-	 * after a session timeout exception, or similar.
-	 */
-	omero::api::ServiceFactoryPrx createSession(const std::string& username = std::string(), const std::string& password = std::string());
+        /*
+         * Creates a session. Calling this method while a session is
+         * active will throw an exception. It should only be used again,
+         * after a session timeout exception, or similar.
+         */
+        omero::api::ServiceFactoryPrx createSession(const std::string& username = std::string(), const std::string& password = std::string());
 
-	/*
-	 * Acquires the Ice::Communicator::getDefaultRouter() and throws an exception
-	 * if it is not of type Glacier2::RouterPrx. Also sets the ImplicitContext
-	 * on the router proxy.
-	 */
-	Glacier2::RouterPrx const getRouter(const Ice::CommunicatorPtr& comm) const;
+        /*
+         * Acquires the Ice::Communicator::getDefaultRouter() and throws an exception
+         * if it is not of type Glacier2::RouterPrx. Also sets the ImplicitContext
+         * on the router proxy.
+         */
+        Glacier2::RouterPrx const getRouter(const Ice::CommunicatorPtr& comm) const;
 
-	/*
-	 * Calculates the local sha1 for a file.
-	 */
-	std::string sha1(const std::string& file);
+        /*
+         * Calculates the local sha1 for a file.
+         */
+        std::string sha1(const std::string& file);
 
-	/*
-	 * Utility method to upload a file. The original file can be a null pointer, and the
-	 * block size can be 0 or negative to use defaults. The string must point to a valid
-	 * file.
-	 */
-	void upload(const std::string& file,
-		    const omero::model::OriginalFilePtr& ofile,
-		    int blockSize);
+        /*
+         * Utility method to upload a file. The original file can be a null pointer, and the
+         * block size can be 0 or negative to use defaults. The string must point to a valid
+         * file.
+         */
+        void upload(const std::string& file,
+                    const omero::model::OriginalFilePtr& ofile,
+                    int blockSize);
 
         /**
          * Returns all active StatefulServiceInterface proxies. This can
@@ -291,75 +291,76 @@ namespace omero {
          */
         std::vector<omero::api::StatefulServiceInterfacePrx> getStatefulServices();
 
-	/*
-	 * Closes the Router connection created by createSession(). Due to a bug in Ice,
-	 * only one connection is allowed per communicator, so we also destroy the
-	 * communicator.
-	 *
-	 * http://www.zeroc.com/forums/help-center/2370-ice_ping-error-right-after-createsession-succeed.html
-	 */
-	void closeSession();
+        /*
+         * Closes the Router connection created by createSession(). Due to a bug in Ice,
+         * only one connection is allowed per communicator, so we also destroy the
+         * communicator.
+         *
+         * http://www.zeroc.com/forums/help-center/2370-ice_ping-error-right-after-createsession-succeed.html
+         */
+        void closeSession();
 
-	/*
+        /*
          * Calls ISession.closeSession(omero.model.Session) until
          * the returned reference count is greater than zero. The
          * number of invocations is returned. If ISession.closeSession()
          * cannot be called, -1 is returned.
-	 */
-	int killSession();
+         */
+        int killSession();
 
-	// Environment methods. Allows to store and retrieve
-	// ==================================================================
+        // Environment methods. Allows to store and retrieve
+        // ==================================================================
 
 
-	/**
-	 * Sets an item in the "input" shared (session) memory under the given name.
-	 */
-	omero::RTypePtr getInput(const std::string& key);
+        /**
+         * Sets an item in the "input" shared (session) memory under the given name.
+         */
+        omero::RTypePtr getInput(const std::string& key);
 
-	/**
-	 * Sets an item in the "output" shared (session) memory under the given name.
-	 */
-	omero::RTypePtr getOutput(const std::string& key);
+        /**
+         * Sets an item in the "output" shared (session) memory under the given name.
+         */
+        omero::RTypePtr getOutput(const std::string& key);
 
-	/*
-	 * Sets an item in the "input" shared (session) memory under the given name.
-	 */
-	void setInput(const std::string& key, const omero::RTypePtr& value);
+        /*
+         * Sets an item in the "input" shared (session) memory under the given name.
+         */
+        void setInput(const std::string& key, const omero::RTypePtr& value);
 
-	/*
-	 * Sets an item in the "output" shared (session) memory under the given name.
-	 */
-	void setOutput(const std::string& key, const omero::RTypePtr& value);
+        /*
+         * Sets an item in the "output" shared (session) memory under the given name.
+         */
+        void setOutput(const std::string& key, const omero::RTypePtr& value);
 
-	/*
-	 * Returns a list of keys for all items in the "input" shared (session) memory
-	 */
-	std::vector<std::string> getInputKeys();
+        /*
+         * Returns a list of keys for all items in the "input" shared (session) memory
+         */
+        std::vector<std::string> getInputKeys();
 
-	/*
-	 * Returns a list of keys for all items in the "output" shared (session) memory
-	 */
-	std::vector<std::string> getOutputKeys();
+        /*
+         * Returns a list of keys for all items in the "output" shared (session) memory
+         */
+        std::vector<std::string> getOutputKeys();
+
     protected:
-	const std::string sess();
-	omero::api::ISessionPrx env();
-	std::string parseAndSetInt(const Ice::InitializationData& id,
-				   const std::string& key, int port);
+        const std::string sess();
+        omero::api::ISessionPrx env();
+        std::string parseAndSetInt(const Ice::InitializationData& id,
+                                   const std::string& key, int port);
 
-	// Callback methods
-	// ==================================================================
+        // Callback methods
+        // ==================================================================
 
-	/*
-	 * Implementation of ClientCallback which will be added to
-	 * any Session which this instance creates
-	 */
+        /*
+         * Implementation of ClientCallback which will be added to
+         * any Session which this instance creates
+         */
     protected:
-	CallbackIPtr _getCb();
+        CallbackIPtr _getCb();
     public:
-	void onHeartbeat(Callable callable);
-	void onSessionClosed(Callable callable);
-	void onShutdown(Callable callable);
+        void onHeartbeat(Callable callable);
+        void onSessionClosed(Callable callable);
+        void onShutdown(Callable callable);
     };
 
     /*
@@ -369,28 +370,28 @@ namespace omero {
      */
     class OMERO_API CallbackI : virtual public omero::api::ClientCallback {
 
-	/*
-	 * omero::client needs access to the Callable fields on the callback.
-	 */
-	friend class client;
+        /*
+         * omero::client needs access to the Callable fields on the callback.
+         */
+        friend class client;
 
-	// Preventing copy-construction and assigning by value.
+        // Preventing copy-construction and assigning by value.
     private:
-	CallbackI& operator=(const CallbackI& rv);
-	CallbackI(CallbackI&);
-	void execute(Callable callable, const std::string& action);
-	// State
-	Ice::CommunicatorPtr ic;
-	Ice::ObjectAdapterPtr oa;
-	Callable onHeartbeat;
-	Callable onSessionClosed;
-	Callable onShutdown;
+        CallbackI& operator=(const CallbackI& rv);
+        CallbackI(CallbackI&);
+        void execute(Callable callable, const std::string& action);
+        // State
+        Ice::CommunicatorPtr ic;
+        Ice::ObjectAdapterPtr oa;
+        Callable onHeartbeat;
+        Callable onSessionClosed;
+        Callable onShutdown;
 
     public:
-	CallbackI(const Ice::CommunicatorPtr& ic, const Ice::ObjectAdapterPtr& oa);
-	virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
-	virtual void sessionClosed(const Ice::Current& current = Ice::Current());
-	virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
+        CallbackI(const Ice::CommunicatorPtr& ic, const Ice::ObjectAdapterPtr& oa);
+        virtual void requestHeartbeat(const Ice::Current& current = Ice::Current());
+        virtual void sessionClosed(const Ice::Current& current = Ice::Current());
+        virtual void shutdownIn(Ice::Long milliSeconds, const Ice::Current& current = Ice::Current());
     };
 
     // Callable implementations
@@ -402,7 +403,7 @@ namespace omero {
     class OMERO_API NoOpCallable : public Callable {
     public:
     NoOpCallable() : Callable() {}
-	void operator()(){}
+        void operator()(){}
     };
 }
 
