@@ -106,9 +106,8 @@ public final class Container
 	 * This object is passed around at initialization so that services'
 	 * initialization tasks may link it to the service implementation. 
 	 */
-	private static Container		singleton;
-	
-	
+	private static Container singleton;
+
 	/**
 	 * Performs the start up procedure.
 	 * 
@@ -160,7 +159,7 @@ public final class Container
 	 * <p>This method rolls back all executed tasks and terminates the program
 	 * if an error occurs during the initialization procedure.</p>
 	 * 
-	 * @param home		Path to the installation directory.  
+	 * @param home		Path to the installation directory.
 	 * 					If <code>null<code> or
 	 * 					empty, then the user directory is assumed.
 	 * @param configFile The configuration file.
@@ -327,12 +326,13 @@ public final class Container
 					value = v.intValue();
 			}
 		}
-		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		List<AgentInfo> agents = (List<AgentInfo>) 
+				singleton.registry.lookup(LookupNames.AGENTS);
+		Iterator<AgentInfo> i = agents.iterator();
 		AgentInfo agentInfo;
 		Agent a;
 		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
+			agentInfo = i.next();
 			if (agentInfo.isActive() && agentInfo.getNumber() == value) {
 				a = agentInfo.getAgent();
 				a.activate(true);
@@ -346,8 +346,9 @@ public final class Container
 	 */
 	public void startService()
 	{	
-		List agents = (List) singleton.registry.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		List<AgentInfo> agents = (List<AgentInfo>)
+				singleton.registry.lookup(LookupNames.AGENTS);
+		Iterator<AgentInfo> i = agents.iterator();
 		AgentInfo agentInfo;
 		Agent a;
 		Registry r; 
@@ -356,7 +357,7 @@ public final class Container
 		Environment env = new Environment(this);
 		singleton.registry.bind(LookupNames.ENV, env);
 		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
+			agentInfo = i.next();
 			if (agentInfo.isActive()) {
 				a = agentInfo.getAgent();
 				r = agentInfo.getRegistry();
@@ -410,9 +411,12 @@ public final class Container
      * @param plugin Pass positive value. See {@link LookupNames} for supported
      * plug-in. Those plug-in will have an UI entry.
      * @return A reference to the newly created singleton Container.
+     * @throws Throws a startup exception if the application cannot be used as 
+     * a plugin due to missing dependencies.
      */
     public static Container startupInPluginMode(String home, String configFile,
     		int plugin)
+    throws StartupException
     {
     	return startupInPluginMode(home, configFile, plugin, null);
     }
@@ -436,9 +440,12 @@ public final class Container
      * plug-in. Those plug-in will have an UI entry.
      * @param listener Listens to <code>ConnectedEvent</code>.
      * @return A reference to the newly created singleton Container.
+     * @throws Throws a startup exception if the application cannot be used as 
+     * a plugin due to missing dependencies.
      */
     public static Container startupInPluginMode(String home, String configFile,
     		int plugin, AgentEventListener listener)
+    	throws StartupException
     {
         if (Container.getInstance() != null) {
         	//reconnect.
@@ -481,8 +488,10 @@ public final class Container
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
             singleton = null;
+            if (se.getPlugin() != null)
+            	throw se;
             throw new RuntimeException(
-                    "Failed to intialize the Container in plugin mode.", se);
+		             "Failed to intialize the Container in plugin mode.", se);
         }
         return singleton;
     }
@@ -505,9 +514,12 @@ public final class Container
      * @param plugin Pass positive value. See {@link LookupNames} for supported
      * plug-in. Those plug-in will have an UI entry.
      * @return A reference to the newly created singleton Container.
+     * @throws Throws a startup exception if the application cannot be used as 
+     * a plugin due to missing dependencies.
      */
     public static Container startupInHeadlessMode(String home,
     		String configFile, int plugin)
+    	throws StartupException
     {
     	if (Container.getInstance() != null) {
         	return Container.getInstance();
@@ -536,6 +548,8 @@ public final class Container
         } catch (StartupException se) {
             if (initManager != null) initManager.rollback();
             singleton = null;
+            if (se.getPlugin() != null)
+            	throw se;
             throw new RuntimeException(
                     "Failed to intialize the Container in headless mode.", se);
         }
@@ -557,9 +571,12 @@ public final class Container
      *              empty, then the user directory is assumed.
      * @param configFile The configuration file.
      * @return A reference to the newly created singleton Container.
+     * @throws Throws a startup exception if the application cannot be used as 
+     * a plugin due to missing dependencies.
      */
     public static Container startupInHeadlessMode(String home, String configFile
     		)
+    throws StartupException
     {
         return startupInHeadlessMode(home, configFile, -1);
     }
