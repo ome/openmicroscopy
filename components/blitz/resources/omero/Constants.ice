@@ -49,6 +49,12 @@ module omero {
     const int MESSAGESIZEMAX = 65536;
 
     /**
+     * Default size for byte arrays during upload and download
+     * of binary data.
+     **/
+    const int DEFAULTBLOCKSIZE = 5000000;
+
+    /**
      * Default omero.ClientCallback.ThreadPool.Size (5).
      * Must be set before communicator initialization.
      **/

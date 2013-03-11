@@ -244,7 +244,7 @@ public class ImportLibrary implements IObservable
 
         final MessageDigest md = Utils.newSha1MessageDigest();
         final List<String> checksums = new ArrayList<String>();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[omero.constants.DEFAULTBLOCKSIZE.value];
         final int fileTotal = srcFiles.length;
 
         log.debug("Used files created:");
@@ -266,7 +266,7 @@ public class ImportLibrary implements IObservable
             final String[] srcFiles, int index) throws ServerError, IOException
     {
         final MessageDigest md = Utils.newSha1MessageDigest();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[omero.constants.DEFAULTBLOCKSIZE.value];
         return uploadFile(proc, srcFiles, index, md, buf);
     }
 
@@ -389,7 +389,7 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final MessageDigest md = Utils.newSha1MessageDigest();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[omero.constants.DEFAULTBLOCKSIZE.value];
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));

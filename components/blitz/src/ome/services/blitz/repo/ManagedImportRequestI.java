@@ -93,7 +93,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      */
     private Helper helper;
 
-    private byte[] arrayBuf = new byte[omero.constants.MESSAGESIZEMAX.value/8]; // 8 MB buffer
+    private byte[] arrayBuf = new byte[omero.constants.DEFAULTBLOCKSIZE.value];
 
     private final Registry reg;
 
