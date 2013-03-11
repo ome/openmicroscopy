@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.WellGridElement;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourObject;
 import pojos.DataObject;
-import pojos.ExperimenterData;
 import pojos.PlateData;
 import pojos.WellData;
 import pojos.WellSampleData;
