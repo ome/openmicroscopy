@@ -2892,7 +2892,6 @@ class OMEROGateway
 	            		"DatasetImageLink as obl where obl.child = img.id)");
 	            sb.append(" and not exists (select ws from WellSample as " +
 	            		"ws where ws.image = img.id)");
-	            sb.append(" and img.details.owner.id = :userID");
 	            ParametersI param = new ParametersI();
 	            if (userID >= 0) {
 	            	sb.append(" and img.details.owner.id = :userID");
