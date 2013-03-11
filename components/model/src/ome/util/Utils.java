@@ -172,6 +172,8 @@ public class Utils {
      * Standard algorithm to convert a byte-array into a SHA1. Throws a
      * {@link RuntimeException} if {@link MessageDigest#getInstance(String)}
      * throws {@link NoSuchAlgorithmException}.
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(byte[])}
      */
     @Deprecated
     public static String bufferToSha1(byte[] buffer) {
@@ -188,6 +190,8 @@ public class Utils {
     /**
      * Reads a file from disk and returns the SHA1 digest for it. An IOException
      * is thrown if anything occurs during reading.
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(String)}
      */
     @Deprecated
     public static byte[] pathToSha1(String fileName) {
@@ -211,6 +215,8 @@ public class Utils {
     }
     /**
      * Calculates a MD5 digest for the given {@link ByteBuffer}
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(ByteBuffer)}
      */
     @Deprecated
     public static byte[] calculateMessageDigest(ByteBuffer buffer) {
@@ -221,6 +227,8 @@ public class Utils {
 
     /**
      * Calculates a MD5 digest for the given {@link byte[]}
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(byte[])}
      */
     @Deprecated
     public static byte[] calculateMessageDigest(byte[] buffer) {
@@ -235,6 +243,8 @@ public class Utils {
      * @param data
      *            the byte[] to convert
      * @return String the converted byte[]
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
     @Deprecated
     public static String bytesToHex(byte[] data) {
@@ -247,6 +257,8 @@ public class Utils {
 
     /**
      * Standard algorithm to convert a byte into a hex representation.
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
     @Deprecated
     public static String byteToHex(byte data) {
@@ -258,6 +270,8 @@ public class Utils {
 
     /**
      * Standard algorithm to convert an int into a hex char.
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
     @Deprecated
     public static char toHexChar(int i) {
