@@ -130,7 +130,7 @@ Command-line tool for re-index the database. This command must be run on the mac
 
 Examples:
   bin/omero admin reindex --full                                                # All objects
-  bin/omero admin reindex --reindex ome.model.core.Image                        # Only images
+  bin/omero admin reindex --class ome.model.core.Image                          # Only images
   JAVA_OPTS="-Dlog4j.configuration=stderr.xml" bin/omero admin reindex --full   # Passing arguments to Java
 
 
@@ -1029,6 +1029,7 @@ OMERO Diagnostics %s
         xargs = [ log4j, "-Xmx1024M", "-cp", os.pathsep.join(classpath) ]
 
         cfg = config.as_map()
+        config.close()  # Early close. See #9800
         for x in ("name", "user", "host", "port"): # NOT passing password on command-line
             k = "omero.db.%s" % x
             if k in cfg:
