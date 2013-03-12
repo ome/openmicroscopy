@@ -365,7 +365,7 @@ class BrowserUI
 					}
 				}
 			});
-    		birdEyeView.setup();
+    		birdEyeView.setup(0, 0);
     		JFrame frame = model.getParentModel().getUI();
     		glass = (JPanel) frame.getGlassPane();
     		glass.setLayout(null);

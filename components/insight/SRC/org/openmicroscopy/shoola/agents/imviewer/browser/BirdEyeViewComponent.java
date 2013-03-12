@@ -380,12 +380,19 @@ class BirdEyeViewComponent
 	 */
 	int getLocationIndex() { return locationIndex; }
 	
-	/** Sets the component up.*/
-	void setup()
+	/** 
+	 * Sets the component up.
+	 * 
+	 * @param x The default value for the X-coordinate of the top left corner.
+	 * @param y The default value for the Y-coordinate of the top left corner.
+	 */
+	void setup(int x, int y)
 	{
+		if (x < 0) x = 0;
+		if (y < 0) y= 0;
 		setSelectionColor(SELECTION_COLOR);
-		bx = 0;
-		by = 0;
+		bx = x;
+		by = x;
 		fullDisplay = true;
 		addMouseListener(this);
 		addMouseMotionListener(this);
