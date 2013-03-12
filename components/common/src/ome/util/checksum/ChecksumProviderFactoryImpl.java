@@ -28,13 +28,6 @@ package ome.util.checksum;
 public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
 
     /**
-     * @see ChecksumProviderFactory#getProvider()
-     */
-    public ChecksumProvider getProvider() {
-        return this.getProvider(ChecksumType.SHA1);
-    }
-
-    /**
      * @see ChecksumProviderFactory#getProvider(ChecksumType)
      */
     public ChecksumProvider getProvider(ChecksumType checksumType) {

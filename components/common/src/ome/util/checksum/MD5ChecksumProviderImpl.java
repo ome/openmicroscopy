@@ -19,10 +19,7 @@
 
 package ome.util.checksum;
 
-import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-
-import java.nio.ByteBuffer;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using MD5
@@ -31,35 +28,10 @@ import java.nio.ByteBuffer;
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
  */
-public class MD5ChecksumProviderImpl implements ChecksumProvider {
+public final class MD5ChecksumProviderImpl extends AbstractChecksumProvider {
 
-    private final HashFunction md5 = Hashing.md5();
-
-    /**
-     * @see ChecksumProvider#getChecksum(byte[])
-     */
-    public byte[] getChecksum(byte[] rawData) {
-        return this.md5.newHasher().putBytes(rawData).hash().asBytes();
-    }
-
-    /**
-     * @see ChecksumProvider#getChecksum(ByteBuffer)
-     */
-    public byte[] getChecksum(ByteBuffer byteBuffer) {
-        if (byteBuffer.hasArray()) {
-            return this.md5.newHasher().putBytes(byteBuffer.array()).hash().asBytes();
-        } else {
-            throw new IllegalArgumentException("Supplied ByteBuffer has " +
-                    "inaccessible array.");
-        }
-    }
-
-    /**
-     * @see ChecksumProvider#getChecksum(String)
-     */
-    public byte[] getChecksum(String filePath) {
-        throw new UnsupportedOperationException("Method not "
-                + "implemented for file path String.");
+    public MD5ChecksumProviderImpl() {
+        super(Hashing.md5());
     }
 
 }

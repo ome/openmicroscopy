@@ -23,6 +23,12 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Unit test for the {@link ChecksumProviderFactoryImpl} class.
+ *
+ * @author Blazej Pindelski, bpindelski at dundee.ac.uk
+ * @since 4.4.7
+ */
 public class ChecksumProviderFactoryImplTest {
 
     private ChecksumProviderFactoryImpl cpf;
@@ -33,21 +39,15 @@ public class ChecksumProviderFactoryImplTest {
     }
 
     @Test
-    public void testGetProvider() {
-        ChecksumProvider cp = this.cpf.getProvider();
-        Assert.assertEquals(cp.getClass(), SHA1ChecksumProviderImpl.class);
-    }
-
-    @Test
     public void testGetProviderWithSHA1ChecksumType() {
         ChecksumProvider cp = this.cpf.getProvider(ChecksumType.SHA1);
-        Assert.assertEquals(cp.getClass(), SHA1ChecksumProviderImpl.class);
+        Assert.assertTrue(cp instanceof SHA1ChecksumProviderImpl);
     }
 
     @Test
     public void testGetProviderWithMD5ChecksumType() {
         ChecksumProvider cp = this.cpf.getProvider(ChecksumType.MD5);
-        Assert.assertEquals(cp.getClass(), MD5ChecksumProviderImpl.class);
+        Assert.assertTrue(cp instanceof MD5ChecksumProviderImpl);
     }
 
 }

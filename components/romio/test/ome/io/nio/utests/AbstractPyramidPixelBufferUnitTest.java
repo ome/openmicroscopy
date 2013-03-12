@@ -107,8 +107,8 @@ public abstract class AbstractPyramidPixelBufferUnitTest {
                 ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
                 byte[] tile = new byte[tileWidth * tileHeight * bytesPerPixel];
                 ByteBuffer.wrap(tile).asShortBuffer().put(0, (short) tileCount);
-                hashDigests.add(ome.util.Utils.bytesToHex(
-                        cpf.getProvider(ChecksumType.MD5).getChecksum(tile)));
+                hashDigests.add(cpf.getProvider(ChecksumType.MD5).putBytes(tile)
+                        .checksumAsString());
                 try
                 {
                     pixelBuffer.setTile(

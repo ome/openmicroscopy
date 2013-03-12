@@ -17,6 +17,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
+import org.apache.commons.codec.binary.Hex;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -110,8 +111,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
 
-        assertEquals(Helper.bytesToHex(originalDigests[0]), Helper
-                .bytesToHex(messageDigest));
+        assertEquals(Hex.encodeHexString(originalDigests[0]), Hex
+                .encodeHexString(messageDigest));
     }
 
     @Test
@@ -126,8 +127,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
 
         byte[] messageDigest = Helper.calculateMessageDigest(plane.getData());
 
-        assertEquals(Helper.bytesToHex(originalDigests[digestOffset]), Helper
-                .bytesToHex(messageDigest));
+        assertEquals(Hex.encodeHexString(originalDigests[digestOffset]), Hex
+                .encodeHexString(messageDigest));
     }
 
     @Test
@@ -144,10 +145,10 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
                 for (int z = 0; z < pixels.getSizeZ(); z++) {
                     digestOffset = getDigestOffset(z, c, t);
                     PixelData plane = pixbuf.getPlane(z, c, t);
-                    newMessageDigest = Helper.bytesToHex(Helper
+                    newMessageDigest = Hex.encodeHexString(Helper
                             .calculateMessageDigest(plane.getData()));
-                    oldMessageDigest = Helper
-                            .bytesToHex(originalDigests[digestOffset]);
+                    oldMessageDigest = Hex
+                            .encodeHexString(originalDigests[digestOffset]);
 
                     assertEquals(getPlaneCheckErrStr(z, c, t),
                             oldMessageDigest, newMessageDigest);

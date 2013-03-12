@@ -19,17 +19,7 @@
 
 package ome.util.checksum;
 
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-
-import ome.util.Utils;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using SHA1
@@ -38,52 +28,10 @@ import ome.util.Utils;
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
  */
-public class SHA1ChecksumProviderImpl implements ChecksumProvider {
+public final class SHA1ChecksumProviderImpl extends AbstractChecksumProvider {
 
-    private final HashFunction sha1 = Hashing.sha1();
-
-    private static final int BYTEARRAYSIZE = 8192;
-
-    /**
-     * @see ChecksumProvider#getChecksum(byte[])
-     */
-    public byte[] getChecksum(byte[] rawData) {
-        return this.sha1.newHasher().putBytes(rawData).hash().asBytes();
-    }
-
-    /**
-     * @see ChecksumProvider#getChecksum(ByteBuffer)
-     */
-    public byte[] getChecksum(ByteBuffer byteBuffer) {
-        throw new UnsupportedOperationException("Method not "
-                + "implemented for ByteBuffer.");
-    }
-
-    /**
-     * @see ChecksumProvider#getChecksum(String)
-     */
-    public byte[] getChecksum(String filePath) {
-        FileInputStream fis = null;
-        FileChannel fch = null;
-        Hasher sha1Hasher = this.sha1.newHasher();
-        try {
-            fis = new FileInputStream(filePath);
-            fch = fis.getChannel();
-            MappedByteBuffer mbb = fch.map(FileChannel.MapMode.READ_ONLY, 0L, fch.size());
-            byte[] byteArray = new byte[BYTEARRAYSIZE];
-            int byteCount;
-            while (mbb.hasRemaining()) {
-                byteCount = Math.min(mbb.remaining(), BYTEARRAYSIZE);
-                mbb.get(byteArray, 0, byteCount);
-                sha1Hasher.putBytes(byteArray, 0, byteCount);
-            }
-            return sha1Hasher.hash().asBytes();
-        } catch (IOException io) {
-            throw new RuntimeException(io);
-        } finally {
-            Utils.closeQuietly(fis);
-            Utils.closeQuietly(fch);
-        }
+    public SHA1ChecksumProviderImpl() {
+        super(Hashing.sha1());
     }
 
 }
