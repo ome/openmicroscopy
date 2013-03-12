@@ -143,7 +143,6 @@ public class StatusLabel
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
-		setForeground(UIUtilities.LIGHT_GREY);
 		maxPlanes = 0;
 		numberOfFiles = 0;
 		seriesCount = 0;
