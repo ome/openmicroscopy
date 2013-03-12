@@ -47,9 +47,6 @@ public class AbstractChecksumProvider implements ChecksumProvider {
 
     private Optional<HashCode> optionalHashCode = Optional.absent();
 
-    // Array size for buffered file reads
-    private static final int BYTEARRAYSIZE = 8192;
-
     /**
      * Protected ctor. There should not be an instance of this class.
      * @param hashFunction
@@ -93,6 +90,9 @@ public class AbstractChecksumProvider implements ChecksumProvider {
         }
     }
 
+    /**
+     * @see ChecksumProvider#reset()
+     */
     public ChecksumProvider reset() {
         this.hasher = this.hashFunction.newHasher();
         this.optionalHashCode = Optional.absent();
