@@ -47,6 +47,10 @@ public class AbstractChecksumProvider implements ChecksumProvider {
 
     private Optional<HashCode> optionalHashCode = Optional.absent();
 
+    private Optional<byte[]> hashBytes = Optional.absent();
+
+    private Optional<String> hashString = Optional.absent();
+
     /**
      * Protected ctor. There should not be an instance of this class.
      * @param hashFunction
@@ -60,6 +64,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(byte[])
      */
     public ChecksumProvider putBytes(byte[] byteArray) {
+        this.verifyState(this.hashBytes);
         this.hasher.putBytes(byteArray);
         return this;
     }
@@ -68,6 +73,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(ByteBuffer)
      */
     public ChecksumProvider putBytes(ByteBuffer byteBuffer) {
+        this.verifyState(this.hashBytes);
         if (byteBuffer.hasArray()) {
             this.hasher.putBytes(byteBuffer.array());
             return this;
@@ -81,6 +87,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(String)
      */
     public ChecksumProvider putFile(String filePath) {
+        this.verifyState(this.hashString);
         try {
             this.optionalHashCode = Optional.of(
                     Files.hash(new File(filePath), this.hashFunction));
@@ -94,20 +101,27 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#checksumAsBytes()
      */
     public byte[] checksumAsBytes() {
-        byte[] result = this.pickChecksum().asBytes();
-        return result;
+        this.hashBytes = Optional.of(this.pickChecksum().asBytes());
+        return this.hashBytes.get();
     }
 
     /**
      * @see ChecksumProvider#checksumAsString()
      */
     public String checksumAsString() {
-        String result = this.pickChecksum().toString();
-        return result;
+        this.hashString = Optional.of(this.pickChecksum().toString());
+        return this.hashString.get();
     }
 
     private HashCode pickChecksum() {
         return this.optionalHashCode.isPresent() ?
                 this.optionalHashCode.get() : this.hasher.hash();
+    }
+
+    private void verifyState(Optional optionalObject) {
+        if (!optionalObject.isPresent()) {
+            throw new IllegalStateException("Checksum state already set. " +
+                    "Mutation illegal.");
+        }
     }
 }
