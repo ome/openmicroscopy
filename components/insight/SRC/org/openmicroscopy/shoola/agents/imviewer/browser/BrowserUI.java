@@ -131,24 +131,24 @@ class BrowserUI
      * Displays the region of the image selected using the bird eye view.
      * 
      * @param region See above.
+     * @param load Pass <code>true</code> to load the tiles, <code>false</code>
+     * otherwise.
      */
-    private void displaySelectedRegion(Rectangle region)
+    private void displaySelectedRegion(Rectangle region, boolean load)
     {
     	if (region == null) return;
     	Dimension d = birdEyeView.getSize();
     	Rectangle rl = canvas.getBounds();
-    	int sizeX = rl.width;//model.getMaxX()/2;
-    	int sizeY = rl.height;//model.getMaxY()/2;
+    	int sizeX = rl.width;
+    	int sizeY = rl.height;
     	double vx = sizeX/d.width;
     	double vy = sizeY/d.height;
     	int x = (int) (vx*region.x);
     	int y = (int) (vy*region.y);
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
-    	Rectangle r = new Rectangle(x, y, w, h);
-    	model.checkTilesToLoad(r);
-    	//scrollTo(r, false);		
-    	getViewport().setViewPosition(new Point(r.x, r.y));
+    	if (load) model.loadTiles(new Rectangle(x, y, w, h));
+    	getViewport().setViewPosition(new Point(-1, -1));
     	setBirdEyeViewLocation();
     }
     
@@ -354,10 +354,11 @@ class BrowserUI
 					String name = evt.getPropertyName();
 					if (BirdEyeViewComponent.DISPLAY_REGION_PROPERTY.equals(
 							name)) {
-						displaySelectedRegion((Rectangle) evt.getNewValue());
+						displaySelectedRegion((Rectangle) evt.getNewValue(),
+								true);
 					} else if (
-							BirdEyeViewComponent.FULL_DISPLAY_PROPERTY.equals(
-							name)) {
+						BirdEyeViewComponent.FULL_DISPLAY_PROPERTY.equals(
+								name)) {
 						setBirdEyeViewLocation();
 					}
 				}
@@ -368,8 +369,6 @@ class BrowserUI
     		glass.setLayout(null);
     		glass.add(birdEyeView);
     		glass.setVisible(true);
-    		
-    		//addComponentToLayer(birdEyeView, false);
     		setBirdEyeViewLocation();
     	}
     	Dimension d = birdEyeView.getSize();
@@ -458,7 +457,7 @@ class BrowserUI
         canvas.setSize(d);
         if (model.isBigImage()) {
         	setSelectionRegion();
-        	Rectangle r = getViewport().getViewRect();
+        	Rectangle r = getVisibleRectangle();
     		d = layeredPane.getPreferredSize();
 			if (d.width < r.width && d.height < r.height) {
 				center();
@@ -495,7 +494,8 @@ class BrowserUI
      * 
      * @param x The X-coordinate of the mouse dragged minus mouse pressed.
      * @param y The Y-coordinate of the mouse dragged minus mouse pressed.
-     * @param load Passed <code>true</code>
+     * @param load Passed <code>true</code> to load, <code>false</code>
+     * otherwise.
      */
     void pan(int x, int y, boolean load)
     {
@@ -510,7 +510,7 @@ class BrowserUI
     	setSelectionRegion();
     	setBirdEyeViewLocation();
     	if (load)
-    		model.checkTilesToLoad(getViewport().getViewRect());
+    		model.loadTiles(getViewport().getViewRect());
     }
     
     /** 
@@ -523,7 +523,7 @@ class BrowserUI
     	scrollTo(region, false);
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	model.checkTilesToLoad(getVisibleRectangle());
+    	model.loadTiles(getVisibleRectangle());
     }
     
 	/**
@@ -665,7 +665,7 @@ class BrowserUI
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 		birdEyeView.setSelection(x, y, w, h);
-		displaySelectedRegion(birdEyeView.getSelectionRegion());
+		displaySelectedRegion(birdEyeView.getSelectionRegion(), false);
 	}
 	
 	/**
@@ -684,7 +684,7 @@ class BrowserUI
         //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
-        model.checkTilesToLoad(getVisibleRectangle());
+        model.loadTiles(getVisibleRectangle());
 	}
 	
 	/**
