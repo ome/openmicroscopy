@@ -85,10 +85,10 @@ else
 fi
 
 # Install scc tools
+bin/pip install -U scc || echo "scc installed"
+
+# Tap ome-alt library
 bin/brew tap $OMERO_ALT || echo "Already tapped"
-bin/brew install scc
-bin/pip install PyGithub || echo "PyGithub installed"
-bin/pip install argparse || echo "argparse installed"
 
 # Merge homebrew-alt PRs
 cd Library/Taps/${OMERO_ALT/\//-}
