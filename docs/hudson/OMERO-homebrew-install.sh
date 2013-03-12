@@ -13,6 +13,7 @@ export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 
 ###################################################################
 # Homebrew & pip uninstallation
