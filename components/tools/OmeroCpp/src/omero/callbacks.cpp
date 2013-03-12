@@ -177,7 +177,8 @@ namespace omero {
             omero::cmd::CmdCallbackPrx cb = omero::cmd::CmdCallbackPrx::uncheckedCast(prx);
             handle->addCallback(cb);
             // Now check just in case the process exited VERY quickly
-            poll();
+            pollThread = new PollThread(this);
+            pollThread->start();
         };
         
         void CmdCallbackI::close() {
@@ -257,11 +258,15 @@ namespace omero {
         };
 
         void CmdCallbackI::poll() {
+            IceUtil::RecMutex::Lock lock(mutex);
+            
             omero::cmd::ResponsePtr rsp = handle->getResponse();
             if (rsp) {
                 omero::cmd::StatusPtr s = handle->getStatus();
                 finished(rsp, s, Ice::Current()); // Only time that current should be null.
             }
+            
+            pollThread = NULL;
         };
 
         void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
