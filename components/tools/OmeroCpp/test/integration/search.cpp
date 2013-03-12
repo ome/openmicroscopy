@@ -1592,14 +1592,14 @@ TEST(SearchTest, testMergedBatches ) {
 }
 
 #define assertImageResults(images, search, descending) \
-    for (int i = descending? images.size() -1 : 0; i < images.size() && search->hasNext(); i += descending? -1 : 1) { \
+    for (size_t i = descending? images.size() -1 : 0; i < images.size() && search->hasNext(); i += descending? -1 : 1) { \
         string expectedDesc = images[i]->getDescription()->getValue(); \
         string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue(); \
         ASSERT_EQ(expectedDesc, actualDesc); \
     }
 
 #define assertImageResultsList(images, search, is) \
-    for (int i = 0; i < images.size() && search->hasNext(); i++) { \
+    for (size_t i = 0; i < images.size() && search->hasNext(); i++) { \
         string expectedDesc = images[is[i]]->getDescription()->getValue(); \
         string actualDesc = ImagePtr::dynamicCast(search->next())->getDescription()->getValue(); \
         ASSERT_EQ(expectedDesc, actualDesc); \
@@ -1629,7 +1629,7 @@ TEST(SearchTest, testOrderBy) {
         images[i] = ImagePtr::dynamicCast(f.update()->saveAndReturnObject(images[i]));
     }
     
-    for (int i = 0; i < images.size(); i++)
+    for (size_t i = 0; i < images.size(); i++)
         f.rootUpdate()->indexObject(images[i]);
     
     tag = new TagAnnotationI();
