@@ -164,13 +164,13 @@ public class PixelsServicesFactory
 		proxy.setBitResolution(def.getBitResolution().getValue());
 		
 		ChannelBinding c;
-		Collection bindings = rndDef.copyWaveRendering();
-		Iterator k = bindings.iterator();
+		Collection<ChannelBinding> bindings = rndDef.copyWaveRendering();
+		Iterator<ChannelBinding> k = bindings.iterator();
 		int i = 0;
 		int[] rgba;
 		ChannelBindingsProxy cb;
 		while (k.hasNext()) {
-			c = (ChannelBinding) k.next();
+			c = k.next();
 			cb = proxy.getChannel(i);
 			if (cb == null) {
 				cb = new ChannelBindingsProxy();
@@ -674,15 +674,16 @@ public class PixelsServicesFactory
 		int n = 0;
 		int sizeCache = 0;
 		RenderingControlProxy proxy;
-		Entry entry;
+		Entry<Long, RenderingControl> entry;
+		Iterator<Entry<Long, RenderingControl>> i;
 		if (singleton.pixelsSource != null) n = 1;
 		if (n == 0 && m == 0) return maxSize*FACTOR;
 		else if (n == 0 && m > 0) {
 			sizeCache = (maxSize/(m+1))*FACTOR;
 			//reset all the image caches.
-			Iterator i = singleton.rndSvcProxies.entrySet().iterator();
+			i = singleton.rndSvcProxies.entrySet().iterator();
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
+				entry = i.next();
 				proxy = (RenderingControlProxy) entry.getValue();
 				proxy.setCacheSize(sizeCache);
 			}
@@ -693,9 +694,9 @@ public class PixelsServicesFactory
 		}
 		sizeCache = (maxSize/(m+n+1))*FACTOR;
 		//reset all the image caches.
-		Iterator i = singleton.rndSvcProxies.entrySet().iterator();
+		i = singleton.rndSvcProxies.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
+			entry = i.next();
 			proxy = (RenderingControlProxy) entry.getValue();
 			proxy.setCacheSize(sizeCache);
 		}
