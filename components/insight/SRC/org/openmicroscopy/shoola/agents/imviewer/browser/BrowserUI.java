@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -114,7 +115,6 @@ class BrowserUI
 		Rectangle r = getViewport().getViewRect();
 		Point p = new Point(0, 0);
 		p = SwingUtilities.convertPoint(getViewport(), p, glass);
-		birdEyeView.setLocation(p);
 		switch (birdEyeView.getLocationIndex()) {
 			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
