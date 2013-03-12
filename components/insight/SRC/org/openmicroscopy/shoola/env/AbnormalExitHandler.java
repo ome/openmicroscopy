@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.env.init.StartupException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -108,7 +109,7 @@ class AbnormalExitHandler
 	 * @param t		The exception that went unhandled.
 	 */
 	private synchronized void doTermination(Throwable t)
-	{	
+	{
         //We need to make sure calls to this method are serialized.  
         //The synchronized keywork ensures that only one thread at
         //a time can proceed.  However, the same thread is allowed

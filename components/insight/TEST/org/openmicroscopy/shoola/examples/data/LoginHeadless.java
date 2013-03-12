@@ -80,8 +80,14 @@ implements AgentEventListener
 	LoginHeadless(boolean withUI)
 	{
 		String homeDir = "";
-		Container container = Container.startupInHeadlessMode(homeDir, null, 
-				LookupNames.KNIME);
+		Container container = null;
+		try {
+			container = Container.startupInHeadlessMode(homeDir, null, 
+					LookupNames.KNIME);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		Registry reg = container.getRegistry();
 		LoginService svc = (LoginService) reg.lookup(LookupNames.LOGIN);
 		UserCredentials uc = new UserCredentials("root", "omero",

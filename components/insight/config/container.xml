@@ -93,7 +93,7 @@
          installation directory. -->
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
-    <entry name="/services/LOG/file">omeroinsight.log</entry>       
+    <entry name="/services/LOG/file">omeroinsight.log</entry>
     
     <!-- Enables/disables the Caching Service. -->
     <entry name="/services/CACHE/on" type="boolean">true</entry>
@@ -313,12 +313,43 @@
    * be set to false when testing DB upgrade for example.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="/services/SERVER/BinaryAvailable" type="boolean">true</entry>
-   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating to display data per group not per owner.
    * 0: indicate to display the group's data.
    * 1: indicate to display the user's data. Default value
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="DataDisplay" type="integer">0</entry>
-     
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Information indicating the dependencies when the client is used as a plugin
+   * e.g. as an ImageJ plugin.
+   * The id: 
+   * 1 identifies ImageJ plugin. This means that the application is used
+   * as an ImageJ plugin, in that case by default the the image will be opened
+   * in the imageJ viewer.
+   * 2 identifies Knime. This means that the application is used
+   * as an KNIME node
+   
+   * The plugin tag has the following children:
+   * id: The identifier of the plugin
+   * dependencies: value should be separated by a comma e.g. a.jar,b.jar
+   * conjunction: Indicates if all the items listed in dependencies
+   * must be found or only one. Support value: or/and.
+   * directory: The location in ImageJ where to look for the dependencies
+   * info:  Where to download the dependencies from.
+   * name: Name of the application, Used to display informative message.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+<plugins>
+   <structuredEntry name="/plugins" type="plugins">
+    <!-- The identifier of the plugin.-->
+   <plugin>
+   <id>1</id>
+   <!-- The dependencies will be ignored if used as an ImageJ2 or Fiji plugin-->
+   <dependencies>loci_tools.jar</dependencies>
+   <conjunction>or</conjunction>
+   <directory>plugins</directory>
+   <info>http://www.openmicroscopy.org/site/products/bio-formats/downloads</info>
+   <name>imageJ</name>
+   </plugin>
+  </structuredEntry>
+</plugins>
 </container>
