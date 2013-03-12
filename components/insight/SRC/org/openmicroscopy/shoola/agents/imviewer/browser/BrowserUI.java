@@ -147,8 +147,11 @@ class BrowserUI
     	int y = (int) (vy*region.y);
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
-    	if (load) model.loadTiles(new Rectangle(x, y, w, h));
-    	getViewport().setViewPosition(new Point(-1, -1));
+    	if (load) {
+    		model.loadTiles(new Rectangle(x, y, w, h));
+    		getViewport().setViewPosition(new Point(x, y));
+    	} else getViewport().setViewPosition(new Point(-1, -1));
+    	
     	setBirdEyeViewLocation();
     }
     
