@@ -468,6 +468,7 @@ class BirdEyeViewComponent
 		ax = bx;
 		ay = by;
 		release = false;
+		setCursorLocation(mouseX, mouseY);
 	}
 
     /**
@@ -508,15 +509,9 @@ class BirdEyeViewComponent
 		repaint();
 	}
 
-    /**
-     * Sets the cursor depending on action.
-     * @see MouseMotionListener#mouseMoved(MouseEvent)
-     */
-	public void mouseMoved(MouseEvent e)
+	private void setCursorLocation(int x, int y)
 	{
-		int x = e.getX();
-		int y = e.getY();
-		boolean b = (x > bx-w && x < bx+w && y > by-h && y < by+h);
+		boolean b = inSelection(x, y);
 		if (b) {
 			bover = true;
 			mouseX = x;
@@ -528,7 +523,15 @@ class BirdEyeViewComponent
 			bover = false;
 			setCursor(Cursor.getDefaultCursor());
 		}
-		
+	}
+	
+    /**
+     * Sets the cursor depending on action.
+     * @see MouseMotionListener#mouseMoved(MouseEvent)
+     */
+	public void mouseMoved(MouseEvent e)
+	{
+		setCursorLocation(e.getX(), e.getY());
 	}
 	
     /**
