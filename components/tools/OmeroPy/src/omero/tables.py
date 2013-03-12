@@ -536,14 +536,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         try:
             idname = self.factory.ice_getIdentity().name
             clientSession = self.factory.getSessionService().getSession(idname)
-
-            if clientSession.getClosed():
-                # Is this ever possible? So far
-                # Ice.ObjectNotExistException always seems to be thrown
-                self.logger.info("Client session %s closed" % idname)
-                return False
-        except Ice.ObjectNotExistException:
-            self.logger.info("Client session %s not found" % idname)
+        except:
+            self.logger.debug("Client session %s not found" % idname)
             return False
 
         return True
