@@ -436,6 +436,13 @@ class BirdEyeViewComponent
 		//noFill();
 	}
 
+    private boolean inSelection(int x, int y)
+    {
+    	if (x < bx || x > (bx+w)) return false;
+    	if (y < by || y > (by+h)) return false;
+    	return true;
+    }
+    
     /**
      * Depending on mouse click location, shows or hide the bird eye view.
      * @see MouseListener#mouseReleased(MouseEvent)
@@ -451,6 +458,12 @@ class BirdEyeViewComponent
 			else setSize(canvasWidth, canvasHeight);
 			firePropertyChange(FULL_DISPLAY_PROPERTY, old, fullDisplay);
 			return;
+		}
+		if (!inSelection(mouseX, mouseY)) {
+			bx = mouseX-w/2;
+			if (bx < 0) bx = 0;
+			by = mouseY-h/2;
+			if (by < 0) by = 0;
 		}
 		fullDisplay = true;
 		locked = bover;
