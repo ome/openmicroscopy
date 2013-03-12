@@ -170,6 +170,21 @@ class BirdEyeViewComponent
 	/** One of the constants defined by this class.*/
 	private int locationIndex;
 	
+	/**
+	 * Returns <code>true</code> if the specified coordinates are contained
+	 * in the selection, <code>false</code> otherwise.
+	 * 
+	 * @param x The X-coordinate of the mouse pressed.
+	 * @param y The Y-coordinate of the mouse pressed.
+	 * @return See above.
+	 */
+    private boolean inSelection(int x, int y)
+    {
+    	if (x < bx || x > (bx+w)) return false;
+    	if (y < by || y > (by+h)) return false;
+    	return true;
+    }
+    
 	/** Sets the location of the cross.*/
 	private void setCrossLocation()
 	{
@@ -342,14 +357,10 @@ class BirdEyeViewComponent
 	 */
 	int getLocationIndex() { return locationIndex; }
 	
-	/**
-	 * Overridden from @see {@link PApplet#setup()}
-	 */
-	public void setup()
+	/** Sets the component up.*/
+	void setup()
 	{
-		//setCanvasSize(0, 0);
-		setSelectionColor(SELECTION_COLOR); 
-		//noStroke();
+		setSelectionColor(SELECTION_COLOR);
 		bx = 0;
 		by = 0;
 		fullDisplay = true;
@@ -390,15 +401,11 @@ class BirdEyeViewComponent
 			return;
 		}
 		if (imageRectangle == null) {
-			//imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
-			//		pImage.getHeight());
 			g2D.setColor(BORDER_COLOR);
-			imageRectangle = new Rectangle(0, 0, pImage.getWidth(), 
+			imageRectangle = new Rectangle(0, 0, pImage.getWidth(),
 					pImage.getHeight());
 		}
 		setSize(canvasWidth, canvasHeight);
-		//stroke(255);
-		//g2D.drawImage(pImage, null, BORDER, BORDER);
 		g2D.drawImage(pImage, null, 0, 0);
 		g2D.setColor(FILL_COLOR);
 		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
@@ -420,10 +427,7 @@ class BirdEyeViewComponent
 				g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
 				g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
 		}
-		
-		//stroke(color);	
-		// Test if the cursor is over the box 
-		
+
 		g2D.setColor(color);
 		g2D.fillRect(bx, by, w, h);
 		if (colorBorder != null) {
@@ -433,16 +437,8 @@ class BirdEyeViewComponent
 		}
 		g2D.setColor(BORDER_COLOR);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
-		//noFill();
 	}
 
-    private boolean inSelection(int x, int y)
-    {
-    	if (x < bx || x > (bx+w)) return false;
-    	if (y < by || y > (by+h)) return false;
-    	return true;
-    }
-    
     /**
      * Depending on mouse click location, shows or hide the bird eye view.
      * @see MouseListener#mouseReleased(MouseEvent)
@@ -482,7 +478,7 @@ class BirdEyeViewComponent
 	{
 		if (fullDisplay) {
 			locked = false;
-			firePropertyChange(DISPLAY_REGION_PROPERTY, null, 
+			firePropertyChange(DISPLAY_REGION_PROPERTY, null,
 					new Rectangle(bx, by, w, h));
 		}
 		mouseX = e.getX();
@@ -506,15 +502,14 @@ class BirdEyeViewComponent
 		if (!inImage()) 
 			locked = false;
 		if (locked) {
-			bx = mouseX-bdifx; 
-			by = mouseY-bdify; 
+			bx = mouseX-bdifx;
+			by = mouseY-bdify;
 		}
 		repaint();
 	}
 
     /**
-     * Required by the {@link MouseMotionListener} I/F but no-operation
-     * implementation in our case.
+     * Sets the cursor depending on action.
      * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
 	public void mouseMoved(MouseEvent e)
