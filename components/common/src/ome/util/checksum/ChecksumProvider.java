@@ -22,13 +22,13 @@ package ome.util.checksum;
 import java.nio.ByteBuffer;
 
 /**
- * A fluent interface producing checksums or message digests (depending on the
+ * An interface producing checksums or message digests (depending on the
  * implementing class) of a given type of input. The object's internal state
  * represents the current checksum value and each call to <code>putBytes()</code>
- * updates this object's internal state, with the caveat that
- * {@link ChecksumProvider#putBytes(String)} has priority above any other
- * <code>putBytes()</code> calls and they should not be intermixed. This object
- * can only return a checksum for a file or byte structure, never both.
+ * updates this object's internal state. It is the callers responsibility to
+ * make sure calls to {@link ChecksumProvider#putFile(String)} are not intermixed
+ * with <code>putBytes()</code>. This object can only return a checksum for
+ * a file or byte structure, never both.
  * <br/>
  * Inside the <code>ome.util.checksum</code> package, the term <i>checksum</i>
  * is understood as an "umbrella" term covering checksums, message digests and
@@ -68,19 +68,13 @@ public interface ChecksumProvider {
      * @param filePath <code>String</code> representing the absolute file path.
      * @return ChecksumProvider
      */
-    ChecksumProvider putBytes(String filePath);
-
-    /**
-     * Resets the internal state of the object by clearing the checksum value.
-     *
-     * @return ChecksumProvider
-     */
-    ChecksumProvider reset();
+    ChecksumProvider putFile(String filePath);
 
     /**
      * Returns a byte array representation of the calculated checksum.
-     * Internally this method calls {@link ChecksumProvider#reset()}.
-     * Subsequent calls to this method will yield unspecified results.
+     * Subsequent calls to this method will return the same object state. After
+     * calling this method any invocation of the mutating methods
+     * (<code>put*</code>) will cause it to throw IllegalStateException.
      *
      * @return <code>byte[]</code> The checksum in a byte array.
      */
@@ -88,8 +82,9 @@ public interface ChecksumProvider {
 
     /**
      * Returns a <code>String</code> representing the checksum in hex form.
-     * Internally this method calls {@link ChecksumProvider#reset()}.
-     * Subsequent calls to this method will yield unspecified results.
+     * Subsequent calls to this method will return the same object state. After
+     * calling this method any invocation of the mutating methods
+     * (<code>put*</code>) will cause it to throw IllegalStateException.
      *
      * @return <code>String</code> The hexadecimal value of the checksum.
      */
