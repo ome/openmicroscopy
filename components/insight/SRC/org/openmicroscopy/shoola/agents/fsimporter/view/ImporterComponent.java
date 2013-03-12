@@ -408,7 +408,8 @@ class ImporterComponent
 	{
 		if (model.getState() != DISCARDED) {
 			ImporterUIElement element = view.getSelectedPane();
-			if (element != null && !element.isDone()) {
+			if (element != null && !element.isDone() && !element.isLastImport())
+			{
 				MessageBox box = new MessageBox(view, CANCEL_TITLE,
 						CANCEL_SELECTED_TEXT);
 				if (box.centerMsgBox() == MessageBox.NO_OPTION)
@@ -619,7 +620,7 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (!element.isDone())
+				if (!element.isDone() && !element.isLastImport())
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {

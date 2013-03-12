@@ -11,6 +11,8 @@ export BREW_DIR=${BREW_DIR:-/usr/local}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
+export BREW_OPTS=${BREW_OPTS:-}
+export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 
 ###################################################################
 # Homebrew & pip uninstallation
@@ -97,7 +99,7 @@ cd $BREW_DIR
 ###################################################################
 
 # Install Bio-Formats
-bin/brew install bioformats
+bin/brew install bioformats $BREW_OPTS
 showinf -version
 
 ###################################################################
@@ -105,7 +107,7 @@ showinf -version
 ###################################################################
 
 # Install PostgreSQL and OMERO
-bin/brew install omero
+bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
 # Install additional Python dependencies
@@ -138,8 +140,9 @@ bin/createuser -w -D -R -S db_user
 bin/createdb -O db_user omero_database
 bin/psql -h localhost -U db_user -l
 
-bin/omero db script "" "" root_password
-bin/psql -h localhost -U db_user omero_database < OMERO4.4__0.sql
+bin/omero db script "" "" root_password -f $SCRIPT_NAME
+bin/psql -h localhost -U db_user omero_database < $SCRIPT_NAME
+rm $SCRIPT_NAME
 
 # Set up the data directory
 mkdir -p $OMERO_DATA_DIR

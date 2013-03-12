@@ -150,6 +150,7 @@ class ConfigXml(object):
     def _close_lock(self):
         if self.lock is not None:
             self.lock.close()
+            self.lock = None
             try:
                 os.remove("%s.lock" % self.filename)
             except:
@@ -282,9 +283,12 @@ class ConfigXml(object):
             # couldn't open the file "a+"
             if self.XML is not None and self.save_on_close:
                 self.save()
+                self.XML = None
         finally:
             try:
-                self.source.close()
+                if self.source is not None:
+                    self.source.close()
+                    self.source = None
             finally:
                 self._close_lock()
 

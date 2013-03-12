@@ -29,7 +29,7 @@ namespace omero {
      * if a type has already been registered.)
      */
     void registerObjectFactory(const Ice::CommunicatorPtr ic,
-        const omero::client_ptr& client);
+        const omero::client* client);
 
 }
 

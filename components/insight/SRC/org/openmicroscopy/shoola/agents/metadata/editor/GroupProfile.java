@@ -370,6 +370,10 @@ class GroupProfile
 		if (namePane == null) return false;
 		String v = namePane.getText();
 		v = v.trim();
+		if (v.length() == 0) {
+			saveButton.setEnabled(false);
+			return false;
+		}
 		if (!ref.getName().equals(v)) {
 			if (saveButton != null) saveButton.setEnabled(true);
 			return true;

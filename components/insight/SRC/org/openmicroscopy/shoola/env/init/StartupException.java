@@ -23,11 +23,13 @@
 
 package org.openmicroscopy.shoola.env.init;
 
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.PluginInfo;
 
 
 /** 
@@ -48,6 +50,9 @@ package org.openmicroscopy.shoola.env.init;
 public class StartupException 
 	extends Exception
 {
+	
+	/** The information about the plugin if any.*/
+	private PluginInfo pluginInfo;
 	
 	/**
 	 * Constructs a new exception with the specified detail message.
@@ -83,6 +88,23 @@ public class StartupException
 		if (stack != null && 0 < stack.length)
 			originator = stack[0].getClassName();
 		return originator;
+	}
+
+	/**
+	 * Returns the information about the plugin if used in plugin mode.
+	 * 
+	 * @return See above.
+	 */
+	public PluginInfo getPlugin() { return pluginInfo; }
+	
+	/**
+	 * Sets the plugin's information.
+	 * 
+	 * @param plugin The value to set.
+	 */
+	public void setPluginInfo(PluginInfo pluginInfo)
+	{
+		this.pluginInfo = pluginInfo;
 	}
 
 }
