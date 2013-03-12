@@ -6,19 +6,6 @@
 
 """
 
-from omero_version import ice_compatibility as compat
-import Ice
-try:
-    vers = Ice.stringVersion()
-    vers = vers.split(".")
-    compat = compat.split(".")
-    if compat[0:2] != vers[0:2]:
-        raise Exception("Ice version mismatch: %s <> %s",
-                        ".".join(vers), ".".join(compat))
-finally:
-    del compat
-    del vers
-
 __save__ = __name__
 __name__ = 'omero'
 try:
