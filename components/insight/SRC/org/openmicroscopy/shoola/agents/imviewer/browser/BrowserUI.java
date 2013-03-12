@@ -523,7 +523,7 @@ class BrowserUI
     	scrollTo(region, false);
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	model.checkTilesToLoad(getViewport().getViewRect());
+    	model.checkTilesToLoad(getVisibleRectangle());
     }
     
 	/**
@@ -684,7 +684,7 @@ class BrowserUI
         //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
-        model.checkTilesToLoad(getViewport().getViewRect());
+        model.checkTilesToLoad(getVisibleRectangle());
 	}
 	
 	/**
@@ -703,7 +703,7 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Dimension d = layeredPane.getPreferredSize();
 		if (model.isBigImage()) {
     		//setSelectionRegion();
