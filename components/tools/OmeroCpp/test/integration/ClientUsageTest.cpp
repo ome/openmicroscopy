@@ -72,3 +72,11 @@ TEST(ClientUsageTest, testGetStatefulServices )
     ASSERT_EQ((unsigned int)0, srvs.size());
     sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
 }
+
+TEST(ClientUsageTest, testKillSession)
+{
+    Fixture f;
+    f.login();
+    int count = f.client->killSession();
+    ASSERT_EQ(count, 1);
+}
