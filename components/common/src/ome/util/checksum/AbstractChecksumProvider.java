@@ -80,7 +80,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     /**
      * @see ChecksumProvider#putBytes(String)
      */
-    public ChecksumProvider putBytes(String filePath) {
+    public ChecksumProvider putFile(String filePath) {
         try {
             this.optionalHashCode = Optional.of(
                     Files.hash(new File(filePath), this.hashFunction));
@@ -91,20 +91,10 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     }
 
     /**
-     * @see ChecksumProvider#reset()
-     */
-    public ChecksumProvider reset() {
-        this.hasher = this.hashFunction.newHasher();
-        this.optionalHashCode = Optional.absent();
-        return this;
-    }
-
-    /**
      * @see ChecksumProvider#checksumAsBytes()
      */
     public byte[] checksumAsBytes() {
         byte[] result = this.pickChecksum().asBytes();
-        this.reset();
         return result;
     }
 
@@ -113,7 +103,6 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      */
     public String checksumAsString() {
         String result = this.pickChecksum().toString();
-        this.reset();
         return result;
     }
 
