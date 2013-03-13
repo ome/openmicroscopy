@@ -39,13 +39,9 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -70,6 +66,9 @@ class ThumbnailLabel
 	/** Bound property indicating to browse the specified plate. */
 	static final String BROWSE_PLATE_PROPERTY = "browsePlate";
 	
+	/** Bound property indicating to view the image. */
+	static final String VIEW_IMAGE_PROPERTY = "viewImage";
+	
 	/** The border of the thumbnail label. */
 	private static final Border	LABEL_BORDER = 
 							BorderFactory.createLineBorder(Color.black, 1);
@@ -86,20 +85,16 @@ class ThumbnailLabel
 	/** Posts an event to view the object. */
 	private void view()
 	{
-		/* TODO: review
-		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
 			if (thumbnail.getImage() != null)
-				bus.post(new ViewImage(new ViewImageObject(
-						thumbnail.getImage()), null));
+				firePropertyChange(VIEW_IMAGE_PROPERTY, null,
+						thumbnail.getImage());
 		} else if (data instanceof ImageData) {
-			ImageData image = (ImageData) data;
-			bus.post(new ViewImage(new ViewImageObject(image), null));
+			firePropertyChange(VIEW_IMAGE_PROPERTY, null, (ImageData) data);
 		} else if (data instanceof PlateData) {
 			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
 		}
-		*/
 	}
 	
 	/** Rolls over the node. */
