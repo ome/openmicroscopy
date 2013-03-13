@@ -170,6 +170,9 @@ class BirdEyeViewComponent
 	/** One of the constants defined by this class.*/
 	private int locationIndex;
 	
+	/** Indicates if the mouse pressed occurred on the cross or not.*/
+    private boolean inCross = false;
+    
 	/**
 	 * Returns <code>true</code> if the specified coordinates are contained
 	 * in the selection, <code>false</code> otherwise.
@@ -468,7 +471,7 @@ class BirdEyeViewComponent
 		g2D.setColor(BORDER_COLOR);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
 	}
-
+    
     /**
      * Depending on mouse click location, shows or hide the bird eye view.
      * @see MouseListener#mouseReleased(MouseEvent)
@@ -477,7 +480,9 @@ class BirdEyeViewComponent
 	{
 		mouseX = e.getX();
 		mouseY = e.getY();
+		inCross = false;
 		if (cross.contains(mouseX, mouseY)) {
+			inCross = true;
 			boolean old = fullDisplay;
 			fullDisplay = !fullDisplay;
 			if (!fullDisplay) setSize(cross.width, cross.height);
@@ -507,7 +512,7 @@ class BirdEyeViewComponent
      */
 	public void mouseReleased(MouseEvent e)
 	{
-		if (fullDisplay) {
+		if (fullDisplay && !inCross) {
 			locked = false;
 			firePropertyChange(DISPLAY_REGION_PROPERTY, null,
 					new Rectangle(bx, by, w, h));
