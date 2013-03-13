@@ -132,7 +132,7 @@ public class RepoFile {
         }
 
         public String sha1() {
-            return cpf.getProvider(ChecksumType.SHA1).putBytes(path).checksumAsString();
+            return cpf.getProvider(ChecksumType.SHA1).putFile(path).checksumAsString();
         }
 
         @Override

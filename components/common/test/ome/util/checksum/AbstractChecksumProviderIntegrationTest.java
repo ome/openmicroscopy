@@ -26,6 +26,7 @@ import java.util.EnumMap;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -40,7 +41,7 @@ import org.testng.annotations.Test;
  */
 public abstract class AbstractChecksumProviderIntegrationTest {
 
-    private ChecksumProvider checksumProvider;
+    ChecksumProvider checksumProvider;
 
     private File smallFile, mediumFile, bigFile;
 
@@ -103,7 +104,7 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     @Test
     public void testChecksumAsStringWithSmallFilePathString() {
         String actual = this.checksumProvider
-                .putBytes(this.smallFile.getAbsolutePath())
+                .putFile(this.smallFile.getAbsolutePath())
                 .checksumAsString();
 
         Assert.assertEquals(actual, this.checksumValues
@@ -113,7 +114,7 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     @Test
     public void testChecksumAsStringWithMediumFilePathString() {
         String actual = this.checksumProvider
-                .putBytes(this.mediumFile.getAbsolutePath())
+                .putFile(this.mediumFile.getAbsolutePath())
                 .checksumAsString();
 
         Assert.assertEquals(actual, this.checksumValues
@@ -123,7 +124,7 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     @Test
     public void testChecksumAsStringChecksumWithBigFilePathString() {
         String actual = this.checksumProvider
-                .putBytes(this.bigFile.getAbsolutePath())
+                .putFile(this.bigFile.getAbsolutePath())
                 .checksumAsString();
 
         Assert.assertEquals(actual, this.checksumValues
@@ -132,24 +133,9 @@ public abstract class AbstractChecksumProviderIntegrationTest {
 
     @Test
     public void testChecksumAsStringWithEmptyObject() {
-        this.checksumProvider.reset();
         String actual = this.checksumProvider.checksumAsString();
         Assert.assertEquals(actual, this.checksumValues
                 .get(ChecksumTestVector.EMPTYARRAY));
-    }
-
-    @Test
-    public void testChecksumAsStringWithMultipleResets() {
-        String actual = this.checksumProvider
-                .reset()
-                .putBytes("abc".getBytes())
-                .reset()
-                .putBytes("foo".getBytes())
-                .reset()
-                .putBytes("abc".getBytes())
-                .checksumAsString();
-        Assert.assertEquals(actual, this.checksumValues
-                .get(ChecksumTestVector.ABC));
     }
 
     @Test
@@ -166,10 +152,17 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     public void testChecksumAsStringWithMixedPutBytes() {
         String actual = this.checksumProvider
                 .putBytes("abc".getBytes())
-                .putBytes(this.smallFile.getAbsolutePath())
+                .putFile(this.smallFile.getAbsolutePath())
                 .checksumAsString();
         Assert.assertEquals(actual, this.checksumValues
                 .get(ChecksumTestVector.SMALLFILE));
     }
 
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testPutBytesAfterChecksumAsString() {
+        this.checksumProvider
+            .putBytes("abc".getBytes())
+            .checksumAsString();
+        this.checksumProvider.putBytes("abc".getBytes());
+    }
 }

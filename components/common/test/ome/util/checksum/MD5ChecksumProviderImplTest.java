@@ -21,6 +21,7 @@ package ome.util.checksum;
 
 import java.util.EnumMap;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,4 +45,8 @@ public class MD5ChecksumProviderImplTest
         super(new MD5ChecksumProviderImpl(), map);
     }
 
+    @AfterMethod
+    public void resetChecksum() {
+        super.checksumProvider = new MD5ChecksumProviderImpl();
+    }
 }

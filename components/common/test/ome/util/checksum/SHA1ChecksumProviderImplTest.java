@@ -21,6 +21,7 @@ package ome.util.checksum;
 
 import java.util.EnumMap;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,6 +43,11 @@ public class SHA1ChecksumProviderImplTest
 
     public SHA1ChecksumProviderImplTest() {
         super(new SHA1ChecksumProviderImpl(), map);
+    }
+
+    @AfterMethod
+    public void resetChecksum() {
+        super.checksumProvider = new SHA1ChecksumProviderImpl();
     }
 
 }

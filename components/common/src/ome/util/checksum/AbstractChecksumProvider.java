@@ -45,7 +45,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
 
     private Hasher hasher;
 
-    private Optional<HashCode> optionalHashCode = Optional.absent();
+    private Optional<HashCode> hashCode = Optional.absent();
 
     private Optional<byte[]> hashBytes = Optional.absent();
 
@@ -64,7 +64,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(byte[])
      */
     public ChecksumProvider putBytes(byte[] byteArray) {
-        this.verifyState(this.hashBytes);
+        this.verifyState(this.hashBytes, this.hashString);
         this.hasher.putBytes(byteArray);
         return this;
     }
@@ -73,7 +73,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(ByteBuffer)
      */
     public ChecksumProvider putBytes(ByteBuffer byteBuffer) {
-        this.verifyState(this.hashBytes);
+        this.verifyState(this.hashBytes, this.hashString);
         if (byteBuffer.hasArray()) {
             this.hasher.putBytes(byteBuffer.array());
             return this;
@@ -87,9 +87,9 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(String)
      */
     public ChecksumProvider putFile(String filePath) {
-        this.verifyState(this.hashString);
+        this.verifyState(this.hashBytes, this.hashString);
         try {
-            this.optionalHashCode = Optional.of(
+            this.hashCode = Optional.of(
                     Files.hash(new File(filePath), this.hashFunction));
             return this;
         } catch (IOException io) {
@@ -114,14 +114,16 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     }
 
     private HashCode pickChecksum() {
-        return this.optionalHashCode.isPresent() ?
-                this.optionalHashCode.get() : this.hasher.hash();
+        return this.hashCode.isPresent() ?
+                this.hashCode.get() : this.hasher.hash();
     }
 
-    private void verifyState(Optional optionalObject) {
-        if (!optionalObject.isPresent()) {
-            throw new IllegalStateException("Checksum state already set. " +
-                    "Mutation illegal.");
+    private void verifyState(Optional... optionalObjects) {
+        for (Optional optionalObject : optionalObjects) {
+            if (optionalObject.isPresent()) {
+                throw new IllegalStateException("Checksum state already set. " +
+                        "Mutation illegal.");
+            }
         }
     }
 }
