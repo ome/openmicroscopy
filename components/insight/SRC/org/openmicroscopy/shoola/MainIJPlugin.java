@@ -57,7 +57,9 @@ import ij.plugin.PlugIn;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.PluginInfo;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.init.StartupException;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -78,21 +80,15 @@ public class MainIJPlugin
 	
 	/** The title of the splash screens. */
 	private static final String TITLE = "Open Microscopy Environment";
-	
-	/** The name of the jar to check. */
-	private static final String LOCI_TOOL = "loci_tools.jar";
-	
-	/** The name of directory where the plugins are added. */
-	private static final String PLUGINS_DIR = "plugins";
-	
+
 	/** Reference to the container.*/
 	private Container container;
 	
 	/** Builds the component indicating where to download the jar.*/
-	private void showMessage()
+	private void showMessage(PluginInfo info)
 	{
 		JEditorPane htmlPane = new JEditorPane("text/html",
-				formatWarningMessage());
+				formatMessage(info));
         htmlPane.setEditable(false);
         htmlPane.setOpaque(false);
         htmlPane.addHyperlinkListener(new HyperlinkListener() {
@@ -118,7 +114,8 @@ public class MainIJPlugin
        	final JDialog frame = new JDialog(IJ.getInstance(), "Warning");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.getContentPane().add(panel, BorderLayout.CENTER);
-        frame.setSize(350, 200);
+        //frame.setSize(350, 200);
+        frame.pack();
         frame.setResizable(false);
         okay.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -132,20 +129,28 @@ public class MainIJPlugin
 	/** 
 	 * Builds the warning message and indicates where to download the jar.
 	 * 
+	 * @param dependencies The dependencies
 	 * @return See above.
 	 */
-	private String formatWarningMessage()
+	private String formatMessage(PluginInfo info)
 	{
+		String dependencies = info.formatDependencies();
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("<html><body>");
 		buffer.append("<p>The plugin requires ");
-		buffer.append(LOCI_TOOL);
+		buffer.append(dependencies);
 		buffer.append("<br>Download the stable release version from<br>");
-		buffer.append("<a href=\"http://www.openmicroscopy.org/site/products/bio-formats/downloads\">" +
-				"bio-formats/downloads</a><br>");
+		String page = info.getInfo();
+		buffer.append("<a href=\""+page+"\">");
+		buffer.append(page);
+		buffer.append("</a><br>");
 		buffer.append("Add ");
-		buffer.append(LOCI_TOOL);
-		buffer.append(" to Plugins folder and restart ImageJ.</p>");
+		buffer.append(dependencies);
+		buffer.append(" to the ");
+		buffer.append(info.getDirectory());
+		buffer.append(" folder and restart ");
+		buffer.append(info.getName());
+		buffer.append(".</p>");
 		buffer.append("</body><html>");
 		return buffer.toString();
 	}
@@ -222,49 +227,29 @@ public class MainIJPlugin
 					"; you will need to upgrade.");
 			return;
 		}
-		String homeDir = "";
+		String home = "";
 		String configFile = null;
 		if (args != null) {
 			String[] values = args.split(" ");
 			if (values.length > 0) configFile = values[0];
-			if (values.length > 1) homeDir = values[1];
+			if (values.length > 1) home = values[1];
 		}
 		CodeSource src = 
-			MainIJPlugin.class.getProtectionDomain().getCodeSource();
+				MainIJPlugin.class.getProtectionDomain().getCodeSource();
 		File jarFile;
-		if (homeDir.length() == 0) {
+		if (home.length() == 0) {
 			try {
 				jarFile = new File(src.getLocation().toURI().getPath());
-			    homeDir = jarFile.getParentFile().getPath();
+				home = jarFile.getParentFile().getPath();
 			} catch (Exception e) {}
 		}
-		//Check if plugin is there
-		boolean exist = false;
 		try {
-			jarFile = new File(src.getLocation().toURI().getPath());
-		    //Plugin folder
-			File dir = new File(System.getProperty("user.dir"), PLUGINS_DIR);
-		    File[] l = dir.listFiles();
-		    
-		    for (int i = 0; i < l.length; i++) {
-				if (l[i].getName().equals(LOCI_TOOL)) {
-					exist = true;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			String msg = "An error occurred while checking if " +
-					""+LOCI_TOOL+" is installed."+e.toString();
-			if (IJ.debugMode)
-				IJ.log(msg);
+			container = Container.startupInPluginMode(home, configFile,
+					LookupNames.IMAGE_J);
+			attachListeners();
+		} catch (StartupException e) {
+			showMessage(e.getPlugin());
 		}
-		if (!exist) {
-	    	showMessage();
-			return;
-	    }
-		attachListeners();
-		container = Container.startupInPluginMode(homeDir, configFile,
-				LookupNames.IMAGE_J);
 	}
 
 }
