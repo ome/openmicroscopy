@@ -37,4 +37,4 @@ ip = inputParser;
 ip.addOptional('ids', [], @isvector);
 ip.parse(varargin{:});
 
-plates = getObjects(session, 'plateacquisition', ip.Results.ids);
+plates = getObjects(session, ip.Results.ids, 'plateacquisition');

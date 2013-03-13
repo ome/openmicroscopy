@@ -53,4 +53,4 @@ parameters = omero.sys.ParametersI();
 % Load the images attached to the datasets if loaded is True
 if ip.Results.loaded, parameters.leaves(); end
 
-projects = getObjects(session, 'project', ip.Results.ids, parameters);
+projects = getObjects(session, ip.Results.ids, 'project', parameters);
