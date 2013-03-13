@@ -1588,7 +1588,7 @@ public class OMEROMetadataStoreClient
 	}
 
 	/**
-	 * Retrieve teh default groups permission 'level'.
+	 * Retrieve the default group's permission 'level'.
 	 *
 	 * @return ImportEvent's group level
 	 * @throws ServerError

@@ -80,17 +80,18 @@ public class ImportLibrary implements IObservable
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
 
+    /* adjusts file paths to the format required by managed repository */
     private static final ClientFilePathTransformer sanitizer = 
             new ClientFilePathTransformer(new MakePathComponentSafe());
-    
+
+    /* checksum provider factory for verifying file integrity in upload */
+    private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
 
     private final ManagedRepositoryPrx repo;
-
-    private final ChecksumProviderFactory checksumProviderFactory =
-            new ChecksumProviderFactoryImpl();
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -237,9 +238,9 @@ public class ImportLibrary implements IObservable
     public List<String> uploadFilesToRepository(
             final String[] srcFiles, final ImportProcessPrx proc)
     {
-        final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
+        final List<String> checksums = new ArrayList<String>(fileTotal);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
