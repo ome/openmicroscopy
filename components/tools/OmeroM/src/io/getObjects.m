@@ -1,19 +1,19 @@
-function objects = getObjects(session, type, ids, varargin)
+function objects = getObjects(session, ids, type, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
-%   objects = getObjects(session, type, ids) returns all the objects of the
+%   objects = getObjects(session, ids, type) returns all the objects of the
 %   specified type, identified by the input ids and owned by the session
 %   user in the context of the session group.
 %
-%   objects = getObjects(session, type, ids, parameters) returns all the
+%   objects = getObjects(session, ids, type, parameters) returns all the
 %   objects of the specified type, identified by the input ids, owned by
 %   the session user in the context of the session group using the supplied
 %   loading parameters.
 %
 %   Examples:
 %
-%      objects = getObjects(session, type, ids);
-%      objects = getObjects(session, type, ids, parameters);
+%      objects = getObjects(session, ids, type);
+%      objects = getObjects(session, ids, type, parameters);
 %
 % See also: GETOBJECTTYPES
 
@@ -40,11 +40,11 @@ objectTypes = getObjectTypes();
 objectNames = {objectTypes.name};
 ip = inputParser;
 ip.addRequired('session');
-ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addRequired('ids', @(x) isvector(x) || isempty(x));
+ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addOptional('parameters', omero.sys.ParametersI(),...
     @(x) isa(x, 'omero.sys.ParametersI'));
-ip.parse(session, type, ids, varargin{:});
+ip.parse(session, ids, type, varargin{:});
 objectType = objectTypes(strcmp(type, objectNames));
 
 % Use getImages function if retrieving images

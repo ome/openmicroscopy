@@ -41,4 +41,4 @@ ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
 ip.parse(varargin{:});
 
-screens = getObjects(session, 'screen', ip.Results.ids);
+screens = getObjects(session, ip.Results.ids, 'screen');
