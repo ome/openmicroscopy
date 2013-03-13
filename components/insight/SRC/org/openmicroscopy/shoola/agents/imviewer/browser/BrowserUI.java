@@ -149,8 +149,8 @@ class BrowserUI
     	if (load) {
     		model.loadTiles(new Rectangle(x, y, w, h));
     		getViewport().setViewPosition(new Point(x, y));
-    	} else getViewport().setViewPosition(new Point(-1, -1));
-    	
+    	} //else getViewport().setViewPosition(new Point(-1, -1));
+    	getViewport().setViewPosition(new Point(x, y));
     	setBirdEyeViewLocation();
     }
     
@@ -458,7 +458,7 @@ class BrowserUI
         canvas.setPreferredSize(d);
         canvas.setSize(d);
         if (model.isBigImage()) {
-        	setSelectionRegion();
+        	//setSelectionRegion();
         	Rectangle r = getVisibleRectangle();
     		d = layeredPane.getPreferredSize();
 			if (d.width < r.width && d.height < r.height) {
