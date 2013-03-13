@@ -948,7 +948,7 @@ public class client {
      */
     public String sha1(File file) {
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
-        return cpf.getProvider(ChecksumType.SHA1).putBytes(
+        return cpf.getProvider(ChecksumType.SHA1).putFile(
                         file.getAbsolutePath()).checksumAsString();
     }
 

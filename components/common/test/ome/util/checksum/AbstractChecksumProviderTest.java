@@ -73,12 +73,4 @@ public class AbstractChecksumProviderTest extends MockObjectTestCase {
         Assert.assertTrue(actual instanceof AbstractChecksumProvider);
     }
 
-    @Test
-    public void testReset() {
-        this.mockHashFunction.expects(once()).method("newHasher")
-        .withNoArguments()
-        .will(returnValue(this.mockHasher.proxy()));
-        this.abstractChecksumProvider.reset();
-    }
-
 }
