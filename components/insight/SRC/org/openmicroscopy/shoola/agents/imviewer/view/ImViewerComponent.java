@@ -586,13 +586,6 @@ class ImViewerComponent
 	{
 		return events;
 	}
-
-	/**
-	 * Returns the id of the pixels set this viewer is for.
-	 * 
-	 * @return See above.
-	 */
-	long getPixelsID() { return model.getPixelsID(); }
 	
 	/**
 	 * Returns the title associated to the viewer.
@@ -3453,6 +3446,12 @@ class ImViewerComponent
 	 * @see ImViewer#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getPixelsID()
+	 */
+	public long getPixelsID() { return model.getPixelsID(); }
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

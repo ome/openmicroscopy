@@ -1285,4 +1285,11 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	int getDisplayMode();
+	
+	/**
+	 * Returns the id of the pixels set this viewer is for.
+	 * 
+	 * @return See above.
+	 */
+	long getPixelsID();
 }
