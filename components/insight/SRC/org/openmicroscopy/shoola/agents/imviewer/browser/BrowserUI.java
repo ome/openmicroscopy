@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -149,7 +149,7 @@ class BrowserUI
     	if (load) {
     		model.loadTiles(new Rectangle(x, y, w, h));
     		getViewport().setViewPosition(new Point(x, y));
-    	} //else getViewport().setViewPosition(new Point(-1, -1));
+    	}
     	getViewport().setViewPosition(new Point(x, y));
     	setBirdEyeViewLocation();
     }
@@ -216,7 +216,7 @@ class BrowserUI
         	 * @see MouseListener#mouseReleased(MouseEvent)
         	 */
         	public void mouseReleased(MouseEvent e) {
-				 installScrollbarListener(false);
+				installScrollbarListener(false);
 			}
         	
         	/**
@@ -225,7 +225,6 @@ class BrowserUI
         	 */
         	public void mousePressed(MouseEvent e) {
 				installScrollbarListener(true);
-				
 			}
 		};
         getVerticalScrollBar().addMouseListener(adapter);
@@ -315,7 +314,6 @@ class BrowserUI
     void addComponentToLayer(Component c, boolean reset)
     {
     	Component[] components = layeredPane.getComponents();
-    	int count = components.hashCode();
     	for (int i = 0; i < components.length; i++) {
 			if (components[i] == c) return;
 		}
@@ -458,7 +456,6 @@ class BrowserUI
         canvas.setPreferredSize(d);
         canvas.setSize(d);
         if (model.isBigImage()) {
-        	//setSelectionRegion();
         	Rectangle r = getVisibleRectangle();
     		d = layeredPane.getPreferredSize();
 			if (d.width < r.width && d.height < r.height) {
@@ -511,8 +508,7 @@ class BrowserUI
     	getViewport().setViewPosition(new Point(vx, vy));
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	if (load)
-    		model.loadTiles(getViewport().getViewRect());
+    	if (load) model.loadTiles(getViewport().getViewRect());
     }
     
     /** 
@@ -538,7 +534,6 @@ class BrowserUI
 	 */
 	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
-		//installScrollbarListener(false);
 		Rectangle viewRect = getViewport().getViewRect();
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
@@ -573,7 +568,6 @@ class BrowserUI
         }
 		vBar.setValue(y);
 		hBar.setValue(x);
-		//getViewport().setViewPosition(new Point(bounds.x, bounds.y));
 		setBirdEyeViewLocation();
 	}
 	
@@ -585,14 +579,11 @@ class BrowserUI
 	 */
 	void scrollTo(int vValue, int hValue)
 	{
-		//Rectangle viewRect = getViewport().getViewRect();
-		//installScrollbarListener(false);
 		JScrollBar vBar = getVerticalScrollBar();
 		JScrollBar hBar = getHorizontalScrollBar();
 		hBar.setValue(hBar.getValue()+hValue);
 		vBar.setValue(vBar.getValue()+vValue);
 		setBirdEyeViewLocation();
-		//installScrollbarListener(true);
 	}
 
 	/** Clears the grid images. */
@@ -640,7 +631,7 @@ class BrowserUI
 	/** 
 	 * Reacts to {@link ImViewer} change events.
 	 * 
-	 * @param b Pass <code>true</code> to enable the UI components, 
+	 * @param b Pass <code>true</code> to enable the UI components,
 	 *          <code>false</code> otherwise.
 	 */
 	void onStateChange(boolean b)
@@ -683,7 +674,6 @@ class BrowserUI
         	return;
         }
         adjusting = false;
-        //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
         model.loadTiles(getVisibleRectangle());
@@ -708,7 +698,6 @@ class BrowserUI
 		Rectangle r = getVisibleRectangle();
 		Dimension d = layeredPane.getPreferredSize();
 		if (model.isBigImage()) {
-    		//setSelectionRegion();
 			setBirdEyeViewLocation();
 			if (!(d.width < r.width && d.height < r.height))
 				return;
@@ -718,5 +707,5 @@ class BrowserUI
 		JScrollBar vBar = getVerticalScrollBar();
 		if (!(hBar.isVisible() && vBar.isVisible())) center();
 	}
-	
+
 }
