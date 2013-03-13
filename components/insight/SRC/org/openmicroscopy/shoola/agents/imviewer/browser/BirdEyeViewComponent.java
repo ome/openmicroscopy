@@ -128,6 +128,12 @@ class BirdEyeViewComponent
 	/** Flag indicating the mouse is locked. */
 	private boolean locked = false;
 	
+	/** The X-coordinate of the top-left corner. */
+	private int px;
+	
+	/** The Y-coordinate of the top-left corner. */
+	private int py;
+	
 	/** 
 	 * The difference of <code>bx</code>and the X-coordinate of the mouse 
 	 * clicked. 
@@ -187,6 +193,21 @@ class BirdEyeViewComponent
     	if (y < by || y > (by+h)) return false;
     	return true;
     }
+
+	/**
+	 * Returns <code>true</code> if the region is the full size of the image
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param r The region to handle.
+	 * @return See above.
+	 */
+	private boolean isSameSelection(Rectangle r)
+	{
+		if (r.width == imageRectangle.width &&
+			r.height == imageRectangle.height) return true;
+		return (r.x == px && r.y == py);
+		
+	}
     
 	/** Sets the location of the cross.*/
 	private void setCrossLocation()
@@ -215,23 +236,25 @@ class BirdEyeViewComponent
 	 */
 	private boolean inImage()
 	{
+		boolean b = true;
 		if (bx < imageRectangle.x) {
 			bx = imageRectangle.x;
-			return false;
+			b = false;
 		}
 		if (by < imageRectangle.y) {
 			by = imageRectangle.y;
-			return false;
+			b = false;
 		}
+		if (!b) return b;
 		if (bx+w > imageRectangle.width) {
 			bx = imageRectangle.width-w;
-			return false;
+			b = false;
 		}
 		if (by+h > imageRectangle.height) {
 			by = imageRectangle.height-h;
-			return false;
+			b = false;
 		}
-		return true;
+		return b;
 	}
 	
 
@@ -306,6 +329,8 @@ class BirdEyeViewComponent
 	{
 		bx = x;
 		by = y;
+		if (w > canvasWidth) w = canvasWidth;
+		if (h > canvasHeight) h = canvasHeight;
 		this.w = w;
 		this.h = h;
 		if (imageRectangle != null) {
@@ -357,6 +382,10 @@ class BirdEyeViewComponent
     			setSelectionColor(SELECTION_BLUE_COLOR);
     		else setSelectionColor(SELECTION_COLOR);
 			setCanvasSize(image.getWidth(), image.getHeight());
+			imageRectangle = new Rectangle(0, 0, pImage.getWidth(),
+					pImage.getHeight());
+			if (w == 0) w = image.getWidth();
+			if (h == 0) h = image.getHeight();
 		}
 		repaint();
 	}
@@ -435,8 +464,6 @@ class BirdEyeViewComponent
 		}
 		if (imageRectangle == null) {
 			g2D.setColor(BORDER_COLOR);
-			imageRectangle = new Rectangle(0, 0, pImage.getWidth(),
-					pImage.getHeight());
 		}
 		setSize(canvasWidth, canvasHeight);
 		g2D.drawImage(pImage, null, 0, 0);
@@ -478,6 +505,8 @@ class BirdEyeViewComponent
      */
 	public void mousePressed(MouseEvent e)
 	{
+		px = ax;
+		py = ay;
 		mouseX = e.getX();
 		mouseY = e.getY();
 		inCross = false;
@@ -496,6 +525,8 @@ class BirdEyeViewComponent
 			by = mouseY-h/2;
 			if (by < 0) by = 0;
 		}
+		if (bx < 0) bx = 0;
+		if (by < 0) by = 0;
 		fullDisplay = true;
 		locked = bover;
 		bdifx = mouseX-bx;
@@ -514,8 +545,9 @@ class BirdEyeViewComponent
 	{
 		if (fullDisplay && !inCross) {
 			locked = false;
-			firePropertyChange(DISPLAY_REGION_PROPERTY, null,
-					new Rectangle(bx, by, w, h));
+			Rectangle r = getSelectionRegion();
+			if (!isSameSelection(r))
+				firePropertyChange(DISPLAY_REGION_PROPERTY, null, r);
 		}
 		mouseX = e.getX();
 		mouseY = e.getY();
@@ -573,5 +605,5 @@ class BirdEyeViewComponent
      * @see MouseListener#mouseExited(MouseEvent)
      */
 	public void mouseExited(MouseEvent e) {}
-	
+
 }
