@@ -277,11 +277,17 @@ class TempFileManager(object):
 
         if p.exists():
             if p.isdir():
-                p.rmtree(onerror = self.on_rmtree)
-                self.logger.debug("Removed folder %s", name)
+                try:
+                    p.rmtree(onerror = self.on_rmtree)
+                    self.logger.debug("Removed folder %s", name)
+                except:
+                    self.logger.error("Failed to remove folder %s", name)
             else:
-                p.remove()
-                self.logger.debug("Removed file %s", name)
+                try:
+                    p.remove()
+                    self.logger.debug("Removed file %s", name)
+                except:
+                    self.logger.error("Failed to remove file %s", name)
 
     def clean_tempdir(self):
         """
