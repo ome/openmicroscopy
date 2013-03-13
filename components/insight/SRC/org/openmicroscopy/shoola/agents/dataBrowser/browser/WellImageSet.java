@@ -73,7 +73,7 @@ public class WellImageSet
 	private List<WellSampleNode> 	samples;
 	
 	/** The description of the well. */
-	private String 					description;
+	private String description;
 	
 	/** The tabular data. */
 	private Map<String[], Object[]> tabularData;
@@ -95,37 +95,23 @@ public class WellImageSet
 	{
 		if (rowDisplay == null) setRowDisplay(""+getRow());
 		if (columnDisplay == null) setColumnDisplay(""+getColumn());
-		/*
-		StringBuffer buf = new StringBuffer();
-		buf.append(rowDisplay+"-"+columnDisplay);
-		if (description != null) {
-			buf.append("\n");
-			buf.append(description);
-		}
-		String txt = UIUtilities.formatToolTipText(buf.toString());
-		Iterator i = samples.iterator();
-		ImageNode n;
-		while (i.hasNext()) {
-			n = (ImageNode) i.next();
-			n.setToolTipText(txt);
-			n.setCanvasToolTip(txt);
-		}*/
 	}
 	
 	/** Formats the tool tips. */
 	private void formatDisplay()
 	{
-		Entry entry;
+		Entry<String[], Object[]> entry;
 		int size = tabularData.size()-1;
 		int index = 0;
-		Iterator i = tabularData.entrySet().iterator();
+		Iterator<Entry<String[], Object[]>>
+		i = tabularData.entrySet().iterator();
 		String[] headers;
 		Object[] values;
 		text = new ArrayList<String>();
  		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			headers = (String[]) entry.getKey();
-			values = (Object[]) entry.getValue();
+			entry = i.next();
+			headers = entry.getKey();
+			values = entry.getValue();
 			for (int j = 0; j < headers.length; j++) {
 				text.add(" "+headers[j]+":"+values[j]);
 			}
@@ -133,10 +119,10 @@ public class WellImageSet
 			index++;
 		}
  		String txt = UIUtilities.formatToolTipText(text);
-		i = samples.iterator();
-		ImageNode n;
-		while (i.hasNext()) {
-			n = (ImageNode) i.next();
+		Iterator<WellSampleNode> j = samples.iterator();
+		WellSampleNode n;
+		while (j.hasNext()) {
+			n = j.next();
 			n.setToolTipText(txt);
 			n.setCanvasToolTip(txt);
 		}
@@ -227,10 +213,7 @@ public class WellImageSet
 	 */
 	public void addWellSample(WellSampleNode node)
 	{
-		if (node != null) {
-			samples.add(node);
-			//node.setHighlight(getHighlight());
-		}
+		if (node != null) samples.add(node);
 		setSelectedWellSample(0);
 	}
 	
@@ -242,9 +225,9 @@ public class WellImageSet
 	public void setSelectedWellSample(int index)
 	{
 		WellSampleNode node;
-		Iterator i = samples.iterator();
+		Iterator<WellSampleNode> i = samples.iterator();
 		while (i.hasNext()) {
-			node = (WellSampleNode) i.next();
+			node = i.next();
 			if (node.getIndex() == index)
 				selectedWellSample = node;
 		}
@@ -309,7 +292,7 @@ public class WellImageSet
 	public int getRow()
 	{ 
 		if (getHierarchyObject() == null) return -1;
-		Integer i = ((WellData) getHierarchyObject()).getRow(); 
+		Integer i = ((WellData) getHierarchyObject()).getRow();
 		if (i == null) return -1;
 		return i; 
 	}
@@ -322,7 +305,7 @@ public class WellImageSet
 	public int getColumn()
 	{
 		if (getHierarchyObject() == null) return -1;
-		Integer i = ((WellData) getHierarchyObject()).getColumn(); 
+		Integer i = ((WellData) getHierarchyObject()).getColumn();
 		if (i == null) return -1;
 		return i;
 	}
@@ -429,11 +412,9 @@ public class WellImageSet
     public void setHighlight(Color highlight)
     {
     	super.setHighlight(highlight);
-    	WellSampleNode node;
-		Iterator i = samples.iterator();
+		Iterator<WellSampleNode> i = samples.iterator();
 		while (i.hasNext()) {
-			node = (WellSampleNode) i.next();
-			node.setHighlight(highlight);
+			i.next().setHighlight(highlight);
 		}
     }
     
