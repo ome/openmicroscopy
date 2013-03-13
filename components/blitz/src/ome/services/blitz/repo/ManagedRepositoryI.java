@@ -428,7 +428,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
             makeDir(new FsFile(pathPrefix).toString(), true, curr);
         }
-        makeDir(relPath.toString(), true, curr);
+        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -560,6 +560,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String expanded = expandTemplate(template, __current);
         final FsFile asfsfile = new FsFile(expanded);
         final List<String> components = asfsfile.getComponents();
+        final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
 
         // hard-coded assumptions: the first element of the template must match
         // user_id and the last is unique in someway (and therefore won't be
@@ -593,14 +594,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
             }
 
-            // Now that we know that this is the right directory for the
-            // current user, we make sure that the directory exists and
-            // is in the user group.
-            repositoryDao.createOrFixUserDir(getRepoUuid(), checked, __current);
+            pathsToFix.add(checked);
         }
         
-        
         super.makeCheckedDirs(paths, parents, __current);
+        
+        // Now that we know that these are the right directories for
+        // the current user, we make sure that the directories are in
+        // the user group.
+        for (final CheckedPath pathToFix : pathsToFix) {
+            repositoryDao.createOrFixUserDir(getRepoUuid(), pathToFix, __current);
+        }
     }
 
     protected String getUserDirectoryName(Current __current) {

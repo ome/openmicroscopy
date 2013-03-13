@@ -438,7 +438,7 @@ class TestPythonImporter(AbstractRepoTest):
         fileset = omero.model.FilesetI()
         for f in folder.files():
             entry = omero.model.FilesetEntryI()
-            entry.setClientPath(rstring(f.abspath()))
+            entry.setClientPath(rstring(str(f.abspath())))
             fileset.addFilesetEntry(entry)
 
         # Fill BF info
