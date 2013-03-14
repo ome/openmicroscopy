@@ -528,9 +528,9 @@ public class ImViewerAgent
     	ImViewer viewer = ImViewerFactory.getImageViewer(null, pixels.getId());
     	if (viewer != null) {
     		//Post an event to discard Measurement tool
-			ViewerState event = new ViewerState(viewer.getPixelsID(),
-					ViewerState.CLOSE);
-			bus.post(event);
+    		ViewerState event = new ViewerState(viewer.getPixelsID(),
+    				ViewerState.CLOSE);
+    		bus.post(event);
     		viewer.discard();
     	}
     }
