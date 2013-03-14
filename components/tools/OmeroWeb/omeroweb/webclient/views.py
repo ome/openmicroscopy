@@ -2271,7 +2271,7 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ").replace(".py", "...")
+        displayName = name.replace("_", " ").replace(".py", "")
 
         if path not in scriptMenu:
             folder, name = os.path.split(path)
