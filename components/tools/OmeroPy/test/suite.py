@@ -9,6 +9,7 @@
 
 """
 
+import logging
 import unittest
 from omero_ext import xmlrunner
 
@@ -38,4 +39,5 @@ def additional_tests():
     return suite
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.WARN)
     xmlrunner.XMLTestRunner(verbose=True, output='target/reports').run(additional_tests())
