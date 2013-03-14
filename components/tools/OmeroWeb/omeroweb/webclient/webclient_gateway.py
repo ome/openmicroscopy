@@ -2131,6 +2131,12 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             logger.error('Failed to load channels:', exc_info=True)
             return None
 
+    def showOriginalFilePaths (self):
+        """
+        This determines whether we want to show the paths of
+        Original Imported Files.
+        """
+        return super(ImageWrapper, self).countFilesetFiles() > 0
 
 omero.gateway.ImageWrapper = ImageWrapper
 
