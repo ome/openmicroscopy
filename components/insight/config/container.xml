@@ -318,7 +318,7 @@
    * 0: indicate to display the group's data.
    * 1: indicate to display the user's data. Default value
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-   <entry name="DataDisplay" type="integer">0</entry>
+   <entry name="DataDisplay" type="integer">1</entry>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating the dependencies when the client is used as a plugin
    * e.g. as an ImageJ plugin.
