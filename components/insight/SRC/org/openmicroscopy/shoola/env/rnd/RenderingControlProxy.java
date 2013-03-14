@@ -927,7 +927,8 @@ class RenderingControlProxy
     void shutDown()
     { 
     	try {
-    		context.getCacheService().removeCache(cacheID);
+    		if (cacheID >= 0)
+    			context.getCacheService().removeCache(cacheID);
     		if (checker.isNetworkup()) servant.close();
 		} catch (Exception e) {} 
     }
@@ -940,7 +941,8 @@ class RenderingControlProxy
 	void setCacheSize(int size)
 	{
 		if (imageSize == 0) imageSize = 1;
-		context.getCacheService().setCacheEntries(cacheID, size/imageSize);
+		if (cacheID >= 0)
+			context.getCacheService().setCacheEntries(cacheID, size/imageSize);
 	}
 	
     /** 
