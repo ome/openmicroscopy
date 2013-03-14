@@ -591,13 +591,13 @@ class MonitorClientI(monitors.MonitorClient):
             throwing an exception if necessary.
         """
 
-        key = self.loginUser(exName)
-        if not key:
-            self.log.info("File not imported: %s", fileName)
-            return
-
         try:
             self.state.appropriateWait(self.throttleImport) # See ticket:5739
+
+            key = self.loginUser(exName)
+            if not key:
+                self.log.info("File not imported: %s", fileName)
+                return
             self.log.info("Importing %s (session=%s)", fileName, key)
 
             imageId = []
