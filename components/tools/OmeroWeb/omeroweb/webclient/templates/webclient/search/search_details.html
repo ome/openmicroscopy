@@ -21,11 +21,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 {% endcomment %}
-    
-    <script type="text/javascript" src="{% static "3rdparty/jquery.tablesorter/jquery.tablesorter.js" %}"></script>
-    <script type="text/javascript" src="{% static "3rdparty/jquery.quicksearch.js" %}"></script>
 
-    
     <script type="text/javascript">
         $(document).ready(function(){
             
@@ -66,6 +62,7 @@
     
 
     <div>
+    {% block search_results %}
         {% if manager.c_size %}
         
         <table id="dataTable" class="tablesorter">
@@ -130,4 +127,5 @@
             <p class="center_message message_nodata">{% trans "No results found" %}</p>
         {% endif %}
 
+    {% endblock %}
     </div>
