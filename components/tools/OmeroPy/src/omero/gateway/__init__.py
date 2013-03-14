@@ -7412,6 +7412,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns a generator of L{OriginalFileWrapper}s corresponding to the archived files linked to primary pixels
         ** Deprecated ** Use L{getImportedImageFiles}.
         """
+        warnings.warn("Deprecated. Use getImportedImageFiles()", DeprecationWarning)
         return self.getImportedImageFiles()
 
     def getImportedImageFiles (self):
