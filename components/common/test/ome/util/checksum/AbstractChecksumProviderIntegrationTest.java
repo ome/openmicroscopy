@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  * {@link AbstractChecksumProvider}. This class and {@link ChecksumTestVector}
  * should be updated with relevant test vectors and tests whenever a new
  * checksum algorithm implementation is added. This class should be ignored by
- * TestNG.
+ * TestNG. The design has been inspired by m.t.b.carroll at dundee.ac.uk.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
@@ -88,6 +88,17 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     public void testChecksumAsStringWithByteBuffer() {
         String actual = this.checksumProvider
                 .putBytes(ByteBuffer.wrap("abc".getBytes()))
+                .checksumAsString();
+        Assert.assertEquals(actual, this.checksumValues
+                .get(ChecksumTestVector.ABC));
+    }
+
+    @Test
+    public void testChecksumAsStringWithTruncatedByteBuffer() {
+        ByteBuffer buffer = ByteBuffer.wrap("abcdef".getBytes());
+        buffer.position(0).limit(3);
+        String actual = this.checksumProvider
+                .putBytes(buffer)
                 .checksumAsString();
         Assert.assertEquals(actual, this.checksumValues
                 .get(ChecksumTestVector.ABC));
