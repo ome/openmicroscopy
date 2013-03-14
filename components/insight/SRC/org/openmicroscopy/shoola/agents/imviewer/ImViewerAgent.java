@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectChannel;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
@@ -419,13 +420,20 @@ public class ImViewerAgent
     	Iterator<DataObject> i = objects.iterator();
     	DataObject object;
     	ImViewer viewer;
+    	EventBus bus = registry.getEventBus();
     	while (i.hasNext()) {
     		object = i.next();
 			if (object instanceof ImageData) {
 				checkImageForDelete((ImageData) object);
 			} else {
 				viewer = ImViewerFactory.getImageViewerFromParent(object);
-				if (viewer != null) viewer.discard();
+				if (viewer != null) {
+					//Post an event to discard Measurement tool
+					ViewerState event = new ViewerState(viewer.getPixelsID(),
+							ViewerState.CLOSE);
+					bus.post(event);
+					viewer.discard();
+				}
 			}
 		}
     }
@@ -516,8 +524,15 @@ public class ImViewerAgent
     	if (image.getId() < 0) return;
     	PixelsData pixels = image.getDefaultPixels();
     	if (pixels == null) return;
+    	EventBus bus = registry.getEventBus();
     	ImViewer viewer = ImViewerFactory.getImageViewer(null, pixels.getId());
-    	if (viewer != null) viewer.discard();
+    	if (viewer != null) {
+    		//Post an event to discard Measurement tool
+    		ViewerState event = new ViewerState(viewer.getPixelsID(),
+    				ViewerState.CLOSE);
+    		bus.post(event);
+    		viewer.discard();
+    	}
     }
 
     /** Creates a new instance. */
