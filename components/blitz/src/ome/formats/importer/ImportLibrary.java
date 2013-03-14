@@ -38,7 +38,10 @@ import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
-import ome.util.Utils;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -95,6 +98,9 @@ public class ImportLibrary implements IObservable
     private final OMEROMetadataStoreClient store;
 
     private final ManagedRepositoryPrx repo;
+
+    private final ChecksumProviderFactory checksumProviderFactory =
+            new ChecksumProviderFactoryImpl();
 
     /**
      * The library will not close the client instance. The reader will be closed
@@ -241,8 +247,6 @@ public class ImportLibrary implements IObservable
     public List<String> uploadFilesToRepository(
             final String[] srcFiles, final ImportProcessPrx proc)
     {
-
-        final MessageDigest md = Utils.newSha1MessageDigest();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
@@ -250,7 +254,7 @@ public class ImportLibrary implements IObservable
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
             try {
-                checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+                checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
             } catch (ServerError e) {
                 log.error("Server error uploading file.", e);
                 break;
@@ -265,18 +269,16 @@ public class ImportLibrary implements IObservable
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, int index) throws ServerError, IOException
     {
-        final MessageDigest md = Utils.newSha1MessageDigest();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        return uploadFile(proc, srcFiles, index, md, buf);
+        return uploadFile(proc, srcFiles, index, checksumProviderFactory, buf);
     }
 
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, final int index,
-            final MessageDigest md, final byte[] buf)
+            final ChecksumProviderFactory cpf, final byte[] buf)
             throws ServerError, IOException {
 
-        md.reset();
-
+        ChecksumProvider cp = cpf.getProvider(ChecksumType.SHA1);
         String digestString = null;
         File file = new File(srcFiles[index]);
         long length = file.length();
@@ -300,7 +302,7 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                md.update(buf, 0, rlen);
+                cp.putBytes(buf);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -308,8 +310,7 @@ public class ImportLibrary implements IObservable
                         offset, length, null));
             }
 
-            byte[] digest = md.digest();
-            digestString = Utils.bytesToHex(digest);
+            digestString = cp.checksumAsString();
 
             OriginalFile ofile = rawFileStore.save();
             if (log.isDebugEnabled()) {
@@ -388,14 +389,13 @@ public class ImportLibrary implements IObservable
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
-        final MessageDigest md = Utils.newSha1MessageDigest();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
         }
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
