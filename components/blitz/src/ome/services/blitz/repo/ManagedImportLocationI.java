@@ -17,7 +17,6 @@
 
 package ome.services.blitz.repo;
 
-import java.io.File;
 import java.util.List;
 
 import omero.grid.ImportLocation;
@@ -33,10 +32,10 @@ public class ManagedImportLocationI extends ImportLocation {
     public List<CheckedPath> checkedPaths;
 
     /**
-     * Return the server-side {@link File} instance which can be passed to
+     * Return the server-side {@link CheckedPath} instance which can be passed to
      * a Bio-Formats reader.
      */
-    public File getTarget() {
-        return checkedPaths.get(0).file;
+    public CheckedPath getTarget() {
+        return checkedPaths.get(0);
     }
 }

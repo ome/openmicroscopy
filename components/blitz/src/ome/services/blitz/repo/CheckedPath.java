@@ -19,6 +19,7 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +29,13 @@ import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import loci.formats.FormatException;
+import loci.formats.ReaderWrapper;
+
 import org.apache.commons.io.FileUtils;
 
 import ome.util.Utils;
+import ome.io.nio.FileBuffer;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 
@@ -57,7 +62,7 @@ public class CheckedPath {
     
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
-    protected final File file;
+    private final File file;
     private /*final*/ String parentDir;
     private /*final*/ String baseName;
     private final String original;  // for error reporting
@@ -220,6 +225,15 @@ public class CheckedPath {
     }
 
     /**
+     * Check if this file actually exists on the underlying filesystem.
+     * Analogous to {@link java.io.File.exists()}.
+     * @return <code>true</code> if the file exists, <code>false</code> otherwise
+     */
+    public boolean exists() {
+        return this.file.exists();
+    }
+
+    /**
      * Checks for existence of the original path, throwing an exception if
      * not present.
      *
@@ -227,7 +241,7 @@ public class CheckedPath {
      * @throws ValidationException
      */
     public CheckedPath mustExist() throws ValidationException {
-        if (!file.exists()) {
+        if (!exists()) {
             throw new ValidationException(null, null, original
                     + " does not exist");
         }
@@ -248,6 +262,15 @@ public class CheckedPath {
                     original + " is not editable.");
         }
         return this;
+    }
+
+    /**
+     * Check if this file is actually readable on the underlying filesystem.
+     * Analogous to {@link java.io.File.canRead()}.
+     * @return <code>true</code> if the file is readable, <code>false</code> otherwise
+     */
+    public boolean canRead() {
+        return this.file.canRead();
     }
 
     public boolean canEdit() {
@@ -273,7 +296,54 @@ public class CheckedPath {
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
      }
+    
+    /**
+     * Get a {@link FileBuffer} corresponding to this instance.
+     * It is the caller's responsibility to {@link FileBuffer#close()} it.
+     * @param mode as for {@link java.io.RandomAccessFile(File, String)},
+     * <code>"r"</code> and <code>"rw"</code> being common choices
+     * @return a new {@link FileBuffer}
+     */
+    public FileBuffer getFileBuffer(String mode) {
+        return new FileBuffer(this.file.getPath(), mode);
+    }
 
+    /**
+     * Create this directory on the underlying filesystem.
+     * Analogous to {@link java.io.File.mkdir()}.
+     * @return <code>true</code> if the directory was created, <code>false</code> otherwise
+     */
+    public boolean mkdir() {
+        return this.file.mkdir();
+    }
+
+    /**
+     * Create this directory, and parents if necessary, on the underlying filesystem.
+     * Analogous to {@link java.io.File.mkdirs()}.
+     * @return <code>true</code> if the directory was created, <code>false</code> otherwise
+     */
+    public boolean mkdirs() {
+        return this.file.mkdirs();
+    }
+
+    /**
+     * Mark this existing file as having been modified at the present moment.
+     * @return <code>true</code> if the file's modification time was updated, <code>false</code> otherwise
+     */
+    public boolean markModified() {
+        return this.file.setLastModified(System.currentTimeMillis());
+    }
+
+    /**
+     * Perform BioFormats {@link ReaderWrapper#setId(String)} for this file.
+     * @param reader the BioFormats reader upon which to operate
+     * @throws FormatException passed up from {@link ReaderWrapper#setId(String)}
+     * @throws IOException passed up from {@link ReaderWrapper#setId(String)}
+     */
+    public void bfSetId(ReaderWrapper reader) throws FormatException, IOException {
+        reader.setId(file.getPath());
+    }
+    
     public String toString() {
         return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }

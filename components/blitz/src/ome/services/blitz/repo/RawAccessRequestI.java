@@ -17,14 +17,15 @@
 
 package ome.services.blitz.repo;
 
+import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import Ice.Current;
 
+import ome.io.nio.FileBuffer;
 import ome.services.blitz.fire.Registry;
 
 import omero.ServerError;
@@ -36,6 +37,7 @@ import omero.cmd.Response;
 import omero.cmd.Unknown;
 import omero.grid.InternalRepositoryPrx;
 import omero.grid.RawAccessRequest;
+import omero.grid.RepositoryException;
 
 /**
  * Command request for accessing a repository directly.
@@ -140,8 +142,18 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
         if ("touch".equals(command)) {
             for (String arg : args) {
-                CheckedPath checked = servant.checkPath(parse(arg), __current);
-                FileUtils.touch(checked.file);
+                final CheckedPath checked = servant.checkPath(parse(arg), __current);
+                if (!checked.exists()) {
+                    final CheckedPath parent = checked.parent();
+                    if (!(parent.isDirectory() || checked.parent().mkdirs())) {
+                        throw new RepositoryException(null, null, "cannot create directory: " + parent);
+                    }
+                    final FileBuffer buffer = checked.getFileBuffer("rw");
+                    buffer.write(ByteBuffer.allocate(0));
+                    buffer.close();
+                } else if (!checked.markModified()) {
+                    throw new RepositoryException(null, null, "cannot touch file: " + checked);
+                }
             }
         } else if ("mkdir".equals(command)) {
             boolean parents = false;
@@ -152,15 +164,15 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                 }
                 CheckedPath checked = servant.checkPath(parse(arg), __current);
                 if (parents) {
-                    FileUtils.forceMkdir(checked.file);
+                    checked.mkdirs();
                 } else {
-                    checked.file.mkdir();
+                    checked.mkdir();
                 }
             }
         } else if ("rm".equals(command)) {
             if (args.size() == 1) {
                 CheckedPath checked = servant.checkPath(parse(args.get(0)), __current);
-                if (!checked.file.delete()) {
+                if (!checked.delete()) {
                     throw new omero.grid.FileDeleteException(null, null,
                             "Delete file failed: " + args.get(0));
                 }

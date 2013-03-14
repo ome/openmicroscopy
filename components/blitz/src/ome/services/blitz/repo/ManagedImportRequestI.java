@@ -17,7 +17,6 @@
 
 package ome.services.blitz.repo;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -109,7 +108,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private OMEROWrapper reader = null;
 
-    private File file = null;
+    private CheckedPath file = null;
 
     private IObject userSpecifiedTarget = null; // TODO: remove?
 
@@ -187,13 +186,12 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
 
-            fileName = file.getAbsolutePath();
+            fileName = file.fsFile.toString();
             shortName = file.getName();
             format = null;
-            usedFiles = new String[1];
-            usedFiles[0] = file.getAbsolutePath();
+            usedFiles = new String[] {fileName};
 
-            open(reader, store, file.getAbsolutePath());
+            open(reader, store, file);
             format = reader.getFormat();
             if (reader.getUsedFiles() != null)
             {
@@ -408,7 +406,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         // As we're in metadata only mode  on we need to
         // tell the server which Pixels set matches up to which series.
-        String targetName = file.getAbsolutePath();
+        final String targetName = file.fsFile.toString();
         int series = 0;
         for (Long pixelsId : pixelIds())
         {
@@ -474,13 +472,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     /** opens the file using the {@link FormatReader} instance */
     private void open(OMEROWrapper reader, OMEROMetadataStoreClient store,
-            String fileName) throws IOException, FormatException
+            CheckedPath targetFile) throws FormatException, IOException
     {
         reader.close();
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
         store.setReader(reader.getImageReader());
-        reader.setId(fileName);
+        targetFile.bfSetId(reader);
         //reset series count
         if (log.isDebugEnabled())
         {
