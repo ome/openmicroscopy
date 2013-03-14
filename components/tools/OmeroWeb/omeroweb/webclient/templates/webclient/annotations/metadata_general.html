@@ -125,7 +125,7 @@
                     $("#link_info_popup").hide();
                 });
 
-                // show filepath links for images
+                // show original file path links for images
                 {% if manager.image %}
                 $("#show_fs_files_btn").click(function(){
                     $("#fs_paths_popup").show();
@@ -489,14 +489,16 @@
                     </ul>
                 </span>
 
-                {% if manager.image.countImportedImageFiles %}
-                <!-- FS fileset original file paths -->
+                {% if manager.image.showOriginalFilePaths %}
+                <!-- show original file paths -->
                 <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
                     <span></span>
                 </button>
                 {% endif %}
+
             </div>
 
+            {% if manager.image.showOriginalFilePaths %}
             <div style="clear:both"></div>
             <div id="fs_paths_popup" style="display:none; background: #fff; border: solid 1px #ddd; margin-bottom:5px">
                 <img title="Close" src="{% static 'webgateway/img/close.gif' %}" style="float:right; margin:3px"/>
@@ -504,6 +506,7 @@
                 <textarea readonly="true" style="width:99%; float:right; resize:none; border:none; padding:5px 0 0 0; margin:0px"></textarea>
                 <div style="clear:both"></div>
             </div>
+            {% endif %}
 
             <div style="clear:both"></div>
             <div style="padding-bottom:6px; position:relative">
