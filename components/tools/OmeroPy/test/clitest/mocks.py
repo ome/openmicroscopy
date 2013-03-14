@@ -52,7 +52,7 @@ class MockCLI(CLI):
         print msg
         raise Exception(msg)
 
-    def out(self, *args):
+    def out(self, *args, **kwargs):
         self.__output.append(args[0])
 
     def err(self, *args):
