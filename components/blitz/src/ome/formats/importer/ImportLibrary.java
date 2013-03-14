@@ -17,32 +17,20 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
-import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
-import ome.formats.model.InstanceProvider;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
-
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
@@ -61,10 +49,12 @@ import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
-import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -302,7 +292,7 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                cp.putBytes(buf);
+                cp.putBytes(rlen == buf.length ? buf : Arrays.copyOfRange(buf, 0, rlen));
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
