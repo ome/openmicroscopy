@@ -13,74 +13,59 @@
 
 """
 
-import logging
-logging.basicConfig(level=logging.WARN)
-
-import unittest
-from omero_ext import xmlrunner
-
-class TopLevel(unittest.TestCase):
-    pass
-
-def additional_tests():
-    load = unittest.defaultTestLoader.loadTestsFromName
-    suite = unittest.TestSuite()
-
-    suite.addTest(load("integration.admin"))
-    suite.addTest(load("integration.annotation"))
-    suite.addTest(load("integration.bfpixelsstoreexternal"))
-    suite.addTest(load("integration.bfpixelsstoreinternal"))
-    suite.addTest(load("integration.bigImages"))
-    suite.addTest(load("integration.chmod"))
-    suite.addTest(load("integration.client_ctors"))
-    suite.addTest(load("integration.clientusage"))
-    suite.addTest(load("integration.cliimport"))
-    suite.addTest(load("integration.cmdcallback"))
-    suite.addTest(load("integration.counts"))
-    suite.addTest(load("integration.delete"))
-    suite.addTest(load("integration.emanScripts"))
-    suite.addTest(load("integration.exporter"))
-    suite.addTest(load("integration.figureExportScripts"))
-    suite.addTest(load("integration.files"))
-    suite.addTest(load("integration.gateway"))
-    suite.addTest(load("integration.icontainer"))
-    suite.addTest(load("integration.ildap"))
-    suite.addTest(load("integration.imetadata"))
-    suite.addTest(load("integration.iquery"))
-    suite.addTest(load("integration.isession"))
-    suite.addTest(load("integration.ishare"))
-    suite.addTest(load("integration.itimeline"))
-    suite.addTest(load("integration.itypes"))
-    suite.addTest(load("integration.iupdate"))
-    suite.addTest(load("integration.metadatastore"))
-    suite.addTest(load("integration.model42"))
-    suite.addTest(load("integration.permissions"))
-    suite.addTest(load("integration.pixelsService"))
-    suite.addTest(load("integration.rawfilestore"))
-    suite.addTest(load("integration.rawpixelsstore"))
-    suite.addTest(load("integration.repository"))
-    suite.addTest(load("integration.rois"))
-    suite.addTest(load("integration.scripts"))
-    suite.addTest(load("integration.search"))
-    suite.addTest(load("integration.simple"))
-    suite.addTest(load("integration.thumbnailPerms"))
-    suite.addTest(load("integration.thumbs"))
-    suite.addTest(load("integration.tickets1000"))
-    suite.addTest(load("integration.tickets2000"))
-    suite.addTest(load("integration.tickets3000"))
-    suite.addTest(load("integration.tickets4000"))
-    suite.addTest(load("integration.tickets5000"))
-    suite.addTest(load("integration.tickets6000"))
-
-    suite.addTest(load("clitest.integration_suite._additional_tests"))
-    suite.addTest(load("cmdtest.integration_suite._additional_tests"))
-    suite.addTest(load("gatewaytest.suite._additional_tests"))
-    suite.addTest(load("scriptstest.suite._additional_tests"))
-    suite.addTest(load("scriptstest.integration_suite._additional_tests"))
-    suite.addTest(load("tablestest.suite._additional_tests"))
-    suite.addTest(load("tablestest.integration_suite._additional_tests"))
-
-    return suite
+from omero_ext.xmlrunner.main import ome_test_main
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(verbose=True, output='target/reports').run(additional_tests())
+    ome_test_main([
+        "integration.admin",
+        "integration.annotation",
+        "integration.bfpixelsstoreexternal",
+        "integration.bfpixelsstoreinternal",
+        "integration.bigImages",
+        "integration.chmod",
+        "integration.client_ctors",
+        "integration.clientusage",
+        "integration.cliimport",
+        "integration.cmdcallback",
+        "integration.counts",
+        "integration.delete",
+        "integration.emanScripts",
+        "integration.exporter",
+        "integration.figureExportScripts",
+        "integration.files",
+        "integration.gateway",
+        "integration.icontainer",
+        "integration.ildap",
+        "integration.imetadata",
+        "integration.iquery",
+        "integration.isession",
+        "integration.ishare",
+        "integration.itimeline",
+        "integration.itypes",
+        "integration.iupdate",
+        "integration.metadatastore",
+        "integration.model42",
+        "integration.permissions",
+        "integration.pixelsService",
+        "integration.rawfilestore",
+        "integration.rawpixelsstore",
+        "integration.repository",
+        "integration.rois",
+        "integration.scripts",
+        "integration.search",
+        "integration.simple",
+        "integration.thumbnailPerms",
+        "integration.thumbs",
+        "integration.tickets1000",
+        "integration.tickets2000",
+        "integration.tickets3000",
+        "integration.tickets4000",
+        "integration.tickets5000",
+        "integration.tickets6000",
+        "clitest.integration_suite._additional_tests",
+        "cmdtest.integration_suite._additional_tests",
+        "gatewaytest.suite._additional_tests",
+        "scriptstest.suite._additional_tests",
+        "scriptstest.integration_suite._additional_tests",
+        "tablestest.suite._additional_tests",
+        "tablestest.integration_suite._additional_tests"])
