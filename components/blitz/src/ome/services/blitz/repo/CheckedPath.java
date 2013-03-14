@@ -21,7 +21,10 @@ package ome.services.blitz.repo;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -48,7 +51,10 @@ import omero.ValidationException;
  * @author m.t.b.carroll@dundee.ac.uk
  */
 public class CheckedPath {
-
+    private static final String SAME_DIR = ".";
+    private static final String PARENT_DIR = "..";
+    private static final Set<String> SPECIAL_DIRS;
+    
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
     protected final File file;
@@ -62,6 +68,13 @@ public class CheckedPath {
     protected String sha1;
     protected String mime;
 
+    static {
+        final Set<String> specialDirs = new HashSet<String>();
+        specialDirs.add(SAME_DIR);
+        specialDirs.add(PARENT_DIR);
+        SPECIAL_DIRS = Collections.unmodifiableSet(specialDirs);
+    }
+    
     /**
      * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
      * TODO: May not actually be necessary.
@@ -73,13 +86,13 @@ public class CheckedPath {
         final List<String> oldComponents = fsFile.getComponents();
         final List<String> newComponents = new ArrayList<String>(oldComponents.size());
         for (final String oldComponent : oldComponents)
-            if ("..".equals(oldComponent))
+            if (PARENT_DIR.equals(oldComponent))
                 if (newComponents.isEmpty())
                     throw new ValidationException(null, null, "Path may not make references above root");
                 else
                     // with Java 1.6 use a Deque
                     newComponents.remove(newComponents.size() - 1);
-            else if (!".".equals(oldComponent))
+            else if (!SAME_DIR.equals(oldComponent))
                 newComponents.add(oldComponent);
         return new FsFile(newComponents);
     }
@@ -184,18 +197,26 @@ public class CheckedPath {
      * @return
      */
     public CheckedPath child(String name) throws ValidationException {
-        if (name == null) {
-            throw new ValidationException(null, null, "null name");
-        } else if (".".equals(name) || "..".equals(name)) {
-            throw new ValidationException(null, null,
-                    "Only proper child name is allowed. Not '.' or '..'");
+        if (name == null || "".equals(name)) {
+            throw new ValidationException(null, null, "null or empty name");
+        } else if (SPECIAL_DIRS.contains(name)) {
+            final StringBuffer message = new StringBuffer();
+            message.append("Only proper child name is allowed, not ");
+            for (final String dir : SPECIAL_DIRS) {
+                message.append('\'');
+                message.append(dir);
+                message.append('\'');
+                message.append(", ");
+            }
+            message.setLength(message.length() - 2);  // remove trailing ", "
+            message.append('.');
+            throw new ValidationException(null, null, message.toString());
         } else if (name.indexOf(FsFile.separatorChar)>=0) {
             throw new ValidationException(null, null,
-                    "No subpaths allowed. Path contains '/'");
+                    "No subpaths allowed. Path contains '" + FsFile.separatorChar + "'");
         }
-        List<String> copy = new ArrayList<String>(this.fsFile.getComponents());
-        copy.add(name);
-        return new CheckedPath(new File(original, name), new FsFile(copy));
+        final FsFile fullChild = FsFile.concatenate(this.fsFile, new FsFile(name));
+        return new CheckedPath(new File(original, name), fullChild);
     }
 
     /**
