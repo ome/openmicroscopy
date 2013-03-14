@@ -1094,7 +1094,6 @@ class ImViewerControl
 				klass = ImageData.class;
 				p = view.getParentObject();
 				if (!(p instanceof DatasetData)) p = null;
-				if (p == null) p = model.getImageName();
 				if (p != null) param.setAnchor((DataObject) p);
 			}
 			ids.add(view.getImageID());
