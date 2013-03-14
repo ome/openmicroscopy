@@ -34,8 +34,10 @@ import loci.formats.ReaderWrapper;
 
 import org.apache.commons.io.FileUtils;
 
-import ome.util.Utils;
 import ome.io.nio.FileBuffer;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 
@@ -66,6 +68,8 @@ public class CheckedPath {
     private /*final*/ String parentDir;
     private /*final*/ String baseName;
     private final String original;  // for error reporting
+    private final ChecksumProviderFactory checksumProvider =
+            new ChecksumProviderFactoryImpl();
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
@@ -159,7 +163,7 @@ public class CheckedPath {
 
     public String sha1() {
         if (sha1 == null) {
-            sha1 = Utils.bytesToHex(Utils.pathToSha1(file.getPath()));
+            sha1 = this.checksumProvider.getProvider(ChecksumType.SHA1).putFile(file.getPath()).checksumAsString();
         }
         return sha1;
     }
