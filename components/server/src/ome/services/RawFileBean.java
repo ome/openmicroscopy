@@ -29,7 +29,7 @@ import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.util.ShallowCopy;
-import ome.util.Utils;
+import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
@@ -88,13 +88,13 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     private transient boolean diskSpaceChecking;
 
     /**
-     * {@link MessageDigest} maintained for sequential write files. On any
-     * write with offset = 0, a new {@link MessageDigest} will be created. As
+     * {@link ChecksumProvider} maintained for sequential write files. On any
+     * write with offset = 0, a new {@link ChecksumProvider} will be created. As
      * long as all write calls happen sequentially and without gaps, then
-     * md.digest() will represent the actual state of the file. Any
-     * non-sequential call will cause the instance to be nulled.
+     * checksumProvider.checksumAsBytes() will represent the actual state of the
+     * file. Any non-sequential call will cause the instance to be nulled.
      */
-    private transient MessageDigest md;
+    private transient ChecksumProvider checksumProvider;
 
     /**
      * Used to track the last sequential offset to
@@ -405,10 +405,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
 
         if (position == 0) {
-            md = Utils.newSha1MessageDigest();
+            checksumProvider = checksumProviderFactory.getProvider(ChecksumType.SHA1);
             mdOffset = 0;
         } else if (mdOffset != position) {
-            md = null;
+            checksumProvider = null;
         }
         
         try {
@@ -416,10 +416,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             // Write was successful, update state.
             modified();
             try {
-                md.update(buf);
+                checksumProvider.putBytes(buf);
                 mdOffset += length;
             } catch (RuntimeException re) {
-                md = null;
+                checksumProvider = null;
                 throw re;
             }
         } catch (NonWritableChannelException nwce) {
