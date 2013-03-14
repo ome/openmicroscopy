@@ -165,35 +165,33 @@ public class LoginServiceImpl
             msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
-            
             return NOT_CONNECTED;
-        } catch (DSOutOfServiceException dsose) {  //Log failure.
-        	if (dsose != null) {
-        		Throwable cause = dsose.getCause();
-            	if (cause instanceof ConnectionRefusedException) {
-            		failureIndex = CONNECTION_INDEX;
-            	} else if (cause instanceof DNSException) {
-            		failureIndex = DNS_INDEX;
-            	} else if (cause instanceof PermissionDeniedException) {
-            		failureIndex = PERMISSION_INDEX;
-            	} else if (cause instanceof Ice.FileException) {
-            		failureIndex = CONFIGURATION_INDEX;
-            	} else if (cause instanceof DSOutOfServiceException) {
-            		if (cause.getCause() instanceof SecurityViolation)
-            			failureIndex = ACTIVE_INDEX;
-            	}
-                LogMessage msg = new LogMessage();
-                msg.println("Failed to log onto OMERO.");
-                msg.println("Reason: "+dsose.getMessage());
-                if (uc != null) {
-                	msg.println("OMERO address: "+uc.getHostName());
-                	msg.println(uc);
-                }
-                msg.print(dsose);
-                Logger logger = container.getRegistry().getLogger();
-                logger.debug(this, msg);
-        	}
-        	
+        } catch (Exception exception) {  //Log failure.
+        	if (exception instanceof DSOutOfServiceException) {
+        		Throwable cause = exception.getCause();
+        		if (cause instanceof ConnectionRefusedException) {
+        			failureIndex = CONNECTION_INDEX;
+        		} else if (cause instanceof DNSException) {
+        			failureIndex = DNS_INDEX;
+        		} else if (cause instanceof PermissionDeniedException) {
+        			failureIndex = PERMISSION_INDEX;
+        		} else if (cause instanceof Ice.FileException) {
+        			failureIndex = CONFIGURATION_INDEX;
+        		} else if (cause instanceof DSOutOfServiceException) {
+        			if (cause.getCause() instanceof SecurityViolation)
+        				failureIndex = ACTIVE_INDEX;
+        		}
+        	} else failureIndex = SYSTEM_FAILURE_INDEX;
+        	LogMessage msg = new LogMessage();
+            msg.println("Failed to log onto OMERO.");
+            msg.println("Reason: "+exception.getMessage());
+            if (uc != null) {
+            	msg.println("OMERO address: "+uc.getHostName());
+            	msg.println(uc);
+            }
+            msg.print(exception);
+            Logger logger = container.getRegistry().getLogger();
+            logger.debug(this, msg);
         }
         return NOT_CONNECTED;
     }
@@ -319,6 +317,9 @@ public class LoginServiceImpl
 				break;
 			case LoginService.CONFIGURATION_INDEX:
 				text = "Please unset ICE_CONFIG.";
+				break;
+			case LoginService.SYSTEM_FAILURE_INDEX:
+				text = "Error: System Failure.";
 				break;
 			case LoginService.PERMISSION_INDEX:
 				default:
