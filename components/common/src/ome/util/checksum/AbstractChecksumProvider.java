@@ -75,7 +75,7 @@ public class AbstractChecksumProvider implements ChecksumProvider {
     public ChecksumProvider putBytes(ByteBuffer byteBuffer) {
         this.verifyState(this.hashBytes, this.hashString);
         if (byteBuffer.hasArray()) {
-            this.hasher.putBytes(byteBuffer.array());
+            this.hasher.putBytes(byteBuffer.array(), 0, byteBuffer.limit());
             return this;
         } else {
             throw new IllegalArgumentException("Supplied ByteBuffer has " +
