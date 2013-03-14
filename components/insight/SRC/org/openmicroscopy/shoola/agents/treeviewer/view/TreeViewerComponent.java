@@ -4422,7 +4422,7 @@ class TreeViewerComponent
 		else {
 			if (groupID == -1) return;
 			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"sure want to move the selected items to another group?");
+					"sure you want to move the selected items to another group?");
 			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 			SecurityContext ctx = new SecurityContext(groupID);
 			otData = null;
