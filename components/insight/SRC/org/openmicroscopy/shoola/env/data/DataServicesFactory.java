@@ -694,7 +694,7 @@ public class DataServicesFactory
 		//Need to write the current group.
 		if (!omeroGateway.isConnected()) return;
 		omeroGateway.logout();
-		CacheServiceFactory.shutdown(container);
+		DataServicesFactory.registry.getCacheService().clearAllCaches();
 		PixelsServicesFactory.shutDownRenderingControls(container.getRegistry());
 		 
         if (executor != null) executor.shutdown();
@@ -745,7 +745,7 @@ public class DataServicesFactory
 				if (env != null && env.isRunAsPlugin())
 					title = "Exit Plugin";
 				MessageBox box = new MessageBox(
-						singleton.registry.getTaskBar().getFrame(),
+						DataServicesFactory.registry.getTaskBar().getFrame(),
 						title, message,
 						IconManager.getInstance().getIcon(
 								IconManager.INFORMATION_MESSAGE_48));
@@ -759,6 +759,7 @@ public class DataServicesFactory
 		}
 		shutdown(null);
 		if (exit) {
+			CacheServiceFactory.shutdown(container);
 			singleton = null;
 			container.exit();
 		}

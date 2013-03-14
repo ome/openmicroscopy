@@ -61,7 +61,7 @@ import pojos.ProjectData;
  * <p>So we have a general purpose, set-based structure we can use to visualize 
  * any image hierarchy: Project/Dataset/Image, Screen/Plate/Well/Image, etc.
  * The original data hierarchy translates into a visualization tree as follows.
- * Each image object corresponds to an {@link ImageNode} and an image container, 
+ * Each image object corresponds to an {@link ImageNode} and an image container,
  * such as Dataset, corresponds to an {@link ImageSet}. 
  * All {@link ImageNode} objects that are
  * created for the images in a given image container are added to the 
@@ -192,8 +192,8 @@ public abstract class ImageDisplay
      * @param title The frame's title. 
      * @param note	The note added to the frame's title.
      * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  
-     *                        Never pass <code>null</code>. 
+     *                        is visualized by this node.
+     *                        Never pass <code>null</code>.
      */
     protected ImageDisplay(String title, String note, Object hierarchyObject)
     {
@@ -210,7 +210,7 @@ public abstract class ImageDisplay
      * Returns the parent node to this node in the visualization tree.
      * 
      * @return The parent node or <code>null</code> if this node has no parent.
-     *          This can happen if this node hasn't been linked yet or if it's
+     *          This can happen if this node hasn't been linked yet or if it is
      *          the root node.
      */
     public ImageDisplay getParentDisplay() { return parentDisplay; }
@@ -234,7 +234,7 @@ public abstract class ImageDisplay
      * will have to set its bounds for it to show up &#151; this is a
      * consequence of the fact that a desktop has no layout manager.
      * The <code>child</code>'s parent is set to be this node.  If <code>
-     * child</code> is currently a child to another node <code>n</code>, 
+     * child</code> is currently a child to another node <code>n</code>,
      * then <code>child</code> is first 
      * {@link #removeChildDisplay(ImageDisplay) removed} from <code>n</code>
      * and then added to this node. 
@@ -278,8 +278,9 @@ public abstract class ImageDisplay
     /** Removes all <code>children</code> nodes from the children set. */
     public void removeAllChildrenDisplay()
     {
-    	Iterator i = childrenDisplay.iterator();
-        Set toRemove = new HashSet(childrenDisplay.size());
+    	Iterator<ImageDisplay> i = childrenDisplay.iterator();
+        Set<ImageDisplay> toRemove = 
+        		new HashSet<ImageDisplay>(childrenDisplay.size());
         while (i.hasNext())
             toRemove.add(i.next());
         i = toRemove.iterator();
@@ -320,7 +321,7 @@ public abstract class ImageDisplay
     	List<JLabel> nodes = new ArrayList<JLabel>();
     	
     	if (hierarchyObject instanceof DataObject && userID >= 0) {
-    		ExperimenterData owner =  getNodeOwner();
+    		ExperimenterData owner = getNodeOwner();
 			if (owner != null && userID != owner.getId())
 				nodes.add(new JLabel(NOT_OWNED_ICON));
         }
@@ -360,7 +361,7 @@ public abstract class ImageDisplay
      * For each node, the <code>visit</code> method is called passing in the
      * node being visited.
      * 
-     * @param visitor The visitor.  Mustn't be <code>null</code>.
+     * @param visitor The visitor Mustn't be <code>null</code>.
      * @see ImageDisplayVisitor
      */
     public void accept(ImageDisplayVisitor visitor)
@@ -374,7 +375,7 @@ public abstract class ImageDisplay
      * in the visualization tree.
      * According to the specified <code>algoType</code>,
      * the <code>visit</code> method is called passing in the
-     * node being visited. 
+     * node being visited.
      * 
      * @param visitor   The visitor.  Mustn't be <code>null</code>.
      * @param algoType  The algorithm selected. Must be one of the constants
@@ -392,8 +393,7 @@ public abstract class ImageDisplay
         switch (algoType) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
                 while (i.hasNext()) {
-                    child = i.next();
-                    child.accept(visitor, algoType);
+                    i.next().accept(visitor, algoType);
                 }
                 if (this instanceof ImageNode) doAccept(visitor);
                 break;
@@ -406,10 +406,8 @@ public abstract class ImageDisplay
                 if (this instanceof ImageSet) doAccept(visitor);
                 break;
             case ImageDisplayVisitor.ALL_NODES:
-            	//doAccept(visitor);
                 while (i.hasNext()) {
-                    child = i.next();
-                    child.accept(visitor, algoType);
+                   i.next().accept(visitor, algoType);
                 }
                 doAccept(visitor);
                 break;
@@ -424,32 +422,32 @@ public abstract class ImageDisplay
      */
     public String getNodeName()
     { 
-        if (hierarchyObject instanceof ProjectData) 
+        if (hierarchyObject instanceof ProjectData)
         	return ((ProjectData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof DatasetData) 
+        else if (hierarchyObject instanceof DatasetData)
             return ((DatasetData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ImageData) 
+        else if (hierarchyObject instanceof ImageData)
             return ((ImageData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) hierarchyObject;
         	return exp.getFirstName()+" "+exp.getLastName();
-        } else if (hierarchyObject instanceof String) 
+        } else if (hierarchyObject instanceof String)
         	return (String) hierarchyObject;
         return "";
     }
     
     /** 
-     * Overridden to return the name of the hierarchy object. 
+     * Overridden to return the name of the hierarchy object.
      * @see Object#toString()
      */
     public String toString()
     {
         String s = "";
-        if (hierarchyObject instanceof ProjectData) 
+        if (hierarchyObject instanceof ProjectData)
             s = ((ProjectData) hierarchyObject).getName();
         else if (hierarchyObject instanceof DatasetData)
             s = ((DatasetData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ImageData) 
+        else if (hierarchyObject instanceof ImageData)
             s = getPartialName(((ImageData) hierarchyObject).getName());
         else if (hierarchyObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) hierarchyObject;
@@ -481,7 +479,7 @@ public abstract class ImageDisplay
     /**
      * Tells if the children of this node are {@link ImageNode}s.
      * 
-     * @return <code>true</code> if there's at least one {@link ImageNode} 
+     * @return <code>true</code> if there's at least one {@link ImageNode}
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
@@ -493,5 +491,5 @@ public abstract class ImageDisplay
      * @param listener
      */
     public abstract void addListenerToComponents(Object listener);
-    
+
 }

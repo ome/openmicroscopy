@@ -1,4 +1,4 @@
-function [matlabList] = toMatlabList(arraylist)
+function [matlabList] = toMatlabList(arraylist, varargin)
 % Convert a Java ArrayList into a MATLAB vector
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
@@ -21,10 +21,29 @@ function [matlabList] = toMatlabList(arraylist)
 % Check input
 ip = inputParser;
 ip.addRequired('arraylist', @(x) isa(x, 'java.util.ArrayList'));
-ip.parse(arraylist);
+ip.addOptional('classname', '', @ischar);
+ip.parse(arraylist, varargin{:});
+
+% Read number of elements
+nElements = arraylist.size();
+if nElements == 0, matlabList = []; return; end
+
+if isempty(ip.Results.classname),
+    % Read class using first element
+    classname = class(arraylist.get(0));
+else
+    classname = ip.Results.classname;
+end
 
 % Initialize Matlab list
-matlabList = zeros(arraylist.size(), 1);
-for i=0:arraylist.size()-1,
- matlabList(i+1)=arraylist.get(i);
+if ismember(classname, {'int8', 'uint8', 'int16', 'uint16', 'single', 'double'})
+    matlabList = zeros(nElements, 1, classname);
+else
+    castFun = str2func(classname);
+    matlabList (1 : arraylist.size()) = castFun();
+end
+
+% Fill Matlab array with elements
+for i = 0 : nElements - 1,
+    matlabList(i+1) = arraylist.get(i);
 end

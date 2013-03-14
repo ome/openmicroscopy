@@ -227,6 +227,7 @@ package loci.formats.meta;
 import java.util.Iterator;
 import java.util.List;
 
+import ome.xml.model.*;
 import ome.xml.model.enums.*;
 import ome.xml.model.primitives.*;
 
@@ -316,6 +317,137 @@ public class AggregateMetadata implements IMetadata
 		return -1;
 	}
 
+  public int getBooleanAnnotationAnnotationCount(int booleanAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getBooleanAnnotationAnnotationCount(booleanAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getCommentAnnotationAnnotationCount(int commentAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getCommentAnnotationAnnotationCount(commentAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getDoubleAnnotationAnnotationCount(int doubleAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getDoubleAnnotationAnnotationCount(doubleAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getFileAnnotationAnnotationCount(int fileAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getFileAnnotationAnnotationCount(fileAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getListAnnotationAnnotationCount(int listAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getListAnnotationAnnotationCount(listAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getLongAnnotationAnnotationCount(int longAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getLongAnnotationAnnotationCount(longAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getTagAnnotationAnnotationCount(int tagAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getTagAnnotationAnnotationCount(tagAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getTermAnnotationAnnotationCount(int termAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getTermAnnotationAnnotationCount(termAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getTimestampAnnotationAnnotationCount(int timestampAnnotationIndex)
+  {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result = retrieve.getTimestampAnnotationAnnotationCount(
+          timestampAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
+  public int getXMLAnnotationAnnotationCount(int xmlAnnotationIndex) {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();) {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve) {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        int result =
+          retrieve.getXMLAnnotationAnnotationCount(xmlAnnotationIndex);
+        if (result >= 0) return result;
+      }
+    }
+    return -1;
+  }
+
 	public String getLightSourceType(int instrumentIndex, int lightSourceIndex)
 	{
 		for (Iterator iter = delegates.iterator(); iter.hasNext();)
@@ -329,6 +461,20 @@ public class AggregateMetadata implements IMetadata
 		}
 		return null;
 	}
+
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    for (Iterator iter = delegates.iterator(); iter.hasNext();)
+    {
+      Object o = iter.next();
+      if (o instanceof MetadataRetrieve)
+      {
+        MetadataRetrieve retrieve = (MetadataRetrieve) o;
+        return retrieve.getShapeType(roiIndex, shapeIndex);
+      }
+    }
+    return null;
+  }
 
 	// -- Entity counting (code generated definitions) --
 
@@ -440,14 +586,16 @@ ${counter(k, o, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${getter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
@@ -544,14 +692,16 @@ ${getter(k, o, prop, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${setter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\

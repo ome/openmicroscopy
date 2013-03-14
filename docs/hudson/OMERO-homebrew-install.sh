@@ -13,6 +13,7 @@ export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
 
 ###################################################################
 # Homebrew & pip uninstallation
@@ -84,10 +85,10 @@ else
 fi
 
 # Install scc tools
+bin/pip install -U scc || echo "scc installed"
+
+# Tap ome-alt library
 bin/brew tap $OMERO_ALT || echo "Already tapped"
-bin/brew install scc
-bin/pip install PyGithub || echo "PyGithub installed"
-bin/pip install argparse || echo "argparse installed"
 
 # Merge homebrew-alt PRs
 cd Library/Taps/${OMERO_ALT/\//-}
