@@ -35,11 +35,11 @@ classdef TestJavaMatlabList < TestCase
             self.matlabList = ones(sizeX, sizeY);
         end
         
-        function initArrayList(self, size)
+        function initArrayList(self, size, value)
             self.size = size;
             self.javaList = java.util.ArrayList;
             for i = 1 : self.size
-                self.javaList.add(1);
+                self.javaList.add(value);
             end
         end
         
