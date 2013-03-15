@@ -740,8 +740,10 @@ class ImViewerComponent
 			int h = model.getTiledImageSizeY();
 			double nx = (double) w/ox;
 			double ny = (double) h/oy;
-			model.getBrowser().setViewLocation(nx, ny);
 			model.getBrowser().setComponentsSize(w, h);
+			model.getBrowser().setViewLocation(nx, ny);
+
+			
 			loadTiles(null);
 			postMeasurePlane();
 			return;

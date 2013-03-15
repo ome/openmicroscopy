@@ -651,12 +651,12 @@ class BrowserUI
 	void setViewLocation(double rx, double ry)
 	{
 		Rectangle r = birdEyeView.getSelectionRegion();
+		Rectangle rect = getVisibleRectangle();
+		//now check the location
 		int w = (int) (r.width/rx);
 		int h = (int) (r.height/ry);
-		int x = (int) (rx*r.x);
-		int y = (int) (ry*r.y);
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
+		int x = (int) (rect.x*r.width/rect.width);
+		int y = (int) (rect.y*r.height/rect.height);
 		birdEyeView.setSelection(x, y, w, h);
 		displaySelectedRegion(birdEyeView.getSelectionRegion(), false);
 	}
