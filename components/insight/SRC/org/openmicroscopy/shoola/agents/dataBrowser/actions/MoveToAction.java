@@ -118,7 +118,7 @@ public class MoveToAction
 		if (group == null)
 			throw new IllegalArgumentException("No group.");
 		this.group = group;
-		setEnabled(false);
+		setEnabled(true);
 		putValue(Action.NAME, group.getName()+"...");
 		setPermissions();
 	}
