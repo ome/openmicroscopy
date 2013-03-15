@@ -535,9 +535,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         idname = 'UNKNOWN'
         try:
             idname = self.factory.ice_getIdentity().name
-            clientSession = self.factory.getSessionService().getSession(idname)
-        except:
-            self.logger.debug("Client session %s not found" % idname)
+            clientSession = self.ctx.getSession().getSessionService() \
+                .getSession(idname)
+            if clientSession.getClosed():
+                self.logger.debug("Client session closed: %s" % idname)
+                return False
+            return True
+        except Exception:
+            self.logger.debug("Client session not found: %s" % idname)
             return False
 
         return True
