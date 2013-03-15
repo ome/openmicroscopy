@@ -35,12 +35,10 @@ import loci.formats.ReaderWrapper;
 import org.apache.commons.io.FileUtils;
 
 import ome.io.nio.FileBuffer;
-import ome.util.checksum.ChecksumProviderFactory;
-import ome.util.checksum.ChecksumProviderFactoryImpl;
-import ome.util.checksum.ChecksumType;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumType;
 import omero.ValidationException;
 
 /**
@@ -68,8 +66,7 @@ public class CheckedPath {
     private /*final*/ String parentDir;
     private /*final*/ String baseName;
     private final String original;  // for error reporting
-    private final ChecksumProviderFactory checksumProvider =
-            new ChecksumProviderFactoryImpl();
+    private final ChecksumProvider checksumProvider;
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
@@ -115,9 +112,11 @@ public class CheckedPath {
      * @param path a repository path
      * @throws ValidationException if the path is empty or contains illegal components
      */
-    public CheckedPath(ServerFilePathTransformer serverPaths, String path)
+    public CheckedPath(ServerFilePathTransformer serverPaths, String path,
+            ChecksumProvider checksumProvider)
             throws ValidationException {
         this.original = path;
+        this.checksumProvider = checksumProvider;
         this.fsFile = processSpecialDirectories(new FsFile(path));
         if (!serverPaths.isLegalFsFile(fsFile)) // unsanitary
             throw new ValidationException(null, null, "Path contains illegal components");
@@ -125,10 +124,12 @@ public class CheckedPath {
         breakPath();
     }
 
-    private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
+    private CheckedPath(File filePath, FsFile fsFilePath,
+            ChecksumProvider checksumProvider) throws ValidationException {
         this.original = filePath.getPath();
         this.fsFile = fsFilePath;
         this.file = filePath;
+        this.checksumProvider = checksumProvider;
         breakPath();
     }
 
@@ -163,7 +164,9 @@ public class CheckedPath {
 
     public String sha1() {
         if (sha1 == null) {
-            sha1 = this.checksumProvider.getProvider(ChecksumType.SHA1).putFile(file.getPath()).checksumAsString();
+            sha1 = this.checksumProvider
+                    .putFile(file.getPath())
+                    .checksumAsString();
         }
         return sha1;
     }
@@ -194,7 +197,8 @@ public class CheckedPath {
         if (components.isEmpty())
             throw new ValidationException(null, null, "May not obtain parent of repository root");
         components = components.subList(0, components.size() - 1);
-        return new CheckedPath(this.file.getParentFile(), new FsFile(components));
+        return new CheckedPath(this.file.getParentFile(), new FsFile(components),
+                this.checksumProvider);
     }
 
     /**
@@ -225,7 +229,8 @@ public class CheckedPath {
                     "No subpaths allowed. Path contains '" + FsFile.separatorChar + "'");
         }
         final FsFile fullChild = FsFile.concatenate(this.fsFile, new FsFile(name));
-        return new CheckedPath(new File(original, name), fullChild);
+        return new CheckedPath(new File(original, name), fullChild,
+            this.checksumProvider);
     }
 
     /**

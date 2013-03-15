@@ -22,6 +22,7 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.jmock.Mock;
 import org.jmock.core.Invocation;
@@ -41,6 +42,8 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     Ice.ObjectAdapter oa;
     Mock regMock;
     Registry reg;
+    Mock mockCpf;
+    ChecksumProviderFactory cpf;
 
     MockServiceFactory sf;
 
@@ -53,6 +56,8 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
         oa = (Ice.ObjectAdapter) oaMock.proxy();
         regMock = mock(Registry.class);
         reg = (Registry) regMock.proxy();
+        mockCpf = mock(ChecksumProviderFactory.class);
+        cpf = (ChecksumProviderFactory) mockCpf.proxy();
 
         sf = new MockServiceFactory();
         sf.mockConfig.expects(atLeastOnce()).method("getDatabaseUuid").will(
@@ -68,7 +73,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     private LegacyRepositoryI mk() throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
         return new LegacyRepositoryI(oa, reg, ex, p, tmpRepo.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex)));
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf));
     }
 
     private OriginalFile file() {

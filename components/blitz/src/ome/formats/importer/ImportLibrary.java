@@ -292,7 +292,7 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                cp.putBytes(rlen == buf.length ? buf : Arrays.copyOfRange(buf, 0, rlen));
+                cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -313,7 +313,7 @@ public class ImportLibrary implements IObservable
             }
             notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null));
+                    offset, length, digestString, null));
 
         }
         catch (IOException e) {
