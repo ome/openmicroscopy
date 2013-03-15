@@ -545,8 +545,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             self.logger.debug("Client session not found: %s" % idname)
             return False
 
-        return True
-
     def cleanup(self):
         """
         Decrements the counter on the held storage to allow it to
