@@ -74,11 +74,7 @@ install matplotlib
 export HDF5_DIR=`pwd`
 install Cython
 install numexpr
-
-bin/pip freeze | grep -q tables-dev || {
-    which git && bin/pip install -e $TABLES_GIT#egg=tables ||
-    "Install git in order to install PyTables."
-}
+install tables
 
 echo "Done."
 
