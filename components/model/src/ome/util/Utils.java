@@ -8,8 +8,15 @@
 package ome.util;
 
 // Java imports
+import java.io.BufferedInputStream;
 import java.io.Closeable;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -161,8 +168,74 @@ public class Utils {
                 .append("::").append(Thread.currentThread().getId()).toString();
     }
 
-    // Helpers
-    // =========================================================================
+    /**
+     * Standard algorithm to convert a byte-array into a SHA1. Throws a
+     * {@link RuntimeException} if {@link MessageDigest#getInstance(String)}
+     * throws {@link NoSuchAlgorithmException}.
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(byte[])}
+     */
+    @Deprecated
+    public static String bufferToSha1(byte[] buffer) {
+        MessageDigest md;
+
+        md = newSha1MessageDigest();
+
+        md.reset();
+        md.update(buffer);
+        byte[] digest = md.digest();
+        return bytesToHex(digest);
+    }
+
+    /**
+     * Reads a file from disk and returns the SHA1 digest for it. An IOException
+     * is thrown if anything occurs during reading.
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(String)}
+     */
+    @Deprecated
+    public static byte[] pathToSha1(String fileName) {
+        FileInputStream fis = null;
+        BufferedInputStream bis = null;
+        DigestInputStream dis = null;
+        try {
+            MessageDigest sha1 = newSha1MessageDigest();
+            fis = new FileInputStream(fileName);
+            bis = new BufferedInputStream(fis);
+            dis = new DigestInputStream(bis,sha1);
+            while (dis.read() != -1);
+            return sha1.digest();
+        } catch (IOException io) {
+            throw new RuntimeException(io);
+        } finally {
+            closeQuietly(dis);
+            closeQuietly(bis);
+            closeQuietly(fis);
+        }
+    }
+    /**
+     * Calculates a MD5 digest for the given {@link ByteBuffer}
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(ByteBuffer)}
+     */
+    @Deprecated
+    public static byte[] calculateMessageDigest(ByteBuffer buffer) {
+        MessageDigest md = newMd5MessageDigest();
+        md.update(buffer);
+        return md.digest();
+    }
+
+    /**
+     * Calculates a MD5 digest for the given {@link byte[]}
+     * @deprecated As of 4.4.7,
+     *             superseded by {@link ChecksumProvider#putBytes(byte[])}
+     */
+    @Deprecated
+    public static byte[] calculateMessageDigest(byte[] buffer) {
+        MessageDigest md = newMd5MessageDigest();
+        md.update(buffer);
+        return md.digest();
+    }
 
     /**
      * Standard algorithm to convert a byte array to a hex string.
@@ -170,7 +243,10 @@ public class Utils {
      * @param data
      *            the byte[] to convert
      * @return String the converted byte[]
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
+    @Deprecated
     public static String bytesToHex(byte[] data) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
@@ -181,7 +257,10 @@ public class Utils {
 
     /**
      * Standard algorithm to convert a byte into a hex representation.
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
+    @Deprecated
     public static String byteToHex(byte data) {
         StringBuffer buf = new StringBuffer();
         buf.append(toHexChar(data >>> 4 & 0x0F));
@@ -191,7 +270,10 @@ public class Utils {
 
     /**
      * Standard algorithm to convert an int into a hex char.
+     * @deprecated As of 4.4.7,
+     *             superseded by the use of <code>commons.codec.binary.Hex</code>
      */
+    @Deprecated
     public static char toHexChar(int i) {
         if (0 <= i && i <= 9) {
             return (char) ('0' + i);
@@ -199,6 +281,9 @@ public class Utils {
             return (char) ('a' + i - 10);
         }
     }
+
+    // Helpers
+    // =========================================================================
 
     public static void closeQuietly(Closeable is) {
         if (is == null) {
@@ -212,4 +297,30 @@ public class Utils {
         }
     }
 
+    @Deprecated
+    private static MessageDigest newMd5MessageDigest() {
+        MessageDigest md;
+
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required MD5 message digest algorithm unavailable.");
+        }
+
+        md.reset();
+        return md;
+    }
+
+
+    @Deprecated
+    private static MessageDigest newSha1MessageDigest() {
+        try {
+            return MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+
+    }
 }
