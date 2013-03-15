@@ -98,11 +98,11 @@
 			 name is the filename of the file, i.e. `basename <file>`
 			-->
 			<required name="path" type="text"/>
-			<required name="size" type="long"/>
+			<optional name="size" type="long"/>
 			<optional name="atime" type="timestamp"/>
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
-			<required name="sha1" type="string"/>
+			<optional name="sha1" type="string"/>
 			<optional name="mimetype" type="string"/>
 			<!--
 			Has a default set at the DB level of application/octet-stream.
