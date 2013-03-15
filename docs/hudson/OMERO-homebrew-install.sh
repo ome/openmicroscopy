@@ -25,8 +25,6 @@ if [ -d "$BREW_DIR" ]; then
     if (bin/pip --version)
     then
         echo "Removing pip-installed packages"
-        # Remove tables manually
-        bin/pip freeze -l | grep tables && bin/pip uninstall -y tables
 
         # Solve Cython uninstallation error exit
         (bin/pip freeze -l | grep Cython && bin/pip uninstall -y Cython) || echo "Cython uninstalled"
