@@ -52,6 +52,20 @@ public interface ChecksumProvider {
     ChecksumProvider putBytes(byte[] byteArray);
 
     /**
+     * Updates the internal checksum value with data from a chunk of a byte
+     * array. Data is read from <code>byteArray[offset]</code> up to
+     * <code>byteArray[offset + length - 1]</code>. If the array is null, throws
+     * NPE. Throws IOOB if indexes are invalid. Note that, although checksum
+     * results are consistent for any given hash function and byte array,
+     * different hash functions may calculate different checksums for an empty
+     * array despite its lack of content.
+     *
+     * @param byteArray The input byte array.
+     * @return ChecksumProvider
+     */
+    ChecksumProvider putBytes(byte[] byteArray, int offset, int length);
+
+    /**
      * Updates the internal checksum value with data from a byte buffer.
      * If the array underlying the byte buffer is not accessible, throws an
      * IllegalArgumentException.

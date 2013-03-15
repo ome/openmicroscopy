@@ -64,8 +64,15 @@ public class AbstractChecksumProvider implements ChecksumProvider {
      * @see ChecksumProvider#putBytes(byte[])
      */
     public ChecksumProvider putBytes(byte[] byteArray) {
+        return this.putBytes(byteArray, 0, byteArray.length);
+    }
+
+    /**
+     * @see ChecksumProvider#putBytes(byte[], int, int)
+     */
+    public ChecksumProvider putBytes(byte[] byteArray, int offset, int length) {
         this.verifyState(this.hashBytes, this.hashString);
-        this.hasher.putBytes(byteArray);
+        this.hasher.putBytes(byteArray, offset, length);
         return this;
     }
 
