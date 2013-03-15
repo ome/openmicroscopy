@@ -63,7 +63,7 @@ public class PlanarDataTest
     {
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	ByteBuffer buf = buffer.getPlane(0, 0, 1).getData();
-    	String md = Utils.bytesToHex(cpf.getProvider(ChecksumType.MD5).getChecksum(buf));
+    	String md = cpf.getProvider(ChecksumType.MD5).putBytes(buf).checksumAsString();
     	assertEquals("2d1c16c02bece26920ff04ff08985f5e", md);
     }
 
@@ -74,7 +74,7 @@ public class PlanarDataTest
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 0, buf);
-    	String md = Utils.bytesToHex(cpf.getProvider(ChecksumType.MD5).getChecksum(buf));
+    	String md = cpf.getProvider(ChecksumType.MD5).putBytes(buf).checksumAsString();
     	assertEquals("505c12f3149129adf250ae96af159ea1", md);
     }
 
@@ -85,7 +85,7 @@ public class PlanarDataTest
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 8, buf);
-    	String md = Utils.bytesToHex(cpf.getProvider(ChecksumType.MD5).getChecksum(buf));
+    	String md = cpf.getProvider(ChecksumType.MD5).putBytes(buf).checksumAsString();
     	assertEquals("ed6a8ba38c61808d5790419c7a33839c", md);
     }
 
@@ -96,7 +96,7 @@ public class PlanarDataTest
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 392, buf);
-    	String md = Utils.bytesToHex(cpf.getProvider(ChecksumType.MD5).getChecksum(buf));
+    	String md = cpf.getProvider(ChecksumType.MD5).putBytes(buf).checksumAsString();
     	assertEquals("ab1786af4395c09f52de23d710e37a7f", md);
     }
 }

@@ -21,19 +21,11 @@ package ome.util.checksum;
 
 /**
  * A factory producing throw-away objects of the {@link ChecksumProvider} type.
- * If no {@link ChecksumType} given, defaults to SHA1.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 4.4.7
  */
 public interface ChecksumProviderFactory {
-
-    /**
-     * Returns the default SHA1 {@link ChecksumProvider}.
-     *
-     * @return A SHA1 {@link ChecksumProvider}.
-     */
-    ChecksumProvider getProvider();
 
     /**
      * Returns an implementation of {@link ChecksumProvider} depending on the

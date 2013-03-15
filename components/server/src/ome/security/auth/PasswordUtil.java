@@ -125,7 +125,8 @@ public class PasswordUtil {
         String hashedText = null;
         ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         try {
-            bytes = cpf.getProvider(ChecksumType.MD5).getChecksum(bytes);
+            bytes = cpf.getProvider(ChecksumType.MD5).putBytes(bytes)
+                    .checksumAsBytes();
             bytes = Base64.encodeBase64(bytes);
             hashedText = new String(bytes);
         } catch (Exception e) {

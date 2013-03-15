@@ -45,6 +45,7 @@ import ome.util.ShallowCopy;
 import ome.util.SqlAction;
 import ome.util.Utils;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,7 +180,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
             try {
                 byte[] hash = buffer.calculateMessageDigest();
-                pixelsInstance.setSha1(Utils.bytesToHex(hash));
+                pixelsInstance.setSha1(Hex.encodeHexString(hash));
 
             } catch (RuntimeException re) {
                 // ticket:3140
