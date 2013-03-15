@@ -133,7 +133,7 @@ public class ManagedRepositoryTest
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final MessageDigest md = Utils.newSha1MessageDigest();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[client.getDefaultBlockSize()];
 
         for (int i = 0; i < srcFiles.length; i++) {
             checksums.add(lib.uploadFile(proc, srcFiles, i, md, buf));
