@@ -47,6 +47,8 @@ import org.openmicroscopy.shoola.agents.util.dnd.DnDTree;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -423,7 +425,12 @@ public class TreeCellRenderer
     private void setIcon(TreeImageDisplay node)
     {
     	Object usrObject = node.getUserObject();
-    	boolean owner = node.isOwner(userId);
+    	boolean owner = false;
+    	if (usrObject instanceof DataObject) {
+    		DataObject data = (DataObject) usrObject;
+    		if (data.getId() < 0) owner = true;
+    		else owner = node.isOwner(userId);
+    	}
     	if (userId < 0) owner = true;
         Icon icon = FILE_TEXT_ICON;
         if (usrObject instanceof ProjectData) {
