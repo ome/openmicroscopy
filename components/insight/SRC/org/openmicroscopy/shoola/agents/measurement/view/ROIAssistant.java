@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -149,7 +150,6 @@ class ROIAssistant
 	/** Create the UI for the Assistant. */
 	private void buildUI()
 	{
-		this.setSize(550,530);
 		JPanel panel = new JPanel();
 		JPanel infoPanel = createInfoPanel();
 		JPanel shapePanel = createShapePanel();
@@ -169,8 +169,6 @@ class ROIAssistant
 		scrollPanel.add(Box.createHorizontalStrut(10));
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		
-		panel.add(infoPanel);
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(scrollPanel);
 		panel.add(Box.createVerticalStrut(10));
@@ -178,8 +176,11 @@ class ROIAssistant
 		panel.add(Box.createVerticalStrut(10));
 		panel.add(closeButton);
 		panel.add(Box.createVerticalStrut(10));
-		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(panel, BorderLayout.CENTER);
+		Container c = getContentPane();
+		c.setLayout(new BorderLayout());
+		c.add(infoPanel, BorderLayout.NORTH);
+		c.add(panel, BorderLayout.CENTER);
+		setSize(550,530);
 	}
 	
 	/**
