@@ -22,29 +22,22 @@ fi
 
 # Python virtualenv/pip support ===================================
 
-# Look for local pip (assuming the current directory is /usr/local)
-if (bin/pip --version)
+# Look for pip in the PATH
+if (pip --version)
 then
-    echo "Using local pip installed in $PWD"
+    PIP_DIR="$(dirname $(dirname $(which pip)))"
+    echo "Using existing pip installed in $PIP_DIR"
+
+    # Move to PIP_DIR for the rest of this script
+    # so that "bin/EXECUTABLE" will pick up the
+    # intended executable.
+    cd "$PIP_DIR"
 else
-    # Look for pip in the PATH
-    if (pip --version)
-    then
-        PIP_DIR="$(dirname $(dirname $(which pip)))"
-        echo "Using existing pip installed in $PIP_DIR"
-
-        # Move to PIP_DIR for the rest of this script
-        # so that "bin/EXECUTABLE" will pick up the
-        # intended executable.
-        cd "$PIP_DIR"
-    else
-        # Create a local virtual environment
-        rm -rf virtualenv.py
-        $CURL "$VENV_URL"
-        python virtualenv.py --no-site-packages .
-    fi
+    # Create a local virtual environment
+    rm -rf virtualenv.py
+    $CURL "$VENV_URL"
+    python virtualenv.py --no-site-packages .
 fi
-
 
 ###################################################################
 # PIP INSTALLS
