@@ -2008,10 +2008,8 @@ class TreeViewerComponent
 				}
 			}
 		}
-		boolean b = true;
-		if (b) return;
 		MessageBox box = new MessageBox(view, "Change group", "Are you " +
-		"you want to move the selected items to another group?");
+		"sure you want to move the selected items to another group?");
 		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 		//if we are here moving data.
 		i = elements.keySet().iterator();
@@ -4423,13 +4421,8 @@ class TreeViewerComponent
 			model.transfer(target, list);
 		else {
 			if (groupID == -1) return;
-			boolean b = true;
-			TreeViewerAgent.getRegistry().getUserNotifier().notifyInfo(
-					"Change Group", "Moving data between groups currently not" +
-							" implemented");
-			if (b) return;
 			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"sure want to move the selected items to another group?");
+					"sure you want to move the selected items to another group?");
 			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 			SecurityContext ctx = new SecurityContext(groupID);
 			otData = null;
