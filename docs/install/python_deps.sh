@@ -9,7 +9,6 @@ set -e
 set -u
 
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
-TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
     CURL="curl ${CURL_OPTS-} --insecure -O"
 else
