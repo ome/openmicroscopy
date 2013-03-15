@@ -333,10 +333,20 @@ class BirdEyeViewComponent
 		if (h > canvasHeight) h = canvasHeight;
 		this.w = w;
 		this.h = h;
-		if (imageRectangle != null) {
-			inImage();
-			repaint();
+		if (x <= 0) {
+			this.w += x;
+			bx = 1;
+		} else if (bx+w > imageRectangle.width) {
+			this.w = imageRectangle.width-bx;
+			bx = x;
+		} else bx = x;
+		if (y <= 0) {
+			this.h += y;
+			by = 1;
+		} else if (by+h > imageRectangle.height) {
+			this.h = imageRectangle.height-by;
 		}
+		repaint();
 	}
 
 	/**
@@ -420,8 +430,8 @@ class BirdEyeViewComponent
 	 */
 	void setup(int x, int y)
 	{
-		if (x < 0) x = 0;
-		if (y < 0) y= 0;
+		if (x <= 0) x = 1;
+		if (y <= 0) y= 1;
 		setSelectionColor(SELECTION_COLOR);
 		bx = x;
 		by = x;
@@ -521,12 +531,12 @@ class BirdEyeViewComponent
 		}
 		if (!inSelection(mouseX, mouseY)) {
 			bx = mouseX-w/2;
-			if (bx < 0) bx = 0;
+			if (bx <= 0) bx = 1;
 			by = mouseY-h/2;
-			if (by < 0) by = 0;
+			if (by <= 0) by = 1;
 		}
-		if (bx < 0) bx = 0;
-		if (by < 0) by = 0;
+		if (bx <= 0) bx = 1;
+		if (by <= 0) by = 1;
 		fullDisplay = true;
 		locked = bover;
 		bdifx = mouseX-bx;
