@@ -313,5 +313,10 @@
    * be set to false when testing DB upgrade for example.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="/services/SERVER/BinaryAvailable" type="boolean">true</entry>
-     
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Information indicating to display data per group not per owner.
+   * 0: indicate to display the group's data.
+   * 1: indicate to display the user's data. Default value
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <entry name="DataDisplay" type="integer">1</entry>
 </container>
