@@ -17,10 +17,10 @@ TEST(RTypeTest, RBool)
 {
     RBoolPtr t = rbool(true);
     ASSERT_TRUE(t->getValue());
-    
+
     RBoolPtr f = rbool(false);
     ASSERT_FALSE(f->getValue());
-    
+
     ASSERT_EQ(t, rbool(true));
     ASSERT_NE(t, f);
 }
@@ -28,12 +28,12 @@ TEST(RTypeTest, RBool)
 TEST(RTypesTest, RDouble) {
     RDoublePtr d1 = rdouble(1.1);
     RDoublePtr d2 = rdouble(2.5);
-    
+
     RTypePtr d3 = rdouble(3.3);
     RFloatPtr rd3 = dynamic_cast<RFloat*>(d3.get());
     if (rd3)
         std::cout << "rd3  " << rd3->getValue() << std::endl;
-    
+
     ASSERT_LT(d1, d2);
     ASSERT_NE(d1, d2);
     ASSERT_EQ(d1->compare(d2), -1);
@@ -44,7 +44,7 @@ TEST(RTypesTest, RDouble) {
 TEST(RTypesTest, RFloat) {
     RFloatPtr f1 = rfloat(1.1);
     RFloatPtr f2 = rfloat(2.5);
-    
+
     ASSERT_LT(f1, f2);
     ASSERT_NE(f1, f2);
 }
@@ -75,5 +75,3 @@ TEST(RTypesTest, RSet) {
 
 TEST(RTypesTest, RMap) {
 }
-
-
