@@ -342,6 +342,7 @@ class BrowserUI
      */
     void setBirdEyeView(BufferedImage image)
 	{
+    	boolean init = false;
     	if (birdEyeView == null) {
     		birdEyeView = new BirdEyeViewComponent(
     				ImageCanvas.BOTTOM_RIGHT);
@@ -372,11 +373,31 @@ class BrowserUI
     		glass.add(birdEyeView);
     		glass.setVisible(true);
     		setBirdEyeViewLocation();
+    		init = true;
     	}
-    	Dimension d = birdEyeView.getSize();
     	birdEyeView.setImage(image);
-    	if (d.width == 0 || d.height == 0)
-    		setSelectionRegion();
+    	if (init) {
+    		int width = image.getWidth();
+        	int height = image.getHeight();
+        	Rectangle r = getViewport().getViewRect();
+        	Rectangle rl = canvas.getBounds();
+        	int sizeX = rl.width;
+        	int sizeY = rl.height;
+        	int rx = sizeX/width;
+        	int ry = sizeY/height;
+        	if (rx == 0) rx = 1;
+        	if (ry == 0) ry = 1;
+        	
+        	int w = (int) (r.width/rx);
+        	int h = (int) (r.height/ry);
+        	int x = (int) (width-w)/2;
+        	int y = (int) (height-h)/2;
+        	birdEyeView.setSelection(x, y, w, h);
+        	r = birdEyeView.getSelectionRegion();
+    		Rectangle converted = convertFromSelection(r);
+    		scrollRectToVisible(converted);
+    		displaySelectedRegion(r, true);
+    	}
 	}
     
     /**
