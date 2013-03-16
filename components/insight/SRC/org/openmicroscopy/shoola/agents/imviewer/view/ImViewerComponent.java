@@ -735,8 +735,6 @@ class ImViewerComponent
 			double ny = (double) h/oy;
 			model.getBrowser().setComponentsSize(w, h);
 			model.getBrowser().setViewLocation(nx, ny);
-
-			
 			loadTiles(null);
 			postMeasurePlane();
 			return;
