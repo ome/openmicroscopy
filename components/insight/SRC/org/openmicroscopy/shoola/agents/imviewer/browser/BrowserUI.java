@@ -126,16 +126,8 @@ class BrowserUI
 		}
     }
     
-    /** 
-     * Displays the region of the image selected using the bird eye view.
-     * 
-     * @param region See above.
-     * @param load Pass <code>true</code> to load the tiles, <code>false</code>
-     * otherwise.
-     */
-    private void displaySelectedRegion(Rectangle region, boolean load)
+    private Rectangle convertFromSelection(Rectangle region)
     {
-    	if (region == null) return;
     	Dimension d = birdEyeView.getSize();
     	Rectangle rl = canvas.getBounds();
     	int sizeX = rl.width;
@@ -146,11 +138,21 @@ class BrowserUI
     	int y = (int) (vy*region.y);
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
-    	if (load) {
-    		model.loadTiles(new Rectangle(x, y, w, h));
-    		getViewport().setViewPosition(new Point(x, y));
-    	}
-    	getViewport().setViewPosition(new Point(x, y));
+    	return new Rectangle(x, y, w, h);
+    }
+    /** 
+     * Displays the region of the image selected using the bird eye view.
+     * 
+     * @param region See above.
+     * @param load Pass <code>true</code> to load the tiles, <code>false</code>
+     * otherwise.
+     */
+    private void displaySelectedRegion(Rectangle region, boolean load)
+    {
+    	if (region == null) return;
+    	Rectangle r = convertFromSelection(region);
+    	if (load) model.loadTiles(r);
+    	getViewport().setViewPosition(new Point(r.x, r.y));
     	setBirdEyeViewLocation();
     }
     
@@ -190,7 +192,7 @@ class BrowserUI
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		setSelectionRegion();
+		//setSelectionRegion();
 		setBirdEyeViewLocation();
 	}
 	
@@ -651,14 +653,19 @@ class BrowserUI
 	void setViewLocation(double rx, double ry)
 	{
 		Rectangle r = birdEyeView.getSelectionRegion();
-		Rectangle rect = getVisibleRectangle();
-		//now check the location
+		double cx = r.getCenterX();
+		double cy = r.getCenterY();
 		int w = (int) (r.width/rx);
 		int h = (int) (r.height/ry);
-		int x = (int) (rect.x*r.width/rect.width);
-		int y = (int) (rect.y*r.height/rect.height);
+		int x = (int) (cx-w/2);
+		int y = (int) (cy-h/2);
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
 		birdEyeView.setSelection(x, y, w, h);
-		displaySelectedRegion(birdEyeView.getSelectionRegion(), false);
+		r = birdEyeView.getSelectionRegion();
+		Rectangle converted = convertFromSelection(r);
+		scrollRectToVisible(converted);
+		displaySelectedRegion(r, false);
 	}
 	
 	/**
