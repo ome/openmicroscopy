@@ -114,6 +114,7 @@ class render_response(omeroweb.decorators.render_response):
         context['ome']['basket_counter'] = request.session.get('basket_counter', 0)
         context['ome']['user_id'] = request.session.get('user_id', None)
         context['ome']['group_id'] = request.session.get('group_id', None)
+        context['ome']['active_group'] = request.session.get('active_group', conn.getEventContext().groupId)
         if settings.WEBSTART:
             context['ome']['insight_url'] = request.build_absolute_uri(reverse("webstart_insight"))
         self.load_settings(request, context, conn)

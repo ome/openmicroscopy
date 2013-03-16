@@ -283,6 +283,7 @@ def switch_active_group(request, active_group=None):
     """
     if active_group is None:
         active_group = request.REQUEST.get('active_group')
+    active_group = int(active_group)
     if 'active_group' not in request.session or active_group != request.session['active_group']:
         request.session.modified = True
         request.session['active_group'] = active_group
