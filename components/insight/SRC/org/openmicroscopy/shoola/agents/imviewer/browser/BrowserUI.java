@@ -638,8 +638,15 @@ class BrowserUI
 		return birdEyeView.getLocationIndex();
 	}
 	
-	/** Sets the adjusting value to <code>false</code>.*/
-	void resetAdjusting() { adjusting = false; }
+	/** 
+	 * Sets the adjusting value to <code>false</code>.
+	 * and sets the bird eye view location.
+	 */
+	void onComponentResized()
+	{ 
+		adjusting = false;
+		setSelectionRegion();
+	}
 	
 	/**
 	 * Returns the rectangle used to load the tiles.
