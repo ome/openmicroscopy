@@ -8,13 +8,6 @@
 set -e
 set -u
 
-VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
-if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
-    CURL="curl ${CURL_OPTS-} --insecure -O"
-else
-    CURL="curl ${CURL_OPTS-} -O"
-fi
-
 ###################################################################
 # PIP BASE SYSTEM
 ###################################################################
@@ -24,18 +17,11 @@ fi
 # Look for pip in the PATH
 if (pip --version)
 then
-    PIP_DIR="$(dirname $(dirname $(which pip)))"
-    echo "Using existing pip installed in $PIP_DIR"
-
-    # Move to PIP_DIR for the rest of this script
-    # so that "bin/EXECUTABLE" will pick up the
-    # intended executable.
-    cd "$PIP_DIR"
+    echo "Using existing pip found in $(which pip)"
 else
-    # Create a local virtual environment
-    rm -rf virtualenv.py
-    $CURL "$VENV_URL"
-    python virtualenv.py --no-site-packages .
+    echo "No pip found in the PATH."
+    echo "Install pip via easy_install or virtualenv first"
+    exit
 fi
 
 ###################################################################
@@ -44,10 +30,10 @@ fi
 
 install(){
     PKG=$1; shift
-    bin/pip freeze "$@" | grep -q "^$PKG==" && {
+    pip freeze "$@" | grep -q "^$PKG==" && {
         echo $PKG installed.
     } || {
-        bin/pip install $PKG
+        pip install $PKG
     }
 }
 
