@@ -1115,7 +1115,6 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
-			//model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
 			loadTiles(model.getBrowser().getVisibleRectangle());
 			return;

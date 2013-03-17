@@ -2624,7 +2624,6 @@ class ImViewerModel
 		// use the lowest resolution
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		int level = getSelectedResolutionLevel();
 		PlaneDef pDef = createPlaneDef();
 		Dimension d = getTileSize();
 		int w = d.width;
