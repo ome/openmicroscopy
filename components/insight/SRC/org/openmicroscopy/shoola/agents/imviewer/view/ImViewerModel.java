@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,6 +124,16 @@ import com.sun.opengl.util.texture.TextureData;
 class ImViewerModel
 {
 
+	
+	/** The maximum size for the bird eye view for standard screen size.*/
+	private static final int BIRD_EYE_SIZE_LOWER = 128;
+	
+	/** The maximum size for the bird eye view for a.*/
+	private static final int BIRD_EYE_SIZE_MEDIUM = 196;
+	
+	/** The maximum size for the bird eye view.*/
+	private static final int BIRD_EYE_SIZE_HEIGH = 256;
+	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -2650,13 +2661,17 @@ class ImViewerModel
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
-		if (w < BirdEyeLoader.BIRD_EYE_SIZE || h < BirdEyeLoader.BIRD_EYE_SIZE)
-			ratio = 1;
+		int ref = BIRD_EYE_SIZE_LOWER;
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		if (screen.height > 1200 && screen.height <= 1600)
+			ref = BIRD_EYE_SIZE_MEDIUM;
+		else if (screen.height > 1600)
+			ref = BIRD_EYE_SIZE_HEIGH;
+		if (w < ref || h < ref) ratio = 1;
 		else {
-			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
-			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
+			if (w >= h) ratio = (double) ref/w;
+			else ratio = (double) ref/h;
 		}
-		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);
