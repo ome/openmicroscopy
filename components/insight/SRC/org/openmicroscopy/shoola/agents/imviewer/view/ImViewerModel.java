@@ -150,7 +150,7 @@ class ImViewerModel
 	private static final int	IMAGE = 1;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	BIRD_EYE_BVIEW = 2;
+	private static final int	BIRD_EYE_VIEW = 2;
 	
 	/** The image to view. */
 	private DataObject 					image; 
@@ -712,10 +712,10 @@ class ImViewerModel
 	void cancelBirdEyeView()
 	{
 		state = ImViewer.CANCELLED;
-		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		DataLoader loader = loaders.get(BIRD_EYE_VIEW);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(BIRD_EYE_BVIEW);
+			loaders.remove(BIRD_EYE_VIEW);
 		}
 		discard();
 	}
@@ -2676,7 +2676,7 @@ class ImViewerModel
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);
 		loader.load();
-		loaders.put(BIRD_EYE_BVIEW, loader);
+		loaders.put(BIRD_EYE_VIEW, loader);
 	}
 
 	/**
@@ -2859,7 +2859,7 @@ class ImViewerModel
 	 */
 	void setBirdEyeView(BufferedImage image)
 	{
-		loaders.remove(BIRD_EYE_BVIEW);
+		loaders.remove(BIRD_EYE_VIEW);
 		getBrowser().setBirdEyeView(image);
 	}
 
