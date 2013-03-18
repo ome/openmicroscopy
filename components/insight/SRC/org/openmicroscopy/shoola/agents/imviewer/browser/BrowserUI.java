@@ -126,6 +126,12 @@ class BrowserUI
 		}
     }
     
+    /**
+     * Converts the bird eye location to screen location.
+     * 
+     * @param region The region to convert.
+     * @return See above.
+     */
     private Rectangle convertFromSelection(Rectangle region)
     {
     	Dimension d = birdEyeView.getSize();
