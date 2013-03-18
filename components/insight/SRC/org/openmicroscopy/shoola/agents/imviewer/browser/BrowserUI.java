@@ -401,8 +401,8 @@ class BrowserUI
         	birdEyeView.setSelection(x, y, w, h);
         	r = birdEyeView.getSelectionRegion();
     		Rectangle converted = convertFromSelection(r);
-    		scrollRectToVisible(converted);
-    		displaySelectedRegion(r, true);
+    		scrollTo(converted, false);
+    		displaySelectedRegion(r, false);
     	}
 	}
     
@@ -699,7 +699,7 @@ class BrowserUI
 		r = birdEyeView.getSelectionRegion();
 		Rectangle converted = convertFromSelection(r);
 		scrollRectToVisible(converted);
-		displaySelectedRegion(r, false);
+		displaySelectedRegion(r, true);
 	}
 	
 	/**
