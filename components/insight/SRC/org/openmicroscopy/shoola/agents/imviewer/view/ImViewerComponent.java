@@ -735,7 +735,7 @@ class ImViewerComponent
 			double ny = (double) h/oy;
 			model.getBrowser().setComponentsSize(w, h);
 			model.getBrowser().setViewLocation(nx, ny);
-			loadTiles(null);
+			//loadTiles(null);
 			postMeasurePlane();
 			return;
 		}
@@ -1109,7 +1109,7 @@ class ImViewerComponent
 		} 
 		if (model.isBigImage()) {
 			model.resetTiles();
-			loadTiles(model.getBrowser().getVisibleRectangle());
+			loadTiles(null);
 			return;
 		}
 		boolean stop = false;
@@ -3261,11 +3261,13 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case LOADING_BIRD_EYE_VIEW:
+				boolean set = false;
 				if (!view.isVisible()) {
 					buildView();
-					renderXYPlane();
+					set = true;
 				}
 				model.setBirdEyeView(image);
+				if (set) renderXYPlane();
 		}
 	}
 	
