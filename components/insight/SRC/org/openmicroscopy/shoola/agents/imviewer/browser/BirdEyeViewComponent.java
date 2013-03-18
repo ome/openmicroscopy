@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -439,6 +440,17 @@ class BirdEyeViewComponent
 		addMouseMotionListener(this);
 	}
 	
+	/**
+	 * Returns the size of the image displayed in the component.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getImageSize()
+	{
+		if (pImage == null) return null;
+		return new Dimension(pImage.getWidth(), pImage.getHeight());
+	}
+
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)

@@ -685,11 +685,25 @@ class BrowserUI
 	 */
 	void setViewLocation(double rx, double ry)
 	{
+		Dimension d = birdEyeView.getImageSize();
 		Rectangle r = birdEyeView.getSelectionRegion();
 		double cx = r.getCenterX();
 		double cy = r.getCenterY();
-		int w = (int) (r.width/rx);
-		int h = (int) (r.height/ry);
+		
+		Rectangle rl = canvas.getBounds();
+		Rectangle rect = getVisibleRectangle();
+    	int sizeX = rl.width;
+    	int sizeY = rl.height;
+    	int rxx = sizeX/d.width;
+    	int ryy = sizeY/d.height;
+    	if (rxx == 0) rxx = 1;
+    	if (ryy == 0) ryy = 1;
+    	
+    	int w = (int) (rect.width/rxx);
+    	int h = (int) (rect.height/ryy);
+		
+		//int w = (int) (r.width/rx);
+		//int h = (int) (r.height/ry);
 		int x = (int) (cx-w/2);
 		int y = (int) (cy-h/2);
 		if (x < 0) x = 0;
