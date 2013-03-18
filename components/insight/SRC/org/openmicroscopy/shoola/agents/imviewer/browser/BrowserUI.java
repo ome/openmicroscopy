@@ -146,6 +146,7 @@ class BrowserUI
     	int h = (int) (vy*region.height);
     	return new Rectangle(x, y, w, h);
     }
+
     /** 
      * Displays the region of the image selected using the bird eye view.
      * 
@@ -157,8 +158,8 @@ class BrowserUI
     {
     	if (region == null) return;
     	Rectangle r = convertFromSelection(region);
+    	scrollTo(r, false);
     	if (load) model.loadTiles(r);
-    	getViewport().setViewPosition(new Point(r.x, r.y));
     	setBirdEyeViewLocation();
     }
     
@@ -400,8 +401,6 @@ class BrowserUI
         	int y = (int) (height-h)/2;
         	birdEyeView.setSelection(x, y, w, h);
         	r = birdEyeView.getSelectionRegion();
-    		Rectangle converted = convertFromSelection(r);
-    		scrollTo(converted, false);
     		displaySelectedRegion(r, false);
     	}
 	}
@@ -696,10 +695,7 @@ class BrowserUI
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 		birdEyeView.setSelection(x, y, w, h);
-		r = birdEyeView.getSelectionRegion();
-		Rectangle converted = convertFromSelection(r);
-		scrollRectToVisible(converted);
-		displaySelectedRegion(r, true);
+		displaySelectedRegion(birdEyeView.getSelectionRegion(), true);
 	}
 	
 	/**
