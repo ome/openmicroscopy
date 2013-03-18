@@ -53,8 +53,9 @@ namespace omero {
 
         };
 
-	ProcessCallbackI::~ProcessCallbackI() {
-            this->adapter->remove(this->id);
+        void ProcessCallbackI::close() {
+            if (adapter)
+                adapter->remove(id);
         };
 
         std::string ProcessCallbackI::block(long ms) {
@@ -92,14 +93,15 @@ namespace omero {
         //
 
         DeleteCallbackI::DeleteCallbackI(
-            const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle) :
+            const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool poll) :
             adapter(adapter),
-            poll(true),
+            poll(poll),
             handle(handle) {
         };
 
-	DeleteCallbackI::~DeleteCallbackI() {
-            handle->close();
+        void DeleteCallbackI::close() {
+            if (handle)
+                handle->close();
         };
 
         DeleteReports DeleteCallbackI::loop(int loops, long ms) {
@@ -153,19 +155,17 @@ namespace omero {
 
         CmdCallbackI::CmdCallbackI(
             const Ice::ObjectAdapterPtr& adapter, const omero::cmd::HandlePrx handle, std::string category, bool closeHandle) :
-            omero::cmd::CmdCallback(),
             adapter(adapter),
             handle(handle),
-            closeHandle(closeHandle) {
+            closeHandle(closeHandle){
                 doinit(category);
         };
 
         CmdCallbackI::CmdCallbackI(
             const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle) :
-            omero::cmd::CmdCallback(),
             adapter(client->getObjectAdapter()),
             handle(handle),
-            closeHandle(closeHandle) {
+            closeHandle(closeHandle){
                 doinit(client->getCategory());
         };
 
@@ -173,22 +173,22 @@ namespace omero {
             this->id = Ice::Identity();
             this->id.name = IceUtil::generateUUID();
             this->id.category = category;
-            const omero::cmd::CmdCallbackPtr ptr(this);
-            Ice::ObjectPrx prx = adapter->add(ptr, id);
+            Ice::ObjectPrx prx = adapter->add(this, id);
             omero::cmd::CmdCallbackPrx cb = omero::cmd::CmdCallbackPrx::uncheckedCast(prx);
             handle->addCallback(cb);
             // Now check just in case the process exited VERY quickly
-            poll();
+            pollThread = new PollThread(this);
+            pollThread->start();
         };
-
-        CmdCallbackI::~CmdCallbackI() {
+        
+        void CmdCallbackI::close() {
             if (adapter) {
                 adapter->remove(id); // OK ADAPTER USAGE
             }
             if (closeHandle && handle) {
                 handle->close();
             }
-        };
+        }
 
         omero::cmd::ResponsePtr CmdCallbackI::getResponse() {
             IceUtil::RecMutex::Lock lock(mutex);
@@ -246,7 +246,7 @@ namespace omero {
             if (found) {
                 return getResponse();
             } else {
-                int waited = (ms/1000) * loops;
+                int waited = (ms/1000.0) * loops;
                 stringstream ss;
                 ss << "Cmd unfinished after " << waited << "seconds.";
                 throw LockTimeout("", "", ss.str(), 5000L, waited);
@@ -258,11 +258,15 @@ namespace omero {
         };
 
         void CmdCallbackI::poll() {
+            IceUtil::RecMutex::Lock lock(mutex);
+            
             omero::cmd::ResponsePtr rsp = handle->getResponse();
             if (rsp) {
                 omero::cmd::StatusPtr s = handle->getStatus();
                 finished(rsp, s, Ice::Current()); // Only time that current should be null.
             }
+            
+            pollThread = NULL;
         };
 
         void CmdCallbackI::step(int complete, int total, const Ice::Current& current) {
