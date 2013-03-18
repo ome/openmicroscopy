@@ -1,4 +1,4 @@
-function [mat] = toMatrix(binaryData, pixels)
+function [mat] = toMatrix(binaryData, pixels,varargin)
 % TOMATRIX convert the binaryData from the server to a matlab matrix.
 %
 % Input
@@ -35,6 +35,16 @@ ip.addRequired('binaryData', @(x) isnumeric(x) && isvector(x));
 ip.addRequired('pixels', @(x) isa(x, 'omero.model.PixelsI'));
 ip.parse(binaryData, pixels);
 
+% Parse optional size dimension
+ip = inputParser;
+sizeX = pixels.getSizeX().getValue();
+sizeY = pixels.getSizeY().getValue();
+sizeZ = pixels.getSizeZ().getValue();
+defaultSize = [sizeX, sizeY, sizeZ];
+sizeValidator = @(x) isvector(x) && all(round(x)==x) && all(x <= defaultSize(1:numel(x)));
+ip.addOptional('size', defaultSize, sizeValidator);
+ip.parse(varargin{:});
+
 % Cast the binary data into the appropriate format
 type = char(pixels.getPixelsType().getValue().getValue());
 if strcmp(type,'float'), type = 'single'; end
@@ -42,20 +52,13 @@ a = typecast(binaryData, type);
 
 % Check binary and pixels dimensions
 nElements = numel(a);
-sizeX= pixels.getSizeX().getValue();
-sizeY= pixels.getSizeY().getValue();
-sizeZ= pixels.getSizeZ().getValue();
-planeSize = sizeX * sizeY;
-stackSize = sizeX * sizeY * sizeZ;
-assert(ismember(nElements, [planeSize, stackSize]), ...
+nProd = cumprod(ip.Results.size);
+assert(ismember(nElements, nProd), ...
     'OMERO:toMatrix:dimSize',...
-    'Length of binary data does not match the pixel dimensions');
+    'Length of binary data does not match the input dimensions');
 
 % Reshape linear binary data
-if nElements == planeSize
-    b = reshape(a, sizeX, sizeY); % Convert a plane into a matrix
-else
-    b = reshape(a, sizeX, sizeY, sizeZ); % Convert a stack into a matrix
-end
+iSize = find(nElements == nProd, 1);
+b = reshape(a, ip.Results.size(1:iSize));
 
 mat = swapbytes(b);
