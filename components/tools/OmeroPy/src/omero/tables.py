@@ -510,6 +510,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.stamp = time.time()
         self.storage.incr(self)
 
+        self._closed = False
+
     def assert_write(self):
         """
         Checks that the current user can write to the given object
@@ -527,7 +529,21 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         False if this resource can be cleaned up. (Resources API)
         """
         self.logger.debug("Checking %s" % self)
-        return True
+        if self._closed:
+            return False
+
+        idname = 'UNKNOWN'
+        try:
+            idname = self.factory.ice_getIdentity().name
+            clientSession = self.ctx.getSession().getSessionService() \
+                .getSession(idname)
+            if clientSession.getClosed():
+                self.logger.debug("Client session closed: %s" % idname)
+                return False
+            return True
+        except Exception:
+            self.logger.debug("Client session not found: %s" % idname)
+            return False
 
     def cleanup(self):
         """
@@ -556,6 +572,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
+
+        self._closed = True
 
         if self.file_obj is not None and self.can_write:
             fid = self.file_obj.id.val
