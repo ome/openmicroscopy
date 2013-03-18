@@ -45,3 +45,6 @@ ip.parse(c, t);
 % Read stack
 stack = store.getStack(c, t);
 stack = permute(toMatrix(stack, pixels), [2 1 3]);
+
+% Close the store
+store.close();

@@ -52,3 +52,6 @@ ip.parse(z, c, t, x, y, w, h);
 % Read tile
 tile = store.getTile(z, c, t, x, y, w, h);
 tile = toMatrix(tile, pixels, [w h])';
+
+% Close the store
+store.close();

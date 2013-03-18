@@ -46,3 +46,6 @@ ip.parse(z, c, t);
 % Read plane
 plane = store.getPlane(z, c, t);
 plane = toMatrix(plane, pixels)';
+
+% Close the store
+store.close();
