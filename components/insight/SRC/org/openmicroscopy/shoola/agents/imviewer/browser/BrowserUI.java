@@ -526,6 +526,8 @@ class BrowserUI
     void pan(int x, int y, boolean load)
     {
     	Rectangle r = getVisibleRectangle();
+    	if (r.contains(canvas.getBounds())) return;
+    	
     	int vx = r.x;
     	int vy = r.y;
     	if (x < 0) vx += -x;
