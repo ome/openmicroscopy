@@ -1,16 +1,21 @@
-function [mat] = toMatrix(binaryData, pixels,varargin)
-% TOMATRIX convert the binaryData from the server to a matlab matrix.
+function [mat] = toMatrix(binaryData, pixels, varargin)
+% TOMATRIX Format binary data retrieved from the OMERO server into a matrix.
 %
-% Input
-%       binaryData: The data obtained using store.getPlane(...)
+%   mat = toMatrix(binaryData, pixels) converts the linear binary data
+%   obtained from the input pixels (using the raw pixels store) into a
+%   matrix. The input data can be a plane or a stack and its dimensions are
+%   checked against the pixels dimensions. The output matrix dimensions are
+%   either [sizeX sizeY] or [sizeX sizeY sizeZ].
 %
-%       pixels: the pixels object of the image the plane came from.
+%   mat = toMatrix(binaryData, pixels, size) converts the linear binary
+%   data obtained from the input pixels (using the raw pixels store) into a
+%   matrix of input size. This allows to format tiles or hypercubes
+%   retrieved from the server into matrices.
 %
-% Output
-%       mat: a matrix of size m x n or m x n x l
-%            where m, n and l correspond to the x,y and z-dimensions of the
-%            pixels
+%   Examples:
 %
+%      mat = toMatrix(binaryData, pixels);
+%      mat = toMatrix(binaryData, pixels, size);;
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -53,8 +58,7 @@ a = typecast(binaryData, type);
 % Check binary and pixels dimensions
 nElements = numel(a);
 nProd = cumprod(ip.Results.size);
-assert(ismember(nElements, nProd), ...
-    'OMERO:toMatrix:dimSize',...
+assert(ismember(nElements, nProd), 'OMERO:toMatrix:sizeMismatch',...
     'Length of binary data does not match the input dimensions');
 
 % Reshape linear binary data
