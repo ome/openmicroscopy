@@ -1282,7 +1282,6 @@ class BrowserModel
      */
     void loadTiles(Rectangle r)
     {
-    	if (r == null) return;
     	parent.loadTiles(r);
     }
 
