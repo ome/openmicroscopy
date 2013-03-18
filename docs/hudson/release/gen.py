@@ -21,7 +21,7 @@ from doc_generator import *
 fingerprint_url = "http://hudson.openmicroscopy.org.uk/fingerprint"
 MD5s = """
 MD5(4.4.5/OMERO-4.4.5.pdf)= d92d4bd40e2defb328756780c77a633e
-MD5(4.4.6/OMERO-4.4.6.pdf)= f18208f6c0a53083392dbeb590310730
+MD5(4.4.6/OMERO-4.4.6.pdf)= 03aace065d939bb7a47a13b47cf4cc70
 """
 MD5s = [x.split(" ")[1] for x in MD5s.split("\n") if x.strip()]
 
