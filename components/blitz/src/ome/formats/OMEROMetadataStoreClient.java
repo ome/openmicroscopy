@@ -32,7 +32,6 @@ import static omero.rtypes.rtime;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -1851,7 +1850,7 @@ public class OMEROMetadataStoreClient
                     rlen = stream.read(buf);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
-                    hasher.putBytes(rlen == buf.length ? buf : Arrays.copyOfRange(buf, 0, rlen));
+                    hasher.putBytes(rlen == buf.length ? buf : ArrayUtils.subarray(buf, 0, rlen));
                 }
                 originalFile = rawFileStore.save();
                 final String clientHash = hasher.checksumAsString();
