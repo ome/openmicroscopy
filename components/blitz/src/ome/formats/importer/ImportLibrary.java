@@ -313,7 +313,7 @@ public class ImportLibrary implements IObservable
             }
             notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, digestString, null));
+                    offset, length, null));
 
         }
         catch (IOException e) {
