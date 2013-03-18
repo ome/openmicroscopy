@@ -215,6 +215,7 @@ public class FsFile {
     
     /** 
      * {@inheritDoc}
+     * Provides repository path with components separated by {@link #separatorChar}.
      * Suitable for displaying to the user and for constructing a new instance.
      */
     @Override
