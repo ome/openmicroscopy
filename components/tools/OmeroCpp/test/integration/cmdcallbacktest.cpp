@@ -41,11 +41,7 @@ using namespace omero::sys;
 
 class TestCB;
 
-#if ICE_INT_VERSION / 100 >= 304
-typedef IceInternal::Handle<TestCB> TestCBPtr;
-#else
-typedef IceUtil::Handle<TestCB> TestCBPtr;
-#endif
+typedef CallbackWrapper<TestCB> TestCBPtr;
 
 class TestCB: virtual public CmdCallbackI {
 private:
@@ -74,13 +70,16 @@ public:
         event.set();
     }
 
-    void assertSteps(int expected) {
+    void assertSteps() {
         IceUtil::RecMutex::Lock lock(mutex);
-        ASSERT_EQ(expected, steps);
-
+        
+        // Not guranteed to get called for all steps, as the callback can
+        // get added on the server after the operation has already started
+        // if there is network latency
+        ASSERT_GE(steps, 1);
     }
 
-    void assertFinished(int expectedSteps = -1) {
+    void assertFinished(bool testSteps = true) {
         IceUtil::RecMutex::Lock lock(mutex);
         ASSERT_EQ(1, finished);
         ASSERT_FALSE(isCancelled());
@@ -103,8 +102,8 @@ public:
              << "params:" << ss << "\n";
         }
 
-        if (expectedSteps >= 0) {
-            assertSteps(expectedSteps);
+        if (testSteps) {
+            assertSteps();
         }
     }
 
@@ -118,21 +117,27 @@ public:
 class CBFixture : virtual public Fixture {
 public:
 
-    TestCBPtr run(const RequestPtr& req) {
+    TestCBPtr run(const RequestPtr& req, int addCbDelay = 0) {
         ExperimenterPtr user = newUser();
         login(user->getOmeName()->getValue());
         HandlePrx handle = client->getSession()->submit(req);
+        
+        if (addCbDelay > 0) {
+            omero::util::concurrency::Event event;
+            event.wait(IceUtil::Time::milliSeconds(addCbDelay));
+        }
+        
         return new TestCB(client, handle);
     }
 
     // Timing
     // =========================================================================
 
-    TestCBPtr timing(int millis, int steps) {
+    TestCBPtr timing(int millis, int steps, int addCbDelay = 0) {
         omero::cmd::TimingPtr t = new Timing();
         t->millisPerStep = millis;
         t->steps = steps;
-        return run(t);
+        return run(t, addCbDelay);
     }
 
     // DoAll
@@ -161,22 +166,21 @@ TEST(CmdCallbackTest, testTimingFinishesOnLatch) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->event.wait(IceUtil::Time::milliSeconds(1500));
-    ASSERT_EQ(1, cb->finished);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testTimingFinishesOnBlock) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->block(1500);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testTimingFinishesOnLoop) {
     CBFixture f;
     TestCBPtr cb = f.timing(25, 4 * 10); // Runs 1 second
     cb->loop(3, 500);
-    cb->assertFinished(10); // Modulus-10
+    cb->assertFinished();
 }
 
 TEST(CmdCallbackTest, testDoNothingFinishesOnLatch) {
@@ -199,4 +203,11 @@ TEST(CmdCallbackTest, testDoAllTimingFinishesOnLoop) {
     cb->loop(5, 1000);
     cb->assertFinished();
     // For some reason the number of steps is varying between 10 and 15
+}
+
+TEST(CmdCallbackTest, testAddAfterFinish) {
+    CBFixture f;
+    TestCBPtr cb = f.timing(25, 4 * 10, 1200); // Runs 1 second
+    cb->event.wait(IceUtil::Time::milliSeconds(1500));
+    cb->assertFinished(false);
 }

@@ -177,13 +177,6 @@ namespace omero {
         if (group.length() > 0) {
             ctx->put("omero.group", group);
         }
-
-        // Register the default client callback.
-        __oa = __ic->createObjectAdapter("omero.ClientCallback");
-        CallbackIPtr cb = new CallbackI(__ic, __oa);
-        __oa->add(cb, __ic->stringToIdentity("ClientCallback/" + __uuid)) ;
-        __oa->activate();
-
     }
 
     // --------------------------------------------------------------------
@@ -295,7 +288,6 @@ namespace omero {
             std::cout << ex.what() << std::endl;
         }
     }
-
 
     // Acessors
     // ===================================================================
@@ -469,44 +461,54 @@ namespace omero {
                 std::map<string, string> ctx = getImplicitContext()->getContext();
                 ctx[omero::constants::AGENT] = __agent;
                 prx = getRouter(__ic)->createSession(username, password);
-                break;
-            } catch (const omero::WrappedCreateSessionException& wrapped) {
-                if (!wrapped.concurrency) {
-                    throw wrapped; // We only retry concurrency issues.
-                }
-                stringstream msg;
-                msg << wrapped.type << ":" << wrapped.reason;
-                reason = msg.str();
-                retries++;
-            } catch (Ice::ConnectTimeoutException cte) {
-                stringstream msg;
-                msg << "Ice.ConnectTimeoutException:" << cte;
-                reason = msg.str();
-                retries++;
-            }
-        }
+            
+                // Register the default client callback.
+                Ice::Identity id = Ice::Identity();
+                id.name = __uuid;
+                id.category = getRouter(__ic)->getCategoryForClient();
+                
+                __oa = __ic->createObjectAdapterWithRouter("omero.ClientCallback", getRouter(__ic));
+                __oa->activate();
+                __oa->add(new CallbackI(__ic, __oa), id);
+            
+		break;
+	    } catch (const omero::WrappedCreateSessionException& wrapped) {
+		if (!wrapped.concurrency) {
+		    throw wrapped; // We only retry concurrency issues.
+		}
+		stringstream msg;
+		msg << wrapped.type << ":" << wrapped.reason;
+		reason = msg.str();
+		retries++;
+	    } catch (Ice::ConnectTimeoutException cte) {
+		stringstream msg;
+		msg << "Ice.ConnectTimeoutException:" << cte;
+		reason = msg.str();
+		retries++;
+	    }
+	}
 
-        if ( ! prx ) {
-            throw omero::ClientError(__FILE__,__LINE__,"Obtained null object proxy");
-        }
+	if ( ! prx ) {
+	    throw omero::ClientError(__FILE__,__LINE__,"Obtained null object proxy");
+	}
 
-        // Check type
-        __sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
-        if ( ! __sf ) {
-            throw omero::ClientError(__FILE__,__LINE__,"Obtained object proxy is not a ServiceFactory.");
-        }
+	// Check type
+	__sf = omero::api::ServiceFactoryPrx::uncheckedCast(prx);
+	if ( ! __sf ) {
+	    throw omero::ClientError(__FILE__,__LINE__,"Obtained object proxy is not a ServiceFactory.");
+	}
 
-        // Set the client callback on the session
-        // and pass it to icestorm
-        try {
-            Ice::Identity id = __ic->stringToIdentity("ClientCallback/" + __uuid);
-            Ice::ObjectPrx raw = __oa->createProxy(id);
-            __sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
-            //__sf->subscribe("/public/HeartBeat", raw);
-        } catch (...) {
-            __del__();
-            throw;
-        }
+	// Set the client callback on the session
+	// and pass it to icestorm
+	try {
+		Ice::Identity id = __ic->stringToIdentity("ClientCallback/" + __uuid);
+		Ice::ObjectPrx raw = __oa->createProxy(id);
+		__sf->setCallback(omero::api::ClientCallbackPrx::uncheckedCast(raw));
+		//__sf->subscribe("/public/HeartBeat", raw);
+	} catch (...) {
+		__del__();
+		throw;
+	}
 
 
         // Set the session uuid in the implicit context
@@ -570,8 +572,7 @@ namespace omero {
 
         IceUtil::RecMutex::Lock lock(mutex);
 
-        omero::api::ServiceFactoryPrx oldSf = __sf;
-        __sf = omero::api::ServiceFactoryPrx();
+    __sf = NULL;
 
         Ice::ObjectAdapterPtr oldOa = __oa;
         __oa = Ice::ObjectAdapterPtr();

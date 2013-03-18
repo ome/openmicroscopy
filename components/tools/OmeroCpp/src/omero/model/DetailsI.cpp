@@ -18,7 +18,7 @@ namespace omero {
     namespace model {
 
 	DetailsI::DetailsI(
-                const omero::client_ptr& client)
+                const omero::client* client)
                     : Details(), client(client) {
             if (client) {
                 session = client->getSession();

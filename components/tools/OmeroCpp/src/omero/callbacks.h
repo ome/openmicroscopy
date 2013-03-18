@@ -15,6 +15,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Config.h>
+#include <IceUtil/Thread.h>
 #if ICE_INT_VERSION / 100 >= 304
 #   include <Ice/Handle.h>
 #else
@@ -57,16 +58,42 @@ namespace omero {
         const std::string FINISHED = "FINISHED";
         const std::string CANCELLED = "CANCELLED";
         const std::string KILLED = "KILLED";
+        
+        // TODO: use shared_ptr instead of Ice handle
+        
+        // This wrapper allows for having two different destructors for callbacks
+        // one that is called when Ice frees the callback and one when other code does
+        // In the case where Ice does the freeing, we don't need to do anything in the destructor,
+        // and in the case where all non Ice references go out of scope, we need to close
+        // the callback to prevent keeping it open until session close
+        template <typename T>
+        class CallbackWrapper : public IceUtil::Handle<T> {
+        public:
+            CallbackWrapper(T* p) : IceUtil::Handle<T>(p) {}
+            CallbackWrapper() {}
+            
+            ~CallbackWrapper() {
+                // When our last non Ice reference goes out of scope, we need to close the callback
+                // this would be a ref count of 2 or less, as Ice always holds a refernce to this object while it's active
+                // this effectively makes the Ice reference a weak one, without having to change the Ice code
+                if (this->_ptr && this->_ptr->__getRef() <= 2) {
+                    try {
+                        this->_ptr->close();
+                    }
+                    catch (Ice::ObjectAdapterDeactivatedException e) {
+                        // Okay to ignore as this should only happen when the session is closed before this is called
+                    }
+                }
+            }
+        };
+        
+        typedef CallbackWrapper<CmdCallbackI> CmdCallbackIPtr;
+        typedef CallbackWrapper<ProcessCallbackI> ProcessCallbackIPtr;
+        typedef CallbackWrapper<DeleteCallbackI> DeleteCallbackIPtr;
 
         /*
          * Simple callback which registers itself with the given process.
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<ProcessCallbackI> ProcessCallbackIPtr;
-#else
-        typedef IceUtil::Handle<ProcessCallbackI> ProcessCallbackIPtr;
-#endif
-
         class OMERO_API ProcessCallbackI : virtual public omero::grid::ProcessCallback {
 
         // Preventing copy-construction and assigning by value.
@@ -84,9 +111,19 @@ namespace omero {
              * freely. The object will not be nulled, but may be closed server-side.
              */
             omero::grid::ProcessPrx process;
-	    virtual ~ProcessCallbackI();
         public:
             ProcessCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::grid::ProcessPrx& process, bool poll = true);
+            
+            /**
+             * First removes self from the adapter so as to no longer receive notifications
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close();
 
             /**
              * Should only be used if the default logic of the process methods is kept
@@ -122,8 +159,7 @@ namespace omero {
          *         errors = cb.block(500);
          *     }
          */
-        typedef IceUtil::Handle<DeleteCallbackI> DeleteCallbackIPtr;
-
+        
         class OMERO_API DeleteCallbackI : virtual public IceUtil::Shared {
 
         // Preventing copy-construction and assigning by value.
@@ -141,9 +177,20 @@ namespace omero {
              * freely. The object will not be nulled, but may be closed server-side.
              */
             OME_API_DEL::DeleteHandlePrx handle;
-	    virtual ~DeleteCallbackI();
         public:
-            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle);
+            DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle, bool pool = true);
+            
+            /**
+             * closes the remote handle
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close();
+            
             virtual omero::RIntPtr block(long ms);
             virtual omero::api::_cpp_delete::DeleteReports loop(int loops, long ms);
             virtual void finished(int errors);
@@ -168,11 +215,6 @@ namespace omero {
          *     ResponsePtr rsp = cb.loop(5, 500);
          *
          */
-#if ICE_INT_VERSION / 100 >= 304
-        typedef IceInternal::Handle<CmdCallbackI> CmdCallbackIPtr;
-#else
-        typedef IceUtil::Handle<CmdCallbackI> CmdCallbackIPtr;
-#endif
 
         class OMERO_API CmdCallbackI : virtual public omero::cmd::CmdCallback {
 
@@ -180,7 +222,26 @@ namespace omero {
         private:
             CmdCallbackI& operator=(const CmdCallbackI& rv);
             CmdCallbackI(CmdCallbackI&);
-
+            
+            // TODO: use std thread instead of Ice thread
+            
+            // Thread to allow async poll, to ensure onFinished is called after the ctor finishes,
+            // as virtual function calls do not work from constructors
+            class PollThread : public IceUtil::Thread {
+            public:
+                PollThread(CmdCallbackIPtr callback) :
+                    callback(callback)
+                {}
+                
+                virtual void run() {
+                    callback->poll();
+                }
+            private:
+                CmdCallbackIPtr callback;
+            };
+            typedef IceUtil::Handle<PollThread> PollThreadPtr;
+            PollThreadPtr pollThread;
+            
 	protected:
 
             Ice::ObjectAdapterPtr adapter;
@@ -216,12 +277,6 @@ namespace omero {
              */
             bool closeHandle;
 
-            /**
-             * First removes self from the adapter so as to no longer receive
-             * notifications, and the calls close on the remote handle if requested.
-             */
-	    virtual ~CmdCallbackI();
-
             omero::cmd::StatusPtr getStatusOrThrow();
 
             void doinit(std::string category);
@@ -235,6 +290,18 @@ namespace omero {
              */
             CmdCallbackI(const omero::client_ptr& client, const omero::cmd::HandlePrx handle, bool closeHandle = true);
 
+            /**
+             * First removes self from the adapter so as to no longer receive
+             * notifications, and then calls close on the remote handle if requested.
+             *
+             * WARNING:
+             * This cannot be called from the destructor, because during session destruction,
+             * the Ice ServantManager will delete this class, and that would cause a
+             * double delete, as we'd be calling back into the servant manager to remove us,
+             * when it's already in the process of doing the remove/deletion.
+             */
+            void close();
+            
             //
             // Local invcations
             //
