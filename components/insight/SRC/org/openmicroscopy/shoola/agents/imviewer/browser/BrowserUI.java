@@ -159,7 +159,7 @@ class BrowserUI
     	if (region == null) return;
     	Rectangle r = convertFromSelection(region);
     	scrollTo(r, false);
-    	if (load) model.loadTiles(r);
+    	if (load) model.loadTiles(null);
     	setBirdEyeViewLocation();
     }
     
@@ -340,7 +340,7 @@ class BrowserUI
     	} else layeredPane.add(c, Integer.valueOf(1));
     	
     }
-    
+
     /**
      * Initializes or recycles the bird eye view and add it to the
      * display.
@@ -701,9 +701,6 @@ class BrowserUI
     	
     	int w = (int) (rect.width/rxx);
     	int h = (int) (rect.height/ryy);
-		
-		//int w = (int) (r.width/rx);
-		//int h = (int) (r.height/ry);
 		int x = (int) (cx-w/2);
 		int y = (int) (cy-h/2);
 		if (x < 0) x = 0;
