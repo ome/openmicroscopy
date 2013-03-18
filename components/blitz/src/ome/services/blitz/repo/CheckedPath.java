@@ -289,13 +289,34 @@ public class CheckedPath {
         return this.fsFile.toString() + FsFile.separatorChar;
     }
 
+    /**
+     * Get the last component of this path, the entity to which the path corresponds.
+     * If this entity {@link #isRoot} then this is the empty string.
+     * @return the last path component
+     */
     protected String getName() {
         return this.baseName;
     }
 
+    /**
+     * Get the parent path of the entity to which this path corresponds.
+     * If this entity is not in some sub-directory below root,
+     * then this relative path is just the {@link FsFile#separatorChar}.
+     * @return the path components above the last,
+     * with separators including a trailing {@link FsFile#separatorChar}.
+     */
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
-     }
+    }
+    
+    /**
+     * The full path of the entity to which this path corresponds.
+     * Path components are separated by {@link FsFile#separatorChar}.
+     * @return the full path
+     */
+    protected String getFullFsPath() {
+        return this.fsFile.toString();
+    }
     
     /**
      * Get a {@link FileBuffer} corresponding to this instance.

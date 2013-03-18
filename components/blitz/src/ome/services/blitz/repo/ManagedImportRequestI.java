@@ -186,7 +186,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             doThumbnails = settings.doThumbnails == null ? true :
                 settings.doThumbnails.getValue();
 
-            fileName = file.fsFile.toString();
+            fileName = file.getFullFsPath();
             shortName = file.getName();
             format = null;
             usedFiles = new String[] {fileName};
@@ -406,7 +406,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         // As we're in metadata only mode  on we need to
         // tell the server which Pixels set matches up to which series.
-        final String targetName = file.fsFile.toString();
+        final String targetName = file.getFullFsPath();
         int series = 0;
         for (Long pixelsId : pixelIds())
         {
