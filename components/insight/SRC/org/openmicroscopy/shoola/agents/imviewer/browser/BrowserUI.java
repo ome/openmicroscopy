@@ -386,7 +386,7 @@ class BrowserUI
     	if (init) {
     		int width = image.getWidth();
         	int height = image.getHeight();
-        	Rectangle r = getViewport().getViewRect();
+        	Rectangle r = getVisibleRectangle();
         	Rectangle rl = canvas.getBounds();
         	int sizeX = rl.width;
         	int sizeY = rl.height;
@@ -536,7 +536,7 @@ class BrowserUI
     	getViewport().setViewPosition(new Point(vx, vy));
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	if (load) model.loadTiles(getViewport().getViewRect());
+    	if (load) model.loadTiles(getVisibleRectangle());
     }
     
     /** 
@@ -562,7 +562,7 @@ class BrowserUI
 	 */
 	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
-		Rectangle viewRect = getViewport().getViewRect();
+		Rectangle viewRect = getVisibleRectangle();
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
 		int x = 0;
