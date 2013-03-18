@@ -111,7 +111,7 @@ class BrowserUI
     private void setBirdEyeViewLocation()
     {
     	if (birdEyeView == null) return;
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Point p = new Point(0, 0);
 		p = SwingUtilities.convertPoint(getViewport(), p, glass);
 		switch (birdEyeView.getLocationIndex()) {
@@ -134,7 +134,7 @@ class BrowserUI
      */
     private Rectangle convertFromSelection(Rectangle region)
     {
-    	Dimension d = birdEyeView.getSize();
+    	Dimension d = birdEyeView.getImageSize();
     	Rectangle rl = canvas.getBounds();
     	int sizeX = rl.width;
     	int sizeY = rl.height;
@@ -167,9 +167,9 @@ class BrowserUI
     private void setSelectionRegion()
     {
     	if (birdEyeView == null) return;
-    	Dimension d = birdEyeView.getSize();
+    	Dimension d = birdEyeView.getImageSize();
     	if (d.width == 0 || d.height == 0) return;
-    	Rectangle r = getViewport().getViewRect();
+    	Rectangle r = getVisibleRectangle();
     	Rectangle rl = canvas.getBounds();
     	int sizeX = rl.width;
     	int sizeY = rl.height;
@@ -187,7 +187,7 @@ class BrowserUI
 	/** Centers the image.*/
 	private void center()
 	{
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
@@ -199,7 +199,6 @@ class BrowserUI
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		//setSelectionRegion();
 		setBirdEyeViewLocation();
 	}
 	
@@ -526,7 +525,7 @@ class BrowserUI
      */
     void pan(int x, int y, boolean load)
     {
-    	Rectangle r = getViewport().getViewRect();
+    	Rectangle r = getVisibleRectangle();
     	int vx = r.x;
     	int vy = r.y;
     	if (x < 0) vx += -x;
@@ -629,7 +628,7 @@ class BrowserUI
 	void locateScrollBars()
 	{
 		if (!scrollbarsVisible()) return;
-		scrollTo(getViewport().getViewRect(), false);
+		scrollTo(getVisibleRectangle(), false);
 	}
 
 	/**
