@@ -69,6 +69,8 @@ import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
 import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.util.ui.Selectable;
+import org.openmicroscopy.shoola.util.ui.SelectableComboBoxModel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -838,12 +840,12 @@ class LocationDialog extends JDialog implements ActionListener,
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
-				DataNode project = (DataNode) projectsBox.getSelectedItem();
-				DataNode dataset = (DataNode) datasetsBox.getSelectedItem();
+				DataNode project = getSelectedItem(projectsBox);
+				DataNode dataset = getSelectedItem(datasetsBox);
 				return new ProjectImportLocationSettings(group,
 						project, dataset);
 			case Importer.SCREEN_TYPE:
-				DataNode screen = (DataNode) screensBox.getSelectedItem();
+				DataNode screen = getSelectedItem(screensBox);
 				return new ScreenImportLocationSettings(group, screen);
 		}
 		
@@ -881,11 +883,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param comboBox The JComboBox to populate
 	 * @param nodes The items to populate the box with
 	 * @param topItem The item to add at the top of the JComboBox
-	 * @param selected The item to select in the JComboBox
+	 * @param select The item to select in the JComboBox
 	 * @param itemListener An item listener to add for the JComboBox
 	 */
 	private void displayItems(JComboBox comboBox,
-			List<DataNode> items, DataNode selected, 
+			List<DataNode> items, DataNode select, 
 			ItemListener itemListener) {
 
 		if (comboBox == null || items == null) return;
@@ -897,6 +899,10 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<String> tooltips = new ArrayList<String>(items.size());
 		List<String> lines;
 		ExperimenterData exp;
+		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
+		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		Selectable<DataNode> selected = null;
+		
 		for (DataNode node : items) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
@@ -905,17 +911,28 @@ class LocationDialog extends JDialog implements ActionListener,
 			}
 			lines.addAll(UIUtilities.wrapStyleWord(node.getFullName()));
 			tooltips.add(UIUtilities.formatToolTipText(lines));
+			
+			boolean selectable = true;
+			if (!node.isDefaultNode()) {
+				selectable = node.getDataObject().canLink();
+			}
+			
+			Selectable<DataNode> comboBoxItem = 
+					new Selectable<DataNode>(node, selectable);
+			if(select != null && node.getDataObject().getId() == select.getDataObject().getId())
+				selected = comboBoxItem;
+			
+			model.addElement(comboBoxItem);
 		}
 
 		//To be modified
-		exp = ImporterAgent.getUserDetails();
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
-				exp.getId());
+				loggedInUser.getId());
 		renderer.setTooltips(tooltips);
-		comboBox.setModel(new DefaultComboBoxModel(items.toArray()));
+		comboBox.setModel(model);
 		comboBox.setRenderer(renderer);
 		
-		if (selected != null && items.contains(selected))
+		if (selected != null)
 			comboBox.setSelectedItem(selected);
 
 		if(itemListener != null)
@@ -956,7 +973,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (dataset == null)
 			return;
 
-		DataNode selectedProject = (DataNode) projectsBox.getSelectedItem();
+		DataNode selectedProject =  getSelectedItem(projectsBox);
 		DataNode newDatasetNode = new DataNode(dataset, selectedProject);
 
 		List<DataNode> projectDatasets = datasets.get(selectedProject);
@@ -1003,7 +1020,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Populates the datasets box depending on the selected project.
 	 */
 	private void populateDatasetsBox() {
-		DataNode project = (DataNode) projectsBox.getSelectedItem();
+		DataNode project = getSelectedItem(projectsBox);
 
 		displayItemsWithTooltips(datasetsBox, datasets.get(project));
 	}
@@ -1022,7 +1039,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				child = (DataObject) ho;
 			} else if (ho instanceof DatasetData) {
 				child = (DataObject) ho;
-				DataNode n = (DataNode) projectsBox.getSelectedItem();
+				DataNode n = getSelectedItem(projectsBox);
 				if (!n.isDefaultNode()) {
 					parent = n.getDataObject();
 				}
@@ -1315,7 +1332,15 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @return see above.
 	 */
 	private DataNode getSelectedItem(JComboBox comboBox) {
-		return (DataNode) comboBox.getSelectedItem();
+		Object compareItem = comboBox.getSelectedItem();
+		if(compareItem instanceof Selectable<?>)
+		{
+			Selectable<?> selectable = (Selectable<?>) compareItem;
+			Object innerItem = selectable.getObject();
+			if(innerItem instanceof DataNode)
+				return (DataNode) innerItem;
+		}
+		return null;
 	}
 	
 	/**
@@ -1342,7 +1367,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				
 				switchToSelectedGroup();
 			} else if (source == projectsBox) {
-				DataNode node = (DataNode) projectsBox.getSelectedItem();
+				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);
 				newDatasetButton.setEnabled(true);
 				if (node.isDefaultProject()) {
@@ -1353,13 +1378,13 @@ class LocationDialog extends JDialog implements ActionListener,
 				}
 				populateDatasetsBox();
 			} else if (source == datasetsBox) {
-				DataNode node = (DataNode) datasetsBox.getSelectedItem();
+				DataNode node = getSelectedItem(datasetsBox);
 				if (!node.isDefaultNode()) {
 					if (!node.getDataObject().canLink())
 						datasetsBox.setSelectedIndex(0);
 				}
 			} else if (source == screensBox) {
-				DataNode node = (DataNode) screensBox.getSelectedItem();
+				DataNode node =  getSelectedItem(screensBox);
 				if (!node.isDefaultNode()) {
 					if (!node.getDataObject().canLink())
 						screensBox.setSelectedIndex(0);
