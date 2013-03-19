@@ -1492,4 +1492,16 @@ class RendererModel
 		sortedChannel = Collections.unmodifiableList(sorter.sort(channels));
 	}
 	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate()
+	{
+		ImageData image = getRefImage();
+		if (image == null) return false;
+		return image.canAnnotate();
+	}
 }
