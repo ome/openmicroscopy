@@ -1617,30 +1617,16 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		//Check if current user can write in object
-		long id = model.getUserDetails().getId();
 		boolean b = false;
-		switch (model.getDisplayMode()) {
-			case TreeViewer.GROUP_DISPLAY:
-				if (ho instanceof TreeImageTimeSet) {
-					Browser browser = model.getSelectedBrowser();
-					if (browser == null) return false;
-					GroupData g = browser.getNodeGroup(
-							(TreeImageDisplay) ho);
-					return g.canLink();
-				} else if (ho instanceof DataObject)
-					b = ((DataObject) ho).canLink();
-				return b;
-			case TreeViewer.EXPERIMENTER_DISPLAY:
-			default:
-				if (ho instanceof TreeImageTimeSet) {
-					Browser browser = model.getSelectedBrowser();
-					if (browser == null) return false;
-					ExperimenterData exp = browser.getNodeOwner(
-							(TreeImageDisplay) ho);
-					if (exp.getId() == id) b = true;
-				} else b = EditorUtil.isUserOwner(ho, id);
-				return b;
-		}
+		if (ho instanceof TreeImageTimeSet) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return false;
+			GroupData g = browser.getNodeGroup(
+					(TreeImageDisplay) ho);
+			return g.canLink();
+		} else if (ho instanceof DataObject)
+			b = ((DataObject) ho).canLink();
+		return b;
 	}
 	
 	/**
