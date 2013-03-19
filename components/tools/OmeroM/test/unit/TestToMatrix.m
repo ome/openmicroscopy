@@ -150,6 +150,11 @@ classdef TestToMatrix < TestCase
             self.setUpDimension([w, h, d], true);
         end
         
+        function testScalar(self)
+            w = 1;
+            h = 1;
+            self.setUpDimension([w, h], true);
+        end
     end
     
 end
