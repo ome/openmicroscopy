@@ -607,7 +607,6 @@ class MeasurementViewerComponent
 		TreeMap<Long, ROI> rois = model.getROI();
 		Collection<ROIFigure> figures = model.getAllFigures();
 		ROIFigure figure, f;
-		Iterator<ROIFigure> i = figures.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeMap;
 		
@@ -733,7 +732,6 @@ class MeasurementViewerComponent
 			return;
 		
 		if (model.getActiveChannels().size() == 0) {
-			//view.displayAnalysisResults();
 			view.displayAnalysisResults();
 		} else {
 			model.fireAnalyzeShape(shapeList);
