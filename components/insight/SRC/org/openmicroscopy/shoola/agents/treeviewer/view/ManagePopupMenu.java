@@ -54,25 +54,25 @@ class ManagePopupMenu
 {
 
     /** Reference to the control. */
-    private TreeViewerControl 	controller;
+    private TreeViewerControl controller;
     
     /** Button to add element to the specified container. */
-    private JMenuItem           newElement;
+    private JMenuItem newElement;
     
     /** Button to copy the selected elements. */
-    private JMenuItem           copyElement;
+    private JMenuItem copyElement;
     
     /** Button to paste the selected elements. */
-    private JMenuItem           pasteElement;
+    private JMenuItem pasteElement;
     
     /** Button to delete the selected elements. */
-    private JMenuItem           deleteElement;
+    private JMenuItem deleteElement;
     
     /** Button to delete the selected elements. */
-    private JMenuItem           cutElement;
+    private JMenuItem cutElement;
     
     /** Button to add existing element to the specified container. */
-    private JMenuItem           existingElement;
+    private JMenuItem existingElement;
     
     /**
      * Sets the defaults of the specified menu item.
@@ -101,10 +101,10 @@ class ManagePopupMenu
                 controller.getAction(TreeViewerControl.COPY_OBJECT)); 
         initMenuItem(copyElement);
         pasteElement = new JMenuItem(
-                controller.getAction(TreeViewerControl.PASTE_OBJECT)); 
+                controller.getAction(TreeViewerControl.PASTE_OBJECT));
         initMenuItem(pasteElement);
         deleteElement = new JMenuItem(
-                controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
+                controller.getAction(TreeViewerControl.DELETE_OBJECT));
         initMenuItem(deleteElement);
         existingElement = new JMenuItem(
             controller.getAction(TreeViewerControl.ADD_OBJECT));
