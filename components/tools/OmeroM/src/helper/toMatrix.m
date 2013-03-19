@@ -61,8 +61,9 @@ nProd = cumprod(ip.Results.size);
 assert(ismember(nElements, nProd), 'OMERO:toMatrix:sizeMismatch',...
     'Length of binary data does not match the input dimensions');
 
-% Reshape linear binary data
-iSize = find(nElements == nProd, 1);
-b = reshape(a, ip.Results.size(1:iSize));
-
-mat = swapbytes(b);
+if nElements > 1,
+    % Reshape linear binary data
+    iSize = find(nElements == nProd, 1);
+    a = reshape(a, ip.Results.size(1:iSize));
+end
+mat = swapbytes(a);
