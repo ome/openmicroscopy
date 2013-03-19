@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -107,9 +108,6 @@ class WellsModel
 	/** The selected field. */
 	private int					selectedField;
 	
-	/** The selected node. */
-	private WellImageSet		selectedNode;
-	
 	/** Indicates how to display a row. */
 	private int					rowSequenceIndex;
 	
@@ -121,6 +119,9 @@ class WellsModel
 	
 	/** Flag indicating to load or not the thumbnails. */
 	private boolean				withThumbnails;
+	
+	/** The selected nodes. */
+	private List<WellImageSet> selectedNodes;
 	
 	/** 
 	 * Sorts the passed nodes by row.
@@ -452,7 +453,22 @@ class WellsModel
 	 */
 	void setSelectedWell(WellImageSet node)
 	{
-		selectedNode = node;
+		if (selectedNodes != null) selectedNodes.clear();
+		List<WellImageSet> l = new ArrayList<WellImageSet>(1);
+		l.add(node);
+		setSelectedWells(l);
+	}
+	
+	/**
+	 * Sets the selected wells. This should only be needed for the fields
+	 * view.
+	 * 
+	 * @param node The selected node.
+	 */
+	void setSelectedWells(List<WellImageSet> nodes)
+	{
+		if (nodes == null) selectedNodes.clear();
+		selectedNodes = nodes;
 	}
 	
 	/**
@@ -460,10 +476,21 @@ class WellsModel
 	 * 
 	 * @return See above.
 	 */
-	WellImageSet getSelectedWell() { return selectedNode; }
+	WellImageSet getSelectedWell()
+	{
+		if (selectedNodes == null) return null;
+		return selectedNodes.get(0);
+	}
 	
 	/**
-	 * Views the selected field. 
+	 * Returns the collection of selected wells.
+	 * 
+	 * @return See above.
+	 */
+	List<WellImageSet> getSelectedWells() { return selectedNodes; }
+	
+	/**
+	 * Views the selected field.
 	 * 
 	 * @param index The index of the field to view.
 	 */
@@ -605,6 +632,7 @@ class WellsModel
 	 */
 	boolean isSameWell(int row, int column)
 	{
+		WellImageSet selectedNode = getSelectedWell();
 		if (selectedNode == null) return false;
 		return (selectedNode.getRow() == row 
 				&& selectedNode.getColumn() == column);
@@ -649,12 +677,13 @@ class WellsModel
 		List<WellSampleNode> nodes;
 		Iterator<WellSampleNode> j;
 		WellSampleNode n;
+		if (selectedNodes != null) selectedNodes.clear();
 		while (i.hasNext()) {
 			node = (ImageSet) i.next();
 			if (node instanceof WellImageSet) {
 				wis = (WellImageSet) node;
 				if (wis.getRow() == row && wis.getColumn() == column) {
-					selectedNode = wis;
+					setSelectedWell(wis);
 					nodes = wis.getWellSamples();
 					j = nodes.iterator();
 					while (j.hasNext()) {
