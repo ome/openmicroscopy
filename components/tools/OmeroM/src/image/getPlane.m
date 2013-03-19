@@ -34,13 +34,16 @@ function plane = getPlane(session, image, z, c, t)
 
 % Initialize raw pixels store
 [store, pixels] = getRawPixelsStore(session, image);
+sizeZ = pixels.getSizeZ().getValue();
+sizeC = pixels.getSizeC().getValue();
+sizeT = pixels.getSizeT().getValue();
 
 % Input check
 ip = inputParser;
 isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
-ip.addRequired('z', isposint);
-ip.addRequired('c', isposint);
-ip.addRequired('t', isposint);
+ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
+ip.addRequired('c', @(x) isposint(x) && x < sizeC);
+ip.addRequired('t', @(x) isposint(x) && x < sizeT);
 ip.parse(z, c, t);
 
 % Read plane
