@@ -3067,6 +3067,7 @@ class TreeViewerComponent
 			}
 			return;
 		}
+		ActionCmd actionCmd = null;
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) {
 			model.browseProject(node);
@@ -3120,13 +3121,11 @@ class TreeViewerComponent
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
-			ActionCmd cmd;
 			if (TreeViewerAgent.runAsPlugin() == TreeViewer.IMAGE_J) {
-				cmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
+				actionCmd = new ViewInPluginCmd(this, TreeViewer.IMAGE_J);
 			} else {
-				cmd = new ViewCmd(this, true);
+				actionCmd = new ViewCmd(this, true);
 			}
-			cmd.execute();
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
 		} else if (uo instanceof PlateData) {
@@ -3175,6 +3174,8 @@ class TreeViewerComponent
 			}
 		}
 		fireStateChange();
+		if (actionCmd != null)
+			actionCmd.execute();
 	}
 	
 	/**
