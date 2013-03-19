@@ -90,7 +90,7 @@ then
 else
     rm -rf virtualenv.py
     $CURL "$VENV_URL"
-    python virtualenv.py --no-site-packages .
+    /usr/bin/python virtualenv.py --no-site-packages .
 fi
 
 # Install scc tools
