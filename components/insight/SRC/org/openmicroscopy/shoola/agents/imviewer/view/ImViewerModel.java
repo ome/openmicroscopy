@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -123,6 +124,16 @@ import com.sun.opengl.util.texture.TextureData;
 class ImViewerModel
 {
 
+	
+	/** The maximum size for the bird eye view for standard screen size.*/
+	private static final int BIRD_EYE_SIZE_LOWER = 128;
+	
+	/** The maximum size for the bird eye view for a.*/
+	private static final int BIRD_EYE_SIZE_MEDIUM = 196;
+	
+	/** The maximum size for the bird eye view.*/
+	private static final int BIRD_EYE_SIZE_HEIGH = 256;
+	
 	/** The maximum number of items in the history. */
 	private static final int	MAX_HISTORY = 10;
 	
@@ -139,7 +150,7 @@ class ImViewerModel
 	private static final int	IMAGE = 1;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	BIRD_EYE_BVIEW = 2;
+	private static final int	BIRD_EYE_VIEW = 2;
 	
 	/** The image to view. */
 	private DataObject 					image; 
@@ -701,10 +712,10 @@ class ImViewerModel
 	void cancelBirdEyeView()
 	{
 		state = ImViewer.CANCELLED;
-		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		DataLoader loader = loaders.get(BIRD_EYE_VIEW);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(BIRD_EYE_BVIEW);
+			loaders.remove(BIRD_EYE_VIEW);
 		}
 		discard();
 	}
@@ -2613,7 +2624,6 @@ class ImViewerModel
 		// use the lowest resolution
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		int level = getSelectedResolutionLevel();
 		PlaneDef pDef = createPlaneDef();
 		Dimension d = getTileSize();
 		int w = d.width;
@@ -2650,18 +2660,22 @@ class ImViewerModel
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
-		if (w < BirdEyeLoader.BIRD_EYE_SIZE || h < BirdEyeLoader.BIRD_EYE_SIZE)
-			ratio = 1;
+		int ref = BIRD_EYE_SIZE_LOWER;
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		if (screen.height > 1200 && screen.height <= 1600)
+			ref = BIRD_EYE_SIZE_MEDIUM;
+		else if (screen.height > 1600)
+			ref = BIRD_EYE_SIZE_HEIGH;
+		if (w < ref || h < ref) ratio = 1;
 		else {
-			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
-			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
+			if (w >= h) ratio = (double) ref/w;
+			else ratio = (double) ref/h;
 		}
-		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);
 		loader.load();
-		loaders.put(BIRD_EYE_BVIEW, loader);
+		loaders.put(BIRD_EYE_VIEW, loader);
 	}
 
 	/**
@@ -2844,7 +2858,7 @@ class ImViewerModel
 	 */
 	void setBirdEyeView(BufferedImage image)
 	{
-		loaders.remove(BIRD_EYE_BVIEW);
+		loaders.remove(BIRD_EYE_VIEW);
 		getBrowser().setBirdEyeView(image);
 	}
 

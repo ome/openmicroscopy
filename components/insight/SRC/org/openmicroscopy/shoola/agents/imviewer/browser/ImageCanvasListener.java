@@ -60,31 +60,35 @@ class ImageCanvasListener
 	private static final Point DEFAULT_POINT = new Point(0, 0);
 	
 	/** Reference to the Model. */
-    private BrowserModel	model;
+    private BrowserModel model;
     
     /** Reference to the View. */
-    private BrowserUI		view;
+    private BrowserUI view;
     
     /** The canvas this listener is for. */
-    private JComponent		canvas;
+    private JComponent canvas;
     
     /** The image area. */
-    private Rectangle		area;
+    private Rectangle area;
     
     /** The location of the mouse pressed. */
-    private Point			pressedPoint;
+    private Point pressedPoint;
     
     /** 
      * Flag indicating if having the <code>Shift</code> and <code>Alt</code>
      * keys down is handled or not.
      */
-    private boolean			handleKeyDown;
-    
+    private boolean handleKeyDown;
+
+    /** Flag indicating that the image was dragged.*/
+    private boolean dragged;
+
     /**
      * Pans to the new location.
      * 
      * @param p The location of the mouse.
-     * @param load Passed <code>true</code>
+     * @param load Passed <code>true</code> to load the tile, 
+     * <code>false</code> otherwise.
      */
     private void pan(Point p, boolean load)
     {
@@ -147,7 +151,7 @@ class ImageCanvasListener
     {
     	area.setBounds(0, 0, width, height);
     }
-    
+
     /**
 	 * Zooms in and out the image if the <code>Shift</code> key is down,
 	 * pans if the <code>Alt</code> key is down.
@@ -173,6 +177,7 @@ class ImageCanvasListener
 			}
 		}
 		if (model.isBigImage()) { //panning
+			dragged = true;
 			pan(p, false);
 			return;
 		}
@@ -215,9 +220,11 @@ class ImageCanvasListener
 	{
 		canvas.setCursor(Cursor.getDefaultCursor());
 		Point p = e.getPoint();
-		if ((handleKeyDown && e.isAltDown()) || model.isBigImage()) {
+		if ((handleKeyDown && e.isAltDown()) || 
+			(model.isBigImage() && dragged)) {
 			pan(p, true);
 		}
+		dragged = false;
 		pressedPoint = DEFAULT_POINT;
 		SwingUtilities.convertPointToScreen(pressedPoint, canvas);
 		if (canvas instanceof BrowserBICanvas)
