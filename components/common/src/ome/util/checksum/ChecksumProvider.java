@@ -53,12 +53,12 @@ public interface ChecksumProvider {
 
     /**
      * Updates the internal checksum value with data from a chunk of a byte
-     * array. Data is read from <code>byteArray[offset]</code> up to
-     * <code>byteArray[offset + length - 1]</code>. If the array is null, throws
-     * NPE. Throws IOOB if indexes are invalid. Note that, although checksum
-     * results are consistent for any given hash function and byte array,
-     * different hash functions may calculate different checksums for an empty
-     * array despite its lack of content.
+     * array. First byte read is <code>byteArray[offset]</code>, last byte read
+     * is <code>byteArray[offset + length - 1]</code>. If the array is null,
+     * throws NPE. Throws IOOB if indexes are invalid. Note that, although
+     * checksum results are consistent for any given hash function and byte
+     * array, different hash functions may calculate different checksums for an
+     * empty array despite its lack of content.
      *
      * @param byteArray The input byte array.
      * @return ChecksumProvider
