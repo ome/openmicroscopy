@@ -417,7 +417,7 @@ class ImViewerComponent
 	}
 
 	/**
-	 * Notifies that the projected image has been created an asks if the 
+	 * Notifies that the projected image has been created and asks if the
 	 * user wants to launch a viewer with the projected image.
 	 * 
 	 * @param message 	The message to display.
