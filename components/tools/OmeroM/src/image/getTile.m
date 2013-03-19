@@ -38,13 +38,16 @@ function tile = getTile(session, image, z, c, t, x, y, w, h)
 [store, pixels] = getRawPixelsStore(session, image);
 sizeX = pixels.getSizeX().getValue();
 sizeY = pixels.getSizeY().getValue();
+sizeZ = pixels.getSizeZ().getValue();
+sizeC = pixels.getSizeC().getValue();
+sizeT = pixels.getSizeT().getValue();
 
 % Input check
 ip = inputParser;
 isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
-ip.addRequired('z', isposint);
-ip.addRequired('c', isposint);
-ip.addRequired('t', isposint);
+ip.addRequired('z', @(x) isposint(x) && x < sizeZ);
+ip.addRequired('c', @(x) isposint(x) && x < sizeC);
+ip.addRequired('t', @(x) isposint(x) && x < sizeT);
 ip.addRequired('x', @(t) isposint(t) && t < sizeX);
 ip.addRequired('y', @(t) isposint(t) && t < sizeY);
 ip.addRequired('w', @(t) isposint(t) && (x + t) <= sizeX);

@@ -34,12 +34,14 @@ function stack = getStack(session, image, c, t)
 
 % Initialize raw pixels store
 [store, pixels] = getRawPixelsStore(session, image);
+sizeC = pixels.getSizeC().getValue();
+sizeT = pixels.getSizeT().getValue();
 
 % Input check
 ip = inputParser;
 isposint = @(x) isnumeric(x) & x >= 0 & abs(round(x)) == x;
-ip.addRequired('c', isposint);
-ip.addRequired('t', isposint);
+ip.addRequired('c', @(x) isposint(x) && x < sizeC);
+ip.addRequired('t', @(x) isposint(x) && x < sizeT);
 ip.parse(c, t);
 
 % Read stack
