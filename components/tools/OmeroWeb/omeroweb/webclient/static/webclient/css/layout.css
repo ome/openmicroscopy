@@ -548,7 +548,7 @@
    
     /* Seperator */
     
-    #right_panel hr {
+    hr {
         margin:15px 0;
         display:block;
         border:none;

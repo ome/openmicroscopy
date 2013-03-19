@@ -283,7 +283,7 @@
    
     /* Seperator */
     
-    #right_panel hr {
+    hr {
         border-bottom: solid 1px #F8F9FA;
         border-top: solid 1px #CFDAE6;
 		
