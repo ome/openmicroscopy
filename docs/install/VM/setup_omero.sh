@@ -11,13 +11,19 @@ DB_REVISION="0"
 OMERO_PATH="/home/omero/OMERO.server"
 OMERO_BIN=$OMERO_PATH/bin
 INSTALL_FOLDER="OMERO.server"
+OMERO_BUILD="http://hudson.openmicroscopy.org.uk/job/OMERO-trunk/"
+
+readAPIValue() {
+    URL=$1; shift
+    wget -q -O- $URL | sed 's/^<.*>\([^<].*\)<.*>$/\1/'
+    }
 
 echo "Grabbing last successful QA Build of OMERO.server"
 DL_ARCHIVE=""
 if [ "x$DL_ARCHIVE" == "x" ]; then
 
-    URL=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-trunk/lastSuccessfulBuild/api/xml?xpath=/freeStyleBuild/url/text()"`
-    FILE=`wget -q -O- "http://hudson.openmicroscopy.org.uk/job/OMERO-stable/lastSuccessfulBuild/api/xml?xpath=//relativePath[contains(.,'server')]/text()"`
+    URL=`readAPIValue $OMERO_BUILD"/lastSuccessfulBuild/api/xml?xpath=/freeStyleBuild/url"`
+    FILE=`readAPIValue $OMERO_BUILD"/lastSuccessfulBuild/api/xml?xpath=//relativePath[contains(.,'server')]"`
 
     wget -q "$URL"artifact/$FILE
 
