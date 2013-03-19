@@ -4,7 +4,7 @@ function stack = getStack(session, image, c, t)
 %   stack = getStack(session, image, c, t) returns the stack from input
 %   image at the input c, t coordinates.
 %
-%   plane = getPlane(session, imageID, z, c, t) returns the stack from
+%   stack = getStack(session, imageID, z, c, t) returns the stack from
 %   input image identifier at the input c, t coordinates.
 %
 %

@@ -13,7 +13,7 @@ function tile = getTile(session, image, z, c, t, x, y, w, h)
 %   Examples:
 %
 %      tile = getTile(session, image, z, c, t, x, y, w, h);
-%      tile = getTile(session, image, z, c, t, x, y, w, h)
+%      tile = getTile(session, imageID, z, c, t, x, y, w, h)
 %
 % See also: GETRAWPIXELSSTORE, GETPLANE, GETSTACK
 
