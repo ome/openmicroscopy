@@ -8,43 +8,21 @@
 set -e
 set -u
 
-VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
-TABLES_GIT=${TABLES_GIT:-git+https://github.com/PyTables/PyTables.git@master}
-if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
-    CURL="curl ${CURL_OPTS-} --insecure -O"
-else
-    CURL="curl ${CURL_OPTS-} -O"
-fi
-
 ###################################################################
 # PIP BASE SYSTEM
 ###################################################################
 
 # Python virtualenv/pip support ===================================
 
-# Look for local pip (assuming the current directory is /usr/local)
-if (bin/pip --version)
+# Look for pip in the PATH
+if (pip --version)
 then
-    echo "Using local pip installed in $PWD"
+    echo "Using existing pip found in $(which pip)"
 else
-    # Look for pip in the PATH
-    if (pip --version)
-    then
-        PIP_DIR="$(dirname $(dirname $(which pip)))"
-        echo "Using existing pip installed in $PIP_DIR"
-
-        # Move to PIP_DIR for the rest of this script
-        # so that "bin/EXECUTABLE" will pick up the
-        # intended executable.
-        cd "$PIP_DIR"
-    else
-        # Create a local virtual environment
-        rm -rf virtualenv.py
-        $CURL "$VENV_URL"
-        python virtualenv.py --no-site-packages .
-    fi
+    echo "No pip found in the PATH."
+    echo "Install pip via easy_install or virtualenv first"
+    exit
 fi
-
 
 ###################################################################
 # PIP INSTALLS
@@ -52,10 +30,10 @@ fi
 
 install(){
     PKG=$1; shift
-    bin/pip freeze "$@" | grep -q "^$PKG==" && {
+    pip freeze "$@" | grep -q "^$PKG==" && {
         echo $PKG installed.
     } || {
-        bin/pip install $PKG
+        pip install $PKG
     }
 }
 
@@ -81,11 +59,7 @@ install matplotlib
 export HDF5_DIR=`pwd`
 install Cython
 install numexpr
-
-bin/pip freeze | grep -q tables-dev || {
-    which git && bin/pip install -e $TABLES_GIT#egg=tables ||
-    "Install git in order to install PyTables."
-}
+install tables
 
 echo "Done."
 
