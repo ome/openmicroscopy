@@ -31,8 +31,6 @@ import java.awt.image.BufferedImage;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -54,10 +52,7 @@ import pojos.ImageData;
 public class BirdEyeLoader 
 	extends DataLoader
 {
-	
-	/** The maximum size for the bird eye view.*/
-	public static final int BIRD_EYE_SIZE = 128;
-	
+
 	/** The minimum ration value.*/
 	public static final double MIN_RATIO = 0.1;
 	

@@ -1218,25 +1218,13 @@ class ImViewerUI
 					Math.round(factor*model.getOriginalRatio()*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			int levels = model.getResolutionLevels();
-			double f = (double) (100/levels);
-			int value = levels;
-			factor = 100;
-			if (zoomIndex != (levels-1)) {
-				while (value >= 0) {
-					if (value == zoomIndex) {
-						factor = (value+1)*f;
-						value = -1;
-					}
-					value--;
-				}
-			}
-			f = Math.round(factor)/100.0;
+			int levels = model.getResolutionLevels()-1;
+			int selected = model.getSelectedResolutionLevel();
+			
+			double f = 1/Math.pow(2, (levels-selected));
 			bigImageMagnification = 
 				(double) model.getTiledImageSizeX()/model.getMaxX();
-			//bigImageMagnification = f;
-			//model.setZoomFactor(f, false);
-			statusBar.setRigthStatus("x: "+f);
+			statusBar.setRigthStatus("x"+f);
 		}
 	}
 	
