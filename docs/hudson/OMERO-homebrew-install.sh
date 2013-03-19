@@ -52,6 +52,12 @@ if [ -d "$BREW_DIR" ]; then
         echo "Cleaning Homebrew taps"
         rm -rf $BREW_DIR/Library/Taps
     fi
+
+    if [ -f "$BREW_DIR/bin/pip" ]
+    then
+        echo "Deleting $BREW_DIR/bin/pip"
+        rm $BREW_DIR/bin/pip
+    fi
 fi
 
 ###################################################################
