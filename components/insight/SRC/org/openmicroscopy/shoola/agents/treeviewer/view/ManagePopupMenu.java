@@ -99,13 +99,13 @@ class ManagePopupMenu
         initMenuItem(newElement);
         copyElement = new JMenuItem(
                 controller.getAction(TreeViewerControl.COPY_OBJECT)); 
-        initMenuItem(newElement);
+        initMenuItem(copyElement);
         pasteElement = new JMenuItem(
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)); 
-        initMenuItem(newElement);
+        initMenuItem(pasteElement);
         deleteElement = new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)); 
-        initMenuItem(newElement);
+        initMenuItem(deleteElement);
         existingElement = new JMenuItem(
             controller.getAction(TreeViewerControl.ADD_OBJECT));
         initMenuItem(existingElement);
