@@ -80,35 +80,34 @@ class GraphPane
 {
 	
 	/** Ready state. */
-	final static int 						READY = 1;
+	final static int READY = 1;
 	
 	/** Analyzing state. */
-	final static int 						ANALYSING = 0;
+	final static int ANALYSING = 0;
 	
 	/** Index to identify tab */
-	public final static int					INDEX = 
-										MeasurementViewerUI.GRAPH_INDEX;
+	public final static int INDEX = MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
-	private static final String				NAME = "Graph Pane";
+	private static final String NAME = "Graph Pane";
 	
 	/** The default color for a line.*/
-	private static final Color				DEFAULT_COLOR = Color.LIGHT_GRAY;
+	private static final Color DEFAULT_COLOR = Color.LIGHT_GRAY;
 	
 	/** Reference to the model. */
-	private MeasurementViewerModel			model;
+	private MeasurementViewerModel model;
 
 	/** The map of <ROIShape, ROIStats> .*/
-	private Map								ROIStats;
+	private Map ROIStats;
 
 	/** The slider controlling the movement of the analysis through Z. */
-	private OneKnobSlider 					zSlider;
+	private OneKnobSlider zSlider;
 
 	/** The slider controlling the movement of the analysis through T. */
-	private OneKnobSlider 					tSlider;
+	private OneKnobSlider tSlider;
 	
 	/** The main panel holding the graphs. */
-	private JPanel 							mainPanel;
+	private JPanel mainPanel;
 			
 	/** The map of the shape statistics to coordinates. */
 	private Map<Coord3D, Map<StatsType, Map>> shapeStatsList;
@@ -117,31 +116,31 @@ class GraphPane
 	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
 	
 	/** Map of the coordinates to a shape. */
-	private Map<Coord3D, ROIShape> 				shapeMap;
+	private Map<Coord3D, ROIShape> shapeMap;
 	
 	/** List of channel Names. */
-	private List<String>	channelName ;
+	private List<String> channelName;
 	
 	/** List of channel colors. */
-	private List<Color>		channelColour;
+	private List<Color> channelColour;
 	
 	/** The current coordinates of the ROI being depicted in the slider. */
-	private Coord3D			coord;
+	private Coord3D coord;
 		
 	/** The line profile charts. */
-	private LinePlot		lineProfileChart;
+	private LinePlot lineProfileChart;
 	
 	/** The histogram chart. */
-	private HistogramPlot	histogramChart;
+	private HistogramPlot histogramChart;
 	
 	/** The state of the Graph pane. */
-	private int				state = READY;
+	private int state = READY;
 	
 	/** Reference to the view.*/
-	private MeasurementViewerUI 					view;
+	private MeasurementViewerUI view;
 	
 	/** Current shape. */
-	private ROIShape 								shape;
+	private ROIShape shape;
 	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
@@ -314,24 +313,16 @@ class GraphPane
 	/**
 	 * Draws the current data as a histogram in the graph.
 	 * 
-	 * @param title 			The graph title.
-	 * @param data 				The data to render.
-	 * @param channelNames 		The channel names.
-	 * @param channelColours	The channel colours.
-	 * @param bins 				The number of bins in the histogram.
+	 * @param title The graph title.
+	 * @param data The data to render.
+	 * @param channelNames The channel names.
+	 * @param channelColours The channel colours.
+	 * @param bins The number of bins in the histogram.
 	 * @return See above.
 	 */
-	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
+	private HistogramPlot drawHistogram(String title,  List<String> channelNames,
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
-		/*
-		if (channelNames.size() == 0 || data.size() == 0 || 
-				channelColours.size() == 0)
-				return null;
-			if (channelNames.size() != channelColours.size() || 
-					channelNames.size() != data.size())
-				return null;
-				*/
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
 		plot.setXAxisName("Intensity");
@@ -439,9 +430,9 @@ class GraphPane
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view 		 Reference to the View. Mustn't be <code>null</code>.
+	 * @param view Reference to the View. Mustn't be <code>null</code>.
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
-	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
 	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller,
 		MeasurementViewerModel model)
