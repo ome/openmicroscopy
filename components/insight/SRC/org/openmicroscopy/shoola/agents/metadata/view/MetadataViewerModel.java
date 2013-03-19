@@ -453,19 +453,19 @@ class MetadataViewerModel
 	boolean isSameObject(DataObject uo, Object ref)
 	{
 		if (uo == null || !(ref instanceof DataObject)) return false;
-		Class klass = ref.getClass();
-		Class uoKlass = uo.getClass();
-		DataObject object = (DataObject) refObject;
+		Class<?> klass = ref.getClass();
+		DataObject object;
 		if (ref instanceof WellSampleData) {
+			klass = ((WellSampleData) ref).getImage().getClass();
 			object = ((WellSampleData) ref).getImage();
-			klass = object.getClass();
-		}
+		} else object = (DataObject) ref;
+			
+		Class<?> hoKlass = uo.getClass();
 		if (uo instanceof WellSampleData) {
+			hoKlass = ((WellSampleData) uo).getImage().getClass();
 			uo = ((WellSampleData) uo).getImage();
-			uoKlass = uo.getClass();
 		}
-		if (!uoKlass.equals(klass))
-			return false;
+		if (!hoKlass.equals(klass)) return false;
 		return uo.getId() == object.getId();
 	}
 	
@@ -597,12 +597,13 @@ class MetadataViewerModel
             	int count = 0;
             	if (toAdd != null) count += toAdd.size();
             	if (toRemove != null) count -= toRemove.size();
-            	boolean post = (toAdd != null && toAdd.size() != 0) || 
+            	boolean post = (toAdd != null && toAdd.size() != 0) ||
 				(toRemove != null && toRemove.size() != 0);
             	if (post) {
         			EventBus bus = 
         				MetadataViewerAgent.getRegistry().getEventBus();
-        			bus.post(new AnnotatedEvent(new ArrayList(data), count));
+        			bus.post(new AnnotatedEvent(
+        					new ArrayList<DataObject>(data), count));
         		}
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
