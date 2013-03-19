@@ -261,6 +261,7 @@ class GraphPane
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		buildHistogramNoSelection();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BoxLayout(centrePanel, BoxLayout.X_AXIS));
@@ -272,6 +273,18 @@ class GraphPane
 		add(tSlider);
 	}
 	
+	/** 
+	 * Builds the default histogram when no channels are selected.
+	 * 
+	 */
+	private void buildHistogramNoSelection()
+	{
+		mainPanel.removeAll();
+		histogramChart = drawHistogram("Histogram", new ArrayList<String>(),
+				new ArrayList<double[]>(), new ArrayList<Color>(), 1001);
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+	}
 	
 	/**
 	 * Draws the current data as a line plot in the graph.
@@ -311,12 +324,14 @@ class GraphPane
 	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
+		/*
 		if (channelNames.size() == 0 || data.size() == 0 || 
 				channelColours.size() == 0)
 				return null;
 			if (channelNames.size() != channelColours.size() || 
 					channelNames.size() != data.size())
 				return null;
+				*/
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
 		plot.setXAxisName("Intensity");
@@ -378,8 +393,10 @@ class GraphPane
 			}
 		}
 		mainPanel.removeAll();
-		if (channelData.size() == 0)
+		if (channelData.size() == 0) {
+			buildHistogramNoSelection();
 			return;
+		}
 		lineProfileChart = null;
 		histogramChart = null;
 		if (lineProfileFigure(shape))
@@ -426,7 +443,7 @@ class GraphPane
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
 	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller, 
+	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller,
 		MeasurementViewerModel model)
 	{
 		if (view == null)
@@ -475,7 +492,10 @@ class GraphPane
 	void displayAnalysisResults()
 	{
 		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null) return;
+		if (ROIStats == null || ROIStats.size() == 0) {
+			buildHistogramNoSelection();
+			return;
+		}
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
 		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();

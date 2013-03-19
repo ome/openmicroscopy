@@ -732,6 +732,7 @@ class MeasurementViewerComponent
 			return;
 		
 		if (model.getActiveChannels().size() == 0) {
+			model.setAnalysisResults(null);
 			view.displayAnalysisResults();
 		} else {
 			model.fireAnalyzeShape(shapeList);
