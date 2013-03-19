@@ -69,10 +69,40 @@ public abstract class AbstractChecksumProviderIntegrationTest {
                 .get(ChecksumTestVector.ABC));
     }
 
+    @Test
+    public void testChecksumAsStringWithPartOfByteArrayZeroOffset() {
+        String actual = this.checksumProvider
+                .putBytes("abcdef".getBytes(), 0, 3)
+                .checksumAsString();
+        Assert.assertEquals(actual, this.checksumValues
+                .get(ChecksumTestVector.ABC));
+    }
+
+    @Test
+    public void testChecksumAsStringWithPartOfByteArrayNonZeroOffset() {
+        String actual = this.checksumProvider
+                .putBytes("defabc".getBytes(), 3, 3)
+                .checksumAsString();
+        Assert.assertEquals(actual, this.checksumValues
+                .get(ChecksumTestVector.ABC));
+    }
+
+    @Test(expectedExceptions = IndexOutOfBoundsException.class)
+    public void testChecksumAsStringWithPartOfByteArrayShouldThrowIOOB() {
+        this.checksumProvider.putBytes("abcdef".getBytes(), -1, -1);
+    }
+
+
     @Test(expectedExceptions = NullPointerException.class)
     public void testPutBytesWithNullByteArrayShouldThrowNPE() {
         byte nullArray[] = null;
         this.checksumProvider.putBytes(nullArray);
+    }
+
+    @Test(expectedExceptions = NullPointerException.class)
+    public void testPutBytesWithChunkOfNullByteArrayShouldThrowNPE() {
+        byte nullArray[] = null;
+        this.checksumProvider.putBytes(nullArray, 123, 456);
     }
 
     @Test
@@ -174,6 +204,14 @@ public abstract class AbstractChecksumProviderIntegrationTest {
         this.checksumProvider
             .putBytes("abc".getBytes())
             .checksumAsString();
+        this.checksumProvider.putBytes("abc".getBytes());
+    }
+
+    @Test(expectedExceptions = IllegalStateException.class)
+    public void testPutBytesAfterChecksumAsBytes() {
+        this.checksumProvider
+            .putBytes("abc".getBytes())
+            .checksumAsBytes();
         this.checksumProvider.putBytes("abc".getBytes());
     }
 }
