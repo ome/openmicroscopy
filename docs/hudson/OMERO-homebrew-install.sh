@@ -14,6 +14,11 @@ export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
+if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
+    CURL="curl ${CURL_OPTS-} --insecure -O"
+else
+    CURL="curl ${CURL_OPTS-} -O"
+fi
 
 ###################################################################
 # Homebrew & pip uninstallation
