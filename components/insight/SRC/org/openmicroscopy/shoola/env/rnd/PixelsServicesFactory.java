@@ -256,27 +256,41 @@ public class PixelsServicesFactory
 	/**
 	 * Reloads the rendering engine.
 	 * 
-	 * @param context	Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                call the method. It must be a reference to the
+	 *                container's registry.
 	 * @param pixelsID	The ID of the pixels set.
-	 * @param re		The {@link RenderingEngine rendering service}.
+	 * @param reList The {@link RenderingEngine}s.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+	 * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	public static RenderingControlProxy reloadRenderingControl(Registry context, 
-			long pixelsID, RenderingEnginePrx re)
+	public static RenderingControlProxy reloadRenderingControl(Registry context,
+			long pixelsID, List<RenderingEnginePrx> reList)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		if (reList == null || reList.size() == 0)
+			throw new IllegalArgumentException("No RE specified.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(pixelsID);
 		if (proxy != null) {
 			proxy.shutDown();
-			proxy.setRenderingEngine(re);
+			proxy.setRenderingEngine(reList.get(0));
+			reList.remove(0);
+			List<RenderingControl> slaves = proxy.getSlaves();
+			if (slaves.size() == reList.size()) {
+				Iterator<RenderingControl> i = slaves.iterator();
+				int index = 0;
+				while (i.hasNext()) {
+					proxy = (RenderingControlProxy) i.next();
+					proxy.shutDown();
+					proxy.setRenderingEngine(reList.get(index));
+				}
+				index++;
+			}
 		}
 		return proxy;
 	}
@@ -284,30 +298,43 @@ public class PixelsServicesFactory
 	/**
 	 * Resets the rendering engine.
 	 * 
-	 * @param context	Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
-	 * @param pixelsID	The ID of the pixels set.
-	 * @param re		The {@link RenderingEngine rendering service}.
-	 * @param def		The rendering def linked to the rendering engine.
-	 * 					This is passed to speed up the initialization 
-	 * 					sequence.
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                call the method. It must be a reference to the
+	 *                container's registry.
+	 * @param pixelsID The ID of the pixels set.
+	 * @param reList The {@link RenderingEngine}s.
+	 * @param def The rendering def linked to the rendering engine.
+	 * This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public static RenderingControlProxy resetRenderingControl(Registry context, 
-			long pixelsID, RenderingEnginePrx re, RenderingDef def)
+	public static RenderingControlProxy resetRenderingControl(Registry context,
+			long pixelsID, List<RenderingEnginePrx> reList, RenderingDef def)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		if (reList == null || reList.size() == 0)
+			throw new IllegalArgumentException("No RE specified.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(pixelsID);
-		if (proxy != null) 
-			proxy.resetRenderingEngine(re, convert(def));
-		
+		if (proxy != null) {
+			RndProxyDef converted = convert(def);
+			proxy.resetRenderingEngine(reList.get(0), converted);
+			reList.remove(0);
+			List<RenderingControl> slaves = proxy.getSlaves();
+			if (slaves.size() == reList.size()) {
+				Iterator<RenderingControl> i = slaves.iterator();
+				int index = 0;
+				while (i.hasNext()) {
+					proxy = (RenderingControlProxy) i.next();
+					proxy.resetRenderingEngine(reList.get(index), converted);
+				}
+				index++;
+			}
+		}
 		return proxy;
 	}
 	
