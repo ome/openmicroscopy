@@ -907,7 +907,8 @@ class PropertiesUI
         	refObject instanceof TagAnnotationData ||
         	refObject instanceof WellSampleData ||
         	refObject instanceof PlateData ||
-        	refObject instanceof ScreenData) {
+        	refObject instanceof ScreenData ||
+        	refObject instanceof PlateAcquisitionData) {
         	
         	descriptionScrollPane = new JScrollPane(descriptionWiki);
         	descriptionScrollPane.setHorizontalScrollBarPolicy(
@@ -1226,13 +1227,11 @@ class PropertiesUI
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
 			if (name.length() > 0) p.setName(name);
-			p.setDescription(desc);
+			if (value.length() > 0) p.setDescription(value);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
-			if (name.length() > 0) 
-				p.setTagValue(name);
-			if (value.length() > 0)
-				p.setTagDescription(value);
+			if (name.length() > 0) p.setTagValue(name);
+			if (value.length() > 0) p.setTagDescription(value);
 		} else if (object instanceof ScreenData) {
 			ScreenData p = (ScreenData) object;
 			if (name.length() > 0) p.setName(name);
@@ -1253,6 +1252,7 @@ class PropertiesUI
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
+			if (value.length() > 0) pa.setDescription(value);
 		}
 	}
 	
