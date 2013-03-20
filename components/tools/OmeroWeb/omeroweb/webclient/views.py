@@ -283,6 +283,7 @@ def switch_active_group(request, active_group=None):
     """
     if active_group is None:
         active_group = request.REQUEST.get('active_group')
+    active_group = int(active_group)
     if 'active_group' not in request.session or active_group != request.session['active_group']:
         request.session.modified = True
         request.session['active_group'] = active_group
@@ -2271,7 +2272,7 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ")
+        displayName = name.replace("_", " ").replace(".py", "")
 
         if path not in scriptMenu:
             folder, name = os.path.split(path)
@@ -2288,6 +2289,7 @@ def list_scripts (request, conn=None, **kwargs):
     scriptList = []
     for path, sData in scriptMenu.items():
         sData['path'] = path    # sData map has 'name', 'path', 'scripts'
+        sData['scripts'].sort(key=lambda x:x[1].lower())    # sort each script submenu by displayName
         scriptList.append(sData)
     scriptList.sort(key=lambda x:x['name'])
     return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}

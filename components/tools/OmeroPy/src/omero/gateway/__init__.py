@@ -4823,7 +4823,7 @@ _
         Returns a query string for constructing custom queries, loading the screen for each plate.
         """
         query = "select obj from Plate as obj " \
-              "join fetch obj.details.owner join fetch obj.details.group "\
+              "join fetch obj.details.owner as owner join fetch obj.details.group "\
               "join fetch obj.details.creationEvent "\
               "left outer join fetch obj.screenLinks spl " \
               "left outer join fetch spl.parent sc"
