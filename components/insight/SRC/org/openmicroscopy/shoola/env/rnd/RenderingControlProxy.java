@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -157,6 +156,9 @@ class RenderingControlProxy
     
     /** Flag indicating if the network is up or not.*/
 	private boolean networkUp = true;
+	
+	/** The associated rendering controls.*/
+	private List<RenderingControl> slaves;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -772,9 +774,9 @@ class RenderingControlProxy
 	 * speed-up the client.
 	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(SecurityContext ctx, Registry context,
-    	RenderingEnginePrx re, Pixels pixels, List m, int compression,
-    	List<RndProxyDef> rndDefs, int cacheSize)
+    RenderingControlProxy(Registry context,RenderingEnginePrx re,
+    		Pixels pixels, List<ChannelData> m, int compression,
+    		List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -782,8 +784,7 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
-        if (ctx == null)
-            throw new NullPointerException("No security context.");
+        slaves = new ArrayList<RenderingControl>();
         checker = new NetworkChecker();
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
@@ -802,10 +803,10 @@ class RenderingControlProxy
             imageSize = 1;
             this.compression = compression;
             metadata = new ChannelData[m.size()];
-            Iterator j = m.iterator();
+            Iterator<ChannelData> j = m.iterator();
             ChannelData cm;
             while (j.hasNext()) {
-            	cm = (ChannelData) j.next();
+            	cm = j.next();
                 metadata[cm.getIndex()] = cm;
             }
             if (rndDefs.size() < 1) {
@@ -825,6 +826,13 @@ class RenderingControlProxy
 		}
     }
 
+    /** Sets the rendering control associated to the main control.*/
+    void setSlaves(List<RenderingControl> slaves)
+    {
+    	if (slaves == null) return;
+    	this.slaves = slaves;
+    }
+    
     /**
      * Resets the rendering engine.
      * 
@@ -926,6 +934,9 @@ class RenderingControlProxy
     		if (cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
     		if (checker.isNetworkup()) servant.close();
+    		Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				((RenderingControlProxy) j.next()).shutDown();
 		} catch (Exception e) {} 
     }
     
@@ -960,6 +971,9 @@ class RenderingControlProxy
                     invalidateCache();
                 }
             }
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setModel(value);
 		} catch (Exception e) {
 			handleException(e, ERROR+"model.");
 		}
@@ -997,6 +1011,9 @@ class RenderingControlProxy
     		if (z >= maxZ) z = maxZ-1;
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
+            Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setDefaultZ(z);
 		} catch (Exception e) {
 			handleException(e, ERROR+"default Z.");
 		}
@@ -1016,6 +1033,9 @@ class RenderingControlProxy
     		if (t >= maxT) t = maxT-1;
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
+            Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setDefaultT(t);
 		} catch (Exception e) {
 			handleException(e, ERROR+"default T.");
 		}
@@ -1034,6 +1054,9 @@ class RenderingControlProxy
             servant.setQuantumStrategy(bitResolution);
             rndDef.setBitResolution(bitResolution);
             invalidateCache();
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setQuantumStrategy(bitResolution);
 		} catch (Exception e) {
 			handleException(e, ERROR+"bit resolution.");
 		}
@@ -1079,6 +1102,10 @@ class RenderingControlProxy
                     invalidateCache();
                 }
             }
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setQuantizationMap(w, value, coefficient,
+						noiseReduction);
 		} catch (Exception e) {
 			handleException(e, ERROR+"quantization map.");
 		}
@@ -1128,6 +1155,9 @@ class RenderingControlProxy
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
+            Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().setChannelWindow(w, start, end);
             invalidateCache();
 		} catch (Exception e) {
 			handleException(e, ERROR+"input channel for: "+w+".");
@@ -1170,6 +1200,9 @@ class RenderingControlProxy
     		rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
     						c.getAlpha());
     		invalidateCache();
+    		Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setRGBA(w, c);
 		} catch (Exception e) {
 			handleException(e, ERROR+"color for: "+w+".");
 		}
@@ -1198,6 +1231,9 @@ class RenderingControlProxy
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
+            Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().setActive(w, active);
             invalidateCache();
 		} catch (Exception e) {
 			handleException(e, ERROR+"active channel for: "+w+".");
@@ -1274,6 +1310,9 @@ class RenderingControlProxy
     	isSessionAlive();
     	try {
     		servant.saveCurrentSettings();
+    		Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().saveCurrentSettings();
 			return rndDef.copy();
 		} catch (Throwable e) {
 			handleException(e, "An error occurred while saving the current " +
@@ -1292,6 +1331,9 @@ class RenderingControlProxy
     	isSessionAlive();
     	try {
     		servant.resetDefaultsNoSave();
+    		Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+				i.next().resetDefaults();
     		invalidateCache();
     		initialize();
 		} catch (Throwable e) {
@@ -1485,6 +1527,9 @@ class RenderingControlProxy
 				setActive(i, c.isActive());
 			}
 		}
+		Iterator<RenderingControl> i = slaves.iterator();
+		while (i.hasNext())
+			i.next().resetSettings(rndDef);
 	}
 
 	/** 
@@ -1582,6 +1627,9 @@ class RenderingControlProxy
 			rndDef.setCompression(f);
 			servant.setCompressionLevel(f);
 			this.compression = compression;
+			Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setCompression(compression);
 			eraseCache();
 		} catch (Exception e) {}
 	}
@@ -1605,7 +1653,7 @@ class RenderingControlProxy
 	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#setOriginalRndSettings()
 	 */
-	public void setOriginalRndSettings() 
+	public void setOriginalRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -1634,6 +1682,9 @@ class RenderingControlProxy
 
     		invalidateCache();
     		initialize();
+    		Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setOriginalRndSettings();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}
@@ -1953,6 +2004,9 @@ class RenderingControlProxy
 		try {
 			servant.setResolutionLevel(level);
 			selectedResolutionLevel = level;
+			Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setSelectedResolutionLevel(level);
 		} catch (Exception e) {
 			handleException(e, ERROR+" resolution level: "+level);
 		}
