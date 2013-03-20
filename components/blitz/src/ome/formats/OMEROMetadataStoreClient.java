@@ -1850,7 +1850,7 @@ public class OMEROMetadataStoreClient
                     rlen = stream.read(buf);
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
-                    hasher.putBytes(rlen == buf.length ? buf : ArrayUtils.subarray(buf, 0, rlen));
+                    hasher.putBytes(buf, 0, rlen);
                 }
                 originalFile = rawFileStore.save();
                 final String clientHash = hasher.checksumAsString();
