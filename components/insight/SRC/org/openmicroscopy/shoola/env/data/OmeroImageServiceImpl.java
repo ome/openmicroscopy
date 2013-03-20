@@ -575,7 +575,7 @@ class OmeroImageServiceImpl
 			
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
 			if (pixels == null) return null;
-			int number = 2; //to read from the config.
+			int number = 4; //to read from the config.
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			List<RenderingEnginePrx> reList =

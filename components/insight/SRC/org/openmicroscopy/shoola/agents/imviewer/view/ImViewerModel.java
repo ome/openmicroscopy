@@ -2763,7 +2763,6 @@ class ImViewerModel
 				l =  list.subList(step, j);
 				step += l.size();
 			}
-			System.err.println(l.size());
 			if (l.size() > 0) {
 				proxy = proxies.get(i);
 				loader = new TileLoader(component, ctx, currentPixelsID,
