@@ -241,7 +241,7 @@ public class EditorFactory
 		List<Object> instances = new ArrayList<Object>();
 		if (singleton == null) return instances;
 		if (singleton.editors.size() == 0) return instances;
-		Iterator i = singleton.editors.iterator();
+		Iterator<Editor> i = singleton.editors.iterator();
 		EditorComponent comp;
 		while (i.hasNext()) {
 			comp = (EditorComponent) i.next();
@@ -259,7 +259,7 @@ public class EditorFactory
 	public static void saveInstances(List<Object> instances)
 	{
 		if (instances != null) {
-			Iterator i = instances.iterator();
+			Iterator<Object> i = instances.iterator();
 			EditorComponent comp;
 			Object object;
 			while (i.hasNext()) {
@@ -280,12 +280,11 @@ public class EditorFactory
 	 */
 	static void register(JMenu menu)
 	{ 
-		//return singleton.viewers; 
 		if (menu == null) return;
-		Iterator i = singleton.editors.iterator();
+		Iterator<Editor> i = singleton.editors.iterator();
 		menu.removeAll();
 		while (i.hasNext()) 
-			menu.add(new JMenuItem(new ActivationAction((Editor) i.next())));
+			menu.add(new JMenuItem(new ActivationAction(i.next())));
 	}
 	
 	/** 
@@ -305,22 +304,22 @@ public class EditorFactory
 	}
 	
 	/** All the tracked components. */
-	private Set<Editor>     	editors;
+	private Set<Editor> editors;
 	
 	/** The windows menu. */
-	private JMenu   			windowMenu;
+	private JMenu windowMenu;
 
 	/**  
 	 * A reference to clip-board data, for copying between Editors
 	 * e.g. A list of fields (nodes) or text with parameters. 
 	 */
-	private Object 				copiedData;
+	private Object copiedData;
 	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
 	 */
-	private boolean 			isAttached;
+	private boolean isAttached;
 	
 	/** Creates a new instance. */
 	private EditorFactory()
@@ -333,7 +332,7 @@ public class EditorFactory
 	/** Clears the collection of editors. */
 	private void clear()
 	{
-		Iterator i = editors.iterator();
+		Iterator<Editor> i = editors.iterator();
 		EditorComponent comp;
 		while (i.hasNext()) {
 			comp = (EditorComponent) i.next();
@@ -341,6 +340,25 @@ public class EditorFactory
 			comp.discard();
 		}
 		editors.clear();
+		handleViewerDiscarded();
+	}
+	
+	/**
+	 * Checks the list of opened viewers before removing the entry from the
+	 * menu.
+	 */
+	private void handleViewerDiscarded()
+	{
+		if (!singleton.isAttached) return;
+		if (editors.size() == 0) {
+			TaskBar tb = EditorAgent.getRegistry().getTaskBar();
+			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
+			isAttached = false;
+			if (!EditorAgent.isServerAvailable()) {
+				EventBus bus = EditorAgent.getRegistry().getEventBus();
+		        bus.post(new ExitApplication(false));
+			}
+		}
 	}
 	
 	/**
@@ -349,7 +367,7 @@ public class EditorFactory
 	 * Returns the first existing editor where the model matches the 
 	 * 
 	 * @param model The component's Model.
-	 * @return A {@link Editor} for the specified <code>model</code>.  
+	 * @return A {@link Editor} for the specified <code>model</code>.
 	 */
 	private Editor getEditor(EditorModel model)
 	{
@@ -378,7 +396,7 @@ public class EditorFactory
 			}
 		}
 		comp = new EditorComponent(model);	// creates View and Controller
-		comp.initialize();		// initialises MVC
+		comp.initialize();// initialises MVC
 		comp.addChangeListener(this);
 		editors.add(comp);
 		return comp;
@@ -393,15 +411,7 @@ public class EditorFactory
 	{
 		EditorComponent comp = (EditorComponent) ce.getSource(); 
 		if (comp.getState() == Editor.DISCARDED) editors.remove(comp);
-		if (editors.size() == 0) {
-			TaskBar tb = EditorAgent.getRegistry().getTaskBar();
-			tb.removeFromMenu(TaskBar.WINDOW_MENU, windowMenu);
-			isAttached = false;
-			if (!EditorAgent.isServerAvailable()) {
-				EventBus bus = EditorAgent.getRegistry().getEventBus();
-		        bus.post(new ExitApplication(false));
-			}
-		}
+		handleViewerDiscarded();
 	}
 	
 }

@@ -221,20 +221,19 @@ public class MeasurementViewerFactory
 		MeasurementViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (MeasurementViewerComponent) i.next();
-			if (comp.hasROIToSave())	
+			if (comp.hasROIToSave())
 				instances.add(comp);
 		}
 		return instances;
 	}
 	
 	/** 
-	 * Saves the passed instances and discards them. 
+	 * Saves the passed instances and discards them.
 	 * 
 	 * @param instances The instances to save.
 	 */
 	public static void saveInstances(List<Object> instances)
 	{
-		//if (singleton.viewers.size() == 0) return;
 		if (instances != null) {
 			Iterator<Object> i = instances.iterator();
 			Object o;
@@ -259,8 +258,7 @@ public class MeasurementViewerFactory
 	 */
 	public static void onGroupSwitched(boolean success)
 	{
-		if (!success)  
-			return;
+		if (!success) return;
 		singleton.clear();
 	}
 	
@@ -277,25 +275,25 @@ public class MeasurementViewerFactory
 		while (i.hasNext()) {
 			comp = (MeasurementViewerComponent) i.next();
 			comp.onROIDeleted(imageID);
-			if (comp.hasROIToSave())	
+			if (comp.hasROIToSave())
 				comp.saveROIToServer(false);
 		}
 	}
 
 	/** All the tracked components. */
-    private Set<MeasurementViewer>	viewers;
+    private Set<MeasurementViewer> viewers;
     
     /** All the tracked requests. */
-    private Set<MeasurementTool>	requests;
+    private Set<MeasurementTool> requests;
     
     /** The windows menu. */
-	private JMenu   				windowMenu;
+	private JMenu windowMenu;
 	
 	/** 
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
 	 */
-	private boolean 				isAttached;
+	private boolean isAttached;
 
     /** Creates a new instance. */
 	private MeasurementViewerFactory()
@@ -320,6 +318,7 @@ public class MeasurementViewerFactory
 		}
 		viewers.clear();
 		requests.clear();
+		handleViewerDiscarded();
 	}
 	
 	/**
@@ -345,6 +344,19 @@ public class MeasurementViewerFactory
 	}
 
 	/**
+	 * Checks the list of opened viewers before removing the entry from the
+	 * menu.
+	 */
+	private void handleViewerDiscarded()
+	{
+		if (!singleton.isAttached) return;
+		if (singleton.viewers.size() != 0) return;
+		TaskBar tb = MeasurementAgent.getRegistry().getTaskBar();
+		tb.removeFromMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		singleton.isAttached = false;
+	}
+	
+	/**
 	 * Removes a viewer from the {@link #viewers} set when it is
 	 * {@link MeasurementViewer#DISCARDED discarded}. 
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -353,8 +365,10 @@ public class MeasurementViewerFactory
 	{
 		MeasurementViewerComponent comp = 
 						(MeasurementViewerComponent) e.getSource();
-		if (comp.getState() == MeasurementViewer.DISCARDED) 
+		if (comp.getState() == MeasurementViewer.DISCARDED) {
 			viewers.remove(comp);
+			handleViewerDiscarded();
+		}
 	}
 
 }
