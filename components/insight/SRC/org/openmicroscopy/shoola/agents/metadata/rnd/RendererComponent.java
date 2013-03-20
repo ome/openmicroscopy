@@ -1198,4 +1198,10 @@ class RendererComponent
 		
 	}
 
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#onUpdatedChannels(List)
+	 */
+	public boolean canAnnotate() { return model.canAnnotate(); }
+
 }
