@@ -5,7 +5,7 @@ function tile = getTile(session, image, z, c, t, x, y, w, h)
 %   from input image at the input z, c, t coordinates located at (x, y) and
 %   of dimensions [w, h]
 %
-%   tile = getTile(session, image, z, c, t, x, y, w, h) returns the tile
+%   tile = getTile(session, imageID, z, c, t, x, y, w, h) returns the tile
 %   from input image identifier at the input z, c, t coordinates located at
 %   (x, y) and of dimensions [w, h]
 %
