@@ -582,6 +582,8 @@ class OmeroImageServiceImpl
 				number = workers.intValue();
 				if (number <= 0) number = 1;
 			}
+			if (!gateway.isLargeImage(ctx, pixelsID)) number = 1;
+			System.err.println(number);
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			List<RenderingEnginePrx> reList =
