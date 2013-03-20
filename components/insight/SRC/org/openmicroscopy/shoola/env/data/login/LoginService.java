@@ -213,6 +213,9 @@ public interface LoginService
 	 */
 	public static final int		CONFIGURATION_INDEX = 104;
 	
+	/** Indicates that a failure occurred preventing the client to start.*/
+	public static final int		SYSTEM_FAILURE_INDEX = 105;
+	
     /**
      * Flag to denote the Idle state.
      * While in this state, the Login Service is waiting for a login request.
