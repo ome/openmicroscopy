@@ -6,8 +6,12 @@
  *
  */
 
+#include <map>
+#include <string>
 #include <omero/model/PermissionsI.h>
 #include <omero/fixture.h>
+
+using namespace std;
 
 TEST(ClientTest, UnconfiguredClient )
 {
@@ -54,4 +58,14 @@ TEST(ClientTest, BlockSize1MB)
   char* argv[] = {(char*)"--omero.block_size=1000000", 0};
   omero::client_ptr c = new omero::client(argc, argv);
   ASSERT_EQ(1000000, c->getDefaultBlockSize());
+}
+
+TEST(ClientTest, testCreateFromMap)
+{
+    map<string, string> props;
+    props["omero.host"] = "localhost";
+
+    omero::client_ptr client = new omero::client(props, false);
+    std::string s = client->getProperty("omero.host");
+    ASSERT_EQ("localhost", s);
 }
