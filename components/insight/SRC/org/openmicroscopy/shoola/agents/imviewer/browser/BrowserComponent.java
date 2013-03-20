@@ -412,10 +412,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#onComponentResized()
      */
-	public void onComponentResized()
-	{
-		view.resetAdjusting();
-	}
+	public void onComponentResized() { view.onComponentResized(); }
 	
     /** 
      * Implemented as specified by the {@link Browser} interface.
