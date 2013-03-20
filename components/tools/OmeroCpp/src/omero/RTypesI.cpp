@@ -111,6 +111,25 @@ namespace omero {
 
 	// Implementations (primitives)
 	// =========================================================================
+        
+    template<typename T, typename P>
+    Ice::Int compareRTypes(T* lhs, omero::RTypePtr rhs) {
+        if (lhs == rhs.get())
+            return 0;
+        
+        T* rhsCasted = dynamic_cast<T*>(rhs.get());
+        if (!rhsCasted) {
+            throw std::bad_cast();
+        }
+        
+        P val = lhs->getValue();
+        P valR = rhsCasted->getValue();
+        
+        if (val < valR)
+            return -1;
+        
+        return val > valR? 1 : 0;
+    }
 
 	// RBOOL
 
@@ -123,7 +142,7 @@ namespace omero {
 	bool RBoolI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RBoolI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        return compareRTypes<RBoolI, bool>(this, rhs);
 	}
 
 	// RDOUBLE
@@ -137,7 +156,7 @@ namespace omero {
 	Ice::Double RDoubleI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RDoubleI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        return compareRTypes<RDoubleI, Ice::Double>(this, rhs);
 	}
 
 	// RFLOAT
@@ -151,7 +170,7 @@ namespace omero {
 	Ice::Float RFloatI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RFloatI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RFloatI, Ice::Float>(this, rhs);
 	}
 
 	// RINT
@@ -165,7 +184,7 @@ namespace omero {
 	Ice::Int RIntI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RIntI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RIntI, Ice::Int>(this, rhs);
 	}
 
 	// RLONG
@@ -179,7 +198,7 @@ namespace omero {
 	Ice::Long RLongI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RLongI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RLongI, Ice::Long>(this, rhs);
 	}
 
 	// RTIME
@@ -193,7 +212,7 @@ namespace omero {
 	Ice::Long RTimeI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RTimeI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RTimeI, Ice::Long>(this, rhs);
 	}
 
 	// Implementations (objects)
@@ -238,7 +257,7 @@ namespace omero {
 	std::string RStringI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RStringI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RStringI, std::string>(this, rhs);
 	}
 
 	// RCLASS
@@ -275,7 +294,7 @@ namespace omero {
 	RTypeSeq RArrayI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RArrayI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RArrayI, RTypeSeq>(this, rhs);
 	}
 
 	// Collection methods
@@ -314,7 +333,7 @@ namespace omero {
 	RTypeSeq RListI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RListI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+        return compareRTypes<RListI, RTypeSeq>(this, rhs);
 	}
 
 	// Collection methods
@@ -353,7 +372,7 @@ namespace omero {
 	RTypeSeq RSetI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RSetI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RSetI, RTypeSeq>(this, rhs);
 	}
 
 	// Collection methods
@@ -392,7 +411,7 @@ namespace omero {
 	RTypeDict RMapI::getValue(const Ice::Current& current) { return this->val; }
 
 	Ice::Int RMapI::compare(const omero::RTypePtr& rhs, const Ice::Current& current) {
-	    throw omero::ClientError(__FILE__,__LINE__,"Not implemented");
+	    return compareRTypes<RMapI, RTypeDict>(this, rhs);
 	}
 
 	// Collection methods
