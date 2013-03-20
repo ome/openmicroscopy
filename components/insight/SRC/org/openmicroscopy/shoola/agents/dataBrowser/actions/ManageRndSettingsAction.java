@@ -194,8 +194,8 @@ public class ManageRndSettingsAction
             return;
         }
         Object ho = node.getHierarchyObject();
-        Collection selected = browser.getSelectedDataObjects();
-        Iterator i;
+        Collection<DataObject> selected = browser.getSelectedDataObjects();
+        Iterator<DataObject> i;
         int count = 0;
         Object obj;
         switch (index) {
