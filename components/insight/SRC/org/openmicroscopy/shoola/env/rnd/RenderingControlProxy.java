@@ -793,11 +793,11 @@ class RenderingControlProxy
         this.cacheSize = cacheSize;
         this.context = context;
         servant = re;
-        pixs = pixels;//servant.getPixels();
+        pixs = pixels;
         families = null;
         models = null;
         try {
-        	families = servant.getAvailableFamilies(); 
+        	families = servant.getAvailableFamilies();
             models = servant.getAvailableModels();
             cacheID = -1;
             imageSize = 1;
@@ -2044,4 +2044,11 @@ class RenderingControlProxy
 		} catch (Exception e) {}
 		return false;
 	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}.
+	 * @see RenderingControl#isBigImage()
+	 */
+	public List<RenderingControl> getSlaves() { return slaves; }
+
 }

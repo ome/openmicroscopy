@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -78,6 +79,9 @@ public class TileLoader
     /** The security context.*/
     private SecurityContext ctx;
     
+    /** The proxy to use.*/
+    private RenderingControl proxy;
+    
     /**
      * Loads the tile.
      * 
@@ -89,8 +93,10 @@ public class TileLoader
     	try {
     		pDef.region = new RegionDef(rt.getX(), rt.getY(), 
     				rt.getWidth(), rt.getHeight());
-        	tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
-        			false));
+    		if (asTexture) tile.setImage(proxy.renderAsTexture(pDef));
+    		else tile.setImage(proxy.render(pDef));
+        	//tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
+        	//		false));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));
@@ -146,10 +152,12 @@ public class TileLoader
 	 * 					<code>false</code> to return a buffered image.
      */
     public TileLoader(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-    		Collection<Tile> tiles, boolean asTexture)
+    		RenderingControl proxy, Collection<Tile> tiles, boolean asTexture)
     {
-        if (pixelsID < 0)
-            throw new IllegalArgumentException("ID not valid.");
+    	if (proxy == null)
+			throw new IllegalArgumentException("No rendering control.");
+		if (pixelsID != proxy.getPixelsID())
+			throw new IllegalArgumentException("Pixels ID not valid.");
         if (tiles == null || tiles.size() == 0)
             throw new IllegalArgumentException("No tiles to load.");
         if (pDef == null)
@@ -159,7 +167,7 @@ public class TileLoader
         this.tiles = tiles;
         this.asTexture = asTexture;
         this.pDef = pDef;
-        service = context.getImageService();
+        this.proxy = proxy;
     }
     
 }
