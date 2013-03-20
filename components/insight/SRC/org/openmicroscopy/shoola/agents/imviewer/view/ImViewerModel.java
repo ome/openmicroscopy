@@ -325,6 +325,12 @@ class ImViewerModel
     /** The display mode.*/
     private int displayMode;
     
+    /** The number of tiles to load.*/
+    private int tileTotalCount;
+    
+    /** The number of tiles already loaded.*/
+    private int tileLoadedCount;
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -2736,9 +2742,35 @@ class ImViewerModel
 		list = selection;
 		sortTilesByIndex(list);
 		state = ImViewer.LOADING_TILES;
-		TileLoader loader = new TileLoader(component, ctx, currentPixelsID,
-				pDef, list);
-		loader.load();
+		List<RenderingControl> proxies = rnd.getRenderingControls();
+		int m = proxies.size();
+		//Create n sublist
+		int n = selection.size();
+		int diff = n/m;
+		List<Tile> l;
+		int j;
+		int step = 0;
+		if (n < m) diff = 1;
+		tileTotalCount = n;
+		tileLoadedCount = 0;
+		RenderingControl proxy;
+		TileLoader loader;
+		for (int i = 0; i < m; i++) {
+			l = new ArrayList<Tile>();
+			j = step+diff;
+			if (i == (m-1)) j += (n-j);
+			if (j <= n) {
+				l =  list.subList(step, j);
+				step += l.size();
+			}
+			System.err.println(l.size());
+			if (l.size() > 0) {
+				proxy = proxies.get(i);
+				loader = new TileLoader(component, ctx, currentPixelsID,
+						pDef, proxy, l);
+				loader.load();
+			}
+		}
     }
     
     /** Resets the tiles.*/
@@ -2967,4 +2999,17 @@ class ImViewerModel
 		}
 	}
 
+	/** 
+	 * Returns <code>true</code> if all the tiles are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param count The number of loaded tiles.
+	 * @return See above.
+	 */
+	boolean isTileLoaded(int count)
+	{
+		tileLoadedCount += count;
+		return tileLoadedCount == tileTotalCount;
+	}
+	
 }
