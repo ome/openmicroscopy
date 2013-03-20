@@ -61,6 +61,8 @@ public interface ChecksumProvider {
      * empty array despite its lack of content.
      *
      * @param byteArray The input byte array.
+     * @param offset The offset in the byte array at which to start putting bytes.
+     * @param length The number of bytes to put, starting from the offset.
      * @return ChecksumProvider
      */
     ChecksumProvider putBytes(byte[] byteArray, int offset, int length);
