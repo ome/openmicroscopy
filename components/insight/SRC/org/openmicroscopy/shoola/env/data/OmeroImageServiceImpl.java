@@ -572,26 +572,31 @@ class OmeroImageServiceImpl
 				default:
 					compressionLevel = RenderingControl.UNCOMPRESSED;
 			}
-			ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
-			RenderingEnginePrx re = gateway.createRenderingEngine(ctx,
-					pixelsID);
+			
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
 			if (pixels == null) return null;
-				
+			int number = 4; //to read from the config.
+			ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+			List<RenderingEnginePrx> reList =
+					new ArrayList<RenderingEnginePrx>(number);
+			for (int i = 0; i < number; i++) {
+				reList.add(gateway.createRenderingEngine(ctx, pixelsID));
+			}
+
 			List<RndProxyDef> defs = gateway.getRenderingSettingsFor(
 					ctx, pixelsID, exp.getId());
-			Collection l = pixels.copyChannels();
-			Iterator i = l.iterator();
+			Collection<Channel> l = pixels.copyChannels();
+			Iterator<Channel> i = l.iterator();
 			List<ChannelData> m = new ArrayList<ChannelData>(l.size());
 			int index = 0;
 			while (i.hasNext()) {
-				m.add(new ChannelData(index, (Channel) i.next()));
+				m.add(new ChannelData(index, i.next()));
 				index++;
 			}
 			
-			proxy = PixelsServicesFactory.createRenderingControl(context, ctx,
-					re, pixels, m, compressionLevel, defs);
+			proxy = PixelsServicesFactory.createRenderingControl(context,
+					reList, pixels, m, compressionLevel, defs);
 		}
 		return proxy;
 	}

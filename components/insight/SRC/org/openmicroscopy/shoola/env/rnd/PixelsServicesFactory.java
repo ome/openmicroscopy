@@ -31,6 +31,7 @@ import java.lang.management.MemoryUsage;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -232,7 +233,7 @@ public class PixelsServicesFactory
 	 * 						cannot call the method. 
 	 * 						It must be a reference to the
 	 *                  	container's registry.
-	 * @param re        	The {@link RenderingEngine rendering service}.
+	 * @param reList        The {@link RenderingEngine}s.
 	 * @param pixels   		The pixels set.
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
@@ -243,13 +244,13 @@ public class PixelsServicesFactory
 	 * @return See above.
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
-	public static RenderingControl createRenderingControl(Registry context, 
-			SecurityContext ctx, RenderingEnginePrx re, Pixels pixels,
+	public static RenderingControl createRenderingControl(Registry context,
+			List<RenderingEnginePrx> reList, Pixels pixels,
 			List<ChannelData> metadata, int compression, List<RndProxyDef> defs)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(ctx, re, pixels, metadata, compression, defs);
+		return singleton.makeNew(reList, pixels, metadata, compression, defs);
 	}
 
 	/**
@@ -633,8 +634,7 @@ public class PixelsServicesFactory
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
-	 * @param ctx The security context.
-	 * @param re The rendering control.
+	 * @param reList The rendering engines.
 	 * @param pixels The pixels set.
 	 * @param metadata The related metadata.
 	 * @param compression Pass <code>0</code> if no compression otherwise 
@@ -643,8 +643,8 @@ public class PixelsServicesFactory
 	 * rendering engine.This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 */
-	private RenderingControl makeNew(SecurityContext ctx, RenderingEnginePrx re,
-			Pixels pixels, List metadata, int compression, 
+	private RenderingControl makeNew(List<RenderingEnginePrx> reList,
+			Pixels pixels, List<ChannelData> metadata, int compression,
 			List<RndProxyDef> defs)
 	{
 		if (singleton == null) throw new NullPointerException();
@@ -653,8 +653,22 @@ public class PixelsServicesFactory
 			(RenderingControl) singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
 		singleton.rndSvcProxiesCount.put(id, 1);
-		rnd = new RenderingControlProxy(ctx, registry, re, pixels, metadata, 
-										compression, defs, getCacheSize());
+		RenderingEnginePrx master = reList.get(0);
+		int size = getCacheSize();
+		reList.remove(0);
+		rnd = new RenderingControlProxy(registry, master, pixels, metadata,
+										compression, defs, size);
+		Iterator<RenderingEnginePrx> i = reList.iterator();
+		if (reList.size() > 0) {
+			List<RenderingControl> 
+			slaves = new ArrayList<RenderingControl>(reList.size());
+			while (i.hasNext()) {
+				slaves.add(new RenderingControlProxy(registry, i.next(), pixels,
+						metadata, compression, defs, size));
+			}
+			((RenderingControlProxy) rnd).setSlaves(slaves);
+		}
+		
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
 	}
