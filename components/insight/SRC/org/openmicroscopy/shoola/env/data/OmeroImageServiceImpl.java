@@ -132,13 +132,38 @@ class OmeroImageServiceImpl
 {
 
 	/** The collection of supported file filters. */
-	private FileFilter[]		filters;
+	private FileFilter[] filters;
 	
 	/** Uses it to gain access to the container's services. */
-	private Registry                context;
+	private Registry context;
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
-	private OMEROGateway            gateway;
+	private OMEROGateway gateway;
+	
+	/**
+	 * Returns the number of rendering engine to initialize or reload.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The id of pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	private int getNumberofRenderingEnging(SecurityContext ctx, long pixelsID)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		int number = 1;
+		Integer workers = 
+				(Integer) context.lookup(LookupNames.RE_WORKER);
+		if (workers != null) {
+			number = workers.intValue();
+			if (number <= 0) number = 1;
+		}
+		if (!gateway.isLargeImage(ctx, pixelsID)) number = 1;
+		return number;
+	}
 	
 	/**
 	 * Imports the specified candidates.
@@ -546,7 +571,7 @@ class OmeroImageServiceImpl
 		context = registry;
 		this.gateway = gateway;
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#loadRenderingControl(SecurityContext, long)
@@ -575,14 +600,7 @@ class OmeroImageServiceImpl
 			
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
 			if (pixels == null) return null;
-			int number = 1;
-			Integer workers = 
-					(Integer) context.lookup(LookupNames.RE_WORKER);
-			if (workers != null) {
-				number = workers.intValue();
-				if (number <= 0) number = 1;
-			}
-			if (!gateway.isLargeImage(ctx, pixelsID)) number = 1;
+			int number = getNumberofRenderingEnging(ctx, pixelsID);
 			
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
@@ -764,10 +782,14 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			RenderingEnginePrx re = gateway.createRenderingEngine(ctx,
-					pixelsID);
+			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			List<RenderingEnginePrx>
+			proxies = new ArrayList<RenderingEnginePrx>(number);
+			for (int i = 0; i < number; i++) {
+				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
+			}
 			return PixelsServicesFactory.reloadRenderingControl(context, 
-					pixelsID, re);
+					pixelsID, proxies);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
@@ -787,14 +809,19 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			RenderingEnginePrx re = gateway.createRenderingEngine(ctx,
-					pixelsID);
+			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			List<RenderingEnginePrx>
+			proxies = new ArrayList<RenderingEnginePrx>(number);
+			for (int i = 0; i < number; i++) {
+				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
+			}
+
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingDef def = gateway.getRenderingDef(ctx, pixelsID,
 					exp.getId());
-			return PixelsServicesFactory.resetRenderingControl(context, 
-					pixelsID, re, def);
+			return PixelsServicesFactory.resetRenderingControl(context,
+					pixelsID, proxies, def);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
