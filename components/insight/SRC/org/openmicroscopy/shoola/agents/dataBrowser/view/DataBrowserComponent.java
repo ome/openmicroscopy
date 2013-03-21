@@ -396,15 +396,19 @@ class DataBrowserComponent
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
 				List<WellImageSet> wells = new ArrayList<WellImageSet>();
-				wells.add(wsn.getParentWell());
+				boolean in = false;
+				WellImageSet well;
 				i = selected.iterator();
 				while (i.hasNext()) {
 					n = i.next();
 					if (n instanceof WellSampleNode) {
 						wsn = (WellSampleNode) n;
-						wells.add(wsn.getParentWell());
+						well = wsn.getParentWell();
+						if (well.equals(wsn.getParentWell())) in = true;
+						wells.add(well);
 					}
 				}
+				if (!in) wells.add(wsn.getParentWell());
 				((WellsModel) model).setSelectedWells(wells);
 				view.onSelectedWell();
 			} else {
@@ -1583,31 +1587,11 @@ class DataBrowserComponent
 			}
 		} else if (index == DataBrowserUI.THUMB_VIEW) {
 			WellImageSet well = wm.getWell(row, column);
+			
 			if (well != null && well.isSampleValid()) {
-				Collection<ImageDisplay> selected = 
-						model.getBrowser().getSelectedDisplays();
-				List<ImageDisplay> list = new ArrayList<ImageDisplay>();
-				if (selected != null) {
-					Iterator<ImageDisplay> i = selected.iterator();
-					ImageDisplay img;
-					ImageDisplay child = well.getSelectedWellSample();
-					boolean in = false;
-					while (i.hasNext()) {
-						img = i.next();
-						if (img.equals(child)) in = true;
-						else list.add(img);
-					}
-					if (list.size() == 0 && in) list.add(well);
-					if (!in) list.add(well);
-				}
-				System.err.println(multiSelection);
 				model.getBrowser().setSelectedDisplay(
-						well.getSelectedWellSample(), multiSelection,
-						multiSelection);
+					well.getSelectedWellSample(), multiSelection, false);
 				setSelectedDisplay(well.getSelectedWellSample());
-				
-				//model.getBrowser().setSelectedDisplays(list);
-				//setSelectedDisplays(list);
 			}
 		}
 	}

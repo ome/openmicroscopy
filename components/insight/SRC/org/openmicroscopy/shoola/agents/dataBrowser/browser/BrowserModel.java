@@ -753,7 +753,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setSelectedDisplay(ImageDisplay, boolean, boolean)
 	 */
-	public void setSelectedDisplay(ImageDisplay node, boolean multiSelection, 
+	public void setSelectedDisplay(ImageDisplay node, boolean multiSelection,
 			boolean fireProperty)
 	{
 		if (node instanceof CellDisplay) return;
@@ -765,15 +765,26 @@ class BrowserModel
 	    
 	    if (!multiSelection) selectedDisplays.clear();
 	    int n = selectedDisplays.size();
-	    if (node != null) selectedDisplays.add(node);
+	    boolean removed = false;
+	    if (node != null) {
+	    	if (selectedDisplays.contains(node)) {
+	    		selectedDisplays.remove(node);
+	    		n = selectedDisplays.size();
+	    		removed = true;
+	    	} else selectedDisplays.add(node);
+	    }
 	    if (fireProperty) {
 	    	onNodeSelected(node, oldValue);
-	    	firePropertyChange(SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY, 
+	    	firePropertyChange(SELECTED_DATA_BROWSER_NODE_DISPLAY_PROPERTY,
 	    			oldValue, node);
 	    } else {
 	    	if (multiSelection) {
 	    		Colors colors = Colors.getInstance();
-	    		node.setHighlight(colors.getSelectedHighLight(node, n == 0));
+	    		if (removed)
+	    			node.setHighlight(colors.getDeselectedHighLight(node));
+	    		else 
+	    			node.setHighlight(colors.getSelectedHighLight(node,
+	    					n == 0));
 	    	} else onNodeSelected(node, oldValue);
 	    }
 	}

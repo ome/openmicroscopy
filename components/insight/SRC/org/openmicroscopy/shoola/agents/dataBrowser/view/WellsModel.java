@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -245,6 +244,7 @@ class WellsModel
 		if (wells == null)
 			throw new IllegalArgumentException("No wells.");
 		this.withThumbnails = withThumbnails;
+		selectedNodes = new ArrayList<WellImageSet>();
 		wellDimension = null;
 		this.parent = parent;
 		wellNodes = sortByRow(DataBrowserTranslator.transformHierarchy(wells));
@@ -458,7 +458,7 @@ class WellsModel
 		l.add(node);
 		setSelectedWells(l);
 	}
-	
+
 	/**
 	 * Sets the selected wells. This should only be needed for the fields
 	 * view.
@@ -468,7 +468,7 @@ class WellsModel
 	void setSelectedWells(List<WellImageSet> nodes)
 	{
 		if (nodes == null) selectedNodes.clear();
-		selectedNodes = nodes;
+		else selectedNodes = nodes;
 	}
 	
 	/**
@@ -478,7 +478,7 @@ class WellsModel
 	 */
 	WellImageSet getSelectedWell()
 	{
-		if (selectedNodes == null) return null;
+		if (selectedNodes == null || selectedNodes.size() == 0) return null;
 		return selectedNodes.get(0);
 	}
 	
