@@ -471,8 +471,8 @@ class MetadataViewerComponent
 			}
 			return;
 		}
-		Collection nodes = model.getRelatedNodes();
-		Iterator n;
+		Collection<DataObject> nodes = model.getRelatedNodes();
+		Iterator<DataObject> n;
 		if (!model.isSingleMode()) {
 			if (nodes != null) {
 				n = nodes.iterator();

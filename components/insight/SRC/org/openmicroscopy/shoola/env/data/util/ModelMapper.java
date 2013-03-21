@@ -95,7 +95,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
