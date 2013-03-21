@@ -595,10 +595,6 @@
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>                    
-                    <tr>
-                        <th>Image Count:</th>
-                        <td id='child_count'>{{ manager.dataset.countChildren }} {% plural manager.dataset.countChildren 'image' 'images' %}</td>
-                    </tr>
                 </table>
                 {% else %}
                     {% if manager.project %}
@@ -634,10 +630,6 @@
                         <tr>
                             <th>Creation Date:</th>
                             <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
-                        </tr>
-                        <tr>
-                            <th>Dataset Count:</th>
-                            <td id='child_count'>{{ manager.project.countChildren }} {% plural manager.project.countChildren 'dataset' 'datasets' %}</td>
                         </tr>
                     </table>
                     {% endif %}
@@ -717,12 +709,6 @@
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.acquisition.getDate|date:"Y-m-d H:i:s" }}</td>
                     </tr>
-                    <!--{% comment %}
-                    <tr>
-                        <th>Well Count:</th>
-                        <td id='child_count'>{{ manager.acquisition.countChildren }} {% plural manager.acquisition.countChildren 'well' 'Wells' %}</td>
-                    </tr>
-                    {% endcomment %}-->
                 </table>
                 {% else %}
                     {% if manager.plate %}

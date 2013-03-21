@@ -299,6 +299,14 @@
                 $("#chgrp-form .group_option :first").click();  // select first option
 
 
+                var enableToolbarButton = function(name, enabled) {
+                    if (enabled) {
+                        $('input#'+name+'Button').removeClass('button-disabled').removeAttr('disabled');
+                    } else {
+                        $('input#'+name+'Button').addClass('button-disabled').attr('disabled', true);
+                    }
+                };
+
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
                         'paste': false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
@@ -354,14 +362,26 @@
                         }
                     }
                     
-                    for (var sIndex in toolbar_config) { 
-                        if (toolbar_config[sIndex]){
-                            $('input#'+sIndex+'Button').removeClass('button-disabled').removeAttr('disabled');
-                        } else {
-                            $('input#'+sIndex+'Button').addClass('button-disabled').attr('disabled', true);
-                        }
+                    for (var btnName in toolbar_config) { 
+                        enableToolbarButton(btnName, toolbar_config[btnName])
                     }
                 }
+
+                $("body").bind('selection_change.ome', function(event) {
+                    var selected = $(this).data("selected_objects.ome"),
+                        selId;
+                    for (var i=0; i<selected.length; i++) {
+                        selId = selected[i].id;
+                        if (selId.split("-")[0] === 'well') {
+                            $("#dataTree").jstree("deselect_all");
+                            // That won't trigger selection event, so we manually disable buttons...
+                            enableToolbarButton('delete', false);
+                            enableToolbarButton('cut', false);
+                            enableToolbarButton('copy', false);
+                            enableToolbarButton('unlink', false);
+                        }
+                    }
+                });
                 
                 $("#delete-dialog-form").dialog({
                     autoOpen: false,
