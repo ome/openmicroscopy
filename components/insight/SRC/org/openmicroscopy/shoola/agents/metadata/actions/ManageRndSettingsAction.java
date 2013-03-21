@@ -173,6 +173,7 @@ public class ManageRndSettingsAction
 						icons.getIcon(IconManager.RND_UNDO));
 				break;
 			case APPLY_TO_ALL:
+				setEnabled(model.canAnnotate());
 				putValue(Action.NAME, NAME_APPLY_TO_ALL);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(
@@ -189,6 +190,7 @@ public class ManageRndSettingsAction
 						icons.getIcon(IconManager.RND_OWNER));
 				break;
 			case SAVE:
+				setEnabled(model.canAnnotate());
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_SAVE));
 				putValue(Action.SMALL_ICON, 
