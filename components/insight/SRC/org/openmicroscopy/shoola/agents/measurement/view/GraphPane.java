@@ -502,16 +502,25 @@ class GraphPane
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
 		Map<Integer, double[]> data;
+		int t = model.getDefaultT();
+		int z = model.getDefaultZ();
+		boolean hasData = false;
+		int cT, cZ;
 		while (i.hasNext())
 		{
 			entry = (Entry) i.next();
 			shape = (ROIShape) entry.getKey();
-			c3D = shape.getCoord3D();
-			minT = Math.min(minT, c3D.getTimePoint());
-			maxT = Math.max(maxT, c3D.getTimePoint());
-			minZ = Math.min(minZ, c3D.getZSection());
-			maxZ = Math.max(maxZ, c3D.getZSection());
 			
+			c3D = shape.getCoord3D();
+			cT = c3D.getTimePoint();
+			cZ = c3D.getZSection();
+			
+			minT = Math.min(minT, cT);
+			maxT = Math.max(maxT, cT);
+			minZ = Math.min(minZ, cZ);
+			maxZ = Math.max(maxZ, cZ);
+			
+			if (cT == t && cZ == z) hasData = true;
 			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
@@ -523,6 +532,10 @@ class GraphPane
 				data = shapeStats.get(StatsType.PIXELDATA);
 				pixelStats.put(c3D, data);
 			}
+		}
+		if (!hasData) {
+			buildHistogramNoSelection();
+			return;
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;
