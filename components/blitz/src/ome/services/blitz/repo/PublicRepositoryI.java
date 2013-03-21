@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -47,9 +46,8 @@ import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
-import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.util.BlitzExecutor;
@@ -386,7 +384,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             return ofile;
         }
 
-        if (checked.file.exists()) {
+        if (checked.exists()) {
             omero.grid.UnregisteredFileException ufe
                 = new omero.grid.UnregisteredFileException();
             ofile = (OriginalFile) new IceMapper().map(checked.asOriginalFile(null));
@@ -575,11 +573,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         while (paths.size() > 1) { // Only possible if `parents`
             checked = paths.removeFirst();
 
-            if (checked.file.exists()) {
-                if (!checked.file.isDirectory()) {
+            if (checked.exists()) {
+                if (!checked.isDirectory()) {
                     throw new omero.ResourceError(null, null,
                             "Path is not a directory.");
-                } else if (!checked.file.canRead()) {
+                } else if (!checked.canRead()) {
                     throw new omero.ResourceError(null, null,
                             "Directory is not readable");
                 }
@@ -595,12 +593,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
         // Now we are ready to work on the actual intended path.
         checked = paths.removeFirst(); // Size is now empty
-        if (checked.file.exists()) {
+        if (checked.exists()) {
             if (parents) {
                 assertFindDir(checked, __current);
             } else {
                 throw new omero.ResourceError(null, null,
-                    "Path exists on disk:" + checked.file);
+                    "Path exists on disk: " + checked.fsFile);
             }
         }
         repositoryDao.register(repoUuid, checked,
