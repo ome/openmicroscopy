@@ -464,34 +464,6 @@
                     <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
                 </div>
 
-                <!-- download options -->
-                <span id="download_dropdown">
-                    <button id="show_download_dropdown" class="btn silver btn_download" title="Download Options...">
-                        <span></span>
-                    </button>
-                    <ul class="dropdown">
-                        {% if manager.image.countImportedImageFiles %}
-                            <li>
-                                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
-    title="Download {{ manager.image.countImportedImageFiles }} Image file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}">
-                                    Image file{{ manager.image.countImportedImageFiles|pluralize:'s (zip)' }}</a>
-                            </li>
-                        {% endif %}
-                        <li>
-                            <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
-                                title="Create OME-TIFF File for Download">OME-TIFF</a>
-                        </li>
-                        <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
-                    </ul>
-                </span>
-
-                {% if manager.image.showOriginalFilePaths %}
-                <!-- show original file paths -->
-                <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
-                    <span></span>
-                </button>
-                {% endif %}
-
             </div>
 
             {% if manager.image.showOriginalFilePaths %}
