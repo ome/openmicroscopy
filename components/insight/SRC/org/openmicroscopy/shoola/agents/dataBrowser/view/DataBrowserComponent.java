@@ -1583,10 +1583,31 @@ class DataBrowserComponent
 			}
 		} else if (index == DataBrowserUI.THUMB_VIEW) {
 			WellImageSet well = wm.getWell(row, column);
-			if (well != null) {
+			if (well != null && well.isSampleValid()) {
+				Collection<ImageDisplay> selected = 
+						model.getBrowser().getSelectedDisplays();
+				List<ImageDisplay> list = new ArrayList<ImageDisplay>();
+				if (selected != null) {
+					Iterator<ImageDisplay> i = selected.iterator();
+					ImageDisplay img;
+					ImageDisplay child = well.getSelectedWellSample();
+					boolean in = false;
+					while (i.hasNext()) {
+						img = i.next();
+						if (img.equals(child)) in = true;
+						else list.add(img);
+					}
+					if (list.size() == 0 && in) list.add(well);
+					if (!in) list.add(well);
+				}
+				System.err.println(multiSelection);
 				model.getBrowser().setSelectedDisplay(
-						well.getSelectedWellSample(), multiSelection, false);
+						well.getSelectedWellSample(), multiSelection,
+						multiSelection);
 				setSelectedDisplay(well.getSelectedWellSample());
+				
+				//model.getBrowser().setSelectedDisplays(list);
+				//setSelectedDisplays(list);
 			}
 		}
 	}
