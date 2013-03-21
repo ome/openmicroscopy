@@ -1914,7 +1914,7 @@ class OMEROGateway
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
-				if (!(re.lookupRenderingDef(pixelsID))) {
+				if (!re.lookupRenderingDef(pixelsID)) {
 					re.resetDefaults();
 					re.lookupRenderingDef(pixelsID);
 				}

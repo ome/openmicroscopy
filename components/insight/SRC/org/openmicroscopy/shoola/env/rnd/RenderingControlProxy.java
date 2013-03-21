@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -102,40 +101,40 @@ class RenderingControlProxy
 	private static final Integer NON_PRIMARY_INDEX = -1;
 	
     /** List of supported families. */
-    private List              		families;
+    private List families;
     
     /** List of supported models. */
-    private List              		models;
+    private List models;
     
     /** The pixels set to render. */
-    private Pixels            		pixs;
+    private Pixels pixs;
     
     /** Reference to service to render pixels set. */
-    private RenderingEnginePrx      servant;
+    private RenderingEnginePrx servant;
 
     /** The id of the cache associated to this proxy. */
-    private int						cacheID;
+    private int cacheID;
     
     /** The channel metadata. */
-    private ChannelData[]       	metadata;
+    private ChannelData[] metadata;
     
     /** Local copy of the rendering settings used to speed-up the client. */
-    private RndProxyDef             rndDef;
+    private RndProxyDef rndDef;
     
     /** Local copy of the rendering settings used to speed-up the client. */
-    private List<RndProxyDef>       rndDefs;
+    private List<RndProxyDef> rndDefs;
     
     /** Indicates if the compression level. */
-    private int						compression;
+    private int compression;
     
     /** Helper reference to the registry. */
-    private Registry				context;
+    private Registry context;
     
     /** The size of the cache. */
-    private int						cacheSize;
+    private int cacheSize;
     
     /** The size of the image. */
-    private int						imageSize;
+    private int imageSize;
     
     /** The rendering settings. */
     private Map<String, List<RndProxyDef>> settings;
@@ -152,12 +151,15 @@ class RenderingControlProxy
     /** Flag indicating that the image is a big image or not.*/
     private Boolean bigImage;
     
-    /** The security context associated to that control.*/
-    private SecurityContext ctx;
-    
     /** Check if the network is up or not.*/
     private NetworkChecker checker;
     
+    /** Flag indicating if the network is up or not.*/
+	private boolean networkUp = true;
+	
+	/** The associated rendering controls.*/
+	private List<RenderingControl> slaves;
+	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -473,11 +475,11 @@ class RenderingControlProxy
     /** 
      * Sets the color.
      * 
-     * @param w 	The index of the channel.
-     * @param rgba	The color to set.
-     * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param w The index of the channel.
+     * @param rgba The color to set.
+     * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      * @see RenderingControl#setRGBA(int, Color)
      */
     private void setRGBA(int w, int[] rgba)
@@ -498,9 +500,9 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 *             or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private BufferedImage renderCompressedBI(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -523,9 +525,9 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private BufferedImage renderUncompressed(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -554,9 +556,9 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private TextureData renderUncompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -579,9 +581,9 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private TextureData renderCompressedAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
@@ -607,9 +609,9 @@ class RenderingControlProxy
 	 * @param stepping The stepping of the projection.
 	 * @param type     The projection type.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private TextureData renderProjectedCompressedAsTexture(int startZ, 
 			int endZ, int stepping, int type)
@@ -639,9 +641,9 @@ class RenderingControlProxy
 	 * @param stepping The stepping of the projection.
 	 * @param type     The projection type.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private TextureData renderProjectedUncompressedAsTexture(int startZ, 
 			int endZ, int stepping, int type)
@@ -662,9 +664,9 @@ class RenderingControlProxy
 	/**
 	 * Creates the texture.
 	 * 
-	 * @param data  The data to display.
-	 * @param w	    The width of the image.
-	 * @param h		The height of the image.
+	 * @param data The data to display.
+	 * @param w The width of the image.
+	 * @param h The height of the image.
 	 * @return See above.
 	 */
 	private TextureData createTexture(int[] data, int w, int h)
@@ -681,12 +683,12 @@ class RenderingControlProxy
 	 * @param stepping The stepping of the projection.
 	 * @param type     The projection type.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private BufferedImage renderProjectedCompressed(int startZ, int endZ, 
-			                               int stepping, int type)
+	private BufferedImage renderProjectedCompressed(int startZ, int endZ,
+		int stepping, int type)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
@@ -705,16 +707,16 @@ class RenderingControlProxy
 	 * Projects the selected section of the optical sections
 	 * and renders a compressed image.
 	 * 
-	 * @param startZ   The first optical section.
-	 * @param endZ     The last optical section.
+	 * @param startZ The first optical section.
+	 * @param endZ The last optical section.
 	 * @param stepping The stepping of the projection.
-	 * @param type     The projection type.
+	 * @param type The projection type.
 	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private BufferedImage renderProjectedUncompressed(int startZ, int endZ, 
+	private BufferedImage renderProjectedUncompressed(int startZ, int endZ,
             int stepping, int type)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -732,8 +734,6 @@ class RenderingControlProxy
         
         return img;
 	}
-
-	private boolean networkUp = true;
 	
 	/** Checks if the proxy is still active.*/
 	private void isSessionAlive()
@@ -742,7 +742,6 @@ class RenderingControlProxy
 		if (!networkUp) {
 			RenderingServiceException ex = new RenderingServiceException();
 			ex.setIndex(RenderingServiceException.CONNECTION);
-			//throw ex;
 		}
 		try {
 			networkUp = checker.isNetworkup();
@@ -769,15 +768,15 @@ class RenderingControlProxy
      * Mustn't be <code>null</code>.
      * @param pixels The pixels set. Mustn't be <code>null</code>.
      * @param m The channel metadata. 
-     * @param compression Pass <code>0</code> if no compression otherwise 
+     * @param compression Pass <code>0</code> if no compression otherwise
 	 * 					  pass the compression used.
-	 * @param rndDefs Local copy of the rendering settings used to 
+	 * @param rndDefs Local copy of the rendering settings used to
 	 * speed-up the client.
 	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(SecurityContext ctx, Registry context,
-    	RenderingEnginePrx re, Pixels pixels, List m, int compression,
-    	List<RndProxyDef> rndDefs, int cacheSize)
+    RenderingControlProxy(Registry context,RenderingEnginePrx re,
+    		Pixels pixels, List<ChannelData> m, int compression,
+    		List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -785,10 +784,8 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
-        if (ctx == null)
-            throw new NullPointerException("No security context.");
+        slaves = new ArrayList<RenderingControl>();
         checker = new NetworkChecker();
-        this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
@@ -796,20 +793,20 @@ class RenderingControlProxy
         this.cacheSize = cacheSize;
         this.context = context;
         servant = re;
-        pixs = pixels;//servant.getPixels();
+        pixs = pixels;
         families = null;
         models = null;
         try {
-        	families = servant.getAvailableFamilies(); 
+        	families = servant.getAvailableFamilies();
             models = servant.getAvailableModels();
             cacheID = -1;
             imageSize = 1;
             this.compression = compression;
             metadata = new ChannelData[m.size()];
-            Iterator j = m.iterator();
+            Iterator<ChannelData> j = m.iterator();
             ChannelData cm;
             while (j.hasNext()) {
-            	cm = (ChannelData) j.next();
+            	cm = j.next();
                 metadata[cm.getIndex()] = cm;
             }
             if (rndDefs.size() < 1) {
@@ -829,15 +826,22 @@ class RenderingControlProxy
 		}
     }
 
+    /** Sets the rendering control associated to the main control.*/
+    void setSlaves(List<RenderingControl> slaves)
+    {
+    	if (slaves == null) return;
+    	this.slaves = slaves;
+    }
+    
     /**
      * Resets the rendering engine.
      * 
-     * @param servant	The value to set.
-     * @param rndDef	Local copy of the rendering settings used to 
-	 * 					speed-up the client.
-	 * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @param servant The value to set.
+     * @param rndDef Local copy of the rendering settings used to speed-up the 
+     * client.
+	 * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
     void resetRenderingEngine(RenderingEnginePrx servant, RndProxyDef rndDef)
     	throws RenderingServiceException, DSOutOfServiceException
@@ -869,9 +873,9 @@ class RenderingControlProxy
      * Reloads the rendering engine.
      * 
      * @param servant The value to set.
-     * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+     * @throws RenderingServiceException If an error occurred while setting 
+     * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
      */
     void setRenderingEngine(RenderingEnginePrx servant)
     	throws RenderingServiceException, DSOutOfServiceException
@@ -902,15 +906,15 @@ class RenderingControlProxy
             for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                 cb = rndDef.getChannel(i);
                 servant.setActive(i, cb.isActive());
-                servant.setChannelWindow(i, cb.getInputStart(), 
+                servant.setChannelWindow(i, cb.getInputStart(),
                 		cb.getInputEnd());
                 k = families.iterator();
                 value = cb.getFamily();
                 while (k.hasNext()) {
                     family= (Family) k.next();
                     if (family.getValue().getValue().equals(value)) {
-                    	servant.setQuantizationMap(i, family, 
-                    			cb.getCurveCoefficient(), 
+                    	servant.setQuantizationMap(i, family,
+                    			cb.getCurveCoefficient(),
                     			cb.isNoiseReduction());
                       
                     }
@@ -930,6 +934,9 @@ class RenderingControlProxy
     		if (cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
     		if (checker.isNetworkup()) servant.close();
+    		Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				((RenderingControlProxy) j.next()).shutDown();
 		} catch (Exception e) {} 
     }
     
@@ -946,7 +953,7 @@ class RenderingControlProxy
 	}
 	
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setModel(String)
      */
     public void setModel(String value)
@@ -964,31 +971,34 @@ class RenderingControlProxy
                     invalidateCache();
                 }
             }
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setModel(value);
 		} catch (Exception e) {
 			handleException(e, ERROR+"model.");
 		}
      }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getModel()
      */
     public String getModel() { return rndDef.getColorModel(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getDefaultZ()
      */
     public int getDefaultZ() { return rndDef.getDefaultZ(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getDefaultT()
      */
     public int getDefaultT() { return rndDef.getDefaultT(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setDefaultZ(int)
      */
     public void setDefaultZ(int z)
@@ -1001,13 +1011,16 @@ class RenderingControlProxy
     		if (z >= maxZ) z = maxZ-1;
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
+            Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setDefaultZ(z);
 		} catch (Exception e) {
 			handleException(e, ERROR+"default Z.");
 		}
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setDefaultT(int)
      */
     public void setDefaultT(int t)
@@ -1020,13 +1033,16 @@ class RenderingControlProxy
     		if (t >= maxT) t = maxT-1;
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
+            Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setDefaultT(t);
 		} catch (Exception e) {
 			handleException(e, ERROR+"default T.");
 		}
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setQuantumStrategy(int)
      */
     public void setQuantumStrategy(int bitResolution)
@@ -1038,13 +1054,16 @@ class RenderingControlProxy
             servant.setQuantumStrategy(bitResolution);
             rndDef.setBitResolution(bitResolution);
             invalidateCache();
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setQuantumStrategy(bitResolution);
 		} catch (Exception e) {
 			handleException(e, ERROR+"bit resolution.");
 		}
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setCodomainInterval(int, int)
      */
     public void setCodomainInterval(int start, int end)
@@ -1061,7 +1080,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setQuantizationMap(int, String, double, boolean)
      */
     public void setQuantizationMap(int w, String value, double coefficient,
@@ -1076,20 +1095,24 @@ class RenderingControlProxy
             while (i.hasNext()) {
                 family = (Family) i.next();
                 if (family.getValue().getValue().equals(value)) {
-                    servant.setQuantizationMap(w, family, coefficient, 
+                    servant.setQuantizationMap(w, family, coefficient,
                                                 noiseReduction);
-                    rndDef.getChannel(w).setQuantization(value, coefficient, 
+                    rndDef.getChannel(w).setQuantization(value, coefficient,
                                                 noiseReduction);
                     invalidateCache();
                 }
             }
+            Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setQuantizationMap(w, value, coefficient,
+						noiseReduction);
 		} catch (Exception e) {
 			handleException(e, ERROR+"quantization map.");
 		}
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelFamily(int)
      */
     public String getChannelFamily(int w)
@@ -1100,7 +1123,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelNoiseReduction(int)
      */
     public boolean getChannelNoiseReduction(int w)
@@ -1122,7 +1145,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#setChannelWindow(int, double, double)
      */
     public void setChannelWindow(int w, double start, double end)
@@ -1132,6 +1155,9 @@ class RenderingControlProxy
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
+            Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().setChannelWindow(w, start, end);
             invalidateCache();
 		} catch (Exception e) {
 			handleException(e, ERROR+"input channel for: "+w+".");
@@ -1139,7 +1165,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelWindowStart(int)
      */
     public double getChannelWindowStart(int w)
@@ -1150,7 +1176,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelWindowEnd(int)
      */
     public double getChannelWindowEnd(int w)
@@ -1169,18 +1195,21 @@ class RenderingControlProxy
     {
     	isSessionAlive();
     	try {
-    		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
+    		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(),
     						c.getAlpha());
     		rndDef.getChannel(w).setRGBA(c.getRed(), c.getGreen(), c.getBlue(),
     						c.getAlpha());
     		invalidateCache();
+    		Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setRGBA(w, c);
 		} catch (Exception e) {
 			handleException(e, ERROR+"color for: "+w+".");
 		}
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getRGBA(int)
      */
     public Color getRGBA(int w)
@@ -1202,6 +1231,9 @@ class RenderingControlProxy
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
+            Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().setActive(w, active);
             invalidateCache();
 		} catch (Exception e) {
 			handleException(e, ERROR+"active channel for: "+w+".");
@@ -1209,7 +1241,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#isActive(int)
      */
     public boolean isActive(int w)
@@ -1220,7 +1252,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#addCodomainMap(CodomainMapContext)
      */
     /*
@@ -1233,7 +1265,7 @@ class RenderingControlProxy
 */
     
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
      */
     /*
@@ -1246,7 +1278,7 @@ class RenderingControlProxy
     */
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#removeCodomainMap(CodomainMapContext)
      */
     /*
@@ -1259,7 +1291,7 @@ class RenderingControlProxy
     */
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainMaps()
      */
     public List getCodomainMaps()
@@ -1269,7 +1301,7 @@ class RenderingControlProxy
     }
     
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#saveCurrentSettings()
      */
     public RndProxyDef saveCurrentSettings()
@@ -1278,6 +1310,9 @@ class RenderingControlProxy
     	isSessionAlive();
     	try {
     		servant.saveCurrentSettings();
+    		Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+    			i.next().saveCurrentSettings();
 			return rndDef.copy();
 		} catch (Throwable e) {
 			handleException(e, "An error occurred while saving the current " +
@@ -1287,7 +1322,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#resetDefaults()
      */
     public void resetDefaults()
@@ -1296,6 +1331,9 @@ class RenderingControlProxy
     	isSessionAlive();
     	try {
     		servant.resetDefaultsNoSave();
+    		Iterator<RenderingControl> i = slaves.iterator();
+    		while (i.hasNext())
+				i.next().resetDefaults();
     		invalidateCache();
     		initialize();
 		} catch (Throwable e) {
@@ -1304,7 +1342,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeX()
      */
     public double getPixelsPhysicalSizeX()
@@ -1314,7 +1352,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeY()
      */
     public double getPixelsPhysicalSizeY()
@@ -1324,7 +1362,7 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsPhysicalSizeZ()
      */
     public double getPixelsPhysicalSizeZ()
@@ -1334,37 +1372,37 @@ class RenderingControlProxy
     }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsDimensionsX()
      */
     public int getPixelsDimensionsX() { return pixs.getSizeX().getValue(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsDimensionsY()
      */
     public int getPixelsDimensionsY() { return pixs.getSizeY().getValue(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsDimensionsZ()
      */
     public int getPixelsDimensionsZ() { return pixs.getSizeZ().getValue(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsDimensionsT()
      */
     public int getPixelsDimensionsT() { return pixs.getSizeT().getValue(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getPixelsDimensionsC()
      */
     public int getPixelsDimensionsC() { return pixs.getSizeC().getValue(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getFamilies()
      */
     public List getFamilies()
@@ -1377,55 +1415,55 @@ class RenderingControlProxy
     }
     
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelData(int)
      */
     public ChannelData getChannelData(int w) { return metadata[w]; }
     
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getChannelData()
      */
     public ChannelData[] getChannelData() { return metadata; }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainStart()
      */
     public int getCodomainStart() { return rndDef.getCdStart(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getCodomainEnd()
      */
     public int getCodomainEnd() { return rndDef.getCdEnd(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getBitResolution()
      */
     public int getBitResolution() { return rndDef.getBitResolution(); }
 
     /** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#hasActiveChannelBlue()
      */
 	public boolean hasActiveChannelBlue() { return isRightColor(0, 0, 255); }
 
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#hasActiveChannelGreen()
      */
 	public boolean hasActiveChannelGreen() { return isRightColor(0, 255, 0); }
 	
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#hasActiveChannelRed()
      */
 	public boolean hasActiveChannelRed() { return isRightColor(255, 0, 0); }
 	
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#isChannelRed(int)
      */
 	public boolean isChannelRed(int index)
@@ -1435,7 +1473,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#isChannelBlue(int)
      */
 	public boolean isChannelBlue(int index)
@@ -1445,7 +1483,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#isChannelGreen(int)
      */
 	public boolean isChannelGreen(int index)
@@ -1455,13 +1493,13 @@ class RenderingControlProxy
 	}
 
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#getRndSettingsCopy()
      */
 	public RndProxyDef getRndSettingsCopy() { return rndDef.copy(); }
 	
 	/** 
-     * Implemented as specified by {@link RenderingControl}. 
+     * Implemented as specified by {@link RenderingControl}.
      * @see RenderingControl#resetSettings(RndProxyDef)
      */
 	public void resetSettings(RndProxyDef rndDef)
@@ -1484,15 +1522,18 @@ class RenderingControlProxy
 			if (c != null) {
 				setRGBA(i, c.getRGBA());
 				setChannelWindow(i, c.getInputStart(), c.getInputEnd());
-				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(), 
+				setQuantizationMap(i, c.getFamily(), c.getCurveCoefficient(),
 									c.isNoiseReduction());
 				setActive(i, c.isActive());
-			}		
+			}
 		}
+		Iterator<RenderingControl> i = slaves.iterator();
+		while (i.hasNext())
+			i.next().resetSettings(rndDef);
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPixelsTypeLowerBound(int)
 	 */
 	public double getPixelsTypeLowerBound(int w)
@@ -1503,7 +1544,7 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPixelsTypeUpperBound(int)
 	 */
 	public double getPixelsTypeUpperBound(int w)
@@ -1514,7 +1555,7 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#isPixelsTypeSigned()
 	 */
 	public boolean isPixelsTypeSigned() { return rndDef.isTypeSigned(); }
@@ -1538,7 +1579,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#render(PlaneDef)
 	 */
     public BufferedImage render(PlaneDef pDef)
@@ -1548,7 +1589,7 @@ class RenderingControlProxy
     }
     
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#render(PlaneDef, int)
 	 */
     public BufferedImage render(PlaneDef pDef, int value)
@@ -1575,7 +1616,7 @@ class RenderingControlProxy
     }
     
     /** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#setCompression(int)
 	 */
 	public void setCompression(int compression)
@@ -1586,14 +1627,15 @@ class RenderingControlProxy
 			rndDef.setCompression(f);
 			servant.setCompressionLevel(f);
 			this.compression = compression;
+			Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setCompression(compression);
 			eraseCache();
-		} catch (Exception e) {
-			//handleException(e, "Cannot set the compression level.");
-		}
+		} catch (Exception e) {}
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#isCompressed()
 	 */
 	public boolean isCompressed()
@@ -1602,16 +1644,16 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getCompressionLevel()
 	 */
 	public int getCompressionLevel() { return compression; }
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#setOriginalRndSettings()
 	 */
-	public void setOriginalRndSettings() 
+	public void setOriginalRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive();
@@ -1640,16 +1682,19 @@ class RenderingControlProxy
 
     		invalidateCache();
     		initialize();
+    		Iterator<RenderingControl> i = slaves.iterator();
+			while (i.hasNext())
+				i.next().setOriginalRndSettings();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"default settings.");
 		}
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#renderProjected(int, int, int, int, List)
 	 */
-	public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
+	public BufferedImage renderProjected(int startZ, int endZ, int stepping,
 			                           int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -1673,15 +1718,15 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#renderProjectedAsTexture(int, int, int, int, List)
 	 */
-	public TextureData renderProjectedAsTexture(int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels) 
+	public TextureData renderProjectedAsTexture(int startZ, int endZ,
+			int stepping, int type, List<Integer> channels)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		List<Integer> active = getActiveChannels();
-		for (int i = 0; i < getPixelsDimensionsC(); i++) 
+		for (int i = 0; i < getPixelsDimensionsC(); i++)
 			setActive(i, false);
 	
 		Iterator<Integer> j = channels.iterator();
@@ -1690,9 +1735,9 @@ class RenderingControlProxy
 		TextureData img;
 
         if (isCompressed()) 
-        	img = renderProjectedCompressedAsTexture(startZ, endZ, stepping, 
+        	img = renderProjectedCompressedAsTexture(startZ, endZ, stepping,
         			type);
-        else img = renderProjectedUncompressedAsTexture(startZ, endZ, stepping, 
+        else img = renderProjectedUncompressedAsTexture(startZ, endZ, stepping,
         		type);
         //reset
         j = active.iterator();
@@ -1702,7 +1747,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#copyRenderingSettings(RndProxyDef, List)
 	 */
 	public void copyRenderingSettings(RndProxyDef rndToCopy,
@@ -1710,14 +1755,13 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (rndDef == null)
-			throw new IllegalArgumentException("No rendering settings to " +
-					"set");
+			throw new IllegalArgumentException("No rendering settings to set");
 		setModel(rndToCopy.getColorModel());
 		setCodomainInterval(rndToCopy.getCdStart(), rndToCopy.getCdEnd());
 		setQuantumStrategy(rndToCopy.getBitResolution());
 		int defaultT = rndToCopy.getDefaultT();
 		int maxT = getPixelsDimensionsT();
-		if (defaultT >= 0 && defaultT < maxT) 
+		if (defaultT >= 0 && defaultT < maxT)
 			setDefaultT(rndToCopy.getDefaultT());
 		ChannelBindingsProxy c;
 		Iterator<Integer> j = indexes.iterator();
@@ -1729,29 +1773,29 @@ class RenderingControlProxy
 			if (c != null) {
 				setRGBA(k, c.getRGBA());
 				setChannelWindow(k, c.getInputStart(), c.getInputEnd());
-				setQuantizationMap(k, c.getFamily(), 
-								c.getCurveCoefficient(), 
+				setQuantizationMap(k, c.getFamily(),
+								c.getCurveCoefficient(),
 									c.isNoiseReduction());
 				setActive(k, c.isActive());
-			}	
+			}
 			k++;
 		}
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getActiveChannels()
 	 */
 	public List<Integer> getActiveChannels()
 	{
 		List<Integer> active = new ArrayList<Integer>();
-		for (int i = 0; i < getPixelsDimensionsC(); i++) 
+		for (int i = 0; i < getPixelsDimensionsC(); i++)
 			if (isActive(i)) active.add(Integer.valueOf(i));
 		return active;
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#isSameSettings(RndProxyDef, boolean)
 	 */
 	public boolean isSameSettings(RndProxyDef def, boolean checkPlane)
@@ -1765,11 +1809,10 @@ class RenderingControlProxy
 		if (def.getCdEnd() != getCodomainEnd()) return false;
 		if (def.getCdStart() != getCodomainStart()) return false;
 		if (!def.getColorModel().equals(getModel())) return false;
-		//if (def.getCompression() != rndDef.getCompression()) return false;
 		ChannelBindingsProxy channel;
 		int[] rgba;
 		Color color;
-		Map<Integer, ChannelBindingsProxy> oldChannels = 
+		Map<Integer, ChannelBindingsProxy> oldChannels =
 			new HashMap<Integer, ChannelBindingsProxy>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
 			channel = def.getChannel(i);
@@ -1792,13 +1835,13 @@ class RenderingControlProxy
 			i = j.next();
 			if (!(indexes.contains(i))) return false;
 			channel = oldChannels.get(i);
-			if (channel.getInputStart() != getChannelWindowStart(i)) 
+			if (channel.getInputStart() != getChannelWindowStart(i))
 				return false;
-			if (channel.getInputEnd() != getChannelWindowEnd(i)) 
+			if (channel.getInputEnd() != getChannelWindowEnd(i))
 				return false;
-			if (channel.getCurveCoefficient() != getChannelCurveCoefficient(i)) 
+			if (channel.getCurveCoefficient() != getChannelCurveCoefficient(i))
 				return false;
-			if (!channel.getFamily().equals(getChannelFamily(i))) 
+			if (!channel.getFamily().equals(getChannelFamily(i)))
 				return false;
 			if (channel.isNoiseReduction() != getChannelNoiseReduction(i))
 				return false;
@@ -1813,13 +1856,13 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPixelsID()
 	 */
 	public long getPixelsID() { return pixs.getId().getValue(); }
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#renderAsTexture(PlaneDef)
 	 */
 	public TextureData renderAsTexture(PlaneDef pDef)
@@ -1834,11 +1877,11 @@ class RenderingControlProxy
 			return null;
 		}
 		if (isCompressed()) return renderCompressedAsTexture(pDef);
-	     return renderUncompressedAsTexture(pDef);
+		return renderUncompressedAsTexture(pDef);
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#isActiveImageRGB(List)
 	 */
 	public boolean isMappedImageRGB(List channels)
@@ -1861,7 +1904,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#setOverlays(long, Map)
 	 */
 	public void setOverlays(long tableID, Map<Long, Integer> overlays)
@@ -1879,7 +1922,7 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getPreviousRenderingSettings()
 	 */
 	public List<RndProxyDef> getPreviousRenderingSettings()
@@ -1892,7 +1935,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getRenderingSettings()
 	 */
 	public Map<String, List<RndProxyDef>> getRenderingSettings()
@@ -1934,7 +1977,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getSelectedResolutionLevel()
 	 */
 	public int getSelectedResolutionLevel()
@@ -1949,7 +1992,7 @@ class RenderingControlProxy
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#setSelectedResolutionLevel(int)
 	 */
 	public void setSelectedResolutionLevel(int level)
@@ -1961,13 +2004,16 @@ class RenderingControlProxy
 		try {
 			servant.setResolutionLevel(level);
 			selectedResolutionLevel = level;
+			Iterator<RenderingControl> j = slaves.iterator();
+			while (j.hasNext())
+				j.next().setSelectedResolutionLevel(level);
 		} catch (Exception e) {
 			handleException(e, ERROR+" resolution level: "+level);
 		}
 	}
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getTileSize()
 	 */
 	public Dimension getTileSize()
@@ -1986,7 +2032,7 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#isBigImage()
 	 */
 	public boolean isBigImage()
@@ -1995,9 +2041,14 @@ class RenderingControlProxy
 		try {
 			bigImage = servant.requiresPixelsPyramid();
 			return bigImage.booleanValue();
-		} catch (Exception e) {
-			//handleException(e, ERROR+" retrieving if requires pyramid.");
-		}
+		} catch (Exception e) {}
 		return false;
 	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}.
+	 * @see RenderingControl#isBigImage()
+	 */
+	public List<RenderingControl> getSlaves() { return slaves; }
+
 }

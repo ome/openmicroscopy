@@ -236,6 +236,11 @@ public class LookupNames
     /** Field to access the <code>Size</code> of the cache. */
     public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
     
+    /** 
+     * Field to access the number of rendering engine to start for big images.
+     */
+    public static final String RE_WORKER = "/services/RE/worker";
+    
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
 	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
 

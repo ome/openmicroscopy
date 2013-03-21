@@ -708,4 +708,12 @@ public interface Renderer
 	 */
 	boolean canAnnotate();
 
+	/**
+	 * Returns the collection of rendering controls. This method should only 
+	 * be invoked when loading tiles.
+	 * 
+	 * @return See above.
+	 */
+	List<RenderingControl> getRenderingControls();
+	
 }
