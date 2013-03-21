@@ -335,7 +335,7 @@ class WellsModel
 			node.formatWellSampleTitle();
 			samples.add(selected);
 			b = false;
-			if (((DataObject) selected.getHierarchyObject()).getId() >= 0) {
+			if (node.isSampleValid()) {
 				wellDimension = selected.getThumbnail().getOriginalSize();
 				b = true;
 			}

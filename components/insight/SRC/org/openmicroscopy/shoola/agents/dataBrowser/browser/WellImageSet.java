@@ -403,7 +403,25 @@ public class WellImageSet
 		formatDisplay();
     }
     
+    /**
+     * Returns the text associated to the node.
+     * 
+     * @return See above.
+     */
     public List<String> getText() { return text; }
+    
+    /**
+     * Returns <code>true</code> if the selected well sample is valid, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isSampleValid()
+    {
+    	ImageData img = getSelectedImage();
+    	if (img == null) return false;
+    	return img.getId() >= 0;
+    }
     
     /**
      * Overridden to make sure that the default color is set.
