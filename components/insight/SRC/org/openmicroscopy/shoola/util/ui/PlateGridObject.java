@@ -53,6 +53,9 @@ public class PlateGridObject
 	/** The flag indicating if several cells are selected. */
 	private boolean multipleSelection;
 	
+	/** Indicates if the node is selected or de-selected.*/
+	private boolean selected;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -60,13 +63,25 @@ public class PlateGridObject
 	 * @param column The selected column.
 	 * @param multipleSelection Pass <code>true</code> if several cells are 
 	 * 							selected, <code>false</code> otherwise.
+	 * @param selected Pass <code>true</code> the cell is selected,
+	 * <code>false</code> if de-selected.
 	 */
-	public PlateGridObject(int row, int column, boolean multipleSelection)
+	public PlateGridObject(int row, int column, boolean multipleSelection, 
+			boolean selected)
 	{
 		this.row = row;
 		this.column = column;
 		this.multipleSelection = multipleSelection;
+		this.selected = selected;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the cell is selected, <code>false</code>
+	 * if de-selected.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSelected() { return selected; }
 	
 	/**
 	 * Returns the selected row.

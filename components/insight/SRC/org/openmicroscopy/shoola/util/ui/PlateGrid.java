@@ -115,6 +115,25 @@ public class PlateGrid
 				column < 0 || column >= getModel().getColumnCount()));
 	}
 	
+	/**
+	 * Returns <code>true</code> if the specified cell is already selected.
+	 * 
+	 * @param row The row identifying the cell.
+	 * @param column The column identifying the cell.
+	 * @return See above.
+	 */
+	private boolean isSelectedCell(int row, int column)
+	{
+		if (selectedCells.size() == 0) return false;
+		Iterator<Point> i = selectedCells.iterator();
+		Point p;
+		while (i.hasNext()) {
+			p = i.next();
+			if (p.x == row && p.y == column) return true;
+		}
+		return false;
+	}
+	
 	/** 
 	 * Initializes the component. 
 	 * 
@@ -153,8 +172,10 @@ public class PlateGrid
 					boolean b = e.isShiftDown() || e.isControlDown();
 					if (UIUtilities.isMacOS()) 
 						b = e.isShiftDown() || e.isMetaDown();
+					boolean selected = isSelectedCell(row, column);
+					if (selected && selectedCells.size() == 1) return;
 					firePropertyChange(WELL_FIELDS_PROPERTY, null, 
-							new PlateGridObject(row, column, b));
+							new PlateGridObject(row, column, b, selected));
 				}
 			}
 		});
@@ -228,7 +249,8 @@ public class PlateGrid
 		Point p;
 		while (i.hasNext()) {
 			p = i.next();
-			if (isCellInRange(p.x, p.y) && isCellValid(p.x, p.y))
+			if (isCellInRange(p.x, p.y) && isCellValid(p.x, p.y) &&
+				!isSelectedCell(p.x, p.y))
 				selectedCells.add(p);
 		}
 		repaint();
