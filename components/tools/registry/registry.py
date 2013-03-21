@@ -1,4 +1,4 @@
-#!/usr/bin/env LD_LIBRARY_PATH=$HOME/.hudson/root/lib PYTHONPATH=$HOME/.hudson/root/lib64/python2.4/site-packages python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # OMERO Registry
