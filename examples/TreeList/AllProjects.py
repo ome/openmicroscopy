@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import omero
 from omero.rtypes import *
 from omero_sys_ParametersI import ParametersI

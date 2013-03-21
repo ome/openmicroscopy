@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  components/tools/OmeroPy/scripts/omero/analysis_scripts/FLIM.py
 

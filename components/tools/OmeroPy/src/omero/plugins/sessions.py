@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Plugin for viewing and controlling active sessions for a local user.
 

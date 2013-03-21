@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import omero
 import omero.clients
 from omero.rtypes import *

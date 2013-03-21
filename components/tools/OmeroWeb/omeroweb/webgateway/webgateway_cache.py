@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # webgateway/webgateway_cache - web cache handler for webgateway
 # 

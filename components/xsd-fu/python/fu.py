@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Object model and helper classes used in the generation of Java classes from
 an OME XML (http://www.ome-xml.org) XSD document.

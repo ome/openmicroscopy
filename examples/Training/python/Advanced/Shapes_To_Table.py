@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from omero.gateway import BlitzGateway
 import omero
 from omero.rtypes import *

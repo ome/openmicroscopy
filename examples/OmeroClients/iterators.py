@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import omero
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI

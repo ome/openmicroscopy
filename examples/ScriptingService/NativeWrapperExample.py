@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This script creates a NativeWrapper script,
 which calls some executable. WARNING: This

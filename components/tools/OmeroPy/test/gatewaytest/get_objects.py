@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    gateway tests - Testing the gateway.getObject() and searchObjects() methods

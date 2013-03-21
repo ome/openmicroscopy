@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from turbogears.database import PackageHub
 from sqlobject import *
 

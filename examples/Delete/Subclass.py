@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Uses the default {@link DeleteCallbackI} instance.
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from library import *
 
 class TDTest(GTest):

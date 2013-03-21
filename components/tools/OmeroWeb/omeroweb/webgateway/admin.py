@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # webgateway/admin.py - django application admin view
 # 

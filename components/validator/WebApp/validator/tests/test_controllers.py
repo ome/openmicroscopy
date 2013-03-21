@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import turbogears
 from turbogears import testutil

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import omero
 import omero_Tables_ice
 import omero_SharedResources_ice

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # configobj.py
 # A config file reader/writer that supports nested sections in config files.
 # Copyright (C) 2005-2009 Michael Foord, Nicola Larosa

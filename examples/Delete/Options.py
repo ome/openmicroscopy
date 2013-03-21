@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Passes a non-empty options map to specify
 that all Annotations should be kept.

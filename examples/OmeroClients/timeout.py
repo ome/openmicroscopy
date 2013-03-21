@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import omero
 import threading

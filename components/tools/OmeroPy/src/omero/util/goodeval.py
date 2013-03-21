@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 def goodeval(fn, fnList, *args):
 	if(fn in fnList):
 		callFn = fn+'(';

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
  components/tools/OmeroPy/omero/util/UploadMask.py
 

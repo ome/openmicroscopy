@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     OMERO.fs Monitor module for Linux.
 

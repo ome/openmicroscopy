@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # -*- mode: pymode; coding: latin1; -*-
 
 import sys
