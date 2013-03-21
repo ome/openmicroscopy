@@ -242,6 +242,9 @@
                     var url = $(this).attr('href');
                     OME.deleteItem(event, "file_ann_wrapper", url);
                 });
+
+
+                OME.initToolbarDropdowns();
             });
             
     </script>
@@ -261,7 +264,7 @@
     </div>
 
 
-	<h1 id="batch_ann_title" style="position: relative">
+	<h1 id="batch_ann_title" style="float:left">
 	    Annotate
 	    <span class="tooltip_title">
 	        {{ obj_labels|length }} objects:
@@ -278,16 +281,28 @@
                 {% endfor %}
             </span>
         </span>
+    </h1>
+
+    <div style="position: relative; float: right">
 	    <!-- multi-object link -->
         <button id="show_link_btn" class="btn silver btn_link" title="Link to the selected Objects">
 			<span></span>
 		</button>
 		<div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
-		    <input type="text" size="30" value="{{ webclient_path }}?show={{ link_string }}"/> <!-- E.g. image-123|image-890 -->
-		    <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            <table><tr><td>
+                <input type="text" size="30" 
+                value="{{ webclient_path }}?show={{ link_string }}"/>
+            </td><td>
+                <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+            </td></tr></table>
 		</div>
-	</h1>
 
+        <!-- Publishing Options (Figure Scripts) -->
+        {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+
+    </div>
+
+    <div style="clear:both"></div>
 
     <!-- TAGS -->               
     <div class="annotations_section">

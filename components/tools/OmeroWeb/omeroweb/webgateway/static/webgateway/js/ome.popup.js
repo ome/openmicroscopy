@@ -34,6 +34,58 @@ jQuery.fn.alternateRowColors = function() {
   return this;
 };
 
+
+// Call this on an <input> to only allow numbers.
+// I rejects all non-numeric characters but allows paste (then checks value)
+// By default it only allows positive ints.
+// To allow negative or float values use $(".number").numbersOnly({negative:true, float:true});
+jQuery.fn.numbersOnly = function(options) {
+
+    // First, save the current value (assumed to be valid)
+    this.each(function() {
+        $(this).data('numbersOnly', $(this).val());
+    })
+    .keypress(function(event){
+
+        // we allow copy, paste, left or right
+        var allowedChars = [37, 39, 99, 118];
+        if (options && options.negative) {
+            allowedChars.push(45);
+        }
+        if (options && options.float) {
+            allowedChars.push(46);
+        }
+        // Reject keypress if not a number and NOT one of our allowed Chars
+        var charCode = (event.which) ? event.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && allowedChars.indexOf(charCode) == -1) {
+            return false;
+        }
+
+        // We've allowed keypress (including paste)...
+        //finally check field value after waiting for keypress to update...
+        var $this = $(this);
+        setTimeout(function(){
+            var n = $this.val();
+            var isNumber = function(n) {
+                if (n.length === 0) {
+                    return true;        // empty strings are allowed
+                }
+                return !isNaN(parseFloat(n)) && isFinite(n);
+            };
+            // If so, save to 'data', otherwise revert to 'data'
+            if (isNumber(n)) {
+                $this.data('numbersOnly', n);     // update
+            } else {
+                $this.val( $this.data('numbersOnly') );
+            }
+        }, 10);
+
+        return true;
+    });
+
+    return this;
+};
+
 OME.openPopup = function(url) {
     // IE8 doesn't support arbitrary text for 'name' 2nd arg.  #6118
     var owindow = window.open(url, '', 'height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
@@ -44,9 +96,9 @@ OME.openPopup = function(url) {
 };
 
 
-OME.openCenteredWindow = function(url) {
-    var width = 550;
-    var height = 600;
+OME.openCenteredWindow = function(url, w, h) {
+    var width = w ? +w : 550;
+    var height = h ? +h : 600;
     var left = parseInt((screen.availWidth/2) - (width/2), 10);
     var top = 0;
     var windowFeatures = "width=" + width + ",height=" + height + ",status=no,resizable=yes,scrollbars=yes,menubar=no,toolbar=no,left=" + left + ",top=" + top + "screenX=" + left + ",screenY=" + top;
@@ -54,6 +106,17 @@ OME.openCenteredWindow = function(url) {
     if(!myWindow.closed) {
         myWindow.focus();
     }
+    return false;
+};
+
+
+OME.openScriptWindow = function(event, width, height) {
+    // open script url, providing Data_Type and IDs params in request
+    var script_url = $(event.target).attr('href');
+    if (script_url == "#") return false;
+
+    script_url += "?"+ OME.get_tree_selection();
+    OME.openCenteredWindow(script_url, width, height);
     return false;
 };
 
@@ -115,13 +178,13 @@ OME.get_tree_selection = function() {
 OME.confirm_dialog = function(dialog_text, callback, title, button_labels, width, height) {
 
     if ((typeof title == "undefined") || (title === null)) {
-        var title = "Confirm";
+        title = "Confirm";
     }
     if ((typeof width == "undefined") || (width === null)) {
-        var width = 350;
+        width = 350;
     }
     if ((typeof height == "undefined") || (height === null)) {
-        var height = 140;
+        height = 140;
     }
 
     var $dialog = $("#confirm_dialog");

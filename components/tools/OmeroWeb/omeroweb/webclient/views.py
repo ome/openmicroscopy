@@ -818,6 +818,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
             template = "webclient/annotations/annotations_share.html"
@@ -825,7 +826,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type in ("tag"):
         context = {'manager':manager}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 
+            'share_id':share_id, 'figScripts':figScripts}
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1090,6 +1092,7 @@ def batch_annotate(request, conn=None, **kwargs):
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
+    figScripts = manager.listFigureScripts(objs)
 
     obj_ids = []
     obj_labels = []
@@ -1101,7 +1104,8 @@ def batch_annotate(request, conn=None, **kwargs):
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
+            'figScripts':figScripts}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -2400,6 +2404,61 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
+
+@login_required()
+@render_response()
+def figure_script(request, scriptName, conn=None, **kwargs):
+    """
+    Show a UI for running figure scripts
+    """
+
+    imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
+    if imageIds is None:
+        return HttpResponse("Need to specify Images as /?Image=1,2")
+    try:
+        imageIds = [long(i) for i in imageIds.split(",")]
+    except Exception, e:
+        return HttpResponse("Need to specify Images as /?Image=1,2")
+
+    images = list( conn.getObjects("Image", imageIds) )
+    if len(images) == 0:
+        raise Http404("No Images found with IDs %s" % imageIds)
+
+    # 'images' list is not sorted. Only use it for validating imageIds
+    validImages = {}
+    for img in images:
+        validImages[img.getId()] = img
+    imageIds = [iid for iid in imageIds if iid in validImages]
+
+    # Lookup Tags & Datasets (for row labels)
+    imgDict = []    # A list of data about each image.
+    for iId in imageIds:
+        data = {'id':iId}
+        img = validImages[iId]
+        data['name'] = img.getName()
+        tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+        data['tags'] = tags
+        data['datasets'] = [d.getName() for d in img.listParents()]
+        imgDict.append(data)
+
+    # Use the first image as a reference
+    image = validImages[imageIds[0]]
+    channels = image.getChannels()
+
+    scriptService = conn.getScriptService()
+    scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
+    scriptId = scriptService.getScriptID(scriptPath);
+    if (scriptId < 0):
+        raise AttributeError("No script found for path '%s'" % scriptPath)
+
+    idString = ",".join( [str(i) for i in imageIds] )
+
+
+
+    return {"template": "webclient/scripts/split_view_figure.html", "scriptId": scriptId,
+        "image": image, "imgDict": imgDict, "idString":idString, "channels": channels, "tags": tags}
+
+
 @login_required()
 def chgrp(request, conn=None, **kwargs):
     """
@@ -2464,8 +2523,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
             continue
         
         if pclass.__name__ == 'RMapI':
-            keyName = "%s_key" % key
-            valueName = "%s_value" % key
+            keyName = "%s_key0" % key
+            valueName = "%s_value0" % key
             row = 0
             paramMap = {}
             while keyName in request.POST:
