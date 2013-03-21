@@ -1,6 +1,5 @@
 package ome.services.blitz.repo;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
@@ -25,7 +23,6 @@ import ome.io.nio.FileBuffer;
 import ome.model.fs.FilesetJobLink;
 import ome.parameters.Parameters;
 import ome.services.RawFileBean;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.util.Executor;
 import ome.system.EventContext;
@@ -136,7 +133,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         final RawFileStore proxy = executor.getContext()
                 .getBean("managed-ome.api.RawFileStore", RawFileStore.class);
         final RawFileBean bean = unwrapRawFileBean(proxy);
-        final FileBuffer buffer = new FileBuffer(checked.file.getAbsolutePath(),  mode);
+        final FileBuffer buffer = checked.getFileBuffer(mode);
         try {
             Map<String, String> fileContext = fileContext(fileId, current);
             statefulExecutor.execute(fileContext, currentUser(current),
@@ -705,7 +702,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         sql.setFileRepo(ofile.getId(), repoUuid);
 
         if (PublicRepositoryI.DIRECTORY_MIMETYPE.equals(ofile.getMimetype())) {
-            internalMkdir(checked.file);
+            internalMkdir(checked);
         }
 
         return ofile;
@@ -714,18 +711,27 @@ public class RepositoryDaoImpl implements RepositoryDao {
     /**
      * This method should only be used by the register public method in order to
      * guarantee that the DB is kept in sync with the file system.
-     * @param file
+     * @param checked the path to ensure exists as a directory
      * @throws ome.conditions.ResourceError
      */
-    protected void internalMkdir(File file) {
+    protected void internalMkdir(CheckedPath file) {
+        if (file.exists()) {
+            if (file.isRoot || file.isDirectory()) {
+                return;
+            } else {
+                throw new ome.conditions.ResourceError("Cannot mkdir " + file + 
+                        " because it is already a file");
+            }
+        }
         try {
-            FileUtils.forceMkdir(file);
+            if (!file.mkdirs()) {
+                throw new ome.conditions.ResourceError("Cannot mkdir " + file);
+            }
         } catch (Exception e) {
             log.error(e);
-            throw new ome.conditions.ResourceError("Cannot mkdir:" + e.getMessage());
+            throw new ome.conditions.ResourceError("Cannot mkdir " + file + ":" + e.getMessage());
         }
     }
-
 
     /**
      * Throw a {@link ome.conditions.SecurityViolation} if the current
