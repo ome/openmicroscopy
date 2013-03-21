@@ -25,10 +25,8 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +42,6 @@ import java.util.Map.Entry;
 import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
-import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetImageLink;
@@ -55,7 +52,6 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.Project;
@@ -68,7 +64,6 @@ import omero.model.TagAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -78,10 +73,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
