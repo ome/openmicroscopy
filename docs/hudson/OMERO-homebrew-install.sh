@@ -14,6 +14,11 @@ export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
+if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
+    CURL="curl ${CURL_OPTS-} --insecure -O"
+else
+    CURL="curl ${CURL_OPTS-} -O"
+fi
 
 ###################################################################
 # Homebrew & pip uninstallation
@@ -47,6 +52,12 @@ if [ -d "$BREW_DIR" ]; then
         echo "Cleaning Homebrew taps"
         rm -rf $BREW_DIR/Library/Taps
     fi
+
+    if [ -f "$BREW_DIR/bin/pip" ]
+    then
+        echo "Deleting $BREW_DIR/bin/pip"
+        rm $BREW_DIR/bin/pip
+    fi
 fi
 
 ###################################################################
@@ -79,7 +90,7 @@ then
 else
     rm -rf virtualenv.py
     $CURL "$VENV_URL"
-    python virtualenv.py --no-site-packages .
+    /usr/bin/python virtualenv.py --no-site-packages .
 fi
 
 # Install scc tools
