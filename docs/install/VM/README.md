@@ -34,21 +34,15 @@ virtual machine.
 	
 	The OMERO.VM script will look in these locations for the VDI to kick start the VM building process.
 
-4. *OPTIONAL* In [setup_omero.sh](setup_omero.sh) you can define whether you wish to build OMERO from source, use the most recent QA build or use the release build by setting the `TARGET` variable. Valid values for `TARGET` are QA or SRC or RELEASE. Anything else will cause the latest QA build from the Hudson job to be used by default. To specify a different build you can adjust the following variables, `DL_LOC` and `DL_ARCHIVE`:	
-   - `DL_LOC` stores the URL from which to retrieve our build e.g. `DL_LOC="http://hudson.openmicroscopy.org.uk/job/OMERO-stable/lastSuccessfulBuild/artifact/"`
-   - `DL_ARCHIVE` stores the name of the zip archive to retrieve from `DL_LOC` because the build process could deploy many archives to that location and we must specify the particular one that we want to retrieve e.g. `DL_ARCHIVE="OMERO.server-4.3.0-DEV-bfe035dd.zip"`
-
-	If using a release build then you can also alter the `RELEASE_ARCHIVE` variable to reflect the build of OMERO.server that you want to install. 
-
-7. Run the VM build script to build a VM named omero-vm:
+4. Run the VM build script to build a VM named omero-vm:
 
 	```
 	$ bash omerovm.sh omero-vm
 	```
 
-8. This should take roughly 8-15 minutes to complete depending upon your machine.
+5. This should take roughly 8-15 minutes to complete depending upon your machine.
 
-9. When you see the message "All Done!" you should be able to either:
+6. When you see the message "All Done!" you should be able to either:
  	1. Start an OMERO client such as OMERO.insight and connect to your VM
  	2. SSH into your VM using the IP address printed at the end of the build script
 	3. Use the utility script connect.sh to open a shell into your vm named omero-vm:
