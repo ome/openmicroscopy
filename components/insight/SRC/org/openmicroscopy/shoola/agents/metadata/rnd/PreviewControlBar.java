@@ -129,13 +129,7 @@ class PreviewControlBar
         formatButton(b);
         bar.add(b);
         bar.add(Box.createHorizontalStrut(SPACE));
-        /*
-        b = new JButton(control.getAction(RendererControl.RND_UNDO));
-        formatButton(b);
-        bar.add(b);
-        bar.add(Box.createHorizontalStrut(SPACE));
-        */
-        ManageRndSettingsAction a = (ManageRndSettingsAction) 
+        ManageRndSettingsAction a = (ManageRndSettingsAction)
         	control.getAction(RendererControl.RND_OWNER);
         b = new JButton(a);
         formatButton(b);
@@ -181,5 +175,5 @@ class PreviewControlBar
      * @return See above.
      */
     boolean isLiveUpdate() { return preview.isSelected(); }
-    
+
 }
