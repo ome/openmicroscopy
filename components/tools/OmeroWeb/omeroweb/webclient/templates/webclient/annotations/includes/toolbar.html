@@ -52,6 +52,14 @@
             <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
         </ul>
     </div>
+
+    {% if manager.image.showOriginalFilePaths %}
+      <!-- show original file paths -->
+      <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
+        <span></span>
+      </button>
+    {% endif %}
+
     {% endif %}
 
 

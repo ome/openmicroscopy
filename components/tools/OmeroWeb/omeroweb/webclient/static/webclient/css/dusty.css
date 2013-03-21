@@ -187,7 +187,7 @@ button::-moz-focus-inner {
 =======*/
     .toolbar_dropdown {
         float:right;
-        margin: 0px 5px 0px 0px;
+        margin-left: 5px;
         position: relative;
     }
     .toolbar_dropdown .dropdown {
