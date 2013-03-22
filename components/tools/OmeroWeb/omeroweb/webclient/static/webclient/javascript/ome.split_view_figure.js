@@ -236,12 +236,41 @@ $(document).ready(function() {
         } else if (labels == "Tags") {
             $imgTags.show();
         }
+        updateColWidths();
     });
+
+
+    // Drag and Drop to re-order rows
+    $('table tbody').sortable({
+        disabled: false,
+        items: 'tr.figImageData',
+        handle: '.rowDragHandle',
+        opacity: 0.7,
+        axis: 'y',
+        forceHelperSize: true,
+        update: function( e, ui ) {
+            var sortedIds = []
+            $(".figImageData").each(function(){
+                sortedIds.push($(this).attr('data-imageId') );
+            });
+            $("input[name=IDs]").val(sortedIds.join(","));
+        }
+    });
+    // set <td> widths, so that while rows are drag-n-dropped, <td> widths stay the same
+    var updateColWidths = function() {
+        $(".figImageData>td")
+            .removeAttr('width')  // clear any previous setting
+            .each(function(){
+                var $td = $(this);
+                $td.attr('width', $td.width());
+            });
+    }
 
     // Lets sync everything to start with:
     updateChannelNames();
     updateMergedChannels();
     updateGrey();
+    updateColWidths();
 
 
     // Bonus feature - Zoom the preview thumbs with slider
