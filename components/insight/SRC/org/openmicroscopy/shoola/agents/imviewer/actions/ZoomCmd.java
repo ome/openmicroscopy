@@ -125,7 +125,7 @@ public class ZoomCmd
 				case ZOOM_OUT:
 					level--;
     		}
-    		if (level > model.getResolutionLevels() || level < 0)
+    		if (level >= model.getResolutionLevels() || level < 0)
     			return;
     		double f = ZoomAction.getZoomFactor(level);
     		model.setZoomFactor(f, level);
