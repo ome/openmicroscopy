@@ -2284,7 +2284,22 @@ width: 250px;
 	
 }
 
+/* Figure scripts dialog */
+.rowDragHandle {
+    float: left;
+    visibility: hidden;
+    position: relative;
+    left: -5px;
+    width: 11px;
+    height: 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    background:#ddd url(../image/drag_handle_arrows_up-down.png) no-repeat center center;
+}
 
+tr.figImageData:hover .rowDragHandle {
+    visibility: visible;
+}
 
 
 

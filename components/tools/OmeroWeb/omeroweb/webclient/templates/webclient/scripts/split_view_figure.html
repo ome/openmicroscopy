@@ -116,6 +116,9 @@
         margin-left:25px;
         padding:3px;
     }
+    .rowLabel, .dragHandle {
+        vertical-align: middle;
+    }
     </style>
 
 {% endblock %}
@@ -334,7 +337,7 @@
         <div style="padding:10px">
     <table>
     <tr>
-        <td></td>
+        <td colspan='2'></td>
         {% for c in channels %}
             <td class="split_column" align="center" valign='bottom' style="vertical-align: bottom">
                 <span class="channel_name" style="color:#{{c.getColor.getHtml}}">
@@ -353,19 +356,22 @@
         </div>
 
     </tr>
-    {% for imdData in imgDict %}
-    <tr>
+    {% for imgData in imgDict %}
+    <tr class="figImageData" data-imageId="{{ imgData.id }}">
+        <td class="dragHandle">
+            <div class="rowDragHandle"></div>
+        </td>
         <td class="rowLabel">
             <div class="imgName">
-                {{ imdData.name }}
+                {{ imgData.name }}
             </div>
             <div class="imgTags" style="display:none">
-                {% for t in imdData.tags %}
+                {% for t in imgData.tags %}
                     <div>{{ t }}</div>
                 {% endfor %}
             </div>
             <div class="imgDatasets" style="display:none">
-                {% for d in imdData.datasets %}
+                {% for d in imgData.datasets %}
                     <div>{{ d }}</div>
                 {% endfor %}
             </div>
@@ -374,14 +380,14 @@
         <td class="split_column">
             <div>
                 <img colIdx="{{ forloop.counter0 }}" class='img_panel' 
-                    src="{% url web_render_image imdData.id %}?c={{ forloop.counter }}" />
+                    src="{% url web_render_image imgData.id %}?c={{ forloop.counter }}" />
             </div>
         </td>
         {% endfor %}
         <td class="merged_column">
             <div>
                 <img class='img_panel' 
-                    src="{% url web_render_image imdData.id %}" />
+                    src="{% url web_render_image imgData.id %}" />
             </div>
         </td>
     </tr>
