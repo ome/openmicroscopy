@@ -3300,7 +3300,6 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
-		view.removeComponentListener(controller);
 		if (model.isTileLoaded(count)) {
 			view.addComponentListener(controller);
 			model.setState(READY);
@@ -3364,6 +3363,7 @@ class ImViewerComponent
 		}
     	model.clearTileImages(toClear);
 		if (l.size() > 0) {
+			view.removeComponentListener(controller);
 			model.fireTileLoading(l);
 			fireStateChange();
 		}
