@@ -122,7 +122,7 @@ public class AnalysisStatsWrapper
 		statsMap.put(StatsType.STDDEV, channelStdDev);
 		statsMap.put(StatsType.PIXELDATA, channelData);
 		statsMap.put(StatsType.PIXEL_PLANEPOINT2D, channelPixel);
-		shapeStats.clear();
+		//shapeStats.clear();
 		return statsMap;
 	}
 	
