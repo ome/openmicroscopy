@@ -148,11 +148,10 @@ public class PlateGrid
 			 */
 			public void mouseClicked(MouseEvent e)
 			{
-				int[] rows = getSelectedRows();
-				int[] columns = getSelectedColumns();
-				if (rows.length == 0 || columns.length == 0) return;
-				int row = rows[rows.length-1];
-				int column = columns[columns.length-1];
+				Point p = e.getPoint();
+				int row = rowAtPoint(p);
+				int column = columnAtPoint(p);
+				if (row < 0 ||  column < 0) return;
 				boolean b = e.isShiftDown() || e.isControlDown();
 				if (UIUtilities.isMacOS()) 
 					b = e.isShiftDown() || e.isMetaDown();
