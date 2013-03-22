@@ -21,8 +21,7 @@ class Adler32Hasher implements Hasher {
     }
 
     public Hasher putBoolean(boolean arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putByte(byte arg0) {
@@ -41,18 +40,15 @@ class Adler32Hasher implements Hasher {
     }
 
     public Hasher putChar(char arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putDouble(double arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putFloat(float arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putInt(int arg0) {
@@ -61,28 +57,23 @@ class Adler32Hasher implements Hasher {
     }
 
     public Hasher putLong(long arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public <T> Hasher putObject(T arg0, Funnel<? super T> arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putShort(short arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putString(CharSequence arg0) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public Hasher putString(CharSequence arg0, Charset arg1) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

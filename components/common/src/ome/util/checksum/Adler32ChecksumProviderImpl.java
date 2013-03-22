@@ -14,8 +14,7 @@ public class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
             private Adler32Hasher hasher = new Adler32Hasher();
 
             public int bits() {
-                // TODO Auto-generated method stub
-                return 0;
+                return 1;
             }
 
             public HashCode hashBytes(byte[] input) {
@@ -31,18 +30,15 @@ public class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
             }
 
             public HashCode hashLong(long input) {
-                // TODO Auto-generated method stub
-                return null;
+                return this.hasher.putLong(input).hash();
             }
 
             public HashCode hashString(CharSequence input) {
-                // TODO Auto-generated method stub
-                return null;
+                return this.hasher.putString(input).hash();
             }
 
             public HashCode hashString(CharSequence input, Charset charset) {
-                // TODO Auto-generated method stub
-                return null;
+                return this.hasher.putString(input, charset).hash();
             }
 
             public Hasher newHasher() {
