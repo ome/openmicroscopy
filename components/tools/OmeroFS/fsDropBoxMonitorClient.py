@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
     OMERO.fs  DropBox implementation of a MonitorClient

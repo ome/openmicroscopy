@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # configobj.py
 # A config file reader/writer that supports nested sections in config files.

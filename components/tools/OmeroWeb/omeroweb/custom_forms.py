@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from django import forms
 from django.utils.encoding import smart_str, smart_unicode

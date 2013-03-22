@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 r"""UUID objects (universally unique identifiers) according to RFC 4122.
 

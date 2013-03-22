@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """unittest-xml-reporting is a PyUnit-based TestRunner that can export test
