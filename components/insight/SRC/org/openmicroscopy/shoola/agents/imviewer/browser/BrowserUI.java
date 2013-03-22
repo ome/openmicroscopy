@@ -158,6 +158,7 @@ class BrowserUI
     {
     	if (region == null) return;
     	Rectangle r = convertFromSelection(region);
+    	getViewport().setViewPosition(new Point(-1, -1));
     	scrollTo(r, false);
     	if (load) model.loadTiles(null);
     	setBirdEyeViewLocation();
@@ -688,8 +689,8 @@ class BrowserUI
 	{
 		Dimension d = birdEyeView.getImageSize();
 		Rectangle r = birdEyeView.getSelectionRegion();
-		double cx = r.getCenterX();
-		double cy = r.getCenterY();
+		double cx = r.getCenterX()-1;
+		double cy = r.getCenterY()-1;
 		
 		Rectangle rl = canvas.getBounds();
 		Rectangle rect = getVisibleRectangle();
