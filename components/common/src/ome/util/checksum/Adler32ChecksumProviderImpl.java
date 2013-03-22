@@ -52,7 +52,7 @@ public class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
             public Hasher newHasher(int expectedInputSize) {
                 return this.newHasher();
             }
-            
+
         });
     }
 

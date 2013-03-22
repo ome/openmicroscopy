@@ -27,6 +27,7 @@ package ome.util.checksum;
  */
 public enum ChecksumType {
 
+    ADLER32,
     MD5,
     SHA1;
 

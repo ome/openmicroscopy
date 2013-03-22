@@ -34,6 +34,8 @@ public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
         // Dumb implementation for now
         // TODO: remove the switch statement
         switch (checksumType) {
+            case ADLER32:
+                return new Adler32ChecksumProviderImpl();
             case MD5:
                 return new MD5ChecksumProviderImpl();
             case SHA1:
