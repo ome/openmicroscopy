@@ -3266,7 +3266,8 @@ class ImViewerComponent
 					set = true;
 				}
 				model.setBirdEyeView(image);
-				if (set) renderXYPlane();
+				if (set)
+					controller.setZoomFactor(model.getSelectedResolutionLevel());
 		}
 	}
 	

@@ -328,6 +328,16 @@ class ImViewerModel
     /** The number of tiles already loaded.*/
     private int tileLoadedCount;
     
+    /**
+     * Returns the default resolution level.
+     * 
+     * @return See above.
+     */
+    private int getDefaultResolutionLevel()
+    {
+    	return 0;
+    }
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -1006,6 +1016,7 @@ class ImViewerModel
 					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
 					index++;
 				}
+				setSelectedResolutionLevel(getDefaultResolutionLevel());
 			}
 		}
 		if (isBigImage())
