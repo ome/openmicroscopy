@@ -59,9 +59,6 @@ public class TileLoader
 	/** The lastly retrieve tile. */
     private Object	currentTile;
     
-    /** The id of the pixels set. */
-    private long pixelsID;
-    
     /** The tiles.*/
     private Collection<Tile> tiles;
     
@@ -70,10 +67,7 @@ public class TileLoader
     
     /** The plane to render.*/
     private PlaneDef pDef;
-    
-    /** The security context.*/
-    private SecurityContext ctx;
-    
+
     /** The proxy to use.*/
     private RenderingControl proxy;
     
@@ -164,8 +158,6 @@ public class TileLoader
             throw new IllegalArgumentException("No tiles to load.");
         if (pDef == null)
         	 throw new IllegalArgumentException("No plane to render.");
-        this.ctx = ctx;
-        this.pixelsID = pixelsID;
         this.tiles = tiles;
         this.asTexture = asTexture;
         this.pDef = pDef;
