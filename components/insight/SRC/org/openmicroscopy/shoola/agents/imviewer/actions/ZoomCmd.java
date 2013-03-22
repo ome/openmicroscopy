@@ -116,6 +116,21 @@ public class ZoomCmd
     /** Executes the command. */
     public void execute()
     {
+    	if (model.isBigImage()) {
+    		int level = model.getSelectedResolutionLevel();
+    		switch (index) {
+				case ZOOM_IN:
+					level++;
+					break;
+				case ZOOM_OUT:
+					level--;
+    		}
+    		if (level > model.getResolutionLevels() || level < 0)
+    			return;
+    		double f = ZoomAction.getZoomFactor(level);
+    		model.setZoomFactor(f, level);
+    		return;
+		}
     	double f = model.getZoomFactor();
     	if (f < 0) return;
     	double zoomFactor = ZoomAction.DEFAULT_ZOOM_FACTOR;

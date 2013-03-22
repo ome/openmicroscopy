@@ -735,7 +735,6 @@ class ImViewerComponent
 			double ny = (double) h/oy;
 			model.getBrowser().setComponentsSize(w, h);
 			model.getBrowser().setViewLocation(nx, ny);
-			//loadTiles(null);
 			postMeasurePlane();
 			return;
 		}
@@ -3453,6 +3452,24 @@ class ImViewerComponent
 	 * @see ImViewer#getPixelsID()
 	 */
 	public long getPixelsID() { return model.getPixelsID(); }
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getSelectedResolutionLevel()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		return model.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getResolutionLevels()
+	 */
+	public int getResolutionLevels()
+	{
+		return model.getResolutionLevels();
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 
