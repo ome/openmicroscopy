@@ -286,9 +286,6 @@ class ImViewerModel
      */
     private double						originalRatio;
     
-    /** The size of the object if it is a big image. */
-    private Dimension					computedSize;
-    
     /** The tiles to display. */
     private Map<Integer, Tile>			tiles;
     
@@ -2535,33 +2532,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	double getOriginalRatio() { return originalRatio; }
-	
-	/**
-	 * Determines the size of the image if it is a big image.
-	 * 
-	 * @return See above.
-	 */
-	Dimension computeSize()
-	{
-		computedSize = new Dimension(getMaxX(), getMaxY());
-		return computedSize;
-		/*
-		if (!isBigImage()) {
-			computedSize = new Dimension(getMaxX(), getMaxY());
-			return computedSize;
-		}
-		originalRatio = Math.min((double) RenderingControl.MAX_SIZE/getMaxX(), 
-				(double) RenderingControl.MAX_SIZE/getMaxY());
-		computedSize = Factory.computeThumbnailSize(
-				RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
-				getMaxX(), getMaxY());
-		if (computedSize == null) 
-			computedSize = new Dimension(RenderingControl.MAX_SIZE,
-					RenderingControl.MAX_SIZE);
-		return computedSize;
-		*/
-	}
-	
+
 	/** Refreshes the renderer. */
 	void refresh()
 	{
@@ -2832,7 +2803,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getTiledImageSizeX() { return tiledImageSizeX; }
+	int getTiledImageSizeX()
+	{
+		if (!isBigImage()) return getMaxX();
+		return tiledImageSizeX;
+	}
 	
 	/**
 	 * Returns the size of the tiled image along the Y-axis i.e.
@@ -2840,7 +2815,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getTiledImageSizeY() { return tiledImageSizeY; }
+	int getTiledImageSizeY()
+	{
+		if (!isBigImage()) return getMaxY();
+		return tiledImageSizeY;
+	}
 
 	/**
 	 * Clears the images hosted by the tile if not <code>null</code>.
