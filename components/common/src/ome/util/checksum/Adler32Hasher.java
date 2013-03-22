@@ -38,11 +38,7 @@ import com.google.common.hash.Hasher;
  */
 class Adler32Hasher implements Hasher {
 
-    private Adler32 adler32;
-
-    public Adler32Hasher() {
-        this.adler32 = new Adler32();
-    }
+    private final Adler32 adler32 = new Adler32();
 
     /**
      * This method uses the {@link HashCodes#fromBytes(byte[])} to produce
