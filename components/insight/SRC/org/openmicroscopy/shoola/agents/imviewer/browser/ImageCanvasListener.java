@@ -104,7 +104,7 @@ class ImageCanvasListener
      * @param canvas	Reference to the canvas this listener is for.
      * 					Mustn't be <code>null</code>.
      */
-    ImageCanvasListener(BrowserUI view, BrowserModel model, 
+    ImageCanvasListener(BrowserUI view, BrowserModel model,
     		JComponent canvas)
     {
     	if (model == null) throw new NullPointerException("No Model.");
@@ -114,20 +114,29 @@ class ImageCanvasListener
         this.canvas = canvas;
         this.view = view;
     	area = new Rectangle(0, 0, 0, 0);
-		canvas.addMouseWheelListener(this);
-		installMouseListeners();
+		installListeners(true);
 		handleKeyDown = false;
 		pressedPoint = new Point(0, 0);
     }
     
     /**
-     * Installs <code>MouseListener</code> and a
-     * <code>MouseMotionListener</code>.
+     * Add or remove the <code>MouseListener</code> and a
+     * <code>MouseMotionListener</code> depending on the specified value.
+     * 
+     * @param add Pass <code>true</code> to attach the listeners,
+	 * <code>false</code> otherwise.
      */
-    void installMouseListeners()
+    void installListeners(boolean add)
     {
-    	canvas.addMouseListener(this);
-		canvas.addMouseMotionListener(this);
+    	if (add) {
+    		canvas.addMouseListener(this);
+    		canvas.addMouseMotionListener(this);
+    		canvas.addMouseWheelListener(this);
+    	} else {
+    		canvas.removeMouseListener(this);
+    		canvas.removeMouseMotionListener(this);
+    		canvas.removeMouseWheelListener(this);
+    	}
     }
     
     /**
