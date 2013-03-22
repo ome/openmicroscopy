@@ -837,4 +837,10 @@ public interface RenderingControl
 	 */
 	public boolean isBigImage();
 	
+	/**
+	 * Returns the collection of rendering controls linked to the master.
+	 * 
+	 * @return See above.
+	 */
+	public List<RenderingControl> getSlaves();
 }

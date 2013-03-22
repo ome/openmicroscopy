@@ -1221,13 +1221,11 @@ public interface ImViewer
     Map<Integer, Tile> getTiles();
 
     /**
-     * Indicates that all the tiles have been loaded.
+     * Indicates that the number of tiles loaded.
      * 
-     * @param tile The tile.
-     * @param done Passed <code>true</code> if the tile is loaded,
-     * 				<code>false</code>
+     * @param count The number of tiles loaded.
      */
-	public void setTile(Tile tile, boolean done);
+	public void setTileCount(int count);
     
 	/**
 	 * Loads the tiles corresponding to the specified region.

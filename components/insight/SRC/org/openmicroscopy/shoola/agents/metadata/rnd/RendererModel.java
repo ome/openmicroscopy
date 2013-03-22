@@ -1504,4 +1504,20 @@ class RendererModel
 		if (image == null) return false;
 		return image.canAnnotate();
 	}
+	
+	/**
+	 * Returns the collection of rendering controls. This method should only 
+	 * be invoked when loading tiles.
+	 * 
+	 * @return See above.
+	 */
+	List<RenderingControl> getRenderingControls()
+	{
+		if (rndControl == null) return null;
+		List<RenderingControl> list = new ArrayList<RenderingControl>();
+		list.add(rndControl);
+		List<RenderingControl> slaves = rndControl.getSlaves();
+		if (slaves != null && slaves.size() > 0) list.addAll(slaves);
+		return list;
+	}
 }
