@@ -677,7 +677,8 @@ class BrowserUI
 		if (bar.isVisible()) bar.setEnabled(b);
 		bar = getVerticalScrollBar();
 		if (bar.isVisible()) bar.setEnabled(b);
-		if (birdEyeView != null) birdEyeView.setUpListeners(b);
+		if (birdEyeView != null) birdEyeView.installListeners(b);
+		canvasListener.installListeners(b);
 	}
 	
 	/**

@@ -436,7 +436,7 @@ class BirdEyeViewComponent
 		bx = x;
 		by = x;
 		fullDisplay = true;
-		setUpListeners(true);
+		installListeners(true);
 	}
 	
 	/**
@@ -445,7 +445,7 @@ class BirdEyeViewComponent
 	 * @param add Pass <code>true</code> to attach the listeners,
 	 * <code>false</code> otherwise.
 	 */
-	void setUpListeners(boolean add)
+	void installListeners(boolean add)
 	{
 		if (add) {
 			addMouseListener(this);
