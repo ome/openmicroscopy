@@ -436,8 +436,24 @@ class BirdEyeViewComponent
 		bx = x;
 		by = x;
 		fullDisplay = true;
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		setUpListeners(true);
+	}
+	
+	/**
+	 * Adds or removes the listeners depending on the specified components.
+	 * 
+	 * @param add Pass <code>true</code> to attach the listeners,
+	 * <code>false</code> otherwise.
+	 */
+	void setUpListeners(boolean add)
+	{
+		if (add) {
+			addMouseListener(this);
+			addMouseMotionListener(this);
+		} else {
+			removeMouseListener(this);
+			removeMouseMotionListener(this);
+		}
 	}
 	
 	/**
