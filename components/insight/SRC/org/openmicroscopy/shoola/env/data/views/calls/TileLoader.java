@@ -130,7 +130,7 @@ public class TileLoader
     protected void buildTree()
     {
     	Iterator<Tile> i = tiles.iterator();
-    	String description = "Loading tile";
+    	String description = "Loading tiles";
     	Tile tile;
     	while (i.hasNext()) {
 			tile = i.next();
