@@ -3,7 +3,7 @@
 set -e -u -x
 
 PGPASSWORD=${PGPASSWORD:-"omero"}
-OMERO_BUILD=${OMERO_BUILD:-"OMERO-stable"}
+OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 URL_RELEASE="http://cvs.openmicroscopy.org.uk/snapshots/omero/"
 RELEASE_ARCHIVE="OMERO.server-Beta-4.3.4.zip"
 RELEASE_FOLDER=${RELEASE_ARCHIVE%.zip}
@@ -12,7 +12,7 @@ DB_REVISION="0"
 OMERO_PATH="/home/omero/OMERO.server"
 OMERO_BIN=$OMERO_PATH/bin
 INSTALL_FOLDER="OMERO.server"
-OMERO_BUILD_URL="http://hudson.openmicroscopy.org.uk/job/"$OMERO_BUILD"/lastSuccessfulBuild"
+OMERO_BUILD_URL="http://hudson.openmicroscopy.org.uk/job/"$OMERO_JOB"/lastSuccessfulBuild"
 
 readAPIValue() {
     URL=$1; shift
