@@ -152,9 +152,9 @@
 
         OME.remove_nodes = function(tree, selected) {
             if (selected.length>0) {
-                var images = selected.filter('li[id|=image]');
-                var datasets = selected.filter('li[id|=dataset]');
-                var plates = selected.filter('li[id|=plate]');
+                var images = selected.filter('li[id*=image]');      // id='copy_image-123' if just pasted
+                var datasets = selected.filter('li[id*=dataset]');
+                var plates = selected.filter('li[id*=plate]');
                 var removeTxt = "Remove ";
                 if (images.length > 0) {
                     removeTxt += images.length + " Image" + ((images.length>1) && "s from their" || " from its") +" Dataset";
@@ -234,6 +234,11 @@
                     // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
                     } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
 
+                    var position = 0;
+                    // Make sure top level objects get added to jsTree root (current selected may be project or screen)
+                    if (($.inArray(cont_type, ['project', 'screen'])> -1) && (selected.attr("rel") !== 'experimenter')) {
+                        position = "after";
+                    }
                     $.ajax({
                         url: url,
                         //data: $new_cont_form.serialize();
@@ -246,8 +251,7 @@
                         type: "POST",
                         success: function(r){
                             var cont_id = cont_type + "-" + r['id'];
-                            var display_index = 0;
-                            $("#dataTree").jstree("create", selected, display_index, 
+                            $("#dataTree").jstree("create", selected, position, 
                                 { "attr" : { "rel":cont_type, "id":cont_id, "class":"canLink canDelete"}, "data":new_container_name },
                                 false, true);
                             $("#dataTree").jstree("deselect_all");
@@ -310,20 +314,25 @@
                 var buttonsShowHide = function(selected, inst) {
                     var toolbar_config = {"addproject":false, 'adddataset':false, 'addscreen':false, 'copy':false, 'cut':false, 
                         'paste': false, 'unlink':false, 'delete':false, 'annotation':false, 'basket':false};
-                    
+                    // We 'canCreate' top level items, E.g. Project, Dataset, Screen, if the current userId is self or 'All Members'
+                    var userId = {{ ome.user_id }},
+                        canCreate = (userId === {{ ome.user.id }} || userId === -1);
                     var to_paste = inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes || false;
                     if(selected.length > 0) {
                         if(selected.hasClass('canDelete')) {
                             toolbar_config['delete'] = true;
                         }
-                        if(selected.attr("id").indexOf("experimenter")>=0) {
-                            // if experimenter is selected, use 'locked' to enable create
-                            if(selected.attr("rel").indexOf("locked")<=0) {
+                        // if top level nodes are selected and we can create...
+                        if($.inArray(selected.attr("id").split("-")[0], ["experimenter", "project", "screen"]) > -1) {
+                            if (canCreate) {
                                 toolbar_config["addproject"] = true;
-                                toolbar_config['adddataset'] = true;
                                 toolbar_config['addscreen'] = true;
+                                if (selected.attr("id").split("-")[0] === "experimenter") {
+                                    toolbar_config["adddataset"] = true;
+                                }
                             }
-                        } else if(selected.hasClass('canLink')) {
+                        }
+                        if(selected.hasClass('canLink')) {
                             if(selected.attr("id").indexOf("project")>=0) {
                                 toolbar_config['adddataset'] = true;
                                 if (to_paste && to_paste[0].id.indexOf("dataset")>=0) {  // if wehave a dataset
@@ -356,9 +365,9 @@
                                     toolbar_config["unlink"] = true;
                                 }
                             }
-                        }
-                        if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
-                            toolbar_config['paste'] = true;
+                            if ((inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes) && ($.inArray(selected.attr('rel').replace("-locked", ""), ["project", "dataset", "screen"]) > -1)) {
+                                toolbar_config['paste'] = true;
+                            }
                         }
                     }
                     
@@ -467,7 +476,7 @@
                                 "start_drag" : false
                             },
                             "project" : {
-                                "valid_children" : [ "dataset" ],
+                                "valid_children" : [ "dataset", "dataset-locked" ],
                                 "icon" : {
                                     "image" : '{% static "webclient/image/folder16.png" %}'
                                 },
@@ -546,7 +555,7 @@
                             "acquisition-locked" : {
                                 "valid_children" : "none",
                                 "icon" : {
-                                    "image" : '{% static "webclient/image/image16.png" %}'
+                                    "image" : '{% static "webclient/image/image_locked16.png" %}'
                                 },
                                 "start_drag" : false
                             },
@@ -568,6 +577,8 @@
                                 if ($.inArray(m.r.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
                                     return false;
                                 if ($.inArray(p.attr("rel").replace("-locked", ""), ["orphaned"]) > -1)
+                                    return false;
+                                if (!m.cr.hasClass("canLink"))
                                     return false;
                                 return true;
                             }
@@ -862,22 +873,22 @@
                         var remove = false;
                         var url;
                         if (data.inst.data.crrm.cp_nodes) {
-                            url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                            url = '{% url manage_action_containers "paste" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
                             d = {
-                                "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                             }
                         } else  {
                             if (data.rslt.cr.attr('rel')!="orphaned") {
-                                url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/';
+                                url = '{% url manage_action_containers "move" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/';
                                 d = {
-                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
-                                    "destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1], 
+                                    "destination" : data.rslt.np.attr("rel").replace("-locked","") +'-'+data.rslt.np.attr("id").split("-")[1]
                                 };
                                 if (data.inst.get_container().find('#'+this.id).length > 1 ) data.inst.delete_node(this);
                             } else {
-                                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                                url = '{% url manage_action_containers "remove" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
                                 d = {
-                                    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1]
+                                    "parent" : data.rslt.op.attr("rel").replace("-locked","")+'-'+data.rslt.op.attr("id").split("-")[1]
                                 };
                             }
                         }

@@ -415,12 +415,14 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if user_id is not None:
         form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
         if not form_users.is_valid():
-            user_id = None
+            if user_id != -1:           # All users in group is allowed
+                user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('user_id', -1)
-        if int(user_id) not in userIds:
-            user_id = conn.getEventContext().userId
+        user_id = request.session.get('user_id', None)
+        if user_id is None or int(user_id) not in userIds:
+            if user_id != -1:           # All users in group is allowed
+                user_id = conn.getEventContext().userId
 
     request.session['user_id'] = user_id
 
@@ -503,18 +505,21 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate') or kw.has_key('acquisition'):
-            fields = manager.getNumberOfFields()
-            if fields is not None:
-                form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
-                if index == 0:
-                    index = fields[0]
-            show = request.REQUEST.get('show', None)
-            if show is not None:
-                select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                context['select_wells'] = ",".join(select_wells)
-            context['baseurl'] = reverse('webgateway').rstrip('/')
-            context['form_well_index'] = form_well_index
-            template = "webclient/data/plate.html"
+            if view == 'tree':  # Only used when pasting Plate into Screen - load Acquisition in tree
+                template = "webclient/data/container_subtree.html"
+            else:
+                fields = manager.getNumberOfFields()
+                if fields is not None:
+                    form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                    if index == 0:
+                        index = fields[0]
+                show = request.REQUEST.get('show', None)
+                if show is not None:
+                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
+                    context['select_wells'] = ",".join(select_wells)
+                context['baseurl'] = reverse('webgateway').rstrip('/')
+                context['form_well_index'] = form_well_index
+                template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
