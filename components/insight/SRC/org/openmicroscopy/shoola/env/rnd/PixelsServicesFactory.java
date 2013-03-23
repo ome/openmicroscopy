@@ -418,7 +418,7 @@ public class PixelsServicesFactory
 			if (!proxy.isProxyActive(timeout)) {
 				if (!proxy.shutDown(true))
 					logger.info(singleton,
-							"Rendering Engine shut down: PixelsID"+e.getKey());
+							"Rendering Engine shut down: PixelsID "+e.getKey());
 			}
 		}
 	}
