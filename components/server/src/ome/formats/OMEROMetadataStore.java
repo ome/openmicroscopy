@@ -1710,17 +1710,10 @@ public class OMEROMetadataStore
     private void linkFileset(FilesetJobLink link)
     {
         final Fileset fs = link.parent().proxy(); // Unloaded
-        for (Plate plate : plateList.values())
-        {
-            plate.linkFileset(fs);
-        }
 
         for (Image image : imageList.values())
         {
-            if (image.sizeOfWellSamples() < 1)
-            {
-                image.linkFileset(fs.proxy());
-            }
+            image.setFileset(fs.proxy());
         }
     }
 
