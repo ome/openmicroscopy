@@ -777,4 +777,12 @@ public class DataServicesFactory
 		omeroGateway.removeGroup(ctx);
 	}
 
+	/**
+	 * Checks if the rendering engines 
+	 */
+	public void checkServicesStatus()
+	{
+		PixelsServicesFactory.checkRenderingControls(container.getRegistry());
+	}
+
 }
