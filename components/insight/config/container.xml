@@ -120,6 +120,10 @@
          big image. -->
     <entry name="/services/RE/worker" type="integer">4</entry>
     
+    <!-- The time after which the rendering is shut down (not the viewer)
+    if not active. The value is in milliseconds. Default = 5mins -->
+    <entry name="/services/RE/timeout" type="long">300000</entry>
+    
     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
           been rendered and are still valid with respect to the current

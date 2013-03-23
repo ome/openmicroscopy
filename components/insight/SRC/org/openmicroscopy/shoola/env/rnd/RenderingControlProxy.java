@@ -160,6 +160,12 @@ class RenderingControlProxy
 	/** The associated rendering controls.*/
 	private List<RenderingControl> slaves;
 	
+	/** Time of the last interaction.*/
+	private long lastAction;
+	
+	/** Flag indicating if the rendering engine is already shut down or not.*/
+	private boolean shutDown;
+	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -575,6 +581,7 @@ class RenderingControlProxy
 		}
         return img;
 	}
+	
     /**
 	 * Renders the compressed image.
 	 * 
@@ -735,10 +742,11 @@ class RenderingControlProxy
         return img;
 	}
 	
-	/** Checks if the proxy is still active.*/
+	/** Checks if the proxy is still alive.*/
 	private void isSessionAlive()
 		throws RenderingServiceException
 	{
+    	lastAction = System.currentTimeMillis();
 		if (!networkUp) {
 			RenderingServiceException ex = new RenderingServiceException();
 			ex.setIndex(RenderingServiceException.CONNECTION);
@@ -788,6 +796,8 @@ class RenderingControlProxy
         checker = new NetworkChecker();
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
+        lastAction = System.currentTimeMillis();
+        shutDown = false;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
         this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
@@ -826,6 +836,20 @@ class RenderingControlProxy
 		}
     }
 
+    /**
+     * Returns <code>true</code> if the rendering engine is still active,
+     * <code>false</code> otherwise.
+     * 
+     * @param timeout The time after which the engine is considered to be
+     * inactive.
+     * @return See above.
+     */
+    boolean isProxyActive(long timeout)
+    {
+    	long time = System.currentTimeMillis();
+    	return time-lastAction < timeout;
+    }
+    
     /** Sets the rendering control associated to the main control.*/
     void setSlaves(List<RenderingControl> slaves)
     {
@@ -852,6 +876,7 @@ class RenderingControlProxy
 		} catch (Exception e) {} //digest exception if already close.
     	invalidateCache();
     	this.servant = servant;
+    	shutDown = false;
     	try {
     		if (rndDef == null) {
             	initialize();
@@ -926,19 +951,33 @@ class RenderingControlProxy
 			handleException(e, "Cannot reset the rendering engine.");
 		}
     }
-        
-    /** Shuts down the service. */
-    void shutDown()
-    { 
+    
+    
+    /** 
+     * Shuts down the service. Returns <code>true</code> if the proxy
+     * was already shut down, <code>false</code> otherwise.
+     * 
+     * @param keepCache Pass <code>true</code> to keep the cache,
+     *                  <code>false</code> otherwise.
+     * @return See above.
+     */
+    boolean shutDown(boolean keepCache)
+    {
+    	if (shutDown) return shutDown;
     	try {
-    		if (cacheID >= 0)
+    		if (!keepCache && cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
     		if (checker.isNetworkup()) servant.close();
     		Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
 				((RenderingControlProxy) j.next()).shutDown();
-		} catch (Exception e) {} 
+		} catch (Exception e) {}
+    	shutDown = true;
+    	return false;
     }
+    
+    /** Shuts down the service. */
+    void shutDown() { shutDown(false); }
     
 	/**
 	 * Resets the size of the cache.

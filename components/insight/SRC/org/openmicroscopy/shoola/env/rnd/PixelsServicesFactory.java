@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 import com.sun.opengl.util.texture.TextureData;
@@ -373,7 +374,7 @@ public class PixelsServicesFactory
 	}
 	
 	/** 
-	 * Shuts downs all running rendering services. 
+	 * Shuts downs all running rendering services.
 	 * 
 	 * @param context   Reference to the registry. To ensure that agents cannot
 	 *                  call the method. It must be a reference to the
@@ -386,6 +387,42 @@ public class PixelsServicesFactory
 		singleton.rndSvcProxiesCount.clear();
 	}
 
+
+	/** 
+	 * Checks if the rendering controls are still active. Shuts the inactive
+	 * ones.
+	 * 
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                call the method. It must be a reference to the
+	 *                container's registry.
+	 */
+	public static void checkRenderingControls(Registry context)
+	{
+		// TODO Auto-generated method stub
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy;
+		Entry<Long, RenderingControl> e;
+		Iterator<Entry<Long, RenderingControl>> i =
+				singleton.rndSvcProxies.entrySet().iterator();
+		Long value = (Long) context.lookup(LookupNames.RE_TIMEOUT);
+		 
+		long timeout = 60000; //1min
+		if (value != null && value.longValue() > timeout)
+			timeout = value.longValue();
+			
+		Logger logger = context.getLogger();
+		while (i.hasNext()) {
+			e = i.next();
+			proxy = (RenderingControlProxy) e.getValue();
+			if (!proxy.isProxyActive(timeout)) {
+				if (!proxy.shutDown(true))
+					logger.info(singleton,
+							"Rendering Engine shut down: PixelsID"+e.getKey());
+			}
+		}
+	}
+	
 	/**
 	 * Returns the {@link RenderingControl} linked to the passed set of pixels,
 	 * returns <code>null</code> if no proxy associated.

@@ -60,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
+import org.openmicroscopy.shoola.env.data.events.HeartbeatEvent;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.RemoveGroupEvent;
@@ -470,10 +471,29 @@ public class TaskBarManager
 		}
 	}
 	
+	/**
+	 * Handles the event sent at regular interval to check if rendering 
+	 * engines are still active.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void handleHeartbeatEvent(HeartbeatEvent evt)
+	{
+		if (evt == null) return;
+		try {
+			DataServicesFactory f = DataServicesFactory.getInstance(container);
+			f.checkServicesStatus();
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("checkServicesStatus");
+			msg.print(e);
+			container.getRegistry().getLogger().debug(this, msg);
+		}
+	}
+	
 	/** Reconnects to the server.*/
 	private void reconnect()
 	{
-		
 		Image img = IconManager.getOMEImageIcon();
     	Object version = container.getRegistry().lookup(
     			LookupNames.VERSION);
@@ -812,6 +832,7 @@ public class TaskBarManager
         bus.register(this, LogOff.class);
         bus.register(this, ViewInPluginEvent.class);
         bus.register(this, RemoveGroupEvent.class);
+        bus.register(this, HeartbeatEvent.class);
 		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
@@ -1014,6 +1035,8 @@ public class TaskBarManager
         	handleViewInPluginEvent((ViewInPluginEvent) e);
         else if (e instanceof RemoveGroupEvent)
         	handleRemoveGroupEvent((RemoveGroupEvent) e);
+        else if (e instanceof HeartbeatEvent)
+        	handleHeartbeatEvent((HeartbeatEvent) e);
 	}
 
 	/**
