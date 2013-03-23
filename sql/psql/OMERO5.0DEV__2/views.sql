@@ -201,4 +201,3 @@
 
   CREATE OR REPLACE VIEW count_WellSample_annotationLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM wellsampleannotationlink GROUP BY parent, owner_id ORDER BY parent;
-

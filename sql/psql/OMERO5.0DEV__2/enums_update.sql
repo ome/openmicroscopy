@@ -1396,4 +1396,3 @@ insert into renderingmodel (id,permissions,value)
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-35,'greyscale' from renderingmodel where not exists(
         select 1 from renderingmodel where value = 'greyscale') limit 1;
-
