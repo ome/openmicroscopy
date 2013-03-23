@@ -223,21 +223,7 @@
         primary key (Fileset_id, owner_id)
     );;
 
-    create table count_Fileset_imageLinks_by_owner (
-        Fileset_id int8 not null,
-        count int8 not null,
-        owner_id int8 not null,
-        primary key (Fileset_id, owner_id)
-    );;
-
     create table count_Fileset_jobLinks_by_owner (
-        Fileset_id int8 not null,
-        count int8 not null,
-        owner_id int8 not null,
-        primary key (Fileset_id, owner_id)
-    );;
-
-    create table count_Fileset_plateLinks_by_owner (
         Fileset_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -280,13 +266,6 @@
     );;
 
     create table count_Image_datasetLinks_by_owner (
-        Image_id int8 not null,
-        count int8 not null,
-        owner_id int8 not null,
-        primary key (Image_id, owner_id)
-    );;
-
-    create table count_Image_filesetLinks_by_owner (
         Image_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -371,13 +350,6 @@
     );;
 
     create table count_Plate_annotationLinks_by_owner (
-        Plate_id int8 not null,
-        count int8 not null,
-        owner_id int8 not null,
-        primary key (Plate_id, owner_id)
-    );;
-
-    create table count_Plate_filesetLinks_by_owner (
         Plate_id int8 not null,
         count int8 not null,
         owner_id int8 not null,
@@ -788,21 +760,6 @@
         unique (fileset, fileset_index)
     );;
 
-    create table filesetimagelink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id),
-        unique (parent, child, owner_id)
-    );;
-
     create table filesetjoblink (
         id int8 not null,
         permissions int8 not null,
@@ -817,21 +774,6 @@
         parent_index int4 not null,
         primary key (id),
         unique (parent, parent_index),
-        unique (parent, child, owner_id)
-    );;
-
-    create table filesetplatelink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id),
         unique (parent, child, owner_id)
     );;
 
@@ -975,6 +917,7 @@
         owner_id int8 not null,
         update_id int8 not null,
         experiment int8,
+        fileset int8,
         format int8,
         imagingEnvironment int8,
         instrument int8,
@@ -2464,18 +2407,8 @@
         foreign key (Fileset_id)
         references fileset  ;;
 
-    alter table count_Fileset_imageLinks_by_owner
-        add constraint FK_count_to_Fileset_imageLinks
-        foreign key (Fileset_id)
-        references fileset  ;;
-
     alter table count_Fileset_jobLinks_by_owner
         add constraint FK_count_to_Fileset_jobLinks
-        foreign key (Fileset_id)
-        references fileset  ;;
-
-    alter table count_Fileset_plateLinks_by_owner
-        add constraint FK_count_to_Fileset_plateLinks
         foreign key (Fileset_id)
         references fileset  ;;
 
@@ -2506,11 +2439,6 @@
 
     alter table count_Image_datasetLinks_by_owner
         add constraint FK_count_to_Image_datasetLinks
-        foreign key (Image_id)
-        references image  ;;
-
-    alter table count_Image_filesetLinks_by_owner
-        add constraint FK_count_to_Image_filesetLinks
         foreign key (Image_id)
         references image  ;;
 
@@ -2571,11 +2499,6 @@
 
     alter table count_Plate_annotationLinks_by_owner
         add constraint FK_count_to_Plate_annotationLinks
-        foreign key (Plate_id)
-        references plate  ;;
-
-    alter table count_Plate_filesetLinks_by_owner
-        add constraint FK_count_to_Plate_filesetLinks
         foreign key (Plate_id)
         references plate  ;;
 
@@ -3144,41 +3067,6 @@
         foreign key (owner_id)
         references experimenter  ;;
 
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_creation_id_event
-        foreign key (creation_id)
-        references event  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_child_image
-        foreign key (child)
-        references image  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_update_id_event
-        foreign key (update_id)
-        references event  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_external_id_externalinfo
-        foreign key (external_id)
-        references externalinfo  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter  ;;
-
-    alter table filesetimagelink
-        add constraint FKfilesetimagelink_parent_fileset
-        foreign key (parent)
-        references fileset  ;;
-
     alter table filesetjoblink
         add constraint FKfilesetjoblink_creation_id_event
         foreign key (creation_id)
@@ -3211,41 +3099,6 @@
 
     alter table filesetjoblink
         add constraint FKfilesetjoblink_parent_fileset
-        foreign key (parent)
-        references fileset  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_creation_id_event
-        foreign key (creation_id)
-        references event  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_child_plate
-        foreign key (child)
-        references plate  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_update_id_event
-        foreign key (update_id)
-        references event  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_external_id_externalinfo
-        foreign key (external_id)
-        references externalinfo  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_group_id_experimentergroup
-        foreign key (group_id)
-        references experimentergroup  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_owner_id_experimenter
-        foreign key (owner_id)
-        references experimenter  ;;
-
-    alter table filesetplatelink
-        add constraint FKfilesetplatelink_parent_fileset
         foreign key (parent)
         references fileset  ;;
 
@@ -3483,6 +3336,11 @@
         add constraint FKimage_format_format
         foreign key (format)
         references format  ;;
+
+    alter table image
+        add constraint FKimage_fileset_fileset
+        foreign key (fileset)
+        references fileset  ;;
 
     alter table image
         add constraint FKimage_group_id_experimentergroup
