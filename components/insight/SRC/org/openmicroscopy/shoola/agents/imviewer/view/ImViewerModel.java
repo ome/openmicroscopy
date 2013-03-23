@@ -1002,7 +1002,7 @@ class ImViewerModel
 		state = ImViewer.READY;
 		Renderer rnd = metadataViewer.getRenderer();
 		resolutionMap = new HashMap<Integer, ResolutionLevel>();
-		if (rnd != null) {
+		if (rnd != null && isBigImage()) {
 			tileSize = rnd.getTileSize();
 			if (tileSize != null) {
 				int levels = getResolutionLevels();
@@ -1019,8 +1019,6 @@ class ImViewerModel
 				setSelectedResolutionLevel(getDefaultResolutionLevel());
 			}
 		}
-		if (isBigImage())
-			initializeTiles();
 		//
 		double f = initZoomFactor();
 		if (f > 0)
@@ -2804,7 +2802,6 @@ class ImViewerModel
 		clearTileImages(tiles.values());
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
-		//tileSize = null;
 		initializeTiles();
 	}
 	
