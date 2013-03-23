@@ -128,6 +128,19 @@ $(document).ready(function() {
         updateGrey();
     });
 
+    // Used to make sure we don't have white labels (on white background!)
+    var checkNotWhite = function(cssColour) {
+        if (cssColour === "rgb(255, 255, 255)") {
+            cssColour = "rgb(0,0,0)";
+        }
+        return cssColour;
+    };
+    // checkNotWhite for each of the mergedNames
+    $mergedNames.each(function(){
+        var $mn = $(this);
+        $mn.css('color', checkNotWhite($mn.css('color')));
+    });
+
     var $splitPanelsGrey = $("input[name=Split_Panels_Grey]");
     var updateGrey = function() {
         // Split Channels grey if 'splitPanelsGrey' OR channel is not merged
@@ -140,7 +153,7 @@ $(document).ready(function() {
             var $this = $(this);
             // Note the original color if we haven't done so already
             if (typeof $this.data('color') === 'undefined') {
-                $this.data('color', $this.css('color'));
+                $this.data('color', checkNotWhite($this.css('color')));
             }
             // Apply color or black to column Names
             if (grey && mergedCs.indexOf(i) > -1) {
