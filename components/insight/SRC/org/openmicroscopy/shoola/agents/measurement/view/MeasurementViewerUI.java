@@ -112,120 +112,115 @@ class MeasurementViewerUI
 {
 	
 	/** The message displayed when a ROI cannot be retrieved. */
-	static final String					RETRIEVE_MSG = "Cannot retrieve the " +
-															"ROI";
+	static final String RETRIEVE_MSG = "Cannot retrieve the ROI";
 	
 	/** The message displayed when a ROI cannot be created. */
-	static final String					CREATE_MSG = "Cannot create the ROI";
+	static final String CREATE_MSG = "Cannot create the ROI";
 
 	/** The message displayed when a ROI cannot be deleted. */
-	static final String					DELETE_MSG = "Cannot delete the ROI";
+	static final String DELETE_MSG = "Cannot delete the ROI";
 	
 	/** 
 	 * The message displayed when a an ROI exception occurred but cause 
 	 * is unknown. 
 	 */
-	static final String					UNKNOWN_MSG = "An unknown, " +
-										"unexpected error occurred in ";
+	static final String UNKNOWN_MSG = "An unknown error occurred in ";
 	
 	/** The default message. */
-	static final String					DEFAULT_MSG = "";
+	static final String DEFAULT_MSG = "";
 	
 	/** The default size of the window. */
-	private static final Dimension		DEFAULT_SIZE = new Dimension(400, 300);
-	
-	/** The maximum size of the window. */
-	private static final Dimension		MAXIMUM_SIZE = new Dimension(700, 300);
-	
+	private static final Dimension DEFAULT_SIZE = new Dimension(400, 300);
+
 	/** The title for the measurement tool main window. */
-	private static final String			WINDOW_TITLE = "";//"Measurement Tool ";
+	private static final String WINDOW_TITLE = "";
 	
 	/** index to identify inspector tab. */
-	public static final int				INSPECTOR_INDEX = 0;
+	public static final int INSPECTOR_INDEX = 0;
 
 	/** index to identify manager tab. */
-	public static final int				MANAGER_INDEX = 1;
+	public static final int MANAGER_INDEX = 1;
 	
 	/** index to identify results tab. */
-	public static final int				RESULTS_INDEX = 2;
+	public static final int RESULTS_INDEX = 2;
 	
 	/** index to identify graph tab. */
-	public static final int				GRAPH_INDEX = 3;
+	public static final int GRAPH_INDEX = 3;
 
 	/** index to identify intensity tab. */
-	public static final int				INTENSITY_INDEX = 4;
+	public static final int INTENSITY_INDEX = 4;
 		
 	/** index to identify calculation tab. */
-	public static final int				CALCWIZARD_INDEX = 5;
+	public static final int CALCWIZARD_INDEX = 5;
 	
 	/** index to identify intensity results view tab. */
-	public static final int				INTENSITYRESULTVIEW_INDEX = 6;
+	public static final int INTENSITYRESULTVIEW_INDEX = 6;
 	
 	/** Reference to the Model. */
-	private MeasurementViewerModel 		model;
+	private MeasurementViewerModel model;
 
 	/** Reference to the Control. */
-	private MeasurementViewerControl	controller;
+	private MeasurementViewerControl controller;
 	
 	/** Reference to the Component. */
-	private MeasurementViewer			component;
+	private MeasurementViewer component;
 	
 	 /** The loading window. */
-    private LoadingWindow   			loadingWindow;
+    private LoadingWindow loadingWindow;
     
 	/** The tool bar. */
-	private ToolBar						toolBar;
+	private ToolBar toolBar;
 	
 	/** The ROI inspector. */
-	private ObjectInspector				roiInspector;
+	private ObjectInspector roiInspector;
 	
 	/** The ROI manager. */
-	private ObjectManager				roiManager;
+	private ObjectManager roiManager;
 	
 	/** The Results component. */
-	private MeasurementResults			roiResults;
+	private MeasurementResults roiResults;
 	
 	/** The graphing component. */
-	private GraphPane					graphPane;
+	private GraphPane graphPane;
 	
 	/** The graphing component. */
-	private IntensityView				intensityView;
+	private IntensityView intensityView;
 
 	/** The graphing component. */
-	private IntensityResultsView	 	intensityResultsView;
+	private IntensityResultsView intensityResultsView;
 	
 	/** The calculation Wizard component. */
-	private CalculationWizard			calcWizard;
+	private CalculationWizard calcWizard;
 	
     /** Tab pane hosting the various panel. */
-    private JTabbedPane					tabs;
+    private JTabbedPane tabs;
  
     /** The status bar. */
-    private StatusBar					statusBar;
+    private StatusBar statusBar;
 
     /** the creation option to create multiple figures in the UI. */
-    private JCheckBoxMenuItem 			createMultipleFigure;
+    private JCheckBoxMenuItem createMultipleFigure;
     
     /** the creation option to create single figures in the UI. */
-    private JCheckBoxMenuItem 			createSingleFigure;
+    private JCheckBoxMenuItem createSingleFigure;
     
     /** The collection of components displaying the tables. */
-    private List<ServerROITable>		roiTables;
+    private List<ServerROITable> roiTables;
     
     /** The main menu bar. */
-    private JMenuBar 					mainMenu;
+    private JMenuBar mainMenu;
     
     /** The menu bar handling the workflows. */
-    private JMenu 						workflowMenu;
+    private JMenu workflowMenu;
    
     /** The existing workflow menu. */
-    private JMenu 						existingWorkflow;
+    private JMenu existingWorkflow;
     
-    /** Buttong group of exisitng workflows. */
-    private ButtonGroup					workflows;
+    /** Button group of existing workflows. */
+    private ButtonGroup workflows;
     
     /** The map holding the work-flow objects. */
-    private Map<String, String>			workflowsUIMap;
+    private Map<String, String> workflowsUIMap;
     
     /** 
      * Flag indicating that the measurement was shown before adding 
@@ -248,16 +243,15 @@ class MeasurementViewerUI
     /** 
      * Creates the menu bar.
      * 
-     * @return The menu bar. 
+     * @return The menu bar.
      */
     private JMenuBar createMenuBar()
     {
-    	JMenuBar menuBar = new JMenuBar(); 
+    	JMenuBar menuBar = new JMenuBar();
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
     	workflowMenu = createWorkFlowMenu();
     	TaskBar tb = MeasurementAgent.getRegistry().getTaskBar();
-		//menuBar.add(tb.getWindowsMenu());
 		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
 		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
         return menuBar;
@@ -272,8 +266,8 @@ class MeasurementViewerUI
     {
         JMenu menu = new JMenu("Controls");
         menu.setMnemonic(KeyEvent.VK_C);
-        MeasurementViewerAction a = 
-        	controller.getAction(MeasurementViewerControl.LOAD);
+        MeasurementViewerAction a =
+        		controller.getAction(MeasurementViewerControl.LOAD);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getName());
         menu.add(item);
@@ -374,8 +368,6 @@ class MeasurementViewerUI
        	JMenuItem createWorkflow = new JMenuItem();
         createWorkflow.setText(a.getName());
     	createWorkflow.addActionListener(a);
-    	//tmp
-       	//menu.add(createWorkflow);
         return menu;
     }
 
@@ -430,14 +422,10 @@ class MeasurementViewerUI
 		});
 	}
 
-	
-	
 	/**
      * Creates a new instance.
-     * The 
-     * {@link #initialize(MeasurementViewer, MeasurementViewerControl,
-     *  MeasurementViewerModel) initialize}
-     * method should be called straight 
+     * The {@link #initialize(MeasurementViewer, MeasurementViewerControl,
+     * MeasurementViewerModel) initialize} method should be called straight
      * after to link this View to the Controller.
      * 
      * @param title The window title.
@@ -451,18 +439,14 @@ class MeasurementViewerUI
 	/**
 	 * Links this View to its Controller and Model.
 	 * 
-	 * @param component    Reference to the Component.
-	 *                      Mustn't be <code>null</code>.
-	 * @param controller    Reference to the Control.
-	 *                      Mustn't be <code>null</code>.
-	 * @param model         Reference to the Model.
-	 *                      Mustn't be <code>null</code>.
+	 * @param component Reference to the Component. Mustn't be <code>null</code>.
+	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-    void initialize(MeasurementViewer component, 
-    			MeasurementViewerControl controller, 
-    			MeasurementViewerModel model)
+    void initialize(MeasurementViewer component,
+    		MeasurementViewerControl controller, MeasurementViewerModel model)
     {
-        if (component == null) throw new NullPointerException("No control.");
+        if (component == null) throw new NullPointerException("No component.");
         if (controller == null) throw new NullPointerException("No control.");
         if (model == null) throw new NullPointerException("No model.");
         this.component = component;
@@ -478,7 +462,6 @@ class MeasurementViewerUI
         	controller.getAction(MeasurementViewerControl.IN_MICRONS);
     	a.setRefUnits(EditorUtil.transformSize(
     			model.getPixelSizeX()).getUnits());
-        //buildGUI();
     }
     
     /** Builds and lays out the GUI. */
@@ -486,9 +469,9 @@ class MeasurementViewerUI
 	{
 		mainMenu = createMenuBar();
 		setJMenuBar(mainMenu);
-		tabs.addTab(roiManager.getComponentName(), 
+		tabs.addTab(roiManager.getComponentName(),
 					roiManager.getComponentIcon(), roiManager);
-		tabs.addTab(roiInspector.getComponentName(), 
+		tabs.addTab(roiInspector.getComponentName(),
 			roiInspector.getComponentIcon(), roiInspector);
 		if (!model.isBigImage()) {
 			tabs.addTab(roiResults.getComponentName(),
@@ -519,8 +502,8 @@ class MeasurementViewerUI
     }
     
 	/**
-	 * Merge the ROIShapes with ids in the idList and the ROIShapes selected 
-	 * in the shapeList from those ROI.
+	 * Merge the ROIShapes with identifiers in the idList and the ROIShapes
+	 * selected in the shapeList from those ROI.
 	 * 
 	 * @param idList see above.
 	 * @param shapeList see above.
@@ -538,8 +521,7 @@ class MeasurementViewerUI
 				roi = shape.getFigure();
 				if (!roi.isReadOnly() && roi.canEdit()) {
 					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-					if (getDrawing().contains(roi))
-					{
+					if (getDrawing().contains(roi)) {
 						if (roi.canAnnotate())
 							roi.removeFigureListener(controller);
 						getDrawing().removeDrawingListener(controller);
@@ -547,8 +529,7 @@ class MeasurementViewerUI
 						getDrawing().addDrawingListener(controller);
 					}
 					model.deleteShape(shape.getID(), shape.getCoord3D());
-					if (newShape.getCoord3D().equals(model.getCurrentView()))
-					{
+					if (newShape.getCoord3D().equals(model.getCurrentView())) {
 						getDrawing().removeDrawingListener(controller);
 						getDrawing().add(newShape.getFigure());
 						if (roi.canAnnotate())
@@ -560,9 +541,7 @@ class MeasurementViewerUI
 							newShape);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			if (e instanceof ROICreationException)
 				handleROIException(e, CREATE_MSG);
 			else if (e instanceof NoSuchROIException)
@@ -592,8 +571,7 @@ class MeasurementViewerUI
 				roi = shape.getFigure();
 				if (!roi.isReadOnly() && roi.canEdit()) {
 					newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
-					if (getDrawing().contains(roi))
-					{
+					if (getDrawing().contains(roi)) {
 						if (roi.canAnnotate())
 							roi.removeFigureListener(controller);
 						getDrawing().removeDrawingListener(controller);
@@ -613,9 +591,7 @@ class MeasurementViewerUI
 							newShape);
 				}
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			if(e instanceof ROICreationException)
 				handleROIException(e, CREATE_MSG);
 			else if(e instanceof NoSuchROIException)
@@ -623,7 +599,6 @@ class MeasurementViewerUI
 			else 
 				handleROIException(e, UNKNOWN_MSG+"Splitting ROI.");
 		}
-			
 	}
 	
 	/**
@@ -658,24 +633,21 @@ class MeasurementViewerUI
 				}
 			}
 			updateDrawingArea();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			handleROIException(e, CREATE_MSG);
 		}
 	}
 	
+	/**
+	 * Marks the specified ROI to be deleted.
+	 * 
+	 * @param roi The roi to handle.
+	 */
 	void markROIForDelete(ROIFigure roi)
 	{
 		if (roi == null) return;
 		long id = roi.getROIShape().getID();
 		if (id < 0) return;
-		try {
-			//model.deleteShape(id, roi.getROIShape().getCoord3D());
-		} catch (Exception e) {
-			
-		}
-		
 		model.markROIForDelete(id, roi.getROI(), true);
 	}
 	
@@ -697,8 +669,7 @@ class MeasurementViewerUI
 				if (roi.canDelete()) {
 					r = roi.getROI();
 					if (!r.isClientSide()) b = true;
-					if (getDrawing().contains(roi))
-					{
+					if (getDrawing().contains(roi)) {
 						shape.getFigure().removeFigureListener(controller);
 						getDrawing().removeDrawingListener(controller);
 						getDrawing().remove(roi);
@@ -767,9 +738,9 @@ class MeasurementViewerUI
 		if (index < 0) return false;
 		int n = tabs.getTabCount();
 		if (index >= n) return false;
-		return (tabs.getTitleAt(index).equals(intensityView.getComponentName()));
+		return (tabs.getTitleAt(index).equals(
+				intensityView.getComponentName()));
 	}
-	
 
 	/**
 	 * Returns <code>true</code> if in the intensity Results view,
@@ -815,9 +786,9 @@ class MeasurementViewerUI
     /**
      * Selects the current figure based on ROIid, t and z sections.
      * 
-     * @param ROIid     The id of the selected ROI.
-     * @param t 	The corresponding time-point.
-     * @param z 	The corresponding z-section.
+     * @param ROIid The id of the selected ROI.
+     * @param t The corresponding time-point.
+     * @param z The corresponding z-section.
      */
     void selectFigure(long ROIid, int t, int z)
     {
@@ -827,7 +798,7 @@ class MeasurementViewerUI
     		selectFigure(fig);
 		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
-		}	
+		}
     }
     
     /** Displays the ROI assistant. */
@@ -835,25 +806,21 @@ class MeasurementViewerUI
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-		if (inDataView())
-		{
+		if (inDataView()) {
 			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
 					" in graph pane or intensity view.");
 			return;
 		}
 		
 		Collection<ROI> roiList = model.getSelectedROI();
-		if (roiList.size() == 0)
-		{
+		if (roiList.size() == 0) {
 			un.notifyInfo("ROI Assistant", "Select a Figure to modify " +
 			"using the ROI Assistant.");
 			return;
 		}
-		if (roiList.size() > 1)
-		{
+		if (roiList.size() > 1) {
 			un.notifyInfo("ROI Assistant", "The ROI Assistant can" +
-					"only be used on one ROI" +
-			"at a time.");
+					"only be used on one ROI at a time.");
 			return;
 		}
 		ROI currentROI = roiList.iterator().next();
@@ -862,7 +829,6 @@ class MeasurementViewerUI
     		model.getNumZSections(), model.getCurrentView(), currentROI, this);
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
     	updateDrawingArea();
-    	
 	}
 	
 	/**
@@ -874,14 +840,12 @@ class MeasurementViewerUI
 	{
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-		if (inDataView())
-		{
+		if (inDataView()) {
 			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
 					" in graph pane or intensity view");
 			return;
 		}
-
-	  	ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(), 
+		ROIAssistant assistant = new ROIAssistant(model.getNumTimePoints(),
     		model.getNumZSections(), model.getCurrentView(), roi, this);
     	UIUtilities.setLocationRelativeToAndShow(this, assistant);
     	updateDrawingArea();
@@ -903,7 +867,7 @@ class MeasurementViewerUI
     	if (!coord3D.equals(model.getCurrentView()) || model.isBigImage()) {
     		model.setPlane(coord3D.getZSection(), coord3D.getTimePoint());
     		SelectPlane request = 
-    			new SelectPlane(model.getPixelsID(), coord3D.getZSection(), 
+    			new SelectPlane(model.getPixelsID(), coord3D.getZSection(),
     							coord3D.getTimePoint());
     		if (model.isBigImage()) {
     			request.setBounds(figure.getBounds().getBounds());
@@ -911,7 +875,6 @@ class MeasurementViewerUI
     		EventBus bus = MeasurementAgent.getRegistry().getEventBus();
     		bus.post(request);
     		updateDrawingArea();
-    		//return;
     	}
     	
     	DrawingCanvasView dv = model.getDrawingView();
@@ -1005,9 +968,7 @@ class MeasurementViewerUI
     	while (k.hasNext()) {
     		figure = k.next();
     		dv.addToSelection(figure);
-    		if (index == n) {
-    			scrollToFigure(figure);	
-    		}
+    		if (index == n) scrollToFigure(figure);
     		index++;
 		}
     	dv.addFigureSelectionListener(controller);
@@ -1028,14 +989,12 @@ class MeasurementViewerUI
     			roiManager.removeFigure(figure);
     			roiResults.refreshResults();
     			roiInspector.removeROIFigure(figure);
-    			//intensityResultsView
-    			//graphPane
     		}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
     }
-    
+
 	/** 
 	 * Deletes the ROI from Display.
 	 * 
@@ -1069,12 +1028,11 @@ class MeasurementViewerUI
     		boolean isDuplicate = getDrawingView().isDuplicate();
     		roi = model.createROI(figure, !isDuplicate);
     		if (!isDuplicate) {
-	    		MeasurementAttributes.SHOWTEXT.set(figure, 
+	    		MeasurementAttributes.SHOWTEXT.set(figure,
 	    					roiInspector.isShowText());
 	    		if (figure instanceof MeasureLineFigure) {
 	    			measurementShown = roiInspector.isShowMeasurement();
-	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, 
-	        				true);
+	    			MeasurementAttributes.SHOWMEASUREMENT.set(figure, true);
 	    		} else {
 	    			boolean b = roiInspector.isShowMeasurement();
 	    			if (measurementShown != null)
@@ -1105,10 +1063,8 @@ class MeasurementViewerUI
     {
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
-    	//getDrawingView().repaint();
     	if (!model.isHCSData()) {
     		roiInspector.setModelData(figure);
-        	//roiManager.update();
         	roiResults.refreshResults();
     	}
     }
@@ -1130,14 +1086,11 @@ class MeasurementViewerUI
     /** Rebuilds the ROI table. */
     void rebuildManagerTable()
     { 
-    	if (!model.isHCSData()) roiManager.rebuildTable(); 
+    	if (!model.isHCSData()) roiManager.rebuildTable();
     }
     
     /** Sets the value in the tool bar.*/
-    void refreshToolBar()
-    {
-    	toolBar.refreshToolBar();
-    }
+    void refreshToolBar() { toolBar.refreshToolBar(); }
     
     /** Rebuilds the results table. */
     void refreshResultsTable()
@@ -1156,21 +1109,19 @@ class MeasurementViewerUI
     /**
      * Handles the exception thrown by the <code>ROIComponent</code>.
      * 
-     * @param e 	The exception to handle.
-     * @param text 	The message displayed in the status bar.
+     * @param e The exception to handle.
+     * @param text The message displayed in the status bar.
      */
     void handleROIException(Exception e, String text)
     {
     	Registry reg = MeasurementAgent.getRegistry();
-    	if (e instanceof ROICreationException || 
+    	if (e instanceof ROICreationException ||
     		e instanceof NoSuchROIException)
     	{
     		reg.getLogger().error(this, 
     						"Problem while handling ROI "+e.getMessage());
     		statusBar.setStatus(text);
-    	} 
-    	else 
-    	{
+    	} else {
     		String s = "An unexpected error occured while handling ROI ";
     		reg.getLogger().error(this, s+e.getMessage());
     		reg.getUserNotifier().notifyError("ROI", s, e);
@@ -1191,7 +1142,7 @@ class MeasurementViewerUI
 				comp = new ServerROITable(this, model);
 				comp.setResult(result);
 				roiTables.add(comp);
-				tabs.addTab(comp.getComponentName(), comp.getComponentIcon(), 
+				tabs.addTab(comp.getComponentName(), comp.getComponentIcon(),
 						comp);
 			}
     		if (l.size() > 0) tabs.setSelectedIndex(0);
@@ -1267,8 +1218,7 @@ class MeasurementViewerUI
 							ROIShape shape;
 							while (i.hasNext()) {
 								shape = (ROIShape) i.next();
-								if (shape != null) 
-								{
+								if (shape != null) {
 									figure = shape.getFigure();
 									drawing.add(figure);
 									if (figure.canAnnotate())
@@ -1295,34 +1245,34 @@ class MeasurementViewerUI
 				handleROIException(e, RETRIEVE_MSG);
 			}
 			if (list != null) {
-				TreeMap map = list.getList();
-				Iterator i = map.values().iterator();
+				TreeMap<Long, ROIShape> map = list.getList();
+				Iterator<ROIShape> i = map.values().iterator();
 				ROIShape shape;
 				//mask
 				while (i.hasNext()) {
-					shape = (ROIShape) i.next();
+					shape = i.next();
 					if (shape != null) {
 						figure = shape.getFigure();
-						 if (!(figure instanceof MeasureMaskFigure)) 
-							 second.add(figure);
-						 else
-							 first.add(figure);
+						if (!(figure instanceof MeasureMaskFigure))
+							second.add(figure);
+						else
+							first.add(figure);
 					}
 				}
 				f = first.iterator();
-				 while (f.hasNext()) {
-					 figure = f.next();
-					 drawing.add(figure);
-					 if (figure.canAnnotate())
-						 figure.addFigureListener(controller);
-				 }
-				 f = second.iterator();
-				 while (f.hasNext()) {
-					 figure = f.next();
-					 drawing.add(figure);
-					 if (figure.canAnnotate())
-						 figure.addFigureListener(controller);
-				 }
+				while (f.hasNext()) {
+					figure = f.next();
+					drawing.add(figure);
+					if (figure.canAnnotate())
+						figure.addFigureListener(controller);
+				}
+				f = second.iterator();
+				while (f.hasNext()) {
+					figure = f.next();
+					drawing.add(figure);
+					if (figure.canAnnotate())
+						figure.addFigureListener(controller);
+				}
 			}
 		}
 		setStatus(DEFAULT_MSG);
@@ -1331,13 +1281,13 @@ class MeasurementViewerUI
 	}
 	
 	/**
-	 * Propagates the selected shape in the roi model. 
+	 * Propagates the selected shape in the roi model.
 	 * 
-	 * @param shape 	The ROIShape to propagate.
+	 * @param shape The ROIShape to propagate.
 	 * @param timePoint The timepoint to propagate to.
-	 * @param zSection 	The z-section to propagate to.
+	 * @param zSection The z-section to propagate to.
 	 */
-	void propagateShape(ROIShape shape, int timePoint, int zSection) 
+	void propagateShape(ROIShape shape, int timePoint, int zSection)
 	{
 		List<ROIShape> addedShapes = new ArrayList<ROIShape>();
 		try
@@ -1373,32 +1323,27 @@ class MeasurementViewerUI
 			}
 			if (!model.isHCSData()) roiManager.addROIShapes(addedShapes);
 		}
-		catch (ROICreationException e)
-		{
+		catch (ROICreationException e) {
 			handleROIException(e, CREATE_MSG);
-		}
-		catch (NoSuchROIException e)
-		{
+		} catch (NoSuchROIException e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		setStatus(DEFAULT_MSG);
 	}
 	
 	/**
-	 * Deletes the selected shape from current coordinate to timepoint 
+	 * Deletes the selected shape from current coordinate to timepoint
 	 * and z-section.
 	 *  
-	 * @param shape 	The initial shape to delete.
+	 * @param shape The initial shape to delete.
 	 * @param timePoint The timepoint to delete to.
-	 * @param zSection 	The z-section to delete to.
+	 * @param zSection The z-section to delete to.
 	 */
 	void deleteShape(ROIShape shape, int timePoint, int zSection) 
 	{
-		try 
-		{
+		try {
 			model.deleteShape(shape, timePoint, zSection);
-		} catch (Exception e) 
-		{
+		} catch (Exception e) {
 			handleROIException(e, RETRIEVE_MSG);
 		}
 		setStatus(DEFAULT_MSG);
@@ -1440,18 +1385,9 @@ class MeasurementViewerUI
      */
     void createSingleFigure(boolean createSingleFig)
     {
-    	if (createSingleFig)
-    	{
-    		createSingleFigure.setSelected(true);
-    		createMultipleFigure.setSelected(false);
-    	}
-    	else
-    	{
-    		createSingleFigure.setSelected(false);
-    		createMultipleFigure.setSelected(true);
-    	}
+    	createSingleFigure.setSelected(createSingleFig);
+    	createMultipleFigure.setSelected(!createSingleFig);
     	toolBar.createSingleFigure(createSingleFig);
-    	
     }
     
 	/**
@@ -1539,13 +1475,6 @@ class MeasurementViewerUI
 	 */
 	String getWorkflowDisplay(String value)
 	{
-		/*
-		String result = value;
-		if (value.contains("/")) {
-			String[] list = value.split("/");
-			result = list[list.length-1];
-		}
-		*/
 		String result = EditorUtil.getWorkflowForDisplay(value);
 		if (!workflowsUIMap.containsKey(result))
 			workflowsUIMap.put(result, value);
@@ -1593,7 +1522,7 @@ class MeasurementViewerUI
 		FileFilter filter = new ExcelFilter();
 		filterList.add(filter);
 		FileChooser chooser =
-			new FileChooser(this, FileChooser.SAVE, "Save Results to Excel", 
+			new FileChooser(this, FileChooser.SAVE, "Save Results to Excel",
 					"Save the Results data to a file which can be loaded by " +
 					"a spreadsheet.", filterList);
 		try {
@@ -1603,7 +1532,6 @@ class MeasurementViewerUI
 		return chooser;
 	}
 	
-
 	/**
 	 * Shows or hides the Text of all shapes.
 	 * 
@@ -1618,10 +1546,8 @@ class MeasurementViewerUI
 		ROIFigure figure;
 		while (i.hasNext()) {
 			figure = i.next();
-			//if (!figure.isReadOnly()) {
-				MeasurementAttributes.SHOWTEXT.set(figure, show);
-				if (roiInspector != null) roiInspector.showText(show, figure);
-			//}
+			MeasurementAttributes.SHOWTEXT.set(figure, show);
+			if (roiInspector != null) roiInspector.showText(show, figure);
 		}
 		model.getDrawingView().repaint();
 	}
@@ -1659,15 +1585,6 @@ class MeasurementViewerUI
     {
     	setSize(DEFAULT_SIZE);
     	UIUtilities.incrementRelativeToAndShow(null, this);
-    	/*
-        if (model != null) { //Shouldn't happen
-            UIUtilities.setLocationRelativeToAndSizeToWindow(
-            		model.getRequesterBounds(), this, MAXIMUM_SIZE);
-        } else {
-            //pack();
-            UIUtilities.incrementRelativeToAndShow(null, this);
-        }
-        */
     }
     
 	/** 
@@ -1680,5 +1597,5 @@ class MeasurementViewerUI
 			toolBar.getWorkflowPanel().setVisible(false);
 		super.setVisible(value);
 	}
-    
+
 }
