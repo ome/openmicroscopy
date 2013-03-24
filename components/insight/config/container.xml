@@ -140,7 +140,7 @@
          will be spawned to render (at most) n planes that are likely to
          be requested after the current plane.  If 0 or negative, then no
          asynchronous rendering will take place.
-         Having asynchronous rendering on usually increses performance and
+         Having asynchronous rendering on usually increases performance and
          responsiveness.  However, take into account that too a high value
          can be counterproductive (what is "high" depends on your platform
          and deployment settings). -->
@@ -178,7 +178,7 @@
    *
    * The UI components that will be loaded at runtime.
    * This section is mainly used by developers to make their Agents available
-   * to a Shoola instance.  System administrator may decide to remove some of
+   * to a insight instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
    * agent tag altogether.)
    * 
