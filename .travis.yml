@@ -11,4 +11,6 @@ before_install:
 install: python build.py build-all test-compile-all
 
 # Running python tests as script, since there's no compile step.
-script: python build.py -py test -Dtest.with.fail=true
+script:
+    - python build.py -py test -Dtest.with.fail=true
+    - python build.py -cpp test -Dtest.with.fail=true
