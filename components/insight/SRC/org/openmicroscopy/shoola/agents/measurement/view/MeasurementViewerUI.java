@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -75,6 +75,7 @@ import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -255,7 +256,10 @@ class MeasurementViewerUI
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
     	workflowMenu = createWorkFlowMenu();
-    	//menuBar.add(workflowMenu);
+    	TaskBar tb = MeasurementAgent.getRegistry().getTaskBar();
+		//menuBar.add(tb.getWindowsMenu());
+		menuBar.add(tb.getMenu(TaskBar.WINDOW_MENU));
+		menuBar.add(tb.getMenu(TaskBar.HELP_MENU));
         return menuBar;
     }
     
