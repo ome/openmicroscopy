@@ -621,7 +621,7 @@ class OmeroImageServiceImpl
 				index++;
 			}
 			
-			proxy = PixelsServicesFactory.createRenderingControl(context,
+			proxy = PixelsServicesFactory.createRenderingControl(context, ctx,
 					reList, pixels, m, compressionLevel, defs);
 		}
 		return proxy;

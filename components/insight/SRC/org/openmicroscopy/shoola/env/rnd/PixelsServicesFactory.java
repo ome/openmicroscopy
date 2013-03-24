@@ -246,12 +246,13 @@ public class PixelsServicesFactory
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context,
-			List<RenderingEnginePrx> reList, Pixels pixels,
+			SecurityContext ctx, List<RenderingEnginePrx> reList, Pixels pixels,
 			List<ChannelData> metadata, int compression, List<RndProxyDef> defs)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(reList, pixels, metadata, compression, defs);
+		return singleton.makeNew(ctx, reList, pixels, metadata, compression,
+				defs);
 	}
 
 	/**
@@ -707,7 +708,8 @@ public class PixelsServicesFactory
 	 * rendering engine.This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 */
-	private RenderingControl makeNew(List<RenderingEnginePrx> reList,
+	private RenderingControl makeNew(SecurityContext ctx, 
+			List<RenderingEnginePrx> reList,
 			Pixels pixels, List<ChannelData> metadata, int compression,
 			List<RndProxyDef> defs)
 	{
@@ -720,15 +722,15 @@ public class PixelsServicesFactory
 		RenderingEnginePrx master = reList.get(0);
 		int size = getCacheSize();
 		reList.remove(0);
-		rnd = new RenderingControlProxy(registry, master, pixels, metadata,
+		rnd = new RenderingControlProxy(registry, ctx, master, pixels, metadata,
 										compression, defs, size);
 		Iterator<RenderingEnginePrx> i = reList.iterator();
 		if (reList.size() > 0) {
 			List<RenderingControl> 
 			slaves = new ArrayList<RenderingControl>(reList.size());
 			while (i.hasNext()) {
-				slaves.add(new RenderingControlProxy(registry, i.next(), pixels,
-						metadata, compression, defs, size));
+				slaves.add(new RenderingControlProxy(registry, ctx, 
+						i.next(), pixels, metadata, compression, defs, size));
 			}
 			((RenderingControlProxy) rnd).setSlaves(slaves);
 		}
