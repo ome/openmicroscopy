@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -165,6 +166,9 @@ class RenderingControlProxy
 	
 	/** Flag indicating if the rendering engine is already shut down or not.*/
 	private boolean shutDown;
+	
+	/** The security context associated to the control.*/
+	private SecurityContext ctx;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -782,9 +786,9 @@ class RenderingControlProxy
 	 * speed-up the client.
 	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(Registry context,RenderingEnginePrx re,
-    		Pixels pixels, List<ChannelData> m, int compression,
-    		List<RndProxyDef> rndDefs, int cacheSize)
+    RenderingControlProxy(Registry context, SecurityContext ctx,
+    		RenderingEnginePrx re, Pixels pixels, List<ChannelData> m,
+    		int compression, List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -792,6 +796,9 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        if (ctx == null)
+            throw new NullPointerException("No security context.");
+        this.ctx = ctx;
         slaves = new ArrayList<RenderingControl>();
         checker = new NetworkChecker();
         resolutionLevels = -1;
