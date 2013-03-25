@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #
 # omero_web_iis.py - OMERO.web installer and ISAPI/WSGI handler for IIS

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Copyright (c) 2002-2005 ActiveState Corp.
 # See LICENSE.txt for license details.
 # Author:

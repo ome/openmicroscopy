@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
 Functions for calculating statistics on arrays (either numpy or numarray)
 A statistic is only calculated once on an array.  Future attempts to

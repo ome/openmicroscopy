@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.views.static import serve
 

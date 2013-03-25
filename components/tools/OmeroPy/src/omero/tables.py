@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # OMERO Tables Interface
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.

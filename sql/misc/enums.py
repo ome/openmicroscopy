@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Calculated via:
 # grep enum components/model/resources/mappings/* | grep "id=" | perl -pe 's/^.*?\".*[.](.*?)\".*?$/$1/' | sort >> sql/misc/enums.py

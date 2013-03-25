@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    gateway tests - Testing the gateway image wrapper.getPrimaryPixels() and the pixels wrapper
