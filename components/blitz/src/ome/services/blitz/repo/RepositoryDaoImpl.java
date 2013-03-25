@@ -243,7 +243,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
         rv.put(name, subRv);
         subVal.put("id", omero.rtypes.rlong(id));
         subVal.put("mimetype", omero.rtypes.rstring(mime));
-        subVal.put("size", omero.rtypes.rlong(size));
+        if (size != null) {
+            subVal.put("size", omero.rtypes.rlong(size));
+        }
 
         if (file.getMimetype() != null && // FIXME: should be set!
                 PublicRepositoryI.DIRECTORY_MIMETYPE.equals(file.getMimetype())) {
