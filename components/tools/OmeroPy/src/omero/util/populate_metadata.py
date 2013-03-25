@@ -457,6 +457,7 @@ class ParsingContext(object):
         log.info('Table initialized with %d columns.' % (len(self.columns)))
         table.addData(self.columns)
         log.info('Added data column data.')
+        table.close()
         file_annotation = FileAnnotationI()
         file_annotation.ns = \
                 rstring('openmicroscopy.org/omero/bulk_annotations')

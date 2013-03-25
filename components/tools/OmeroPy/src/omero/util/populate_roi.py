@@ -632,6 +632,7 @@ class AbstractMeasurementCtx(object):
             column_report[column.name] = len(column.values)
         log.debug("Column report: %r" % column_report)
         self.table.addData(columns)
+        self.table.close()
         log.info("Table update took %sms" % (int(time.time() * 1000) - t0))
     
     def create_file_annotation(self, set_of_columns):

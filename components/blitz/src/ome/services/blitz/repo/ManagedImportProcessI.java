@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import Ice.Current;
-import Ice.ObjectFactory;
 
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -32,10 +31,8 @@ import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ServiceFactoryAware;
 
-import omero.InternalException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
-import omero.cmd.AMD_Session_submit;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
@@ -46,7 +43,6 @@ import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
-import omero.util.IceMapper;
 
 /**
  * Represents a single import within a defined-session
@@ -254,13 +250,12 @@ public class ManagedImportProcessI extends AbstractAmdServant
         for (int i = 0; i < size; i++) {
             String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
             CheckedPath cp = repo.checkPath(usedFile, this.current);
-            String client = hashes.get(i);
-            String server = cp.sha1();
-            if (!server.equals(client)) {
+            final String clientHash = hashes.get(i);
+            final String serverHash = cp.sha1();
+            if (!clientHash.equals(serverHash)) {
                 throw new omero.ValidationException(null, null,
-                        String.format("Hash mis-match for %s: " +
-					"server:%s<>client:%s",
-                                usedFile, server, client));
+                        "file checksum mismatch on upload: " + usedFile +
+                        " (client has " + clientHash + ", server has " + serverHash + ")");
             }
         }
 

@@ -77,6 +77,10 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ConcurrencyException;
@@ -316,6 +320,9 @@ class OMEROGateway
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
 
+	/* checksum provider factory for verifying file integrity in upload */
+	private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
@@ -4292,6 +4299,7 @@ class OMEROGateway
 		}
 		byte[] buf = new byte[INC]; 
 		FileInputStream stream = null;
+		final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
 		try {
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4302,11 +4310,18 @@ class OMEROGateway
 				pos += rlen;
 				bbuf = ByteBuffer.wrap(buf);
 				bbuf.limit(rlen);
+				hasher.putBytes(bbuf);
 			}
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
 			if (f != null) save = f;
+			final String clientHash = hasher.checksumAsString();
+			final String serverHash = save.getSha1().getValue();
+			if (!clientHash.equals(serverHash)) {
+			    throw new ImportException("file checksum mismatch on upload: " + file +
+			            " (client has " + clientHash + ", server has " + serverHash + ")");
+			}
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
