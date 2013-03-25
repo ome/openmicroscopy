@@ -37,7 +37,8 @@ classdef TestUnloadOmero < TestCase
         end
         
         function tearDown(self)
-            loadOmero(self.omeropath); % Reload OMERO.matlab
+            cd(self.omeropath)
+            loadOmero(); % Reload OMERO.matlab
         end
         
         function testMatlabPath(self)
