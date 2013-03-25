@@ -222,6 +222,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import sun.security.action.GetLongAction;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -1337,7 +1338,8 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
+	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx, 
+			String userName)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		Connector c = null;
@@ -1347,6 +1349,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -6594,21 +6597,22 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
-	 * @param name		The name to give to the imported image.
-	 * @param archived  Pass <code>true</code> if the image has to be archived,
+	 * @param name The name to give to the imported image.
+	 * @param archived Pass <code>true</code> if the image has to be archived,
 	 * 					<code>false</code> otherwise.
      * @param Pass <code>true</code> to close the import,
-     * 		<code>false</code> otherwise.
+     * <code>false</code> otherwise.
+     * @param userName The user's name.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(SecurityContext ctx, ImportableObject object,
 			IObject container, File file, StatusLabel status, boolean archived,
-			boolean close)
+			boolean close, String userName)
 		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
-		OMEROMetadataStoreClient omsc = getImportStore(ctx);
+		OMEROMetadataStoreClient omsc = getImportStore(ctx, userName);
 		OMEROWrapper reader = null;
 		try {
 			ImportConfig config = new ImportConfig();

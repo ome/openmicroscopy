@@ -135,4 +135,18 @@ public class SecurityContext
 	 */
 	public long getGroupID() { return groupID; }
 	
+	
+	/**
+	 * Returns a copy of the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext copy()
+	{
+		SecurityContext ctx = new SecurityContext(groupID);
+		ctx.setCompression(this.compression);
+		ctx.setExperimenter(this.experimenterID);
+		ctx.setServerInformation(this.host, this.port);
+		return ctx;
+	}
 }
