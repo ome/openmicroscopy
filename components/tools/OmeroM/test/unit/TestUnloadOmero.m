@@ -37,8 +37,10 @@ classdef TestUnloadOmero < TestCase
         end
         
         function tearDown(self)
+            currentFolder = pwd;
             cd(self.omeropath)
             loadOmero(); % Reload OMERO.matlab
+            cd(currentFolder);
         end
         
         function testMatlabPath(self)
