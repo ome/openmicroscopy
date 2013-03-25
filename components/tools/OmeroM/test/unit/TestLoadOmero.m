@@ -22,9 +22,8 @@
 
 classdef TestLoadOmero < TestCase
     properties
-        host = 'testhost'
-        defaultport = 4064
-        port
+        host = 'localhost'
+        port = 4064
         user
         client
     end
@@ -38,18 +37,20 @@ classdef TestLoadOmero < TestCase
             self.client = [];
         end
         
+        % Default configuration (default ice.config file)
+        function testNoInput(self)
+            self.client = loadOmero();
+            self.checkClientProperties();
+        end
+        
         % Arguement constructor
-        function testHost(self)
+        function testHostName(self)
+            self.host = 'my_server';
             self.client = loadOmero(self.host);
             self.checkClientProperties();
         end
         
-        function testDefaultPort(self)
-            self.client = loadOmero(self.host, self.defaultport);
-            self.checkClientProperties();
-        end
-        
-        function testNonDefaultPort(self)
+        function testPortNumber(self)
             self.port = 4444;
             self.client = loadOmero(self.host, self.port);
             self.checkClientProperties();
@@ -65,16 +66,6 @@ classdef TestLoadOmero < TestCase
         end
         
         function testDefaultPortProps(self)
-            props = java.util.Properties();
-            props.setProperty('omero.host', self.host);
-            props.setProperty('omero.port', num2str(self.defaultport));
-            
-            self.client = loadOmero(props);
-            self.checkClientProperties();
-        end
-        
-        function testNonDefaultPortProps(self)
-            self.port = 4444;
             props = java.util.Properties();
             props.setProperty('omero.host', self.host);
             props.setProperty('omero.port', num2str(self.port));
@@ -98,7 +89,7 @@ classdef TestLoadOmero < TestCase
             configFilePath = fullfile(pwd, 'test.config');
             fid = fopen(configFilePath, 'w+');
             fprintf(fid, 'omero.host=%s\n', self.host);
-            fprintf(fid, 'omero.port=%g\n', self.defaultport);
+            fprintf(fid, 'omero.port=%g\n', self.port);
             fclose(fid);
             
             ice_config_list=javaArray('java.io.File',1);
@@ -117,7 +108,7 @@ classdef TestLoadOmero < TestCase
             
             configFilePath2 = fullfile(pwd, 'test.config-2');
             fid = fopen(configFilePath2, 'w+');
-            fprintf(fid, 'omero.port=%g\n', self.defaultport);
+            fprintf(fid, 'omero.port=%g\n', self.port);
             fclose(fid);
             
             ice_config_list=javaArray('java.io.File',1);
@@ -137,11 +128,7 @@ classdef TestLoadOmero < TestCase
             assertEqual(client_host, self.host);
             
             client_port = str2double(self.client.getProperty('omero.port'));
-            if ~isempty(self.port)
-                assertEqual(client_port, self.port);
-            else
-                assertEqual(client_port, self.defaultport);
-            end
+            assertEqual(client_port, self.port);
             
             if ~isempty(self.user)
                 client_user = char(self.client.getProperty('omero.user'));
