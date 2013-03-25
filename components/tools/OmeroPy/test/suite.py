@@ -14,7 +14,6 @@ from omero_ext.xmlrunner.main import ome_test_main
 if __name__ == "__main__":
     ome_test_main([
         "PythonOnly",
-        "t_bin",
         "t_clients",
         "t_config",
         "t_ext",
