@@ -39,7 +39,7 @@ import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
-import ome.testing.FileUploader;
+import ome.server.itests.FileUploader;
 import ome.testing.ObjectFactory;
 
 import org.hibernate.Criteria;

@@ -8,9 +8,6 @@
 package ome.security.auth;
 
 import java.io.UnsupportedEncodingException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -18,7 +15,9 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.util.SqlAction;
-import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -124,8 +123,10 @@ public class PasswordUtil {
         }
 
         String hashedText = null;
+        ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         try {
-            bytes = Utils.calculateMessageDigest(bytes);
+            bytes = cpf.getProvider(ChecksumType.MD5).putBytes(bytes)
+                    .checksumAsBytes();
             bytes = Base64.encodeBase64(bytes);
             hashedText = new String(bytes);
         } catch (Exception e) {

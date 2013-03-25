@@ -30,6 +30,7 @@
         -->
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
+        <value>classpath:ome/services/checksum.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
         <value>classpath*:ome/services/db-*.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>
@@ -73,6 +74,7 @@
         <value>classpath:ome/services/service-ome.api.IUpdate.xml</value>
         <value>classpath:ome/services/service-ome.api.Search.xml</value>
         <value>classpath:ome/services/service-ome.io.nio.OriginalFilesService.xml</value>
+        <value>classpath:ome/services/checksum.xml</value>
         <!-- Needed to refresh the session cache -->
         <value>classpath:ome/services/service-ome.api.ISession.xml</value>
       </list>
@@ -112,6 +114,7 @@
         <value>classpath:ome/services/service-ome.api.IUpdate.xml</value>
         <value>classpath:ome/services/service-ome.api.Search.xml</value>
         <value>classpath:ome/services/service-ome.io.nio.OriginalFilesService.xml</value>
+        <value>classpath:ome/services/checksum.xml</value>
         <!-- Needed to refresh the session cache -->
         <value>classpath:ome/services/service-ome.api.ISession.xml</value>
       </list>

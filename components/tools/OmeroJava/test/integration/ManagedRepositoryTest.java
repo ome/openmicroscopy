@@ -23,7 +23,8 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
 
 import omero.LockTimeout;
 import omero.ServerError;
@@ -132,11 +133,11 @@ public class ManagedRepositoryTest
 	    // The following is largely a copy of ImportLibrary.importImage
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
-        final MessageDigest md = Utils.newSha1MessageDigest();
         final byte[] buf = new byte[client.getDefaultBlockSize()];
+        final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
 
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(lib.uploadFile(proc, srcFiles, i, md, buf));
+            checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, buf));
         }
 
         // At this point the import is running, check handle for number of
