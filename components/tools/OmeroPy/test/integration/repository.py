@@ -661,8 +661,8 @@ class TestRecursiveDelete(AbstractRepoTest):
     # to delete more. Muahahaha...
     def testDoubleDot(self):
         naughty = self.unique_dir + "/" + ".." + ".." + ".."
-        handle = self.mrepo.deletePaths([naughty], True, True)
-        self.waitOnCmd(self.client, handle, passes=True)
+        self.assertRaises(omero.ValidationException,
+                          self.mrepo.deletePaths, [naughty], True, True)
 
 
 class TestDeleteLog(AbstractRepoTest):
