@@ -404,9 +404,7 @@ public class CheckedPath {
         if (file.exists()) {
             ofile.setMtime(new Timestamp(file.lastModified()));
             if (actualDir) {
-                // Directories don't have these. TODO: model as a subclass?
-                ofile.setSha1("");
-                ofile.setSize(0L);
+                // TODO: model directories as a subclass?
                 ofile.setMimetype(PublicRepositoryI.DIRECTORY_MIMETYPE);
                 if (mimetype != null && !mimeDir) {
                     // This is a directory, but the user has requested something
@@ -420,10 +418,6 @@ public class CheckedPath {
                 ofile.setSha1(sha1());
                 ofile.setSize(file.length());
             }
-        } else {
-            // File doesn't exist, therefore we know nothing
-            ofile.setSha1("");
-            ofile.setSize(0L);
         }
 
         // TODO atime/ctime??
