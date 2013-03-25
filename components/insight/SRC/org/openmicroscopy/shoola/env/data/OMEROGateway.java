@@ -224,6 +224,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import sun.security.action.GetLongAction;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -1355,7 +1356,8 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
+	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx, 
+			String userName)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		Connector c = null;
@@ -1365,6 +1367,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -6640,12 +6643,13 @@ class OMEROGateway
 	 * @param usedFiles The files returned composing the import.
      * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
+     * @param userName The user's name.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
     Object importImage(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs)
+            boolean close, boolean hcs, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
         ImportConfig config = new ImportConfig();
@@ -6659,19 +6663,19 @@ class OMEROGateway
        
         ic.setUserPixels(object.getPixelsSize());
         return importImageNew(ctx,
-                config, ic ,status, close, hcs);
+                config, ic ,status, close, hcs, userName);
 	}
 
     Object importImageNew(SecurityContext ctx,
             ImportConfig config, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs)
+            boolean close, boolean hcs, String userName)
         throws ImportException
     {
         isSessionAlive(ctx);
         OMEROMetadataStoreClient omsc = null;
         OMEROWrapper reader = null;
 		try {
-			omsc = getImportStore(ctx);
+			omsc = getImportStore(ctx, userName);
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);

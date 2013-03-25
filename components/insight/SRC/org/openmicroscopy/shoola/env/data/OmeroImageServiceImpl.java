@@ -176,11 +176,13 @@ class OmeroImageServiceImpl
 	 * @param list   The list of annotations.
 	 * @param userID The identifier of the user.
 	 * @param hcs Value returns by the import containers.
+	 * @param userName The login name of the user to import for.
 	 */
 	private Boolean importCandidates(SecurityContext ctx,
 		Map<File, StatusLabel> files, StatusLabel status,
 		ImportableObject object, IObject ioContainer,
-		List<Annotation> list, long userID, boolean close, boolean hcs)
+		List<Annotation> list, long userID, boolean close, boolean hcs, 
+		String userName)
 	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
@@ -230,7 +232,7 @@ class OmeroImageServiceImpl
 						return Boolean.valueOf(false);
 					result = gateway.importImage(ctx, object, ioContainer,
 							icContainers.get(0),
-							label, toClose, ImportableObject.isHCSFile(file));
+							label, toClose, ImportableObject.isHCSFile(file), userName);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1085,8 +1087,13 @@ class OmeroImageServiceImpl
 		StatusLabel status = importable.getStatus();
 		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
 		long userID = loggedIn.getId();
-		if (importable.getUser() != null)
-			userID = importable.getUser().getId();
+		String userName = null;
+		if (importable.getUser() != null) {
+			ExperimenterData exp = importable.getUser();
+			userID = exp.getId();
+			if (exp.getId() != loggedIn.getId())
+				userName = exp.getUserName();
+		}
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
 		if (status.isMarkedAsCancel()) {
@@ -1265,7 +1272,7 @@ class OmeroImageServiceImpl
 					status.setUsedFiles(importIc.getUsedFiles());
 					result = gateway.importImage(ctx, object, ioContainer,
 							importIc, status, close,
-							ImportableObject.isHCSFile(f));
+							ImportableObject.isHCSFile(f),userName);
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1300,7 +1307,7 @@ class OmeroImageServiceImpl
 						
 					status.setFiles(files);
 					Boolean v = importCandidates(ctx, files, status, object,
-							ioContainer, list, userID, close, hcs);
+							ioContainer, list, userID, close, hcs, userName);
 					if (v != null) {
 						return v.booleanValue();
 					}
@@ -1315,7 +1322,7 @@ class OmeroImageServiceImpl
 				importIc = icContainers.get(0);
 				status.setUsedFiles(importIc.getUsedFiles());
 				result = gateway.importImage(ctx, object, ioContainer, importIc,
-					status, close, ImportableObject.isHCSFile(file));
+					status, close, ImportableObject.isHCSFile(file), userName);
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -1394,7 +1401,7 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 			importCandidates(ctx, hcsFiles, status, object,
-					ioContainer, list, userID, close, true);
+					ioContainer, list, userID, close, true, userName);
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);
@@ -1467,7 +1474,7 @@ class OmeroImageServiceImpl
 			}
 			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-				ioContainer, list, userID, close, false);
+				ioContainer, list, userID, close, false, userName);
 		}
 		return Boolean.valueOf(true);
 	}
