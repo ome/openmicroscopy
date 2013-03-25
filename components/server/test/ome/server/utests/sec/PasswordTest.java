@@ -21,6 +21,7 @@ import ome.security.auth.PasswordProviders;
 import ome.security.auth.PasswordUtil;
 import ome.security.auth.PasswordUtility;
 import ome.util.SqlAction;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;

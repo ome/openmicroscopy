@@ -24,7 +24,7 @@ import ome.model.enums.Format;
 import ome.services.fulltext.FileParser;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
-import ome.testing.FileUploader;
+import ome.server.itests.FileUploader;
 
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;

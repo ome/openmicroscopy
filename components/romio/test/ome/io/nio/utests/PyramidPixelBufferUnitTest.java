@@ -17,6 +17,9 @@ import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.TileLoopIteration;
 import ome.io.nio.Utils;
 import ome.util.PixelData;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -66,11 +69,11 @@ public class PyramidPixelBufferUnitTest extends AbstractPyramidPixelBufferUnitTe
                             int tileHeight, int tileCount) {
                 try
                 {
+                    ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
                     final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
                             tileWidth, tileHeight);
-                    String readDigest = ome.util.Utils.bytesToHex(
-                            ome.util.Utils.calculateMessageDigest(
-                                    tile.getData()));
+                    String readDigest = cpf.getProvider(ChecksumType.MD5)
+                            .putBytes(tile.getData()).checksumAsString();
                     String writtenDigest = hashDigests.get(tileCount);
                     if (!writtenDigest.equals(readDigest))
                     {

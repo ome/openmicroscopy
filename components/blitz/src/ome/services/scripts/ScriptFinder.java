@@ -18,6 +18,9 @@ import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJob;
 import omero.model.ScriptJobI;
@@ -81,9 +84,11 @@ public abstract class ScriptFinder {
 
     public OriginalFileI getFile(ServiceFactory sf) {
         OriginalFile file = null;
+        ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
         try {
             final byte[] buf = FileUtils.readFileToByteArray(source);
-            final String sha1 = Utils.bufferToSha1(buf);
+            final String sha1 = cpf.getProvider(ChecksumType.SHA1)
+                    .putBytes(buf).checksumAsString();
             log.debug("Loading script: " + sha1);
 
             Parameters p = new Parameters();

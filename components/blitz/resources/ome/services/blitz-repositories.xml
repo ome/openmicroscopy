@@ -44,6 +44,7 @@
       <constructor-arg index="5">
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
+              <constructor-arg ref="checksumProviderFactory"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -74,6 +75,7 @@
               <constructor-arg value="${omero.fslite.path}"/>
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="processContainer"/>
+              <constructor-arg ref="checksumProviderFactory"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -106,6 +108,7 @@
       <constructor-arg index="5">
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
+              <constructor-arg ref="checksumProviderFactory"/>
           </bean>
       </constructor-arg>
   </bean>

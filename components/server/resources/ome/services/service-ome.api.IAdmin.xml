@@ -36,6 +36,7 @@
     <constructor-arg ref="internal-ome.api.ILdap"/>
     <constructor-arg ref="passwordUtil"/>
     <constructor-arg ref="chmodStrategy"/>
+    <constructor-arg ref="checksumProviderFactory"/>
   </bean>
 
   <bean id="loginAttemptListener" class="ome.security.auth.LoginAttemptListener" lazy-init="false">

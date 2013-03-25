@@ -29,8 +29,11 @@ import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.util.ShallowCopy;
-import ome.util.Utils;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -78,17 +81,20 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /** admin for checking permissions of writes */
     private transient IAdmin admin;
 
+    /** the checksum provider factory singleton **/
+    private transient ChecksumProviderFactory checksumProviderFactory;
+
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
 
     /**
-     * {@link MessageDigest} maintained for sequential write files. On any
-     * write with offset = 0, a new {@link MessageDigest} will be created. As
+     * {@link ChecksumProvider} maintained for sequential write files. On any
+     * write with offset = 0, a new {@link ChecksumProvider} will be created. As
      * long as all write calls happen sequentially and without gaps, then
-     * md.digest() will represent the actual state of the file. Any
-     * non-sequential call will cause the instance to be nulled.
+     * checksumProvider.checksumAsBytes() will represent the actual state of the
+     * file. Any non-sequential call will cause the instance to be nulled.
      */
-    private transient MessageDigest md;
+    private transient ChecksumProvider checksumProvider;
 
     /**
      * Used to track the last sequential offset to
@@ -138,6 +144,17 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         this.admin = admin;
     }
 
+    /**
+     * ChecksumProviderFactory Bean injector
+     * @param cpf a <code>ChecksumProviderFactory</code>
+     */
+    public final void setChecksumProviderFactory(
+            ChecksumProviderFactory checksumProviderFactory) {
+        getBeanHelper().throwIfAlreadySet(this.checksumProviderFactory,
+                checksumProviderFactory);
+        this.checksumProviderFactory = checksumProviderFactory;
+    }
+
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
     @Transactional(readOnly = true)    
@@ -175,8 +192,8 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             try {
-                byte[] hash = md.digest();
-                file.setSha1(Utils.bytesToHex(hash));
+                file.setSha1(this.checksumProviderFactory
+                        .getProvider(ChecksumType.SHA1).putFile(path).checksumAsString());
 
                 File f = new File(path);
                 long size = f.length();
@@ -388,10 +405,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
 
         if (position == 0) {
-            md = Utils.newSha1MessageDigest();
+            checksumProvider = checksumProviderFactory.getProvider(ChecksumType.SHA1);
             mdOffset = 0;
         } else if (mdOffset != position) {
-            md = null;
+            checksumProvider = null;
         }
         
         try {
@@ -399,10 +416,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             // Write was successful, update state.
             modified();
             try {
-                md.update(buf);
+                checksumProvider.putBytes(buf);
                 mdOffset += length;
             } catch (RuntimeException re) {
-                md = null;
+                checksumProvider = null;
                 throw re;
             }
         } catch (NonWritableChannelException nwce) {

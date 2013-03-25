@@ -54,6 +54,8 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 import ome.util.messages.InternalMessage;
 
 import omero.InternalException;
@@ -122,12 +124,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final RepositoryDao repositoryDao;
 
+    protected final ChecksumProviderFactory checksumProviderFactory;
+
     protected OmeroContext context;
 
     private String repoUuid;
 
-    public PublicRepositoryI(RepositoryDao repositoryDao) throws Exception {
+    public PublicRepositoryI(RepositoryDao repositoryDao,
+            ChecksumProviderFactory checksumProviderFactory) throws Exception {
         this.repositoryDao = repositoryDao;
+        this.checksumProviderFactory = checksumProviderFactory;
         this.repoUuid = null;
     }
 
@@ -628,7 +634,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     protected CheckedPath checkPath(final String path, final Ice.Current curr)
             throws ValidationException {
-        return new CheckedPath(this.serverPaths, path);
+        return new CheckedPath(this.serverPaths, path,
+                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
     }
 
     /**
@@ -646,7 +653,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
-        final CheckedPath checked = new CheckedPath(this.serverPaths, file.toString());
+        final CheckedPath checked = new CheckedPath(this.serverPaths,file.toString(),
+                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
         checked.setId(id);
         return checked;
     }

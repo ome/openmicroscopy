@@ -149,7 +149,8 @@ public class MethodSecurityTest extends MockObjectTestCase {
     }
 
     private AdminImpl adminImpl() {
-        return new AdminImpl(null, null, null, null, null,null, null, null, null, null);
+        return new AdminImpl(null, null, null, null, null,null, null, null,
+                null, null, null);
     }
 
 }
