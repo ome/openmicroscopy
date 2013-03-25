@@ -1118,7 +1118,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private Image createImage(String imageName, Pixels pix) {
         Image image = new ImageI();
         image.setName(rstring(imageName));
-        // Property must be not-null but will be overwritten on metadat import.
+        // Property must be not-null but will be overwritten on metadata import.
         image.setAcquisitionDate(rtime(java.lang.System.currentTimeMillis()));
         image.addPixels(pix);
         return image;
