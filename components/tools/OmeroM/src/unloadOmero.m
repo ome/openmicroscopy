@@ -65,7 +65,7 @@ if size(keep_alives) > 0,
 end
 
 try
-    OmeroClient_Jar=fullfile(findOmero, 'omero_client.jar');
+    OmeroClient_Jar=fullfile(findOmero, 'libs', 'omero_client.jar');
     javarmpath(OmeroClient_Jar);
     rmpath(genpath(findOmero)) % OmeroM and subdirectories
     lastwarn(''); % We don't care about the clear path warnings.
