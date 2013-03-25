@@ -431,6 +431,8 @@ class MeasurementViewerComponent
 				}
 			}
 		}
+		//Reset the result.
+		view.displayAnalysisResults();
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
 		if (f != magnification)
