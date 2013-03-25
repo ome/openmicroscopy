@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #
 # omero_fuse.py - FUSE based OMERO client

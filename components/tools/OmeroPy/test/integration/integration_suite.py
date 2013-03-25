@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Integration test suite. Please add a reference to your subpackage,

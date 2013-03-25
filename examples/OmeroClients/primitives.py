@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from omero.rtypes import *
 
 s = rstring("value")

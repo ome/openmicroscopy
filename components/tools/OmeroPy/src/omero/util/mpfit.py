@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Perform Levenberg-Marquardt least-squares minimization, based on MINPACK-1.
 

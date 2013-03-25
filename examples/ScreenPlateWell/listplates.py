@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import omero
 from omero_sys_ParametersI import ParametersI # Temporary
 

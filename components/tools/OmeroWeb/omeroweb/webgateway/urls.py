@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # webgateway/urls.py - django application url handling configuration
 # 

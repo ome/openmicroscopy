@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Integration test for rendering engine, particularly rendering a 'region' of big images. 

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import omero
 from omero_model_EventI import EventI
 from omero_model_ExperimenterI import ExperimenterI
