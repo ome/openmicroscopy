@@ -26,6 +26,7 @@ classdef TestLoadOmero < TestCase
         port = 4064
         user
         client
+        configFileRoot = 'test.config';
     end
     
     methods
@@ -33,8 +34,18 @@ classdef TestLoadOmero < TestCase
             self = self@TestCase(name);
         end
         
+        function configFilePath = createConfigFile(self, configString)
+            
+            nConfFiles = numel(dir([self.configFileRoot '*']));
+            configFilePath = fullfile(pwd, ['test.config-' num2str(nConfFiles + 1)]);
+            fid = fopen(configFilePath, 'w+');
+            fprintf(fid, configString);
+            fclose(fid);
+        end
+        
         function tearDown(self)
             self.client = [];
+            delete(fullfile(pwd, [self.configFileRoot '*']))
         end
         
         % Default configuration (default ice.config file)
@@ -43,7 +54,24 @@ classdef TestLoadOmero < TestCase
             self.checkClientProperties();
         end
         
-        % Arguement constructor
+        % ICE_CONFIG constructor
+        function testICECONFIG(self)
+            self.host = 'my_server';
+            self.port = 80;
+            config = sprintf('omero.host=%s\nomero.port=%g\n',...
+                self.host, self.port);
+            configFilePath = self.createConfigFile(config);
+            
+            oldenvvar = getenv('ICE_CONFIG');
+            setenv('ICE_CONFIG', configFilePath);
+            self.client = loadOmero();
+            self.checkClientProperties();
+            
+            setenv('ICE_CONFIG', oldenvvar);
+            assertEqual(getenv('ICE_CONFIG'), oldenvvar);
+        end
+        
+        % Server name/port constructor
         function testHostName(self)
             self.host = 'my_server';
             self.client = loadOmero(self.host);
@@ -84,36 +112,39 @@ classdef TestLoadOmero < TestCase
             self.checkClientProperties();
         end
         
-        % Config file constructor
+        % Configuration file constructor
         function testConfigFile(self)
-            configFilePath = fullfile(pwd, 'test.config');
-            fid = fopen(configFilePath, 'w+');
-            fprintf(fid, 'omero.host=%s\n', self.host);
-            fprintf(fid, 'omero.port=%g\n', self.port);
-            fclose(fid);
-
+            self.host = 'my_server';
+            self.port = 80;
+            config = sprintf('omero.host=%s\nomero.port=%g\n',...
+                self.host, self.port);
+            configFilePath = self.createConfigFile(config);
+            
             self.client = loadOmero(configFilePath);
             self.checkClientProperties();
+        end
+        
+        function testMultipleIdenticalFiles(self)
+            self.host = 'my_server';
+            self.port = 80;
+            config = sprintf('omero.host=%s\nomero.port=%g\n',...
+                self.host, self.port);
+            configFilePath = self.createConfigFile(config);
             
-            delete(configFilePath);
+            self.client = loadOmero(configFilePath, configFilePath);
+            self.checkClientProperties();
         end
         
         function testMultipleConfigFiles(self)
-            configFilePath1 = fullfile(pwd, 'test.config-1');
-            fid = fopen(configFilePath1, 'w+');
-            fprintf(fid, 'omero.host=%s\n', self.host);
-            fclose(fid);
-            
-            configFilePath2 = fullfile(pwd, 'test.config-2');
-            fid = fopen(configFilePath2, 'w+');
-            fprintf(fid, 'omero.port=%g\n', self.port);
-            fclose(fid);
+            self.host = 'my_server';
+            self.port = 80;
+            config = sprintf('omero.host=%s', self.host);
+            configFilePath1 = self.createConfigFile(config);
+            config = sprintf('omero.port=%g', self.port);
+            configFilePath2 = self.createConfigFile(config);
             
             self.client = loadOmero(configFilePath1, configFilePath2);
             self.checkClientProperties();
-            
-            delete(configFilePath1);
-            delete(configFilePath2);
         end
         
         function checkClientProperties(self)
