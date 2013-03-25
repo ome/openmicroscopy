@@ -80,7 +80,8 @@ class TestAdmin(unittest.TestCase):
     # Async first because simpler
     #
 
-    def testStartAsync(self):
+    def XtestStartAsync(self):
+        # DISABLED: https://trac.openmicroscopy.org.uk/ome/ticket/10584
         self.cli.addCall(0)
         self.cli.checksIceVersion()
         self.cli.checksStatus(1) # I.e. not running
