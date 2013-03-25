@@ -4249,7 +4249,6 @@ class OMEROGateway
 				oFile.setPath(omero.rtypes.rstring(path));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
-				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
 				save = 
 					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
@@ -4269,7 +4268,6 @@ class OMEROGateway
 					oFile.setPath(omero.rtypes.rstring(path));
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
-					oFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(omero.rtypes.rstring(mimeType));
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(oFile);
@@ -4282,7 +4280,6 @@ class OMEROGateway
 					newFile.setPath(omero.rtypes.rstring(
 							file.getAbsolutePath()));
 					newFile.setSize(omero.rtypes.rlong(file.length()));
-					newFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(oFile.getMimetype());
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(newFile);
