@@ -91,10 +91,8 @@ classdef TestLoadOmero < TestCase
             fprintf(fid, 'omero.host=%s\n', self.host);
             fprintf(fid, 'omero.port=%g\n', self.port);
             fclose(fid);
-            
-            ice_config_list=javaArray('java.io.File',1);
-            ice_config_list(1)=java.io.File(configFilePath);
-            self.client = loadOmero(ice_config_list);
+
+            self.client = loadOmero(configFilePath);
             self.checkClientProperties();
             
             delete(configFilePath);
@@ -111,10 +109,7 @@ classdef TestLoadOmero < TestCase
             fprintf(fid, 'omero.port=%g\n', self.port);
             fclose(fid);
             
-            ice_config_list=javaArray('java.io.File',1);
-            ice_config_list(1)=java.io.File(configFilePath1);
-            ice_config_list(2)=java.io.File(configFilePath2);
-            self.client = loadOmero(ice_config_list);
+            self.client = loadOmero(configFilePath1, configFilePath2);
             self.checkClientProperties();
             
             delete(configFilePath1);
