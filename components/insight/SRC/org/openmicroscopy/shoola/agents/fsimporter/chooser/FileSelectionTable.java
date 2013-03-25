@@ -487,7 +487,7 @@ class FileSelectionTable
 		File file;
 		ImportableFile importable;
 		boolean single = model.isSingleGroup();
-		boolean b;
+		boolean isFolderDataset;
 		DataNodeElement dne;
 		DatasetData dataset;
 		for (int i = 0; i < n; i++) {
@@ -496,20 +496,20 @@ class FileSelectionTable
 			file = element.getFile();
 			dataset = dne.getLocation();
 			if (single) {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+				isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 						FOLDER_AS_CONTAINER_INDEX-1));
 				importable = new ImportableFile(file, 
 						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-					ARCHIVED_INDEX-1)), b);
+					ARCHIVED_INDEX-1)), isFolderDataset);
 			} else {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+				isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 						FOLDER_AS_CONTAINER_INDEX));
 				importable = new ImportableFile(file, 
 						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-					ARCHIVED_INDEX)), b);
+					ARCHIVED_INDEX)), isFolderDataset);
 			}
 			
-			if (b) dataset = null;
+			if (isFolderDataset) dataset = null;
 			importable.setLocation(dne.getParent(), dataset);
 			importable.setRefNode(dne.getRefNode());
 			importable.setGroup(element.getGroup());
