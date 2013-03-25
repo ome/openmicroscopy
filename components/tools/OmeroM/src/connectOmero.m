@@ -1,7 +1,7 @@
 function [client, session] = connectOmero(varargin)
 % CONECTOMERO Create an OMERO connection to a server
 %
-%   client = connectOmero() uses the properties in the ice.config file at
+%   client = connectOmero() uses the properties in the ice.config file a
 %   the root of the OMERO.matlab directory to create an client.
 %
 %   [client, session] = connectOmero() also uses the properties in the
@@ -44,40 +44,60 @@ function [client, session] = connectOmero(varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Create client using constructor
-if nargin > 0
-    % Call constructor passing arguments
-    client = javaObject('omero.client', varargin{:});
+if nargin == 0
+    % If no argument is supplied, look for a configuration file
+    ice_config_file = getDefaultConfigFile();
+    assert(isValidFile(ice_config_file), 'No valid configuration file found');
+    % Create a connection arguments
+    connArgs = {toJavaFileArray(ice_config_file)};
 else
-    % Try to find a valid configuration file and use it to create an initial
-    % omero_client object.
-    %
-    % Either first in the ICE_CONFIG environment variable
-    ice_config = getenv('ICE_CONFIG');
-    if isempty(ice_config)
-        % Then in the current directory.
-        ice_config = which('ice.config');
-        if isempty(ice_config) && exist(fullfile(findOmero, 'ice.config'), 'file')==2
-            ice_config = fullfile(findOmero, 'ice.config');
-        end
+    % Test if configuration files or properties are passed
+    isconfigfile = cellfun(@isValidFile, varargin);
+    assert(all(isconfigfile) || all(~isconfigfile),...
+        'Mixed connection inputs');
+    if all(isconfigfile)
+        connArgs = {toJavaFileArray(varargin{isconfigfile})};
     else
-        % Clearing the ice_config now, since it is available
-        % in the environment, and Ice will pick it up
-        % (assuming it was set before MATLAB started)
-        ice_config = '';
+        connArgs = varargin;
     end
-    
-    assert(~isempty(ice_config),'No ice config found');
-    
-    % If no properties in varargins but ice_config set
-    % then ice_config is not set. This is difficult to
-    % handle because we don't know what's in the varargin
-    % in order to pick the proper constructor (ticket:6892)
-    
-    ice_config_list=javaArray('java.io.File',1);
-    ice_config_list(1)=java.io.File(ice_config);
-    client = javaObject('omero.client', ice_config_list);
 end
 
-if (nargout <2), return; end
-session = client.createSession();
+% Create client object
+client = javaObject('omero.client', connArgs{:});
+
+if nargout > 1,
+    % Create session
+    session = client.createSession();
+end
+
+function ice_config_list = toJavaFileArray(varargin)
+
+% Convert array of file paths into javaArray for client constructor
+ice_config_list = javaArray('java.io.File', nargin);
+for i = 1 : nargin
+    % Get absolute file path
+    [~, f] = fileattrib(varargin{i});
+    configfilepath = f.Name;
+    ice_config_list(i) = java.io.File(configfilepath);
+end
+
+function ice_config = getDefaultConfigFile()
+% Return a valid configuration file to create an initial omero_client object
+
+% Either in the ICE_CONFIG environment variable
+ice_config = getenv('ICE_CONFIG');
+if isValidFile(ice_config), return; end
+
+% Then in the Matlab path
+ice_config = which('ice.config');
+if isValidFile(ice_config), return; end
+
+% At the root of the OMERO.matlab toolbox
+ice_config = fullfile(findOmero, 'ice.config');
+if isValidFile(ice_config), return; end
+
+% Clearing the ice_config now, since it is available
+ice_config = '';
+
+function status = isValidFile(path)
+status = ischar(path) && exist(path,'file')==2;
