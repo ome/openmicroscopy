@@ -785,6 +785,7 @@ class OmeroImageServiceImpl
 			int number = getNumberofRenderingEnging(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
+			gateway.removeREService(ctx, pixelsID);
 			for (int i = 0; i < number; i++) {
 				proxies.add(gateway.createRenderingEngine(ctx, pixelsID));
 			}
