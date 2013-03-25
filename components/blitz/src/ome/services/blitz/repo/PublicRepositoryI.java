@@ -662,9 +662,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     private void assertFindDir(final CheckedPath checked, final Ice.Current curr)
         throws omero.ServerError {
         if (null == repositoryDao.findRepoFile(repoUuid, checked, null, curr)) {
-            omero.ResourceError re = new omero.ResourceError(null, null,
-                    "Directory exists but is not registered: " + checked);
-            IceMapper.fillServerError(re, new RuntimeException());
+            omero.ResourceError re = new omero.ResourceError();
+            IceMapper.fillServerError(re, new RuntimeException(
+                    "Directory exists but is not registered: " + checked));
             throw re;
         }
     }
