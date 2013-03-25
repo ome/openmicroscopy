@@ -337,8 +337,7 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
         self.assertWrite(f1.repo, filename, ofile)
 
         self.assertNoRead(f2.repo, filename, ofile)
-        self.assertRaises(omero.SecurityViolation,
-                          f2.repo.listFiles, dirname)
+        self.assertEquals(0, len(f2.repo.listFiles(dirname)))
 
     def testDirReadOnlyGroup(self):
         f1, f2 = self.setup2RepoUsers("rwr---")
