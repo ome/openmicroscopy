@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import Ice.ObjectNotExistException;
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
@@ -759,6 +761,16 @@ class RenderingControlProxy
 			networkUp = checker.isNetworkup();
 			servant.ice_ping();
 		} catch (Throwable e) {
+			if (shutDown && (e instanceof ObjectNotExistException)) {
+	    		//reload the RE
+				try {
+					context.getImageService().reloadRenderingService(ctx,
+							getPixelsID());
+				} catch (Exception ex) {
+					throw new RenderingServiceException(ex);
+				}
+				return;
+	    	}
 			boolean b = handleConnectionException(e);
 			int index = 0;
 			if (!b) {
@@ -843,6 +855,8 @@ class RenderingControlProxy
 		}
     }
 
+    boolean isShutDown() { return shutDown; }
+
     /**
      * Returns <code>true</code> if the rendering engine is still active,
      * <code>false</code> otherwise.
@@ -884,6 +898,7 @@ class RenderingControlProxy
     	invalidateCache();
     	this.servant = servant;
     	shutDown = false;
+    	lastAction = System.currentTimeMillis();
     	try {
     		if (rndDef == null) {
             	initialize();
@@ -914,7 +929,8 @@ class RenderingControlProxy
     {
     	if (servant == null) return;
     	this.servant = servant;
-    	
+    	shutDown = false;
+    	lastAction = System.currentTimeMillis();
     	// reset default of the rendering engine.
     	if (rndDef == null) return;
     	try {
