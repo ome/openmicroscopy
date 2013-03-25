@@ -500,6 +500,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     elif len(kw.keys()) > 0 :
         if kw.has_key('dataset'):
             load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
+            filter_user_id = None           # Show images belonging to all users
             manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
