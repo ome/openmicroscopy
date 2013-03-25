@@ -1,64 +1,43 @@
-function [client,session]=loadOmero(varargin)
-% Add OMERO to the MATLAB path and javaclasspath, and optionally login.
+function [client, session] = loadOmero(varargin)
+% LOADOMERO Add OMERO.matlab to the MATLAB path and Java class path, and optionally login.
 %
-% loadOmero specifies the directory of the current method as an
-% OmeroMatlab toolbox installation, and adds it to the path and the
-% dynamic javaclasspath. (If you have already specified an OMERO jar on
-% your static classpath via classpath.txt, it will take priority. Please
-% remove it to use loadOmero)
+%   loadOmero()  specifies the directory of the current method as an
+%   OMERO.matlab toolbox installation, and adds it to the path and the
+%   dynamic javaclasspath. (If you have already specified an OMERO jar on
+%   your static classpath via classpath.txt, it will take priority. Please
+%   remove it to use loadOmero)
 %
-% VARARGIN USAGE: any arguments passed to loadOmero will be passed
-% to the omero.client constructor IF CALLED. (See VARARGOUT section
-% below). Therefore parameters should be of the right type and in
-% the right order for the existing Java constructors. Alternatively,
-% omero.client can be used after the call to loadOmero.
+%   client = loadOmero() adds OMERO.matlab to the Matlab path and Java
+%   class path and connects to a server using the properties specified by
+%   the ice.config file at the root of the OMERO.matlab directory.
 %
-%   % Use ICE_CONFIG or ice.config in local directory
-%   c = loadOmero;
+%   [client, session] = loadOmero() also creates a session on this server
+%   using the properties specified in the ice.config file at the root of
+%   the OMERO.matlab directory.
 %
-%   -- If any parameters are speficed, the ice.config in the local
-%   directory will not be used, and will have to be passed as below.
+%   client = loadOmero(server) adds OMERO.matlab to the Matlab path and
+%   Java class path and connects to the input server.
 %
-%   % Just the host string
-%   c = loadOmero('localhost');
+%   client = loadOmero(server, port) adds OMERO.matlab to the Matlab path
+%   and Java class path and connects to the input server using the input
+%   port number
 %
-%   % Host string and port
-%   c = loadOmero('localhost',14064);
+%   client = loadOmero(properties) adds OMERO.matlab to the Matlab path
+%   and Java class path and connects to a server using the value of
+%   'omero.host' stored in the input properties of java.util.Properties.
 %
-%   % Via a Properties object
-%   props = java.util.Properties();
-%   props.setProperty('omero.host', 'example.com');
-%   props.setProperty('omero.user', 'me');
-%   props.setProperty('omero.pass', 'super_secret!');
-%   c = loadOmero(props);
+%   [client, session] = loadOmero(properties) also creates a session using
+%   the values of 'omero.user' and 'omero.pass' stored in the input
+%   properties.
 %
-%   % Via File array
-%   fs = javaArray('java.io.File', 2)
-%   fs(1) = java.io.File('ice.config');
-%   fs(2) = java.io.File('personal.config'); % later files win.
-%   c = loadOmero(fs);
+%   client = loadOmero(config_file) adds OMERO.matlab to the Matlab path
+%   and Java class path and connects to the input server using the Ice
+%   configuration file located in the input config_file path.
 %
-%   % Or using omero.client directly
-%   loadOmero;                                 % No constructor called
-%   c = omero.client('localhost');             % Like examples above
-%   s = c.createSession('user','password');
+%   [client, session] = loadOmero(config_file) alsoe creates a session
+%   using the configuration file located in the input config_file path.
 %
-%
-% VARARGOUT USAGE: If return values are specified, then loadOmero will
-% perform some initialization steps, possibly logging the user in to
-% an OMERO Server. See the 'Configuration' section of the OmeroMatlab
-% documentation for more information.
-%
-%   % No omero.client created.
-%   loadOmero;
-%
-%   % Call omero.client constructor and return. No session created.
-%   client = loadOmero;
-%
-%   % Call omero.client and then createSession and return both.
-%   [client, session] = loadOmero;
-%
-%
+% See also: CONNECTOMERO
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -120,42 +99,8 @@ end
 % If one or more return values are specified, then load some useful
 % objects and return them.
 
-if nargout==0, return; end
-
-% Create client using constructor
-if nargin > 0
-    % Call constructor passing arguments
-    client = javaObject('omero.client', varargin{:});
-else
-    % Try to find a valid configuration file and use it to create an initial
-    % omero_client object.
-    %
-    % Either first in the ICE_CONFIG environment variable
-    ice_config = getenv('ICE_CONFIG');
-    if isempty(ice_config)
-        % Then in the current directory.
-        ice_config = which('ice.config');
-        if isempty(ice_config) && exist(fullfile(findOmero, 'ice.config'), 'file')==2
-            ice_config = fullfile(findOmero, 'ice.config');
-        end
-    else
-        % Clearing the ice_config now, since it is available
-        % in the environment, and Ice will pick it up
-        % (assuming it was set before MATLAB started)
-        ice_config = '';
-    end
-    
-    assert(~isempty(ice_config),'No ice config found');
-    
-    % If no properties in varargins but ice_config set
-    % then ice_config is not set. This is difficult to
-    % handle because we don't know what's in the varargin
-    % in order to pick the proper constructor (ticket:6892)
-    
-    ice_config_list=javaArray('java.io.File',1);
-    ice_config_list(1)=java.io.File(ice_config);
-    client = javaObject('omero.client', ice_config_list);
+if nargout == 1,
+    client = connectOmero(varargin{:});
+elseif nargout == 2,
+    [client, session] = connectOmero(varargin{:});
 end
-
-if (nargout <2), return; end
-session = client.createSession();
