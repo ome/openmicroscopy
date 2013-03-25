@@ -34,6 +34,10 @@ classdef TestLoadOmero < TestCase
             self = self@TestCase(name);
         end
         
+        function tearDown(self)
+            self.client = [];
+        end
+        
         % Arguement constructor
         function testHost(self)
             self.client = loadOmero(self.host);
