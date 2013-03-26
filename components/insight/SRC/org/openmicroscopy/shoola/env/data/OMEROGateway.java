@@ -224,7 +224,6 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
-import sun.security.action.GetLongAction;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
