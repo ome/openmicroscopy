@@ -1,5 +1,5 @@
 function [client, session] = connectOmero(varargin)
-% CONECTOMERO Create an OMERO connection to a server
+% CONNECTOMERO Create an OMERO connection to a server
 %
 %   client = connectOmero() uses the properties in the ice.config file a
 %   the root of the OMERO.matlab directory to create an client.
@@ -22,7 +22,7 @@ function [client, session] = connectOmero(varargin)
 %   client = connectOmero(config_file) connects to a server using the Ice
 %   configuration file located in the input path.
 %
-%   [client, session] = loadOmero(config_file) also creates a session
+%   [client, session] = connectOmero(config_file) also creates a session
 %   using the configuration file located in the input config_file path.
 %
 % See also: LOADOMERO
