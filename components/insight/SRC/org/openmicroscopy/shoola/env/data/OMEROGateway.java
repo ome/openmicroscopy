@@ -8542,7 +8542,7 @@ class OMEROGateway
 	 * Removes the security context.
 	 * 
 	 * @param ctx The security context.
-	 * @throws Throwable Thrown if the connector cannot be closed.
+	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
 	void removeGroup(SecurityContext ctx) 
 	throws Exception
@@ -8558,4 +8558,24 @@ class OMEROGateway
 		}
 	}
 
+	/** 
+	 * Shuts down the connectors created while creating/importing data for 
+	 * other users.
+	 * 
+	 * @param ctx
+	 * @throws Exception Thrown if the connector cannot be closed.
+	 */
+	void shutDownDerivedConnector(SecurityContext ctx)
+		throws Exception
+	{
+		Connector c = getConnector(ctx);
+		if (c == null) return;
+		isNetworkUp();
+		try {
+			c.closeDerived(networkup);
+		} catch (Throwable e) {
+			new Exception("Cannot close the derived connectors", e);
+		}
+	}
+	
 }
