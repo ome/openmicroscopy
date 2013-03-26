@@ -2,7 +2,8 @@ function deleteProjects(session, varargin)
 % DELETEPROJECTS Delete project objects from the OMERO server
 %
 %   deleteProjects(session, ids) deletes all the projects identified by the
-%   input ids owned by the session user.
+%   input ids. All annotations (tags, files...) linked to the projecs will
+%   be deleted as well.
 %
 %   Examples:
 %

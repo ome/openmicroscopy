@@ -2,7 +2,8 @@ function deleteImages(session, varargin)
 % DELETEIMAGES Delete images from the OMERO server
 %
 %   deleteImages(session, ids) deletes all the images identified by the
-%   input ids owned by the session user.
+%   input ids. All annotations (tags, files...) linked to the datasets will
+%   be deleted as well.
 %
 %   Examples:
 %
