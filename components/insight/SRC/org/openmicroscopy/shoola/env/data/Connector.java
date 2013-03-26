@@ -920,7 +920,8 @@ class Connector
 		ISessionPrx prx = entryEncrypted.getSessionService();
 		Session session = prx.createSessionWithTimeout(p, 0L);
 		//Create the userSession
-		omero.client client = new omero.client();
+		omero.client client = new omero.client(context.getHostName(),
+				context.getPort());
 		ServiceFactoryPrx userSession = client.createSession(
 				session.getUuid().getValue(), session.getUuid().getValue());
 		c = new Connector(context.copy(), client, userSession,

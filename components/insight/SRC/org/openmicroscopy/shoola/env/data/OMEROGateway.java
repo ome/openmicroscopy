@@ -1524,6 +1524,22 @@ class OMEROGateway
 	private IUpdatePrx getUpdateService(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		return getUpdateService(ctx, null);
+	}
+
+	/**
+	 * Returns the {@link IUpdatePrx} service.
+	 * 
+	 * @param ctx The security context.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
+		throws DSAccessException, DSOutOfServiceException
+	{
 		Connector c = null;
 		IUpdatePrx prx = null;
 		try {
@@ -1531,6 +1547,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getUpdateService();
 		} catch (Throwable e) {
 			//method throws exception
@@ -1541,7 +1558,6 @@ class OMEROGateway
 					"Cannot access the Update service.");
 		return prx;
 	}
-
 	/**
 	 * Returns the {@link IMetadataPrx} service.
 	 * 
@@ -3033,9 +3049,9 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to update.
-	 * @param options   Options to update the data.   
-	 * @return          The updated object.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
@@ -3047,6 +3063,34 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		IUpdatePrx service = getUpdateService(ctx);
+		try {
+			if (options == null) return service.saveAndReturnObject(object);
+			return service.saveAndReturnObject(object, options);
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the object.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Updates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @param userName The name of the user to create the data for.
+	 * @return The updated object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#updateDataObject(IObject, Map)
+	 */
+	IObject saveAndReturnObject(SecurityContext ctx, IObject object,
+			Map options, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
 		try {
 			if (options == null) return service.saveAndReturnObject(object);
 			return service.saveAndReturnObject(object, options);
@@ -6618,7 +6662,7 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
-			ImportContainer ic = new ImportContainer(file, -1L, container, 
+			ImportContainer ic = new ImportContainer(file, -1L, container,
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
