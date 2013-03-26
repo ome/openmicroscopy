@@ -20,11 +20,21 @@ class TestDatabase(unittest.TestCase):
     def setUp(self):
         self.cli = MockCLI()
         self.cli.register("db", DatabaseControl, "TEST")
-        db = self.cli.controls["db"]
-        data = db.loaddefaults()
+
+        dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." / "dist"  # FIXME: should not be hard-coded
+        dir = dir.abspath()
+        cfg = dir / "etc" / "omero.properties"
+        cfg = cfg.abspath()
+        self.cli.dir = dir
+
         self.data = {}
-        for x in ("version", "patch"):
-            self.data[x] = data.properties.getProperty("omero.db."+x)
+        for line in cfg.text().split("\n"):
+            line = line.strip()
+            for x in ("version", "patch"):
+                key = "omero.db." + x
+                if line.startswith(key):
+                    self.data[x] = line[len(key)+1:]
+
         self.file = create_path()
 
     def tearDown(self):
@@ -38,6 +48,8 @@ class TestDatabase(unittest.TestCase):
         self.cli.invoke("db password " + string % self.data, strict=strict)
 
     def testBadVersionDies(self):
+        self.expectPassword("pw")
+        self.expectConfirmation("pw")
         self.assertRaises(NonZeroReturnCode, self.script, "NONE NONE pw")
 
     def testPasswordIsAskedForAgainIfDiffer(self):

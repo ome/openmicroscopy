@@ -11,7 +11,6 @@
 
 TEST(ClientTest, UnconfiguredClient )
 {
-  Fixture f;
   int argc = 1;
   char* argv[] = {(char*)"--omero.host=localhost", 0};
   omero::client_ptr c = new omero::client(argc, argv);
@@ -19,7 +18,6 @@ TEST(ClientTest, UnconfiguredClient )
 
 TEST(ClientTest, ClientWithInitializationData )
 {
-  Fixture f;
   int argc = 0;
   char** argv = {0};
   Ice::InitializationData id;
@@ -30,7 +28,6 @@ TEST(ClientTest, ClientWithInitializationData )
 
 TEST(ClientTest, ClientWithInitializationData2 )
 {
-  Fixture f;
   int argc = 2;
   const char* argv[] = {"program", "--omero.host=localhost",0};
   Ice::StringSeq args = Ice::argsToStringSeq(argc, const_cast<char**>(argv));

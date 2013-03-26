@@ -86,30 +86,21 @@ class TestModel(unittest.TestCase):
         # Uploading is almost always the first
         # step, and must be completed by the clients
         # before any other activity.
-        act1 = omero.model.FilesetActivityI()
-        act1.name = _("upload")
-        act1.job = omero.model.ImportJobI() # TODO: better types
-        act1.job.scheduledFor = rtime(time.time() * 1000) # Now
+        job1 = omero.model.UploadJobI()
+        job1.scheduledFor = rtime(time.time() * 1000) # Now
         # Set this "started" since we're expecting
         # upload to be in process.
 
         # Import is a server-side activity which
         # causes the files to be parsed and their
         # metadata to be stored.
-        act2 = omero.model.FilesetActivityI()
-        act2.name = _("import")
-
-        # Most files will also have thumbnails generated
-        # Some viewing can occur during this process
-        act3 = omero.model.FilesetActivityI()
-        act3.name = _("thumbnailing")
+        job2 = omero.model.MetadataImportJobI()
 
         # Other possible activities include "pyramids"
         # and "re-import"
 
-        fs.addFilesetActivity(act1)
-        fs.addFilesetActivity(act2)
-        fs.addFilesetActivity(act3)
+        fs.linkJob(job1)
+        fs.linkJob(job2)
 
 
 if __name__ == '__main__':

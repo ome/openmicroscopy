@@ -27,16 +27,6 @@ ImportControl = map["import"]
 
 class TestImport(unittest.TestCase):
 
-    def testNoArgumentsDies(self):
-        cli = CLI()
-        cli.register("import", ImportControl, "HELP")
-
-        try:
-            cli.invoke([])
-            self.assert_(cli.rv != 0)
-        except NonZeroReturnCode, nzrc:
-            pass
-
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):
             def importer(this, args):

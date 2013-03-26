@@ -9,33 +9,23 @@
 
 """
 
-import unittest
-from omero_ext import xmlrunner
-
-class TopLevel(unittest.TestCase):
-    pass
-
-def additional_tests():
-    load = unittest.defaultTestLoader.loadTestsFromName
-    suite = unittest.TestSuite()
-    suite.addTest(load("PythonOnly"))
-    suite.addTest(load("t_bin"))
-    suite.addTest(load("t_clients"))
-    suite.addTest(load("t_config"))
-    suite.addTest(load("t_ext"))
-    suite.addTest(load("t_rtypes"))
-    suite.addTest(load("t_model"))
-    suite.addTest(load("t_parameters"))
-    suite.addTest(load("t_permissions"))
-    suite.addTest(load("t_tempfiles"))
-    suite.addTest(load("clitest.suite"))
-    suite.addTest(load("cmdtest.suite"))
-    #suite.addTest(load("scriptstest.harness"))
-    suite.addTest(load("clitest.suite._additional_tests"))
-    suite.addTest(load("fstest.suite"))
-    suite.addTest(load("scriptstest.suite._additional_tests"))
-    suite.addTest(load("tablestest.suite._additional_tests"))
-    return suite
+from omero_ext.xmlrunner.main import ome_test_main
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(verbose=True, output='target/reports').run(additional_tests())
+    ome_test_main([
+        "PythonOnly",
+        "t_clients",
+        "t_config",
+        "t_ext",
+        "t_rtypes",
+        "t_model",
+        "t_parameters",
+        "t_permissions",
+        "t_tempfiles",
+        "clitest.suite",
+        "cmdtest.suite",
+        # "scriptstest.harness"
+        "clitest.suite._additional_tests",
+        "fstest.suite",
+        "scriptstest.suite._additional_tests",
+        "tablestest.suite._additional_tests"])

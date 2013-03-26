@@ -20,20 +20,30 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
-fs test suite. Please add a reference to your subpackage,
-module, or specific class here.
+OME Testing Methods
 """
 
+import logging
 import unittest
+from omero_ext import xmlrunner
 
-class TopLevel(unittest.TestCase):
-    pass
+class OmeTestLoader(object):
 
-def _additional_tests():
-    load = unittest.defaultTestLoader.loadTestsFromName
-    suite = unittest.TestSuite()
-    suite.addTest(load("fstest.model"))
-    return suite
+    def __init__(self, args):
+        self.__args = args
 
-if __name__ == "__main__":
-    unittest.TextTestRunner().run(_additional_tests())
+    def loadTestsFromModule(self, *args):
+        if hasattr(self, "already_called"):
+            raise Exception("Already called")
+        load = unittest.defaultTestLoader.loadTestsFromName
+        suite = unittest.TestSuite()
+        for arg in self.__args:
+            suite.addTest(load(arg))
+        self.already_called = True
+        return suite
+
+def ome_test_main(args):
+    logging.basicConfig(level=logging.WARN)
+    unittest.main(
+        testRunner=xmlrunner.XMLTestRunner(verbose=True, output='target/reports'),
+        testLoader = OmeTestLoader(args))

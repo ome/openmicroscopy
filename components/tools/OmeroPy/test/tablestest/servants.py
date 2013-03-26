@@ -83,7 +83,7 @@ class mocked_service_factory(object):
 class mocked_admin_service(object):
     def __init__(self, can_update):
         self.can_update = can_update
-    def canUpdate(self, file_obj):
+    def canUpdate(self, file_obj, call_context=None):
         return self.can_update
 
 class mocked_config_service(object):
