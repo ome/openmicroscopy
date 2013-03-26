@@ -1,18 +1,22 @@
 function unloadOmero(varargin)
-% Remove OMERO.matlab from the path and javaclasspath.
+% UNLOADOMERO Remove OMERO.matlab from the path and javaclasspath.
 %
-% Remove's all OMERO resources from MATLAB path and javaclasspath
-% silencing any warnings about the given paths not being available.
-% If loadOmero was called from another directory, this method will
-% not be able to remove the paths. Use the unloadOmero method from
-% that directory. (In that case, the other unloadOmero should be on
-% your path anyway; changing directories might suffice).
+%   loadOmero() removes all OMERO resources from MATLAB path and Java
+%   classpath silencing any warnings about the given paths not being
+%   available.
 %
-% This method also calls 'clear java' but does not try to silence
-% messages. Any warnings show that objects are still in your work-
-% space which hold on to Java objects, which therefore can't be
-% cleaned. Strange JVM/Classpath errors may occcur if you do not
-% clear the variables and then 'clear java' again.
+% If loadOmero() was called from another directory, this method will not be
+% able to remove these paths and the unloadOmero() method from that
+% directory should be used. (In that case, the other unloadOmero should be
+% on your path anyway; changing directories might suffice).
+%
+% This method also calls 'clear java' but does not try to silence messages.
+% If Java objects still exist, e.g. an omero.client, a warning will pop-up
+% listing the Java objects still in the workspace. Strange JVM/Classpath
+% errors may occcur if you do not clear the variables and then 'clear java'
+% again.
+%
+% See also: LOADOMERO
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
