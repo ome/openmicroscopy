@@ -108,12 +108,16 @@ class FileSelectionTable
 	 */
 	static final int		GROUP_INDEX = 3;
 	
+	
+	/** The index of the column indicating the owner of import data. */
+	static final int OWNER_INDEX = 4;
+	
 	/** 
 	 * The index of the column indicating to use the folder
 	 * as a dataset. 
 	 */
-	static final int		FOLDER_AS_CONTAINER_INDEX = 4;
-
+	static final int		FOLDER_AS_CONTAINER_INDEX = 5;
+	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
 	
@@ -141,16 +145,20 @@ class FileSelectionTable
 	 */
 	private static final String CONTAINER_PROJECT_TEXT = 
 		"Project/Dataset\nor Screen";
-	
+
 	/** The group where the files will be imported.*/
 	private static final String GROUP_TEXT = "Group";
 	
+	/** The owner of the imported data. */
+	private static final String OWNER_TEXT = "Owner";
+	
 	static {
-		int n = 5;
+		int n = 6;
 		COLUMNS = new Vector<String>(n);
 		COLUMNS.add(FILE_TEXT);
 		COLUMNS.add(SIZE_TEXT);
 		COLUMNS.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS.add(OWNER_TEXT);
 		COLUMNS.add(GROUP_TEXT);
 		COLUMNS.add(FAD_TEXT);
 		COLUMNS_TOOLTIP = new String[n];
@@ -158,6 +166,7 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
 		COLUMNS_TOOLTIP[CONTAINER_INDEX] = 
 			"The container where to import the data.";
+		COLUMNS_TOOLTIP[OWNER_INDEX] = "The owner of imported data";
 		COLUMNS_TOOLTIP[GROUP_INDEX] = "The group where to import data.";
 		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
 			"Convert the folder as dataset.";
@@ -166,12 +175,14 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP.add(FILE_TEXT);
 		COLUMNS_NO_GROUP.add(SIZE_TEXT);
 		COLUMNS_NO_GROUP.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS_NO_GROUP.add(OWNER_TEXT);
 		COLUMNS_NO_GROUP.add(FAD_TEXT);
 		COLUMNS_NO_GROUP_TOOLTIP = new String[n-1];
 		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = COLUMNS_TOOLTIP[FILE_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = COLUMNS_TOOLTIP[SIZE_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] =
 			COLUMNS_TOOLTIP[CONTAINER_INDEX];
+		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX] = COLUMNS_TOOLTIP[OWNER_INDEX];
 		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] =
 			COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX];
 	}
@@ -203,8 +214,11 @@ class FileSelectionTable
 		TableColumnModel tcm = table.getColumnModel();
 		TableColumn tc = tcm.getColumn(FILE_INDEX);
 		tc.setCellRenderer(new FileTableRenderer()); 
-		
+
 		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setCellRenderer(new FileTableRenderer());
+		
+		tc = tcm.getColumn(OWNER_INDEX);
 		tc.setCellRenderer(new FileTableRenderer());
 		
 		String[] tips;
@@ -235,6 +249,10 @@ class FileSelectionTable
 		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 		tc = tcm.getColumn(CONTAINER_INDEX);
 		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		
+		tc = tcm.getColumn(OWNER_INDEX);
+		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		
 		if (!single) {
 			tc = tcm.getColumn(GROUP_INDEX);
 			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
@@ -546,12 +564,13 @@ class FileSelectionTable
 				if (multi) {
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),
-							new DataNodeElement(node, value), group.getName(),
+
+							new DataNodeElement(node, value), user.getUserName(), group.getName(),
 							Boolean.valueOf(v)});
 				} else {
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),
-							new DataNodeElement(node, value),
+							new DataNodeElement(node, value), user.getUserName(),
 							Boolean.valueOf(v)});
 				}
 			}
