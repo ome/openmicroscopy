@@ -32,7 +32,9 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 //Application-internal dependencies
 import omero.IllegalArgumentException;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.GroupData;
+
 /** 
  * Utility class to save object for import.
  *
@@ -52,6 +54,9 @@ public class ObjectToCreate
 	/** The parent of the data object.*/
 	private DataObject parent;
 	
+	/** The experimenter to create data for.*/
+	private ExperimenterData experimenter;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -59,7 +64,8 @@ public class ObjectToCreate
 	 * @param child The data object to create. 
 	 * @param parent The parent of the data object if any.
 	 */
-	public ObjectToCreate(GroupData group, DataObject child, DataObject parent)
+	public ObjectToCreate(GroupData group, DataObject child, DataObject parent,
+			ExperimenterData experimenter)
 	{
 		if (group == null)
 			throw new IllegalArgumentException("No group specified");
@@ -68,7 +74,15 @@ public class ObjectToCreate
 		this.group = group;
 		this.child = child;
 		this.parent = parent;
+		this.experimenter = experimenter;
 	}
+	
+	/**
+	 * Returns the experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getExperimenter() { return experimenter; }
 	
 	/**
 	 * Returns the group where to create the object.

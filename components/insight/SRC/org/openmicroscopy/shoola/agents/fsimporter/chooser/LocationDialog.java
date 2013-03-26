@@ -1154,7 +1154,8 @@ class LocationDialog extends JDialog implements ActionListener,
 
 			if (child != null) {
 				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null,
-						new ObjectToCreate(selectedGroup, child, parent));
+						new ObjectToCreate(selectedGroup, child, parent, 
+						getSelectedUser()));
 			}
 		}
 	}
