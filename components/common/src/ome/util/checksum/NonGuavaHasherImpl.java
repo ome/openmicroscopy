@@ -21,7 +21,7 @@ package ome.util.checksum;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.zip.Adler32;
+import java.util.zip.Checksum;
 
 import com.google.common.hash.Funnel;
 import com.google.common.hash.HashCode;
@@ -29,16 +29,20 @@ import com.google.common.hash.HashCodes;
 import com.google.common.hash.Hasher;
 
 /**
- * An Adler32 implementation of the {@link Hasher} interface. Uses
- * {@link Adler32} for all computations and as the result source. Any operations
- * not supported in {@link Adler32} throw {@link UnsupportedOperationException}.
+ * An implementation of the {@link Hasher} interface. Uses
+ * {@link Checksum} for all computations and as the result source. Any operations
+ * not supported in {@link Checksum} throw {@link UnsupportedOperationException}.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 5.0
  */
-class Adler32Hasher implements Hasher {
+final class NonGuavaHasherImpl implements Hasher {
 
-    private final Adler32 adler32 = new Adler32();
+    private final Checksum checksum;
+
+    public NonGuavaHasherImpl(Checksum checksum) {
+        this.checksum = checksum;
+    }
 
     /**
      * This method uses the {@link HashCodes#fromBytes(byte[])} to produce
@@ -52,7 +56,7 @@ class Adler32Hasher implements Hasher {
     public HashCode hash() {
         ByteBuffer buf = ByteBuffer.wrap(new byte[4]);
         // If Adler32.getValue starts returning 64 bits, the world will end
-        buf.putInt((int) this.adler32.getValue());
+        buf.putInt((int) this.checksum.getValue());
         return HashCodes.fromBytes(buf.array());
     }
 
@@ -67,7 +71,7 @@ class Adler32Hasher implements Hasher {
      * @see com.google.common.hash.Hasher#putByte(byte)
      */
     public Hasher putByte(byte b) {
-        this.adler32.update(b);
+        this.checksum.update(b);
         return this;
     }
 
@@ -75,7 +79,7 @@ class Adler32Hasher implements Hasher {
      * @see com.google.common.hash.Hasher#putBytes(byte[])
      */
     public Hasher putBytes(byte[] bytes) {
-        this.adler32.update(bytes);
+        this.checksum.update(bytes, 0, bytes.length);
         return this;
     }
 
@@ -83,7 +87,7 @@ class Adler32Hasher implements Hasher {
      * @see com.google.common.hash.Hasher#putBytes(byte[], int, int)
      */
     public Hasher putBytes(byte[] bytes, int off, int len) {
-        this.adler32.update(bytes, off, len);
+        this.checksum.update(bytes, off, len);
         return this;
     }
 
@@ -112,7 +116,7 @@ class Adler32Hasher implements Hasher {
      * @see com.google.common.hash.Hasher#putInt(int)
      */
     public Hasher putInt(int i) {
-        this.adler32.update(i);
+        this.checksum.update(i);
         return this;
     }
 
