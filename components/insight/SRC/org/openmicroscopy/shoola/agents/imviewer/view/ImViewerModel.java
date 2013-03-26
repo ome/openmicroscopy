@@ -329,13 +329,41 @@ class ImViewerModel
     private int tileLoadedCount;
     
     /**
+     * Checks if the level is suitable w.r.t the size of the screen.
+     * Returns <code>true</code> if the level is suitable, <code>false</code>
+     * otherwise.
+     * 
+     * @param selected The level to check.
+     * @param w The width of reference.
+     * @param h The height of reference.
+     * @return See above.
+     */
+    private boolean checkLevel(int selected, int w, int h)
+    {
+    	int levels = getResolutionLevels()-1;
+    	int sizeX = getMaxX();
+		int sizeY = getMaxY();
+		double f = 1/Math.pow(2, (levels-selected));
+		return ((int) (sizeX*f) < w || (int) (sizeY*f) < h);
+    }
+    
+    /**
      * Returns the default resolution level.
      * 
      * @return See above.
      */
     private int getDefaultResolutionLevel()
     {
-    	return 0; //to be retrieved from server when save
+    	//Determine the level according to the window size.
+    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int w = 9*(screenSize.width/10);
+        int h = 8*(screenSize.height/10);
+        int levels = getResolutionLevels()-1;
+        for (int i = levels; i >= 0; i--) {
+			if (checkLevel(i, w, h))
+				return i;
+		}
+    	return 0;
     }
     
 	/**
@@ -984,7 +1012,7 @@ class ImViewerModel
 		pDef.slice = omero.romio.XY.value;
 		return rnd.renderPlaneAsTexture(pDef);
 	}
-	
+
 	/** Notifies that the rendering control has been loaded. */
 	void onRndLoaded()
 	{
