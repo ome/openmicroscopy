@@ -2,7 +2,8 @@ function deleteScreens(session, varargin)
 % DELETESCREENS Delete screens from the OMERO server
 %
 %   deleteScreens(session, ids) deletes all the screens identified by the
-%   input ids owned by the session user.
+%   input ids. All annotations (tags, files...) linked to the screens will
+%   be deleted as well.
 %
 %   Examples:
 %

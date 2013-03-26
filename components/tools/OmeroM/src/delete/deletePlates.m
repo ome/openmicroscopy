@@ -2,7 +2,8 @@ function deletePlates(session, varargin)
 % DELETEPLATES Delete plates from the OMERO sserver
 %
 %   deletePlates(session, ids) deletes all the plates identified by the
-%   input ids owned by the session user.
+%   input ids. All annotations (tags, files...) linked to the plates will
+%   be deleted as well.
 %
 %   Examples:
 %

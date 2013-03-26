@@ -2,8 +2,8 @@ function deleteObjects(session, ids, type)
 % DELETEOBJECTS Delete objects of a given type from the OMERO server
 %
 %   objects = deleteObjects(session, ids, type) returns all the objects of
-%   the specified type, identified by the input ids and owned by the
-%   session user.
+%   the specified type, identified by the input ids. All annotations (tags,
+%   files...) linked to the objects will be deleted as well.
 %
 %
 %   Examples:
