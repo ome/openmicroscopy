@@ -749,7 +749,7 @@ class RenderingControlProxy
 	}
 	
 	/** Checks if the proxy is still alive.*/
-	private void isSessionAlive()
+	private synchronized void isSessionAlive()
 		throws RenderingServiceException
 	{
     	lastAction = System.currentTimeMillis();
