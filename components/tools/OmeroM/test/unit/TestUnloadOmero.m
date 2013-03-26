@@ -22,7 +22,11 @@
 
 classdef TestUnloadOmero < TestCase
     properties
+        matlabpath
+        javapath
         omeropath
+        jarpath
+        client
     end
     
     methods
@@ -34,33 +38,51 @@ classdef TestUnloadOmero < TestCase
         function setUp(self)
             loadOmero(); % Ensure OMERO.matlab is loaded
             self.omeropath = findOmero();
+            self.jarpath = fullfile(self.omeropath, 'libs', 'omero_client.jar');
+            self.updatePaths();
         end
         
         function tearDown(self)
             currentFolder = pwd;
-            cd(self.omeropath)
+            cd(self.omeropath);
             loadOmero(); % Reload OMERO.matlab
             cd(currentFolder);
         end
         
         function testMatlabPath(self)
-            matlabPath = regexp(path(), pathsep, 'split');
-            assertTrue(ismember(self.omeropath, matlabPath));
-
+            assertTrue(ismember(self.omeropath, self.matlabpath));
+            
             unloadOmero();
-            matlabPath = regexp(path(), pathsep, 'split');
-            assertFalse(ismember(self.omeropath, matlabPath));
+            self.updatePaths();
+            assertFalse(ismember(self.omeropath, self.matlabpath));
         end
         
         function testJavaClassPath(self)
-            jarpath = fullfile(self.omeropath, 'libs', 'omero_client.jar');
+            assertTrue(ismember(self.jarpath, self.javapath));
             
-            javapath = javaclasspath;
-            assertTrue(ismember(jarpath, javapath));
-
             unloadOmero();
-            javapath = javaclasspath;
-            assertFalse(ismember(jarpath, javapath));
+            self.updatePaths();
+            assertFalse(ismember(self.jarpath, self.javapath));
+        end
+        
+        function testUnloadedWorkspace(self)
+            
+            self.client = omero.client('test');
+            unloadOmero();
+            self.updatePaths();
+            assertFalse(ismember(self.jarpath, self.javapath));
+            assertTrue(ismember(self.omeropath, self.matlabpath));
+            
+            self.client = [];
+            unloadOmero();
+            self.updatePaths();
+            assertFalse(ismember(self.jarpath, self.javapath));
+            assertFalse(ismember(self.omeropath, self.matlabpath));
+        end
+        
+        function updatePaths(self)
+            self.javapath = javaclasspath;
+            self.matlabpath = regexp(path(), pathsep, 'split');
         end
     end
 end
