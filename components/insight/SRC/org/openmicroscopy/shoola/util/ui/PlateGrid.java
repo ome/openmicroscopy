@@ -27,9 +27,11 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.JTable;
@@ -96,11 +98,22 @@ public class PlateGrid
 	/** Hosts the valid wells. */
 	private List<WellGridElement> validValues;
 	
-	/** Identifies the row of the selected cell. */
-	private int selectedRow;
-	
-	/** Identifies the column of the selected cell. */
-	private int selectedColumn;
+	/** Identifies the selected cells. */
+	private List<Point> selectedCells;
+
+	/**
+	 * Returns <code>true</code> if the cell is in the table range,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param row The row identifying the cell.
+	 * @param column The column identifying the cell.
+	 * @return See above.
+	 */
+	private boolean isCellInRange(int row, int column)
+	{
+		return (!(row < 0 || row >= getModel().getRowCount() ||
+				column < 0 || column >= getModel().getColumnCount()));
+	}
 	
 	/** 
 	 * Initializes the component. 
@@ -110,8 +123,7 @@ public class PlateGrid
 	 */
 	private void initialize(int rows, int columns)
 	{
-		selectedColumn = -1;
-		selectedRow = -1;
+		selectedCells = new ArrayList<Point>();
 		setTableHeader(null);
 		setModel(new GridModel(rows, columns));
 		TableColumn col;
@@ -123,6 +135,7 @@ public class PlateGrid
 			col.setPreferredWidth(width);
 			col.setResizable(false);
 		}
+		setCellSelectionEnabled(true);
 		setRowHeight(CELL_SIZE.height);
 		setDefaultRenderer(Object.class, new GridRenderer(this));
 		setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -131,23 +144,44 @@ public class PlateGrid
 			
 			/**
 			 * Loads the fields for the selected well.
-			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 * @see MouseAdapter#mouseClicked(MouseEvent)
 			 */
-			public void mousePressed(MouseEvent e)
+			public void mouseClicked(MouseEvent e)
 			{
-				int row = getSelectedRow();
-				int column = getSelectedColumn();
-				if (isCellValid(row, column)) {
-					selectedColumn = column;
-					selectedRow = row;
-					boolean b = e.isShiftDown() || e.isControlDown();
-					if (UIUtilities.isMacOS()) 
-						b = e.isShiftDown() || e.isMetaDown();
-					firePropertyChange(WELL_FIELDS_PROPERTY, null, 
-							new PlateGridObject(row, column, b));
-				}
+				Point p = e.getPoint();
+				int row = rowAtPoint(p);
+				int column = columnAtPoint(p);
+				if (row < 0 ||  column < 0) return;
+				boolean b = e.isShiftDown() || e.isControlDown();
+				if (UIUtilities.isMacOS()) 
+					b = e.isShiftDown() || e.isMetaDown();
+				Point selected = findSelectedPoint(row, column);
+				if (selected != null && selectedCells.size() == 1) return;
+				firePropertyChange(WELL_FIELDS_PROPERTY, null,
+					new PlateGridObject(row, column, b));
 			}
 		});
+	}
+	
+	/**
+	 * Returns the points corresponding to the specified row and column in the
+	 * list of selected nodes.
+	 * 
+	 * @param row The row identifying the cell.
+	 * @param column The column identifying the cell.
+	 * @return See above.
+	 */
+	private Point findSelectedPoint(int row, int column)
+	{
+		if (!isCellInRange(row, column)) return null;
+		Iterator<Point> i = selectedCells.iterator();
+		Point p;
+		while (i.hasNext()) {
+			p = i.next();
+			if (p.x == row && p.y == column)
+				return p;
+		}
+		return null;
 	}
 	
 	/** 
@@ -196,19 +230,32 @@ public class PlateGrid
 	/**
 	 * Sets the selected cell.
 	 * 
-	 * @param row 	 The row identifying the cell.
+	 * @param row The row identifying the cell.
 	 * @param column The column identifying the cell.
 	 */
 	public void selectCell(int row, int column)
 	{
-		if (row < 0 || row >= getModel().getRowCount() ||
-			column < 0 || column >= getModel().getColumnCount()) return;
-		if (!isCellValid(row, column)) return;
-		setColumnSelectionInterval(column, column);
-		setRowSelectionInterval(row, row);
-		//editCellAt(row, column);
-		selectedRow = row;
-		selectedColumn = column;
+		selectCells(Arrays.asList(new Point(row, column)));
+	}
+	
+	/**
+	 * Sets the selected cell.
+	 * 
+	 * @param row 	 The row identifying the cell.
+	 * @param column The column identifying the cell.
+	 */
+	public void selectCells(List<Point> cells)
+	{
+		selectedCells.clear();
+		if (cells == null) return;
+		Iterator<Point> i = cells.iterator();
+		Point p;
+		while (i.hasNext()) {
+			p = i.next();
+			if (isCellInRange(p.x, p.y) && isCellValid(p.x, p.y) &&
+				!isSelectedCell(p.x, p.y))
+				selectedCells.add(p);
+		}
 		repaint();
 	}
 	
@@ -241,9 +288,17 @@ public class PlateGrid
 	 * @param column The column identifying the cell.
 	 * @return See above.
 	 */
-	boolean isCellDisplayed(int row, int column)
+	boolean isSelectedCell(int row, int column)
 	{
-		return (selectedColumn == column && selectedRow == row);
+		if (!isCellInRange(row, column)) return false;
+		Iterator<Point> i = selectedCells.iterator();
+		Point p;
+		while (i.hasNext()) {
+			p = i.next();
+			if (p.x == row && p.y == column)
+				return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -297,7 +352,7 @@ public class PlateGrid
 		{
 			setToolTipText(model.getCellToolTip(row, column));
 			if (model.isCellValid(row, column)) {
-				if (model.isCellDisplayed(row, column))
+				if (model.isSelectedCell(row, column))
 					setBackground(FOCUS_COLOR);
 				else setBackground(SELECTED_COLOR);
 			} else {

@@ -233,15 +233,22 @@ class BrowserControl
     			return;
     		}
     		Object object = previous.getHierarchyObject();
-    		Class ref = object.getClass();
+    		Class<?> ref = object.getClass();
     		if (!ref.equals(d.getHierarchyObject().getClass())) return;
-    		
-    		Collection nodes = model.getSelectedDisplays();
-    		Iterator i = nodes.iterator();
+
+    		Collection<ImageDisplay> nodes = model.getSelectedDisplays();
+    		Iterator<ImageDisplay> i = nodes.iterator();
     		ImageDisplay node;
+    		if (nodes.size() == 1) {
+    			while (i.hasNext()) {
+					node = i.next();
+					if (node.equals(d)) return;
+				}
+    		}
+    		
     		boolean remove = false;
     		while (i.hasNext()) {
-    			node = (ImageDisplay) i.next();
+    			node = i.next();
 				if (node.equals(d)) {
 					remove = true;
 					break;
