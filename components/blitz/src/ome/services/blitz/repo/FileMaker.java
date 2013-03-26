@@ -129,19 +129,25 @@ public class FileMaker {
             }
 
             try {
-                lock.release();
+                if (lock != null) {
+                    lock.release();
+                }
             } catch (IOException e) {
                 log.warn("Failed to release lock");
             }
 
             try {
-                repoUuidRaf.close();
+                if (repoUuidRaf != null) {
+                    repoUuidRaf.close();
+                }
             } catch (IOException e) {
                 log.warn("Failed to close repo_uuid");
             }
 
             try {
-                dotLockRaf.close();
+                if (dotLockRaf != null) {
+                    dotLockRaf.close();
+                }
             } catch (IOException e) {
                 log.warn("Failed to close .lock");
             }
