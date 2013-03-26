@@ -188,27 +188,6 @@ class Connector
 	/** The name of the group. To be removed when we can use groupId.*/
 	private String groupName;
 
-	
-	/**
-	 * Closes the connectors associated to the master connector.
-	 * 
-	 * @param networkup Pass <code>true</code> if the network is up,
-	 * <code>false</code> otherwise.
-	 */
-	private void closeDerived(boolean networkup)
-		throws Throwable
-	{
-		Collection<Connector> list = derived.values();
-		Iterator<Connector> i = list.iterator();
-		while (i.hasNext()) {
-			try {
-				i.next().close(networkup);
-			} catch (Throwable e) { //to be decided.
-			}
-		}
-		derived.clear();
-	}
-
 	/**
 	 * Creates a new instance.
 	 * 
@@ -711,11 +690,28 @@ class Connector
 			importStore.closeServices();
 			importStore = null;
 		}
+		try {
+			closeDerived(false);
+		} catch (Throwable e) {
+			//Todo
+		}
+		
+	}
+	
+	/**
+	 * Closes the connectors associated to the master connector.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void closeDerived(boolean networkup)
+		throws Throwable
+	{
 		Collection<Connector> list = derived.values();
 		Iterator<Connector> i = list.iterator();
 		while (i.hasNext()) {
 			try {
-				i.next().closeImport();
+				i.next().close(networkup);
 			} catch (Throwable e) { //to be decided.
 			}
 		}
