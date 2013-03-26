@@ -37,7 +37,7 @@ function [client, session] = loadOmero(varargin)
 %   [client, session] = loadOmero(config_file) alsoe creates a session
 %   using the configuration file located in the input config_file path.
 %
-% See also: CONNECTOMERO
+% See also: CONNECTOMERO, UNLOADOMERO
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
