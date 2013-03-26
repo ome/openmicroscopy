@@ -120,6 +120,10 @@
          big image. -->
     <entry name="/services/RE/worker" type="integer">4</entry>
     
+    <!-- The time after which the rendering is shut down (not the viewer)
+    if not active. The value is in milliseconds. Default = 5mins -->
+    <entry name="/services/RE/timeout" type="long">300000</entry>
+    
     <!-- Maximum size, in Mb, of the image cache in the Rendering Engine.
           This is a per-image cache which stores planes that have already
           been rendered and are still valid with respect to the current
@@ -136,7 +140,7 @@
          will be spawned to render (at most) n planes that are likely to
          be requested after the current plane.  If 0 or negative, then no
          asynchronous rendering will take place.
-         Having asynchronous rendering on usually increses performance and
+         Having asynchronous rendering on usually increases performance and
          responsiveness.  However, take into account that too a high value
          can be counterproductive (what is "high" depends on your platform
          and deployment settings). -->
@@ -174,7 +178,7 @@
    *
    * The UI components that will be loaded at runtime.
    * This section is mainly used by developers to make their Agents available
-   * to a Shoola instance.  System administrator may decide to remove some of
+   * to a insight instance.  System administrator may decide to remove some of
    * the Agents in exceptional cases.  (This is easily done by deleting an
    * agent tag altogether.)
    * 

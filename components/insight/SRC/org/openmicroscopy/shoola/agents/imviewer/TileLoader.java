@@ -155,6 +155,7 @@ public class TileLoader
         if (tile != null) {
         	count++;
         	if (count == tiles.size()) viewer.setTileCount(count);
+        	else viewer.setTileCount(0);
         } 
     }
 
