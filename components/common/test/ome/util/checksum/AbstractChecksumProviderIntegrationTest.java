@@ -26,7 +26,6 @@ import java.util.EnumMap;
 
 import org.springframework.util.ResourceUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -163,7 +162,7 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     }
 
     @Test
-    public void testChecksumAsStringChecksumWithBigFilePathString() {
+    public void testChecksumAsStringWithBigFilePathString() {
         String actual = this.checksumProvider
                 .putFile(this.bigFile.getAbsolutePath())
                 .checksumAsString();
