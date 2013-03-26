@@ -19,90 +19,21 @@
 
 package ome.util.checksum;
 
-import java.nio.charset.Charset;
-
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
+import java.util.zip.Adler32;
 
 /**
  * An implementation of the {@link ChecksumProvider} interface using Adler32
- * as the message digest algorithm. Passes in an anonymous class of the type
- * {@link HashFunction} to the parent constructor.
+ * as the message digest algorithm. Passes in a new object of the type
+ * {@link NonGuavaHashFunctionImpl} to the parent constructor.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @since 5.0
  */
-public class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
+
+public final class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
 
     public Adler32ChecksumProviderImpl() {
-        super(new HashFunction() {
-
-            private Adler32Hasher hasher = new Adler32Hasher();
-
-            /**
-             * @see com.google.common.hash.HashFunction#bits()
-             */
-            public int bits() {
-                return 1;
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashBytes(byte[])
-             */
-            public HashCode hashBytes(byte[] input) {
-                return this.hasher.putBytes(input).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashBytes(byte[], int, int)
-             */
-            public HashCode hashBytes(byte[] input, int off, int len) {
-                return this.hasher.putBytes(input, off, len).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashInt(int)
-             */
-            public HashCode hashInt(int input) {
-                return this.hasher.putInt(input).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashLong(long)
-             */
-            public HashCode hashLong(long input) {
-                return this.hasher.putLong(input).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashString(java.lang.CharSequence)
-             */
-            public HashCode hashString(CharSequence input) {
-                return this.hasher.putString(input).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#hashString(java.lang.CharSequence, java.nio.charset.Charset)
-             */
-            public HashCode hashString(CharSequence input, Charset charset) {
-                return this.hasher.putString(input, charset).hash();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#newHasher()
-             */
-            public Hasher newHasher() {
-                return this.hasher = new Adler32Hasher();
-            }
-
-            /**
-             * @see com.google.common.hash.HashFunction#newHasher(int)
-             */
-            public Hasher newHasher(int expectedInputSize) {
-                return this.newHasher();
-            }
-        });
+        super(new NonGuavaHashFunctionImpl(new Adler32()));
     }
 
 }
