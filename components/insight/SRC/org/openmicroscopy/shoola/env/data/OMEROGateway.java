@@ -2973,8 +2973,8 @@ class OMEROGateway
 	 * Creates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to create.
-	 * @param options   Options to create the data.  
+	 * @param object The object to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -2984,20 +2984,39 @@ class OMEROGateway
 	IObject createObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObject(ctx, object, null);
+	}
+
+	/**
+	 * Creates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param object The object to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObject(IObject, Map)
+	 */
+	IObject createObject(SecurityContext ctx, IObject object, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, object, null);
+			return saveAndReturnObject(ctx, object, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Creates the specified objects.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to create.
-	 * @param options   Options to create the data.  
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -3007,14 +3026,34 @@ class OMEROGateway
 	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObjects(ctx, objects, null);
+	}
+
+	/**
+	 * Creates the specified objects.
+	 * 
+	 * @param ctx The security context.
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user.s
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObjects(IObject[], Map)
+	 */
+	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects,
+			String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, objects, null);
+			return saveAndReturnObject(ctx, objects, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
 		return new ArrayList<IObject>();
 	}
-
+	
 	/**
 	 * Deletes the specified object.
 	 * 
@@ -3122,20 +3161,20 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to update.
-	 * @param options   Options to update the data.
-	 * @return          The updated object.
+	 * @param objects The objects to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	List<IObject> saveAndReturnObject(SecurityContext ctx,
-			List<IObject> objects, Map options)
+			List<IObject> objects, Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		IUpdatePrx service = getUpdateService(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
 		try {
 			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {

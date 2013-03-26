@@ -242,7 +242,7 @@ class OmeroImageServiceImpl
 						else label.setFile(file, image);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
-						annotatedImportedImage(ctx, list, ll);
+						annotatedImportedImage(ctx, list, ll, userName);
 						images.addAll(ll);
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
@@ -260,7 +260,7 @@ class OmeroImageServiceImpl
 				}
 			}
 		}
-		annotatedImportedImage(ctx, list, images);
+		annotatedImportedImage(ctx, list, images, userName);
 		if (close) gateway.closeImport(ctx);
 		return null;
 	}
@@ -271,9 +271,10 @@ class OmeroImageServiceImpl
 	 * @param ctx The security context.
 	 * @param annotations The annotations to add.
 	 * @param images The imported images.
+	 * @param userName The name of the user who will own the links
 	 */
 	private void annotatedImportedImage(SecurityContext ctx,
-		List<Annotation> annotations, Collection images)
+		List<Annotation> annotations, Collection images, String userName)
 	{
 		if (annotations.size() == 0 || images.size() == 0) return;
 		Iterator i = images.iterator();
@@ -292,7 +293,7 @@ class OmeroImageServiceImpl
 		}
 		if (list.size() == 0) return;
 		try {
-			gateway.saveAndReturnObject(ctx, list, new HashMap());
+			gateway.saveAndReturnObject(ctx, list, new HashMap(), userName);
 		} catch (Exception e) {
 			//ignore 
 		}
@@ -1123,7 +1124,7 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, new HashMap());
+				l = gateway.saveAndReturnObject(ctx, l, new HashMap(), userName);
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1281,11 +1282,11 @@ class OmeroImageServiceImpl
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
-						annotatedImportedImage(ctx, list, images);
+						annotatedImportedImage(ctx, list, images, userName);
 						return formatResult(ctx, image, userID, thumbnail);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
-						annotatedImportedImage(ctx, list, ll);
+						annotatedImportedImage(ctx, list, ll, userName);
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
@@ -1331,11 +1332,11 @@ class OmeroImageServiceImpl
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
-					annotatedImportedImage(ctx, list, images);
+					annotatedImportedImage(ctx, list, images, userName);
 					return formatResult(ctx, image, userID, thumbnail);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
-					annotatedImportedImage(ctx, list, ll);
+					annotatedImportedImage(ctx, list, ll, userName);
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {

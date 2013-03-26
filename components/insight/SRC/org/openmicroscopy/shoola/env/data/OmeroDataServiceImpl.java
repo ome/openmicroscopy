@@ -170,6 +170,21 @@ class OmeroDataServiceImpl
 	}
 
 	/**
+	 * Returns the user name or <code>null</code> if the passed user is
+	 * the user currently logged in.
+	 * 
+	 * @param user The user to handle.
+	 * @return See above.
+	 */
+	private String getUserName(ExperimenterData user)
+	{
+		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
+		if (user != null && user.getId() != loggedIn.getId())
+			return user.getUserName();
+		return null;
+	}
+
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param gateway   Reference to the OMERO entry point.
@@ -292,29 +307,18 @@ class OmeroDataServiceImpl
 		if (child == null) 
 			throw new IllegalArgumentException("The child cannot be null.");
 		//Make sure parent is current
-
+		
+		String userName = getUserName(ctx.getExperimenterData());
 		IObject obj = ModelMapper.createIObject(child, parent);
 		if (obj == null) 
 			throw new NullPointerException("Cannot convert the object.");
 
-		IObject created = gateway.createObject(ctx, obj);
+		IObject created = gateway.createObject(ctx, obj, userName);
 		IObject link;
-		/*
-		if (child instanceof TagAnnotationData) {
-			//add description.
-			TagAnnotationData tag = (TagAnnotationData) child;
-			TextualAnnotationData desc = tag.getTagDescription();
-			if (desc != null) {
-				OmeroMetadataService service = context.getMetadataService(); 
-				service.annotate(TagAnnotationData.class, 
-						created.getId().getValue(), desc);
-			}
-		}
-		*/
 		if (parent != null) {
 			link = ModelMapper.linkParentToChild(created, parent.asIObject());
 			if ((child instanceof TagAnnotationData) && link != null) {
-				gateway.createObject(ctx, link);
+				gateway.createObject(ctx, link, userName);
 			}
 		}
 			
@@ -930,8 +934,8 @@ class OmeroDataServiceImpl
 		Iterator<DataObject> j;
 		DataObject object;
 		IObject link;
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
+		String userName = getUserName(ctx.getExperimenterData());
+		ExperimenterData exp = context.getAdminService().getUserDetails();
 		ExperimenterData owner;
 		Experimenter o = null;
 		IObject newObject;
@@ -966,7 +970,7 @@ class OmeroDataServiceImpl
 			}
 			if (toCreate.size() > 0) {
 				toCreate = gateway.saveAndReturnObject(target, toCreate,
-						new HashMap());
+						new HashMap(), userName);
 				targets.addAll(toCreate);
 			}
 			
