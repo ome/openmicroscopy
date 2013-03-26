@@ -294,9 +294,6 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/** Tab pane used to hose the Project/Screen selection UI component. */
 	private JTabbedPane tabbedPane;
-
-	/** A reference to the parent object that created this dialog. */
-	private JFrame owner;
 	
 	// Operational variables & constants
 	/** Constant value for no data type */
@@ -353,8 +350,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			int importDataType, Collection<TreeImageDisplay> objects,
 			Collection<GroupData> groups, long currentGroupId) {
 		super(parent);
-
-		this.owner = parent;
 		this.container = selectedContainer;
 		this.dataType = importDataType;
 		this.objects = objects;
@@ -860,7 +855,7 @@ class LocationDialog extends JDialog implements ActionListener,
 
 			if (newDataObject != null) {
 				
-				EditorDialog editor = new EditorDialog(owner,
+				EditorDialog editor = new EditorDialog((JFrame) getOwner(),
 						newDataObject, false);
 				editor.addPropertyChangeListener(this);
 				editor.setModal(true);
