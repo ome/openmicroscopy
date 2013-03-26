@@ -9,7 +9,7 @@ function deletePlates(session, varargin)
 %
 %      deletePlates(session, ids);
 %
-% See also: DELETEOBJECTS, DELETESCREENS
+% See also: DELETEOBJECTS, DELETESCREENS, DELETEPLATEACQUISITIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
