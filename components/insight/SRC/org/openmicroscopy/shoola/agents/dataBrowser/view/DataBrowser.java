@@ -691,8 +691,8 @@ public interface DataBrowser
 	/** 
 	 * Loads all the fields for the specified well.
 	 * 
-	 * @param row		The row identifying the well.
-	 * @param column	The column identifying the well.
+	 * @param row The row identifying the well.
+	 * @param column The column identifying the well.
 	 * @param multiSelection Pass <code>true</code> for multiple selection,
 	 * 		                 <code>false</code> otherwise.
 	 */
