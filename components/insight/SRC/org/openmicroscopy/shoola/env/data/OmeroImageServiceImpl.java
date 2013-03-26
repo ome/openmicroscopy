@@ -435,13 +435,14 @@ class OmeroImageServiceImpl
 	 * @param dataset The dataset to create or recycle.
 	 * @param container The container to create and link the dataset to.
 	 * @param object The object hosting the import option.
+	 * @param userName The name of the user to create the data for.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	private IObject determineContainer(SecurityContext ctx, DatasetData dataset,
-		DataObject container, ImportableObject object)
+		DataObject container, ImportableObject object, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IObject ioContainer = null;
@@ -460,14 +461,15 @@ class OmeroImageServiceImpl
 								container, ctx);
 						if (createdData == null) {
 							project = gateway.saveAndReturnObject(ctx,
-									container.asIObject(), parameters);
+									container.asIObject(), parameters,
+									userName);
 							//register
 							object.addNewDataObject(
 									PojoMapper.asDataObject(
 									project));
 							//now create the dataset
 							ioContainer = gateway.saveAndReturnObject(ctx, 
-									dataset.asIObject(), parameters);
+									dataset.asIObject(), parameters, userName);
 							//register
 							object.registerDataset(
 									project.getId().getValue(),
@@ -480,14 +482,15 @@ class OmeroImageServiceImpl
 									(Project) project);
 							link = (ProjectDatasetLink) 
 							gateway.saveAndReturnObject(ctx, link,
-									parameters);
+									parameters, userName);
 						} else {
 							DatasetData d;
 							d = object.isDatasetCreated(
 									createdData.getId(), dataset);
 							if (d == null) {
 								ioContainer = gateway.saveAndReturnObject(ctx,
-										dataset.asIObject(), parameters);
+										dataset.asIObject(), parameters,
+										userName);
 								//register
 								object.registerDataset(
 										createdData.getId(),
@@ -500,7 +503,7 @@ class OmeroImageServiceImpl
 										(Project) createdData.asProject());
 								link = (ProjectDatasetLink) 
 								gateway.saveAndReturnObject(ctx, link,
-										parameters);
+										parameters, userName);
 							} else ioContainer = d.asIObject();
 						}
 					} else { //project already exists.
@@ -508,7 +511,8 @@ class OmeroImageServiceImpl
 								container.getId(), dataset);
 						if (createdData == null) {
 							ioContainer = gateway.saveAndReturnObject(ctx,
-									dataset.asIObject(), parameters);
+									dataset.asIObject(), parameters,
+									userName);
 							//register
 							object.registerDataset(
 									container.getId(),
@@ -521,14 +525,14 @@ class OmeroImageServiceImpl
 									(Project) container.asProject());
 							link = (ProjectDatasetLink) 
 							gateway.saveAndReturnObject(ctx, link,
-									parameters);
+									parameters, userName);
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
 					createdData = object.hasObjectBeenCreated(dataset, ctx);
 					if (createdData == null) {
 						ioContainer = gateway.saveAndReturnObject(ctx,
-								dataset.asIObject(), parameters);
+								dataset.asIObject(), parameters, userName);
 						//register
 						object.addNewDataObject(PojoMapper.asDataObject(
 								ioContainer));
@@ -543,7 +547,7 @@ class OmeroImageServiceImpl
 							container, ctx);
 					if (createdData == null) {
 						ioContainer = gateway.saveAndReturnObject(ctx,
-								container.asIObject(), parameters);
+								container.asIObject(), parameters, userName);
 						//register
 						object.addNewDataObject(
 								PojoMapper.asDataObject(
@@ -1201,7 +1205,8 @@ class OmeroImageServiceImpl
 				if (folder instanceof DatasetData) {
 					try {
 						ioContainer = determineContainer(ctx,
-								(DatasetData) folder, container, object);
+								(DatasetData) folder, container, object,
+								userName);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {
@@ -1211,7 +1216,7 @@ class OmeroImageServiceImpl
 				} else if (folder instanceof ScreenData) {
 					try {
 						ioContainer = determineContainer(ctx, null, folder, 
-								object);
+								object, userName);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {
@@ -1223,7 +1228,7 @@ class OmeroImageServiceImpl
 			if (folder == null && dataset != null) { //dataset
 				try {
 					ioContainer = determineContainer(ctx, dataset, container,
-							object);
+							object, userName);
 				} catch (Exception e) {
 					context.getLogger().error(this, "Cannot create " +
 					"the container hosting the images.");
@@ -1463,8 +1468,8 @@ class OmeroImageServiceImpl
 			} else { //folder 
 				if (dataset != null) { //dataset
 					try {
-						ioContainer = determineContainer(ctx, dataset, container,
-								object);
+						ioContainer = determineContainer(ctx, dataset,
+								container, object, userName);
 					} catch (Exception e) {
 						context.getLogger().error(this, 
 								"Cannot create the container hosting " +

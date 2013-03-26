@@ -112,6 +112,13 @@ public class SecurityContext
 	public String getHostName() { return host; }
 	
 	/**
+	 * Returns the port used.
+	 * 
+	 * @return See above.
+	 */
+	public int getPort() { return port; }
+	
+	/**
 	 * Sets the compression level.
 	 * 
 	 * @param compression The value to set.
