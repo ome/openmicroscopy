@@ -18,19 +18,14 @@ def _additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
     suite.addTest(load("clitest.admin"))
-    suite.addTest(load("clitest.args"))
-    suite.addTest(load("clitest.base"))
-    suite.addTest(load("clitest.cfg"))
     suite.addTest(load("clitest.cli"))
     suite.addTest(load("clitest.db"))
     suite.addTest(load("clitest.export"))
-    suite.addTest(load("clitest.java"))
     suite.addTest(load("clitest.import"))
-    suite.addTest(load("clitest.node"))
     suite.addTest(load("clitest.prefs"))
     suite.addTest(load("clitest.rcode"))
     suite.addTest(load("clitest.sess"))
     return suite
 
 if __name__ == "__main__":
-    unittest.TextTestRunner().run(additional_tests())
+    unittest.TextTestRunner().run(_additional_tests())

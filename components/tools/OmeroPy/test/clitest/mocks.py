@@ -18,6 +18,7 @@ from omero.cli import BaseControl
 from omero.cli import NonZeroReturnCode
 
 from omero_ext import mox
+from omero_version import ice_compatibility
 
 LOG = logging.getLogger("climocks")
 
@@ -52,7 +53,7 @@ class MockCLI(CLI):
         print msg
         raise Exception(msg)
 
-    def out(self, *args):
+    def out(self, *args, **kwargs):
         self.__output.append(args[0])
 
     def err(self, *args):
@@ -108,7 +109,7 @@ class MockCLI(CLI):
 
     def checksIceVersion(self):
         popen = self.createPopen()
-        popen.communicate().AndReturn([None, "3.3.1"])
+        popen.communicate().AndReturn([None, ice_compatibility])
         self.replay(popen)
 
     def checksStatus(self, rcode):
