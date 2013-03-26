@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 Uses the default {@link DeleteCallbackI} instance.
 to delete a FileAnnotation along with its associated

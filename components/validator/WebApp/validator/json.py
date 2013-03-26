@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # A JSON-based API(view) for your app.
 # Most rules would look like:
 # @jsonify.when("isinstance(obj, YourClass)")

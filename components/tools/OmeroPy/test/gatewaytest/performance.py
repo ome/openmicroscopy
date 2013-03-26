@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    gateway tests - Testing speed of using Blitz gateway for various queries - particularly checking whether lazy loading

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Minimal script to test the {g,s}et{In,Out}put functionality

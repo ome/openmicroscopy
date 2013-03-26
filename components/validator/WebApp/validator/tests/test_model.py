@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # If your project uses a database, you can set up database tests
 # similar to what you see below. Be sure to set the db_uri to
 # an appropriate uri for your testing database. sqlite is a good

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server

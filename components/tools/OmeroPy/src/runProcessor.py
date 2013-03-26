@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # OMERO Processor Runner
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
