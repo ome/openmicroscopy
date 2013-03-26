@@ -289,9 +289,10 @@
 
                     var position = 0;
                     // Make sure top level objects get added to jsTree root (current selected may be project or screen)
-                    if (($.inArray(cont_type, ['project', 'screen'])> -1)
-                                && (selected.attr("rel").replace("-locked","") !== 'experimenter')) {
-                        position = "after";
+                    if (($.inArray(cont_type, ['project', 'screen'])> -1) ||
+                            (selected.attr("rel").replace("-locked","") === 'experimenter')) {
+                        position = OME.findTreeIndexForNode($.jstree._focused(), cont_type, new_container_name);
+                        selected = "#experimenter-0";   // Ensure we add node to root
                     }
                     $.ajax({
                         url: url,
