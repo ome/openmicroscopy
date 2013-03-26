@@ -1,15 +1,15 @@
-function deleteScreens(session, varargin)
-% DELETESCREENS Delete screens from the OMERO server
+function deletePlateAcquisitions(session, varargin)
+% DELETEPLATEACQUISITIONS Delete plate acquisitions from the OMERO server
 %
-%   deleteScreens(session, ids) deletes all the screens identified by the
-%   input ids. All annotations (tags, files...) linked to the screens will
-%   be deleted as well.
+%   deletePlateAcquisitions(session, ids) deletes all the plate
+%   acquisitions identified by the input ids. All annotations (tags,
+%   files...) linked to the plate acquisitions will be deleted as well.
 %
 %   Examples:
 %
-%      deleteScreens(session, ids);
+%      deletePlateAcquisitions(session, ids);
 %
-% See also: DELETEOBJECTS, DELETEPLATES, DELETEPLATEACQUISITIONS
+% See also: DELETEOBJECTS, DELETESCREENS, DELETEPLATES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -33,4 +33,4 @@ ip = inputParser;
 ip.addRequired('ids', @isvector);
 ip.parse(varargin{:});
 
-deleteObjects(session, ip.Results.ids, 'screen');
+deleteObjects(session, ip.Results.ids, 'plateacquisition');
