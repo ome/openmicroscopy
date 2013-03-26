@@ -36,8 +36,14 @@ public class ChecksumProviderFactoryImpl implements ChecksumProviderFactory {
         switch (checksumType) {
             case ADLER32:
                 return new Adler32ChecksumProviderImpl();
+            case CRC32:
+                return new CRC32ChecksumProviderImpl();
             case MD5:
                 return new MD5ChecksumProviderImpl();
+            case MURMUR32:
+                return new Murmur32ChecksumProviderImpl();
+            case MURMUR128:
+                return new Murmur128ChecksumProviderImpl();
             case SHA1:
             default:
                 return new SHA1ChecksumProviderImpl();
