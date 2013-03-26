@@ -68,28 +68,35 @@ if size(keep_alives) > 0,
     end
 end
 
+
+omero_client_jar=fullfile(findOmero, 'libs', 'omero_client.jar');
 try
-    OmeroClient_Jar=fullfile(findOmero, 'libs', 'omero_client.jar');
-    javarmpath(OmeroClient_Jar);
-    rmpath(genpath(findOmero)) % OmeroM and subdirectories
-    lastwarn(''); % We don't care about the clear path warnings.
+    % Remove OMERO jars from Java class path
+    javarmpath(omero_client_jar);
+    [w, wid] = lastwarn;
+    if ~strcmp(w, '') && ~isequal(wid, JAVAWARNID)
+        disp('  ');
+        disp('=============================================================== ');
+        disp('While unloading OMERO, found java objects left in workspace.    ');
+        disp('Please remove with ''clear <name>'' and then run ''unloadOmero''');
+        disp('again.  Printing all objects...');
+        disp('=============================================================== ');
+        disp('  ');
+        evalin('caller','whos');
+        lastwarn('');
+        return
+    end
     clear('java');
 catch ME
     warning(java_old.state, JAVAWARNID);
-    warning(path_old.state, PATHWARNID);
     throw ME;
 end
 
-w = lastwarn;
-disp(w);
-if ~strcmp(w,'')
-    disp('  ');
-    disp('=============================================================== ');
-    disp('While unloading OMERO, found java objects left in workspace.    ');
-    disp('Please remove with ''clear <name>'' and then run ''unloadOmero''');
-    disp('again.  Printing all objects...');
-    disp('=============================================================== ');
-    disp('  ');
-    evalin('caller','whos');
+try
+    % Remove OMERO.matlab from Matlab path
+    rmpath(genpath(findOmero))
+catch ME
+    warning(path_old.state, PATHWARNID);
+    throw ME;
 end
 lastwarn('');
