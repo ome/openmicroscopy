@@ -745,5 +745,36 @@ class TestUserTemplate(AbstractRepoTest):
         mrepo.makeDir(bDir, True)
         self.createFile(mrepo, bFile)
 
+
+class TestFilesetQueries(AbstractRepoTest):
+
+    def project(self, *args, **kwargs):
+        self.client.sf.getQueryService().projection(*args, **kwargs)
+
+    def testDeleteQuery(self):
+        query = "select fs from Fileset fs "\
+                "left outer join fetch fs.images as image "\
+                "where image.id in (:imageIds)"
+        params = omero.sys.Parameters()
+        params.map = {'imageIds': omero.rtypes.wrap([omero.rtypes.rlong(-1)])}
+        self.project(query, params)
+
+    def testCountFilesetFiles(self):
+        params = omero.sys.Parameters()
+        params.map = {'imageId': omero.rtypes.rlong(-1)}
+        query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
+                "left outer join fs.images as image where image.id=:imageId"
+        self.project(query, params)
+
+    def testImportedImageFiles(self):
+        params = omero.sys.Parameters()
+        params.map = {'imageId': omero.rtypes.rlong(-1)}
+        query = "select fs from Fileset as fs "\
+                "left outer join fetch fs.images as image "\
+                "left outer join fetch fs.usedFiles as usedFile " \
+                "join fetch usedFile.originalFile where image.id=:imageId"
+        self.project(query, params)
+
+
 if __name__ == '__main__':
     unittest.main()

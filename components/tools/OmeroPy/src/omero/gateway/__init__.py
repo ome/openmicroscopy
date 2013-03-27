@@ -3264,15 +3264,14 @@ class _BlitzGateway (object):
             if len(imgsWithFs) > 0:
                 params = omero.sys.Parameters()
                 params.map = {'imageIds': wrap(imgsWithFs)}
-                query = "select fs from Fileset as fs "\
-                        "left outer join fetch fs.imageLinks as fil "\
-                        "join fetch fil.child as image " \
+                query = "select fs from Fileset fs "\
+                        "left outer join fetch fs.images as image "\
                         "where image.id in (:imageIds)"
                 queryService = self.getQueryService()
                 filesets = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
                 for fs in filesets:
-                    for fsImgLink in fs.copyImageLinks():
-                        imgsToDelete.append(fsImgLink.child.id.val)
+                    for fsImg in fs.copyImages():
+                        imgsToDelete.append(fsImg.id.val)
                         break
             obj_ids = imgsToDelete
 
@@ -7415,7 +7414,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             params = omero.sys.Parameters()
             params.map = {'imageId': rlong(self.getId())}
             query = "select count(fse.id) from FilesetEntry as fse join fse.fileset as fs "\
-                    "left outer join fs.imageLinks as imageLink where imageLink.child.id=:imageId"
+                    "left outer join fs.images as image where image.id=:imageId"
             queryService = self._conn.getQueryService()
             fscount = queryService.projection(query, params, self._conn.SERVICE_OPTS)
             self._filesetFileCount = fscount[0][0]._val
@@ -7449,8 +7448,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             params = omero.sys.Parameters()
             params.map = {'imageId': rlong(self.getId())}
             query = "select fs from Fileset as fs "\
-                    "left outer join fetch fs.imageLinks as fil "\
-                    "join fetch fil.child as image " \
+                    "left outer join fetch fs.images as image "\
                     "left outer join fetch fs.usedFiles as usedFile " \
                     "join fetch usedFile.originalFile where image.id=:imageId"
             queryService = self._conn.getQueryService()
