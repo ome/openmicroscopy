@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
@@ -480,16 +481,17 @@ public interface ImageDataView
 	 * Loads the tiles.
 	 * 
 	 * @param ctx The security context.
-	 * @param pixelsID 	The id of the pixels set.
-	 * @param pDef		The plane to render.
-	 * @param tiles		The tiles.
-	 * @param asTexture	Pass <code>true</code> to return a texture,
-	 * 					<code>false</code> to return a buffered image.
+	 * @param pixelsID The id of the pixels set.
+	 * @param pDef The plane to render.
+	 * @param proxy The rendering control to use
+	 * @param tiles The tiles.
+	 * @param asTexture Pass <code>true</code> to return a texture,
+	 * <code>false</code> to return a buffered image.
 	 * @param observer Call-back handler.
 	 * @return See above.
 	 */
 	public CallHandle loadTiles(SecurityContext ctx, long pixelsID,
-		PlaneDef pDef, Collection<Tile> tiles, boolean asTexture,
-			AgentEventListener observer);
+		PlaneDef pDef, RenderingControl proxy, Collection<Tile> tiles,
+		boolean asTexture, AgentEventListener observer);
 	
 }

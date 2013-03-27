@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -162,7 +164,7 @@ class Connector
 	private Set<ServiceInterfacePrx> services;
 	
 	/** Collection of services to keep alive. */
-	private Map<Long, StatefulServiceInterfacePrx> reServices;
+	private Map<Long, List<StatefulServiceInterfacePrx>> reServices;
 	
 	/**
 	 * The number of thumbnails already retrieved. Resets to <code>0</code>
@@ -201,7 +203,7 @@ class Connector
 		this.context = context;
 		thumbRetrieval = 0;
 		services = new HashSet<ServiceInterfacePrx>();
-		reServices = new HashMap<Long, StatefulServiceInterfacePrx>();
+		reServices = new HashMap<Long, List<StatefulServiceInterfacePrx>>();
 	}
 
 	/**
@@ -499,7 +501,12 @@ class Connector
 			prx = entryUnencrypted.createRenderingEngine();
 		else prx = entryEncrypted.createRenderingEngine();
 		prx.setCompressionLevel(context.getCompression());
-		reServices.put(pixelsID, prx);
+		List<StatefulServiceInterfacePrx> list = reServices.get(pixelsID);
+		if (list == null) {
+			list = new ArrayList<StatefulServiceInterfacePrx>();
+			reServices.put(pixelsID, list);
+		}
+		list.add(prx);
 		return prx;
 	}
 
@@ -685,15 +692,20 @@ class Connector
 			importStore.closeServices();
 			importStore = null;
 		}
-		
-		Collection<StatefulServiceInterfacePrx> l = reServices.values();
-		if (l != null && rendering) {
-			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
-			while (i.hasNext()) {
-				close(i.next());
-			}
-			reServices.clear();
+		if (!rendering) return;
+		Entry<Long, List<StatefulServiceInterfacePrx>> e;
+		Iterator<Entry<Long, List<StatefulServiceInterfacePrx>>> i = 
+				reServices.entrySet().iterator();
+		List<StatefulServiceInterfacePrx> l;
+		Iterator<StatefulServiceInterfacePrx> j;
+		while (i.hasNext()) {
+			e = i.next();
+			l = e.getValue();
+			j = l.iterator();
+			while (j.hasNext())
+				close(j.next());
 		}
+		reServices.clear();
 	}
 	
 	/** Keeps services alive.*/
@@ -755,8 +767,12 @@ class Connector
 	void shutDownRenderingEngine(long pixelsId)
 	{
 		try {
-			StatefulServiceInterfacePrx proxy = reServices.get(pixelsId);
-			if (proxy != null) proxy.close();
+			List<StatefulServiceInterfacePrx> l = reServices.get(pixelsId);
+			if (l != null) {
+				Iterator<StatefulServiceInterfacePrx> i = l.iterator();
+				while (i.hasNext())
+					i.next().close();
+			}
 			reServices.remove(pixelsId);
 		} catch (Exception e) {
 		}
