@@ -422,8 +422,7 @@ class OMEROGateway
 	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("select fs from Fileset as fs ");
-		buffer.append("left outer join fetch fs.imageLinks as fil ");
-		buffer.append("join fetch fil.child as image ");
+		buffer.append("join fetch fs.images as image ");
 		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
 		buffer.append("join fetch usedFile.originalFile ");
 		buffer.append("where image.id in (:imageIds)");
