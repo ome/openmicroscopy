@@ -33,6 +33,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <required name="osArchitecture" type="string"/>
             <required name="osName" type="string"/>
             <required name="osVersion" type="string"/>
+            <required name="clientLanguage" type="string"/>
+            <required name="clVendor" type="string"/>
+            <required name="clVersion" type="string"/>
+            <optional name="clCompiler" type="string"/>
             <required name="locale" type="string"/>
         </properties>
     </type>

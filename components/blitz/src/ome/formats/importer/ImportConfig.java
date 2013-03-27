@@ -35,6 +35,7 @@ import ome.system.UpgradeCheck;
 import omero.model.Annotation;
 import omero.model.FilesetVersionInfo;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
@@ -257,11 +258,17 @@ public class ImportConfig {
     public void fillVersionInfo(FilesetVersionInfo versionInfo) {
         versionInfo.setBioformatsVersion(rstring(getBioFormatsVersion()));
         versionInfo.setOmeroVersion(rstring(getOmeroVersion()));
+        versionInfo.setLocale(rstring(Locale.getDefault().toString()));
         versionInfo.setOsArchitecture(rstring(System.getProperty("os.arch")));
         versionInfo.setOsName(rstring(System.getProperty("os.name")));
         versionInfo.setOsVersion(rstring(System.getProperty("os.version")));
-        versionInfo.setLocale(rstring(Locale.getDefault().toString()));
-        // TODO: add java version info
+        versionInfo.setClientLanguage(rstring("Java"));
+        versionInfo.setClVendor(rstring(System.getProperty("java.vendor")));
+        versionInfo.setClVersion(rstring(System.getProperty("java.version")));
+        final String clientLanguageCompiler = System.getProperty("java.compiler");
+        if (!StringUtils.isEmpty(clientLanguageCompiler)) {
+            versionInfo.setClCompiler(rstring(clientLanguageCompiler));
+        }
     }
 
     /**
