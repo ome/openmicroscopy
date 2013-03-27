@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from turbogears.database import PackageHub
 from sqlobject import *
 

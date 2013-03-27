@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from omero.constants import *
 
 print "By default, no method call can pass more than %s kb" % MESSAGESIZEMAX

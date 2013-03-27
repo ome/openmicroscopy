@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Copyright 2010 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt

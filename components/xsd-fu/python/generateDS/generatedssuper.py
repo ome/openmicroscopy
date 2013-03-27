@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # In order to provide default implementations of the Overridable
 # methods, you can put this module in a location where it can be

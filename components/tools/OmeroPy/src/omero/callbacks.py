@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Callbacks to be used with asynchronous services. The
    ProcessCallbackI is also included in the omero.scripts
