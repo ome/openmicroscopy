@@ -174,17 +174,6 @@ button::-moz-focus-inner {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
     }
     
-/*<<<<<<< HEAD
-    #download_dropdown .dropdown {
-        right: 0px;
-        left: auto;
-    }
-    #download_dropdown {
-        float:right;
-        margin-left: 5px;
-    }
-    #download_dropdown .dropdown:before {
-=======*/
     .toolbar_dropdown {
         float:right;
         margin-left: 5px;
