@@ -31,6 +31,7 @@ import java.lang.management.MemoryUsage;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -232,7 +233,7 @@ public class PixelsServicesFactory
 	 * 						cannot call the method. 
 	 * 						It must be a reference to the
 	 *                  	container's registry.
-	 * @param re        	The {@link RenderingEngine rendering service}.
+	 * @param reList        The {@link RenderingEngine}s.
 	 * @param pixels   		The pixels set.
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
@@ -243,39 +244,53 @@ public class PixelsServicesFactory
 	 * @return See above.
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
-	public static RenderingControl createRenderingControl(Registry context, 
-			SecurityContext ctx, RenderingEnginePrx re, Pixels pixels,
+	public static RenderingControl createRenderingControl(Registry context,
+			List<RenderingEnginePrx> reList, Pixels pixels,
 			List<ChannelData> metadata, int compression, List<RndProxyDef> defs)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(ctx, re, pixels, metadata, compression, defs);
+		return singleton.makeNew(reList, pixels, metadata, compression, defs);
 	}
 
 	/**
 	 * Reloads the rendering engine.
 	 * 
-	 * @param context	Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                call the method. It must be a reference to the
+	 *                container's registry.
 	 * @param pixelsID	The ID of the pixels set.
-	 * @param re		The {@link RenderingEngine rendering service}.
+	 * @param reList The {@link RenderingEngine}s.
 	 * @return See above.
-	 * @throws RenderingServiceException	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @throws RenderingServiceException If an error occurred while setting 
+	 * the value.
+     * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	public static RenderingControlProxy reloadRenderingControl(Registry context, 
-			long pixelsID, RenderingEnginePrx re)
+	public static RenderingControlProxy reloadRenderingControl(Registry context,
+			long pixelsID, List<RenderingEnginePrx> reList)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		if (reList == null || reList.size() == 0)
+			throw new IllegalArgumentException("No RE specified.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(pixelsID);
 		if (proxy != null) {
 			proxy.shutDown();
-			proxy.setRenderingEngine(re);
+			proxy.setRenderingEngine(reList.get(0));
+			reList.remove(0);
+			List<RenderingControl> slaves = proxy.getSlaves();
+			if (slaves.size() == reList.size()) {
+				Iterator<RenderingControl> i = slaves.iterator();
+				int index = 0;
+				while (i.hasNext()) {
+					proxy = (RenderingControlProxy) i.next();
+					proxy.shutDown();
+					proxy.setRenderingEngine(reList.get(index));
+				}
+				index++;
+			}
 		}
 		return proxy;
 	}
@@ -283,30 +298,43 @@ public class PixelsServicesFactory
 	/**
 	 * Resets the rendering engine.
 	 * 
-	 * @param context	Reference to the registry. To ensure that agents cannot
-	 *                  call the method. It must be a reference to the
-	 *                  container's registry.
-	 * @param pixelsID	The ID of the pixels set.
-	 * @param re		The {@link RenderingEngine rendering service}.
-	 * @param def		The rendering def linked to the rendering engine.
-	 * 					This is passed to speed up the initialization 
-	 * 					sequence.
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                call the method. It must be a reference to the
+	 *                container's registry.
+	 * @param pixelsID The ID of the pixels set.
+	 * @param reList The {@link RenderingEngine}s.
+	 * @param def The rendering def linked to the rendering engine.
+	 * This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 * @throws RenderingServiceException	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public static RenderingControlProxy resetRenderingControl(Registry context, 
-			long pixelsID, RenderingEnginePrx re, RenderingDef def)
+	public static RenderingControlProxy resetRenderingControl(Registry context,
+			long pixelsID, List<RenderingEnginePrx> reList, RenderingDef def)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
+		if (reList == null || reList.size() == 0)
+			throw new IllegalArgumentException("No RE specified.");
 		RenderingControlProxy proxy = (RenderingControlProxy) 
 		singleton.rndSvcProxies.get(pixelsID);
-		if (proxy != null) 
-			proxy.resetRenderingEngine(re, convert(def));
-		
+		if (proxy != null) {
+			RndProxyDef converted = convert(def);
+			proxy.resetRenderingEngine(reList.get(0), converted);
+			reList.remove(0);
+			List<RenderingControl> slaves = proxy.getSlaves();
+			if (slaves.size() == reList.size()) {
+				Iterator<RenderingControl> i = slaves.iterator();
+				int index = 0;
+				while (i.hasNext()) {
+					proxy = (RenderingControlProxy) i.next();
+					proxy.resetRenderingEngine(reList.get(index), converted);
+				}
+				index++;
+			}
+		}
 		return proxy;
 	}
 	
@@ -633,8 +661,7 @@ public class PixelsServicesFactory
 	/**
 	 * Makes a new {@link RenderingControl}.
 	 * 
-	 * @param ctx The security context.
-	 * @param re The rendering control.
+	 * @param reList The rendering engines.
 	 * @param pixels The pixels set.
 	 * @param metadata The related metadata.
 	 * @param compression Pass <code>0</code> if no compression otherwise 
@@ -643,8 +670,8 @@ public class PixelsServicesFactory
 	 * rendering engine.This is passed to speed up the initialization sequence.
 	 * @return See above.
 	 */
-	private RenderingControl makeNew(SecurityContext ctx, RenderingEnginePrx re,
-			Pixels pixels, List metadata, int compression, 
+	private RenderingControl makeNew(List<RenderingEnginePrx> reList,
+			Pixels pixels, List<ChannelData> metadata, int compression,
 			List<RndProxyDef> defs)
 	{
 		if (singleton == null) throw new NullPointerException();
@@ -653,8 +680,22 @@ public class PixelsServicesFactory
 			(RenderingControl) singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
 		singleton.rndSvcProxiesCount.put(id, 1);
-		rnd = new RenderingControlProxy(ctx, registry, re, pixels, metadata, 
-										compression, defs, getCacheSize());
+		RenderingEnginePrx master = reList.get(0);
+		int size = getCacheSize();
+		reList.remove(0);
+		rnd = new RenderingControlProxy(registry, master, pixels, metadata,
+										compression, defs, size);
+		Iterator<RenderingEnginePrx> i = reList.iterator();
+		if (reList.size() > 0) {
+			List<RenderingControl> 
+			slaves = new ArrayList<RenderingControl>(reList.size());
+			while (i.hasNext()) {
+				slaves.add(new RenderingControlProxy(registry, i.next(), pixels,
+						metadata, compression, defs, size));
+			}
+			((RenderingControlProxy) rnd).setSlaves(slaves);
+		}
+		
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
 	}

@@ -3295,14 +3295,14 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setTile(Tile, boolean)
+	 * @see ImViewer#setTile(int)
 	 */
-	public void setTile(Tile tile, boolean done)
+	public void setTileCount(int count)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
 		view.removeComponentListener(controller);
-		if (done) {
+		if (model.isTileLoaded(count)) {
 			view.addComponentListener(controller);
 			model.setState(READY);
 			fireStateChange();
