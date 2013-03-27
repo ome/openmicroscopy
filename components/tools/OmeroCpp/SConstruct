@@ -158,3 +158,29 @@ def define_test(dir):
 
 unit = define_test("unit")
 integration = define_test("integration")
+
+#
+# Build code coverage test
+#
+if (ARGUMENTS.get("gcov", 0)):
+    print "building gcov test"
+
+    covEnv = tenv.Clone()
+    covEnv.Append(CXXFLAGS=["--coverage"])
+
+    paths = ["target/**/**/*.cpp","target/**/*.cpp", 
+            "src/**/**/*.cpp", "src/**/*.cpp"]
+
+    covEnv.VariantDir("test-cov/", "test", duplicate=0)
+
+    srcAll = [covEnv.Glob(path) for path in paths]
+    srcAll += covEnv.Glob("test-cov/**/*.cpp") + tenv.Glob("test-cov/**/*.cc")
+    
+    # setup clean to remove gcov and lcov files
+    gcnoFiles = [covEnv.Glob(re.sub("\\*\\..*", "*.gcno", path)) for path in paths]
+    gcdaFiles = [covEnv.Glob(re.sub("\\*\\..*", "*.gcda", path)) for path in paths]
+    covEnv.Clean("test/coverage/cov", gcnoFiles + gcdaFiles)
+
+    covTarget = "test/coverage/cc"
+    cov =  covEnv.Program(covTarget, srcAll,
+        LIBS = covEnv.icelibs() + ["-lprofile_rt"])
