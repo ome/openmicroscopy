@@ -3,7 +3,8 @@ function deleteProjects(session, varargin)
 %
 %   deleteProjects(session, ids) deletes all the projects identified by the
 %   input ids. All annotations (tags, files...) linked to the projecs will
-%   be deleted as well.
+%   either be deleted if not shared with other objects or unlinked if
+%   shared with other objects.
 %
 %   Examples:
 %

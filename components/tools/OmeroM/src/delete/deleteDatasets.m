@@ -3,7 +3,8 @@ function deleteDatasets(session, varargin)
 %
 %   deleteDatasets(session, ids) deletes all the datasets identified by the
 %   input ids. All annotations (tags, files...) linked to the datasets will
-%   be deleted as well.
+%   either be deleted if not shared with other objects or unlinked if
+%   shared with other objects.
 %
 %   Examples:
 %

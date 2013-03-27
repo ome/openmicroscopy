@@ -3,7 +3,8 @@ function deleteScreens(session, varargin)
 %
 %   deleteScreens(session, ids) deletes all the screens identified by the
 %   input ids. All annotations (tags, files...) linked to the screens will
-%   be deleted as well.
+%   either be deleted if not shared with other objects or unlinked if
+%   shared with other objects.
 %
 %   Examples:
 %

@@ -3,7 +3,8 @@ function deletePlateAcquisitions(session, varargin)
 %
 %   deletePlateAcquisitions(session, ids) deletes all the plate
 %   acquisitions identified by the input ids. All annotations (tags,
-%   files...) linked to the plate acquisitions will be deleted as well.
+%   files...) linked to the plate acquisitions will either be deleted if
+%   not shared with other objects or unlinked if shared with other objects.
 %
 %   Examples:
 %

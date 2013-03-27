@@ -3,7 +3,8 @@ function deleteObjects(session, ids, type)
 %
 %   objects = deleteObjects(session, ids, type) returns all the objects of
 %   the specified type, identified by the input ids. All annotations (tags,
-%   files...) linked to the objects will be deleted as well.
+%   files...) linked to the objects will either be deleted if not shared
+%   with other objects or unlinked if shared with other objects.
 %
 %
 %   Examples:
