@@ -78,6 +78,7 @@ import loci.formats.gui.ComboFileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -1552,7 +1553,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				currentFilter = chooser.getFileFilter();
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
-				firePropertyChange(REFRESH_LOCATION_PROPERTY, -1, getType());
+				ImportLocationDetails details = new ImportLocationDetails(getType());
+				firePropertyChange(REFRESH_LOCATION_PROPERTY, null, details);
 				break;
 			case CMD_CANCEL_ALL_IMPORT:
 				firePropertyChange(CANCEL_ALL_IMPORT_PROPERTY,

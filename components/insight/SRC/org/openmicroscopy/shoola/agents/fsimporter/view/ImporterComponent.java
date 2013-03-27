@@ -176,7 +176,9 @@ class ImporterComponent
 		GroupData group = exp.getDefaultGroup();
 		long oldGroup = model.getGroupId();
 		model.setGroupId(group.getId());
-		refreshContainers(chooser.getType());
+		ImportLocationDetails details = 
+				new ImportLocationDetails(chooser.getType());
+		refreshContainers(details);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
 				model.getGroupId());
 	}
@@ -203,10 +205,8 @@ class ImporterComponent
 		view.reset();
 		model.setGroupId(group.getId());
 		
-		Collection<GroupData> availableGroups = loadGroups();
-		//chooser.onReconnected(view.buildToolBar(availableGroups,model.getGroupId() ));
-		
-		refreshContainers(chooser.getType());
+		ImportLocationDetails info = new ImportLocationDetails(chooser.getType());
+		refreshContainers(info);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
 				model.getGroupId());
 	}
@@ -238,7 +238,6 @@ class ImporterComponent
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
 					selectedContainer, objects, type, ImporterAgent.getAvailableUserGroups());
 			chooser.addPropertyChangeListener(controller);
-			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
 			boolean remove = selectedContainer == null;
@@ -248,7 +247,7 @@ class ImporterComponent
 		}
 		chooser.setSelectedGroup(getSelectedGroup());
 		if (model.isMaster() || objects == null || objects.size() == 0)
-			refreshContainers(type);
+			refreshContainers(new ImportLocationDetails(type));
 		//load available disk space
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
@@ -331,7 +330,7 @@ class ImporterComponent
 			if (chooser != null && 
 					chooser.getType() == Importer.SCREEN_TYPE)
 				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false);
+			model.fireContainerLoading(rootType, true, false, -1);
 			fireStateChange();
 		}
 	}
@@ -562,7 +561,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#refreshContainers(int)
 	 */
-	public void refreshContainers(int type)
+	public void refreshContainers(ImportLocationDetails details)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -570,9 +569,9 @@ class ImporterComponent
 		}
 		view.showRefreshMessage(false);
 		Class rootType = ProjectData.class;
-		if (type == Importer.SCREEN_TYPE)
+		if (details.getDataType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, false);
+		model.fireContainerLoading(rootType, false, false, details.getUserId());
 	}
 
 	/** 
@@ -729,7 +728,7 @@ class ImporterComponent
 		Class rootType = ProjectData.class;
 		if (chooser.getType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
-		model.fireContainerLoading(rootType, false, true);
+		model.fireContainerLoading(rootType, false, true, -1);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 

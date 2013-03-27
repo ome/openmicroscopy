@@ -60,6 +60,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
@@ -852,9 +853,9 @@ class LocationDialog extends JDialog implements ActionListener,
 					break;
 				case CMD_REFRESH_DISPLAY:
 					storeCurrentSelections();
-					
+					ImportLocationDetails details = new ImportLocationDetails(dataType);
 					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-							NO_DATA_TYPE, dataType);
+							null, details);
 			}
 
 			if (newDataObject != null) {
@@ -1415,9 +1416,10 @@ class LocationDialog extends JDialog implements ActionListener,
 				newDataType = Importer.SCREEN_TYPE;
 			
 			storeCurrentSelections();
-			
+
+			ImportLocationDetails details = new ImportLocationDetails(newDataType);
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-					dataType, newDataType);
+					null, details);
 		}
 	}
 
@@ -1471,6 +1473,9 @@ class LocationDialog extends JDialog implements ActionListener,
 				
 				switchToSelectedGroup();
 			} else if(source == usersBox) {
+				ImportLocationDetails details = new ImportLocationDetails(dataType, getSelectedUser().getId());
+				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null, details);
+				
 				changeUserSelection();
 
 			} else if (source == projectsBox) {
@@ -1523,6 +1528,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			projectsBox.setSelectedIndex(0);
 			datasetsBox.setSelectedIndex(0);
 		}
+		
 	}
 
 	/**
