@@ -28,11 +28,9 @@ import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -239,10 +237,9 @@ public interface Importer
 	/** 
 	 * Reloads the containers where to load the data.
 	 * 
-	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
-	 * 				or {@link #SCREEN_TYPE}.
+	 * @param details Import location details to reload.
 	 */
-	public void refreshContainers(int type);
+	public void refreshContainers(ImportLocationDetails details);
 
 	/** Cancels all the ongoing imports.*/
 	public void cancelAllImports();
