@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -88,6 +89,9 @@ public abstract class DataLoader
     /** Convenience reference for subclasses. */
     protected final DataManagerView dmView;
     
+    /** Convenience reference for subclasses. */
+    protected final HierarchyBrowsingView hiBrwView;
+    
     /** The security context.*/
     protected final SecurityContext ctx;
     
@@ -105,14 +109,16 @@ public abstract class DataLoader
         this.viewer = viewer;
         this.ctx = ctx;
         registry = ImViewerAgent.getRegistry();
-        ivView = (ImageDataView) 
+        ivView = (ImageDataView)
                     registry.getDataServicesView(ImageDataView.class);
-        dhView = (DataHandlerView) 
+        dhView = (DataHandlerView)
 					registry.getDataServicesView(DataHandlerView.class);
-        mhView = (MetadataHandlerView) 
+        mhView = (MetadataHandlerView)
 					registry.getDataServicesView(MetadataHandlerView.class);
-        dmView = (DataManagerView) 
+        dmView = (DataManagerView)
 		registry.getDataServicesView(DataManagerView.class);
+        hiBrwView = (HierarchyBrowsingView)
+        			registry.getDataServicesView(HierarchyBrowsingView.class);
     }
     
 	/**
