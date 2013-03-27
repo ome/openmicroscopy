@@ -2668,6 +2668,7 @@ class ImViewerModel
 			if (w >= h) ratio = (double) ref/w;
 			else ratio = (double) ref/h;
 		}
+		ratio = (double) ref/Factory.THUMB_DEFAULT_WIDTH;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);
