@@ -185,7 +185,7 @@
                             }
                             if (plates.length > 0) {
                                 var nodeText = OME.jsTreeNodeText($(plates[0])),
-                                    targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
+                                    targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
                                 tree.move_node(plates, $("li#experimenter-0"), targetIndex);
                             }
                         }
