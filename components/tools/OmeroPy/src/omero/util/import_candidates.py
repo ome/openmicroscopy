@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Utility method for calling the equivalent of "bin/omero import -f".
    Results are parsed when using as_dictionary.

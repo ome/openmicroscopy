@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from django.forms.widgets import RadioSelect, RadioInput, RadioFieldRenderer
 from django.utils.encoding import force_unicode
 

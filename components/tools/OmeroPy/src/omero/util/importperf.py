@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 """
 Performs various performance metrics and reports on OMERO.importer log files.

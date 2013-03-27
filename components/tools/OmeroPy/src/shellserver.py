@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # OMERO Grid Shell Server
 # Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
