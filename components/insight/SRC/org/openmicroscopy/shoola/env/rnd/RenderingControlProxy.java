@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import Ice.ObjectNotExistException;
+
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
@@ -54,6 +56,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.ConnectionExceptionHandler;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -159,6 +162,15 @@ class RenderingControlProxy
 	
 	/** The associated rendering controls.*/
 	private List<RenderingControl> slaves;
+	
+	/** Time of the last interaction.*/
+	private long lastAction;
+	
+	/** Flag indicating if the rendering engine is already shut down or not.*/
+	private boolean shutDown;
+	
+	/** The security context associated to the control.*/
+	private SecurityContext ctx;
 	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
@@ -575,6 +587,7 @@ class RenderingControlProxy
 		}
         return img;
 	}
+	
     /**
 	 * Renders the compressed image.
 	 * 
@@ -735,10 +748,11 @@ class RenderingControlProxy
         return img;
 	}
 	
-	/** Checks if the proxy is still active.*/
-	private void isSessionAlive()
+	/** Checks if the proxy is still alive.*/
+	private synchronized void isSessionAlive()
 		throws RenderingServiceException
 	{
+    	lastAction = System.currentTimeMillis();
 		if (!networkUp) {
 			RenderingServiceException ex = new RenderingServiceException();
 			ex.setIndex(RenderingServiceException.CONNECTION);
@@ -747,6 +761,16 @@ class RenderingControlProxy
 			networkUp = checker.isNetworkup();
 			servant.ice_ping();
 		} catch (Throwable e) {
+			if (shutDown && (e instanceof ObjectNotExistException)) {
+	    		//reload the RE
+				try {
+					context.getImageService().reloadRenderingService(ctx,
+							getPixelsID());
+				} catch (Exception ex) {
+					throw new RenderingServiceException(ex);
+				}
+				return;
+	    	}
 			boolean b = handleConnectionException(e);
 			int index = 0;
 			if (!b) {
@@ -774,9 +798,9 @@ class RenderingControlProxy
 	 * speed-up the client.
 	 * @param cacheSize The desired size of the cache.
      */
-    RenderingControlProxy(Registry context,RenderingEnginePrx re,
-    		Pixels pixels, List<ChannelData> m, int compression,
-    		List<RndProxyDef> rndDefs, int cacheSize)
+    RenderingControlProxy(Registry context, SecurityContext ctx,
+    		RenderingEnginePrx re, Pixels pixels, List<ChannelData> m,
+    		int compression, List<RndProxyDef> rndDefs, int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -784,10 +808,15 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        if (ctx == null)
+            throw new NullPointerException("No security context.");
+        this.ctx = ctx;
         slaves = new ArrayList<RenderingControl>();
         checker = new NetworkChecker();
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
+        lastAction = System.currentTimeMillis();
+        shutDown = false;
         if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
         this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
@@ -826,6 +855,22 @@ class RenderingControlProxy
 		}
     }
 
+    boolean isShutDown() { return shutDown; }
+
+    /**
+     * Returns <code>true</code> if the rendering engine is still active,
+     * <code>false</code> otherwise.
+     * 
+     * @param timeout The time after which the engine is considered to be
+     * inactive.
+     * @return See above.
+     */
+    boolean isProxyActive(long timeout)
+    {
+    	long time = System.currentTimeMillis();
+    	return time-lastAction < timeout;
+    }
+    
     /** Sets the rendering control associated to the main control.*/
     void setSlaves(List<RenderingControl> slaves)
     {
@@ -852,6 +897,8 @@ class RenderingControlProxy
 		} catch (Exception e) {} //digest exception if already close.
     	invalidateCache();
     	this.servant = servant;
+    	shutDown = false;
+    	lastAction = System.currentTimeMillis();
     	try {
     		if (rndDef == null) {
             	initialize();
@@ -882,7 +929,8 @@ class RenderingControlProxy
     {
     	if (servant == null) return;
     	this.servant = servant;
-    	
+    	shutDown = false;
+    	lastAction = System.currentTimeMillis();
     	// reset default of the rendering engine.
     	if (rndDef == null) return;
     	try {
@@ -926,19 +974,33 @@ class RenderingControlProxy
 			handleException(e, "Cannot reset the rendering engine.");
 		}
     }
-        
-    /** Shuts down the service. */
-    void shutDown()
-    { 
+    
+    
+    /** 
+     * Shuts down the service. Returns <code>true</code> if the proxy
+     * was already shut down, <code>false</code> otherwise.
+     * 
+     * @param keepCache Pass <code>true</code> to keep the cache,
+     *                  <code>false</code> otherwise.
+     * @return See above.
+     */
+    boolean shutDown(boolean keepCache)
+    {
+    	if (shutDown) return shutDown;
     	try {
-    		if (cacheID >= 0)
+    		if (!keepCache && cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
     		if (checker.isNetworkup()) servant.close();
     		Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
 				((RenderingControlProxy) j.next()).shutDown();
-		} catch (Exception e) {} 
+		} catch (Exception e) {}
+    	shutDown = true;
+    	return false;
     }
+    
+    /** Shuts down the service. */
+    void shutDown() { shutDown(false); }
     
 	/**
 	 * Resets the size of the cache.

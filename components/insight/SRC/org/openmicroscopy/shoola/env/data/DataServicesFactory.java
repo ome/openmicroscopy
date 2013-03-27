@@ -203,7 +203,6 @@ public class DataServicesFactory
 		//Check what to do if null.
         omeroGateway = new OMEROGateway(omeroInfo.getPortSSL(), this);
         
-        //omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);
@@ -363,7 +362,7 @@ public class DataServicesFactory
      * 
      * @param title     The dialog title.
      * @param message   The dialog message.
-     * @param shutdown Pass <code>true</code> to shut down the application 
+     * @param shutdown Pass <code>true</code> to shut down the application
      * <code>false otherwise</code>
      */
     private void showNotificationDialog(String title, String message, boolean
@@ -464,7 +463,6 @@ public class DataServicesFactory
 						}
 					}
 					message = "You are reconnected to the server.";
-					//un.notifyInfo("Reconnection Success", message);
 					if (failure.size() > 0) {
 						//notify user.
 						registry.getEventBus().post(
@@ -677,7 +675,7 @@ public class DataServicesFactory
 	public boolean isConnected() { return omeroGateway.isConnected(); }
 	
 	/**
-	 * Returns <code>true</code> if the client and server are compatible, 
+	 * Returns <code>true</code> if the client and server are compatible,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -775,6 +773,14 @@ public class DataServicesFactory
 		throws Exception
 	{
 		omeroGateway.removeGroup(ctx);
+	}
+
+	/**
+	 * Checks if the rendering engines 
+	 */
+	public void checkServicesStatus()
+	{
+		PixelsServicesFactory.checkRenderingControls(container.getRegistry());
 	}
 
 }

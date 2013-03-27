@@ -735,7 +735,6 @@ class ImViewerComponent
 			double ny = (double) h/oy;
 			model.getBrowser().setComponentsSize(w, h);
 			model.getBrowser().setViewLocation(nx, ny);
-			//loadTiles(null);
 			postMeasurePlane();
 			return;
 		}
@@ -3267,7 +3266,8 @@ class ImViewerComponent
 					set = true;
 				}
 				model.setBirdEyeView(image);
-				if (set) renderXYPlane();
+				if (set)
+					controller.setZoomFactor(model.getSelectedResolutionLevel());
 		}
 	}
 	
@@ -3301,7 +3301,6 @@ class ImViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
-		view.removeComponentListener(controller);
 		if (model.isTileLoaded(count)) {
 			view.addComponentListener(controller);
 			model.setState(READY);
@@ -3365,6 +3364,7 @@ class ImViewerComponent
 		}
     	model.clearTileImages(toClear);
 		if (l.size() > 0) {
+			view.removeComponentListener(controller);
 			model.fireTileLoading(l);
 			fireStateChange();
 		}
@@ -3453,6 +3453,24 @@ class ImViewerComponent
 	 * @see ImViewer#getPixelsID()
 	 */
 	public long getPixelsID() { return model.getPixelsID(); }
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getSelectedResolutionLevel()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		return model.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getResolutionLevels()
+	 */
+	public int getResolutionLevels()
+	{
+		return model.getResolutionLevels();
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 
