@@ -1438,7 +1438,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			storeCurrentSelections();
 
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-					null, new ImportLocationDetails(newDataType));
+					null, new ImportLocationDetails(newDataType, 
+							getSelectedUser().getId()));
 		}
 	}
 
