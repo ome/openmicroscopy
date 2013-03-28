@@ -133,6 +133,8 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^script_ui/(?P<scriptId>[0-9]+)/$', views.script_ui, name='script_ui' ), # shows a form for running a script
     url( r'^script_run/(?P<scriptId>[0-9]+)/$', views.script_run, name='script_run' ),  # runs the script - parameters in POST
     url( r'^get_original_file/(?:(?P<fileId>[0-9]+)/)?$', views.get_original_file, name="get_original_file"), # for stderr, stdout etc
+    url( r'^figure_script/(?P<scriptName>((?i)SplitView|RoiSplit))/$', 
+        views.figure_script, name='figure_script' ), # shows a form for running a script
 
     # ome_tiff_script: generate OME-TIFF and attach to image (use script service). Must be POST
     url( r'^ome_tiff_script/(?P<imageId>[0-9]+)/$', views.ome_tiff_script, name='ome_tiff_script' ),
