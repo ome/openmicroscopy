@@ -136,6 +136,7 @@ button::-moz-focus-inner {
 	.btn_group {background: url(../../webgateway/img/icon_add_group.png )center center no-repeat;}
 	.btn_delete {background: url(../../webgateway/img/icon_delete.png )center center no-repeat;}
 	.btn_edit {background: url(../../webgateway/img/icon_edit.png )center center no-repeat;}
+	.btn_figscripts {background: url(../../webgateway/img/icon_figure_scripts.png) center center no-repeat;}
 	.btn_fspath {background: url(../../webgateway/img/icon_fs_path.png )center center no-repeat;}
 	.btn_link {background: url(../../webgateway/img/icon_link.png )center center no-repeat;}
 
@@ -163,7 +164,7 @@ button::-moz-focus-inner {
 	    display:block;
 	}
     
-    #general_tab .btn_download span {
+    .toolbar_dropdown .btn span {
         width:20px;
         height:18px;
         display:block;
@@ -173,18 +174,19 @@ button::-moz-focus-inner {
         background: url(../../webgateway/img/icon_download2.png) center center no-repeat;
     }
     
-    #download_dropdown .dropdown {
-        right: 0px;
-        left: auto;
-    }
-    #download_dropdown {
+    .toolbar_dropdown {
         float:right;
         margin-left: 5px;
+        position: relative;
     }
-    #download_dropdown .dropdown:before {
+    .toolbar_dropdown .dropdown {
+        right: -35px;
+        left: auto;
+    }
+    .toolbar_dropdown .dropdown:before {
         left: 68% !important;
     }
-    #download_dropdown ul a {
+    .toolbar_dropdown ul a {
         background: none;
         font-size: 80%;
     }
@@ -406,7 +408,7 @@ button::-moz-focus-inner {
 			}
 			
 			.btn_text span {
-				padding:6px 10px !important;
+				padding:3px 7px !important;
 			}
 			
 			
@@ -487,7 +489,7 @@ button::-moz-focus-inner {
 	width:12px;
 	height:12px;
 	position:absolute;
-	z-index:99;
+	z-index:90;
 	right:5px;
 	top:5px;
 	-webkit-border-radius:20px;
