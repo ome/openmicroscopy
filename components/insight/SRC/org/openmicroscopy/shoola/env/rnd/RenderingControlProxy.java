@@ -44,6 +44,7 @@ import Ice.ObjectNotExistException;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.LockTimeout;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.model.Family;
@@ -526,6 +527,8 @@ class RenderingControlProxy
 			imageSize = values.length;
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderCompressedBI(pDef);
 			handleException(e, ERROR_RENDER+"the compressed image.");
 		} 
 		return null;
@@ -555,6 +558,8 @@ class RenderingControlProxy
             img = Factory.createImage(buf, 32, p.x, p.y);
             cache(pDef, img);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderUncompressed(pDef);
 			handleException(e, ERROR_RENDER+"the uncompressed plane.");
 		}
         
@@ -582,6 +587,8 @@ class RenderingControlProxy
             Point p = getSize(pDef);
             img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderUncompressedAsTexture(pDef);
 			handleException(e, ERROR_RENDER+"the uncompressed plane as " +
 					"texture.");
 		}
@@ -607,6 +614,8 @@ class RenderingControlProxy
 			Point p = getSize(pDef); 
 			return PixelsServicesFactory.createTexture(values, p.x, p.y);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderCompressedAsTexture(pDef);
 			handleException(e, ERROR_RENDER+"the compressed image " +
 					"as texture.");
 		} 
@@ -640,6 +649,9 @@ class RenderingControlProxy
 			TextureData texture = createTexture(buf.getData(), w, h);
 			return texture;
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderProjectedCompressedAsTexture(startZ, endZ,
+						stepping, type);
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
@@ -669,6 +681,9 @@ class RenderingControlProxy
             return createTexture(buf, getPixelsDimensionsX(), 
             		getPixelsDimensionsY());
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderProjectedUncompressedAsTexture(startZ, endZ,
+						stepping, type);
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         return null;
@@ -711,6 +726,8 @@ class RenderingControlProxy
 			
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderProjectedCompressed(startZ, endZ, stepping, type);
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
@@ -742,6 +759,9 @@ class RenderingControlProxy
             int sizeX2 = pixs.getSizeY().getValue();
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
 		} catch (Throwable e) {
+			if (e instanceof LockTimeout)//retry
+				return renderProjectedUncompressed(startZ, endZ,
+						stepping, type);
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         
