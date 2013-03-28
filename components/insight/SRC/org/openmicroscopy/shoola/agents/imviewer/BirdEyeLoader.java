@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
@@ -38,6 +39,8 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import com.sun.tools.javac.code.Attribute.Array;
 
 import pojos.DataObject;
 import pojos.ImageData;
@@ -63,13 +66,13 @@ public class BirdEyeLoader
 	public static final double MIN_RATIO = 0.1;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** The object the image is for. */
-    private ImageData	image;
+    private ImageData image;
     
     /** Reference to the plane.*/
-    private PlaneDef	plane;
+    private PlaneDef plane;
     
     /** The ratio by which to scale the image down.*/
     private double ratio;
@@ -80,13 +83,12 @@ public class BirdEyeLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     * 					Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param image	  	The image to handle.
-     * @param ratio     The ratio by with to scale the image.
+     * @param image The image to handle.
+     * @param ratio The ratio by with to scale the image.
      */
-	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image, 
+	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image,
 			PlaneDef plane, double ratio)
 	{
 		super(viewer, ctx);
@@ -111,9 +113,6 @@ public class BirdEyeLoader
     	handle = hiBrwView.loadThumbnails(ctx, objects,
     			Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT,
                 getCurrentUserID(), HierarchyBrowsingView.IMAGE, this);
-    	
-    	//handle = ivView.render(ctx, image.getDefaultPixels().getId(),
-		//		plane, false, true, this);
     }
     
     /**
@@ -144,11 +143,12 @@ public class BirdEyeLoader
         	if (cancelled) viewer.discard();
         else registry.getUserNotifier().notifyError(s, s, exc);
     }
+    
     /** 
-     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * Feeds the image back to the bird eye viewer, as they arrive.
      * @see DataLoader#update(DSCallFeedbackEvent)
      */
-    public void update(DSCallFeedbackEvent fe) 
+    public void update(DSCallFeedbackEvent fe)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
         List l = (List) fe.getPartialResult();
@@ -160,19 +160,5 @@ public class BirdEyeLoader
         	viewer.setBirdEyeView(image);
         }
     }
-    
-    /** 
-     * Feeds the result back to the viewer. 
-     * @see DataLoader#handleResult(Object)
-     */
-    /*
-    public void handleResult(Object result)
-    {
-        if (viewer.getState() == ImViewer.DISCARDED || cancelled) return;
-        BufferedImage image = (BufferedImage) result;
-        if (image != null && ratio != 1)
-        	image = Factory.magnifyImage(ratio, image);
-        viewer.setBirdEyeView(image);
-    }
-*/
+
 }
