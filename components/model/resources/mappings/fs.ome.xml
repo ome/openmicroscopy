@@ -42,25 +42,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <to_child type="ome.model.jobs.Job"/>
         </properties>
     </link>
-    <link id="ome.model.fs.FilesetImageLink">
-        <properties>
-            <from_parent type="ome.model.fs.Fileset"/>
-            <to_child type="ome.model.core.Image"/>
-        </properties>
-    </link>
-    <link id="ome.model.fs.FilesetPlateLink">
-        <properties>
-            <from_parent type="ome.model.fs.Fileset"/>
-            <to_child type="ome.model.screen.Plate"/>
-        </properties>
-    </link>
     <type id="ome.model.fs.Fileset" annotated="true">
         <properties>
             <onemany name="usedFiles" type="ome.model.fs.FilesetEntry" inverse="fileset" ordered="true"/>
+            <onemany name="images" type="ome.model.core.Image" inverse="fileset"/>
             <child name="jobLinks" type="ome.model.fs.FilesetJobLink" target="ome.model.jobs.Job" ordered="true"/>
-            <!-- TODO: Perhaps use annotation links? -->
-            <child name="imageLinks" type="ome.model.fs.FilesetImageLink" target="ome.model.core.Image"/>
-            <child name="plateLinks" type="ome.model.fs.FilesetPlateLink" target="ome.model.screen.Plate"/>"
         </properties>
     </type>
 </types>
