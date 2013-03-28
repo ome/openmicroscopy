@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.KeepClientAlive 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.data.events.HeartbeatEvent;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 
@@ -53,11 +54,12 @@ class KeepClientAlive
 	private OMEROGateway gateway;
 	
 	/** Reference to the container. */
-	private Container	container;
+	private Container container;
 
 	/** Runs. */
 	public void run()
 	{
+		
 		try {
             synchronized (gateway) {
             	gateway.keepSessionAlive();
@@ -69,6 +71,7 @@ class KeepClientAlive
         	container.getRegistry().getLogger().error(this, message);
         	gateway.handleConnectionException(t);
         }
+		container.getRegistry().getEventBus().post(new HeartbeatEvent());
 	}
 
 	/**

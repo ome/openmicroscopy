@@ -436,8 +436,24 @@ class BirdEyeViewComponent
 		bx = x;
 		by = x;
 		fullDisplay = true;
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		installListeners(true);
+	}
+	
+	/**
+	 * Adds or removes the listeners depending on the specified components.
+	 * 
+	 * @param add Pass <code>true</code> to attach the listeners,
+	 * <code>false</code> otherwise.
+	 */
+	void installListeners(boolean add)
+	{
+		if (add) {
+			addMouseListener(this);
+			addMouseMotionListener(this);
+		} else {
+			removeMouseListener(this);
+			removeMouseMotionListener(this);
+		}
 	}
 	
 	/**
@@ -588,12 +604,18 @@ class BirdEyeViewComponent
 	{
 		mouseX = e.getX();
 		mouseY = e.getY();
+		//System.err.println(inImage());
 		if (!inImage()) 
 			locked = false;
 		if (locked) {
 			bx = mouseX-bdifx;
 			by = mouseY-bdify;
 		}
+		locked = true;
+		if (bx <= 0) bx = 1;
+		if (by <= 0) by = 1;
+		if (bx+w >= pImage.getWidth()) bx = pImage.getWidth()-w-1;
+		if (by+h >= pImage.getHeight()) by = pImage.getHeight()-h-1;
 		repaint();
 	}
 	

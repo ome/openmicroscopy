@@ -803,9 +803,8 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		Dimension d = model.computeSize();
-		int sizeX = d.width;
-		int sizeY = d.height;
+		int sizeX = model.getTiledImageSizeX();
+		int sizeY = model.getTiledImageSizeY();
 		/*
 		
 		double f = model.getZoomFactor();

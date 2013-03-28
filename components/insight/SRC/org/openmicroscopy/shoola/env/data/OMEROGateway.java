@@ -6778,7 +6778,6 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		
 		Iterator<Connector> i = connectors.iterator();
 		Connector c;
 		while (i.hasNext()) {

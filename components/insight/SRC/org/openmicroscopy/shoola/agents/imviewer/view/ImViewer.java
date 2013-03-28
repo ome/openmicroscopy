@@ -1290,4 +1290,20 @@ public interface ImViewer
 	 * @return See above.
 	 */
 	long getPixelsID();
+	
+	/**
+	 * Returns the selected resolution level.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel();
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels();
+
 }
