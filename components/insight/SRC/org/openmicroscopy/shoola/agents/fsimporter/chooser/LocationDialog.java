@@ -140,7 +140,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			"Import Location - Select where to import your data.";
 
 	/** Text for import as a user */
-	private static final String TEXT_IMPORT_AS = "Import As";
+	private static final String TEXT_IMPORT_AS = "Import For";
 	
 	/** Text for projects */
 	private static final String TEXT_PROJECTS = "Projects";
