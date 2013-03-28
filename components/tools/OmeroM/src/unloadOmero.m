@@ -84,6 +84,17 @@ try
         disp('  ');
         evalin('caller','whos');
         lastwarn('');
+        
+        % Closing sessions for all omero.client objects
+        javaObjects  = evalin('caller','whos');
+        clients = javaObjects(strcmp({javaObjects.class}, 'omero.client'));
+        fprintf(1, 'Closing session(s) for %g found client(s):', numel(clients));
+        for i = 1:numel(clients)
+            fprintf(1, ' %s', clients(i).name);
+            client_copy = evalin('caller', clients(i).name);
+            client_copy.closeSession();
+        end
+        fprintf(1, '\n');
         return
     end
     clear('java');
