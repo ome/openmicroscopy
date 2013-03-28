@@ -29,6 +29,11 @@ classdef TestJavaMatlabList < TestCase
             self = self@TestCase(name);
         end
         
+        function tearDown(self)
+            self.matlabList = [];
+            self.javaList = [];
+        end
+        
         % Helper functions
         function initMatlabArray(self, sizeX, sizeY)
             self.size = sizeX * sizeY;
