@@ -1028,8 +1028,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		DefaultComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<ExperimenterDisplay> selected = null;
 		
-		Collection<ExperimenterData> members = 
-				(Collection<ExperimenterData>) group.getExperimenters();
+		List<ExperimenterData> members = 
+				(List<ExperimenterData>) sorter.sort(group.getExperimenters());
 		boolean canImportAs;
 		Selectable<ExperimenterDisplay> item;
 		for (ExperimenterData user : members) {	
