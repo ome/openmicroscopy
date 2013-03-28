@@ -898,8 +898,6 @@ class RenderingControlProxy
 		}
     }
 
-    boolean isShutDown() { return shutDown; }
-
     /**
      * Returns <code>true</code> if the rendering engine is still active,
      * <code>false</code> otherwise.
@@ -2156,5 +2154,11 @@ class RenderingControlProxy
 	 * @see RenderingControl#isBigImage()
 	 */
 	public List<RenderingControl> getSlaves() { return slaves; }
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}.
+	 * @see RenderingControl#isShutDown()
+	 */
+    public boolean isShutDown() { return shutDown; }
 
 }
