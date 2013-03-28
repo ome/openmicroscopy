@@ -38,7 +38,7 @@
 			<zeromany name="rois" type="ome.model.roi.Roi" inverse="image"/>
 			<!-- Containers -->
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink" target="ome.model.containers.Dataset"/>
-			<parent name="filesetLinks" type="ome.model.fs.FilesetImageLink" target="ome.model.fs.Fileset"/>
+			<optional name="fileset" type="ome.model.fs.Fileset"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.ObjectiveSettings">
