@@ -251,6 +251,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             // Now we recurse
             List<ome.model.core.OriginalFile> subFiles
                 = getOriginalFiles(sf, sql, repoUuid, checked);
+            final RMap subFilesRv = omero.rtypes.rmap();
 
             for (ome.model.core.OriginalFile subFile : subFiles) {
                 CheckedPath child = null;
@@ -269,10 +270,9 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     throw new ome.conditions.ValidationException(ve.getMessage());
                 }
 
-                final RMap subFilesRv = omero.rtypes.rmap();
                 _treeList(subFilesRv, repoUuid, child, sf, sql);
-                subVal.put("files", subFilesRv);
             }
+            subVal.put("files", subFilesRv);
         }
     }
 
