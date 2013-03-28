@@ -230,18 +230,20 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, TreeImageDisplay, Collection)
 	 */
-	public void activate(int type, TreeImageDisplay selectedContainer, 
+	public void activate(int type, TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					selectedContainer, objects, type, ImporterAgent.getAvailableUserGroups());
+					selectedContainer, objects, type,
+					ImporterAgent.getAvailableUserGroups());
 			chooser.addPropertyChangeListener(controller);
 			view.addComponent(chooser);
 		} else {
-			boolean remove = selectedContainer == null;
-			chooser.reset(selectedContainer, objects, type, remove, model.getGroupId());
+			ExperimenterData exp = ImporterAgent.getUserDetails();
+			chooser.reset(selectedContainer, objects, type, model.getGroupId(),
+					exp.getId());
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -563,12 +565,13 @@ class ImporterComponent
 	 */
 	public void refreshContainers(ImportLocationDetails details)
 	{
+		if (details == null) return;
 		switch (model.getState()) {
 			case DISCARDED:
 				return;
 		}
 		view.showRefreshMessage(false);
-		Class rootType = ProjectData.class;
+		Class<?> rootType = ProjectData.class;
 		if (details.getDataType() == Importer.SCREEN_TYPE)
 			rootType = ScreenData.class;
 		model.fireContainerLoading(rootType, false, false, details.getUserId());
@@ -576,10 +579,10 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setContainers(Collection, boolean, int)
+	 * @see Importer#setContainers(Collection, boolean, int, long)
 	 */
-	public void setContainers(Collection result, boolean refreshImport, 
-			boolean changeGroup, int type)
+	public void setContainers(Collection result, boolean refreshImport,
+			boolean changeGroup, int type, long userID)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -587,7 +590,7 @@ class ImporterComponent
 		}
 		if (chooser == null) return;
 		Set nodes = TreeViewerTranslator.transformHierarchy(result);
-		chooser.reset(nodes, type, model.getGroupId());
+		chooser.reset(nodes, type, model.getGroupId(), userID);
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
@@ -598,9 +601,6 @@ class ImporterComponent
 					element.resetContainers(result);
 				}
 			}
-			//restarts The import.
-			//element = view.getElementToStartImportFor();
-			//if (element != null) importData(element);
 		}
 	}
 
