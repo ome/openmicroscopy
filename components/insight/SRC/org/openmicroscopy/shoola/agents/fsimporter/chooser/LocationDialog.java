@@ -461,6 +461,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		groupsBox = new JComboBox();
 		
 		usersBox = new JComboBox();
+		//Currently only for the administrator otherwise to do show the option
+		usersBox.setVisible(TreeViewerAgent.isAdministrator());
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
@@ -559,19 +561,19 @@ class LocationDialog extends JDialog implements ActionListener,
 				createTableLayout(TABLE_PREF_PREF_PREF, TABLE_PREF_PREF);
 		final JPanel groupPanel = new JPanel(groupLayout);
         
-		if(groups.size() > 1) {
+		String c1 = "0, 0, r, c";
+		String c2 = "1, 0";
+		if (groups.size() > 1) {
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
-
-	        groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), "0, 1, r," +
-	        		"c");
-	        groupPanel.add(usersBox,"1, 1");
-		} else {
-	        groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), "0, 0, r," +
-	        		"c");
-	        groupPanel.add(usersBox,"1, 0");
+	        c1 = "0, 1, r, c";
+	        c2 = "1, 1";
 		}
-       
+		if (usersBox.isVisible()) {
+			groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), c1);
+			groupPanel.add(usersBox, c2);
+		}
+		
 		return groupPanel;
 	}
 	
