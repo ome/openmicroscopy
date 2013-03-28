@@ -397,7 +397,8 @@ class ImporterUIElement
 			importable = i.next();
 			f = (File) importable.getFile();
 			c = new FileImportComponent(f, importable.isFolderAsContainer(),
-					!controller.isMaster(), importable.getGroup(), importable.getUser(), single);
+					!controller.isMaster(), importable.getGroup(),
+					importable.getUser(), single);
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);
@@ -464,7 +465,8 @@ class ImporterUIElement
 				if (!c.isHCSFile()) count++;
 			}
 			importable.setStatus(c.getStatus());
-			components.put(f.getAbsolutePath(), c);
+			//
+			components.put(c.toString(), c);
 		}
 		List<DataObject> objects = getExistingContainers();
 		int n = objects.size();
@@ -569,14 +571,12 @@ class ImporterUIElement
 		layout.setColumn(COLUMNS);
 		entries.setLayout(layout);
 		int index = 0;
-		Entry entry;
-		
-		FileImportComponent c;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (FileImportComponent) entry.getValue();
-			addRow(layout, index, c);
+			entry = i.next();
+			addRow(layout, index, entry.getValue());
 			index++;
 		}
 		entries.revalidate();
@@ -609,12 +609,13 @@ class ImporterUIElement
 	 */
 	private boolean toRefresh()
 	{
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
+			entry = i.next();
+			fc = entry.getValue();
 			if (fc.toRefresh()) 
 				return true;
 		}
@@ -637,7 +638,7 @@ class ImporterUIElement
 		FileImportComponent fc;
 		while (i.hasNext()) {
 			fc = i.next();
-			if (fc.isFolderAsContainer()) 
+			if (fc.isFolderAsContainer())
 				return true;
 		}
 		return false;
@@ -684,19 +685,20 @@ class ImporterUIElement
 	 * @param f The file to import.
 	 * @param result The result.
 	 */
-	void setImportedFile(File f, Object result)
+	void setImportedFile(ImportableFile f, Object result)
 	{
-		FileImportComponent c = components.get(f.getAbsolutePath());
+		File file = f.getFile();
+		FileImportComponent c = components.get(f.toString());
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
-			if (f.isFile()) {
+			if (file.isFile()) {
 				if (c.hasImportFailed()) countFailure++;
 				else if (!c.isCancelled()) countFilesImported++;
 			}
-			if (f.isDirectory() && !c.hasComponents() && 
+			if (file.isDirectory() && !c.hasComponents() && 
 					c.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
@@ -808,13 +810,13 @@ class ImporterUIElement
 	List<FileImportComponent> getMarkedFiles()
 	{
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
-		File f;
 		List<FileImportComponent> l;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
+			entry = i.next();
 			fc = (FileImportComponent) entry.getValue();
 			l = fc.getImportErrors();
 			if (l != null && l.size() > 0)
@@ -831,14 +833,14 @@ class ImporterUIElement
 	List<FileImportComponent> getFilesToReimport()
 	{
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
-		File f;
 		List<FileImportComponent> l;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
+			entry = i.next();
+			fc = entry.getValue();
 			l = fc.getReImport();
 			if (l != null && l.size() > 0)
 				list.addAll(l);
@@ -862,17 +864,18 @@ class ImporterUIElement
 	{
 		if (existingContainers != null) return existingContainers;
 		existingContainers = new ArrayList<DataObject>();
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
-		Map<Long, DatasetData> datasets = new HashMap<Long, DatasetData>(); 
-		Map<Long, DataObject> projects = new HashMap<Long, DataObject>(); 
-		Map<Long, DataObject> screens = new HashMap<Long, DataObject>(); 
+		Map<Long, DatasetData> datasets = new HashMap<Long, DatasetData>();
+		Map<Long, DataObject> projects = new HashMap<Long, DataObject>();
+		Map<Long, DataObject> screens = new HashMap<Long, DataObject>();
 		DatasetData d;
 		DataObject object;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
+			entry = i.next();
+			fc = entry.getValue();
 			d = fc.getDataset();
 			if (d != null && d.getId() > 0)
 				datasets.put(d.getId(), d);
@@ -950,13 +953,14 @@ class ImporterUIElement
 	 */
 	boolean hasToRefreshTree()
 	{
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
-			if (fc.hasToRefreshTree()) 
+			entry = i.next();
+			fc = entry.getValue();
+			if (fc.hasToRefreshTree())
 				return true;
 		}
 		return false;
@@ -970,14 +974,15 @@ class ImporterUIElement
 	Icon getImportIcon()
 	{ 
 		if (isDone()) {
-			Iterator i = components.entrySet().iterator();
+			Iterator<Entry<String, FileImportComponent>>
+			i = components.entrySet().iterator();
 			FileImportComponent fc;
-			Entry entry;
+			Entry<String, FileImportComponent> entry;
 			int failure = 0;
 			int v;
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				fc = (FileImportComponent) entry.getValue();
+				entry = i.next();
+				fc = entry.getValue();
 				v = fc.getImportStatus();
 				if (v == FileImportComponent.PARTIAL)
 					return IMPORT_PARTIAL;

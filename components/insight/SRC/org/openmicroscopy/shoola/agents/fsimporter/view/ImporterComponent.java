@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -303,9 +304,9 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setImportedFile(File, Object, int)
+	 * @see Importer#setImportedFile(ImportableFile, Object, int)
 	 */
-	public void setImportedFile(File f, Object result, int index)
+	public void setImportedFile(ImportableFile f, Object result, int index)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);

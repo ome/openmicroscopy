@@ -100,6 +100,19 @@ public class ImporterAgent
      */
     public static Registry getRegistry() { return registry; }
     
+	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		if (b == null) return false;
+		return b.booleanValue();
+	}
+	
     /**
 	 * Helper method returning the current user's details.
 	 * 
