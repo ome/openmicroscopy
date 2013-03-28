@@ -1524,11 +1524,25 @@ public class FileImportComponent
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case DELETE_ID:
-				deleteImage(); 
+				deleteImage();
 				break;
 			case CANCEL_ID:
 				cancel(true);
 		}
 	}
 	
+	/**
+	 * Returns the name of the file and group's id and user's id.
+	 * @see #toString();
+	 */
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(getFile().getAbsolutePath());
+		if (group != null)
+			buf.append("_"+group.getId());
+		if (user != null)
+			buf.append("_"+user.getId());
+		return buf.toString();
+	}
 }

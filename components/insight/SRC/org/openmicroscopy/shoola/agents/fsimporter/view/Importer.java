@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -141,7 +142,7 @@ public interface Importer
 	 * @param result Depends on the result, it can be an image, an exception.
 	 * @param index The index of the UI components.
 	 */
-	public void setImportedFile(File f, Object result, int index);
+	public void setImportedFile(ImportableFile f, Object result, int index);
 
 	/**
 	 * Returns the view.

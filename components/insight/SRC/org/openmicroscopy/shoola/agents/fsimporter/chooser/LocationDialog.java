@@ -62,7 +62,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -462,7 +461,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		usersBox = new JComboBox();
 		//Currently only for the administrator otherwise to do show the option
-		usersBox.setVisible(TreeViewerAgent.isAdministrator());
+		usersBox.setVisible(ImporterAgent.isAdministrator());
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
@@ -671,7 +670,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				isGroupOwner = true;
 		}
 		return user.getId() == loggedInUser.getId() ||
-				TreeViewerAgent.isAdministrator() || isGroupOwner;
+				ImporterAgent.isAdministrator() || isGroupOwner;
 	}
 
 	/**

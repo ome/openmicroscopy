@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +57,7 @@ public class ImagesImporter
      * Map of result, key is the file to import, value is an object or a
      * string. 
      */
-    private Map<File, Object> partialResult;
+    private Map<ImportableFile, Object> partialResult;
     
     /** The object hosting the information for the import. */
     private ImportableObject object;
@@ -72,13 +71,13 @@ public class ImagesImporter
      */
     private void importFile(ImportableFile importable, boolean close)
     {
-    	partialResult = new HashMap<File, Object>();
+    	partialResult = new HashMap<ImportableFile, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		partialResult.put(importable.getFile(), 
+    		partialResult.put(importable, 
     				os.importFile(object, importable, close));
 		} catch (Exception e) {
-			partialResult.put(importable.getFile(), e);
+			partialResult.put(importable, e);
 		}
     }
     

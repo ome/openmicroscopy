@@ -191,6 +191,20 @@ public class ImportableFile
 	public GroupData getGroup() { return group; }
 	
 	/**
+	 * Sets the user.
+	 * 
+	 * @param user The user to import data and set as the owner.
+	 */
+	public void setUser(ExperimenterData user) { this.user = user;}
+	
+	/**
+	 * Returns the user.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getUser() { return user;}
+	
+	/**
 	 * Returns a copy of the object.
 	 * 
 	 * @return See above.
@@ -209,17 +223,18 @@ public class ImportableFile
 	}
 	
 	/**
-	 * Sets the user.
-	 * 
-	 * @param user The user to import data and set as the owner.
+	 * Returns the details about the absolute path, group id and user id.
+	 * @see #toString()
 	 */
-	public void setUser(ExperimenterData user) { this.user = user;}
-	
-	/**
-	 * Returns the user.
-	 * 
-	 * @return See above.
-	 */
-	public ExperimenterData getUser() { return user;}
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(getFile().getAbsolutePath());
+		if (group != null)
+			buf.append("_"+group.getId());
+		if (user != null)
+			buf.append("_"+user.getId());
+		return buf.toString();
+	}
 
 }

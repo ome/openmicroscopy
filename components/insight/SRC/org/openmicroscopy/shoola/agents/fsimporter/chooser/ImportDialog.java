@@ -1189,9 +1189,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * 
 	 * @return See above.
 	 */
-	public int getType() {
-		return type;
-	}
+	public int getType() { return type; }
 
 	/**
 	 * Returns <code>true</code> if only one group for the user,
@@ -1199,22 +1197,31 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean isSingleGroup() {
-		Collection<GroupData> l = ImporterAgent.getAvailableUserGroups();
-		return (l.size() <= 1);
+	boolean isSingleGroup()
+	{
+		return ImporterAgent.getAvailableUserGroups().size() <= 1;
 	}
 
+	/**
+	 * Returns <code>true</code> if the user can import the data for other
+	 * users, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canImportAs()
+	{
+		return ImporterAgent.isAdministrator();
+	}
+	
 	/** Display the size of files to add. */
 	void onSelectionChanged() {
-		if (canvas != null) {
-			long size = table.getSizeFilesInQueue();
-			canvas.setSizeInQueue(size);
-			
-			int remaining = (int) Math.round(canvas.getPercentageToImport() * 100);
-			String tooltip = String.format(TOOLTIP_REMAINING_FORMAT, remaining);
-			sizeImportLabel.setText(UIUtilities.formatFileSize(size));
-			sizeImportLabel.setToolTipText(tooltip);
-		}
+		if (canvas == null) return;
+		long size = table.getSizeFilesInQueue();
+		canvas.setSizeInQueue(size);
+		int remaining = (int) Math.round(canvas.getPercentageToImport() * 100);
+		String tooltip = String.format(TOOLTIP_REMAINING_FORMAT, remaining);
+		sizeImportLabel.setText(UIUtilities.formatFileSize(size));
+		sizeImportLabel.setToolTipText(tooltip);
 	}
 
     /**

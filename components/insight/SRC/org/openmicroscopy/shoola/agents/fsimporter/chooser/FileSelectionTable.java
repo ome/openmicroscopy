@@ -364,9 +364,11 @@ class FileSelectionTable
 	 * @param queue The list of files already in the queue.
 	 * @param f The file to check.
 	 * @param gID The id of the group to import the image into.
+	 * @param userID The id of the user.
 	 * @return See above.
 	 */
-	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID)
+	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID,
+			long userID)
 	{
 		if (f == null) return false;
 		if (queue == null) return true;
@@ -376,7 +378,8 @@ class FileSelectionTable
 		while (i.hasNext()) {
 			fe = i.next();
 			if (fe.getFile().getAbsolutePath().equals(name) &&
-				fe.getGroup().getId() == gID) return false;
+				fe.getGroup().getId() == gID && fe.getUser().getId() == userID)
+				return false;
 		}
 		return true;
 	}
@@ -543,7 +546,7 @@ class FileSelectionTable
 		long gID = group.getId();
 		while (i.hasNext()) {
 			f = i.next();
-			if (allowAddToQueue(inQueue, f, gID)) {
+			if (allowAddToQueue(inQueue, f, gID, user.getId())) {
 				element = new FileElement(f, model.getType(), group, user);
 				element.setName(f.getName());
 				value = null;
