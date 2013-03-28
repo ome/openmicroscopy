@@ -267,7 +267,8 @@ public class ImporterAgent
     	if (group == null) return;
     	List<Object> l = handleContainers(group.getId());
     	if (l == null || l.size() == 0) return;
-    	importer.setContainers(l, true, false, browserType);
+    	importer.setContainers(l, true, false, browserType,
+    			getUserDetails().getId());
     }
     
     /**

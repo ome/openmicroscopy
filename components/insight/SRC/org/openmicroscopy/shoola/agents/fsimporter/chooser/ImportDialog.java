@@ -1254,16 +1254,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Resets the text and remove all the files to import.
 	 * 
-	 * @param objects
-	 *            The possible objects.
-	 * @param type
-	 *            One of the constants used to identify the type of import.
-	 * @param changeGroup
-	 *            Flag indicating that the group has been modified if
-	 *            <code>true</code>, <code>false</code> otherwise.
+	 * @param objects The possible objects.
+	 * @param type One of the constants used to identify the type of import.
+	 * @param currentGroupId The id of the group.
+	 * @param userID The if of the user.
 	 */
 	public void reset(Collection<TreeImageDisplay> objects, int type,
-			long currentGroupId) {
+			long currentGroupId, long userID) {
 		TreeImageDisplay selected = null;
 		if (this.selectedContainer != null) {
 			if (objects != null) {
@@ -1302,28 +1299,22 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				}
 			}
 		}
-		reset(selected, objects, type, false, currentGroupId);
+		reset(selected, objects, type, currentGroupId, userID);
 	}
 
 	/**
 	 * Resets the text and remove all the files to import.
 	 * 
-	 * @param selectedContainer
-	 *            The container where to import the files.
-	 * @param objects
-	 *            The possible objects.
-	 * @param type
-	 *            One of the constants used to identify the type of import.
-	 * @param remove
-	 *            Pass <code>true</code> o
-	 * @param changeGroup
-	 *            Flag indicating that the group has been modified if
-	 *            <code>true</code>, <code>false</code> otherwise.
+	 * @param selectedContainer The container where to import the files.
+	 * @param objects The possible objects.
+	 * @param type One of the constants used to identify the type of import.
+	 * @param currentGroupId The id of the group.
+	 * @param userID The id of the user.
 	 */
 	public void reset(TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type, boolean remove,
-			long currentGroupId) {
-		
+			Collection<TreeImageDisplay> objects, int type,
+			long currentGroupId, long userID)
+	{
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
@@ -1344,9 +1335,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			chooser.setFileFilter(currentFilter);
 		}
 
-		locationDialog.reset(this.selectedContainer, this.type, this.objects, 
-				currentGroupId);
-		
+		locationDialog.reset(this.selectedContainer, this.type, this.objects,
+				currentGroupId, userID);
+
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}
@@ -1423,36 +1414,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Refreshes the display when the user reconnect to server.
-	 * 
-	 * @param availableGroups The available groups.
-	 * @param currentGroupId The selected group.
-	 */
-	public void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId) {
-		table.removeAllFiles();
-		locationDialog.onReconnected(availableGroups, currentGroupId);
-		tagsPane.removeAll();
-		tagsMap.clear();
-	}
-
-	/**
 	 * Notifies that the new object has been created.
 	 * 
-	 * @param d
-	 *            The newly created object.
-	 * @param parent
-	 *            The parent of the object.
+	 * @param d The newly created object.
+	 * @param parent The parent of the object.
 	 */
 	public void onDataObjectSaved(DataObject d, DataObject parent) {
-		if (d instanceof ProjectData)
-		{
-			locationDialog.createProject(d);
-		} else if (d instanceof ScreenData) {
-			locationDialog.createScreen(d);
-		} else if (d instanceof DatasetData) {
+		if (d instanceof ProjectData) locationDialog.createProject(d);
+		else if (d instanceof ScreenData) locationDialog.createScreen(d);
+		else if (d instanceof DatasetData) 
 			locationDialog.createDataset((DatasetData) d);
-		}
 	}
 
 	/**

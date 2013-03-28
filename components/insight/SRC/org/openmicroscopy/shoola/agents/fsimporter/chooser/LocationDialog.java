@@ -359,19 +359,21 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		initUIComponents();
 		layoutUI();
-		
-		populateUIWithDisplayData(findWithId(groups, currentGroupId));
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		populateUIWithDisplayData(findWithId(groups, currentGroupId),
+				exp.getId());
 	}
 
     /** 
      * Populates the various components.
      * 
      * @param selectedGroup The selected group.
+     * @param userID The id of the selected user.
      */
-	private void populateUIWithDisplayData(GroupData selectedGroup)
+	private void populateUIWithDisplayData(GroupData selectedGroup, long userID)
 	{
 		convertToDisplayData(objects);
-		populateGroupBox(groups, selectedGroup);
+		populateGroupBox(groups, selectedGroup, userID);
 		populateLocationComboBoxes();
 		displayViewFor(dataType);
 	}
@@ -460,10 +462,8 @@ class LocationDialog extends JDialog implements ActionListener,
 
 		// main components
 		groupsBox = new JComboBox();
-		groupsBox.addItemListener(this);
 		
 		usersBox = new JComboBox();
-		usersBox.addItemListener(this);
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
@@ -616,30 +616,30 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds the toolbar when the importer is the entry point.
-	 * @param availableGroups
+	 * 
+	 * @param availableGroups The available group.
+	 * @param selectedGroup The selected group.
+	 * @param userID The selected user.
 	 * @return See above.
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
-			GroupData selectedGroup) {
+			GroupData selectedGroup, long userID) {
 		groupsBox.removeItemListener(this);
 		groupsBox.removeAllItems();
 		
 		JComboBoxImageObject selectedGroupItem = null;
-		
+		JComboBoxImageObject item;
 		for (GroupData group : availableGroups) {
-			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group,
-					getGroupIcon(group));
-			groupsBox.addItem(comboBoxItem);
+			item = new JComboBoxImageObject(group, getGroupIcon(group));
+			groupsBox.addItem(item);
 			if (selectedGroup != null && selectedGroup.getId() == group.getId())
-			{
-				selectedGroupItem = comboBoxItem;
-			}
+				selectedGroupItem = item;
 		}
 		
 		if (selectedGroupItem != null)
 		{
 			groupsBox.setSelectedItem(selectedGroupItem);
-			displayUsers(usersBox, selectedGroup, null);
+			displayUsers(usersBox, selectedGroup, this, userID);
 		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
 		renderer.setPreferredSize(new Dimension(200, 130));
@@ -866,7 +866,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Switch to display the projects/datasets/screens from the selected group
+	 * Switches to display the projects/datasets/screens from the selected
+	 * group.
 	 */
 	private void switchToSelectedGroup() {
 		GroupData selectedNewGroup = getSelectedGroup();
@@ -876,7 +877,18 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * The import settings chosen but the user.
+	 * Switches to display the projects/datasets/screens from the selected user.
+	 */
+	private void switchToSelectedUser()
+	{
+		setInputsEnabled(false);
+		firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
+				new ImportLocationDetails(dataType, getSelectedUser().getId()));
+	}
+
+	/**
+	 * Returns the import settings chosen but the user.
+	 * 
 	 * @return The import settings selected by the user.
 	 */
 	protected ImportLocationSettings getImportSettings() {
@@ -997,12 +1009,14 @@ class LocationDialog extends JDialog implements ActionListener,
 	/**
 	 * Populates the JComboBox with the user details provided, 
 	 * selecting the logged in user and attaching the item listener.
+	 * 
 	 * @param comboBox The JComboBox to populate
 	 * @param group The group being displayed
 	 * @param itemListener An item listener to add for the JComboBox
+	 * @param userID The id of the user.
 	 */
-	private void displayUsers(JComboBox comboBox, GroupData group, 
-			ItemListener itemListener) {
+	private void displayUsers(JComboBox comboBox, GroupData group,
+			ItemListener itemListener, long userID) {
 
 		if (comboBox == null || group == null) return;
 
@@ -1016,15 +1030,16 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		Collection<ExperimenterData> members = 
 				(Collection<ExperimenterData>) group.getExperimenters();
+		boolean canImportAs;
+		Selectable<ExperimenterDisplay> item;
 		for (ExperimenterData user : members) {	
-			boolean canImportAs = canImportForUserInGroup(user, group);
-			ExperimenterDisplay display = new ExperimenterDisplay(user);
-			Selectable<ExperimenterDisplay> comboBoxItem = 
-					new Selectable<ExperimenterDisplay>(display, canImportAs);
-			if(user.getId() == loggedInUser.getId())
-				selected = comboBoxItem;
+			canImportAs = canImportForUserInGroup(user, group);
+			item = new Selectable<ExperimenterDisplay>(
+					new ExperimenterDisplay(user), canImportAs);
+			if (user.getId() == userID)
+				selected = item;
 			
-			model.addElement(comboBoxItem);
+			model.addElement(item);
 		}
 
 		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
@@ -1035,7 +1050,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
 
-		if(itemListener != null)
+		if (itemListener != null)
 			comboBox.addItemListener(itemListener);
 	}
 	
@@ -1368,30 +1383,37 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
-	 * Resets the display to the selection and group specified
+	 * Resets the display to the selection and group specified.
+	 * 
 	 * @param container The container that is selected
 	 * @param type The data type identifier (Project / SCreen)
 	 * @param objects The objects to use.
 	 * @param currentGroupId The currently active user group.
+	 * @param userID The id of the user.
 	 */
 	void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects , long currentGroupId) {
-
+			Collection<TreeImageDisplay> objects , long currentGroupId,
+			long userID)
+	{
 		this.dataType = type;
 		this.objects = objects;
 		this.container = container;
-		onReconnected(groups, currentGroupId);
+		onReconnected(groups, currentGroupId, userID);
 	}
 
 	/**
 	 * Re-populates and resets the groups, screens, projects & dataset options.
+	 * 
 	 * @param availableGroups The list of available groups to this user.
 	 * @param currentGroupId The currently active user group's ID.
+	 * @param userID The id of the user.
 	 */
 	void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId) {
+			long currentGroupId, long userID)
+	{
 		this.groups = availableGroups;
-		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId));
+		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId),
+				userID);
 		setInputsEnabled(true);
 	}
 	
@@ -1466,14 +1488,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		{
 			if (source == groupsBox) {
 				storeCurrentSelections();
-				
 				switchToSelectedGroup();
 			} else if(source == usersBox) {
-				ImportLocationDetails details = new ImportLocationDetails(dataType, getSelectedUser().getId());
-				firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null, details);
-				
-				changeUserSelection();
-
+				switchToSelectedUser();
 			} else if (source == projectsBox) {
 				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);

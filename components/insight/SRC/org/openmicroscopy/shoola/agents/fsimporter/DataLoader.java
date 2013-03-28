@@ -104,10 +104,10 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		if (viewer.getDisplayMode() == LookupNames.GROUP_DISPLAY)
-			userID = -1;
+		long id = userID;
+		if (viewer.getDisplayMode() == LookupNames.GROUP_DISPLAY) id = -1;
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				userID, this);
+				id, this);
 	}
 	
 	/** 
@@ -128,7 +128,7 @@ public class DataLoader
     	if (ScreenData.class.equals(rootType))
     		type = Importer.SCREEN_TYPE;
     	viewer.setContainers((Collection) result, refreshImport, changeGroup,
-    			type);
+    			type, userID);
     }
     
 }

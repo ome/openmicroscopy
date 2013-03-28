@@ -228,11 +228,12 @@ public interface Importer
 	 * 						import, <code>false</code> otherwise.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
-	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * @param type The type of location to reload, either {@link #PROJECT_TYPE}
 	 * 				or {@link #SCREEN_TYPE}.
+	 * @param userID The id of the user the data are for.
 	 */
-	public void setContainers(Collection result, boolean refreshImport, 
-			boolean changeGroup, int type);
+	public void setContainers(Collection result, boolean refreshImport,
+			boolean changeGroup, int type, long userID);
 
 	/** 
 	 * Reloads the containers where to load the data.
