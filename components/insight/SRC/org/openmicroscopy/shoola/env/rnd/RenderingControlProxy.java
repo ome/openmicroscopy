@@ -224,6 +224,7 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	if (shutDown) return;
     	retry = 0;
     	if (!handleConnectionException(e))
 			throw new RenderingServiceException(message+"\n\n"+ 
@@ -1031,7 +1032,8 @@ class RenderingControlProxy
     	try {
     		if (!keepCache && cacheID >= 0)
     			context.getCacheService().removeCache(cacheID);
-    		if (checker.isNetworkup()) servant.close();
+    		//The servant is close in the connector.
+    		//if (checker.isNetworkup()) servant.close();
     		Iterator<RenderingControl> j = slaves.iterator();
 			while (j.hasNext())
 				((RenderingControlProxy) j.next()).shutDown();
