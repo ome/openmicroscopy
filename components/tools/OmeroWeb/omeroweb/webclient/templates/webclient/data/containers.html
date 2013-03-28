@@ -150,6 +150,11 @@
             });
         }
 
+        // Getting text from jsTree nodes shouldn't be this hard, but it is!
+        OME.jsTreeNodeText = function($node) {
+            return $node.children("a:eq(0)").text().split("\n")[0].trim();
+        }
+
         OME.remove_nodes = function(tree, selected) {
             if (selected.length>0) {
                 var images = selected.filter('li[id*=image]');      // id='copy_image-123' if just pasted
@@ -170,15 +175,63 @@
                 var confirm_remove = OME.confirm_dialog(removeTxt,
                     function() {
                         if (confirm_remove.data('clicked_button') == "OK") {
-                            if (images.length > 0) tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
-                            if (datasets.length > 0) tree.move_node(datasets, $("li#experimenter-0"));
-                            if (plates.length > 0) tree.move_node(plates, $("li#experimenter-0"));
+                            if (images.length > 0) {
+                                tree.move_node(images,$("li#orphaned-0"), undefined, undefined, false, true);
+                            }
+                            if (datasets.length > 0) {
+                                var nodeText = OME.jsTreeNodeText($(datasets[0])),
+                                    targetIndex = OME.findTreeIndexForNode(tree, 'dataset', nodeText);
+                                tree.move_node(datasets, $("li#experimenter-0"), targetIndex);
+                            }
+                            if (plates.length > 0) {
+                                var nodeText = OME.jsTreeNodeText($(plates[0])),
+                                    targetIndex = OME.findTreeIndexForNode(tree, 'plate', nodeText);
+                                tree.move_node(plates, $("li#experimenter-0"), targetIndex);
+                            }
                         }
                     },
                     "Remove item"+ ((selected.length>1) && "s" || "") + "?"
                 );
             }
         }
+
+        // If we're going to insert a top-level node under Experimenter, what index should it be?
+        // Assumes everything is in order: Projects, Datasets, Screens, Plates.
+        OME.findTreeIndexForNode =  function(tree, dtype, name) {
+            var nodeTypes = ['project', 'dataset', 'screen', 'plate'],
+                topNodes = {'project':[], 'dataset':[], 'screen':[], 'plate':[]};
+            if (!topNodes.hasOwnProperty(dtype)) {
+                return 0;   // don't recognise the dtype
+            }
+
+            // Build our index of current tree nodes, grouped by node type
+            var c = tree._get_children('#experimenter-0');
+            c.each(function(){
+                var $node = $(this),
+                    rel = $node.attr('rel').replace("-locked",""),
+                    nodeTxt = OME.jsTreeNodeText($node);
+                if (topNodes.hasOwnProperty(rel)) {
+                    topNodes[rel].push(nodeTxt.toLowerCase());
+                }
+            });
+            name = name.trim().toLowerCase();
+
+            // look-up the name we're given, within siblings of the same node type:
+            var nodeIndex = 0;
+            for (var i=0; i<nodeTypes.length; i++) {
+                // E.g. If we're a 'dataset', check position amoung 'dataset's
+                if (dtype === nodeTypes[i]) {
+                    var siblings = topNodes[dtype];
+                    siblings.push(name);
+                    siblings.sort();
+                    return nodeIndex + siblings.indexOf(name);
+                } else {
+                    // if NOT, increment nodeIndex and continue
+                    nodeIndex += topNodes[nodeTypes[i]].length;
+                }
+            }
+            return nodeIndex
+        };
 
         // Stuff to do on load...
         $(function() 
@@ -236,8 +289,10 @@
 
                     var position = 0;
                     // Make sure top level objects get added to jsTree root (current selected may be project or screen)
-                    if (($.inArray(cont_type, ['project', 'screen'])> -1) && (selected.attr("rel") !== 'experimenter')) {
-                        position = "after";
+                    if (($.inArray(cont_type, ['project', 'screen'])> -1) ||
+                            (selected.attr("rel").replace("-locked","") === 'experimenter')) {
+                        position = OME.findTreeIndexForNode($.jstree._focused(), cont_type, new_container_name);
+                        selected = "#experimenter-0";   // Ensure we add node to root
                     }
                     $.ajax({
                         url: url,
