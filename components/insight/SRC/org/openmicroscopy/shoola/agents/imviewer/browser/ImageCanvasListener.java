@@ -104,7 +104,7 @@ class ImageCanvasListener
      * @param canvas	Reference to the canvas this listener is for.
      * 					Mustn't be <code>null</code>.
      */
-    ImageCanvasListener(BrowserUI view, BrowserModel model, 
+    ImageCanvasListener(BrowserUI view, BrowserModel model,
     		JComponent canvas)
     {
     	if (model == null) throw new NullPointerException("No Model.");
@@ -114,20 +114,29 @@ class ImageCanvasListener
         this.canvas = canvas;
         this.view = view;
     	area = new Rectangle(0, 0, 0, 0);
-		canvas.addMouseWheelListener(this);
-		installMouseListeners();
+		installListeners(true);
 		handleKeyDown = false;
 		pressedPoint = new Point(0, 0);
     }
     
     /**
-     * Installs <code>MouseListener</code> and a
-     * <code>MouseMotionListener</code>.
+     * Add or remove the <code>MouseListener</code> and a
+     * <code>MouseMotionListener</code> depending on the specified value.
+     * 
+     * @param add Pass <code>true</code> to attach the listeners,
+	 * <code>false</code> otherwise.
      */
-    void installMouseListeners()
+    void installListeners(boolean add)
     {
-    	canvas.addMouseListener(this);
-		canvas.addMouseMotionListener(this);
+    	if (add) {
+    		canvas.addMouseListener(this);
+    		canvas.addMouseMotionListener(this);
+    		canvas.addMouseWheelListener(this);
+    	} else {
+    		canvas.removeMouseListener(this);
+    		canvas.removeMouseMotionListener(this);
+    		canvas.removeMouseWheelListener(this);
+    	}
     }
     
     /**
@@ -206,7 +215,6 @@ class ImageCanvasListener
 	{
 		pressedPoint = e.getPoint();
 		canvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		//SwingUtilities.convertPointToScreen(pressedPoint, canvas);
 		if (canvas instanceof BrowserBICanvas)
 			((BrowserBICanvas) canvas).setPaintedString(model.getDefaultZ(),
 					model.getDefaultT());
@@ -237,12 +245,12 @@ class ImageCanvasListener
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
-		if (model.isBigImage()) return;
-		if (e.isAltDown() || e.isShiftDown() || e.isControlDown()) { //zooming
-			 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-				 int v = e.getWheelRotation();
-				 model.zoom(v < 0); //zoom in and out.
-			 }
+		if (e.isAltDown() || e.isShiftDown() || e.isControlDown() ||
+			model.isBigImage()) { //zooming
+			if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+				int v = e.getWheelRotation();
+				model.zoom(v < 0); //zoom in and out.
+			}
 			return;
 		}
 		//change the z-section.
@@ -257,7 +265,7 @@ class ImageCanvasListener
                 if (v <= maxZ) {
                 	model.setSelectedXYPlane(v, -1);
                 	if (canvas instanceof BrowserBICanvas)
-            			((BrowserBICanvas) canvas).setPaintedString(v, 
+            			((BrowserBICanvas) canvas).setPaintedString(v,
             					model.getDefaultT());
                 } else {
                 	if (canvas instanceof BrowserBICanvas)
@@ -267,7 +275,7 @@ class ImageCanvasListener
                 if (v >= 0) {
                 	model.setSelectedXYPlane(v, -1);
                 	if (canvas instanceof BrowserBICanvas)
-            			((BrowserBICanvas) canvas).setPaintedString(v, 
+            			((BrowserBICanvas) canvas).setPaintedString(v,
             					model.getDefaultT());
                 } else {
                 	if (canvas instanceof BrowserBICanvas)

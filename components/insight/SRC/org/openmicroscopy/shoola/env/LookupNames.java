@@ -241,6 +241,12 @@ public class LookupNames
      */
     public static final String RE_WORKER = "/services/RE/worker";
     
+    /** 
+     * Field to access the time after which an inactive rendering engine
+     * is shut down. The value is in milliseconds.
+     */
+    public static final String RE_TIMEOUT = "/services/RE/timeout";
+    
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
 	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";
 

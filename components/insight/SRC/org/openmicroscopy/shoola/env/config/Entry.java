@@ -104,6 +104,7 @@ abstract class Entry
         contentHandlers.put("string", StringEntry.class);
         contentHandlers.put("integer", IntegerEntry.class);
         contentHandlers.put("float", FloatEntry.class);
+        contentHandlers.put("long", LongEntry.class);
         contentHandlers.put("double", DoubleEntry.class);
         contentHandlers.put("boolean", BooleanEntry.class);
         contentHandlers.put("OMERODS", OMEROEntry.class);
