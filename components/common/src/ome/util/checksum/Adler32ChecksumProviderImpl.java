@@ -19,19 +19,21 @@
 
 package ome.util.checksum;
 
+import java.util.zip.Adler32;
+
 /**
- * Enumeration defining the possible algorithms used for calculating checksums.
+ * An implementation of the {@link ChecksumProvider} interface using Adler32
+ * as the message digest algorithm. Passes in a new object of the type
+ * {@link NonGuavaHashFunctionImpl} to the parent constructor.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
- * @since 4.4.7
+ * @since 5.0
  */
-public enum ChecksumType {
 
-    ADLER32,
-    CRC32,
-    MD5,
-    MURMUR32,
-    MURMUR128,
-    SHA1;
+public final class Adler32ChecksumProviderImpl extends AbstractChecksumProvider {
+
+    public Adler32ChecksumProviderImpl() {
+        super(new NonGuavaHashFunctionImpl(new Adler32()));
+    }
 
 }

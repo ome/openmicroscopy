@@ -19,19 +19,19 @@
 
 package ome.util.checksum;
 
+import com.google.common.hash.Hashing;
+
 /**
- * Enumeration defining the possible algorithms used for calculating checksums.
+ * An implementation of the {@link ChecksumProvider} interface using Murmur3_32
+ * as the hash algorithm.
  *
  * @author Blazej Pindelski, bpindelski at dundee.ac.uk
- * @since 4.4.7
+ * @since 5.0
  */
-public enum ChecksumType {
+public final class Murmur32ChecksumProviderImpl
+    extends AbstractChecksumProvider {
 
-    ADLER32,
-    CRC32,
-    MD5,
-    MURMUR32,
-    MURMUR128,
-    SHA1;
-
+    public Murmur32ChecksumProviderImpl() {
+        super(Hashing.murmur3_32());
+    }
 }

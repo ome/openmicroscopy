@@ -50,4 +50,28 @@ public class ChecksumProviderFactoryImplTest {
         Assert.assertTrue(cp instanceof MD5ChecksumProviderImpl);
     }
 
+    @Test
+    public void testGetProviderWithAdler32ChecksumType() {
+        ChecksumProvider cp = this.cpf.getProvider(ChecksumType.ADLER32);
+        Assert.assertTrue(cp instanceof Adler32ChecksumProviderImpl);
+    }
+
+    @Test
+    public void testGetProviderWithCRC32ChecksumType() {
+        ChecksumProvider cp = this.cpf.getProvider(ChecksumType.CRC32);
+        Assert.assertTrue(cp instanceof CRC32ChecksumProviderImpl);
+    }
+
+    @Test
+    public void testGetProviderWithMurmur32ChecksumType() {
+        ChecksumProvider cp = this.cpf.getProvider(ChecksumType.MURMUR32);
+        Assert.assertTrue(cp instanceof Murmur32ChecksumProviderImpl);
+    }
+
+    @Test
+    public void testGetProviderWithMurmur128ChecksumType() {
+        ChecksumProvider cp = this.cpf.getProvider(ChecksumType.MURMUR128);
+        Assert.assertTrue(cp instanceof Murmur128ChecksumProviderImpl);
+    }
+
 }
