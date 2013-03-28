@@ -50,7 +50,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -79,9 +78,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageObject;
-import org.openmicroscopy.shoola.agents.util.ui.JComboBoxImageRenderer;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -89,8 +85,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.GroupData;
 
 /** 
  * The {@link Importer}'s View. Displays the on-going import and the finished
@@ -109,11 +103,9 @@ import pojos.GroupData;
 class ImporterUI extends TopWindow
 {
 
+	/** The text displayed in the header of the dialog.*/
 	private static final String TEXT_TITLE_DESCRIPTION =
 			"Select data to import and monitor imports.";
-
-	/** Indicates the percentage of the screen to use to display the viewer. */
-	private static final double SCREEN_RATIO = 0.8;
 	
 	/** The window's title. */
 	private static final String TEXT_TITLE = "Import Data";
