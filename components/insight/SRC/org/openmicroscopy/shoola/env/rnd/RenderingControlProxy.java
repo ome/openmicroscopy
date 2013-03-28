@@ -85,11 +85,11 @@ class RenderingControlProxy
 {
  
 	/** Default error message. */
-	private static final String	ERROR = "An error occurred while trying to " +
+	private static final String ERROR = "An error occurred while trying to " +
 										"set the ";
 	
 	/** Default error message. */
-	private static final String	ERROR_RENDER = "An error occurred while " +
+	private static final String ERROR_RENDER = "An error occurred while " +
 			"rendering ";
 	
 	/** The Red Color index. */
@@ -103,6 +103,9 @@ class RenderingControlProxy
 	
 	/** The Non-Primary Color index. */
 	private static final Integer NON_PRIMARY_INDEX = -1;
+	
+	/** The maximum number of retry.*/
+	private static final int MAX_RETRY = 2;
 	
     /** List of supported families. */
     private List families;
@@ -173,6 +176,9 @@ class RenderingControlProxy
 	/** The security context associated to the control.*/
 	private SecurityContext ctx;
 	
+	/** The number of retry.*/
+	private int retry;
+	
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -218,6 +224,7 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	retry = 0;
     	if (!handleConnectionException(e))
 			throw new RenderingServiceException(message+"\n\n"+ 
 					printErrorText(e), e);
@@ -229,7 +236,7 @@ class RenderingControlProxy
 	 * @param e The exception to handle.
 	 * @return  See above.
 	 */
-	private String printErrorText(Throwable e) 
+	private String printErrorText(Throwable e)
 	{
 		if (e == null) return "";
 		StringWriter sw = new StringWriter();
@@ -259,8 +266,8 @@ class RenderingControlProxy
     /**
      * Caches the specified image if it corresponds to an XYPlane.
      * 
-     * @param pd    	The plane definition.
-     * @param object	The buffered image to cache or the bytes array.
+     * @param pd The plane definition.
+     * @param object The buffered image to cache or the bytes array.
      */
     private void cache(PlaneDef pd, Object object)
     {
@@ -270,7 +277,7 @@ class RenderingControlProxy
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
         		int index = pd.z+getPixelsDimensionsZ()*pd.t;
-        		context.getCacheService().addElement(cacheID, 
+        		context.getCacheService().addElement(cacheID,
         				Integer.valueOf(index), object);
         	}
         }
@@ -304,17 +311,17 @@ class RenderingControlProxy
     	if (cacheID >= 0) return;
     	/*
     	if (pDef.getSlice() == PlaneDef.XY && xyCache == null) {
-    		//    		Okay, let's see if we can activate the xyCache. 
+    		//    		Okay, let's see if we can activate the xyCache.
             //In order to 
             //do that, the dimensions of the pixels array and the 
             //xyImgSize have to be available. 
-            //This happens if at least one XY plane has been rendered.  
+            //This happens if at least one XY plane has been rendered.
             //Note that doing remote calls upfront to eagerly 
-            //instantiate the xyCache is in most cases a total waste: 
-            //the client is  likely to call getPixelsDims() before an 
+            //instantiate the xyCache is in most cases a total waste:
+            //the client is  likely to call getPixelsDims() before an
             //image is ever  rendered and until an XY plane is 
             //not requested it's pointless to have a cache.
-            xyCache = CachingService.createXYCache(pixs.getId(), length, 
+            xyCache = CachingService.createXYCache(pixs.getId(), length,
             				getPixelsDimensionsZ(), getPixelsDimensionsT());
     	}
     	*/
@@ -360,12 +367,12 @@ class RenderingControlProxy
 	 * Returns if <code>true</code> if one of the channels is of the specified
 	 * color, <code>false</code> otherwise.
 	 * 
-	 * @param red   The red component in the range [0, 255] in the default sRGB
-	 * 				space.
-	 * @param green The green component in the range [0, 255] in the default 
-	 * 				sRGB space.
-	 * @param blue  The blue component in the range [0, 255] in the default sRGB
-	 * 				space.
+	 * @param red The red component in the range [0, 255] in the default sRGB
+	 * space.
+	 * @param green The green component in the range [0, 255] in the default
+	 *  sRGB space.
+	 * @param blue The blue component in the range [0, 255] in the default sRGB
+	 * space.
 	 * @return See above.
 	 */
 	private boolean isRightColor(int red, int green, int blue)
@@ -384,12 +391,12 @@ class RenderingControlProxy
 	 * color, <code>false</code> otherwise.
 	 * 
 	 * @param index The index of the channel.
-	 * @param red   The red component in the range [0, 255] in the default sRGB
-	 * 				space.
-	 * @param green The green component in the range [0, 255] in the default 
-	 * 				sRGB space.
-	 * @param blue  The blue component in the range [0, 255] in the default sRGB
-	 * 				space.
+	 * @param red The red component in the range [0, 255] in the default sRGB
+	 * space.
+	 * @param green The green component in the range [0, 255] in the default
+	 * sRGB space.
+	 * @param blue The blue component in the range [0, 255] in the default sRGB
+	 * space.
 	 * @return See above.
 	 */
 	private boolean isRightChannelColor(int index, int red, int green, int blue)
@@ -434,35 +441,35 @@ class RenderingControlProxy
     {
     	try {
     		rndDef.setTypeSigned(servant.isPixelsTypeSigned());
-            rndDef.setDefaultZ(servant.getDefaultZ());
-            rndDef.setDefaultT(servant.getDefaultT());
-            QuantumDef qDef = servant.getQuantumDef();
-            rndDef.setBitResolution(qDef.getBitResolution().getValue());
-            rndDef.setColorModel(servant.getModel().getValue().getValue());
-            rndDef.setCodomain(qDef.getCdStart().getValue(), 
-            		qDef.getCdEnd().getValue());
-            
-            ChannelBindingsProxy cb;
-            ChannelData channel;
-            for (int i = 0; i < metadata.length; i++) {
-				channel = metadata[i];
-				cb = rndDef.getChannel(channel.getIndex());
-				if (cb == null) {
-                    cb = new ChannelBindingsProxy();
-                    rndDef.setChannel(channel.getIndex(), cb);
-                }
-                cb.setActive(servant.isActive(i));
-                cb.setInterval(servant.getChannelWindowStart(i), 
-                                servant.getChannelWindowEnd(i));
-                cb.setQuantization(
-                		servant.getChannelFamily(i).getValue().getValue(), 
-                        servant.getChannelCurveCoefficient(i), 
-                        servant.getChannelNoiseReduction(i));
-                cb.setRGBA(servant.getRGBA(i));
-                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
-                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
-			}
-            tmpSolutionForNoiseReduction();
+    		rndDef.setDefaultZ(servant.getDefaultZ());
+    		rndDef.setDefaultT(servant.getDefaultT());
+    		QuantumDef qDef = servant.getQuantumDef();
+    		rndDef.setBitResolution(qDef.getBitResolution().getValue());
+    		rndDef.setColorModel(servant.getModel().getValue().getValue());
+    		rndDef.setCodomain(qDef.getCdStart().getValue(), 
+    				qDef.getCdEnd().getValue());
+
+    		ChannelBindingsProxy cb;
+    		ChannelData channel;
+    		for (int i = 0; i < metadata.length; i++) {
+    			channel = metadata[i];
+    			cb = rndDef.getChannel(channel.getIndex());
+    			if (cb == null) {
+    				cb = new ChannelBindingsProxy();
+    				rndDef.setChannel(channel.getIndex(), cb);
+    			}
+    			cb.setActive(servant.isActive(i));
+    			cb.setInterval(servant.getChannelWindowStart(i),
+    					servant.getChannelWindowEnd(i));
+    			cb.setQuantization(
+    					servant.getChannelFamily(i).getValue().getValue(),
+    					servant.getChannelCurveCoefficient(i),
+    					servant.getChannelNoiseReduction(i));
+    			cb.setRGBA(servant.getRGBA(i));
+    			cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+    			cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+    		}
+    		tmpSolutionForNoiseReduction();
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
 			msg.print("Initialize proxy");
@@ -490,7 +497,7 @@ class RenderingControlProxy
      * 
      * @param w The index of the channel.
      * @param rgba The color to set.
-     * @throws RenderingServiceException If an error occurred while setting 
+     * @throws RenderingServiceException If an error occurred while setting
      * the value.
      * @throws DSOutOfServiceException If the connection is broken.
      * @see RenderingControl#setRGBA(int, Color)
@@ -513,7 +520,7 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 *             or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
+	 * @throws RenderingServiceException If an error occurred while setting
      * the value.
      * @throws DSOutOfServiceException If the connection is broken.
 	 */
@@ -527,8 +534,10 @@ class RenderingControlProxy
 			imageSize = values.length;
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderCompressedBI(pDef);
+			}
 			handleException(e, ERROR_RENDER+"the compressed image.");
 		} 
 		return null;
@@ -540,7 +549,7 @@ class RenderingControlProxy
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while setting 
+	 * @throws RenderingServiceException If an error occurred while setting
      * the value.
      * @throws DSOutOfServiceException If the connection is broken.
 	 */
@@ -558,8 +567,10 @@ class RenderingControlProxy
             img = Factory.createImage(buf, 32, p.x, p.y);
             cache(pDef, img);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderUncompressed(pDef);
+			}
 			handleException(e, ERROR_RENDER+"the uncompressed plane.");
 		}
         
@@ -587,8 +598,10 @@ class RenderingControlProxy
             Point p = getSize(pDef);
             img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderUncompressedAsTexture(pDef);
+			}
 			handleException(e, ERROR_RENDER+"the uncompressed plane as " +
 					"texture.");
 		}
@@ -614,8 +627,10 @@ class RenderingControlProxy
 			Point p = getSize(pDef); 
 			return PixelsServicesFactory.createTexture(values, p.x, p.y);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderCompressedAsTexture(pDef);
+			}
 			handleException(e, ERROR_RENDER+"the compressed image " +
 					"as texture.");
 		} 
@@ -649,9 +664,11 @@ class RenderingControlProxy
 			TextureData texture = createTexture(buf.getData(), w, h);
 			return texture;
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderProjectedCompressedAsTexture(startZ, endZ,
 						stepping, type);
+			}
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
@@ -681,9 +698,11 @@ class RenderingControlProxy
             return createTexture(buf, getPixelsDimensionsX(), 
             		getPixelsDimensionsY());
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderProjectedUncompressedAsTexture(startZ, endZ,
 						stepping, type);
+			}
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         return null;
@@ -726,8 +745,10 @@ class RenderingControlProxy
 			
 			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
 				return renderProjectedCompressed(startZ, endZ, stepping, type);
+			}
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
 		return null;
@@ -759,9 +780,11 @@ class RenderingControlProxy
             int sizeX2 = pixs.getSizeY().getValue();
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
 		} catch (Throwable e) {
-			if (e instanceof LockTimeout)//retry
-				return renderProjectedUncompressed(startZ, endZ,
-						stepping, type);
+			if (e instanceof LockTimeout && retry < MAX_RETRY) { //retry
+				retry++;
+				return renderProjectedUncompressed(startZ, endZ, stepping,
+						type);
+			}
 			handleException(e, ERROR_RENDER+"the projected selection.");
 		}
         
@@ -1685,7 +1708,7 @@ class RenderingControlProxy
 		} catch (Exception e) {
 			return null;
 		}
-    	
+    	retry = 0;
     	//since this method is always invoked after another change in
     	//the settings and due to the fact that the proxy is usually invoked
     	//in the swing thread.
@@ -1788,7 +1811,7 @@ class RenderingControlProxy
 		while (j.hasNext()) 
 			setActive(j.next(), true);
 		BufferedImage img;
-
+		retry = 0;
         if (isCompressed()) 
         	img = renderProjectedCompressed(startZ, endZ, stepping, type);
         else img = renderProjectedUncompressed(startZ, endZ, stepping, type);
@@ -1815,7 +1838,7 @@ class RenderingControlProxy
 		while (j.hasNext()) 
 			setActive(j.next(), true);
 		TextureData img;
-
+		retry = 0;
         if (isCompressed()) 
         	img = renderProjectedCompressedAsTexture(startZ, endZ, stepping,
         			type);
@@ -1958,6 +1981,7 @@ class RenderingControlProxy
 		} catch (Exception e) {
 			return null;
 		}
+		retry = 0;
 		if (isCompressed()) return renderCompressedAsTexture(pDef);
 		return renderUncompressedAsTexture(pDef);
 	}
@@ -2044,7 +2068,7 @@ class RenderingControlProxy
 	}
 
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#getResolutionLevels()
 	 */
 	public int getResolutionLevels()
