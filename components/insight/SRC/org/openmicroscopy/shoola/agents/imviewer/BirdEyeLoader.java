@@ -127,15 +127,6 @@ public class BirdEyeLoader
     }
     
     /**
-     * Throws an exception b/c not possible to load the bird eye view.
-     * @see DataLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    {
-    	handleException(new Exception("No bird eye view."));
-    }
-    
-    /**
      * Notifies the user that the data retrieval has been cancelled.
      */
     public void handleCancellation() {}
