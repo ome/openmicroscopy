@@ -202,8 +202,8 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
 		COLUMNS_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 		COLUMNS_TOOLTIP[CONTAINER_INDEX] =	TOOLTIP_CONTAINER;
-		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
 		COLUMNS_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
+		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
 		COLUMNS_TOOLTIP[FOLDER_AS_DATASET_INDEX] = TOOLTIP_FAD;
 
 		COLUMNS_NO_GROUP = new Vector<String>(5);
@@ -217,7 +217,7 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
-		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
+		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX-1] = TOOLTIP_OWNER;
 		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
 
 		COLUMNS_NO_USER = new Vector<String>(5);
@@ -324,41 +324,27 @@ class FileSelectionTable
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
-				new MultilineHeaderSelectionRenderer());
+		TableCellRenderer renderer = new MultilineHeaderSelectionRenderer();
 
-		tc = tcm.getColumn(FILE_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		setHeaderRenderer(tcm, SIZE_INDEX, renderer);
+		setHeaderRenderer(tcm, FILE_INDEX, renderer);
+		setHeaderRenderer(tcm, CONTAINER_INDEX, renderer);
 		
 		if (!singleGroup) {
 			if(model.canImportAs()) {
-				setHeaderRenderer(tcm, OWNER_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, GROUP_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, 
-						new MultilineHeaderSelectionRenderer());
+				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, renderer);
 			} else {
-				setHeaderRenderer(tcm, GROUP_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, 
-						new MultilineHeaderSelectionRenderer());
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
 			}
 		} else {
 			if(model.canImportAs()) {
-				setHeaderRenderer(tcm, OWNER_INDEX,
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1,
-						new MultilineHeaderSelectionRenderer());
+				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
 			} else {
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, 
-						new MultilineHeaderSelectionRenderer());
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, renderer);
 			}
 		}
 		table.getTableHeader().resizeAndRepaint();
@@ -726,9 +712,9 @@ class FileSelectionTable
 					if(model.canImportAs()) {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value),
+								new DataNodeElement(node, value), 
 								user.getUserName(),
-								Boolean.valueOf(v)});;
+								Boolean.valueOf(v)});
 					} else {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
@@ -739,13 +725,13 @@ class FileSelectionTable
 					if(model.canImportAs()) {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value),
+								new DataNodeElement(node, value), 
 								user.getUserName(), group.getName(),
 								Boolean.valueOf(v)});
 					} else {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value),
+								new DataNodeElement(node, value), 
 								group.getName(),
 								Boolean.valueOf(v)});
 					}
