@@ -2003,8 +2003,7 @@ def repository_list(request, klass, name=None, filepath=None, conn=None, **kwarg
     ctx = conn.SERVICE_OPTS.copy()
     ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
-    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), fwname)
+    root = ''
     if filepath:
         root = os.path.join(root, filepath)
     show_hidden = request.GET.get('hidden', 'false')
@@ -2028,8 +2027,7 @@ def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **
     ctx = conn.SERVICE_OPTS.copy()
     ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
-    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
-    root = os.path.join(unwrap(repository.root().path), fwname)
+    root = ''
     if filepath:
         root = os.path.join(root, filepath)
     show_hidden = request.GET.get('hidden', 'false') == 'true'
@@ -2073,8 +2071,7 @@ def repository_sha(request, klass, name=None, filepath=None, conn=None, **kwargs
     ctx = conn.SERVICE_OPTS.copy()
     ctx.setOmeroGroup('-1')
     repository, description = get_repository(conn, klass, name)
-    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
+    fullpath = filepath
 
     try:
         sourcefile = repository.file(fullpath, 'r', ctx)
@@ -2086,6 +2083,25 @@ def repository_sha(request, klass, name=None, filepath=None, conn=None, **kwargs
         digest.update(block)
 
     return dict(sha=digest.hexdigest())
+
+
+def _gather_files_for_deletion(repository, ctx, batchsize, explore, files, directories):
+    while explore and (batchsize == 0 or len(files) < batchsize):
+        directory = explore.pop()
+        for entry in repository.listFiles(directory, ctx):
+            fullname = os.path.join(directory, unwrap(entry.name))
+            if unwrap(entry.mimetype) == 'Directory':
+                explore.append(fullname)
+            else:
+                files.append(fullname)
+        directories.insert(0, directory)
+    if not explore:
+        files.extend(directories)
+        del directories[:]
+    batchsize = len(files) if batchsize == 0 else batchsize
+    todelete = files[:batchsize]
+    del files[:batchsize]
+    return todelete
 
 
 @require_POST
@@ -2100,6 +2116,7 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     repository, description = get_repository(conn, klass, name)
 
     async = request.GET.get('async') == 'true'
+    progress = request.GET.get('progress') == 'true'
     try:
         timeout = int(request.GET.get('timeout', '30'))
     except ValueError:
@@ -2109,50 +2126,42 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
     except ValueError:
         batchsize = 0
 
-    # Collect objects to be deleted
-    todelete = []
-    path, fname = os.path.split(filepath)
-    path += '/' if path != '' else ''
-    objs = conn.getObjects('OriginalFile', attributes=dict(name=fname, path='/'+path))
-    for obj in objs:
-        # recursively collect all file IDs below the given path
-        def _delete(path):
-            try:
-                for f in repository.listFiles(path, ctx):
-                    todelete.append(f.id.val)
-                    _delete(f.path.val[1:] + f.name.val)
-            except Exception, e:
-                pass
-        _delete(path + fname)
-        todelete.append(obj.id)
-
-    # Delete files on disk
-    try:
-        repository.delete(filepath, ctx)
-    except Exception, e:
-        logger.error(traceback.format_exc())
-
     rdict = {
-        'total': len(todelete),
         'async': async,
-        }
+        'progress': progress,
+    }
 
-    # Delete objects in database
-    if todelete:
+    total = None
+    remaining = None
 
-        remaining = []
-        if async and batchsize > 0:
-            todelete, remaining = todelete[:batchsize], todelete[batchsize:]
+    if repository.fileExists(filepath):
 
-        handle = conn.deleteObjects('/OriginalFile', todelete)
+        if progress:
+            total = len(_gather_files_for_deletion(repository, ctx, 0,
+                                                   [filepath], [], []))
+            remaining = total
 
         if async:
+            explore = [filepath]
+            files = []
+            directories = []
+            todelete = _gather_files_for_deletion(repository, ctx, batchsize,
+                                       explore, files, directories)
+        else:
+            todelete = [filepath]
+
+        handle = repository.deletePaths(todelete, True, True, ctx)
+
+        if async:
+
             # return immediately
             request.session.setdefault('deletes', dict())[str(handle)] = {
                 'filepath': filepath,
+                'explore': explore,
+                'files': files,
+                'directories': directories,
                 'batchsize': batchsize,
-                'total': len(todelete) + len(remaining),
-                'todelete': todelete,
+                'total': total,
                 'remaining': remaining,
                 'currenthandle': str(handle),
                 }
@@ -2160,12 +2169,15 @@ def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwa
             rdict['handle'] = str(handle)
 
         else:
-            # Wait until delete completes
+
             try:
                 conn._waitOnCmd(handle, loops=timeout * 2)  # loops are 500ms
+                remaining = 0
             finally:
                 handle.close()
 
+    rdict['total'] = total
+    rdict['remaining'] = remaining
     return rdict
 
 
@@ -2176,28 +2188,48 @@ def repository_delete_status(request, klass, name=None, filepath=None, conn=None
     json method: Get status for asynchronous delete
     """
     strhandle = str(request.GET.get('handle'))
+
     info = request.session.setdefault('deletes', dict()).get(strhandle, dict())
-    total = info.get('total', -1)
-    if total == -1:
+    if info.get('currenthandle') == None:
         return dict(error='Invalid handle')
     handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(info['currenthandle']))
     status = handle.getStatus()
     remaining = info['remaining']
-    todelete = info['todelete']
-    batchsize = info['batchsize']
-    rdict = dict(total=total, steps=status.steps + total - len(remaining) - len(todelete), complete=False)
+    total = info['total']
+
+    rdict = dict(
+        total=total,
+        complete=False)
+
     if status.stopTime > 0:
         handle.close()
-        if remaining:
-            todelete, remaining = remaining[:batchsize], remaining[batchsize:]
-            handle = conn.deleteObjects('/OriginalFile', todelete)
-            request.session['deletes'][strhandle]['todelete'] = todelete
-            request.session['deletes'][strhandle]['remaining'] = remaining
+
+        batchsize = info['batchsize']
+        explore = info['explore']
+        files = info['files']
+        directories = info['directories']
+
+        if explore or files or directories:
+            if remaining:
+                remaining -= batchsize
+            conn.SERVICE_OPTS.setOmeroGroup('-1')
+            ctx = conn.SERVICE_OPTS.copy()
+            repository, description = get_repository(conn, klass, name)
+
+            todelete = _gather_files_for_deletion(repository, ctx, batchsize,
+                                       explore, files, directories)
+            handle = repository.deletePaths(todelete, True, True, ctx)
+            request.session['deletes'][strhandle]['explore'] = explore
+            request.session['deletes'][strhandle]['files'] = files
+            request.session['deletes'][strhandle]['directories'] = directories
             request.session['deletes'][strhandle]['currenthandle'] = str(handle)
+            request.session['deletes'][strhandle]['remaining'] = remaining
         else:
+            remaining = 0
             request.session['deletes'].pop(strhandle)
             rdict['complete'] = True
         request.session.save()
+    rdict['remaining'] = remaining
     return rdict
 
 
@@ -2224,7 +2256,7 @@ def repository_makedir(request, klass, name=None, dirpath=None, conn=None, **kwa
     fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
 
     try:
-        path = os.path.join(root, fwname, dirpath)
+        path = dirpath
         rdict = {'bad': 'false'}
         force = request.GET.get('force', 'false')
         parents = request.GET.get('parents', 'true')
@@ -2257,8 +2289,7 @@ def repository_download(request, klass, name=None, filepath=None, conn=None, **k
     perform partial downloads or download continuation
     """
     repository, description = get_repository(conn, klass, name)
-    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
-    fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
+    fullpath = filepath
 
     ctx = conn.SERVICE_OPTS.copy()
     ctx.setOmeroGroup('-1')
@@ -2393,8 +2424,7 @@ def process_request(require_uploadId):
         def decorated(self, request, klass, name=None, filepath=None, conn=None, **kwargs):
 
             repository, description = get_repository(conn, klass, name)
-            fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
-            fullpath = os.path.join(unwrap(repository.root().path), fwname, filepath)
+            fullpath = filepath
 
             objectname = os.path.basename(fullpath)
             uploadId = request.GET.get('uploadId')
