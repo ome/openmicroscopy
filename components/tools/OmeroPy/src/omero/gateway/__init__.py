@@ -6326,11 +6326,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         if not self._re.requiresPixelsPyramid():
             return None
-        levels = self._re.getResolutionDescriptions()
         rv = {}
-        sizeXList = [level.sizeX for level in levels]
-        for i, level in enumerate(sizeXList):
-            rv[i] = float(level)/sizeXList[0]
+        levelCount = self._re.getResolutionLevels()-1
+        for i in range(levelCount):
+            rv[i] = 1.0 / 2 ** i
         return rv
 
     def setActiveChannels(self, channels, windows=None, colors=None):
