@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 //Third-party libraries
@@ -39,9 +38,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-
-import com.sun.tools.javac.code.Attribute.Array;
-
 import pojos.DataObject;
 import pojos.ImageData;
 
