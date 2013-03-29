@@ -77,6 +77,13 @@ class FileSelectionTable
 	implements ActionListener
 {
 
+	private static final String TOOLTIP_BUTTON_REMOVE_ALL = "Remove all files from the queue.";
+
+	private static final String TOOLTIP_BUTTON_REMOVE = "Remove the selected files " +
+			"from the queue.";
+
+	private static final String TOOLTIP_BUTTON_ADD = "Add the selected files to the queue.";
+
 	/** Tooltip text for group column */
 	private static final String TOOLTIP_GROUP = 
 			"The group where to import data.";
@@ -386,15 +393,14 @@ class FileSelectionTable
 	{
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
-		addButton.setToolTipText("Add the selected files to the queue.");
+		addButton.setToolTipText(TOOLTIP_BUTTON_ADD);
 		addButton.setEnabled(false);
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
-		removeButton.setToolTipText("Remove the selected files " +
-				"from the queue.");
+		removeButton.setToolTipText(TOOLTIP_BUTTON_REMOVE);
 		removeButton.setEnabled(false);
 		removeAllButton = new JButton(
 				icons.getIcon(IconManager.DOUBLE_LEFT_ARROW));
-		removeAllButton.setToolTipText("Remove all files from the queue.");
+		removeAllButton.setToolTipText(TOOLTIP_BUTTON_REMOVE_ALL);
 		removeAllButton.setEnabled(false);
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
