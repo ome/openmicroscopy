@@ -399,6 +399,9 @@ class OMEROGateway
 	/** The default port to use. */
 	private int port;
 	
+	/** The server to use. */
+	private String hostName;
+	
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
@@ -2149,6 +2152,20 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the port used.
+	 * 
+	 * @return See above.
+	 */
+	int getPort() { return port; }
+	
+	/** 
+	 * Returns the host name the gateway is connected to.
+	 * 
+	 * @return See above.
+	 */
+	String getHostName() { return hostName; }
+	
+	/**
 	 * Sets the port value.
 	 * 
 	 * @param port The value to set.
@@ -2352,6 +2369,7 @@ class OMEROGateway
 	{
 		this.encrypted = encrypted;
 		client secureClient = null;
+		this.hostName = hostName;
 		try {
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);

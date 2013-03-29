@@ -94,6 +94,7 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.util.Target;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
@@ -1101,6 +1102,8 @@ class OmeroImageServiceImpl
 		}
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
+		ctx.setServerInformation(gateway.getHostName(), gateway.getPort());
+
 		if (status.isMarkedAsCancel()) {
 			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
@@ -1178,11 +1181,6 @@ class OmeroImageServiceImpl
 							if (!file.getName().endsWith(
 									ImportableObject.DAT_EXTENSION)) {
 								hcsFile = isHCS(ic.getContainers());
-								/*
-								hcsFile = ImportableObject.isHCSFile(value);
-								if (!hcsFile) {
-									hcsFile = isHCS(ic.getContainers());
-								}*/
 							} else hcsFile = false;
 						}
 					}
@@ -1211,18 +1209,24 @@ class OmeroImageServiceImpl
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {
-						context.getLogger().error(this, "Cannot create " +
-								"the container hosting the images.");
+						LogMessage msg = new LogMessage();
+						msg.print("Cannot create the container hosting the " +
+								"images.");
+						msg.print(e);
+						context.getLogger().error(this, msg);
 					}
 				} else if (folder instanceof ScreenData) {
 					try {
-						ioContainer = determineContainer(ctx, null, folder, 
+						ioContainer = determineContainer(ctx, null, folder,
 								object, userName);
 						status.setContainerFromFolder(PojoMapper.asDataObject(
 								ioContainer));
 					} catch (Exception e) {
-						context.getLogger().error(this, "Cannot create " +
-								"the container hosting the plate.");
+						LogMessage msg = new LogMessage();
+						msg.print("Cannot create the Screen hosting " +
+								"the plate.");
+						msg.print(e);
+						context.getLogger().error(this, msg);
 					}
 				}
 			}
@@ -1231,8 +1235,10 @@ class OmeroImageServiceImpl
 					ioContainer = determineContainer(ctx, dataset, container,
 							object, userName);
 				} catch (Exception e) {
-					context.getLogger().error(this, "Cannot create " +
-					"the container hosting the images.");
+					LogMessage msg = new LogMessage();
+					msg.print("Cannot create the container hosting the images.");
+					msg.print(e);
+					context.getLogger().error(this, msg);
 				}
 			} else { //no dataset specified.
 				if (container instanceof ScreenData) {
@@ -1249,9 +1255,11 @@ class OmeroImageServiceImpl
 										PojoMapper.asDataObject(
 												ioContainer));
 							} catch (Exception e) {
-								context.getLogger().error(this, 
-										"Cannot create the Screen hosting " +
-										"the data.");
+								LogMessage msg = new LogMessage();
+								msg.print("Cannot create the Screen hosting " +
+										"the plate.");
+								msg.print(e);
+								context.getLogger().error(this, msg);
 							}
 						}
 					} else ioContainer = container.asIObject();
@@ -1399,9 +1407,11 @@ class OmeroImageServiceImpl
 									PojoMapper.asDataObject(
 											ioContainer));
 						} catch (Exception e) {
-							context.getLogger().error(this, 
-									"Cannot create the Screen hosting " +
-									"the data.");
+							LogMessage msg = new LogMessage();
+							msg.print("Cannot create the Screen hosting the " +
+									"plates.");
+							msg.print(e);
+							context.getLogger().error(this, msg);
 						}
 					}
 				} else ioContainer = container.asIObject();
@@ -1458,9 +1468,11 @@ class OmeroImageServiceImpl
 											parameters);
 								}
 							} catch (Exception e) {
-								context.getLogger().error(this, 
-										"Cannot create the container hosting " +
-										"the data.");
+								LogMessage msg = new LogMessage();
+								msg.print("Cannot create the container " +
+										"hosting the data.");
+								msg.print(e);
+								context.getLogger().error(this, msg);
 							}
 						}
 					}
@@ -1472,9 +1484,11 @@ class OmeroImageServiceImpl
 						ioContainer = determineContainer(ctx, dataset,
 								container, object, userName);
 					} catch (Exception e) {
-						context.getLogger().error(this, 
-								"Cannot create the container hosting " +
-								"the data.");
+						LogMessage msg = new LogMessage();
+						msg.print("Cannot create the container " +
+								"hosting the data.");
+						msg.print(e);
+						context.getLogger().error(this, msg);
 					}
 				}
 			}
