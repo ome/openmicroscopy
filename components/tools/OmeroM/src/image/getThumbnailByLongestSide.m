@@ -1,26 +1,28 @@
-function thumbnail = getThumbnail(session, image, varargin)
-% GETTHUMBNAIL Retrieve thumbnail from an image on the OMERO server
+function thumbnail = getThumbnailByLongestSide(session, image, varargin)
+% GETTHUMBNAILBYLONGESTSIDE Retrieve thumbnail from an image on the OMERO server
 %
-%   thumbnail = getThumbnail(session, image) returns the thumbnail from the
-%   input image.
+%   thumbnail = getThumbnailByLongestSide(session, image) returns the
+%   thumbnail from the input image where the aspect ratio of the original
+%   image is preserved.
 %
-%   thumbnail = getThumbnail(session, image, x, y) also returns a thumbnail
-%   of dimensions (x, y). 
+%   thumbnail = getThumbnailByLongestSide(session, image, size) also sets
+%   the size of of the longest side.
 %
-%   thumbnail = getThumbnail(session, imageID) returns the thumbnail from
-%   the input image identifier.
+%   thumbnail = getThumbnailByLongestSide(session, imageID) returns the
+%   thumbnail from the input image identifier where the aspect ratio of the
+%   original image is preserved.
 %
-%   thumbnail = getThumbnail(session, imageID, x, y) also returns a
-%   thumbnail of dimensions (x, y). 
+%   thumbnail = getThumbnailByLongestSide(session, imageID, size) also sets
+%   the size of of the longest side.
 %
 %   Examples:
 %
-%      thumbnail = getThumbnail(session, image);
-%      thumbnail = getThumbnail(session, image, x, y);
-%      thumbnail = getThumbnail(session, imageID);
-%      thumbnail = getThumbnail(session, imageID, x, y);
+%      thumbnail = getThumbnailByLongestSide(session, image);
+%      thumbnail = getThumbnailByLongestSide(session, image, size);
+%      thumbnail = getThumbnailByLongestSide(session, imageID);
+%      thumbnail = getThumbnailByLongestSide(session, imageID, size);
 %
-% See also: GETTHUMBNAILSTORE, GETTHUMBNAILBYLONGESTSIDE
+% See also: GETTHUMBNAILSTORE, GETTHUMBNAIL
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -42,17 +44,15 @@ function thumbnail = getThumbnail(session, image, varargin)
 % Input check
 isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
 ip = inputParser();
-ip.addOptional('x', [], isposint);
-ip.addOptional('y', [], isposint);
+ip.addOptional('size', [], isposint);
 ip.parse(varargin{:});
 
 % Initialize raw pixels store
 store = getThumbnailStore(session, image);
 
 % Retrieve thumbnail set
-if ~isempty(ip.Results.x), x = rint(ip.Results.x); else x = []; end
-if ~isempty(ip.Results.y), y = rint(ip.Results.x); else y = []; end
-byteArray = store.getThumbnail(x, y);
+if ~isempty(ip.Results.size), size = rint(ip.Results.size); else size = []; end
+byteArray = store.getThumbnailByLongestSide(size);
 store.close();
 
 % Convert byteArray into Matlab image

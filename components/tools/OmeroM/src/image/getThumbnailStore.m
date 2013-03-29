@@ -14,7 +14,7 @@ function [store, pixels] = getThumbnailStore(session, image)
 %      store = getThumbnailStore(session, image);
 %      store = getThumbnailStore(session, imageID);
 %
-% See also: GETRAWPIXELSSTORE
+% See also: GETRAWPIXELSSTORE, GETTHUMBNAIL, GETTHUMBNAILBYLONGESTSIDE
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
