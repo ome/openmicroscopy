@@ -6,6 +6,8 @@
  *
  */
 
+#include <typeinfo>
+
 #include <omero/RTypesI.h>
 #include <omero/ClientErrors.h>
 #include <omero/ObjectFactoryRegistrar.h>
