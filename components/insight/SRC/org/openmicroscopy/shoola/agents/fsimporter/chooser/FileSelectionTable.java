@@ -802,7 +802,8 @@ class FileSelectionTable
 					if(model.canImportAs()) {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value), user.getUserName(),
+								new DataNodeElement(node, value),
+								user.getUserName(),
 								Boolean.valueOf(v), Boolean.valueOf(a)});;
 					} else {
 						dtm.addRow(new Object[] {element, 
@@ -814,12 +815,14 @@ class FileSelectionTable
 					if(model.canImportAs()) {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value), user.getUserName(), group.getName(),
+								new DataNodeElement(node, value),
+								user.getUserName(), group.getName(),
 								Boolean.valueOf(v), Boolean.valueOf(a)});
 					} else {
 						dtm.addRow(new Object[] {element, 
 								element.getFileLengthAsString(),
-								new DataNodeElement(node, value), group.getName(),
+								new DataNodeElement(node, value),
+								group.getName(),
 								Boolean.valueOf(v), Boolean.valueOf(a)});
 					}
 				}
