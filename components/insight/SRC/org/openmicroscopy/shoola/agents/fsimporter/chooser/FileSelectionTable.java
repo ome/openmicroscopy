@@ -220,8 +220,8 @@ class FileSelectionTable
 		COLUMNS_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
 		COLUMNS_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 		COLUMNS_TOOLTIP[CONTAINER_INDEX] =	TOOLTIP_CONTAINER;
-		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
 		COLUMNS_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
+		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
 		COLUMNS_TOOLTIP[FOLDER_AS_DATASET_INDEX] = TOOLTIP_FAD;
 		COLUMNS_TOOLTIP[ARCHIVED_INDEX] = TOOLTIP_ARCHIVE;
 
@@ -237,7 +237,7 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
 		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
-		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
+		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX-1] = TOOLTIP_OWNER;
 		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
 		COLUMNS_NO_GROUP_TOOLTIP[ARCHIVED_INDEX-1] = TOOLTIP_ARCHIVE;
 		
@@ -368,53 +368,33 @@ class FileSelectionTable
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
-				new MultilineHeaderSelectionRenderer());
-
-		tc = tcm.getColumn(FILE_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		TableCellRenderer renderer = new MultilineHeaderSelectionRenderer();
+		TableCellRenderer archiveRenderer = 
+				new MultilineHeaderSelectionRenderer(table, archivedBox);
+		
+		setHeaderRenderer(tcm, SIZE_INDEX, renderer);
+		setHeaderRenderer(tcm, FILE_INDEX, renderer);
+		setHeaderRenderer(tcm, CONTAINER_INDEX, renderer);
 		
 		if (!singleGroup) {
 			if(model.canImportAs()) {
-				setHeaderRenderer(tcm, OWNER_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, GROUP_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, ARCHIVED_INDEX,
-						new MultilineHeaderSelectionRenderer(table, archivedBox));
+				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, renderer);
+				setHeaderRenderer(tcm, ARCHIVED_INDEX, archiveRenderer);
 			} else {
-				setHeaderRenderer(tcm, GROUP_INDEX-1, 
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, 
-						new MultilineHeaderSelectionRenderer());
-
-				setHeaderRenderer(tcm, ARCHIVED_INDEX-1, 
-						new MultilineHeaderSelectionRenderer(table, archivedBox));
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+				setHeaderRenderer(tcm, ARCHIVED_INDEX-1, archiveRenderer);
 			}
 		} else {
 			if(model.canImportAs()) {
-				setHeaderRenderer(tcm, OWNER_INDEX,
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1,
-						new MultilineHeaderSelectionRenderer());
-				
-				setHeaderRenderer(tcm, ARCHIVED_INDEX-1,
-						new MultilineHeaderSelectionRenderer(table, archivedBox));
+				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+				setHeaderRenderer(tcm, ARCHIVED_INDEX-1, archiveRenderer);
 			} else {
-				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, 
-						new MultilineHeaderSelectionRenderer());
-
-				setHeaderRenderer(tcm, ARCHIVED_INDEX-2, 
-						new MultilineHeaderSelectionRenderer(table, archivedBox));
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, renderer);
+				setHeaderRenderer(tcm, ARCHIVED_INDEX-2, archiveRenderer);
 			}
 		}
 		table.getTableHeader().resizeAndRepaint();
@@ -787,7 +767,6 @@ class FileSelectionTable
 			inQueue.add(element);
 		}
 		Iterator<File> i = files.iterator();
-		boolean multi = !model.isSingleGroup();
 		DataNode node = settings.getImportLocation();
 		if (node.isDefaultNode() && model.getType() != Importer.SCREEN_TYPE)
 			node.setParent(settings.getParentImportLocation());
@@ -818,16 +797,31 @@ class FileSelectionTable
 					if (model.getType() == Importer.SCREEN_TYPE)
 						a = false;
 				}
-				if (multi) {
-					dtm.addRow(new Object[] {element, 
-							element.getFileLengthAsString(),
-							new DataNodeElement(node, value), user.getUserName(), group.getName(),
-							Boolean.valueOf(v), Boolean.valueOf(a)});
+				
+				if (model.isSingleGroup()) {
+					if(model.canImportAs()) {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), user.getUserName(),
+								Boolean.valueOf(v), Boolean.valueOf(a)});;
+					} else {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value),
+								Boolean.valueOf(v), Boolean.valueOf(a)});
+					}
 				} else {
-					dtm.addRow(new Object[] {element, 
-							element.getFileLengthAsString(),
-							new DataNodeElement(node, value), user.getUserName(),
-							Boolean.valueOf(v), Boolean.valueOf(a)});
+					if(model.canImportAs()) {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), user.getUserName(), group.getName(),
+								Boolean.valueOf(v), Boolean.valueOf(a)});
+					} else {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), group.getName(),
+								Boolean.valueOf(v), Boolean.valueOf(a)});
+					}
 				}
 			}
 		}
