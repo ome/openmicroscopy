@@ -397,9 +397,6 @@ class OMEROGateway
 	/** The default port to use. */
 	private int port;
 	
-	/** The server to use. */
-	private String hostName;
-	
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
@@ -1440,6 +1437,7 @@ class OMEROGateway
 		//We are going to create a connector and activate a session.
 		try {
 			UserCredentials uc = dsFactory.getCredentials();
+			ctx.setServerInformation(uc.getHostName(), port);
 			client client = new client(uc.getHostName(), port);
 			ServiceFactoryPrx prx = client.createSession(uc.getUserName(), 
 					uc.getPassword());
@@ -2140,13 +2138,6 @@ class OMEROGateway
 	 */
 	int getPort() { return port; }
 	
-	/** 
-	 * Returns the host name the gateway is connected to.
-	 * 
-	 * @return See above.
-	 */
-	String getHostName() { return hostName; }
-	
 	/**
 	 * Sets the port value.
 	 * 
@@ -2351,7 +2342,6 @@ class OMEROGateway
 	{
 		this.encrypted = encrypted;
 		client secureClient = null;
-		this.hostName = hostName;
 		try {
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);

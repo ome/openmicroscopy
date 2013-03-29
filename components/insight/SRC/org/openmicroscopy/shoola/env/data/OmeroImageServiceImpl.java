@@ -1097,7 +1097,6 @@ class OmeroImageServiceImpl
 		}
 		SecurityContext ctx = 
 			new SecurityContext(importable.getGroup().getId());
-		ctx.setServerInformation(gateway.getHostName(), gateway.getPort());
 
 		if (status.isMarkedAsCancel()) {
 			if (close) gateway.closeImport(ctx);
