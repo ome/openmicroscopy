@@ -1,4 +1,4 @@
-{% extends "webgateway/base/base_header.html" %}
+{% extends "webclient/scripts/base_custom_dialog.html" %}
 {% load i18n %}
 
 {% comment %}
@@ -35,97 +35,7 @@
 
 {% block script %}
     {{ block.super }}
-    {% include "webgateway/base/includes/script_src_jquery.html" %}
-    {% include "webgateway/base/includes/script_src_popup.html" %}
-    {% include "webgateway/base/includes/jquery-ui.html" %}
-    <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
-    <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
-    <script type="text/javascript" src="{% static "webclient/javascript/ome.split_view_figure.js" %}"></script>
-
-
-    <style type="text/css">
-    body {
-        font-size: 70% !important;
-    }
-    .img_panel {
-        <!--[if lte IE 8]>
-            width: 100px;
-        <![endif]-->
-        max-width: 100px;
-        max-height: 100px;
-        
-        border-width: 0px;
-        margin: 5px;
-        vertical-align:middle;
-    }
-    .toggle_channel {
-        padding:4px; margin:2px; padding-left:6px; border-radius: 6px;
-    }
-    .toggle_channel input[type=text] {
-        font-size:10px;
-        border:solid white 1px;
-        opacity:0.8;
-    }
-    #figure_table {
-        margin-left:auto;
-        margin-right:auto;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        padding: 5px;
-        background: #fff;
-        border: 1px solid white;
-        border-radius: 5px 5px 5px 5px;
-        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        padding: 30px 50px;
-    }
-    #img_size_slider {
-        position: absolute;
-        top: 12px;
-        left: 100px;
-    }
-    #zRangeSlider, #img_size_slider {
-        border: 1px solid #aaa;
-        height: 6px;
-        width: 150px;
-    }
-    .ui-slider-handle {
-        border: 1px solid #aaa;
-        background: #727C86;
-        border-radius: 3px;
-    }
-    #middle_header {
-        height: 35px;
-    }
-    #script_content {
-        position: absolute;
-        top:0px; left:0px; right:0px; bottom:35px;
-        overflow:auto;
-        padding:10px;
-        background-color: #EFF1F4
-    }
-    div.footer {
-        background: #ddd; 
-        position:fixed; 
-        bottom:0px; left:0px; right:0px;
-        padding: 7px;
-        border-top: 1px solid #aaa;
-        font-size: 120%;
-    }
-    .zsection {
-        margin-left:25px;
-        padding:3px;
-    }
-    .rowLabel, .dragHandle {
-        vertical-align: middle;
-    }
-    </style>
-
-{% endblock %}
-
-
-{% block middle_header_left %}
-<!-- Empty block removes the header links here -->
+    
 {% endblock %}
 
 
@@ -137,15 +47,42 @@
 <form id="script_form" method="post" action="{% url script_run scriptId %}">
 
     <div style="margin-left:auto; margin-right:auto; width:500px">
+    {% block script_form %}
 
         <h1>Create Thumbnail Figure</h1>
 
         <hr/>
 
+        <!-- drop-down list of enums -->
+        <select name="Data_Type">
+            <option value="Dataset"  >Dataset</option>
+            <option value="Image"  selected="True"  >Image</option>
+        </select>
+
         <input type="text" name="IDs" value="{{ idString }}" style="display:none">
 
-    </div>
 
+        <input type="text" name="Tag_IDs"  />
+
+        <input type="checkbox" name="Show_Untagged_Images"  />
+
+        <input type="text" name="Parent_ID" class="number"  />
+
+        <input type="text" name="Thumbnail_Size" class="number"  value="100"  />
+
+        <input type="text" name="Max_Columns" class="number"  value="10"  />
+
+        <!-- drop-down list of enums -->
+        <select name="Format">
+            <option value="JPEG"  selected="True"  >JPEG</option>
+            <option value="PNG"  >PNG</option>
+            <option value="TIFF"  >TIFF</option>
+        </select>
+
+        <input type="text" name="Figure_Name"  value="Thumbnail_Figure"  />
+
+    {% endblock %}
+    </div>
 
     <div class="footer">
         <div style="float:right">
@@ -165,11 +102,15 @@
 <table id="figure_table">
     <tr><td>
         <div style="padding:10px">
+
+    {% block figure_preview %}
     <table>
     <tr>
         <td> FIGURE HERE </td>
     </tr>
     </table>
+    {% endblock %}
+
 </div>
 </td></tr>
 </table>
