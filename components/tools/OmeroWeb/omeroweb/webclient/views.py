@@ -2461,33 +2461,41 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         validImages[img.getId()] = img
     imageIds = [iid for iid in imageIds if iid in validImages]
 
-    # Lookup Tags & Datasets (for row labels)
-    imgDict = []    # A list of data about each image.
-    for iId in imageIds:
-        data = {'id':iId}
-        img = validImages[iId]
-        data['name'] = img.getName()
-        tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
-        data['tags'] = tags
-        data['datasets'] = [d.getName() for d in img.listParents()]
-        imgDict.append(data)
+    context = {}
 
-    # Use the first image as a reference
-    image = validImages[imageIds[0]]
-    channels = image.getChannels()
+    if scriptName == "SplitView":
+        scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
+        template = "webclient/scripts/split_view_figure.html"
+        # Lookup Tags & Datasets (for row labels)
+        imgDict = []    # A list of data about each image.
+        for iId in imageIds:
+            data = {'id':iId}
+            img = validImages[iId]
+            data['name'] = img.getName()
+            tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+            data['tags'] = tags
+            data['datasets'] = [d.getName() for d in img.listParents()]
+            imgDict.append(data)
+
+        # Use the first image as a reference
+        image = validImages[imageIds[0]]
+        context['imgDict'] = imgDict
+        context['image'] = image
+        context['channels'] = image.getChannels()
+
+    elif scriptName == "Thumbnail":
+        scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
+        template = "webclient/scripts/thumbnail_figure.html"
 
     scriptService = conn.getScriptService()
-    scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
     scriptId = scriptService.getScriptID(scriptPath);
     if (scriptId < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
-    idString = ",".join( [str(i) for i in imageIds] )
-
-
-
-    return {"template": "webclient/scripts/split_view_figure.html", "scriptId": scriptId,
-        "image": image, "imgDict": imgDict, "idString":idString, "channels": channels, "tags": tags}
+    context['idString'] = ",".join( [str(i) for i in imageIds] )
+    context['template'] = template
+    context['scriptId'] = scriptId
+    return context
 
 
 @login_required()
