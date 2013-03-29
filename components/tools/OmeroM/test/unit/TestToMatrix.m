@@ -42,6 +42,11 @@ classdef TestToMatrix < TestCase
             self.pixelsType = omero.model.PixelsTypeI();
         end
         
+        function tearDown(self)
+            self.pixels = [];
+            self.pixelsType = [];
+        end
+        
         % Wrong input tests
         function testWrongBinaryInput(self)
             self.binaryData = 'test';

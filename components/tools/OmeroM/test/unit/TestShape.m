@@ -34,6 +34,10 @@ classdef TestShape < TestCase
             self = self@TestCase(name);
         end
         
+        function tearDown(self)
+            self.shape = [];
+        end
+        
         % Shape coordinates test function
         function testDefaultCoordinates(self)
             if isempty(self.shape), return; end
