@@ -71,10 +71,12 @@ TEST( PermsTest, invalidCreate ) {
 
 void testStringPerms( const char* perms, bool allOn ) {
     PermissionsIPtr p = new PermissionsI(perms);
-    ASSERT_EQ(p->canAnnotate(), allOn);
-    ASSERT_EQ(p->canDelete(), allOn);
-    ASSERT_EQ(p->canEdit(), allOn);
-    ASSERT_EQ(p->canLink(), allOn);
+    ASSERT_EQ(p->isUserRead(), allOn);
+    ASSERT_EQ(p->isUserWrite(), allOn);
+    ASSERT_EQ(p->isGroupRead(), allOn);
+    ASSERT_EQ(p->isGroupWrite(), allOn);
+    ASSERT_EQ(p->isWorldRead(), allOn);
+    ASSERT_EQ(p->isWorldWrite(), allOn);
 }
 
 TEST( PermsTest, createFromString ) {
