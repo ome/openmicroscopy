@@ -35,7 +35,9 @@
 
 {% block script %}
     {{ block.super }}
-    
+    <script type="text/javascript" src="{% static "webclient/javascript/ome.thumbnail_figure.js" %}"></script>
+    <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
+    <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
 {% endblock %}
 
 
@@ -53,33 +55,75 @@
 
         <hr/>
 
-        <!-- drop-down list of enums -->
-        <select name="Data_Type">
+        <!-- Data_Type and IDs are already set (we can hide these) -->
+        <select name="Data_Type" style="display:none">
             <option value="Dataset"  >Dataset</option>
             <option value="Image"  selected="True"  >Image</option>
         </select>
-
         <input type="text" name="IDs" value="{{ idString }}" style="display:none">
 
+        <span title="File name of the figure to save.">
+            Figure Name:
+            <input type="text" name="Figure_Name"  value="Thumbnail_Figure"  />
+        </span>
 
-        <input type="text" name="Tag_IDs"  />
+        <span title="Format to save image">
+            Format:
+            <select name="Format">
+                <option value="JPEG"  selected="True"  >JPEG</option>
+                <option value="PNG"  >PNG</option>
+                <option value="TIFF"  >TIFF</option>
+            </select>
+        </span>
 
-        <input type="checkbox" name="Show_Untagged_Images"  />
+        <hr/>
 
-        <input type="text" name="Parent_ID" class="number"  />
+        <!-- Thumbnail size - we provide a dropdown selection (hide the number field) -->
+        <span>
+            Thumbnail size:
+            <!--<input type="text" name="Thumbnail_Size" class="number" value="96" style="display:none"/>-->
+            <select name="Thumbnail_Size">
+                <option value="24">24x24</option>
+                <option value="32">32x32</option>
+                <option value="48">48x48</option>
+                <option value="64">64x64</option>
+                <option value="96" selected>96x96</option>
+                <option value="128">128x128</option>
+                <option value="160">160x160</option>
+            </select>
+        </span>
 
-        <input type="text" name="Thumbnail_Size" class="number"  value="100"  />
+        <span>
+            Images per row:
+            <input type="text" name="Max_Columns" class="number" size="3" value="10"  />
+        </span>
 
-        <input type="text" name="Max_Columns" class="number"  value="10"  />
+        <hr/>
 
-        <!-- drop-down list of enums -->
-        <select name="Format">
-            <option value="JPEG"  selected="True"  >JPEG</option>
-            <option value="PNG"  >PNG</option>
-            <option value="TIFF"  >TIFF</option>
+        <!-- Allow user to pick Tags for filtering -->
+        <span title="Sort thumbnails by Tags">
+            Select by tag:
+            <input type="checkbox" name="Select_by_tag" />
+        </span>
+        <br>
+        <span title="Include images that have none of the chosen tags">
+            Include all thumbnails:
+            <input type="checkbox" name="Show_Untagged_Images"  />
+        </span>
+
+        <!-- <input type="text" name="Tag_IDs" style="display:none"/> -->
+
+        <select name="Tag_IDs" multiple="multiple">
+            {% for t in tags %}
+                <option value="{{ t.id }}">{{ t.getTextValue }}</option>
+            {% endfor %}
         </select>
 
-        <input type="text" name="Figure_Name"  value="Thumbnail_Figure"  />
+        <!-- TODO: Do we do anything with this? -->
+        <input type="text" name="Parent_ID" class="number"  style="display:none"/>
+        <hr>
+
+
 
     {% endblock %}
     </div>
