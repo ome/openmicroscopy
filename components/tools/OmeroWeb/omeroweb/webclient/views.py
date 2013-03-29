@@ -2436,7 +2436,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 
-@login_required()
+@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
 @render_response()
 def figure_script(request, scriptName, conn=None, **kwargs):
     """
@@ -2486,6 +2486,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     elif scriptName == "Thumbnail":
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
+        context['tags'] = BaseContainer(conn).getTagsByObject()
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);

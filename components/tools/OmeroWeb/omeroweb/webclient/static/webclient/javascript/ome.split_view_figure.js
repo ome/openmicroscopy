@@ -299,7 +299,4 @@ $(document).ready(function() {
             setImgSize(ui.value);
         }
     });
-
-    // For 'number' fields, only allow numbers input.
-    $(".number").numbersOnly();
 });
