@@ -94,7 +94,7 @@ classdef TestToMatlabList < TestJavaMatlabList
             self.checkNumericInput('int64');
         end
         
-        % Test Java numeric input        
+        % Test Java numeric input
         function testDouble(self)
             self.checkNumericInput('java.lang.Double');
         end
@@ -117,6 +117,15 @@ classdef TestToMatlabList < TestJavaMatlabList
         
         function testShort(self)
             self.checkNumericInput('java.lang.Short');
+        end
+        
+        % String cell array test
+        function testStringCellArray(self)
+            self.initArrayList(10, java.lang.String('test'))
+            
+            self.matlabList = toMatlabList(self.javaList);
+            self.matlabClass = 'cell';
+            self.compareLists();
         end
         
         % Test OMERO objects

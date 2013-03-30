@@ -44,6 +44,12 @@ classdef TestJavaMatlabList < TestCase
             self.matlabClass = class;
         end
         
+        function initMatlabCellArray(self, sizeX, sizeY)
+            self.size = sizeX * sizeY;
+            self.matlabList = repmat({'test'}, sizeX, sizeY);
+            self.matlabClass = 'cell';
+        end
+        
         function initArrayList(self, size, value)
             self.size = size;
             self.javaValue = value;
@@ -69,7 +75,12 @@ classdef TestJavaMatlabList < TestCase
             
             % Compare list elements
             for i = 1 : self.size
-                assertTrue(self.javaList.get(i-1) == self.matlabList(i));
+                if iscell(self.matlabList)
+                    matlabValue = self.matlabList{i};
+                else
+                    matlabValue = self.matlabList(i);
+                end
+                assertTrue(isequal(self.javaList.get(i-1), matlabValue));
             end
         end
     end
