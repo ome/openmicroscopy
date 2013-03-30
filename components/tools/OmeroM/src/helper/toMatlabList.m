@@ -36,7 +36,9 @@ else
 end
 
 % Initialize Matlab list
-if ismember(classname, {'int8', 'uint8', 'int16', 'uint16', 'single', 'double'})
+numericclasses = {'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32',...
+    'int64', 'uint64', 'single', 'double'};
+if ismember(classname, numericclasses)
     matlabList = zeros(nElements, 1, classname);
 else
     castFun = str2func(classname);
