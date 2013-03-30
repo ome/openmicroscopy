@@ -21,7 +21,9 @@ classdef TestJavaMatlabList < TestCase
     properties
         size
         matlabList
+        matlabClass
         javaList
+        javaValue
     end
     
     methods
@@ -32,16 +34,19 @@ classdef TestJavaMatlabList < TestCase
         function tearDown(self)
             self.matlabList = [];
             self.javaList = [];
+            self.javaValue = [];
         end
         
         % Helper functions
-        function initMatlabArray(self, sizeX, sizeY)
+        function initMatlabArray(self, sizeX, sizeY, class)
             self.size = sizeX * sizeY;
-            self.matlabList = ones(sizeX, sizeY);
+            self.matlabList = ones(sizeX, sizeY, class);
+            self.matlabClass = class;
         end
         
         function initArrayList(self, size, value)
             self.size = size;
+            self.javaValue = value;
             self.javaList = java.util.ArrayList;
             for i = 1 : self.size
                 self.javaList.add(value);
@@ -54,15 +59,18 @@ classdef TestJavaMatlabList < TestCase
             assertTrue(isa(self.javaList, 'java.util.ArrayList'));
             assertTrue(isvector(self.matlabList) || isempty(self.matlabList));
             
+            % Check element classes
+            assertTrue(self.javaList.contains(self.javaValue));
+            assertTrue(isa(self.matlabList, self.matlabClass));
+            
             % Check list sizes
             assertEqual(self.javaList.size(), self.size);
             assertEqual(numel(self.matlabList),self.size);
             
-            % Check list elements
+            % Compare list elements
             for i = 1 : self.size
-                assertEqual(self.javaList.get(i-1), self.matlabList(i));
+                assertTrue(self.javaList.get(i-1) == self.matlabList(i));
             end
         end
     end
-    
 end
