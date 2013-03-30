@@ -40,6 +40,8 @@ numericclasses = {'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32',...
     'int64', 'uint64', 'single', 'double'};
 if ismember(classname, numericclasses)
     matlabList = zeros(nElements, 1, classname);
+elseif isequal(classname, 'char')
+    matlabList = cell(nElements, 1);
 else
     castFun = str2func(classname);
     if nElements > 1
@@ -51,5 +53,9 @@ end
 
 % Fill Matlab array with elements
 for i = 0 : nElements - 1,
-    matlabList(i+1) = arraylist.get(i);
+    if iscell(matlabList),
+        matlabList{i+1} = arraylist.get(i);
+    else
+        matlabList(i+1) = arraylist.get(i);
+    end
 end

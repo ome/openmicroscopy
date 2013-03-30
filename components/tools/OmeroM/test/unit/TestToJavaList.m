@@ -110,6 +110,14 @@ classdef TestToJavaList < TestJavaMatlabList
             self.checkNumericInput('int64', 'java.lang.Long');
         end
         
+        % String cell array test
+        function testStringCellArray(self)
+            self.initMatlabCellArray(10, 1);
+            self.javaValue = java.lang.String(self.matlabList{1});
+            self.javaList = toJavaList(self.matlabList);
+            self.compareLists();
+        end
+        
         % Casting function
         function checkNumericCasting(self, classname)
             self.initMatlabArray(1, 1, 'double');

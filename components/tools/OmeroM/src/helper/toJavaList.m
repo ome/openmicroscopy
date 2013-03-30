@@ -20,7 +20,7 @@ function [javaList] = toJavaList(matlabList, varargin)
 
 % Check input
 ip = inputParser;
-ip.addRequired('matlabList', @(x) isvector(x) || isempty(x));
+ip.addRequired('matlabList', @(x) isvector(x) || iscell(x) || isempty(x));
 ip.addOptional('castFun', @(x) x, @(x) ischar(x) || isa(x, 'function_handle'));
 ip.parse(matlabList, varargin{:})
 
@@ -31,5 +31,9 @@ if ischar(castFun), castFun = str2func(castFun); end
 % Create Java list
 javaList = java.util.ArrayList;
 for i=1:length(matlabList)
-    javaList.add(castFun(matlabList(i)));
+    if iscell(matlabList),
+        javaList.add(castFun(matlabList{i}));
+    else
+        javaList.add(castFun(matlabList(i)));
+    end
 end
