@@ -1,5 +1,20 @@
 function [javaList] = toJavaList(matlabList, varargin)
-% Convert a MATLAB vector into a Java ArrayList
+% TOJAVALIST Convert a MATLAB array or cell array into a Java ArrayList
+%
+%    javaList = toJavaList(matlabList) converts a Matlab array or cell
+%    array into a java.util.ArrayList.
+%
+%    javaList = toJavaList(matlabList, castFun) converts a Matlab array or
+%    cell array into a java.util.ArrayList and casts each element using the
+%    input casting function/classname.
+%
+%    Examples:
+%
+%        javaList = toJavaList(matlabList)
+%        javaList = toJavaList(matlabList, @java.lang.Long)
+%        javaList = toJavaList(matlabList, 'java.lang.Long')
+%
+% See also: TOMATLABLIST
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
