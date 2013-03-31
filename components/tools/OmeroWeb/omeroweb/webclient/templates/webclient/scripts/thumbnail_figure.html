@@ -41,14 +41,7 @@
 {% endblock %}
 
 
-{% block content %}
 
-
-<div id="script_content">
-
-<form id="script_form" method="post" action="{% url script_run scriptId %}">
-
-    <div style="margin-left:auto; margin-right:auto; width:500px">
     {% block script_form %}
 
         <h1>Create Thumbnail Figure</h1>
@@ -108,14 +101,14 @@
         <br>
         <span title="Include images that have none of the chosen tags">
             Include all thumbnails:
-            <input type="checkbox" name="Show_Untagged_Images"  />
+            <input type="checkbox" name="Show_Untagged_Images" checked/>
         </span>
 
         <!-- <input type="text" name="Tag_IDs" style="display:none"/> -->
 
         <select name="Tag_IDs" multiple="multiple">
             {% for t in tags %}
-                <option value="{{ t.id }}">{{ t.getTextValue }}</option>
+                <option value="{{ t.id }}-{{ t.getTextValue }}">{{ t.getTextValue }}</option>
             {% endfor %}
         </select>
 
@@ -126,38 +119,19 @@
 
 
     {% endblock %}
-    </div>
-
-    <div class="footer">
-        <div style="float:right">
-            <a href="#" onClick="self.close()">Cancel</a>
-            <input id="submit" type="submit" value="Create Figure" />
-        </div>
-        <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
-
-        <div id="img_size_slider" title="Zoom Preview Figure"></div>
-    </div>
-
-</form>
 
 
 <!---------------------------- FIGURE PREVIEW ---------------------->
 
-<table id="figure_table">
-    <tr><td>
-        <div style="padding:10px">
+{% block figure_preview %}
 
-    {% block figure_preview %}
-    <table>
-    <tr>
-        <td> FIGURE HERE </td>
-    </tr>
-    </table>
-    {% endblock %}
+    <div id="thumbnail_container">
+    {% for img in imageTags %}
+        <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
+            data-iId="{{ img.id }}"
+            data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
+            src="{% url render_thumbnail_resize 96 img.id %}" />
+    {% endfor %}
+    </div>
 
-</div>
-</td></tr>
-</table>
-
-</div>
 {% endblock %}
