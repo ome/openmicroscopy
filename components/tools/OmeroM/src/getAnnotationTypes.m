@@ -1,9 +1,10 @@
-function types = getObjectTypes()
-% GETOBJECTTYPES Return a dictionary of OMERO object types
+function types = getAnnotationTypes()
+% GETANNOTATIONTYPES Return a dictionary of OMERO annotation types
 %
-%   types = getObjectTypes() returns a dictionary of OMERO object types.
+%   types = getAnnotationTypes() returns a list of common annotations in
+%   the OMERO model (tag, file...)
 %
-% See also: GETOBJECTS, GETANNOTATIONTYPES
+% See also: GETOBJECTTYPES, GETANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -22,6 +23,6 @@ function types = getObjectTypes()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-names = {'project', 'dataset', 'image', 'screen', 'plate', 'plateacquisition'};
-classnames = {'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'PlateAcquisition'};
+names = {'tag', 'file', 'comment'};
+classnames = {'TagAnnotation', 'FileAnnotation', 'CommentAnnotation'};
 types = createObjectDictionary(names, classnames);
