@@ -35,9 +35,11 @@ function [javaList] = toJavaList(matlabList, varargin)
 
 % Check input
 ip = inputParser;
-ip.addRequired('matlabList', @(x) isvector(x) || iscell(x) || isempty(x));
+ip.addRequired('matlabList', @(x) isvector(x) || iscellstr(x) || isempty(x) || ischar(x));
 ip.addOptional('castFun', @(x) x, @(x) ischar(x) || isa(x, 'function_handle'));
 ip.parse(matlabList, varargin{:})
+
+if ischar(matlabList), matlabList = {matlabList}; end
 
 % Read casting function
 castFun = ip.Results.castFun;

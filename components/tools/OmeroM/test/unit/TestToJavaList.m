@@ -111,10 +111,17 @@ classdef TestToJavaList < TestJavaMatlabList
         end
         
         % String cell array test
-        function testStringCellArray(self)
+        function testCellArrayStrings(self)
             self.initMatlabCellArray(10, 1);
             self.javaValue = java.lang.String(self.matlabList{1});
             self.javaList = toJavaList(self.matlabList);
+            self.compareLists();
+        end
+        
+        function testString(self)
+            self.initMatlabCellArray(1, 1);
+            self.javaValue = java.lang.String(self.matlabList{1});
+            self.javaList = toJavaList(self.matlabList{1});
             self.compareLists();
         end
         
