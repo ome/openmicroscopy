@@ -2487,6 +2487,18 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
         context['tags'] = BaseContainer(conn).getTagsByObject()
+        tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
+        linkMap = {}    # group tags. {imageId: [tags]}
+        for iId in imageIds:
+            linkMap[iId] = []
+        for l in tagLinks:
+            c = l.getChild()
+            if c._obj.__class__ == omero.model.TagAnnotationI:
+                linkMap[l.getParent().id].append(c)
+        imageTags = []
+        for iId in imageIds:
+            imageTags.append({'id':iId, 'tags':linkMap[iId]})
+        context['imageTags'] = imageTags
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);
