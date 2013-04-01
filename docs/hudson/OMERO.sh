@@ -9,11 +9,13 @@ set -e
 set -u
 set -x
 
+export BUILD_OPTIONS=${BUILD_OPTIONS:-}
+
 source docs/hudson/functions.sh
 echo Building $OMERO_BRANCH
 
 ./build.py clean
-./build.py build-default test-compile
+./build.py $BUILD_OPTIONS build-default test-compile
 ./build.py release-all
 
 # Log information
