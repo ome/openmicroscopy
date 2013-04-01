@@ -108,7 +108,7 @@ class TreeCheckRenderer
     }
     
     /**
-     * Overriden to set the selection box and the label.
+     * Overridden to set the selection box and the label.
      * @see TreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
      *                          boolean, boolean, boolean, int, boolean)
      */
@@ -150,7 +150,7 @@ class TreeCheckRenderer
     }
     
     /**
-     * Overriden to set the ideal size of this component depending on the size
+     * Overridden to set the ideal size of this component depending on the size
      * of the {@link #check} component and the {@link #label} component.
      * @see JPanel#getPreferredSize()
      */
@@ -165,7 +165,7 @@ class TreeCheckRenderer
     }
 
     /**
-     * Overriden to lay out the component since the layout is set to
+     * Overridden to lay out the component since the layout is set to
      * <code>null</code>.
      * @see JPanel#doLayout()
      */
@@ -184,7 +184,7 @@ class TreeCheckRenderer
     }
     
     /**
-     * Overriden to set the default color.
+     * Overridden to set the default color.
      * @see JPanel#setBackground(Color)
      */
     public void setBackground(Color color)

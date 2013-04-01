@@ -90,7 +90,7 @@ public class StackIterator
 	}
 	
 	/** 
-	 * Overriden, this returns the iterator for the zSWtack, used in for(..) 
+	 * Overridden, this returns the iterator for the zStack, used in for(..) 
 	 * construct.
 	 * @see java.lang.Iterable#iterator()
 	 */
@@ -100,7 +100,7 @@ public class StackIterator
 	}
 
 	/** 
-	 * Overriden, this returns true if there is another zStack in the iterator.
+	 * Overridden, this returns true if there is another zStack in the iterator.
 	 * @see java.util.Iterator#hasNext()
 	 */
 	public boolean hasNext()
@@ -111,7 +111,7 @@ public class StackIterator
 	}
 
 	/** 
-	 * Overriden, this passes back the next zSection stack in the iterator.
+	 * Overridden, this passes back the next zSection stack in the iterator.
 	 * @see java.util.Iterator#next()
 	 */
 	public ArrayList<ROIShape> next()
@@ -132,7 +132,7 @@ public class StackIterator
 	}
 
 	/** 
-	 * Overriden.
+	 * Overridden.
 	 * @see java.util.Iterator#remove()
 	 */
 	public void remove()

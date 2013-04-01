@@ -29,7 +29,7 @@ import java.util.prefs.Preferences;
  * 
  * A single string value is stored as {@link #DEFAULT} (which by default is the
  * value {@link #DEFAULT}, and points to the name of some node under
- * "omero.prefs". This value can be overriden by the "OMERO_CONFIG" environment
+ * "omero.prefs". This value can be overridden by the "OMERO_CONFIG" environment
  * variable. Almost all commands work on this default node, referred to here as
  * a "profile".
  * 
