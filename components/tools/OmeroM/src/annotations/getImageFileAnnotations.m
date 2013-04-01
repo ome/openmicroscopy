@@ -17,7 +17,7 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 %        fas = getImageFileAnnotations(session, ids, 'include', include)
 %        fas = getImageFileAnnotations(session, ids, 'exclude', exclude)
 %
-% See also: GETANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
+% See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
 % GETIMAGETAGANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
@@ -37,4 +37,4 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-fas = getAnnotations(session, 'file', 'image', ids, varargin{:});
+fas = getObjectAnnotations(session, 'file', 'image', ids, varargin{:});

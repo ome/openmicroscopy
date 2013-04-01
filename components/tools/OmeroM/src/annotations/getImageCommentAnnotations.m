@@ -17,7 +17,8 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 %        cas = getImageCommentAnnotations(session, ids, 'include', include)
 %        cas = getImageCommentAnnotations(session, ids, 'exclude', exclude)
 %
-% See also: GETANNOTATIONS, GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS
+% See also: GETOBJECTANNOTATIONS, GETIMAGEFILEANNOTATIONS,
+% GETIMAGETAGANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -36,4 +37,4 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-cas = getAnnotations(session, 'comment', 'image', ids, varargin{:});
+cas = getObjectAnnotations(session, 'comment', 'image', ids, varargin{:});
