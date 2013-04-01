@@ -117,9 +117,11 @@ $(document).ready(function() {
 
             // Update the UI
             var $thumbnail_container = $("#thumbnail_container");
-            $('h2', $thumbnail_container).remove();
+            var $toRemove = $('tr', $thumbnail_container)
 
             // For each Tag combination... (E.g. 'Metaphase'+'Dead')
+            var topLevelTag = "";
+            var $td, $tr;
             for (var r=0; r<results.length; r++) {
 
                 var tagData = results[r],
@@ -127,14 +129,25 @@ $(document).ready(function() {
                 if (tagsText.length === 0) {
                     tagsText = "Not Tagged";
                 }
-                $thumbnail_container.append('<h2>'+ tagsText + '</h2>');
+                if (tagsText.length === 0 || tagData.tags[0] !== topLevelTag) {
+                    // start a new container...
+                    topLevelTag = tagData.tags[0];
+
+                    $tr = $('<tr><th><h2>' + tagsText + '</h2></th></tr>');
+                    $tr.appendTo($thumbnail_container);
+                    $td = $('<td></td>').appendTo($tr);
+                } else {
+                    $td.append('<div>'+ tagsText.replace(topLevelTag, "") + '</div>');
+                }
 
                 // Add the images (move from previous position)...
                 for (var i=0; i<tagData.imgIds.length; i++) {
-                    $('#thumbnail-'+tagData.imgIds[i]).appendTo($thumbnail_container);
+                    $('#thumbnail-'+tagData.imgIds[i]).appendTo($td);
                 }
 
             }
+            // now that we've moved the images, we can clean up!
+            $toRemove.remove();
 
     });
 
