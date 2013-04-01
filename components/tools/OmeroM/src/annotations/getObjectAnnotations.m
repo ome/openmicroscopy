@@ -1,25 +1,26 @@
-function annotations = getAnnotations(session, annotationType, parentType, ids, varargin)
-% GETANNOTATIONS Retrieve annotations of a given type associated with an object
+function annotations = getObjectAnnotations(session, annotationType, parentType, ids, varargin)
+% GETOBJECTANNOTATIONS Retrieve annotations of a given type associated with an object
 %
-%    files = getAnnotations(session, annotationType, parentType, ids)
+%    files = getObjectAnnotations(session, annotationType, parentType, ids)
 %    returns all annotations of type annotationType linked to the object of
 %    type parentType and identifiers ids owned by the session user.
 %
-%    files = getAnnotations(session, annotationType, parentType, ids,
+%    files = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'include', include) only returns annotations with the input namespace.
 %
-%    files = getAnnotations(session, annotationType, parentType, ids,
+%    files = getObjectAnnotations(session, annotationType, parentType, ids,
 %    'exclude', exclude) excludes annotations with the input namespace.
 %
 %    Examples:
 %
-%        anns = getAnnotations(session, annotationType, parentType, ids)
-%        anns = getAnnotations(session, annotationType, parentType, ids,...
+%        anns = getObjectAnnotations(session, annotationType, parentType, ids)
+%        anns = getObjectAnnotations(session, annotationType, parentType, ids,...
 %        'include', include)
-%        anns = getAnnotations(session, annotationType, parentType, ids,...
+%        anns = getObjectAnnotations(session, annotationType, parentType, ids,...
 %        'exclude', exclude)
 %
-% See also:
+% See also: GETIMAGEFILEANNOTATIONS, GETIMAGETAGANNOTATIONS,
+% GETIMAGECOMMENTANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
