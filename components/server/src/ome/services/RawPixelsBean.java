@@ -105,7 +105,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     /**
-     * overriden to allow Spring to set boolean
+     * overridden to allow Spring to set boolean
      * 
      * @param checking
      */

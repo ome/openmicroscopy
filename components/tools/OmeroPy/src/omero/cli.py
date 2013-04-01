@@ -1263,7 +1263,7 @@ class GraphArg(object):
 class CmdControl(BaseControl):
 
     def cmd_type(self):
-        raise Exception("Must be overriden by subclasses")
+        raise Exception("Must be overridden by subclasses")
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
@@ -1370,7 +1370,7 @@ class CmdControl(BaseControl):
 class GraphControl(CmdControl):
 
     def cmd_type(self):
-        raise Exception("Must be overriden by subclasses")
+        raise Exception("Must be overridden by subclasses")
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
