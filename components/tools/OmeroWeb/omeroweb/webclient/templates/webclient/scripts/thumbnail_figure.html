@@ -38,6 +38,20 @@
     <script type="text/javascript" src="{% static "webclient/javascript/ome.thumbnail_figure.js" %}"></script>
     <link rel="stylesheet" href="{% static '3rdparty/jquery.chosen/chosen.css' %}" type="text/css" media="screen"/>
     <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
+
+    <style type="text/css">
+        #thumbnail_container th {
+            vertical-align: middle;
+            border-right: solid black 1px;
+        }
+        #thumbnail_container tr {
+            border-bottom: solid white 12px;
+            border-top: solid white 12px;
+        }
+        #thumbnail_container td div {
+            margin-left: 5px;
+        }
+    </style>
 {% endblock %}
 
 
@@ -125,13 +139,15 @@
 
 {% block figure_preview %}
 
-    <div id="thumbnail_container">
+    <table id="thumbnail_container">
+        <tr><td>
     {% for img in imageTags %}
         <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
             data-iId="{{ img.id }}"
             data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
             src="{% url render_thumbnail_resize 96 img.id %}" />
     {% endfor %}
-    </div>
+        </td></tr>
+    </table>
 
 {% endblock %}
