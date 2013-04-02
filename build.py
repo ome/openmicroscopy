@@ -69,7 +69,7 @@ def find_java():
     return "java"
 
 def calculate_memory_args():
-    return "-Xmx600M -Djavac.maxmem.default=750M -Djavadoc.maxmem.default=750M -XX:MaxPermSize=256m".split(" ")
+    return "-Xmx600M -Djavac.maxmem.default=1050M -Djavadoc.maxmem.default=750M -XX:MaxPermSize=256m".split(" ")
 
 def choose_omero_version():
     """
