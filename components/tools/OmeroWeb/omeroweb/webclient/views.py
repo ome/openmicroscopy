@@ -2444,22 +2444,22 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     """
 
     imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
-    if imageIds is None:
-        return HttpResponse("Need to specify Images as /?Image=1,2")
-    try:
-        imageIds = [long(i) for i in imageIds.split(",")]
-    except Exception, e:
-        return HttpResponse("Need to specify Images as /?Image=1,2")
+    datasetIds = request.REQUEST.get('Dataset', None)
+    if imageIds is None and datasetIds is None:
+        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
 
-    images = list( conn.getObjects("Image", imageIds) )
-    if len(images) == 0:
-        raise Http404("No Images found with IDs %s" % imageIds)
+    def validateIds(dtype, ids):
+        ints = [int(oid) for oid in ids.split(",")]
+        validIds = [obj.id for obj in conn.getObjects(dtype, ints)]
+        filteredIds = [iid for iid in ints if iid in validIds]
+        if len(filteredIds) == 0:
+            raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        return filteredIds
 
-    # 'images' list is not sorted. Only use it for validating imageIds
-    validImages = {}
-    for img in images:
-        validImages[img.getId()] = img
-    imageIds = [iid for iid in imageIds if iid in validImages]
+    if imageIds is not None:
+        imageIds = validateIds("Image", imageIds)
+    if datasetIds is not None:
+        datasetIds = validateIds("Dataset", datasetIds)
 
     context = {}
 
@@ -2486,19 +2486,26 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     elif scriptName == "Thumbnail":
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
-        context['tags'] = BaseContainer(conn).getTagsByObject()
+        #context['tags'] = BaseContainer(conn).getTagsByObject()    # ALL tags
         tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
         linkMap = {}    # group tags. {imageId: [tags]}
+        tagMap = {}
         for iId in imageIds:
             linkMap[iId] = []
         for l in tagLinks:
             c = l.getChild()
             if c._obj.__class__ == omero.model.TagAnnotationI:
+                tagMap[c.id] = c
                 linkMap[l.getParent().id].append(c)
         imageTags = []
         for iId in imageIds:
             imageTags.append({'id':iId, 'tags':linkMap[iId]})
+        tags = []
+        for tId, t in tagMap.items():
+            tags.append(t)
+        tags.sort(key=lambda x: x.getTextValue().lower())
         context['imageTags'] = imageTags
+        context['tags'] = tags
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);
