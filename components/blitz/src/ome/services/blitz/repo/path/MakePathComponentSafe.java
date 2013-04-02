@@ -24,11 +24,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Function;
+
 /**
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */
-public class MakePathComponentSafe implements StringTransformer {
+public class MakePathComponentSafe implements Function<String, String> {
     protected static final Map<Integer, Integer> transformationMatrix;
     protected static final Set<String> unsafePrefixes;
     protected static final Set<String> unsafeSuffixes;

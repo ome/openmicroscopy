@@ -26,6 +26,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+
 /**
  * An analog of {@link File} representing an FS repository file-path.
  * The file-path is relative to the root of the repository. As with
@@ -75,7 +80,7 @@ public class FsFile {
             this.components = Collections.unmodifiableList(new ArrayList<String>(components));
             final StringBuilder pathBuilder = new StringBuilder();
             for (final String component : components) {
-                if (component == null || "".equals(component))
+                if (StringUtils.isEmpty(component))
                     throw new IllegalArgumentException("each path component must have content");
                 if (component.indexOf(separatorChar) != -1)
                     throw new IllegalArgumentException("path components may not contain a path separator");
@@ -143,11 +148,8 @@ public class FsFile {
      * @param componentTransformer a transformer
      * @return the transformed path
      */
-    public FsFile transform(StringTransformer componentTransformer) {
-        final List<String> components = new ArrayList<String>(this.components.size());
-        for (final String component : this.components)
-            components.add(componentTransformer.apply(component));
-        return new FsFile(components);
+    public FsFile transform(Function<String, String> componentTransformer) {
+        return new FsFile(Lists.transform(this.components, componentTransformer));
     }
     
     /**

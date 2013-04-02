@@ -36,7 +36,6 @@ import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.repo.path.StringTransformer;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
@@ -69,6 +68,8 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
+
 import Ice.Current;
 
 /**
@@ -92,7 +93,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * From the server side, we cannot imitate ImportLibrary.createImport
      * in applying client-side specifics to clean up the path. */
     private static final ClientFilePathTransformer nopClientTransformer =
-            new ClientFilePathTransformer(new StringTransformer() {
+            new ClientFilePathTransformer(new Function<String, String>() {
                 // @Override  since JDK6
                 public String apply(String from) {
                     return from;
@@ -523,7 +524,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         paths = trimmedPaths.fullPaths;
         
         // sanitize paths (should already be sanitary; could introduce conflicts)
-        final StringTransformer sanitizer = serverPaths.getPathSanitizer();
+        final Function<String, String> sanitizer = serverPaths.getPathSanitizer();
         relPath = relPath.transform(sanitizer);
         basePath = basePath.transform(sanitizer);
         int index = paths.size();
