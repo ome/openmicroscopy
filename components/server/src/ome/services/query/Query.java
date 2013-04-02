@@ -207,7 +207,7 @@ public abstract class Query<T> implements HibernateCallback {
 
     /**
      * template method defined by {@link HibernateTemplate}. This does not need
-     * to be overriden by subclasses, but rather {@link #buildQuery(Session)}.
+     * to be overridden by subclasses, but rather {@link #buildQuery(Session)}.
      * This ensures that the filters are set properly, that
      * {@link #buildQuery(Session)} does its job, and that everything is cleaned
      * up properly afterwards.
@@ -294,7 +294,7 @@ public abstract class Query<T> implements HibernateCallback {
     protected Set<String> newlyEnabledFilters = new HashSet<String>();
 
     /**
-     * does nothing by default, but can be overriden by subclasses to enable
+     * does nothing by default, but can be overridden by subclasses to enable
      * particular filters.
      */
     protected void enableFilters(Session session) {

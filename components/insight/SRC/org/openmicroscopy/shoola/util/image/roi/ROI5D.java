@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.util.mem.CopiableArray;
  * This <i>stateless</i> class extends {@link CopiableArray}.
  * This class is the top container of the ROI selection algorithm.
  * The {@link #set(Copiable, int)} and {@link #get(int)} methods defined
- * by {@link CopiableArray} are overriden for type-safety.
+ * by {@link CopiableArray} are overridden for type-safety.
  * It also provides two utility methods to access directly the 
  * {@link PlaneArea elements} positioned at the bottom of the hierarchy.
  * <p>

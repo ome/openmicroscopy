@@ -37,7 +37,7 @@ class mock_communicator(object):
         return self.delegate.getProperties()
     def findObjectFactory(self, s):
         return self.delegate.findObjectFactory(s)
-    # Overriden
+    # Overridden
     def stringToProxy(self, arg):
         return arg
 

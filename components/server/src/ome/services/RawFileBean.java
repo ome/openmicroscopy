@@ -108,7 +108,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     public RawFileBean() {}
     
     /**
-     * overriden to allow Spring to set boolean
+     * overridden to allow Spring to set boolean
      * @param checking
      */
     public RawFileBean(boolean checking) {
