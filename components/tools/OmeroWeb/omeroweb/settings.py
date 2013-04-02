@@ -205,6 +205,11 @@ def leave_none_unset(s):
         raise LeaveUnset()
     return s
 
+def leave_none_unset_int(s):
+    s = leave_none_unset(s)
+    if s is not None:
+        return int(s)
+
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
@@ -240,8 +245,8 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
-    # Configuration options for the viewer
-    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", -1, int],
+    # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
+    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],

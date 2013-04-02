@@ -327,6 +327,20 @@ jQuery._WeblitzViewport = function (container, server, options) {
             init_zoom = _this.loadedImg.init_zoom,
             zoom_levels = _this.loadedImg.levels,
             zoomLevelScaling = _this.loadedImg.zoomLevelScaling;  // may be 'undefined'
+            // If init_zoom not defined, Zoom out until we fit in the viewport (window)
+            if (typeof init_zoom === "undefined") {
+              init_zoom = zoom_levels-1   // fully zoomed in
+              while (init_zoom > 0) {
+                var omero_zm_index = (zoom_levels-1)-init_zoom,   // convert PanoJs to OMERO
+                  scale = zoomLevelScaling[omero_zm_index],
+                  scaled_w = img_w * scale,
+                  scaled_h = img_h * scale;
+                if (scaled_w < (window.innerWidth-200) || scaled_h < (window.innerHeight-50)) {
+                  break;
+                }
+                init_zoom--;
+              }
+            }
           _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, href, thref, cx, cy, zoomLevelScaling);
       } else {
     if (href != _this.viewportimg.attr('src')) {
