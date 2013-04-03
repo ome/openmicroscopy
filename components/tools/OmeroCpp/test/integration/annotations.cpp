@@ -5,7 +5,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <IceUtil/UUID.h>
 #include <omero/fixture.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
@@ -23,6 +22,10 @@
 #include <stdio.h>
 #include <io.h>
 #endif
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 using namespace std;
 using namespace omero::api;
@@ -44,7 +47,8 @@ TEST(AnnotationTest, tagAnnotation )
         TagAnnotationIPtr tag = new TagAnnotationI();
         tag->setTextValue(rstring("my-first-tag"));
 
-        string uuid = IceUtil::generateUUID();
+        boost::uuids::uuid newuuid = boost::uuids::random_generator()();
+        string uuid = boost::uuids::to_string(newuuid);
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(tag);
@@ -87,7 +91,8 @@ TEST(AnnotationTest, fileAnnotation )
         mkstemp(pointer);
 #endif
 
-        string unique_content = IceUtil::generateUUID();
+	boost::uuids::uuid newuuid = boost::uuids::random_generator()();
+        string unique_content = boost::uuids::to_string(newuuid);
         {
             ofstream out(pointer);
             out << "<xml>" << endl;
@@ -132,7 +137,8 @@ TEST(AnnotationTest, fileAnnotation )
         FileAnnotationPtr attachment = new FileAnnotationI();
         attachment->setFile(file);
 
-        string uuid = IceUtil::generateUUID();
+        boost::uuids::uuid newuuid = boost::uuids::random_generator()();
+        string uuid = boost::uuid::to_string(uuid);
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(attachment);
