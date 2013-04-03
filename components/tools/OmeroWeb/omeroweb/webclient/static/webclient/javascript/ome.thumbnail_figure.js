@@ -32,23 +32,22 @@ $(document).ready(function() {
 
     $("select[name=Tag_IDs] option").removeAttr('selected');
 
-    var selectedTags = [];
+    var selectedTagIds = [];
     $("select[name=Tag_IDs]")
         .chosen({placeholder_text:'Choose one or more groups'})
         .change(function(evt, data) {
             if (data.deselected) {
                 var toRemove = data.deselected;
-                selectedTags.splice(selectedTags.indexOf(toRemove), 1);
+                selectedTagIds.splice(selectedTags.indexOf(toRemove), 1);
             } else if (data.selected) {
-                selectedTags.push(data.selected);
+                selectedTagIds.push(data.selected);
             }
-            var selectedTagIds = [],
-                tagValues = {};
-            for (var t=0; t<selectedTags.length; t++) {
-                var idTxt = selectedTags[t].split(/-(.+)/);     // split id-text on first '-'
-                selectedTagIds.push(idTxt[0]);
-                tagValues[idTxt[0]] = idTxt[1];     // map of id:text
-            }
+            var tagValues = {};
+            // Have to look-up the Tag names from the UI
+            $("select[name=Tag_IDs] option:selected").each(function(){
+                var $this = $(this);
+                tagValues[$this.attr('value')] = $this.text();
+            });
 
             // Now we need to sort images by ids....
             // Let's assign letters to tags in order, so we can use to sort,
