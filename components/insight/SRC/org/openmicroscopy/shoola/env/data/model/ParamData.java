@@ -238,7 +238,7 @@ public class ParamData
 	 *  
 	 * @return See above.
 	 */
-	public boolean isOptional() { return param.optional; }
+	public boolean isOptional() { return param.isoptional; }
 	
 	/**
 	 * Returns the description of the parameter.

@@ -78,7 +78,7 @@ module omero {
          *
          * <pre># 1
          * a = omero.grid.Params()
-         * a.optional = True
+         * a.isoptional = True
          * a.prototype = omero.rtypes.rstring("")
          * a.description = "An optional string which will be ignored by the script"
          * omero.scripts.client(inputs = {"a":a})
@@ -119,7 +119,7 @@ module omero {
              * on [processJob]. A missing output param will be marked after
              * execution.
              **/
-            bool optional;
+            bool isoptional;
 
             /**
              * Whether or not the prototype should be used as a default.
@@ -371,13 +371,13 @@ module omero {
 
             /**
              * Definitive list of the inputs which MAY or MUST be provided
-             * to the script, based on the "optional" flag.
+             * to the script, based on the "isoptional" flag.
              **/
             ParamMap inputs;
 
             /**
              * Definitive list of the outputs which MAY or MUST be provided
-             * to the script, based on the "optional" flag.
+             * to the script, based on the "isoptional" flag.
              **/
             ParamMap outputs;
 
