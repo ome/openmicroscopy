@@ -97,7 +97,7 @@ public class PartialLineBorder
     public void setRemoveIndex(int index) { removeIndex = index; }
     
     /**
-     * Overriden to remove one segment of the border, either the top or 
+     * Overridden to remove one segment of the border, either the top or 
      * bottom part.
      * @see LineBorder#paintBorder(Component, Graphics, int, int, int, int)
      */

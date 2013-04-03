@@ -174,7 +174,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public ThumbnailBean() {}
 
     /**
-     * overriden to allow Spring to set boolean
+     * overridden to allow Spring to set boolean
      * @param checking
      */
     public ThumbnailBean(boolean checking) {
