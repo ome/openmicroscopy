@@ -19,17 +19,6 @@
 $(document).ready(function() {
 
 
-    // Make a data structure of image-ids : [tag ids]
-    imageTags = {}
-    imgIds = []
-    $(".img_panel").each(function(){
-        var $this = $(this),
-            iId = $this.attr('data-iId'),
-            tagString = $this.attr('data-tags');
-        imageTags[iId] = tagString.split(",");
-        imgIds.push(iId);
-    });
-
     $("select[name=Tag_IDs] option").removeAttr('selected');
 
     var selectedTagIds = [];
@@ -38,7 +27,7 @@ $(document).ready(function() {
         .change(function(evt, data) {
             if (data.deselected) {
                 var toRemove = data.deselected;
-                selectedTagIds.splice(selectedTags.indexOf(toRemove), 1);
+                selectedTagIds.splice(selectedTagIds.indexOf(toRemove), 1);
             } else if (data.selected) {
                 selectedTagIds.push(data.selected);
             }
@@ -72,81 +61,95 @@ $(document).ready(function() {
                 return rv;
             }
 
-            // Prepare for sorting...
-            sortedImgs = []
-            for (var i=0; i<imgIds.length; i++) {
-                // Build up a string based on the image's Tags, that can be used to sort
-                var imgId = imgIds[i],
-                    tagIds = imageTags[imgId],
-                    letterKeys = [];
-                for (var c=0; c<selectedTagIds.length; c++) {
-                    var tid = selectedTagIds[c];
-                    if (tagIds.indexOf(tid) > -1) {
-                        letterKeys.push(tagLetters[tid]);
+            // For each 'Dataset' (or set of Images)...
+            $(".thumbnail_set").each(function() {
+                // Make a data structure of image-ids : [tag ids]
+                var $this = $(this),
+                    imageTags = {},
+                    imgIds = [];
+                $(".img_panel", $this).each(function(){
+                    var $img = $(this),
+                        iId = $img.attr('data-iId'),
+                        tagString = $img.attr('data-tags');
+                    imageTags[iId] = tagString.split(",");
+                    imgIds.push(iId);
+                });
+
+                // Prepare for sorting...
+                sortedImgs = []
+                for (var i=0; i<imgIds.length; i++) {
+                    // Build up a string based on the image's Tags, that can be used to sort
+                    var imgId = imgIds[i],
+                        tagIds = imageTags[imgId],
+                        letterKeys = [];
+                    for (var c=0; c<selectedTagIds.length; c++) {
+                        var tid = selectedTagIds[c];
+                        if (tagIds.indexOf(tid) > -1) {
+                            letterKeys.push(tagLetters[tid]);
+                        }
+                    }
+                    var tagKey = letterKeys.join("");    // E.g. 'a' or 'bc'
+                    sortedImgs.push({'id':imgId, 'tagKey':tagKey});
+                }
+                // Do the Sorting!
+                sortedImgs.sort(function(a, b) {
+                    var x = a['tagKey'], y = b['tagKey'];
+                    if (x.length === 0) return 1;
+                    if (y.length === 0) return -1;
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                });
+
+                // Group Images with same tags. E.g. all of the with key 'ac'
+                var results = [],        // List of {'tagNames':[], 'imgIds':[]}
+                    rkey = "", rIds = [];
+                for (var s=0; s<sortedImgs.length; s++) {
+                    var sImg = sortedImgs[s];
+                    if (sImg.tagKey == rkey) {
+                        rIds.push(sImg.id);
+                    } else {
+                        if (rIds.length > 0) {
+                            results.push({'rkey':rkey, 'tags': getTagsFromKey(rkey), 'imgIds':rIds});
+                        }
+                        rIds = [sImg.id];
+                        rkey = sImg.tagKey;
                     }
                 }
-                var tagKey = letterKeys.join("");    // E.g. 'a' or 'bc'
-                sortedImgs.push({'id':imgId, 'tagKey':tagKey});
-            }
-            // Do the Sorting!
-            sortedImgs.sort(function(a, b) {
-                var x = a['tagKey'], y = b['tagKey'];
-                if (x.length === 0) return 1;
-                if (y.length === 0) return -1;
-                return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                results.push({'rkey':rkey, 'tags': getTagsFromKey(rkey), 'imgIds':rIds});
+
+
+                // Update the UI
+                var $toRemove = $('tr:has(th)', $this);
+
+                // For each Tag combination... (E.g. 'Metaphase'+'Dead')
+                var topLevelTag = "";
+                var $td, $tr;
+                for (var r=0; r<results.length; r++) {
+
+                    var tagData = results[r],
+                        tagsText = tagData.tags.join(" ");     // 'Metaphase Dead'
+                    if (tagsText.length === 0) {
+                        tagsText = "Not Tagged";
+                    }
+                    if (tagsText.length === 0 || tagData.tags[0] !== topLevelTag) {
+                        // start a new container...
+                        topLevelTag = tagData.tags[0];
+
+                        $tr = $('<tr><th><h2>' + tagsText + '</h2></th></tr>');
+                        $tr.appendTo($this);
+                        $td = $('<td></td>').appendTo($tr);
+                    } else {
+                        $td.append('<div>'+ tagsText.replace(topLevelTag, "") + '</div>');
+                    }
+
+                    // Add the images (move from previous position)...
+                    for (var i=0; i<tagData.imgIds.length; i++) {
+                        $('#thumbnail-'+tagData.imgIds[i]).appendTo($td);
+                    }
+
+                }
+                // now that we've moved the images, we can clean up!
+                $toRemove.remove();
             });
-
-            // Group Images with same tags. E.g. all of the with key 'ac'
-            var results = [],        // List of {'tagNames':[], 'imgIds':[]}
-                rkey = "", rIds = [];
-            for (var s=0; s<sortedImgs.length; s++) {
-                var sImg = sortedImgs[s];
-                if (sImg.tagKey == rkey) {
-                    rIds.push(sImg.id);
-                } else {
-                    if (rIds.length > 0) {
-                        results.push({'rkey':rkey, 'tags': getTagsFromKey(rkey), 'imgIds':rIds});
-                    }
-                    rIds = [sImg.id];
-                    rkey = sImg.tagKey;
-                }
-            }
-            results.push({'rkey':rkey, 'tags': getTagsFromKey(rkey), 'imgIds':rIds});
-
-
-            // Update the UI
-            var $thumbnail_container = $("#thumbnail_container");
-            var $toRemove = $('tr', $thumbnail_container)
-
-            // For each Tag combination... (E.g. 'Metaphase'+'Dead')
-            var topLevelTag = "";
-            var $td, $tr;
-            for (var r=0; r<results.length; r++) {
-
-                var tagData = results[r],
-                    tagsText = tagData.tags.join(" ");     // 'Metaphase Dead'
-                if (tagsText.length === 0) {
-                    tagsText = "Not Tagged";
-                }
-                if (tagsText.length === 0 || tagData.tags[0] !== topLevelTag) {
-                    // start a new container...
-                    topLevelTag = tagData.tags[0];
-
-                    $tr = $('<tr><th><h2>' + tagsText + '</h2></th></tr>');
-                    $tr.appendTo($thumbnail_container);
-                    $td = $('<td></td>').appendTo($tr);
-                } else {
-                    $td.append('<div>'+ tagsText.replace(topLevelTag, "") + '</div>');
-                }
-
-                // Add the images (move from previous position)...
-                for (var i=0; i<tagData.imgIds.length; i++) {
-                    $('#thumbnail-'+tagData.imgIds[i]).appendTo($td);
-                }
-
-            }
-            // now that we've moved the images, we can clean up!
-            $toRemove.remove();
 
     });
 
