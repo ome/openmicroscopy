@@ -129,6 +129,9 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** Minimum width of the dialog in pixels */
 	private static final int MIN_WIDTH = 640;
 
+	/** The preferred size of the selection box.*/
+	private static final Dimension SELECTION_BOX_SIZE = new Dimension(200, 130);
+	
 	// String constants
 	
 	/** The title of the dialog. */
@@ -644,7 +647,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			displayUsers(usersBox, selectedGroup, this, userID);
 		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
-		renderer.setPreferredSize(new Dimension(200, 130));
+		renderer.setPreferredSize(SELECTION_BOX_SIZE);
 		groupsBox.setRenderer(renderer);
 		
 		groupsBox.addItemListener(this);
