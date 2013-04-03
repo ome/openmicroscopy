@@ -69,7 +69,7 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 	{
 		this.userID = userID;
 	}
-	
+
 	/**
 	 * Sets the tool tip.
 	 * @see DefaultListCellRenderer#getListCellRendererComponent(JList,
@@ -86,7 +86,7 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 			list.setToolTipText(tooltips.get(index));
 		}
 		
-		if(value instanceof Selectable<?>)
+		if (value instanceof Selectable<?>)
 		{
 			Selectable<?> entry = (Selectable<?>) value;
 			comp.setEnabled(entry.isSelectable());

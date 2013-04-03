@@ -40,7 +40,7 @@ public class Selectable<T> {
 	/**
 	 * Creates an instance of the selectable class
 	 * @param obj The object being wrapped
-	 * @param selectable Whether the item is selectable
+	 * @param selectable Whether the item is selectable or not.
 	 */
 	public Selectable(T obj, boolean selectable)
 	{
@@ -58,8 +58,9 @@ public class Selectable<T> {
 	}
 	
 	/**
-	 * Returns whether the item should be selectable
-	 * @return
+	 * Returns whether the item should be selectable or not.
+	 * 
+	 * @return See above.
 	 */
 	public boolean isSelectable()
 	{
@@ -67,14 +68,23 @@ public class Selectable<T> {
 	}
 	
 	/**
+	 * Sets to <code>true</code> if the object can be selected,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param isSelectable The value to set.
+	 */
+	public void setSelectable(boolean isSelectable) {
+		this.selectable = isSelectable;
+	}
+	
+	/**
 	 * Returns the String representation of the wrapped object.
+	 * @see #toString()
 	 */
 	public String toString()
 	{
 		return obj.toString();
 	}
 
-	public void setSelectable(boolean isSelectable) {
-		this.selectable = isSelectable;
-	}
+
 }
