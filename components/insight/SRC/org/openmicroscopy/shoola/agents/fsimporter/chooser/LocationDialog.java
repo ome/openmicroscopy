@@ -1522,45 +1522,6 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Performs the required operations to set the enabled/disabled options of
-	 * the projectsBox model when an import user is selected
-	 */
-	private void changeUserSelection() {
-		ExperimenterData selectedImportUser = getSelectedUser();
-		// de select the projects / datasets not owned by that user
-		if(projectsBox.getModel() instanceof SelectableComboBoxModel)
-		{
-			SelectableComboBoxModel projectsModel = 
-					(SelectableComboBoxModel) projectsBox.getModel();
-			for (int i = 0; i < projectsModel.getSize(); i++) {
-				Selectable<DataNode> project = 
-						(Selectable<DataNode>) projectsModel.getElementAt(i);
-				if(!project.getObject().isDefaultNode())
-				{
-					project.setSelectable(isOwnedBy(project, 
-							selectedImportUser));
-				}
-			}
-			projectsBox.setSelectedIndex(0);
-			datasetsBox.setSelectedIndex(0);
-		}
-		
-	}
-
-	/**
-	 * Helper function to determine if the Selectable<DataNode> is owned by
-	 * the user
-	 * @param selectableNode The node to check ownership of
-	 * @param user The user to test ownership against
-	 * @return see above.
-	 */
-	private boolean isOwnedBy(Selectable<DataNode> selectableNode,
-			ExperimenterData user) {
-		return user.getId() == selectableNode.getObject().getOwner().getId();
-		
-	}
-
-	/**
 	 * Sets the currently selected group
 	 * @param group The group to set as selected
 	 */
