@@ -12,7 +12,7 @@
 #include <omero/model/FormatI.h>
 #include <omero/model/OriginalFileI.h>
 #include <omero/model/FileAnnotationI.h>
-#include <omero/uuid.h>
+#include <omero/util/uuid.h>
 
 #include <stdio.h>
 #include <fstream>
@@ -44,7 +44,7 @@ TEST(AnnotationTest, tagAnnotation )
         TagAnnotationIPtr tag = new TagAnnotationI();
         tag->setTextValue(rstring("my-first-tag"));
 
-        string uuid = generate_uuid();
+        string uuid = util::generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(tag);
@@ -87,7 +87,7 @@ TEST(AnnotationTest, fileAnnotation )
         mkstemp(pointer);
 #endif
 
-        string unique_content = generate_uuid();
+        string unique_content = util::generate_uuid();
         {
             ofstream out(pointer);
             out << "<xml>" << endl;
@@ -132,7 +132,7 @@ TEST(AnnotationTest, fileAnnotation )
         FileAnnotationPtr attachment = new FileAnnotationI();
         attachment->setFile(file);
 
-        string uuid = generate_uuid();
+        string uuid = util::generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(attachment);
