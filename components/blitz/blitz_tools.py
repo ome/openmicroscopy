@@ -32,22 +32,27 @@ generated = os.path.abspath("generated")
 # Support ICE_HOME
 if os.environ.has_key("ICE_HOME"):
     ice_home = os.path.abspath( os.environ["ICE_HOME"] )
+    print "Using env[ICE_HOME] = %s" % (ice_home)
 else:
     ice_home = None
 if os.environ.has_key("SLICEPATH"):
     slicepath = os.path.abspath( os.environ["SLICEPATH"] )
+    print "Using env[SLICEPATH] = %s" % (slicepath)
 else:
     slicepath = None
 if os.environ.has_key("SLICE2JAVA"):
-    slice2java = os.path.abspath( os.environ["SLICE2JAVA"] )
+    slice2java = os.environ["SLICE2JAVA"]
+    print "Using env[SLICE2JAVA] = %s" % (slice2java)
 else:
     slice2java = None
 if os.environ.has_key("SLICE2PY"):
-    slice2py = os.path.abspath( os.environ["SLICE2PY"] )
+    slice2py = os.environ["SLICE2PY"]
+    print "Using env[SLICE2PY] = %s" % (slice2py)
 else:
     slice2py = None
 if os.environ.has_key("SLICE2CPP"):
-    slice2cpp = os.path.abspath( os.environ["SLICE2CPP"] )
+    slice2cpp = os.environ["SLICE2CPP"]
+    print "Using env[SLICE2CPP] = %s" % (slice2cpp)
 else:
     slice2cpp = None
 
