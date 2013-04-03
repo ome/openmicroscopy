@@ -15,10 +15,7 @@
 #include <omero/model/LogicalChannelI.h>
 #include <omero/model/StatsInfoI.h>
 #include <omero/model/PlaneInfoI.h>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <omero/uuid.h>
 
 using namespace omero::api;
 using namespace omero::model;
@@ -75,8 +72,7 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-    boost::uuids::uuid newuuid = boost::uuids::random_generator()();
-    std::string s = boost::uuids::to_string(s);
+    std::string s = generate_uuid();
     std::replace(s.begin(), s.end(), '-', 'X');
     return s;
 }
