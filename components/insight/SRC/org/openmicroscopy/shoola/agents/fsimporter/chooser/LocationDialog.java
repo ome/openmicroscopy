@@ -79,6 +79,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PermissionData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -974,6 +975,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		SelectableComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<DataNode> selected = null;
 		
+		GroupData group = getSelectedGroup();
+		long userID = getSelectedUser().getId();
 		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
@@ -985,7 +988,7 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
-				selectable = node.getDataObject().canLink();
+				selectable = canLink(node.getDataObject(), userID, group);
 			}
 			
 			Selectable<DataNode> comboBoxItem =
@@ -1007,6 +1010,32 @@ class LocationDialog extends JDialog implements ActionListener,
 
 		if (itemListener != null)
 			comboBox.addItemListener(itemListener);
+	}
+
+	/**
+	 * Returns <code>true</code> if the user currently selected
+	 * can link data to the selected object, <code>false</code> otherwise.
+	 * 
+	 * @param node The node to handle.
+	 * @param userID The id of the selected user.
+	 * @param group The selected group.
+	 * @return See above.
+	 */
+	private boolean canLink(DataObject node, long userID, GroupData group)
+	{
+		if (!node.canLink()) return false;
+		PermissionData permissions = group.getPermissions();
+		if (permissions.isGroupWrite()) return true;
+		Set leaders = group.getLeaders();
+		if (leaders != null) {
+			Iterator i = leaders.iterator();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (exp.getId() == userID) return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
