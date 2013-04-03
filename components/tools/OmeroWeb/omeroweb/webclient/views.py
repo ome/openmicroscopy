@@ -2525,9 +2525,15 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             imageTags, ts = loadImageTags(imageIds)
             thumbSets.append({'name':'images', 'imageTags': imageTags})
             tags.extend(ts)
-        tags.sort(key=lambda x: x.getTextValue().lower())
+        uniqueTagIds = set()      # remove duplicates
+        uniqueTags = []
+        for t in tags:
+            if t.id not in uniqueTagIds:
+                uniqueTags.append(t)
+                uniqueTagIds.add(t.id)
+        uniqueTags.sort(key=lambda x: x.getTextValue().lower())
         context['thumbSets'] = thumbSets
-        context['tags'] = tags
+        context['tags'] = uniqueTags
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);
