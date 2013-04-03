@@ -268,16 +268,15 @@ class BirdEyeViewComponent
 	private void setCursor(int x, int y)
 	{
 		boolean b = inSelection(x, y);
-		System.err.println(b);
 		if (b) {
-			bover = true;
-			mouseX = x;
-			mouseY = y;
-			bdifx = mouseX-bx;
-			bdify = mouseY-by;
+			//bover = true;
+			//mouseX = x;
+			//mouseY = y;
+			//bdifx = mouseX-bx;
+			//bdify = mouseY-by;
 			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		} else {
-			bover = false;
+			//bover = false;
 			setCursor(Cursor.getDefaultCursor());
 		}
 	}
