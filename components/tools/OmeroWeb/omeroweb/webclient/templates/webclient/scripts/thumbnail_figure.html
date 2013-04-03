@@ -40,16 +40,16 @@
     <script type="text/javascript" src="{% static '3rdparty/jquery.chosen/chosen.jquery.js' %}"></script>
 
     <style type="text/css">
-        #thumbnail_container th {
+        .thumbnail_set th {
             vertical-align: middle;
             border-right: solid black 1px;
             padding: 5px;
         }
-        #thumbnail_container tr {
+        .thumbnail_set tr {
             border-bottom: solid white 12px;
             border-top: solid white 12px;
         }
-        #thumbnail_container td div {
+        .thumbnail_set td div {
             margin-left: 5px;
         }
         .img_panel {
@@ -140,21 +140,26 @@
 
 {% block figure_preview %}
 
-    <table id="thumbnail_container">
     {% for set in thumbSets %}
+    <table class="thumbnail_set">
     <tbody>
-        <tr><td>{{ set.name }}</td></tr>
-        <tr><td>
-        {% for img in set.imageTags %}
-        <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
-            data-iId="{{ img.id }}"
-            data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
-            src="{% url render_thumbnail_resize 96 img.id %}" />
-        {% endfor %}
-        </td></tr>
+        <tr>
+            <td></td>
+            <td><h1>{{ set.name }}</h1></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                {% for img in set.imageTags %}
+                <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
+                    data-iId="{{ img.id }}"
+                    data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
+                    src="{% url render_thumbnail_resize 96 img.id %}" />
+                {% endfor %}
+            </td>
+        </tr>
     </tbody>
-    {% endfor %}
-
     </table>
+    {% endfor %}
 
 {% endblock %}
