@@ -84,7 +84,7 @@ public interface SessionManager {
 
     /**
      * Same as {@link #update(Session)} but some security checks can be
-     * overriden. This is usually done by checking with the
+     * overridden. This is usually done by checking with the
      * {@link ome.security.SecuritySystem} but here the server is in a critical
      * state, and instead will trust the method invoker.
      */
