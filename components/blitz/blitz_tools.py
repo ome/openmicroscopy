@@ -20,7 +20,6 @@ from SCons.Variables import *
 #
 cwd = os.path.abspath( os.path.dirname( __file__ ) )
 top = os.path.abspath( os.path.join( cwd, os.path.pardir, os.path.pardir ) )
-slice_directory = os.path.abspath( os.path.join( top, "target", "Ice", "slice" ) )
 blitz_resources = os.path.abspath( os.path.join( top, "components", "blitz", "resources") )
 blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "generated") )
 tools_include = os.path.abspath( os.path.join( top, "components", "tools", "target", "include" ) )
@@ -37,6 +36,23 @@ if os.environ.has_key("ICE_HOME"):
     ice_home = os.path.abspath( os.environ["ICE_HOME"] )
 else:
     ice_home = None
+if os.environ.has_key("SLICEPATH"):
+    slicepath = os.path.abspath( os.environ["SLICEPATH"] )
+else:
+    slicepath = None
+if os.environ.has_key("SLICE2JAVA"):
+    slice2java = os.path.abspath( os.environ["SLICE2JAVA"] )
+else:
+    slice2java = None
+if os.environ.has_key("SLICE2PY"):
+    slice2py = os.path.abspath( os.environ["SLICE2PY"] )
+else:
+    slice2py = None
+if os.environ.has_key("SLICE2CPP"):
+    slice2cpp = os.path.abspath( os.environ["SLICE2CPP"] )
+else:
+    slice2cpp = None
+
 
 def jdep(DEPMAP, target):
     """
@@ -57,7 +73,7 @@ def common(dir = generated):
     """
     Necessary since output for C++ does not include directories.
     """
-    return ["-I%s" % generated, "-I%s" % resources, "-I%s" % slice_directory, "--output-dir=%s" % dir]
+    return ["-I%s" % generated, "-I%s" % resources, "-I%s" % slicepath, "--output-dir=%s" % dir]
 
 def names(dir, ice):
     basename = os.path.basename(ice)[:-4]
@@ -81,7 +97,7 @@ def make_slice(command):
     return slice
 
 def slice_cpp(env, where, dir):
-    command = ["slice2cpp", "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
+    command = [slice2cpp, "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
     if sys.platform == "win32":
         command.append("--dll-export")
         command.append("OMERO_API")
@@ -96,7 +112,7 @@ def slice_cpp(env, where, dir):
     return actions
 
 def slice_java(env, where, dir):
-    command  = ["slice2java", "--tie"] + common()
+    command  = [slice2java, "--tie"] + common()
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(
@@ -109,7 +125,7 @@ def slice_java(env, where, dir):
 
 def slice_py(env, where, dir):
     prefix = dir.replace("/","_") + "_"
-    command = ["slice2py", "--prefix", "%s" % prefix ] + common()
+    command = [slice2py, "--prefix", "%s" % prefix ] + common()
     actions = []
     for basename, filename in basenames(where, dir):
         c = env.Command(
