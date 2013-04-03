@@ -389,7 +389,7 @@ class FileSelectionTable
 			}
 		} else {
 			if(model.canImportAs()) {
-				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, OWNER_INDEX-1, renderer);
 				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
 				setHeaderRenderer(tcm, ARCHIVED_INDEX-1, archiveRenderer);
 			} else {
