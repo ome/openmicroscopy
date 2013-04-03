@@ -2450,18 +2450,24 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
     def validateIds(dtype, ids):
         ints = [int(oid) for oid in ids.split(",")]
-        validIds = [obj.id for obj in conn.getObjects(dtype, ints)]
-        filteredIds = [iid for iid in ints if iid in validIds]
+        validObjs = {}
+        for obj in conn.getObjects(dtype, ints):
+            validObjs[obj.id] = obj
+        filteredIds = [iid for iid in ints if iid in validObjs.keys()]
         if len(filteredIds) == 0:
             raise Http404("No %ss found with IDs %s" % (dtype, ids))
-        return filteredIds
-
-    if imageIds is not None:
-        imageIds = validateIds("Image", imageIds)
-    if datasetIds is not None:
-        datasetIds = validateIds("Dataset", datasetIds)
+        return filteredIds, validObjs
 
     context = {}
+
+    if imageIds is not None:
+        imageIds, validImages = validateIds("Image", imageIds)
+        context['idString'] = ",".join( [str(i) for i in imageIds] )
+        context['dtype'] = "Image"
+    if datasetIds is not None:
+        datasetIds, validDatasets = validateIds("Dataset", datasetIds)
+        context['idString'] = ",".join( [str(i) for i in datasetIds] )
+        context['dtype'] = "Dataset"
 
     if scriptName == "SplitView":
         scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
@@ -2487,24 +2493,40 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
         template = "webclient/scripts/thumbnail_figure.html"
         #context['tags'] = BaseContainer(conn).getTagsByObject()    # ALL tags
-        tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
-        linkMap = {}    # group tags. {imageId: [tags]}
-        tagMap = {}
-        for iId in imageIds:
-            linkMap[iId] = []
-        for l in tagLinks:
-            c = l.getChild()
-            if c._obj.__class__ == omero.model.TagAnnotationI:
-                tagMap[c.id] = c
-                linkMap[l.getParent().id].append(c)
-        imageTags = []
-        for iId in imageIds:
-            imageTags.append({'id':iId, 'tags':linkMap[iId]})
+
+        def loadImageTags(imageIds):
+            tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
+            linkMap = {}    # group tags. {imageId: [tags]}
+            tagMap = {}
+            for iId in imageIds:
+                linkMap[iId] = []
+            for l in tagLinks:
+                c = l.getChild()
+                if c._obj.__class__ == omero.model.TagAnnotationI:
+                    tagMap[c.id] = c
+                    linkMap[l.getParent().id].append(c)
+            imageTags = []
+            for iId in imageIds:
+                imageTags.append({'id':iId, 'tags':linkMap[iId]})
+            tags = []
+            for tId, t in tagMap.items():
+                tags.append(t)
+            return imageTags, tags
+
+        thumbSets = []  # multiple collections of images
         tags = []
-        for tId, t in tagMap.items():
-            tags.append(t)
+        if datasetIds is not None:
+            for d in conn.getObjects("Dataset", datasetIds):
+                imgIds = [i.id for i in d.listChildren()]
+                imageTags, ts = loadImageTags(imgIds)
+                thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
+                tags.extend(ts)
+        else:
+            imageTags, ts = loadImageTags(imageIds)
+            thumbSets.append({'name':'images', 'imageTags': imageTags})
+            tags.extend(ts)
         tags.sort(key=lambda x: x.getTextValue().lower())
-        context['imageTags'] = imageTags
+        context['thumbSets'] = thumbSets
         context['tags'] = tags
 
     scriptService = conn.getScriptService()
@@ -2512,7 +2534,6 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     if (scriptId < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
-    context['idString'] = ",".join( [str(i) for i in imageIds] )
     context['template'] = template
     context['scriptId'] = scriptId
     return context

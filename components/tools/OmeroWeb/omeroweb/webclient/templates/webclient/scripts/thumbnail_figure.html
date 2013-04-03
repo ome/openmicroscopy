@@ -67,10 +67,7 @@
         <hr/>
 
         <!-- Data_Type and IDs are already set (we can hide these) -->
-        <select name="Data_Type" style="display:none">
-            <option value="Dataset"  >Dataset</option>
-            <option value="Image"  selected="True"  >Image</option>
-        </select>
+        <input name="Data_Type" style="display:none" value="{{ dtype }}" />
         <input type="text" name="IDs" value="{{ idString }}" style="display:none">
 
         <span title="File name of the figure to save.">
@@ -126,7 +123,7 @@
 
         <select name="Tag_IDs" multiple="multiple">
             {% for t in tags %}
-                <option value="{{ t.id }}-{{ t.getTextValue }}">{{ t.getTextValue }}</option>
+                <option value="{{ t.id }}">{{ t.getTextValue }}</option>
             {% endfor %}
         </select>
 
@@ -144,14 +141,20 @@
 {% block figure_preview %}
 
     <table id="thumbnail_container">
+    {% for set in thumbSets %}
+    <tbody>
+        <tr><td>{{ set.name }}</td></tr>
         <tr><td>
-    {% for img in imageTags %}
+        {% for img in set.imageTags %}
         <img id="thumbnail-{{ img.id }}" class="img_panel" title="{% for t in img.tags %} {{ t.getTextValue }} {% endfor %}" 
             data-iId="{{ img.id }}"
             data-tags="{% for t in img.tags %}{% if not forloop.first %},{% endif %}{{t.id}}{% endfor %}"
             src="{% url render_thumbnail_resize 96 img.id %}" />
-    {% endfor %}
+        {% endfor %}
         </td></tr>
+    </tbody>
+    {% endfor %}
+
     </table>
 
 {% endblock %}
