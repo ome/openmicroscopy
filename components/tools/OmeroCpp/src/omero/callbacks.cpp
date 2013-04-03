@@ -9,7 +9,7 @@
 #include <omero/ClientErrors.h>
 #include <omero/callbacks.h>
 #include <omero/RTypesI.h>
-#include <omero/uuid.h>
+#include <omero/util/uuid.h>
 #include <IceUtil/Time.h>
 
 using namespace std;
@@ -45,7 +45,7 @@ namespace omero {
             process(process) {
 
             this->id.category = "ProcessCallback";
-            this->id.name = generate_uuid();
+            this->id.name = util::generate_uuid();
             Ice::ObjectPrx prx = adapter->add(this, this->id);
             omero::grid::ProcessCallbackPrx pcb = ProcessCallbackPrx::uncheckedCast(prx);
             process->registerCallback(pcb);
@@ -170,7 +170,7 @@ namespace omero {
 
         void CmdCallbackI::doinit(std::string category) {
             this->id = Ice::Identity();
-            this->id.name = generate_uuid();
+            this->id.name = util::generate_uuid();
             this->id.category = category;
             const omero::cmd::CmdCallbackPtr ptr(this);
             Ice::ObjectPrx prx = adapter->add(ptr, id);

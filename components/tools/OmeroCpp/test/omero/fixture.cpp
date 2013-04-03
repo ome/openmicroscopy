@@ -15,7 +15,7 @@
 #include <omero/model/LogicalChannelI.h>
 #include <omero/model/StatsInfoI.h>
 #include <omero/model/PlaneInfoI.h>
-#include <omero/uuid.h>
+#include <omero/util/uuid.h>
 
 using namespace omero::api;
 using namespace omero::model;
@@ -72,7 +72,7 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-    std::string s = generate_uuid();
+  std::string s = util::generate_uuid();
     std::replace(s.begin(), s.end(), '-', 'X');
     return s;
 }
