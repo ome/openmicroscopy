@@ -17,10 +17,7 @@
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
 #include <omero/model/SessionI.h>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <omero/uuid.h>
 
 using namespace std;
 
@@ -162,8 +159,7 @@ namespace omero {
 
 	// Define our unique identifier (used during close/detach)
 
-        boost::uuids::uuid newuuid = boost::uuids::random_generator()();
-	__uuid = boost::uuids::to_string(newuuid);
+	__uuid = generate_uuid();
 	Ice::ImplicitContextPtr ctx = __ic->getImplicitContext();
 	if (!ctx) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
