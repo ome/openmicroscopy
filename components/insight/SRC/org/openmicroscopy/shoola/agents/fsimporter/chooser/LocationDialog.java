@@ -977,6 +977,8 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		GroupData group = getSelectedGroup();
 		long userID = getSelectedUser().getId();
+		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
+		long loggedInID = loggedIn.getId();
 		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
@@ -988,7 +990,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
-				selectable = canLink(node.getDataObject(), userID, group);
+				selectable = canLink(node.getDataObject(), userID, group,
+						loggedInID);
 			}
 			
 			Selectable<DataNode> comboBoxItem =
@@ -1019,11 +1022,15 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param node The node to handle.
 	 * @param userID The id of the selected user.
 	 * @param group The selected group.
+	 * @param loggedUserID the if of the user currently logged in.
 	 * @return See above.
 	 */
-	private boolean canLink(DataObject node, long userID, GroupData group)
+	private boolean canLink(DataObject node, long userID, GroupData group,
+			long loggedUserID)
 	{
+		if (userID == loggedUserID) return true;
 		if (!node.canLink()) return false;
+
 		PermissionData permissions = group.getPermissions();
 		if (permissions.isGroupWrite()) return true;
 		Set leaders = group.getLeaders();
@@ -1580,5 +1587,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		newDatasetButton.setEnabled(isEnabled);
 		newScreenButton.setEnabled(isEnabled);
 		addButton.setEnabled(isEnabled);
+		groupsBox.setEnabled(isEnabled);
+		usersBox.setEnabled(isEnabled);
+		tabbedPane.setEnabled(isEnabled);
+		refreshButton.setEnabled(isEnabled);
 	}
 }
