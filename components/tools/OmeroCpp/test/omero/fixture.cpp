@@ -6,7 +6,6 @@
  */
 
 #include <algorithm>
-#include <IceUtil/UUID.h>
 #include <omero/fixture.h>
 #include <omero/model/PixelsTypeI.h>
 #include <omero/model/PhotometricInterpretationI.h>
@@ -16,6 +15,10 @@
 #include <omero/model/LogicalChannelI.h>
 #include <omero/model/StatsInfoI.h>
 #include <omero/model/PlaneInfoI.h>
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 using namespace omero::api;
 using namespace omero::model;
@@ -72,7 +75,8 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-    std::string s = IceUtil::generateUUID();
+    boost::uuids::uuid newuuid = boost::uuids::random_generator()();
+    std::string s = boost::uuids::to_string(s);
     std::replace(s.begin(), s.end(), '-', 'X');
     return s;
 }
