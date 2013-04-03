@@ -971,7 +971,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<String> tooltips = new ArrayList<String>(listItems.size());
 		List<String> lines;
 		ExperimenterData exp;
-		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		SelectableComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<DataNode> selected = null;
 		
@@ -992,15 +991,13 @@ class LocationDialog extends JDialog implements ActionListener,
 			Selectable<DataNode> comboBoxItem =
 					new Selectable<DataNode>(node, selectable);
 			if (select != null && 
-			   node.getDataObject().getId() == select.getDataObject().getId())
+				node.getDataObject().getId() == select.getDataObject().getId())
 				selected = comboBoxItem;
 			
 			model.addElement(comboBoxItem);
 		}
 
-		//To be modified
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
-				loggedInUser.getId());
+		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
 		renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
 		comboBox.setRenderer(renderer);
@@ -1008,10 +1005,22 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
 
-		if(itemListener != null)
+		if (itemListener != null)
 			comboBox.addItemListener(itemListener);
 	}
 	
+	/**
+	 * Creates the renderer depending on the selected user.
+	 * 
+	 * @return See above.
+	 */
+	private ComboBoxToolTipRenderer createComboboxRenderer()
+	{
+		ExperimenterData exp = getSelectedUser();
+		long id = -1;
+		if (exp != null) id = exp.getId();
+		return new ComboBoxToolTipRenderer(id);
+	}
 	
 	/**
 	 * Populates the JComboBox with the user details provided, 
@@ -1031,7 +1040,6 @@ class LocationDialog extends JDialog implements ActionListener,
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
-		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
 		DefaultComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<ExperimenterDisplay> selected = null;
 		
@@ -1047,11 +1055,8 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			model.addElement(item);
 		}
-
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
-				loggedInUser.getId());
 		comboBox.setModel(model);
-		comboBox.setRenderer(renderer);
+		comboBox.setRenderer(createComboboxRenderer());
 		
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
