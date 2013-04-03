@@ -268,6 +268,7 @@ class BirdEyeViewComponent
 	private void setCursor(int x, int y)
 	{
 		boolean b = inSelection(x, y);
+		System.err.println(b);
 		if (b) {
 			bover = true;
 			mouseX = x;
@@ -604,7 +605,6 @@ class BirdEyeViewComponent
 	{
 		mouseX = e.getX();
 		mouseY = e.getY();
-		//System.err.println(inImage());
 		if (!inImage()) 
 			locked = false;
 		if (locked) {
