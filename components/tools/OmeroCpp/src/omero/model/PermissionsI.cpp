@@ -27,6 +27,7 @@ namespace omero {
             if (perms.empty()) {
                 perm1 = -1L;
             } else {
+                perm1 = 0L;
                 // Due to lack of regex libraries
                 // this implementation is more naive
                 // than in the other SDKs
