@@ -19,8 +19,9 @@ namespace omero {
 
     namespace model {
 
-	PermissionsI::~PermissionsI() {}
-	PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
+        PermissionsI::~PermissionsI() {}
+
+        PermissionsI::PermissionsI(const std::string& perms) : Permissions() {
             __immutable = false;
             restrictions = omero::api::BoolArray();
             if (perms.empty()) {
@@ -67,7 +68,7 @@ namespace omero {
                     setWorldAnnotate(true);
                 }
             }
-	}
+        }
 
         void PermissionsI::ice_postUnmarshal() {
             __immutable = true;
@@ -123,90 +124,90 @@ namespace omero {
             perm1 =  _perm1;
         }
 
-	// shift 8; mask 4
-	bool PermissionsI::isUserRead(const Ice::Current& c) {
-	    return granted(4,8);
-	}
-	void PermissionsI::setUserRead(bool value, const Ice::Current& c) {
-	    set(4,8, value);
-	}
+        // shift 8; mask 4
+        bool PermissionsI::isUserRead(const Ice::Current& c) {
+            return granted(4,8);
+        }
+        void PermissionsI::setUserRead(bool value, const Ice::Current& c) {
+            set(4,8, value);
+        }
 
-	// shift 8; mask 2
-	bool PermissionsI::isUserWrite(const Ice::Current& c) {
-	    return granted(2,8);
-	}
-	void PermissionsI::setUserWrite(bool value, const Ice::Current& c) {
-	    set(2,8, value);
-	}
+        // shift 8; mask 2
+        bool PermissionsI::isUserWrite(const Ice::Current& c) {
+            return granted(2,8);
+        }
+        void PermissionsI::setUserWrite(bool value, const Ice::Current& c) {
+            set(2,8, value);
+        }
 
-	// shift 8; mask 1
-	bool PermissionsI::isUserAnnotate(const Ice::Current& c) {
-	    return granted(1,8);
-	}
-	void PermissionsI::setUserAnnotate(bool value, const Ice::Current& c) {
-	    set(1,8, value);
-	}
+        // shift 8; mask 1
+        bool PermissionsI::isUserAnnotate(const Ice::Current& c) {
+            return granted(1,8);
+        }
+        void PermissionsI::setUserAnnotate(bool value, const Ice::Current& c) {
+            set(1,8, value);
+        }
 
-	// shift 4; mask 4
-	bool PermissionsI::isGroupRead(const Ice::Current& c) {
-	    return granted(4,4);
-	}
-	void PermissionsI::setGroupRead(bool value, const Ice::Current& c) {
-	    set(4,4, value);
-	}
+        // shift 4; mask 4
+        bool PermissionsI::isGroupRead(const Ice::Current& c) {
+            return granted(4,4);
+        }
+        void PermissionsI::setGroupRead(bool value, const Ice::Current& c) {
+            set(4,4, value);
+        }
 
-	// shift 4; mask 2
-	bool PermissionsI::isGroupWrite(const Ice::Current& c) {
-	    return granted(2,4);
-	}
-	void PermissionsI::setGroupWrite(bool value, const Ice::Current& c) {
-	    set(2,4, value);
-	}
+        // shift 4; mask 2
+        bool PermissionsI::isGroupWrite(const Ice::Current& c) {
+            return granted(2,4);
+        }
+        void PermissionsI::setGroupWrite(bool value, const Ice::Current& c) {
+            set(2,4, value);
+        }
 
-	// shift 4; mask 1
-	bool PermissionsI::isGroupAnnotate(const Ice::Current& c) {
-	    return granted(1,4);
-	}
-	void PermissionsI::setGroupAnnotate(bool value, const Ice::Current& c) {
-	    set(1,4, value);
-	}
+        // shift 4; mask 1
+        bool PermissionsI::isGroupAnnotate(const Ice::Current& c) {
+            return granted(1,4);
+        }
+        void PermissionsI::setGroupAnnotate(bool value, const Ice::Current& c) {
+            set(1,4, value);
+        }
 
-	// shift 0; mask 4
-	bool PermissionsI::isWorldRead(const Ice::Current& c) {
-	    return granted(4,0);
-	}
-	void PermissionsI::setWorldRead(bool value, const Ice::Current& c) {
-	    set(4,0, value);
-	}
+        // shift 0; mask 4
+        bool PermissionsI::isWorldRead(const Ice::Current& c) {
+            return granted(4,0);
+        }
+        void PermissionsI::setWorldRead(bool value, const Ice::Current& c) {
+            set(4,0, value);
+        }
 
-	// shift 0; mask 2
-	bool PermissionsI::isWorldWrite(const Ice::Current& c) {
-	    return granted(2,0);
-	}
-	void PermissionsI::setWorldWrite(bool value, const Ice::Current& c) {
-	    set(2,0, value);
-	}
+        // shift 0; mask 2
+        bool PermissionsI::isWorldWrite(const Ice::Current& c) {
+            return granted(2,0);
+        }
+        void PermissionsI::setWorldWrite(bool value, const Ice::Current& c) {
+            set(2,0, value);
+        }
 
-	// shift 0; mask 1
-	bool PermissionsI::isWorldAnnotate(const Ice::Current& c) {
-	    return granted(1,0);
-	}
-	void PermissionsI::setWorldAnnotate(bool value, const Ice::Current& c) {
-	    set(1,0, value);
-	}
+        // shift 0; mask 1
+        bool PermissionsI::isWorldAnnotate(const Ice::Current& c) {
+            return granted(1,0);
+        }
+        void PermissionsI::setWorldAnnotate(bool value, const Ice::Current& c) {
+            set(1,0, value);
+        }
 
-	bool PermissionsI::granted(int mask, int shift) {
-	    return (perm1 & (mask<<shift) ) == (mask<<shift);
-	}
+        bool PermissionsI::granted(int mask, int shift) {
+            return (perm1 & (mask<<shift) ) == (mask<<shift);
+        }
 
-	void PermissionsI::set(int mask, int shift, bool on) {
-	    throwIfImmutable();
-	    if (on) {
-		perm1 = perm1 | ( 0L  | (mask<<shift) );
-	    } else {
-		perm1 = perm1 & ( -1L ^ (mask<<shift) );
-	    }
-	}
+        void PermissionsI::set(int mask, int shift, bool on) {
+            throwIfImmutable();
+            if (on) {
+                perm1 = perm1 | ( 0L  | (mask<<shift) );
+            } else {
+                perm1 = perm1 & ( -1L ^ (mask<<shift) );
+            }
+        }
 
     }
 } //End omero::model
