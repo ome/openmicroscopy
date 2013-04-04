@@ -38,6 +38,7 @@ def additional_tests():
 
     suite.addTest(load("integration.reporawfilestore"))
     suite.addTest(load("integration.repository"))
+    suite.addTest(load("gatewaytest.fs"))
 
     return suite
 
