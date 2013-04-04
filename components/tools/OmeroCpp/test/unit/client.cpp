@@ -6,8 +6,12 @@
  *
  */
 
+#include <map>
+#include <string>
 #include <omero/model/PermissionsI.h>
 #include <omero/fixture.h>
+
+using namespace std;
 
 TEST(ClientTest, UnconfiguredClient )
 {
@@ -37,4 +41,14 @@ TEST(ClientTest, ClientWithInitializationData2 )
   omero::client_ptr c = new omero::client(id);
   std::string s = c->getProperty("omero.host");
   ASSERT_EQ("localhost", s);
+}
+
+TEST(ClientTest, testCreateFromMap)
+{
+    map<string, string> props;
+    props["omero.host"] = "localhost";
+    
+    omero::client_ptr client = new omero::client(props, false);
+    std::string s = client->getProperty("omero.host");
+    ASSERT_EQ("localhost", s);
 }
