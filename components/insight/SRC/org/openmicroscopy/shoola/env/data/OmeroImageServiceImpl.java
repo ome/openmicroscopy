@@ -1243,7 +1243,8 @@ class OmeroImageServiceImpl
 						if (createdData == null) {
 							try {
 								ioContainer = gateway.saveAndReturnObject(ctx,
-										container.asIObject(), parameters);
+										container.asIObject(), parameters,
+										userName);
 								//register
 								object.addNewDataObject(
 										PojoMapper.asDataObject(
@@ -1379,7 +1380,7 @@ class OmeroImageServiceImpl
 					if (createdData == null) {
 						try {
 							ioContainer = gateway.saveAndReturnObject(ctx,
-									container.asIObject(), parameters);
+									container.asIObject(), parameters, userName);
 							//register
 							object.addNewDataObject(
 									PojoMapper.asDataObject(
@@ -1403,7 +1404,7 @@ class OmeroImageServiceImpl
 				//we have to import the image in this container.
 				try {
 					ioContainer = gateway.saveAndReturnObject(ctx,
-							folder.asIObject(), parameters);
+							folder.asIObject(), parameters, userName);
 					status.setContainerFromFolder(PojoMapper.asDataObject(
 							ioContainer));
 					if (folder instanceof DatasetData) {
@@ -1416,7 +1417,7 @@ class OmeroImageServiceImpl
 									if (createdData == null) {
 										project = gateway.saveAndReturnObject(
 												ctx, container.asIObject(),
-												parameters);
+												parameters, userName);
 										object.addNewDataObject(
 											PojoMapper.asDataObject(project));
 										link = (ProjectDatasetLink) 
@@ -1425,7 +1426,7 @@ class OmeroImageServiceImpl
 												(Project) project);
 										link = (ProjectDatasetLink) 
 										gateway.saveAndReturnObject(ctx, link,
-												parameters);
+												parameters, userName);
 									} else {
 										link = (ProjectDatasetLink) 
 										ModelMapper.linkParentToChild(
@@ -1434,7 +1435,7 @@ class OmeroImageServiceImpl
 												createdData.asProject());
 										link = (ProjectDatasetLink) 
 										gateway.saveAndReturnObject(ctx, link,
-												parameters);
+												parameters, userName);
 									}
 								} else { //project already exists.
 									link = (ProjectDatasetLink) 
@@ -1443,7 +1444,7 @@ class OmeroImageServiceImpl
 											(Project) container.asProject());
 									link = (ProjectDatasetLink) 
 									gateway.saveAndReturnObject(ctx, link, 
-											parameters);
+											parameters, userName);
 								}
 							} catch (Exception e) {
 								LogMessage msg = new LogMessage();
