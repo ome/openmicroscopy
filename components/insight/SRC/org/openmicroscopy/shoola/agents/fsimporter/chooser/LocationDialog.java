@@ -924,7 +924,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	private ExperimenterData getSelectedUser() {
 		Selectable<ExperimenterDisplay> selectedItem = 
 				(Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
-		return selectedItem.getObject().getData();
+		if(selectedItem != null)
+			return selectedItem.getObject().getData();
+		
+		return null;
 	}
 
 	/**
@@ -1082,7 +1085,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		List<ExperimenterData> members = sort(group.getExperimenters());
 		boolean canImportAs;
 		Selectable<ExperimenterDisplay> item;
-		for (ExperimenterData user : members) {	
+		for (ExperimenterData user : members) {
 			canImportAs = canImportForUserInGroup(user, group);
 			item = new Selectable<ExperimenterDisplay>(
 					new ExperimenterDisplay(user), canImportAs);
