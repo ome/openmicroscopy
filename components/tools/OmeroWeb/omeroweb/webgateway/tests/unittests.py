@@ -485,8 +485,12 @@ class RepositoryApiBaseTest(WGTestUsersOnly):
         return views.get_repository(self.gateway, self.repoclass)
 
     def _getDirectory(self, dirpath):
-        user = self.gateway.getUser()
-        return os.path.join('%s_%s' % (user.getName(), user.getId()), dirpath)
+        if self.repoclass == "ManagedRepository":
+            user = self.gateway.getUser()
+            return os.path.join('%s_%s' % (user.getName(), user.getId()), dirpath)
+        else:
+            return dirpath
+
 
     def _delete(self, repository, filepath, timeout=30):
         handle = repository.deletePaths([filepath], True, True)
