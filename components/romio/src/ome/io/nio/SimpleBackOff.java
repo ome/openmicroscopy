@@ -18,7 +18,7 @@ import ome.model.core.Pixels;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Basic {@link BackOff} implementation which attempts several writes of the
@@ -110,7 +110,7 @@ public class SimpleBackOff implements BackOff {
         long elapsed = 0;
 
         for (int i = 0; i < count; i++) {
-            sw = new CommonsLogStopWatch(key);
+            sw = new Slf4JStopWatch(key);
             image = new BufferedImage(sizes.getTileWidth(), sizes.getTileHeight(), IMAGE_TYPE);
             stream = new ByteArrayOutputStream();
             service.writeImage(stream, image, false, CODE_BLOCK, 1.0);

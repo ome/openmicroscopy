@@ -31,7 +31,7 @@ import ome.system.OmeroContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -308,7 +308,7 @@ public class SessionCache implements ApplicationContextAware {
     public void putSession(String uuid, SessionContext sessionContext) {
         Data data = new Data(sessionContext);
         this.sessions.put(uuid, data);
-        final StopWatch sw = new CommonsLogStopWatch("omero.session");
+        final StopWatch sw = new Slf4JStopWatch("omero.session");
         addSessionCallback(uuid, new SessionCallback.SimpleCloseCallback(){
             public void close() {
                 sw.stop();
@@ -575,7 +575,7 @@ public class SessionCache implements ApplicationContextAware {
         try {
             final Set<String> ids = sessions.keySet();
             log.info("Synchronizing session cache. Count = " + ids.size());
-            final StopWatch sw = new CommonsLogStopWatch();
+            final StopWatch sw = new Slf4JStopWatch();
             for (String id : ids) {
                 reload(id);
             }

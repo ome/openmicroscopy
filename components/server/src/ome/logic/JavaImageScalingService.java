@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 import com.mortennobel.imagescaling.ResampleOp;
 
@@ -46,7 +46,7 @@ public class JavaImageScalingService implements IScale {
         int thumbWidth = (int) (image.getWidth() * xScale);
         log.info("Scaling to: " + thumbHeight + "x" + thumbWidth);
 
-        StopWatch s1 = new CommonsLogStopWatch("java-image-scaling.resampleOp");
+        StopWatch s1 = new Slf4JStopWatch("java-image-scaling.resampleOp");
         ResampleOp  resampleOp = new ResampleOp(thumbWidth, thumbHeight);
         //resampleOp.setNumberOfThreads(4);
         BufferedImage toReturn = resampleOp.filter(image, null);

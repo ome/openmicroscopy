@@ -21,6 +21,22 @@
 
   </appender>
 
+  <!-- PERF4J ///////////////////////////////////////////////////////////////// -->
+  <appender name="Perf4jJmxAppender" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
+    <param name="TagNamesToExpose" value="omero.call.success,omero.call.exception,omero.session"/>
+  </appender>
+
+  <appender name="CoalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+    <param name="TimeSlice" value="30000"/>
+    <appender-ref ref="Perf4jJmxAppender"/>
+  </appender>
+
+  <logger name="org.perf4j.TimingLogger">
+    <level value="INFO"/>
+    <appender-ref ref="CoalescingStatistics"/>
+  </logger>
+
+  <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <logger name="ome" level="INFO"/>
   <logger name="ome.formats" level="INFO"/>
   <logger name="omero" level="INFO"/>

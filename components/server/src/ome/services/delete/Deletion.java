@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.context.ApplicationContext;
@@ -150,7 +150,7 @@ public class Deletion {
 
     private final StringBuilder warning = new StringBuilder();
 
-    private CommonsLogStopWatch sw;
+    private StopWatch sw;
 
     private long scheduledDeletes;
 
@@ -223,7 +223,7 @@ public class Deletion {
             String type, long id,
             Map<String, String> options)  throws GraphException {
 
-        this.sw = new CommonsLogStopWatch();
+        this.sw = new Slf4JStopWatch();
         this.start = System.currentTimeMillis();
         this.type = type;
         this.id = id;
@@ -257,7 +257,7 @@ public class Deletion {
 
             // STATE PARSING
             // Initialize. Any exceptions should cancel the process
-            StopWatch sw = new CommonsLogStopWatch();
+            StopWatch sw = new Slf4JStopWatch();
 
             state = new GraphState(ec, factory, sql, session, this.spec);
             scheduledDeletes = state.getTotalFoundCount();
@@ -290,7 +290,7 @@ public class Deletion {
     }
 
     public void execute(int step) throws Throwable {
-        final CommonsLogStopWatch sw = new CommonsLogStopWatch();
+        final StopWatch sw = new Slf4JStopWatch();
         try {
             warning.append(state.execute(step));
             // TODO: missing stepStart/stepStart calculation here.
@@ -318,7 +318,7 @@ public class Deletion {
      * Create a map of failed ids (not yet passed back to client).
       */
     public void deleteFiles() {
-        CommonsLogStopWatch sw = new CommonsLogStopWatch();
+        StopWatch sw = new Slf4JStopWatch();
         try {
             _deleteFiles();
         } finally {

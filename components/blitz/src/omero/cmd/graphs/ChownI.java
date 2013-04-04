@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
@@ -95,7 +95,7 @@ public class ChownI extends Chown implements IRequest {
 
             this.spec.initialize(id, "", options);
 
-            StopWatch sw = new CommonsLogStopWatch();
+            StopWatch sw = new Slf4JStopWatch();
             state = new GraphState(ec, factory, helper.getSql(),
                 helper.getSession(), spec);
             // Throws if steps == 0

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action performed by {@link DeleteState}.
@@ -70,7 +70,7 @@ public class DeleteStep extends GraphStep {
         optionallyNullField(session, nullOp, id);
 
         // Phase 3: primary action
-        StopWatch swStep = new CommonsLogStopWatch();
+        StopWatch swStep = new Slf4JStopWatch();
         qb.param("id", id);
         Query q = qb.query(session);
         int count = q.executeUpdate();

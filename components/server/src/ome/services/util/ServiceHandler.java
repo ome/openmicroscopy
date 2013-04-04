@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.hibernate.PropertyValueException;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -110,7 +110,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         Object o;
         StringBuilder finalOutput = new StringBuilder();
 
-        StopWatch stopWatch = new CommonsLogStopWatch();
+        StopWatch stopWatch = new Slf4JStopWatch();
         try {
 
             o = arg0.proceed();

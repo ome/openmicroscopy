@@ -19,7 +19,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 import ome.annotations.NotNull;
@@ -196,7 +196,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadPixels(Set<Long> pixelsIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadPixels");
 		Parameters p = new Parameters();
 		p.addIds(pixelsIds);
 		String sql = "select pix from Pixels as pix " +
@@ -218,7 +218,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadPixelsByImage(Set<Long> imageIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadPixelsByImage");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadPixelsByImage");
 		Parameters p = new Parameters();
 		p.addIds(imageIds);
 		String sql = "select pix from Pixels as pix " +
@@ -240,7 +240,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadPlatePixels(Set<Long> plateIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadPlatePixels");
 		Parameters p = new Parameters();
 		p.addIds(plateIds);
 		String sql = "select pix from Pixels as pix " +
@@ -265,7 +265,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadPlateAcquisitionPixels(Set<Long> ids)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadPlatePixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadPlatePixels");
 		Parameters p = new Parameters();
 		p.addIds(ids);
 		String sql = "select pix from Pixels as pix " +
@@ -289,7 +289,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadScreenPixels(Set<Long> screenIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadScreenPixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadScreenPixels");
 		Parameters p = new Parameters();
 		p.addIds(screenIds);
 		String sql = "select pix from Pixels as pix " +
@@ -316,7 +316,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadDatasetPixels(Set<Long> datasetIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadDatasetPixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadDatasetPixels");
 		Parameters p = new Parameters();
 		p.addIds(datasetIds);
     	String sql = "select pix from Pixels as pix " +
@@ -340,7 +340,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private List<Pixels> loadProjectPixels(Set<Long> projectIds)
     {
-		StopWatch s1 = new CommonsLogStopWatch("omero.loadProjectPixels");
+		StopWatch s1 = new Slf4JStopWatch("omero.loadProjectPixels");
 		Parameters p = new Parameters();
 		p.addIds(projectIds);
     	String sql = "select pix from Pixels as pix " +
@@ -366,7 +366,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     private LogicalChannel loadLogicalChannel(Long id)
     {
-        StopWatch s1 = new CommonsLogStopWatch("omero.loadLogicalChannel");
+        StopWatch s1 = new Slf4JStopWatch("omero.loadLogicalChannel");
         Parameters p = new Parameters();
         p.addId(id);
         String sql = 
@@ -408,7 +408,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private Map<Long, RenderingDef> loadRenderingSettings(List<Pixels> pixels,
                                                           Long ownerId)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.loadRenderingSettingsByUser");
         Set<Long> pixelsIds = new HashSet<Long>();
         for (Pixels p : pixels)
@@ -441,7 +441,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     private Map<Long, RenderingDef> loadRenderingSettingsByOwner(
             List<Pixels> pixels)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.loadRenderingSettingsByOwner");
         Set<Long> pixelsIds = new HashSet<Long>();
         for (Pixels p : pixels)
@@ -599,7 +599,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	checkValidContainerClass(klass);
     	
     	// Load our dependencies for rendering settings manipulation
-    	StopWatch s1 = new CommonsLogStopWatch("omero.resetDefaultsInSet");
+    	StopWatch s1 = new Slf4JStopWatch("omero.resetDefaultsInSet");
         
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
@@ -644,7 +644,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                          + p.getImage().getId(), e);
             }
     	}
-        StopWatch s2 = new CommonsLogStopWatch(
+        StopWatch s2 = new Slf4JStopWatch(
 			"omero.resetDefaultsInSet.saveAndReturn");
         if (toSave.size() > 0) {
         	RenderingDef[] toSaveArray = 
@@ -866,7 +866,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         
         //update the value.
         if (toUpdate.size() > 0) {
-        	 StopWatch s1 = new CommonsLogStopWatch(
+        	 StopWatch s1 = new Slf4JStopWatch(
      		"omero.resetChannelBindings.saveAndReturn");
      	    LogicalChannel[] toSaveArray = 
      	    	toUpdate.toArray(new LogicalChannel[toUpdate.size()]);
@@ -1112,7 +1112,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	checkValidContainerClass(klass);
     	
     	// Load our dependencies for rendering settings manipulation
-    	StopWatch s1 = new CommonsLogStopWatch("omero.applySettingsToSet");
+    	StopWatch s1 = new Slf4JStopWatch("omero.applySettingsToSet");
     	//nodeIds.add(from);
     	// Pre-process our list of potential containers. This will resolve down
     	// to a list of Pixels objects for us to work on.
@@ -1182,7 +1182,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             	toReturnTrue.add(p.getImage().getId());
             }
     	}
-        StopWatch s2 = new CommonsLogStopWatch(
+        StopWatch s2 = new Slf4JStopWatch(
 			"omero.applySettingsToSet.saveAndReturn");
         RenderingDef[] toSaveArray = 
         	toSave.toArray(new RenderingDef[toSave.size()]);
@@ -1438,7 +1438,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                                                           Set<Long> nodeIds)
     {
     	checkValidContainerClass(klass);
-        StopWatch s1 = new CommonsLogStopWatch("omero.resetMinMaxInSet");
+        StopWatch s1 = new Slf4JStopWatch("omero.resetMinMaxInSet");
         // Load our dependencies for rendering settings manipulation
         List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
         List<RenderingModel> renderingModels = 

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -258,7 +258,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         }
 
         Query q = qb.query(session);
-        StopWatch sw = new CommonsLogStopWatch();
+        StopWatch sw = new Slf4JStopWatch();
         List<List<Long>> results = q.list();
         sw.stop("omero.graph.query." + StringUtils.join(sub, "."));
 

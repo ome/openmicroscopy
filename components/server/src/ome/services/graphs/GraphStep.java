@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -351,7 +351,7 @@ public abstract class GraphStep {
         String sspec = aspec.getSuperSpec();
         if (sspec == null || sspec.length() == 0) {
             if (ids != null && ids.size() > 0) {
-                StopWatch swTop = new CommonsLogStopWatch();
+                StopWatch swTop = new Slf4JStopWatch();
 
                 QueryBuilder qb = new QueryBuilder();
                 qb.delete("ome.model.IAnnotationLink"); // FIXME

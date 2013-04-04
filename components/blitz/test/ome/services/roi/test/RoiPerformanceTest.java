@@ -36,7 +36,8 @@ import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -52,7 +53,7 @@ public class RoiPerformanceTest extends AbstractRoiITest {
     public void setup() throws Exception {
 
         Random r = new Random();
-        CommonsLogStopWatch watch = new CommonsLogStopWatch();
+        StopWatch watch = new Slf4JStopWatch();
 
         int count = 0; // DISABLED
 

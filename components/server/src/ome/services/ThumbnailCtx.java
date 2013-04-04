@@ -21,7 +21,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 import ome.api.IPixels;
 import ome.api.IQuery;
@@ -324,7 +324,7 @@ public class ThumbnailCtx
         Parameters params = new Parameters();
         params.addId(pixelsId);
         params.addLong("o_id", userId);
-        StopWatch s1 = new CommonsLogStopWatch("omero.loadAllMetadata");
+        StopWatch s1 = new Slf4JStopWatch("omero.loadAllMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
                 "join t.pixels " +
@@ -349,7 +349,7 @@ public class ThumbnailCtx
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
         }
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.createAndPrepareMissingRenderingSettings");
         Set<Long> pixelsIdsWithoutSettings = 
             getPixelsIdsWithoutSettings(pixelsIds);
@@ -731,7 +731,7 @@ public class ThumbnailCtx
     private List<RenderingDef> bulkLoadRenderingSettingsByPixelsId(
             Set<Long> pixelsIds)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.bulkLoadRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
@@ -752,7 +752,7 @@ public class ThumbnailCtx
     private List<RenderingDef> bulkLoadRenderingSettingsByImageId(
             Set<Long> imageIds)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.bulkLoadRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
@@ -774,7 +774,7 @@ public class ThumbnailCtx
     private List<RenderingDef> bulkLoadOwnerRenderingSettings(
             Set<Long> pixelsIds)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.bulkLoadOwnerRenderingSettings");
         List<RenderingDef> toReturn = queryService.findAllByQuery(
                 "select r from RenderingDef as r " +
@@ -803,7 +803,7 @@ public class ThumbnailCtx
         params.addInteger("y", (int) dimensions.getHeight());
         params.addLong("o_id", userId);
         params.addIds(pixelsIds);
-        StopWatch s1 = new CommonsLogStopWatch("omero.bulkLoadMetadata");
+        StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
                 "join t.pixels " +
@@ -830,7 +830,7 @@ public class ThumbnailCtx
         params.addInteger("x", (int) dimensions.getWidth());
         params.addInteger("y", (int) dimensions.getHeight());
         params.addIds(pixelsIds);
-        StopWatch s1 = new CommonsLogStopWatch("omero.bulkLoadOwnerMetadata");
+        StopWatch s1 = new Slf4JStopWatch("omero.bulkLoadOwnerMetadata");
         List<Thumbnail> toReturn = queryService.findAllByQuery(
                 "select t from Thumbnail as t " +
                 "join t.pixels as p " + 
@@ -856,7 +856,7 @@ public class ThumbnailCtx
     private void loadMetadataByDimensionPool(
             Map<Dimension, Set<Long>> dimensionPools)
     {
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.loadMetadataByDimensionPool");
         for (Dimension dimensions : dimensionPools.keySet())
         {
@@ -901,7 +901,7 @@ public class ThumbnailCtx
             {
                 log.debug("Loading " + pixelsIds.size() + " missing Pixels.");
             }
-            StopWatch s1 = new CommonsLogStopWatch(
+            StopWatch s1 = new Slf4JStopWatch(
                     "omero.loadMissingPixels");
             List<Pixels> pixelsWithoutSettings = queryService.findAllByQuery(
                     "select p from Pixels as p where id in (:ids)", parameters);
@@ -963,7 +963,7 @@ public class ThumbnailCtx
             // TODO: Could possibly "su" to the user and create a thumbnail
             return;
         }
-        StopWatch s1 = new CommonsLogStopWatch(
+        StopWatch s1 = new Slf4JStopWatch(
                 "omero.createMissingThumbnailMetadata");
         List<Thumbnail> toSave = new ArrayList<Thumbnail>();
         Map<Dimension, Set<Long>> temporaryDimensionPools = 
