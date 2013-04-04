@@ -843,4 +843,13 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	public List<RenderingControl> getSlaves();
+	
+	/**
+	 * Returns <code>true</code> if no longer active, <code>false</code>
+	 * otherwise. This is used when the reference is still kept but the user
+	 * no longer interacts with the rendering proxy.
+	 * 
+	 * @return See above.
+	 */
+	boolean isShutDown();
 }

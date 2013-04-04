@@ -269,14 +269,8 @@ class BirdEyeViewComponent
 	{
 		boolean b = inSelection(x, y);
 		if (b) {
-			bover = true;
-			mouseX = x;
-			mouseY = y;
-			bdifx = mouseX-bx;
-			bdify = mouseY-by;
 			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		} else {
-			bover = false;
 			setCursor(Cursor.getDefaultCursor());
 		}
 	}
@@ -604,7 +598,6 @@ class BirdEyeViewComponent
 	{
 		mouseX = e.getX();
 		mouseY = e.getY();
-		//System.err.println(inImage());
 		if (!inImage()) 
 			locked = false;
 		if (locked) {

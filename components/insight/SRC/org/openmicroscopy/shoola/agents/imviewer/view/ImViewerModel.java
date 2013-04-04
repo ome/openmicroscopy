@@ -109,7 +109,7 @@ import com.sun.opengl.util.texture.TextureData;
 * The {@link ImViewerComponent} intercepts the results of data loadings, feeds
 * them back to this class and fires state transitions as appropriate.
 * 
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
@@ -2668,6 +2668,7 @@ class ImViewerModel
 			if (w >= h) ratio = (double) ref/w;
 			else ratio = (double) ref/h;
 		}
+		ratio = (double) ref/Factory.THUMB_DEFAULT_WIDTH;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);

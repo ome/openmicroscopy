@@ -2899,10 +2899,8 @@ class ImViewerComponent
 	 */
 	public void onRndLoaded(boolean reload)
 	{
-		//if (model.isNumerousChannel()) model.setForLifetime();
 		if (model.getState() == DISCARDED) return;
 		model.onRndLoaded();
-		//view.onR
 		if (!reload) {
 			if (model.isBigImage()) {
 				model.fireBirdEyeViewRetrieval();
