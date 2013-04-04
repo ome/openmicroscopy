@@ -1045,7 +1045,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				if (exp.getId() == userID) return true;
 			}
 		}
-		return false;
+		return node.getOwner().getId() == userID;
 	}
 	
 	/**
