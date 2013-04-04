@@ -5891,7 +5891,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
-        if self.canWrite():
+        if self.canAnnotate():
             self._deleteSettings()
             rdefns = self._conn.CONFIG.IMG_RDEFNS
             logger.debug(rdefns)

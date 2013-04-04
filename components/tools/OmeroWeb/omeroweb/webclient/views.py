@@ -331,6 +331,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     #tree support
     init = {'initially_open':None, 'initially_select': []}
     first_sel = None
+    initially_open_owner = None
     # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
     path = request.REQUEST.get('path', '')
     i = path.split("|")[-1]
@@ -355,6 +356,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                 first_sel = conn.getObject("TagAnnotation", long(first_id))
             else:
                 first_sel = conn.getObject(first_obj, long(first_id))
+                initially_open_owner = first_sel.details.owner.id.val
                 # Wells aren't in the tree, so we need parent...
                 if first_obj == "well":
                     parentNode = first_sel.getWellSample().getPlateAcquisition()
@@ -375,6 +377,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                         init['initially_open'].insert(0, "tag-%s" % p.getId())
                     else:
                         init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+                        initially_open_owner = p.details.owner.id.val
                 if init['initially_open'][0].split("-")[0] == 'image':
                     init['initially_open'].insert(0, "orphaned-0")
     # need to be sure that tree will be correct omero.group
@@ -407,8 +410,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
-    if first_sel is not None:
-        user_id = first_sel.details.owner.id.val
+    if initially_open_owner is not None:
+        if (request.session.get('user_id', None) != -1): # if we're not already showing 'All Members'...
+            user_id = initially_open_owner
     try:
         user_id = long(user_id)
     except:
@@ -500,6 +504,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     elif len(kw.keys()) > 0 :
         if kw.has_key('dataset'):
             load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
+            filter_user_id = None           # Show images belonging to all users
             manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
