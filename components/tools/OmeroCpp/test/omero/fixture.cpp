@@ -72,7 +72,7 @@ void Fixture::show_stackframe() {
 
 std::string Fixture::uuid()
 {
-  std::string s = util::generate_uuid();
+  std::string s = omero::util::generate_uuid();
     std::replace(s.begin(), s.end(), '-', 'X');
     return s;
 }
