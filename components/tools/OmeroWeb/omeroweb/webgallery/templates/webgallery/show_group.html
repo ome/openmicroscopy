@@ -1,0 +1,70 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    OMERO.web Gallery
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+        |
+        User:
+        <select id="users_chooser">
+            <option value="-1">All Members</option>
+            {% if group_owners %}
+                <optgroup label="Owners">
+                {% for user in group_owners %}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                        {{ user.getFullName }}
+                    </option>
+                {% endfor %}
+            {% endif %}
+            {% if group_members %}
+                <optgroup label="Members">
+                {% for user in group_members %}
+                    <option value="{{ user.id }}" {% ifequal user.id ome.user_id %}selected{% endifequal %}>
+                        {{ user.getFullName }}
+                    </option>
+                {% endfor %}
+            {% endif %}
+        </select>
+    </div>
+    <hr>
+
+    <h2>{{ group.name }}</h2>
+
+    <ul>
+        {% for p in projects %}
+            <li>
+                {% if p.image %}
+                    <img title="{{ p.image.name }}" src="{% url render_thumbnail_resize 96 p.image.id %}" style="float:left"/>
+                {% endif %}
+                <a href="{% url webgallery_show_project p.id %}">
+                    {{ p.name }}
+                </a>
+                (owner: {{ p.owner }})
+                <div>{{ p.description }}</div>
+                <div style="clear:both"></div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Adding Scripts - First we link to the 'current' jQuery used by OMERO.web -->
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    <script>
+        $(function(){
+            var current_url = document.URL.split("?")[0]    // remove query string
+
+            $("#users_chooser").change(function(){
+                // To swich group, we visit the webclient change_active_group, with groupId.
+                var userId = $(this).val(),
+                    page_url = current_url + "?user_id=" + userId;
+                window.location.href = page_url;
+            });
+        });
+    </script>
+
+{% endblock %}

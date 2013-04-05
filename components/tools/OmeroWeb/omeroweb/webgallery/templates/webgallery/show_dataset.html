@@ -1,0 +1,35 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    {{ dataset.getName }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+    </div>
+
+    <hr>
+
+    {% if dataset.getParent %}
+    {% with p=dataset.getParent %}
+        Back to: <a href="{% url webgallery_show_project p.id %}">{{ p.getName }}</a>
+    {% endwith %}
+    {% endif %}
+
+    <h2>{{ dataset.getName }}</h2>
+
+    <p>{{ dataset.getDescription }}</p>
+
+    <hr>
+
+    {% for i in dataset.listChildren %}
+        <a href="{% url webgallery_show_image i.id %}">
+            <img title="{{ i.getName }}" src="{% url render_thumbnail_resize 96 i.id %}" />
+        </a>
+    {% endfor %}
+
+{% endblock %}

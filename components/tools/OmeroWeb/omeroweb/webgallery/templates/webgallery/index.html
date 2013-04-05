@@ -1,0 +1,31 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    OMERO.web Gallery
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        Logged in as: {{ ome.user.getFullName }}
+    <hr>
+
+    <h2>Welcome to OMERO.web Gallery</h2>
+
+    <ul>
+        {% for g in groups %}
+        <li>
+            <b><a href="{% url webgallery_show_group g.id %}">{{ g.name }}</a></b><br/>
+            {% if g.description %}
+                <p>{{ g.description }}</p>
+            {% endif %}
+
+            {% for i in g.images %}
+                <img title="{{ i.name }}" src="{% url render_thumbnail_resize 96 i.id %}"/>
+            {% endfor %}
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

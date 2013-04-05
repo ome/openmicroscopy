@@ -1,0 +1,57 @@
+{% extends "webgallery/base/base.html" %}
+
+{% block title %}
+    {{ project.getName }}
+{% endblock %}
+
+
+{% block body %}
+
+    <div>
+        <a href="{% url webgallery_index %}">Home</a>
+        Logged in as: {{ ome.user.getFullName }}
+    </div>
+
+    <hr>
+
+    <h2>{{ project.getName }}</h2>
+
+    <p>{{ project.getDescription }}</p>
+
+    <hr/>
+
+    <ul>
+        {% for d in datasets %}
+            <li>
+                <a href="{% url  webgallery_show_dataset d.id %}">{{ d.name }}</a>
+                Load <a class="load_thumbs" href="{% url webgallery_dataset_thumbs d.id %}">All Images</a>
+            </br>
+                {% if d.description %}
+                    <div>{{ d.description }}</div>
+                {% endif %}
+
+                <div class="dataset_thumbs">
+                {% for i in d.images %}
+                    <a href="{% url webgallery_show_image i.id %}">
+                        <img title="{{ i.getName }}" src="{% url render_thumbnail_resize 96 i.id %}" />
+                    </a>
+                {% endfor %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Adding Scripts - First we link to the 'current' jQuery used by OMERO.web -->
+    {% include "webgateway/base/includes/script_src_jquery.html" %}
+    <script>
+        $(function(){
+            $(".load_thumbs").click(function(event){
+                var $this = $(this),
+                    url = $this.attr('href');
+                $(".dataset_thumbs", $this.parent()).load(url);
+                event.preventDefault();
+            });
+        });
+    </script>
+
+{% endblock %}
