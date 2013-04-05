@@ -84,7 +84,8 @@ TEST(AnnotationTest, fileAnnotation )
         err = _mktemp_s(pointer, 10); // Length plus one for null
         ASSERT_FALSE( err );
 #else
-        mkstemp(pointer);
+        int fd = mkstemp(pointer);
+        close(fd);
 #endif
 
         string unique_content = IceUtil::generateUUID();
