@@ -18,7 +18,7 @@ function tas = getImageTagAnnotations(session, ids, varargin)
 %        fas = getImageTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
-% GETIMAGEFILEANNOTATIONS
+% GETIMAGEFILEANNOTATIONS, GETIMAGEXMLANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.

@@ -1,24 +1,24 @@
-function fas = getImageFileAnnotations(session, ids, varargin)
-% GETIMAGEFILEANNOTATIONS Retrieve file annotations linked to images
+function xas = getImageXmlAnnotations(session, ids, varargin)
+% GETIMAGEXMLANNOTATIONS Retrieve xml annotations linked to images
 %
-%    fas = getImageFileAnnotations(session, ids) returns all file
+%    fas = getImageXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the image specified by the input identifiers ids
 %    and owned by the session user.
 %
-%    fas = getImageFileAnnotations(session,  ids, 'include', include) only
-%    returns file annotations with the input namespace.
+%    fas = getImageXmlAnnotations(session,  ids, 'include', include) only
+%    returns xml annotations with the input namespace.
 %
-%    fas = getImageFileAnnotations(session,  ids, 'exclude', exclude)
-%    excludes file annotations with the input namespace.
+%    fas = getImageXmlAnnotations(session,  ids, 'exclude', exclude)
+%    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getImageFileAnnotations(session, ids)
-%        fas = getImageFileAnnotations(session, ids, 'include', include)
-%        fas = getImageFileAnnotations(session, ids, 'exclude', exclude)
+%        fas = getImageXmlAnnotations(session, ids)
+%        fas = getImageXmlAnnotations(session, ids, 'include', include)
+%        fas = getImageXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETIMAGECOMMENTANNOTATIONS,
-% GETIMAGETAGANNOTATIONS, GETIMAGEXMLANNOTATIONS
+% GETIMAGETAGANNOTATIONS, GETIMAGEFILEANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -37,4 +37,4 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-fas = getObjectAnnotations(session, 'file', 'image', ids, varargin{:});
+xas = getObjectAnnotations(session, 'xml', 'image', ids, varargin{:});

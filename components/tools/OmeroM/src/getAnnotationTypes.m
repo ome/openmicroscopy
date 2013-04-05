@@ -23,6 +23,7 @@ function types = getAnnotationTypes()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-names = {'tag', 'file', 'comment'};
-classnames = {'TagAnnotation', 'FileAnnotation', 'CommentAnnotation'};
+names = {'tag', 'file', 'comment', 'xml'};
+classnames = {'TagAnnotation', 'FileAnnotation', 'CommentAnnotation',...
+    'XmlAnnotation'};
 types = createObjectDictionary(names, classnames);
