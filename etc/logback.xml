@@ -73,6 +73,12 @@
   <logger name="loci" level="INFO"/><!-- Bio-Formats -->
   <logger name="ucar" level="WARN"/><!-- NetCDF -->
 
+  <!-- BUILD ////////////////////////////////////////////////////////////////// -->
+  <logger name="org.hibernate.tool.hbm2x.POJOExporter" level="ERROR"/>
+  <logger name="velocity" level="ERROR"/>
+  <logger name="ome.dsl.utests" level="WARN"/>
+  <logger name="ome.util.utests.PojoOptionsTest" level="WARN"/>
+
   <!-- DATABASE /////////////////////////////////////////////////////////////// -->
   <logger name="bitronix" level="WARN"/>
   <!-- Limit memory WARNing -->
