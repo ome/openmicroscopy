@@ -29,6 +29,7 @@ using namespace omero::api;
 using namespace omero::model;
 using namespace omero::sys;
 using namespace omero::rtypes;
+using namespace omero::util;
 
 TEST(AnnotationTest, tagAnnotation )
 {
@@ -44,7 +45,7 @@ TEST(AnnotationTest, tagAnnotation )
         TagAnnotationIPtr tag = new TagAnnotationI();
         tag->setTextValue(rstring("my-first-tag"));
 
-        string uuid = util::generate_uuid();
+        string uuid = generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(tag);
@@ -87,7 +88,7 @@ TEST(AnnotationTest, fileAnnotation )
         mkstemp(pointer);
 #endif
 
-        string unique_content = util::generate_uuid();
+        string unique_content = generate_uuid();
         {
             ofstream out(pointer);
             out << "<xml>" << endl;
@@ -132,7 +133,7 @@ TEST(AnnotationTest, fileAnnotation )
         FileAnnotationPtr attachment = new FileAnnotationI();
         attachment->setFile(file);
 
-        string uuid = util::generate_uuid();
+        string uuid = generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(attachment);
