@@ -208,6 +208,21 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
+        <if>
+            <and>
+                <contains string="${os.arch}" substring="x86_64"/>
+                <contains string="${java.version}" substring="1.6" casesensitive="false" />
+            </and>
+            <then>
+                <property name="maxmem.set" value="false"/>
+            </then>
+            <else>
+                <property name="javac.maxmem.default" value="750M"/>
+                <property name="javadoc.maxmem.default" value="750M"/>
+                <property name="maxmem.set" value="true"/>
+            </else>
+        </if>
+
         <!-- prevent direct use of ant -->
         <if><not><isset property="build.py"/></not>
             <then>
