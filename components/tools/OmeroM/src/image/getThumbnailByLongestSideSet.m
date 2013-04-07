@@ -1,27 +1,26 @@
-function thumbnails = getThumbnailSet(session, images, varargin)
-% GETTHUMBNAILSET Retrieve a set of thumbnails from images on the OMERO server
+function thumbnails = getThumbnailByLongestSideSet(session, images, varargin)
+% GETTHUMBNAILBYLONGESTSIDESET Retrieve a set of thumbnails from images on the OMERO server
 %
-%   thumbnails = getThumbnailSet(session, images) returns a set of
-%   thumbnails from a series of input images.
+%   thumbnails = getThumbnailByLongestSideSet(session, images) returns a
+%   set of thumbnails from a series of input images.
 %
-%   thumbnails = getThumbnailSet(session, images, width, height) also sets
-%   the width and the height of the thumbnails.
+%   thumbnails = getThumbnailByLongestSideSet(session, images, size) also
+%   sets the size of of the longest side..
 %
-%   thumbnails = getThumbnailSet(session, imageIDs) returns a set of
-%   thumbnails from a series of input image identifiers.
+%   thumbnails = getThumbnailByLongestSideSet(session, imageIDs) returns a
+%   set of thumbnails from a series of input image identifiers.
 %
-%   thumbnails = getThumbnailSet(session, imageIDs,  width, height) also
-%   sets the width and the height of the thumbnails.
+%   thumbnails = getThumbnailByLongestSideSet(session, imageIDs,  size)
+%   also sets the  size of of the longest side.
 %
 %   Examples:
 %
-%      thumbnails = getThumbnailSet(session, images);
-%      thumbnails = getThumbnailSet(session, images, width, height);
-%      thumbnails = getThumbnailSet(session, imageIDs);
-%      thumbnails = getThumbnailSet(session, imageIDs, width, height);
+%      thumbnails = getThumbnailByLongestSideSet(session, images);
+%      thumbnails = getThumbnailByLongestSideSet(session, images, size);
+%      thumbnails = getThumbnailByLongestSideSet(session, imageIDs);
+%      thumbnails = getThumbnailByLongestSideSet(session, imageIDs, size);
 %
-% See also: GETTHUMBNAIL, GETTHUMBNAILBYLONGESTSIDE,
-% GETTHUMBNAILBYLONGESTSIDESET
+% See also: GETTHUMBNAIL, GETTHUMBNAILBYLONGESTSIDE, GETTHUMBNAILSET
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -44,15 +43,12 @@ function thumbnails = getThumbnailSet(session, images, varargin)
 isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
 ip = inputParser();
 ip.addRequired('images', @(x) isa(x, 'omero.model.ImageI[]') || isvector(x));
-ip.addOptional('width', [], isposint);
-ip.addOptional('height', [], isposint);
+ip.addOptional('size', [], isposint);
 ip.parse(images, varargin{:});
 
-% Format input thumbnail dimensions
-width = ip.Results.width;
-height = ip.Results.height;
-if ~isempty(width), width = rint(width); end
-if ~isempty(height), height = rint(height); end
+% Format input thumbnail size
+size = ip.Results.size;
+if ~isempty(size), size = rint(size); end
 
 % Get the pixels from the image
 if ~isa(images, 'omero.model.ImageI[]'),
@@ -66,7 +62,7 @@ store = session.createThumbnailStore();
 % Retrieve thumbnail set
 pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
 pixelsIds = toJavaList(pixelsIds, 'java.lang.Long');
-thumbnailMap = store.getThumbnailSet(width, height, pixelsIds);
+thumbnailMap = store.getThumbnailByLongestSideSet(size, pixelsIds);
 store.close();
 
 % Fill cell array with thumbnails
