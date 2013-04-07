@@ -28,9 +28,25 @@ $(document).ready(function() {
         } else {
             $(".notTagged").hide();
         }
-    }
-
+    };
     $("input[name=Show_Untagged_Images]").click(updateNotTagged);
+
+
+    var updateRowCount = function(){
+        var colCount = parseInt($("input[name=Max_Columns]").val(), 10);
+        console.log(colCount);
+        $(".thumbnail_set td:has(.img_panel)").each(function(){
+            console.log(this);
+            var $td = $(this);
+            $("br", $td).remove();  // remove old <br>
+            console.log( $(":nth-child(" + colCount + "n)", $td) );
+            $(":nth-child(" + colCount + "n)", $td).after("<br/>");
+        });
+    };
+    $("input[name=Max_Columns]").keyup(updateRowCount);
+
+    updateRowCount();   // initialise layout
+
 
     var selectedTagIds = [];
     $("select[name=Tag_IDs]")
@@ -129,7 +145,7 @@ $(document).ready(function() {
 
 
                 // Update the UI
-                var $toRemove = $('tr:has(th)', $this);
+                var $toRemove = $('tr:has(.img_panel)', $this);
 
                 // For each Tag combination... (E.g. 'Metaphase'+'Dead')
                 var topLevelTag = "";
@@ -165,6 +181,7 @@ $(document).ready(function() {
                 $toRemove.remove();
 
                 updateNotTagged();
+                updateRowCount();
             });
 
     });
