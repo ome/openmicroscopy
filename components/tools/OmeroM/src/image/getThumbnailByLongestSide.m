@@ -22,7 +22,7 @@ function thumbnail = getThumbnailByLongestSide(session, image, varargin)
 %      thumbnail = getThumbnailByLongestSide(session, imageID);
 %      thumbnail = getThumbnailByLongestSide(session, imageID, size);
 %
-% See also: GETTHUMBNAILSTORE, GETTHUMBNAIL
+% See also: GETTHUMBNAIL
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -44,14 +44,25 @@ function thumbnail = getThumbnailByLongestSide(session, image, varargin)
 % Input check
 isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
 ip = inputParser();
+ip.addRequired('image', @(x) isa(x, 'omero.model.ImageI') || isscalar(x));
 ip.addOptional('size', [], isposint);
-ip.parse(varargin{:});
+ip.parse(image, varargin{:});
 
-% Initialize raw pixels store
-store = getThumbnailStore(session, image);
+% Format input thumbnail size
+size = ip.Results.size;
+if ~isempty(size), size = rint(size); end
+
+% Get the image if image identifier is input
+if ~isa(image, 'omero.model.ImageI'),
+    image = getImages(session, ip.Results.image);
+    assert(numel(image) == 1, 'No image found with ID: %u', ip.Results.image);
+end
+
+% Create store to retrieve thumbnails and set pixels Id
+store = session.createThumbnailStore();
+store.setPixelsId(image.getPrimaryPixels().getId().getValue());
 
 % Retrieve thumbnail set
-if ~isempty(ip.Results.size), size = rint(ip.Results.size); else size = []; end
 byteArray = store.getThumbnailByLongestSide(size);
 store.close();
 
