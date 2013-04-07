@@ -4,23 +4,23 @@ function thumbnail = getThumbnail(session, image, varargin)
 %   thumbnail = getThumbnail(session, image) returns the thumbnail from the
 %   input image.
 %
-%   thumbnail = getThumbnail(session, image, x, y) also returns a thumbnail
-%   of dimensions (x, y). 
+%   thumbnail = getThumbnail(session, image, width, height) also sets the
+%   width and the height of the thumbnail.
 %
 %   thumbnail = getThumbnail(session, imageID) returns the thumbnail from
 %   the input image identifier.
 %
-%   thumbnail = getThumbnail(session, imageID, x, y) also returns a
-%   thumbnail of dimensions (x, y). 
+%   thumbnail = getThumbnail(session, imageID, width, height) also sets the
+%   width and the height of the thumbnail.
 %
 %   Examples:
 %
 %      thumbnail = getThumbnail(session, image);
-%      thumbnail = getThumbnail(session, image, x, y);
+%      thumbnail = getThumbnail(session, image, width, height);
 %      thumbnail = getThumbnail(session, imageID);
-%      thumbnail = getThumbnail(session, imageID, x, y);
+%      thumbnail = getThumbnail(session, imageID, width, height);
 %
-% See also: GETTHUMBNAILSTORE, GETTHUMBNAILBYLONGESTSIDE
+% See also: GETTHUMBNAILBYLONGESTSIDE
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -42,17 +42,29 @@ function thumbnail = getThumbnail(session, image, varargin)
 % Input check
 isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
 ip = inputParser();
-ip.addOptional('x', [], isposint);
-ip.addOptional('y', [], isposint);
-ip.parse(varargin{:});
+ip.addRequired('image', @(x) isa(x, 'omero.model.ImageI') || isscalar(x));
+ip.addOptional('width', [], isposint);
+ip.addOptional('height', [], isposint);
+ip.parse(image, varargin{:});
 
-% Initialize raw pixels store
-store = getThumbnailStore(session, image);
+% Format input thumbnail dimensions
+width = ip.Results.width;
+height = ip.Results.height;
+if ~isempty(width), width = rint(width); end
+if ~isempty(height), height = rint(height); end
 
-% Retrieve thumbnail set
-if ~isempty(ip.Results.x), x = rint(ip.Results.x); else x = []; end
-if ~isempty(ip.Results.y), y = rint(ip.Results.x); else y = []; end
-byteArray = store.getThumbnail(x, y);
+% Get the image if image identifier is input
+if ~isa(image, 'omero.model.ImageI'),
+    image = getImages(session, ip.Results.image);
+    assert(numel(image) == 1, 'No image found with ID: %u', ip.Results.image);
+end
+
+% Create store to retrieve thumbnails and set pixels Id
+store = session.createThumbnailStore();
+store.setPixelsId(image.getPrimaryPixels().getId().getValue());
+
+% Retrieve cache thumbnail
+byteArray = store.getThumbnail(width, height);
 store.close();
 
 % Convert byteArray into Matlab image
