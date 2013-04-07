@@ -21,9 +21,20 @@ $(document).ready(function() {
 
     $("select[name=Tag_IDs] option").removeAttr('selected');
 
+    var updateNotTagged = function() {
+        var show_untagged_images = $("input[name=Show_Untagged_Images]").is(":checked");
+        if (show_untagged_images) {
+            $(".notTagged").show();
+        } else {
+            $(".notTagged").hide();
+        }
+    }
+
+    $("input[name=Show_Untagged_Images]").click(updateNotTagged);
+
     var selectedTagIds = [];
     $("select[name=Tag_IDs]")
-        .chosen({placeholder_text:'Choose one or more groups'})
+        .chosen({placeholder_text:'Choose Tags'})
         .change(function(evt, data) {
             if (data.deselected) {
                 var toRemove = data.deselected;
