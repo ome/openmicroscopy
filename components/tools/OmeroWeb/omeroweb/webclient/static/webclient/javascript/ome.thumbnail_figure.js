@@ -151,20 +151,47 @@ $(document).ready(function() {
                     } else {
                         $td.append('<div>'+ tagsText.replace(topLevelTag, "") + '</div>');
                     }
+                    if (tagsText === "Not Tagged") {
+                        $tr.addClass('notTagged');
+                    }
 
                     // Add the images (move from previous position)...
                     for (var i=0; i<tagData.imgIds.length; i++) {
-                        $('#thumbnail-'+tagData.imgIds[i]).appendTo($td);
+                        $('#thumbnail-'+tagData.imgIds[i]).show().appendTo($td);
                     }
 
                 }
                 // now that we've moved the images, we can clean up!
                 $toRemove.remove();
+
+                updateNotTagged();
             });
 
     });
 
-
     $(".chzn-container").width('350px');
+
+    // Bonus feature - Zoom the preview thumbs with slider
+    // Make a list of styles (for quick access on zoom)
+    var img_panel_styles = [];
+    $(".img_panel").each(function(){
+        img_panel_styles.push(this.style);
+    });
+    var setImgSize = function(size) {
+        console.log(size);
+        var i, l = img_panel_styles.length;
+        for (i=0; i<l; i++) {
+            img_panel_styles[i].maxWidth = size + "px";
+            img_panel_styles[i].maxHeight = size + "px";
+        }
+    };
+    $("#img_size_slider").slider({
+        max: 96,
+        min: 20,
+        value: 50,
+        slide: function(event, ui) {
+            setImgSize(ui.value);
+        }
+    });
 
 });
