@@ -103,21 +103,13 @@
 
         <span>
             Images per row:
-            <input type="text" name="Max_Columns" class="number" size="3" value="10"  />
+            <input type="number" name="Max_Columns" class="number" size="3" value="10"  />
         </span>
 
         <hr/>
 
         <!-- Allow user to pick Tags for filtering -->
-        <span title="Sort thumbnails by Tags">
-            Select by tag:
-            <input type="checkbox" name="Select_by_tag" />
-        </span>
-        <br>
-        <span title="Include images that have none of the chosen tags">
-            Include all thumbnails:
-            <input type="checkbox" name="Show_Untagged_Images" checked/>
-        </span>
+        <h2>Sort by Tag</h2>
 
         <!-- <input type="text" name="Tag_IDs" style="display:none"/> -->
 
@@ -126,6 +118,12 @@
                 <option value="{{ t.id }}">{{ t.getTextValue }}</option>
             {% endfor %}
         </select>
+
+        <span title="Include images that have none of the chosen tags"
+                style="position:relative; top: -10px">
+            Include all thumbnails:
+            <input type="checkbox" name="Show_Untagged_Images" checked/>
+        </span>
 
         <!-- TODO: Do we do anything with this? -->
         <input type="text" name="Parent_ID" class="number"  style="display:none"/>
