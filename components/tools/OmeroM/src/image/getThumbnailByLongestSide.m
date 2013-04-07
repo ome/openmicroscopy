@@ -22,7 +22,7 @@ function thumbnail = getThumbnailByLongestSide(session, image, varargin)
 %      thumbnail = getThumbnailByLongestSide(session, imageID);
 %      thumbnail = getThumbnailByLongestSide(session, imageID, size);
 %
-% See also: GETTHUMBNAIL
+% See also: GETTHUMBNAIL, GETTHUMBNAILSET
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
