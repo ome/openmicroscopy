@@ -113,9 +113,10 @@
         <!-- Allow user to pick Tags for filtering -->
         <h2>Sort by Tag</h2>
 
-        <!-- <input type="text" name="Tag_IDs" style="display:none"/> -->
+        <!-- Since the Tags <select> with Chosen doesn't remember order... -->
+        <input type="text" name="Tag_IDs" style="display:none"/>
 
-        <select name="Tag_IDs" multiple="multiple">
+        <select id="tagChooser" multiple="multiple">
             {% for t in tags %}
                 <option value="{{ t.id }}">{{ t.getTextValue }}</option>
             {% endfor %}
