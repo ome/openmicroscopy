@@ -210,7 +210,10 @@
 
         <if>
             <and>
-                <contains string="${os.arch}" substring="x86_64"/>
+                <or>
+                    <contains string="${os.arch}" substring="x86_64"/>
+                    <contains string="${os.arch}" substring="amd64"/>
+                </or>
                 <contains string="${java.version}" substring="1.6" casesensitive="false" />
             </and>
             <then>
