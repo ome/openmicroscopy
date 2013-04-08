@@ -205,6 +205,7 @@ omero.version=${omero.version}
 				<jvmarg value="-Domero.db.user=${omero.db.user}"/>
 				<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
 				<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
+                                <jvmarg value="-Domero.db.poolsize=${omero.db.poolsize}"/>
 			</testng>
 		</presetdef>
 	</target>
