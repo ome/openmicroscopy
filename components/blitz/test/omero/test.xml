@@ -22,6 +22,8 @@
  <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
  <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
 
+ <bean id="roles" class="ome.system.Roles"/>
+
  <bean id="mockDeclarer" class="ome.services.blitz.test.mock.MockDeclarer">
    <constructor-arg>
      <map>
@@ -93,7 +95,7 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
-  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
+  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">
     <property name="cacheManager"  ref="cacheManager"/>
     <property name="updateInterval" value="1800000"/><!-- ms -->
   </bean>
@@ -120,7 +122,6 @@
   <bean id="ring" class="ome.services.blitz.fire.Ring">
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
-    <constructor-arg ref="sessionCache"/>
   </bean>
 
   <!--  TODO: it might be better to refactor all IO into one module -->
