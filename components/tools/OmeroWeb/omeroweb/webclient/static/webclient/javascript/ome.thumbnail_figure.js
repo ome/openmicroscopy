@@ -19,7 +19,7 @@
 $(document).ready(function() {
 
 
-    $("select[name=Tag_IDs] option").removeAttr('selected');
+    $("#tagChooser option").removeAttr('selected');
 
     var updateNotTagged = function() {
         var show_untagged_images = $("input[name=Show_Untagged_Images]").is(":checked");
@@ -48,8 +48,9 @@ $(document).ready(function() {
     updateRowCount();   // initialise layout
 
 
+    var $TagIdsInput = $("input[name=Tag_IDs]");
     var selectedTagIds = [];
-    $("select[name=Tag_IDs]")
+    $("#tagChooser")
         .chosen({placeholder_text:'Choose Tags'})
         .change(function(evt, data) {
             if (data.deselected) {
@@ -58,9 +59,12 @@ $(document).ready(function() {
             } else if (data.selected) {
                 selectedTagIds.push(data.selected);
             }
+            // update input for form submission
+            $TagIdsInput.val(selectedTagIds.join(","));
+
             var tagValues = {};
             // Have to look-up the Tag names from the UI
-            $("select[name=Tag_IDs] option:selected").each(function(){
+            $("#tagChooser option:selected").each(function(){
                 var $this = $(this);
                 tagValues[$this.attr('value')] = $this.text();
             });
