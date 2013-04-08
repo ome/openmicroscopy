@@ -6317,6 +6317,21 @@ class _ImageWrapper (BlitzObjectWrapper):
             pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
 
+    @assert_re()
+    def getZoomLevelScaling(self):
+        """
+        Returns a dict of zoomLevels:scale (fraction) for tiled 'Big' images.
+        E.g. {0: 1.0, 1: 0.25, 2: 0.062489446727078291, 3: 0.031237687848258006}
+        Returns None if this image doesn't support tiles.
+        """
+        if not self._re.requiresPixelsPyramid():
+            return None
+        rv = {}
+        levelCount = self._re.getResolutionLevels()-1
+        for i in range(levelCount):
+            rv[i] = 1.0 / 2 ** i
+        return rv
+
     def setActiveChannels(self, channels, windows=None, colors=None):
         """
         Sets the active channels on the rendering engine.
