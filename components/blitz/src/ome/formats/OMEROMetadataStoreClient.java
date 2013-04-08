@@ -1795,7 +1795,7 @@ public class OMEROMetadataStoreClient
 			if (path.contains(ORIGINAL_METADATA_KEY))
 			{
 				String[] tokens = entry.getKey().split("/");
-				if (tokens.length > 1 && path.endsWith(tokens[tokens.length - 2]))
+				if (tokens.length > 1 && path.endsWith(File.separator + tokens[tokens.length - 2]))
 				{
 					return entry.getValue();
 				}
@@ -1818,7 +1818,7 @@ public class OMEROMetadataStoreClient
      * @throws IOException in the event of an IO error during upload
      * @throws ServerError propagated up from the raw file store proxy to which upload occurs
      */
-    public void writeFilesToFileStore(List<File> files, Map<String, OriginalFile> originalFileMap) 
+    public void writeFilesToFileStore(List<File> files, Map<String, OriginalFile> originalFileMap)
             throws IOException, ServerError {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
@@ -1845,9 +1845,11 @@ public class OMEROMetadataStoreClient
                 rawFileStore.setFileId(originalFile.getId().getValue());
                 int rlen = 0;
                 long offset = 0;
-                while (stream.available() != 0)
-                {
+                while (true) {
                     rlen = stream.read(buf);
+                    if (rlen == -1) {
+                        break;
+                    }
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
                     hasher.putBytes(buf, 0, rlen);
