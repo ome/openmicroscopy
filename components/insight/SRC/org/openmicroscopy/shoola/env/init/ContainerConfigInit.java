@@ -165,8 +165,11 @@ public final class ContainerConfigInit
     			case LookupNames.IMAGE_J:
     				String title = IJ.getInstance().getTitle();
     				title = title.toLowerCase();
-    				if (FIJI.equals(title) || IMAGE_J2.equals(title))
-    					break;
+    				if (title != null) {
+    					if (title.contains(FIJI) || title.equals(IMAGE_J2))
+        					break;
+    				}
+    				
     				while (i.hasNext()) {
 						info = i.next();
 						b = handlePluginDependencies(info);
