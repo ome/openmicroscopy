@@ -56,6 +56,15 @@ public class FileBuffer extends AbstractBuffer {
     }
 
     /**
+     * Flush the buffer, writing any pending content to the underlying storage device.
+     * @throws IOException an I/O error that occurred
+     */
+    public void flush() throws IOException {
+        if (channel != null)
+            channel.force(false);
+    }
+
+    /**
      * Retrieve the NIO channel that corresponds to this file.
      * 
      * @return the file channel.
@@ -127,9 +136,5 @@ public class FileBuffer extends AbstractBuffer {
             fc.truncate(size);
             return true;
         }
-    }
-
-    public void force(boolean metadata) throws IOException {
-        getFileChannel().force(metadata);
     }
 }
