@@ -1,24 +1,24 @@
-function thumbnails = getThumbnailSet(session, images, varargin)
+function thumbnailSet = getThumbnailSet(session, images, varargin)
 % GETTHUMBNAILSET Retrieve a set of thumbnails from images on the OMERO server
 %
-%   thumbnails = getThumbnailSet(session, images) returns a set of
+%   thumbnailSet = getThumbnailSet(session, images) returns a set of cache
 %   thumbnails from a series of input images.
 %
-%   thumbnails = getThumbnailSet(session, images, width, height) also sets
-%   the width and the height of the thumbnails.
+%   thumbnailSet = getThumbnailSet(session, images, width, height) also 
+%   sets the width and the height of the thumbnails.
 %
-%   thumbnails = getThumbnailSet(session, imageIDs) returns a set of
-%   thumbnails from a series of input image identifiers.
+%   thumbnailSet = getThumbnailSet(session, imageIDs) returns a set of
+%   cache thumbnails from a series of input image identifiers.
 %
-%   thumbnails = getThumbnailSet(session, imageIDs,  width, height) also
+%   thumbnailSet = getThumbnailSet(session, imageIDs,  width, height) also
 %   sets the width and the height of the thumbnails.
 %
 %   Examples:
 %
-%      thumbnails = getThumbnailSet(session, images);
-%      thumbnails = getThumbnailSet(session, images, width, height);
-%      thumbnails = getThumbnailSet(session, imageIDs);
-%      thumbnails = getThumbnailSet(session, imageIDs, width, height);
+%      thumbnailSet = getThumbnailSet(session, images);
+%      thumbnailSet = getThumbnailSet(session, images, width, height);
+%      thumbnailSet = getThumbnailSet(session, imageIDs);
+%      thumbnailSet = getThumbnailSet(session, imageIDs, width, height);
 %
 % See also: GETTHUMBNAIL, GETTHUMBNAILBYLONGESTSIDE,
 % GETTHUMBNAILBYLONGESTSIDESET
@@ -64,20 +64,26 @@ end
 store = session.createThumbnailStore();
 
 % Retrieve thumbnail set
+imageIds = arrayfun(@(x) x.getId().getValue(), images);
 pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
-pixelsIds = toJavaList(pixelsIds, 'java.lang.Long');
-thumbnailMap = store.getThumbnailSet(width, height, pixelsIds);
+thumbnailMap = store.getThumbnailSet(width, height,...
+    toJavaList(pixelsIds, 'java.lang.Long'));
 store.close();
 
-% Fill cell array with thumbnails
-iterator = thumbnailMap.values().iterator();
-thumbnails = cell(1, thumbnailMap.size);
-i = 0;
-while iterator.hasNext()
-    i = i + 1;
+% Fill cell array with thumbnailst
+nThumbnails = thumbnailMap.size;
+iterator = thumbnailMap.entrySet().iterator();
+thumbnailSet(1 : nThumbnails) = struct('image', [], 'pixels', [], 'thumbnail', []);
+
+for i = 1 : nThumbnails
+    % Read pairs and store pixels and image ID
+    pairs = iterator.next();
+    thumbnailSet(i).pixels = pairs.getKey();
+    thumbnailSet(i).image = imageIds(pixelsIds == pairs.getKey());
+    
     % Convert byteArray into Matlab image
-    stream = java.io.ByteArrayInputStream(iterator.next());
+    stream = java.io.ByteArrayInputStream(pairs.getValue());
     image = javax.imageio.ImageIO.read(stream);
     stream.close();
-    thumbnails{i} = JavaImageToMatlab(image);
+    thumbnailSet(i).thumbnail = JavaImageToMatlab(image);
 end
