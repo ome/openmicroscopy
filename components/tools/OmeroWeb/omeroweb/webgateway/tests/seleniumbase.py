@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # webgateway/tests/seleniumbase.py - Helpers to implement selenium tests
 # 

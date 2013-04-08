@@ -161,6 +161,16 @@ public class ImportEvent {
             super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
                     exception);
         }
+
+        @Override
+        public String toLog() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toLog());
+            sb.append(String.format(" uploaded: %d of: %d bytes",
+                    uploadedBytes, contentLength));
+            return sb.toString();
+        }
+
     }
 
     public static class FILE_UPLOAD_COMPLETE extends FILE_UPLOAD_EVENT {

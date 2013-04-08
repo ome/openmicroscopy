@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright © 2006-2009 Steven J. Bethard <steven.bethard@gmail.com>.

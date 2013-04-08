@@ -30,7 +30,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -47,15 +46,16 @@ import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
-import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 import ome.util.messages.InternalMessage;
 
 import omero.InternalException;
@@ -124,12 +124,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final RepositoryDao repositoryDao;
 
+    protected final ChecksumProviderFactory checksumProviderFactory;
+
     protected OmeroContext context;
 
     private String repoUuid;
 
-    public PublicRepositoryI(RepositoryDao repositoryDao) throws Exception {
+    public PublicRepositoryI(RepositoryDao repositoryDao,
+            ChecksumProviderFactory checksumProviderFactory) throws Exception {
         this.repositoryDao = repositoryDao;
+        this.checksumProviderFactory = checksumProviderFactory;
         this.repoUuid = null;
     }
 
@@ -386,7 +390,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             return ofile;
         }
 
-        if (checked.file.exists()) {
+        if (checked.exists()) {
             omero.grid.UnregisteredFileException ufe
                 = new omero.grid.UnregisteredFileException();
             ofile = (OriginalFile) new IceMapper().map(checked.asOriginalFile(null));
@@ -575,11 +579,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         while (paths.size() > 1) { // Only possible if `parents`
             checked = paths.removeFirst();
 
-            if (checked.file.exists()) {
-                if (!checked.file.isDirectory()) {
+            if (checked.exists()) {
+                if (!checked.isDirectory()) {
                     throw new omero.ResourceError(null, null,
                             "Path is not a directory.");
-                } else if (!checked.file.canRead()) {
+                } else if (!checked.canRead()) {
                     throw new omero.ResourceError(null, null,
                             "Directory is not readable");
                 }
@@ -595,12 +599,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
         // Now we are ready to work on the actual intended path.
         checked = paths.removeFirst(); // Size is now empty
-        if (checked.file.exists()) {
+        if (checked.exists()) {
             if (parents) {
                 assertFindDir(checked, __current);
             } else {
                 throw new omero.ResourceError(null, null,
-                    "Path exists on disk:" + checked.file);
+                    "Path exists on disk: " + checked.fsFile);
             }
         }
         repositoryDao.register(repoUuid, checked,
@@ -630,7 +634,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     protected CheckedPath checkPath(final String path, final Ice.Current curr)
             throws ValidationException {
-        return new CheckedPath(this.serverPaths, path);
+        return new CheckedPath(this.serverPaths, path,
+                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
     }
 
     /**
@@ -648,7 +653,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
-        final CheckedPath checked = new CheckedPath(this.serverPaths, file.toString());
+        final CheckedPath checked = new CheckedPath(this.serverPaths,file.toString(),
+                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
         checked.setId(id);
         return checked;
     }
@@ -656,9 +662,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     private void assertFindDir(final CheckedPath checked, final Ice.Current curr)
         throws omero.ServerError {
         if (null == repositoryDao.findRepoFile(repoUuid, checked, null, curr)) {
-            omero.ResourceError re = new omero.ResourceError(null, null,
-                    "Directory exists but is not registered: " + checked);
-            IceMapper.fillServerError(re, new RuntimeException());
+            omero.ResourceError re = new omero.ResourceError();
+            IceMapper.fillServerError(re, new RuntimeException(
+                    "Directory exists but is not registered: " + checked));
             throw re;
         }
     }

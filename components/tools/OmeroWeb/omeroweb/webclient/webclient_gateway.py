@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # 
 # webclient_gateway
 # 
@@ -345,7 +346,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         params.map = {}
         params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
         
-        sql = "select tg from TagAnnotation tg where ((ns=:ns) or (ns is null and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
+        sql = "select tg from TagAnnotation tg where ((ns=:ns) or ((ns is null or ns='') and not exists ( select aal from AnnotationAnnotationLink as aal where aal.child=tg.id))) "
         if eid is not None:
             params.map["eid"] = rlong(long(eid))
             sql+=" and tg.details.owner.id = :eid"
@@ -2131,6 +2132,12 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
             logger.error('Failed to load channels:', exc_info=True)
             return None
 
+    def showOriginalFilePaths (self):
+        """
+        This determines whether we want to show the paths of
+        Original Imported Files.
+        """
+        return super(ImageWrapper, self).countFilesetFiles() > 0
 
 omero.gateway.ImageWrapper = ImageWrapper
 

@@ -699,5 +699,21 @@ public interface Renderer
 	 * @param channels The channels to handle.
 	 */
 	void onUpdatedChannels(List<ChannelData> channels);
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate();
 
+	/**
+	 * Returns the collection of rendering controls. This method should only 
+	 * be invoked when loading tiles.
+	 * 
+	 * @return See above.
+	 */
+	List<RenderingControl> getRenderingControls();
+	
 }

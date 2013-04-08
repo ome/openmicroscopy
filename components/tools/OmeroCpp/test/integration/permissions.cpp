@@ -114,5 +114,8 @@ TEST( PermissionsTest, testAdjustPermissions ) {
     assertPerms("creator can ann/edit", f.client, c, true, true);
     f.login(user2);
     assertPerms("group member can't ann/edit", f.client, c, false, false);
+    
+    // Search all groups for the annotation
+    f.root->getImplicitContext()->put("omero.group", "-1");
     assertPerms("root can ann/edit", f.root, c, true, true);
 }

@@ -24,15 +24,25 @@
 {% if manager.containers.orphaned %}
     {% if manager.containers.images %}
     {% for d in manager.containers.images %}
-        <li id='image-{{ d.id }}' rel="image{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}"><a href="#">{{ d.name|default:"Image"|truncatebefor:"30" }}</a>
+        <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}"><a href="#">{{ d.name|default:"Image"|truncatebefor:"30" }}</a>
         </li>
     {% endfor %}
     {% endif %}
 {% else %}
     {% if manager.containers.images %}
     {% for d in manager.containers.images %}
-        <li id='image-{{ d.id }}' rel="image{% if not d.canEdit %}-locked{% endif %}" class="{{ d.getPermsCss }}"><a href="#">{{ d.name|default:"Image"|truncatebefor:"30" }}</a>
+        <li id='image-{{ d.id }}' rel="image{% if not d.isOwned %}-locked{% endif %}" class="{{ d.getPermsCss }}"><a href="#">{{ d.name|default:"Image"|truncatebefor:"30" }}</a>
         </li>
     {% endfor %}
+    {% endif %}
+{% endif %}
+
+{% if manager.plate %}
+    {% if manager.plate.countPlateAcquisitions %}
+        {% for e in manager.plate.listPlateAcquisitions %}
+            <li id='acquisition-{{ e.id }}' rel="acquisition{% if not e.isOwned %}-locked{% endif %}" class="{{ e.getPermsCss }}">
+                <a href="#">{{ e.name|default:"Run"|truncatebefor:"35" }}</a>
+            </li>
+        {% endfor %}
     {% endif %}
 {% endif %}

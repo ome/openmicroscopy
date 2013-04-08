@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 
    Copyright 2009 Glencoe Software, Inc. All rights reserved.
@@ -185,6 +186,11 @@ class BaseClient(object):
         id.properties.setProperty("Ice.Plugin.IceSSL" , "IceSSL:createIceSSL")
         id.properties.setProperty("IceSSL.Ciphers" , "ADH")
         id.properties.setProperty("IceSSL.VerifyPeer" , "0")
+
+        # Setting block size
+        blockSize = id.properties.getProperty("omero.block_size")
+        if not blockSize or len(blockSize) == 0:
+            id.properties.setProperty("omero.block_size", str(omero.constants.DEFAULTBLOCKSIZE))
 
         # Setting MessageSizeMax
         messageSize = id.properties.getProperty("Ice.MessageSizeMax")
@@ -414,6 +420,16 @@ class BaseClient(object):
             for k,v in properties.getPropertiesForPrefix(prefix).items():
                 rv[k] = v
         return rv
+
+    def getDefaultBlockSize(self):
+        """
+        Returns the user-configured "omero.block_size" property or
+        omero.constants.DEFAULTBLOCKSIZE if none is set.
+        """
+        try:
+            return int(self.getProperty("omero.block_size"))
+        except:
+            return omero.constants.DEFAULTBLOCKSIZE
 
     def joinSession(self, session):
         """

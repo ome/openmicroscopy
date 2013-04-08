@@ -17,6 +17,7 @@ import ome.services.blitz.repo.TemporaryRepositoryI;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.testing.MockServiceFactory;
+import ome.util.checksum.ChecksumProviderFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -37,6 +38,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
     MockFixture fixture;
     ObjectAdapter oa;
     Registry reg;
+    ChecksumProviderFactory cpf;
 
     @BeforeClass
     public void setup() throws Exception {
@@ -46,6 +48,9 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
         Mock mockReg = mock(Registry.class);
         reg = (Registry) mockReg.proxy();
         mockReg.expects(atLeastOnce()).method("addObject");
+        Mock mockCpf = mock(ChecksumProviderFactory.class);
+        cpf = (ChecksumProviderFactory) mockCpf.proxy();
+        mockCpf.expects(atLeastOnce()).method("getProvider()");
     }
 
     @Test
@@ -68,7 +73,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
 
         Principal p = new Principal("session");
         TemporaryRepositoryI tr = new TemporaryRepositoryI(oa, reg, fixture.ex,
-                p, new PublicRepositoryI(new RepositoryDaoImpl(p, fixture.ex)));
+                p, new PublicRepositoryI(new RepositoryDaoImpl(p, fixture.ex), cpf));
         fixture.mock("executorMock").expects(atLeastOnce()).method("execute")
                 .will(new Stub() {
 

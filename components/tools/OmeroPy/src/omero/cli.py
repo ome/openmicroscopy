@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 Python driver for OMERO
@@ -959,7 +960,7 @@ class CLI(cmd.Cmd, Context):
 
     def _cwd(self, cwd):
         if cwd is None:
-            cwd = str(OMERODIR)
+            cwd = str(self.dir)
         else:
             cwd = str(cwd)
         return cwd
@@ -982,7 +983,7 @@ class CLI(cmd.Cmd, Context):
 
     def readDefaults(self):
         try:
-            f = path(OMERODIR) / "etc" / "omero.properties"
+            f = path(self._cwd(None)) / "etc" / "omero.properties"
             f = f.open()
             output = "".join(f.readlines())
             f.close()
@@ -1015,7 +1016,7 @@ class CLI(cmd.Cmd, Context):
 
         from omero.plugins.prefs import getprefs
         try:
-            output = getprefs(["get"], str(OMERODIR / "lib"))
+            output = getprefs(["get"], str(path(self._cwd(None)) / "lib"))
         except OSError, err:
             self.err("Error getting preferences")
             self.dbg(err)
@@ -1262,7 +1263,7 @@ class GraphArg(object):
 class CmdControl(BaseControl):
 
     def cmd_type(self):
-        raise Exception("Must be overriden by subclasses")
+        raise Exception("Must be overridden by subclasses")
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)
@@ -1369,7 +1370,7 @@ class CmdControl(BaseControl):
 class GraphControl(CmdControl):
 
     def cmd_type(self):
-        raise Exception("Must be overriden by subclasses")
+        raise Exception("Must be overridden by subclasses")
 
     def _configure(self, parser):
         parser.set_defaults(func=self.main_method)

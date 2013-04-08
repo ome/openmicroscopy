@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Gateway test suite.
@@ -29,6 +30,7 @@ def _additional_tests():
     suite.addTest(load("gatewaytest.pixels"))
     suite.addTest(load("gatewaytest.delete"))
     suite.addTest(load("gatewaytest.z_db_cleanup"))
+    suite.addTest(load("gatewaytest.fs"))
     return suite
 
 if __name__ == '__main__':

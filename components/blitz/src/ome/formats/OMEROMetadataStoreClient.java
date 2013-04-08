@@ -441,6 +441,28 @@ public class OMEROMetadataStoreClient
     }
 
     /**
+     * @return user-configured "omero.block_size" or {@link omero.constants.DEFAULTBLOCKSIZE}
+     * if none is set.
+     */
+    public int getDefaultBlockSize()
+    {
+        if (c != null)
+        {
+            try
+            {
+                return Integer.valueOf(c.getProperty("omero.block_size"));
+            }
+
+            catch (Exception e)
+            {
+                // pass. Return default
+            }
+
+        }
+        return omero.constants.DEFAULTBLOCKSIZE.value;
+    }
+
+    /**
      * @return IQuery proxy
      */
     public IQueryPrx getIQuery()
@@ -1566,7 +1588,7 @@ public class OMEROMetadataStoreClient
 	}
 
 	/**
-	 * Retrieve teh default groups permission 'level'.
+	 * Retrieve the default group's permission 'level'.
 	 *
 	 * @return ImportEvent's group level
 	 * @throws ServerError

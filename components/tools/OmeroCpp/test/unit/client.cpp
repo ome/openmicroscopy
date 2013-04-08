@@ -6,12 +6,15 @@
  *
  */
 
+#include <map>
+#include <string>
 #include <omero/model/PermissionsI.h>
 #include <omero/fixture.h>
 
+using namespace std;
+
 TEST(ClientTest, UnconfiguredClient )
 {
-  Fixture f;
   int argc = 1;
   char* argv[] = {(char*)"--omero.host=localhost", 0};
   omero::client_ptr c = new omero::client(argc, argv);
@@ -19,7 +22,6 @@ TEST(ClientTest, UnconfiguredClient )
 
 TEST(ClientTest, ClientWithInitializationData )
 {
-  Fixture f;
   int argc = 0;
   char** argv = {0};
   Ice::InitializationData id;
@@ -30,7 +32,6 @@ TEST(ClientTest, ClientWithInitializationData )
 
 TEST(ClientTest, ClientWithInitializationData2 )
 {
-  Fixture f;
   int argc = 2;
   const char* argv[] = {"program", "--omero.host=localhost",0};
   Ice::StringSeq args = Ice::argsToStringSeq(argc, const_cast<char**>(argv));
@@ -40,4 +41,31 @@ TEST(ClientTest, ClientWithInitializationData2 )
   omero::client_ptr c = new omero::client(id);
   std::string s = c->getProperty("omero.host");
   ASSERT_EQ("localhost", s);
+}
+
+TEST(ClientTest, BlockSizeDefault)
+{
+  int argc = 0;
+  char* argv[] = {0};
+  omero::client_ptr c = new omero::client(argc, argv);
+  ASSERT_EQ(5000000, c->getDefaultBlockSize());
+}
+
+TEST(ClientTest, BlockSize1MB)
+{
+
+  int argc = 1;
+  char* argv[] = {(char*)"--omero.block_size=1000000", 0};
+  omero::client_ptr c = new omero::client(argc, argv);
+  ASSERT_EQ(1000000, c->getDefaultBlockSize());
+}
+
+TEST(ClientTest, testCreateFromMap)
+{
+    map<string, string> props;
+    props["omero.host"] = "localhost";
+
+    omero::client_ptr client = new omero::client(props, false);
+    std::string s = client->getProperty("omero.host");
+    ASSERT_EQ("localhost", s);
 }

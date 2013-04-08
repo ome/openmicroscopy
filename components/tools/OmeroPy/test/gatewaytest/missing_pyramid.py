@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    gateway tests - Testing various methods on a Big image when renderingEngine.load() etc throws MissingPyramidException

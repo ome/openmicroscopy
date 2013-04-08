@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.imviewer.browser.BrowserUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -111,10 +111,9 @@ class BrowserUI
     private void setBirdEyeViewLocation()
     {
     	if (birdEyeView == null) return;
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Point p = new Point(0, 0);
 		p = SwingUtilities.convertPoint(getViewport(), p, glass);
-		birdEyeView.setLocation(p);
 		switch (birdEyeView.getLocationIndex()) {
 			case ImageCanvas.BOTTOM_RIGHT:
 				Dimension d = birdEyeView.getSize();
@@ -127,28 +126,41 @@ class BrowserUI
 		}
     }
     
-    /** 
-     * Displays the region of the image selected using the bird eye view.
+    /**
+     * Converts the bird eye location to screen location.
      * 
-     * @param region See above.
+     * @param region The region to convert.
+     * @return See above.
      */
-    private void displaySelectedRegion(Rectangle region)
+    private Rectangle convertFromSelection(Rectangle region)
     {
-    	if (region == null) return;
-    	Dimension d = birdEyeView.getSize();
+    	Dimension d = birdEyeView.getImageSize();
     	Rectangle rl = canvas.getBounds();
-    	int sizeX = rl.width;//model.getMaxX()/2;
-    	int sizeY = rl.height;//model.getMaxY()/2;
+    	int sizeX = rl.width;
+    	int sizeY = rl.height;
     	double vx = sizeX/d.width;
     	double vy = sizeY/d.height;
     	int x = (int) (vx*region.x);
     	int y = (int) (vy*region.y);
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
-    	Rectangle r = new Rectangle(x, y, w, h);
-    	model.checkTilesToLoad(r);
-    	//scrollTo(r, false);		
-    	getViewport().setViewPosition(new Point(r.x, r.y));
+    	return new Rectangle(x, y, w, h);
+    }
+
+    /** 
+     * Displays the region of the image selected using the bird eye view.
+     * 
+     * @param region See above.
+     * @param load Pass <code>true</code> to load the tiles, <code>false</code>
+     * otherwise.
+     */
+    private void displaySelectedRegion(Rectangle region, boolean load)
+    {
+    	if (region == null) return;
+    	Rectangle r = convertFromSelection(region);
+    	getViewport().setViewPosition(new Point(-1, -1));
+    	scrollTo(r, false);
+    	if (load) model.loadTiles(null);
     	setBirdEyeViewLocation();
     }
     
@@ -156,27 +168,31 @@ class BrowserUI
     private void setSelectionRegion()
     {
     	if (birdEyeView == null) return;
-    	Dimension d = birdEyeView.getSize();
+    	Dimension d = birdEyeView.getImageSize();
     	if (d.width == 0 || d.height == 0) return;
-    	Rectangle r = getViewport().getViewRect();
-    	Rectangle rl = canvas.getBounds();
-    	int sizeX = rl.width;
-    	int sizeY = rl.height;
+    	Rectangle rect = getVisibleRectangle();
+
+    	int sizeX = model.getTiledImageSizeX();
+    	int sizeY = model.getTiledImageSizeY();
     	int rx = sizeX/d.width;
     	int ry = sizeY/d.height;
     	if (rx == 0) rx = 1;
     	if (ry == 0) ry = 1;
-    	int x = (int) (r.x/rx);
-    	int y = (int) (r.y/ry);
-    	int w = (int) (r.width/rx);
-    	int h = (int) (r.height/ry);
+    	int w = (int) (rect.width/rx);
+    	int h = (int) (rect.height/ry);
+		int x = (int) (rect.x/rx);
+		int y = (int) (rect.y/ry);
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		
+    	
     	birdEyeView.setSelection(x, y, w, h);
     }
     
 	/** Centers the image.*/
 	private void center()
 	{
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Dimension d = layeredPane.getPreferredSize();
 		int xLoc = ((r.width-d.width)/2);
 		int yLoc = ((r.height-d.height)/2);
@@ -188,7 +204,6 @@ class BrowserUI
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		setSelectionRegion();
 		setBirdEyeViewLocation();
 	}
 	
@@ -214,7 +229,7 @@ class BrowserUI
         	 * @see MouseListener#mouseReleased(MouseEvent)
         	 */
         	public void mouseReleased(MouseEvent e) {
-				 installScrollbarListener(false);
+				installScrollbarListener(false);
 			}
         	
         	/**
@@ -223,7 +238,6 @@ class BrowserUI
         	 */
         	public void mousePressed(MouseEvent e) {
 				installScrollbarListener(true);
-				
 			}
 		};
         getVerticalScrollBar().addMouseListener(adapter);
@@ -313,7 +327,6 @@ class BrowserUI
     void addComponentToLayer(Component c, boolean reset)
     {
     	Component[] components = layeredPane.getComponents();
-    	int count = components.hashCode();
     	for (int i = 0; i < components.length; i++) {
 			if (components[i] == c) return;
 		}
@@ -331,7 +344,7 @@ class BrowserUI
     	} else layeredPane.add(c, Integer.valueOf(1));
     	
     }
-    
+
     /**
      * Initializes or recycles the bird eye view and add it to the
      * display.
@@ -340,6 +353,7 @@ class BrowserUI
      */
     void setBirdEyeView(BufferedImage image)
 	{
+    	boolean init = false;
     	if (birdEyeView == null) {
     		birdEyeView = new BirdEyeViewComponent(
     				ImageCanvas.BOTTOM_RIGHT);
@@ -354,28 +368,44 @@ class BrowserUI
 					String name = evt.getPropertyName();
 					if (BirdEyeViewComponent.DISPLAY_REGION_PROPERTY.equals(
 							name)) {
-						displaySelectedRegion((Rectangle) evt.getNewValue());
+						displaySelectedRegion((Rectangle) evt.getNewValue(),
+								true);
 					} else if (
-							BirdEyeViewComponent.FULL_DISPLAY_PROPERTY.equals(
-							name)) {
+						BirdEyeViewComponent.FULL_DISPLAY_PROPERTY.equals(
+								name)) {
 						setBirdEyeViewLocation();
 					}
 				}
 			});
-    		birdEyeView.setup();
+    		birdEyeView.setup(0, 0);
     		JFrame frame = model.getParentModel().getUI();
     		glass = (JPanel) frame.getGlassPane();
     		glass.setLayout(null);
     		glass.add(birdEyeView);
     		glass.setVisible(true);
-    		
-    		//addComponentToLayer(birdEyeView, false);
     		setBirdEyeViewLocation();
+    		init = true;
     	}
-    	Dimension d = birdEyeView.getSize();
     	birdEyeView.setImage(image);
-    	if (d.width == 0 || d.height == 0)
-    		setSelectionRegion();
+    	if (init) {
+    		int width = image.getWidth();
+        	int height = image.getHeight();
+        	Rectangle r = getVisibleRectangle();
+        	int sizeX = model.getTiledImageSizeX();
+        	int sizeY = model.getTiledImageSizeY();
+        	int rx = sizeX/width;
+        	int ry = sizeY/height;
+        	if (rx == 0) rx = 1;
+        	if (ry == 0) ry = 1;
+        	
+        	int w = (int) (r.width/rx);
+        	int h = (int) (r.height/ry);
+        	int x = (int) (width-w)/2;
+        	int y = (int) (height-h)/2;
+        	birdEyeView.setSelection(x, y, w, h);
+        	r = birdEyeView.getSelectionRegion();
+    		displaySelectedRegion(r, false);
+    	}
 	}
     
     /**
@@ -457,8 +487,7 @@ class BrowserUI
         canvas.setPreferredSize(d);
         canvas.setSize(d);
         if (model.isBigImage()) {
-        	setSelectionRegion();
-        	Rectangle r = getViewport().getViewRect();
+        	Rectangle r = getVisibleRectangle();
     		d = layeredPane.getPreferredSize();
 			if (d.width < r.width && d.height < r.height) {
 				center();
@@ -495,11 +524,14 @@ class BrowserUI
      * 
      * @param x The X-coordinate of the mouse dragged minus mouse pressed.
      * @param y The Y-coordinate of the mouse dragged minus mouse pressed.
-     * @param load Passed <code>true</code>
+     * @param load Passed <code>true</code> to load, <code>false</code>
+     * otherwise.
      */
     void pan(int x, int y, boolean load)
     {
-    	Rectangle r = getViewport().getViewRect();
+    	Rectangle r = getVisibleRectangle();
+    	if (r.contains(canvas.getBounds())) return;
+    	
     	int vx = r.x;
     	int vy = r.y;
     	if (x < 0) vx += -x;
@@ -509,8 +541,7 @@ class BrowserUI
     	getViewport().setViewPosition(new Point(vx, vy));
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	if (load)
-    		model.checkTilesToLoad(getViewport().getViewRect());
+    	if (load) model.loadTiles(getVisibleRectangle());
     }
     
     /** 
@@ -523,7 +554,7 @@ class BrowserUI
     	scrollTo(region, false);
     	setSelectionRegion();
     	setBirdEyeViewLocation();
-    	model.checkTilesToLoad(getViewport().getViewRect());
+    	model.loadTiles(getVisibleRectangle());
     }
     
 	/**
@@ -536,8 +567,7 @@ class BrowserUI
 	 */
 	void scrollTo(Rectangle bounds, boolean blockIncrement)
 	{
-		//installScrollbarListener(false);
-		Rectangle viewRect = getViewport().getViewRect();
+		Rectangle viewRect = getVisibleRectangle();
 		JScrollBar hBar = getHorizontalScrollBar();
 		JScrollBar vBar = getVerticalScrollBar();
 		int x = 0;
@@ -571,7 +601,6 @@ class BrowserUI
         }
 		vBar.setValue(y);
 		hBar.setValue(x);
-		//getViewport().setViewPosition(new Point(bounds.x, bounds.y));
 		setBirdEyeViewLocation();
 	}
 	
@@ -583,14 +612,11 @@ class BrowserUI
 	 */
 	void scrollTo(int vValue, int hValue)
 	{
-		//Rectangle viewRect = getViewport().getViewRect();
-		//installScrollbarListener(false);
 		JScrollBar vBar = getVerticalScrollBar();
 		JScrollBar hBar = getHorizontalScrollBar();
 		hBar.setValue(hBar.getValue()+hValue);
 		vBar.setValue(vBar.getValue()+vValue);
 		setBirdEyeViewLocation();
-		//installScrollbarListener(true);
 	}
 
 	/** Clears the grid images. */
@@ -608,7 +634,7 @@ class BrowserUI
 	void locateScrollBars()
 	{
 		if (!scrollbarsVisible()) return;
-		scrollTo(getViewport().getViewRect(), false);
+		scrollTo(getVisibleRectangle(), false);
 	}
 
 	/**
@@ -622,8 +648,16 @@ class BrowserUI
 		return birdEyeView.getLocationIndex();
 	}
 	
-	/** Sets the adjusting value to <code>false</code>.*/
-	void resetAdjusting() { adjusting = false; }
+	/** 
+	 * Sets the adjusting value to <code>false</code>.
+	 * and sets the bird eye view location.
+	 */
+	void onComponentResized()
+	{ 
+		adjusting = false;
+		center();
+		setSelectionRegion();
+	}
 	
 	/**
 	 * Returns the rectangle used to load the tiles.
@@ -638,7 +672,7 @@ class BrowserUI
 	/** 
 	 * Reacts to {@link ImViewer} change events.
 	 * 
-	 * @param b Pass <code>true</code> to enable the UI components, 
+	 * @param b Pass <code>true</code> to enable the UI components,
 	 *          <code>false</code> otherwise.
 	 */
 	void onStateChange(boolean b)
@@ -647,6 +681,8 @@ class BrowserUI
 		if (bar.isVisible()) bar.setEnabled(b);
 		bar = getVerticalScrollBar();
 		if (bar.isVisible()) bar.setEnabled(b);
+		if (birdEyeView != null) birdEyeView.installListeners(b);
+		canvasListener.installListeners(b);
 	}
 	
 	/**
@@ -657,15 +693,27 @@ class BrowserUI
 	 */
 	void setViewLocation(double rx, double ry)
 	{
+		Dimension d = birdEyeView.getImageSize();
 		Rectangle r = birdEyeView.getSelectionRegion();
-		int w = (int) (r.width/rx);
-		int h = (int) (r.height/ry);
-		int x = (int) (rx*r.x);
-		int y = (int) (ry*r.y);
+		double cx = r.getCenterX()-1;
+		double cy = r.getCenterY()-1;
+		
+		Rectangle rect = getVisibleRectangle();
+    	int sizeX = model.getTiledImageSizeX();
+    	int sizeY = model.getTiledImageSizeY();
+    	int rxx = sizeX/d.width;
+    	int ryy = sizeY/d.height;
+    	if (rxx == 0) rxx = 1;
+    	if (ryy == 0) ryy = 1;
+    	
+    	int w = (int) (rect.width/rxx);
+    	int h = (int) (rect.height/ryy);
+		int x = (int) (cx-w/2);
+		int y = (int) (cy-h/2);
 		if (x < 0) x = 0;
 		if (y < 0) y = 0;
 		birdEyeView.setSelection(x, y, w, h);
-		displaySelectedRegion(birdEyeView.getSelectionRegion());
+		displaySelectedRegion(birdEyeView.getSelectionRegion(), true);
 	}
 	
 	/**
@@ -681,10 +729,9 @@ class BrowserUI
         	return;
         }
         adjusting = false;
-        //setSelectionRegion();
         setBirdEyeViewLocation();
         setSelectionRegion();
-        model.checkTilesToLoad(getViewport().getViewRect());
+        model.loadTiles(getVisibleRectangle());
 	}
 	
 	/**
@@ -703,10 +750,9 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
-		Rectangle r = getViewport().getViewRect();
+		Rectangle r = getVisibleRectangle();
 		Dimension d = layeredPane.getPreferredSize();
 		if (model.isBigImage()) {
-    		//setSelectionRegion();
 			setBirdEyeViewLocation();
 			if (!(d.width < r.width && d.height < r.height))
 				return;
@@ -716,5 +762,5 @@ class BrowserUI
 		JScrollBar vBar = getVerticalScrollBar();
 		if (!(hBar.isVisible() && vBar.isVisible())) center();
 	}
-	
+
 }

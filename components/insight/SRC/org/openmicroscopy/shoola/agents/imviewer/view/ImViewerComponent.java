@@ -586,13 +586,6 @@ class ImViewerComponent
 	{
 		return events;
 	}
-
-	/**
-	 * Returns the id of the pixels set this viewer is for.
-	 * 
-	 * @return See above.
-	 */
-	long getPixelsID() { return model.getPixelsID(); }
 	
 	/**
 	 * Returns the title associated to the viewer.
@@ -740,9 +733,8 @@ class ImViewerComponent
 			int h = model.getTiledImageSizeY();
 			double nx = (double) w/ox;
 			double ny = (double) h/oy;
-			model.getBrowser().setViewLocation(nx, ny);
 			model.getBrowser().setComponentsSize(w, h);
-			//loadTiles(null);
+			model.getBrowser().setViewLocation(nx, ny);
 			postMeasurePlane();
 			return;
 		}
@@ -1115,9 +1107,8 @@ class ImViewerComponent
 				return;
 		} 
 		if (model.isBigImage()) {
-			//model.fireBirdEyeViewRetrieval();
 			model.resetTiles();
-			loadTiles(model.getBrowser().getVisibleRectangle());
+			loadTiles(null);
 			return;
 		}
 		boolean stop = false;
@@ -3269,11 +3260,14 @@ class ImViewerComponent
 	{
 		switch (model.getState()) {
 			case LOADING_BIRD_EYE_VIEW:
+				boolean set = false;
 				if (!view.isVisible()) {
 					buildView();
-					renderXYPlane();
+					set = true;
 				}
 				model.setBirdEyeView(image);
+				if (set)
+					controller.setZoomFactor(model.getSelectedResolutionLevel());
 		}
 	}
 	
@@ -3301,14 +3295,13 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setTile(Tile, boolean)
+	 * @see ImViewer#setTile(int)
 	 */
-	public void setTile(Tile tile, boolean done)
+	public void setTileCount(int count)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
-		view.removeComponentListener(controller);
-		if (done) {
+		if (model.isTileLoaded(count)) {
 			view.addComponentListener(controller);
 			model.setState(READY);
 			fireStateChange();
@@ -3371,6 +3364,7 @@ class ImViewerComponent
 		}
     	model.clearTileImages(toClear);
 		if (l.size() > 0) {
+			view.removeComponentListener(controller);
 			model.fireTileLoading(l);
 			fireStateChange();
 		}
@@ -3453,6 +3447,30 @@ class ImViewerComponent
 	 * @see ImViewer#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getPixelsID()
+	 */
+	public long getPixelsID() { return model.getPixelsID(); }
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getSelectedResolutionLevel()
+	 */
+	public int getSelectedResolutionLevel()
+	{
+		return model.getSelectedResolutionLevel();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#getResolutionLevels()
+	 */
+	public int getResolutionLevels()
+	{
+		return model.getResolutionLevels();
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

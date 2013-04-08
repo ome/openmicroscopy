@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -128,6 +129,12 @@ class BirdEyeViewComponent
 	/** Flag indicating the mouse is locked. */
 	private boolean locked = false;
 	
+	/** The X-coordinate of the top-left corner. */
+	private int px;
+	
+	/** The Y-coordinate of the top-left corner. */
+	private int py;
+	
 	/** 
 	 * The difference of <code>bx</code>and the X-coordinate of the mouse 
 	 * clicked. 
@@ -170,6 +177,39 @@ class BirdEyeViewComponent
 	/** One of the constants defined by this class.*/
 	private int locationIndex;
 	
+	/** Indicates if the mouse pressed occurred on the cross or not.*/
+    private boolean inCross = false;
+    
+	/**
+	 * Returns <code>true</code> if the specified coordinates are contained
+	 * in the selection, <code>false</code> otherwise.
+	 * 
+	 * @param x The X-coordinate of the mouse pressed.
+	 * @param y The Y-coordinate of the mouse pressed.
+	 * @return See above.
+	 */
+    private boolean inSelection(int x, int y)
+    {
+    	if (x < bx || x > (bx+w)) return false;
+    	if (y < by || y > (by+h)) return false;
+    	return true;
+    }
+
+	/**
+	 * Returns <code>true</code> if the region is the full size of the image
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param r The region to handle.
+	 * @return See above.
+	 */
+	private boolean isSameSelection(Rectangle r)
+	{
+		if (r.width == imageRectangle.width &&
+			r.height == imageRectangle.height) return true;
+		return (r.x == px && r.y == py);
+		
+	}
+    
 	/** Sets the location of the cross.*/
 	private void setCrossLocation()
 	{
@@ -197,23 +237,48 @@ class BirdEyeViewComponent
 	 */
 	private boolean inImage()
 	{
+		boolean b = true;
 		if (bx < imageRectangle.x) {
 			bx = imageRectangle.x;
-			return false;
+			b = false;
 		}
 		if (by < imageRectangle.y) {
 			by = imageRectangle.y;
-			return false;
+			b = false;
 		}
+		if (!b) return b;
 		if (bx+w > imageRectangle.width) {
 			bx = imageRectangle.width-w;
-			return false;
+			b = false;
 		}
 		if (by+h > imageRectangle.height) {
 			by = imageRectangle.height-h;
-			return false;
+			b = false;
 		}
-		return true;
+		return b;
+	}
+	
+
+	/**
+	 * Sets the cursor depending on the specific location.
+	 * 
+	 * @param x The X-coordinate of the mouse pressed.
+	 * @param y The Y-coordinate of the mouse pressed.
+	 */
+	private void setCursor(int x, int y)
+	{
+		boolean b = inSelection(x, y);
+		if (b) {
+			bover = true;
+			mouseX = x;
+			mouseY = y;
+			bdifx = mouseX-bx;
+			bdify = mouseY-by;
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		} else {
+			bover = false;
+			setCursor(Cursor.getDefaultCursor());
+		}
 	}
 	
 	/** 
@@ -265,12 +330,23 @@ class BirdEyeViewComponent
 	{
 		bx = x;
 		by = y;
+		if (w > imageRectangle.width) w = imageRectangle.width;
+		if (h > imageRectangle.height) h = imageRectangle.height;
 		this.w = w;
 		this.h = h;
-		if (imageRectangle != null) {
-			inImage();
-			repaint();
+		if (bx < 0) {
+			this.w += x;
+			bx = 0;
+		} else if (bx+w > imageRectangle.width) {
+			this.w = imageRectangle.width-bx;
 		}
+		if (by < 0) {
+			this.h += y;
+			by = 0;
+		} else if (by+h > imageRectangle.height) {
+			this.h = imageRectangle.height-by;
+		}
+		repaint();
 	}
 
 	/**
@@ -316,6 +392,10 @@ class BirdEyeViewComponent
     			setSelectionColor(SELECTION_BLUE_COLOR);
     		else setSelectionColor(SELECTION_COLOR);
 			setCanvasSize(image.getWidth(), image.getHeight());
+			imageRectangle = new Rectangle(0, 0, pImage.getWidth(),
+					pImage.getHeight());
+			if (w == 0) w = image.getWidth();
+			if (h == 0) h = image.getHeight();
 		}
 		repaint();
 	}
@@ -342,21 +422,51 @@ class BirdEyeViewComponent
 	 */
 	int getLocationIndex() { return locationIndex; }
 	
-	/**
-	 * Overridden from @see {@link PApplet#setup()}
+	/** 
+	 * Sets the component up.
+	 * 
+	 * @param x The default value for the X-coordinate of the top left corner.
+	 * @param y The default value for the Y-coordinate of the top left corner.
 	 */
-	public void setup()
+	void setup(int x, int y)
 	{
-		//setCanvasSize(0, 0);
-		setSelectionColor(SELECTION_COLOR); 
-		//noStroke();
-		bx = 0;
-		by = 0;
+		if (x < 0) x = 0;
+		if (y < 0) y = 0;
+		setSelectionColor(SELECTION_COLOR);
+		bx = x;
+		by = x;
 		fullDisplay = true;
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		installListeners(true);
 	}
 	
+	/**
+	 * Adds or removes the listeners depending on the specified components.
+	 * 
+	 * @param add Pass <code>true</code> to attach the listeners,
+	 * <code>false</code> otherwise.
+	 */
+	void installListeners(boolean add)
+	{
+		if (add) {
+			addMouseListener(this);
+			addMouseMotionListener(this);
+		} else {
+			removeMouseListener(this);
+			removeMouseMotionListener(this);
+		}
+	}
+	
+	/**
+	 * Returns the size of the image displayed in the component.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getImageSize()
+	{
+		if (pImage == null) return null;
+		return new Dimension(pImage.getWidth(), pImage.getHeight());
+	}
+
 	/**
      * Overridden to paint the image.
      * @see javax.swing.JComponent#paintComponent(Graphics)
@@ -390,15 +500,9 @@ class BirdEyeViewComponent
 			return;
 		}
 		if (imageRectangle == null) {
-			//imageRectangle = new Rectangle(BORDER, BORDER, pImage.getWidth(), 
-			//		pImage.getHeight());
 			g2D.setColor(BORDER_COLOR);
-			imageRectangle = new Rectangle(0, 0, pImage.getWidth(), 
-					pImage.getHeight());
 		}
 		setSize(canvasWidth, canvasHeight);
-		//stroke(255);
-		//g2D.drawImage(pImage, null, BORDER, BORDER);
 		g2D.drawImage(pImage, null, 0, 0);
 		g2D.setColor(FILL_COLOR);
 		g2D.fillRect(cross.x, cross.y, cross.width, cross.height);
@@ -420,10 +524,7 @@ class BirdEyeViewComponent
 				g2D.drawLine(xArrow, yArrow, xArrow, yArrow+v);
 				g2D.drawLine(xArrow, yArrow, BORDER_5, BORDER_5);
 		}
-		
-		//stroke(color);	
-		// Test if the cursor is over the box 
-		
+
 		g2D.setColor(color);
 		g2D.fillRect(bx, by, w, h);
 		if (colorBorder != null) {
@@ -433,18 +534,21 @@ class BirdEyeViewComponent
 		}
 		g2D.setColor(BORDER_COLOR);
 		g2D.drawRect(0, 0, canvasWidth, canvasHeight);
-		//noFill();
 	}
-
+    
     /**
      * Depending on mouse click location, shows or hide the bird eye view.
      * @see MouseListener#mouseReleased(MouseEvent)
      */
 	public void mousePressed(MouseEvent e)
 	{
+		px = ax;
+		py = ay;
 		mouseX = e.getX();
 		mouseY = e.getY();
+		inCross = false;
 		if (cross.contains(mouseX, mouseY)) {
+			inCross = true;
 			boolean old = fullDisplay;
 			fullDisplay = !fullDisplay;
 			if (!fullDisplay) setSize(cross.width, cross.height);
@@ -452,6 +556,14 @@ class BirdEyeViewComponent
 			firePropertyChange(FULL_DISPLAY_PROPERTY, old, fullDisplay);
 			return;
 		}
+		if (!inSelection(mouseX, mouseY)) {
+			bx = mouseX-w/2;
+			if (bx < 0) bx = 0;
+			by = mouseY-h/2;
+			if (by < 0) by = 0;
+		}
+		if (bx < 0) bx = 0;
+		if (by < 0) by = 0;
 		fullDisplay = true;
 		locked = bover;
 		bdifx = mouseX-bx;
@@ -459,6 +571,7 @@ class BirdEyeViewComponent
 		ax = bx;
 		ay = by;
 		release = false;
+		setCursor(mouseX, mouseY);
 	}
 
     /**
@@ -467,10 +580,11 @@ class BirdEyeViewComponent
      */
 	public void mouseReleased(MouseEvent e)
 	{
-		if (fullDisplay) {
+		if (fullDisplay && !inCross) {
 			locked = false;
-			firePropertyChange(DISPLAY_REGION_PROPERTY, null, 
-					new Rectangle(bx, by, w, h));
+			Rectangle r = getSelectionRegion();
+			if (!isSameSelection(r))
+				firePropertyChange(DISPLAY_REGION_PROPERTY, null, r);
 		}
 		mouseX = e.getX();
 		mouseY = e.getY();
@@ -490,37 +604,28 @@ class BirdEyeViewComponent
 	{
 		mouseX = e.getX();
 		mouseY = e.getY();
+		//System.err.println(inImage());
 		if (!inImage()) 
 			locked = false;
 		if (locked) {
-			bx = mouseX-bdifx; 
-			by = mouseY-bdify; 
+			bx = mouseX-bdifx;
+			by = mouseY-bdify;
 		}
+		locked = true;
+		if (bx <= 0) bx = 1;
+		if (by <= 0) by = 1;
+		if (bx+w >= pImage.getWidth()) bx = pImage.getWidth()-w-1;
+		if (by+h >= pImage.getHeight()) by = pImage.getHeight()-h-1;
 		repaint();
 	}
-
+	
     /**
-     * Required by the {@link MouseMotionListener} I/F but no-operation
-     * implementation in our case.
+     * Sets the cursor depending on action.
      * @see MouseMotionListener#mouseMoved(MouseEvent)
      */
 	public void mouseMoved(MouseEvent e)
 	{
-		int x = e.getX();
-		int y = e.getY();
-		boolean b = (x > bx-w && x < bx+w && y > by-h && y < by+h);
-		if (b) {
-			bover = true;
-			mouseX = x;
-			mouseY = y;
-			bdifx = mouseX-bx;
-			bdify = mouseY-by;
-			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		} else {
-			bover = false;
-			setCursor(Cursor.getDefaultCursor());
-		}
-		
+		setCursor(e.getX(), e.getY());
 	}
 	
     /**
@@ -543,5 +648,5 @@ class BirdEyeViewComponent
      * @see MouseListener#mouseExited(MouseEvent)
      */
 	public void mouseExited(MouseEvent e) {}
-	
+
 }

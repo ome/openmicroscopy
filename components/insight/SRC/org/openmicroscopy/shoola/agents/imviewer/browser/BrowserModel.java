@@ -1276,13 +1276,12 @@ class BrowserModel
     boolean isBigImage() { return parent.isBigImage(); }
 
     /**
-     * Checks if the tiles have to be loaded.
+     * Loads the tiles.
      * 
      * @param r The selected rectangle.
      */
-    void checkTilesToLoad(Rectangle r)
+    void loadTiles(Rectangle r)
     {
-    	if (r == null) return;
     	parent.loadTiles(r);
     }
 

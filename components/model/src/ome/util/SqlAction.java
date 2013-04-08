@@ -249,6 +249,13 @@ public interface SqlAction {
      */
     int deleteRepoDeleteLogs(DeleteLog template);
 
+    /**
+     * Find the path of the repository root.
+     * @param uuid a repository UUID
+     * @return the repository root
+     */
+    String findRepoRootPath(String uuid);
+    
     String findRepoFilePath(String uuid, long id);
 
     List<Long> findRepoPixels(String uuid, String dirname, String basename);
@@ -569,6 +576,15 @@ public interface SqlAction {
         public int deleteRepoDeleteLogs(DeleteLog template) {
             return _jdbc().update(_lookup("delete_repo_delete_logs"),
                     template.args());
+        }
+
+        public String findRepoRootPath(String uuid) {
+            try {
+                return _jdbc().queryForObject(_lookup("find_repo_root_path"), //$NON-NLS-1$
+                        String.class, uuid);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
         }
 
         public String findRepoFilePath(String uuid, long id) {

@@ -32,10 +32,10 @@ import java.util.Iterator;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import omero.romio.RegionDef;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -56,15 +56,8 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 public class TileLoader
 	extends BatchCallTree
 {
-
-    /** Helper reference to the image service. */
-    private OmeroImageService		service;
-    
 	/** The lastly retrieve tile. */
     private Object	currentTile;
-    
-    /** The id of the pixels set. */
-    private long pixelsID;
     
     /** The tiles.*/
     private Collection<Tile> tiles;
@@ -74,9 +67,9 @@ public class TileLoader
     
     /** The plane to render.*/
     private PlaneDef pDef;
-    
-    /** The security context.*/
-    private SecurityContext ctx;
+
+    /** The proxy to use.*/
+    private RenderingControl proxy;
     
     /**
      * Loads the tile.
@@ -87,10 +80,19 @@ public class TileLoader
     {
     	Region rt = tile.getRegion();
     	try {
-    		pDef.region = new RegionDef(rt.getX(), rt.getY(), 
+    		PlaneDef def = new PlaneDef();
+    		def.slice = pDef.slice;
+    		def.stride = pDef.stride;
+    		def.x = pDef.x;
+    		def.y = pDef.y;
+    		def.z = pDef.z;
+    		def.t = pDef.t;
+    		def.region = new RegionDef(rt.getX(), rt.getY(),
     				rt.getWidth(), rt.getHeight());
-        	tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
-        			false));
+    		if (asTexture) tile.setImage(proxy.renderAsTexture(def));
+    		else tile.setImage(proxy.render(def));
+        	//tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
+        	//		false));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));
@@ -122,7 +124,7 @@ public class TileLoader
     protected void buildTree()
     {
     	Iterator<Tile> i = tiles.iterator();
-    	String description = "Loading tile";
+    	String description = "Loading tiles";
     	Tile tile;
     	while (i.hasNext()) {
 			tile = i.next();
@@ -146,20 +148,20 @@ public class TileLoader
 	 * 					<code>false</code> to return a buffered image.
      */
     public TileLoader(SecurityContext ctx, long pixelsID, PlaneDef pDef,
-    		Collection<Tile> tiles, boolean asTexture)
+    		RenderingControl proxy, Collection<Tile> tiles, boolean asTexture)
     {
-        if (pixelsID < 0)
-            throw new IllegalArgumentException("ID not valid.");
+    	if (proxy == null)
+			throw new IllegalArgumentException("No rendering control.");
+		if (pixelsID != proxy.getPixelsID())
+			throw new IllegalArgumentException("Pixels ID not valid.");
         if (tiles == null || tiles.size() == 0)
             throw new IllegalArgumentException("No tiles to load.");
         if (pDef == null)
         	 throw new IllegalArgumentException("No plane to render.");
-        this.ctx = ctx;
-        this.pixelsID = pixelsID;
         this.tiles = tiles;
         this.asTexture = asTexture;
         this.pDef = pDef;
-        service = context.getImageService();
+        this.proxy = proxy;
     }
     
 }

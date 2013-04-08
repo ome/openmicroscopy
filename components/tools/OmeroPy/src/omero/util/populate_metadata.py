@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 """
 Populate bulk metadata tables from delimited text files.
 """
@@ -457,6 +457,7 @@ class ParsingContext(object):
         log.info('Table initialized with %d columns.' % (len(self.columns)))
         table.addData(self.columns)
         log.info('Added data column data.')
+        table.close()
         file_annotation = FileAnnotationI()
         file_annotation.ns = \
                 rstring('openmicroscopy.org/omero/bulk_annotations')

@@ -17,29 +17,20 @@ package ome.formats.importer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
-import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
-import ome.formats.model.InstanceProvider;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
-import ome.util.Utils;
-
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
@@ -58,10 +49,12 @@ import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
 import omero.model.Fileset;
 import omero.model.FilesetI;
-import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -87,9 +80,13 @@ public class ImportLibrary implements IObservable
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
 
+    /* adjusts file paths to the format required by managed repository */
     private static final ClientFilePathTransformer sanitizer = 
             new ClientFilePathTransformer(new MakePathComponentSafe());
-    
+
+    /* checksum provider factory for verifying file integrity in upload */
+    private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+
     private final ArrayList<IObserver> observers = new ArrayList<IObserver>();
 
     private final OMEROMetadataStoreClient store;
@@ -241,16 +238,14 @@ public class ImportLibrary implements IObservable
     public List<String> uploadFilesToRepository(
             final String[] srcFiles, final ImportProcessPrx proc)
     {
-
-        final MessageDigest md = Utils.newSha1MessageDigest();
-        final List<String> checksums = new ArrayList<String>();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
+        final List<String> checksums = new ArrayList<String>(fileTotal);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
             try {
-                checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+                checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
             } catch (ServerError e) {
                 log.error("Server error uploading file.", e);
                 break;
@@ -265,18 +260,16 @@ public class ImportLibrary implements IObservable
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, int index) throws ServerError, IOException
     {
-        final MessageDigest md = Utils.newSha1MessageDigest();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
-        return uploadFile(proc, srcFiles, index, md, buf);
+        final byte[] buf = new byte[store.getDefaultBlockSize()];
+        return uploadFile(proc, srcFiles, index, checksumProviderFactory, buf);
     }
 
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, final int index,
-            final MessageDigest md, final byte[] buf)
+            final ChecksumProviderFactory cpf, final byte[] buf)
             throws ServerError, IOException {
 
-        md.reset();
-
+        ChecksumProvider cp = cpf.getProvider(ChecksumType.SHA1);
         String digestString = null;
         File file = new File(srcFiles[index]);
         long length = file.length();
@@ -300,7 +293,7 @@ public class ImportLibrary implements IObservable
 
             while (stream.available() != 0) {
                 rlen = stream.read(buf);
-                md.update(buf, 0, rlen);
+                cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
@@ -308,8 +301,7 @@ public class ImportLibrary implements IObservable
                         offset, length, null));
             }
 
-            byte[] digest = md.digest();
-            digestString = Utils.bytesToHex(digest);
+            digestString = cp.checksumAsString();
 
             OriginalFile ofile = rawFileStore.save();
             if (log.isDebugEnabled()) {
@@ -388,14 +380,13 @@ public class ImportLibrary implements IObservable
         final ImportProcessPrx proc = createImport(container);
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
-        final MessageDigest md = Utils.newSha1MessageDigest();
-        final byte[] buf = new byte[omero.constants.MESSAGESIZEMAX.value/8];  // 8 MB buffer
+        final byte[] buf = new byte[store.getDefaultBlockSize()];
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, md, buf));
+            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
         }
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_END(

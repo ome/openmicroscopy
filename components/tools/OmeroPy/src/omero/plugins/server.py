@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Startup plugin for our various server components, called typically
    by icegridnode after parsing etc/grid/templates.xml.

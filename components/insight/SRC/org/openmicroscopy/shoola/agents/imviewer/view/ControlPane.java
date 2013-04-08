@@ -1341,15 +1341,11 @@ class ControlPane
     	}
     	//big images.
     	if (model.isBigImage()) {
-    		if (model.getState() == ImViewer.LOADING_TILES) {
-    			ratioSlider.setEnabled(false);
-    			gridRatioSlider.setEnabled(false);
-    			projectionRatioSlider.setEnabled(false);
-    		} else {
-    			ratioSlider.setEnabled(true);
-    			gridRatioSlider.setEnabled(true);
-    			projectionRatioSlider.setEnabled(true);
-    		}
+    		boolean loading = model.getState() != ImViewer.LOADING_TILES;
+    		ratioSlider.setEnabled(loading);
+			gridRatioSlider.setEnabled(loading);
+			projectionRatioSlider.setEnabled(loading);
+			if (resetZoom != null) resetZoom.setEnabled(loading);
     	}
     }
     

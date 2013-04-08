@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # 
 # 
 # 
@@ -177,6 +178,29 @@ class BaseContainer(BaseController):
         elif self.acquisition:
             return self.acquisition._obj.plate.id.val
         
+
+    def listFigureScripts(self, objDict=None):
+        """
+        This configures all the Figure Scripts, setting their enabled status given the
+        currently selected object (self.image etc) or batch objects (uses objDict).
+        """
+        figureScripts = []
+        # id is used in url and is mapped to full script path by views.figure_script()
+        splitView = {'id': 'SplitView', 'name':'Split View Figure', 'enabled': False,
+            'tooltip': "Create a figure of images, splitting their channels into separate views"}
+        # Split View Figure is enabled if we have at least one image with SizeC > 1
+        if self.image:
+            splitView['enabled'] = (self.image.getSizeC() > 1)
+        elif objDict is not None:
+            if 'image' in objDict:
+                for i in objDict['image']:
+                    if i.getSizeC() > 1:
+                        splitView['enabled'] = True
+                        break
+        figureScripts.append(splitView)
+        return figureScripts
+
+
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
@@ -253,10 +277,12 @@ class BaseContainer(BaseController):
         
     def loadTags(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:       # Load data for all users
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:            
             eid = self.conn.getEventContext().userId
-        
         self.tags = list(self.conn.listTags(eid))
         self.t_size = len(self.tags)
     
@@ -281,7 +307,10 @@ class BaseContainer(BaseController):
         
     def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)  
+            if eid == -1:       # Load data for all users
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page, load_pixels=load_pixels))
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'images': im_list}
@@ -292,10 +321,12 @@ class BaseContainer(BaseController):
     
     def listContainerHierarchy(self, eid=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
-        
         pr_list = list(self.conn.listProjects(eid))
         ds_list = list(self.conn.listOrphans("Dataset", eid))
         sc_list = list(self.conn.listScreens(eid))
@@ -313,7 +344,10 @@ class BaseContainer(BaseController):
     
     def listOrphanedImages(self, eid=None, page=None):
         if eid is not None:
-            self.experimenter = self.conn.getObject("Experimenter", eid)
+            if eid == -1:
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
         
@@ -946,13 +980,10 @@ class BaseContainer(BaseController):
                 if parent[0] != destination[0]:
                     up_spl = None
                     spls = list(self.plate.getParentLinks()) #gets every links for child
-                    if len(spls) == 1:
-                        # gets old parent to delete
-                        if spls[0].parent.id.val == long(parent[1]):
-                            up_spl = spls[0]
-                            self.conn.deleteObjectDirect(up_spl._obj)
-                    else:
-                        return 'This plate is linked in multiple places. Please unlink the plate first.'
+                    for spl in spls:
+                        if spl.parent.id.val == long(parent[1]):
+                            self.conn.deleteObjectDirect(spl._obj)
+                            break
             else:
                 return 'Destination not supported.'
         else:

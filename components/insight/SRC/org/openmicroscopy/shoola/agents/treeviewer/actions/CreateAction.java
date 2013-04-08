@@ -126,7 +126,7 @@ public class CreateAction
         Browser browser = model.getSelectedBrowser();
         if (selectedDisplay == null || browser == null) {
             setEnabled(false);
-            name = NAME;  
+            name = NAME;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
             return;
@@ -134,7 +134,7 @@ public class CreateAction
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
         if (nodes.length > 1) {
         	 setEnabled(false);
-             name = NAME;  
+             name = NAME;
              putValue(Action.SHORT_DESCRIPTION, 
                      UIUtilities.formatToolTipText(DESCRIPTION));
              return;
@@ -142,7 +142,7 @@ public class CreateAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof String || ho instanceof ExperimenterData) { // root
         	setEnabled(false);
-        	name = NAME;  
+        	name = NAME;
         	putValue(Action.SHORT_DESCRIPTION, 
         			UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof ProjectData) {
@@ -152,8 +152,8 @@ public class CreateAction
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
-        	setEnabled(model.canLink(ho));
-            name = NAME;  
+        	setEnabled(false);
+            name = NAME;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
         } else if (ho instanceof TagAnnotationData) {

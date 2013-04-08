@@ -542,7 +542,7 @@ class DataBrowserControl
 		} else if (PlateGrid.WELL_FIELDS_PROPERTY.equals(name)) {
 			PlateGridObject p = (PlateGridObject) evt.getNewValue();
 			if (p == null) return;
-			model.viewFieldsFor(p.getRow(), p.getColumn(), 
+			model.viewFieldsFor(p.getRow(), p.getColumn(),
 					p.isMultipleSelection());
 		} else if (Browser.VIEW_DISPLAY_PROPERTY.equals(name)) {
 			viewDisplay((ImageDisplay) evt.getNewValue());

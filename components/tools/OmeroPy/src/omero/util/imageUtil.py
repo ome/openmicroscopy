@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
  components/tools/OmeroPy/src/omero/util/imageUitl.py
 

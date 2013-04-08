@@ -431,6 +431,8 @@ class MeasurementViewerComponent
 				}
 			}
 		}
+		//Reset the result.
+		view.displayAnalysisResults();
 		model.getDrawingView().setDrawing(drawing);
 		drawing.addDrawingListener(controller);
 		if (f != magnification)
@@ -607,7 +609,6 @@ class MeasurementViewerComponent
 		TreeMap<Long, ROI> rois = model.getROI();
 		Collection<ROIFigure> figures = model.getAllFigures();
 		ROIFigure figure, f;
-		Iterator<ROIFigure> i = figures.iterator();
 		ROI roi;
 		TreeMap<Coord3D, ROIShape> shapeMap;
 		
@@ -733,7 +734,7 @@ class MeasurementViewerComponent
 			return;
 		
 		if (model.getActiveChannels().size() == 0) {
-			//view.displayAnalysisResults();
+			model.setAnalysisResults(null);
 			view.displayAnalysisResults();
 		} else {
 			model.fireAnalyzeShape(shapeList);

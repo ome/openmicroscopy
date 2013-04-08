@@ -18,12 +18,17 @@ import java.io.File;
 import ome.util.Utils;
 
 import org.apache.commons.io.FilenameUtils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 
 /**
  * File type wrapper for paths which are intended for being stored in the
  * database as a part of this repository.
  */
 public class RepoFile {
+
+    private final static ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
 
     /**
      * Somewhat complicated method to turn any path into a unique like path
@@ -127,7 +132,7 @@ public class RepoFile {
         }
 
         public String sha1() {
-            return Utils.bytesToHex(Utils.pathToSha1(path));
+            return cpf.getProvider(ChecksumType.SHA1).putFile(path).checksumAsString();
         }
 
         @Override

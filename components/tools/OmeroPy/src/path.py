@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """ path.py - An object representing a path to a file or directory.
 
 Example:

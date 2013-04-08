@@ -1195,7 +1195,21 @@ class RendererComponent
 	public void onUpdatedChannels(List<ChannelData> channels)
 	{
 		model.setChannels(channels);
-		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#onUpdatedChannels(List)
+	 */
+	public boolean canAnnotate() { return model.canAnnotate(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getRenderingControls()
+	 */
+	public List<RenderingControl> getRenderingControls()
+	{
+		return model.getRenderingControls();
 	}
 
 }

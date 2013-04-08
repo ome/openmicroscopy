@@ -30,21 +30,15 @@ import java.util.List;
 import java.util.Map;
 
 import loci.formats.FormatReader;
-
-import org.apache.commons.lang.text.StrLookup;
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import Ice.Current;
-
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
-
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -67,6 +61,13 @@ import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
 import omero.sys.EventContext;
+
+import org.apache.commons.lang.text.StrLookup;
+import org.apache.commons.lang.text.StrSubstitutor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import Ice.Current;
 
 /**
  * Extension of the PublicRepository API which only manages files
@@ -116,12 +117,13 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param dao
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
-        this(template, dao, new ProcessContainer());
+        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl());
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
-            ProcessContainer processes) throws Exception {
-        super(dao);
+            ProcessContainer processes,
+            ChecksumProviderFactory checksumProviderFactory) throws Exception {
+        super(dao, checksumProviderFactory);
         this.template = template;
         this.processes = processes;
         log.info("Repository template: " + this.template);
@@ -428,7 +430,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final List<String> pathPrefix = relPathComponents.subList(0, relPathSize - 1);
             makeDir(new FsFile(pathPrefix).toString(), true, curr);
         }
-        makeDir(relPath.toString(), true, curr);
+        makeDir(relPath.toString(), false, curr);
     }
 
     /** Return value for {@link #trimPaths}. */
@@ -533,7 +535,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final String relativeToEnd = path.getPathFrom(basePath).toString();
             data.usedFiles.add(relativeToEnd);
             final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
-            data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath));
+            data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath,
+                    this.checksumProviderFactory.getProvider(ChecksumType.SHA1)));
         }
 
         makeDir(data.sharedPath, true, __current);
@@ -560,6 +563,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final String expanded = expandTemplate(template, __current);
         final FsFile asfsfile = new FsFile(expanded);
         final List<String> components = asfsfile.getComponents();
+        final List<CheckedPath> pathsToFix = new ArrayList<CheckedPath>();
 
         // hard-coded assumptions: the first element of the template must match
         // user_id and the last is unique in someway (and therefore won't be
@@ -593,14 +597,17 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
             }
 
-            // Now that we know that this is the right directory for the
-            // current user, we make sure that the directory exists and
-            // is in the user group.
-            repositoryDao.createOrFixUserDir(getRepoUuid(), checked, __current);
+            pathsToFix.add(checked);
         }
         
-        
         super.makeCheckedDirs(paths, parents, __current);
+        
+        // Now that we know that these are the right directories for
+        // the current user, we make sure that the directories are in
+        // the user group.
+        for (final CheckedPath pathToFix : pathsToFix) {
+            repositoryDao.createOrFixUserDir(getRepoUuid(), pathToFix, __current);
+        }
     }
 
     protected String getUserDirectoryName(Current __current) {

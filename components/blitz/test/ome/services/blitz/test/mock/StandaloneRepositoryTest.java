@@ -15,6 +15,7 @@ import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
+import ome.util.checksum.ChecksumProviderFactory;
 import omero.util.TempFileManager;
 
 import org.jmock.MockObjectTestCase;
@@ -33,6 +34,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
     ObjectAdapter oa;
     Registry reg;
     Executor ex;
+    ChecksumProviderFactory cpf;
     File dir;
 
     @BeforeClass
@@ -41,6 +43,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
         System.setProperty("omero.repo.dir", dir.getAbsolutePath());
         ctx = OmeroContext.getInstance("OMERO.repository");
         ex = (Executor) ctx.getBean("executor");
+        cpf = (ChecksumProviderFactory) ctx.getBean("checksumProviderFactory");
         fixture = new MockFixture(this, ctx);
         oa = fixture.blitz.getBlitzAdapter();
         reg = fixture.blitz.getRegistry();
@@ -51,7 +54,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
         Principal p = new Principal("mock-uuid");
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,
                 p, dir.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex)));
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf));
     }
 
 }

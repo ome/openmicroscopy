@@ -36,4 +36,4 @@ def _additional_tests():
     return suite
 
 if __name__ == "__main__":
-    unittest.TextTestRunner().run(additional_tests())
+    unittest.TextTestRunner().run(_additional_tests())

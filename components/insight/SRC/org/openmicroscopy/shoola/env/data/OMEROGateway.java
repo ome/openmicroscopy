@@ -77,6 +77,10 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ConcurrencyException;
@@ -316,6 +320,9 @@ class OMEROGateway
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
 
+	/* checksum provider factory for verifying file integrity in upload */
+	private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
@@ -350,7 +357,7 @@ class OMEROGateway
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.REGION_PATH+"Populate_ROI.py");
+				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.ANALYSIS_PATH+"FLIM.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
@@ -422,8 +429,7 @@ class OMEROGateway
 	{
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("select fs from Fileset as fs ");
-		buffer.append("left outer join fetch fs.imageLinks as fil ");
-		buffer.append("join fetch fil.child as image ");
+		buffer.append("join fetch fs.images as image ");
 		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
 		buffer.append("join fetch usedFile.originalFile ");
 		buffer.append("where image.id in (:imageIds)");
@@ -1933,7 +1939,7 @@ class OMEROGateway
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
-				if (!(re.lookupRenderingDef(pixelsID))) {
+				if (!re.lookupRenderingDef(pixelsID)) {
 					re.resetDefaults();
 					re.lookupRenderingDef(pixelsID);
 				}
@@ -4249,7 +4255,6 @@ class OMEROGateway
 				oFile.setPath(omero.rtypes.rstring(path));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
-				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
 				save = 
 					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
@@ -4269,7 +4274,6 @@ class OMEROGateway
 					oFile.setPath(omero.rtypes.rstring(path));
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
-					oFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(omero.rtypes.rstring(mimeType));
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(oFile);
@@ -4282,7 +4286,6 @@ class OMEROGateway
 					newFile.setPath(omero.rtypes.rstring(
 							file.getAbsolutePath()));
 					newFile.setSize(omero.rtypes.rlong(file.length()));
-					newFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(oFile.getMimetype());
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(newFile);
@@ -4295,6 +4298,7 @@ class OMEROGateway
 		}
 		byte[] buf = new byte[INC]; 
 		FileInputStream stream = null;
+		final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
 		try {
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4305,11 +4309,18 @@ class OMEROGateway
 				pos += rlen;
 				bbuf = ByteBuffer.wrap(buf);
 				bbuf.limit(rlen);
+				hasher.putBytes(bbuf);
 			}
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
 			if (f != null) save = f;
+			final String clientHash = hasher.checksumAsString();
+			final String serverHash = save.getSha1().getValue();
+			if (!clientHash.equals(serverHash)) {
+			    throw new ImportException("file checksum mismatch on upload: " + file +
+			            " (client has " + clientHash + ", server has " + serverHash + ")");
+			}
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
@@ -5825,6 +5836,7 @@ class OMEROGateway
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
+			sb.append("left outer join fetch img.details.updateEvent as evt ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
@@ -5868,6 +5880,7 @@ class OMEROGateway
 				sb.append("left outer join fetch well.wellSamples as ws ");
 				sb.append("left outer join fetch ws.plateAcquisition as pa ");
 				sb.append("left outer join fetch ws.image as img ");
+				sb.append("left outer join fetch img.details.updateEvent as evt ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
 	            sb.append("where well.plate.id in (:plateIDs)");
@@ -6306,8 +6319,8 @@ class OMEROGateway
 				of = j.next();
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
-				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)) { 
-					//&&!SCRIPTS_UI_AVAILABLE.contains(v)) {
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)
+					&& !SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
@@ -6765,7 +6778,6 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		
 		Iterator<Connector> i = connectors.iterator();
 		Connector c;
 		while (i.hasNext()) {

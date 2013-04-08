@@ -19,18 +19,26 @@
 package ome.services.blitz.repo;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import loci.formats.FormatException;
+import loci.formats.ReaderWrapper;
+
 import org.apache.commons.io.FileUtils;
 
-import ome.util.Utils;
-import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.io.nio.FileBuffer;
 import ome.services.blitz.repo.path.FsFile;
-
+import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumType;
 import omero.ValidationException;
 
 /**
@@ -48,13 +56,17 @@ import omero.ValidationException;
  * @author m.t.b.carroll@dundee.ac.uk
  */
 public class CheckedPath {
-
+    private static final String SAME_DIR = ".";
+    private static final String PARENT_DIR = "..";
+    private static final Set<String> SPECIAL_DIRS;
+    
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
-    protected final File file;
+    private final File file;
     private /*final*/ String parentDir;
     private /*final*/ String baseName;
     private final String original;  // for error reporting
+    private final ChecksumProvider checksumProvider;
 
     // HIGH-OVERHEAD FIELDS (non-final)
 
@@ -62,6 +74,13 @@ public class CheckedPath {
     protected String sha1;
     protected String mime;
 
+    static {
+        final Set<String> specialDirs = new HashSet<String>();
+        specialDirs.add(SAME_DIR);
+        specialDirs.add(PARENT_DIR);
+        SPECIAL_DIRS = Collections.unmodifiableSet(specialDirs);
+    }
+    
     /**
      * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
      * TODO: May not actually be necessary.
@@ -73,13 +92,13 @@ public class CheckedPath {
         final List<String> oldComponents = fsFile.getComponents();
         final List<String> newComponents = new ArrayList<String>(oldComponents.size());
         for (final String oldComponent : oldComponents)
-            if ("..".equals(oldComponent))
+            if (PARENT_DIR.equals(oldComponent))
                 if (newComponents.isEmpty())
                     throw new ValidationException(null, null, "Path may not make references above root");
                 else
                     // with Java 1.6 use a Deque
                     newComponents.remove(newComponents.size() - 1);
-            else if (!".".equals(oldComponent))
+            else if (!SAME_DIR.equals(oldComponent))
                 newComponents.add(oldComponent);
         return new FsFile(newComponents);
     }
@@ -93,9 +112,11 @@ public class CheckedPath {
      * @param path a repository path
      * @throws ValidationException if the path is empty or contains illegal components
      */
-    public CheckedPath(ServerFilePathTransformer serverPaths, String path)
+    public CheckedPath(ServerFilePathTransformer serverPaths, String path,
+            ChecksumProvider checksumProvider)
             throws ValidationException {
         this.original = path;
+        this.checksumProvider = checksumProvider;
         this.fsFile = processSpecialDirectories(new FsFile(path));
         if (!serverPaths.isLegalFsFile(fsFile)) // unsanitary
             throw new ValidationException(null, null, "Path contains illegal components");
@@ -103,10 +124,12 @@ public class CheckedPath {
         breakPath();
     }
 
-    private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
+    private CheckedPath(File filePath, FsFile fsFilePath,
+            ChecksumProvider checksumProvider) throws ValidationException {
         this.original = filePath.getPath();
         this.fsFile = fsFilePath;
         this.file = filePath;
+        this.checksumProvider = checksumProvider;
         breakPath();
     }
 
@@ -141,7 +164,9 @@ public class CheckedPath {
 
     public String sha1() {
         if (sha1 == null) {
-            sha1 = Utils.bytesToHex(Utils.pathToSha1(file.getPath()));
+            sha1 = this.checksumProvider
+                    .putFile(file.getPath())
+                    .checksumAsString();
         }
         return sha1;
     }
@@ -172,7 +197,8 @@ public class CheckedPath {
         if (components.isEmpty())
             throw new ValidationException(null, null, "May not obtain parent of repository root");
         components = components.subList(0, components.size() - 1);
-        return new CheckedPath(this.file.getParentFile(), new FsFile(components));
+        return new CheckedPath(this.file.getParentFile(), new FsFile(components),
+                this.checksumProvider);
     }
 
     /**
@@ -184,18 +210,36 @@ public class CheckedPath {
      * @return
      */
     public CheckedPath child(String name) throws ValidationException {
-        if (name == null) {
-            throw new ValidationException(null, null, "null name");
-        } else if (".".equals(name) || "..".equals(name)) {
-            throw new ValidationException(null, null,
-                    "Only proper child name is allowed. Not '.' or '..'");
+        if (name == null || "".equals(name)) {
+            throw new ValidationException(null, null, "null or empty name");
+        } else if (SPECIAL_DIRS.contains(name)) {
+            final StringBuffer message = new StringBuffer();
+            message.append("Only proper child name is allowed, not ");
+            for (final String dir : SPECIAL_DIRS) {
+                message.append('\'');
+                message.append(dir);
+                message.append('\'');
+                message.append(", ");
+            }
+            message.setLength(message.length() - 2);  // remove trailing ", "
+            message.append('.');
+            throw new ValidationException(null, null, message.toString());
         } else if (name.indexOf(FsFile.separatorChar)>=0) {
             throw new ValidationException(null, null,
-                    "No subpaths allowed. Path contains '/'");
+                    "No subpaths allowed. Path contains '" + FsFile.separatorChar + "'");
         }
-        List<String> copy = new ArrayList<String>(this.fsFile.getComponents());
-        copy.add(name);
-        return new CheckedPath(new File(original, name), new FsFile(copy));
+        final FsFile fullChild = FsFile.concatenate(this.fsFile, new FsFile(name));
+        return new CheckedPath(new File(original, name), fullChild,
+            this.checksumProvider);
+    }
+
+    /**
+     * Check if this file actually exists on the underlying filesystem.
+     * Analogous to {@link java.io.File.exists()}.
+     * @return <code>true</code> if the file exists, <code>false</code> otherwise
+     */
+    public boolean exists() {
+        return this.file.exists();
     }
 
     /**
@@ -206,7 +250,7 @@ public class CheckedPath {
      * @throws ValidationException
      */
     public CheckedPath mustExist() throws ValidationException {
-        if (!file.exists()) {
+        if (!exists()) {
             throw new ValidationException(null, null, original
                     + " does not exist");
         }
@@ -229,6 +273,15 @@ public class CheckedPath {
         return this;
     }
 
+    /**
+     * Check if this file is actually readable on the underlying filesystem.
+     * Analogous to {@link java.io.File.canRead()}.
+     * @return <code>true</code> if the file is readable, <code>false</code> otherwise
+     */
+    public boolean canRead() {
+        return this.file.canRead();
+    }
+
     public boolean canEdit() {
         return true;
     }
@@ -245,14 +298,82 @@ public class CheckedPath {
         return this.fsFile.toString() + FsFile.separatorChar;
     }
 
+    /**
+     * Get the last component of this path, the entity to which the path corresponds.
+     * If this entity {@link #isRoot} then this is the empty string.
+     * @return the last path component
+     */
     protected String getName() {
         return this.baseName;
     }
 
+    /**
+     * Get the parent path of the entity to which this path corresponds.
+     * If this entity is not in some sub-directory below root,
+     * then this relative path is just the {@link FsFile#separatorChar}.
+     * @return the path components above the last,
+     * with separators including a trailing {@link FsFile#separatorChar}.
+     */
     protected String getRelativePath() {
         return this.parentDir + FsFile.separatorChar;
-     }
+    }
+    
+    /**
+     * The full path of the entity to which this path corresponds.
+     * Path components are separated by {@link FsFile#separatorChar}.
+     * @return the full path
+     */
+    protected String getFullFsPath() {
+        return this.fsFile.toString();
+    }
+    
+    /**
+     * Get a {@link FileBuffer} corresponding to this instance.
+     * It is the caller's responsibility to {@link FileBuffer#close()} it.
+     * @param mode as for {@link java.io.RandomAccessFile(File, String)},
+     * <code>"r"</code> and <code>"rw"</code> being common choices
+     * @return a new {@link FileBuffer}
+     */
+    public FileBuffer getFileBuffer(String mode) {
+        return new FileBuffer(this.file.getPath(), mode);
+    }
 
+    /**
+     * Create this directory on the underlying filesystem.
+     * Analogous to {@link java.io.File.mkdir()}.
+     * @return <code>true</code> if the directory was created, <code>false</code> otherwise
+     */
+    public boolean mkdir() {
+        return this.file.mkdir();
+    }
+
+    /**
+     * Create this directory, and parents if necessary, on the underlying filesystem.
+     * Analogous to {@link java.io.File.mkdirs()}.
+     * @return <code>true</code> if the directory was created, <code>false</code> otherwise
+     */
+    public boolean mkdirs() {
+        return this.file.mkdirs();
+    }
+
+    /**
+     * Mark this existing file as having been modified at the present moment.
+     * @return <code>true</code> if the file's modification time was updated, <code>false</code> otherwise
+     */
+    public boolean markModified() {
+        return this.file.setLastModified(System.currentTimeMillis());
+    }
+
+    /**
+     * Perform BioFormats {@link ReaderWrapper#setId(String)} for this file.
+     * @param reader the BioFormats reader upon which to operate
+     * @throws FormatException passed up from {@link ReaderWrapper#setId(String)}
+     * @throws IOException passed up from {@link ReaderWrapper#setId(String)}
+     */
+    public void bfSetId(ReaderWrapper reader) throws FormatException, IOException {
+        reader.setId(file.getPath());
+    }
+    
     public String toString() {
         return getClass().getSimpleName() + '(' + this.fsFile + ')';
     }
@@ -283,9 +404,7 @@ public class CheckedPath {
         if (file.exists()) {
             ofile.setMtime(new Timestamp(file.lastModified()));
             if (actualDir) {
-                // Directories don't have these. TODO: model as a subclass?
-                ofile.setSha1("");
-                ofile.setSize(0L);
+                // TODO: model directories as a subclass?
                 ofile.setMimetype(PublicRepositoryI.DIRECTORY_MIMETYPE);
                 if (mimetype != null && !mimeDir) {
                     // This is a directory, but the user has requested something
@@ -299,10 +418,6 @@ public class CheckedPath {
                 ofile.setSha1(sha1());
                 ofile.setSize(file.length());
             }
-        } else {
-            // File doesn't exist, therefore we know nothing
-            ofile.setSha1("");
-            ofile.setSize(0L);
         }
 
         // TODO atime/ctime??

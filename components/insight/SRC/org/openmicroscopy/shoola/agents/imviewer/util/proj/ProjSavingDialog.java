@@ -765,6 +765,7 @@ public class ProjSavingDialog
 			case NEWFOLDER:
 				CreateFolderDialog d = new CreateFolderDialog(this, 
 						"New Dataset");
+				d.pack();
 				d.setDefaultName("untitled dataset");
 				d.addPropertyChangeListener(
 						CreateFolderDialog.CREATE_FOLDER_PROPERTY, this);

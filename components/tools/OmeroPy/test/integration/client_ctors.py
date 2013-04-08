@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Tests of the omero.client constructors
@@ -129,6 +130,18 @@ class TestClientConstructors(unittest.TestCase):
             c.__del__()
         #c = omero.client("localhost")
         #self.assertEquals(str(omero.constants.GLACIER2PORT),c.ic.getProperties().getProperty("omero.port"))
+
+    def testBlockSize(self):
+        c = omero.client("localhost")
+        try:
+            self.assertEquals(5000000, c.getDefaultBlockSize())
+        finally:
+            c.__del__()
+        c = omero.client("localhost",["--omero.block_size=1000000"])
+        try:
+            self.assertEquals(1000000, c.getDefaultBlockSize())
+        finally:
+            c.__del__()
 
     def testPythonCtorRepair(self):
         #c = omero.client(self.host, omero.constants.GLACIER2PORT)

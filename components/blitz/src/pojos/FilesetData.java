@@ -33,7 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
-import omero.model.FilesetImageLink;
+import omero.model.Image;
 import omero.model.OriginalFile;
 
 /** 
@@ -84,21 +84,21 @@ public class FilesetData
 		}
 		return paths;
 	}
-	
+
 	/**
 	 * Returns the collection of images related to the file set.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	public List<Long> getImageIds()
 	{
 		List<Long> ids = new ArrayList<Long>();
 		Fileset fs = (Fileset) asIObject();
-		List<FilesetImageLink> links = fs.copyImageLinks();
-		if (links == null || links.size() == 0) return ids;
-		Iterator<FilesetImageLink> i = links.iterator();
+		List<Image> images = fs.copyImages();
+		if (images == null || images.size() == 0) return ids;
+		Iterator<Image> i = images.iterator();
 		while (i.hasNext()) {
-			ids.add(i.next().getChild().getId().getValue());
+			ids.add(i.next().getId().getValue());
 		}
 		return ids;
 	}

@@ -1095,8 +1095,8 @@ public class FileImportComponent
 	{
 		if (errorBox == null || !errorBox.isVisible()) return null;
 		if (!errorBox.isEnabled()) return null;
-		ImportErrorObject object = new ImportErrorObject(file, 
-				(ImportException) image);
+		ImportErrorObject object = new ImportErrorObject(file,
+				(Exception) image);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		return object;
@@ -1486,6 +1486,12 @@ public class FileImportComponent
 			noContainer = true;
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
+			//use the group
+			SecurityContext ctx = new SecurityContext(group.getId());
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImageData img = (ImageData) evt.getNewValue();
+			bus.post(new ViewImage(ctx, new ViewImageObject(img), null));
 		}
 	}
 

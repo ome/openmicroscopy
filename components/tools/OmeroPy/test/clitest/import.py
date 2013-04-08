@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Test of the omero import control.
@@ -26,16 +27,6 @@ execfile( str(pluginDir/"import.py"), loc)
 ImportControl = map["import"]
 
 class TestImport(unittest.TestCase):
-
-    def testNoArgumentsDies(self):
-        cli = CLI()
-        cli.register("import", ImportControl, "HELP")
-
-        try:
-            cli.invoke([])
-            self.assert_(cli.rv != 0)
-        except NonZeroReturnCode, nzrc:
-            pass
 
     def testDropBoxArgs(self):
         class MockImportControl(ImportControl):

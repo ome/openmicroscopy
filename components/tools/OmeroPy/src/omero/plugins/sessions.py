@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
    Plugin for viewing and controlling active sessions for a local user.
 
@@ -413,10 +414,13 @@ class SessionsControl(BaseControl):
                     try:
                         if props: port = props.get("omero.port", port)
                         rv = store.attach(server, name, uuid)
-                        grp = rv[0].sf.getAdminService().getEventContext().groupName
-                        started = rv[0].sf.getSessionService().getSession(uuid).started.val
-                        started = time.ctime(started / 1000.0)
-                        rv[0].closeSession()
+                        try:
+                            grp = rv[0].sf.getAdminService().getEventContext().groupName
+                            started = rv[0].sf.getSessionService().getSession(uuid).started.val
+                            started = time.ctime(started / 1000.0)
+                        finally:
+                            if rv:
+                                rv[0].closeSession()
                     except PermissionDeniedException, pde:
                         msg = pde.reason
                     except exceptions.Exception, e:

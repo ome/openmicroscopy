@@ -234,7 +234,7 @@ public class ManageRndSettingsAction
 					else setEnabled(model.canAnnotate());
 					break;
 				case COPY:
-					setEnabled(true);
+					setEnabled(model.canAnnotate());
 			}
     	}
     }

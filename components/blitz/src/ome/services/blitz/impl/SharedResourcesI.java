@@ -292,9 +292,7 @@ public class SharedResourcesI extends AbstractAmdServant implements
         file.setAtime(time);
         file.setMtime(time);
         file.setCtime(time);
-        file.setSha1(omero.rtypes.rstring("UNKNOWN"));
         file.setMimetype(omero.rtypes.rstring("OMERO.tables"));
-        file.setSize(omero.rtypes.rlong(0));
         file.setPath(omero.rtypes.rstring(path));
         file.setName(omero.rtypes.rstring(path));
 

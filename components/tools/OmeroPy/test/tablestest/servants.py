@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
    Test of the Tables facility independent of Ice.
@@ -36,7 +37,7 @@ class mock_communicator(object):
         return self.delegate.getProperties()
     def findObjectFactory(self, s):
         return self.delegate.findObjectFactory(s)
-    # Overriden
+    # Overridden
     def stringToProxy(self, arg):
         return arg
 
@@ -83,7 +84,7 @@ class mocked_service_factory(object):
 class mocked_admin_service(object):
     def __init__(self, can_update):
         self.can_update = can_update
-    def canUpdate(self, file_obj):
+    def canUpdate(self, file_obj, call_context=None):
         return self.can_update
 
 class mocked_config_service(object):

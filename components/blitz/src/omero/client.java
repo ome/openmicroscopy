@@ -27,6 +27,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.api.ClientCallback;
 import omero.api.ClientCallbackPrxHelper;
 import omero.api.IAdminPrx;
@@ -299,6 +302,13 @@ public class client {
         id.properties.setProperty("IceSSL.Ciphers", "NONE (DH_anon)");
         id.properties.setProperty("IceSSL.VerifyPeer", "0");
 
+        // Setting default block size
+        String blockSize = id.properties.getProperty("omero.block_size");
+        if (blockSize == null || blockSize.length() == 0) {
+            id.properties.setProperty("omero.block_size", Integer
+                    .toString(omero.constants.DEFAULTBLOCKSIZE.value));
+        }
+
         // Setting MessageSizeMax
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
         if (messageSize == null || messageSize.length() == 0) {
@@ -559,6 +569,18 @@ public class client {
             rv.putAll(prefixed);
         }
         return rv;
+    }
+
+    /**
+     * Returns the user configured setting for "omero.block_size"
+     * or {@link omero.constants.DEFAULTBLOCKSIZE} if none is set.
+     */
+    public int getDefaultBlockSize() {
+        try {
+            return Integer.valueOf(getProperty("omero.block_size"));
+        } catch (Exception e) {
+            return omero.constants.DEFAULTBLOCKSIZE.value;
+        }
     }
 
     // Session management
@@ -925,9 +947,9 @@ public class client {
      * Calculates the local sha1 for a file.
      */
     public String sha1(File file) {
-        return Utils.bytesToHex(
-                Utils.pathToSha1(
-                        file.getAbsolutePath()));
+        ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
+        return cpf.getProvider(ChecksumType.SHA1).putFile(
+                        file.getAbsolutePath()).checksumAsString();
     }
 
     public OriginalFile upload(File file) throws ServerError, IOException {

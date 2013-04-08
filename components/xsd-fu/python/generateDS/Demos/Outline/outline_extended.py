@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 #
 # Generated Mon Aug 18 17:12:21 2003 by generateDS.py.

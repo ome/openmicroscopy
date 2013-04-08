@@ -179,10 +179,10 @@ public class ImporterFactory
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
 	 */
-	private boolean		isAttached;
+	private boolean isAttached;
 
 	/** The windows menu. */
-	private JMenu   	windowMenu;
+	private JMenu windowMenu;
 	
 	/** Creates a new instance. */
 	private ImporterFactory()
@@ -218,6 +218,20 @@ public class ImporterFactory
 		importer.removeChangeListener(this);
 		importer.discard();
 		importer = null;
+		handleViewerDiscarded();
+	}
+	
+	/**
+	 * Checks the list of opened viewers before removing the entry from the
+	 * menu.
+	 */
+	private void handleViewerDiscarded()
+	{
+		if (!singleton.isAttached) return;
+		if (singleton.importer != null) return;
+		TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
+		tb.removeFromMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		singleton.isAttached = false;
 	}
 	
 	/**
@@ -228,7 +242,10 @@ public class ImporterFactory
 	public void stateChanged(ChangeEvent ce)
 	{
 		ImporterComponent comp = (ImporterComponent) ce.getSource();
-		if (comp.getState() == Importer.DISCARDED) importer = null;
+		if (comp.getState() == Importer.DISCARDED) {
+			importer = null;
+			handleViewerDiscarded();
+		}
 	}
 	
 }

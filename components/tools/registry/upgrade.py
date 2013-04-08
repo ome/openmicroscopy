@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # OMERO Registry Database Count
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.

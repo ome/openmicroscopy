@@ -208,9 +208,8 @@
         <constructor-arg>
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image/FilesetImageLink;HARD</value>
                 <value>/Image+Only</value>
-                <value>/Fileset;HARD;/Image/FilesetImageLink</value>
+                <value>/Fileset;HARD;/Image</value>
             </list>
         </constructor-arg>
     </bean>
@@ -227,9 +226,7 @@
         <constructor-arg>
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image/FilesetImageLink;HARD</value>
                 <value>/Image+Only</value>
-                <!-- Missing /Fileset here -->
             </list>
         </constructor-arg>
     </bean>
@@ -243,7 +240,6 @@
         <constructor-arg>
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image/FilesetImageLink;HARD</value>
                 <value>/Image+Only</value>
                 <!-- Missing /Fileset here -->
             </list>
@@ -336,20 +332,8 @@
         <constructor-arg>
             <list>
                 <value>/Plate/ScreenPlateLink;FORCE</value>
-                <value>/Plate/FilesetPlateLink;HARD</value>
                 <value>/Plate+Only</value>
-                <value>/Fileset;HARD;/Plate/FilesetPlateLink</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="delSpec" name="/Plate+FS">
-        <constructor-arg>
-            <list>
-                <value>/Plate/ScreenPlateLink;FORCE</value>
-                <value>/Plate/FilesetPlateLink;HARD</value>
-                <value>/Plate+Only</value>
-                <!-- No fileset here. See /Image+FS for an explanation -->
+                <!-- Accessing fileset? -->
             </list>
         </constructor-arg>
     </bean>
@@ -424,10 +408,8 @@
     <bean parent="delSpec" name="/Fileset">
         <constructor-arg>
             <list>
-                <value>/Fileset/FilesetImageLink</value>
-                <value>/Image+FS;HARD;/Fileset/FilesetImageLink</value>
-                <value>/Fileset/FilesetPlateLink</value>
-                <value>/Plate+FS;HARD;/Fileset/FilesetPlateLink</value>
+                <value>/Image+FS;HARD;/Fileset</value>
+                <!-- How to delete Plate -->
                 <value>/Fileset/FilesetEntry</value>
                 <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
                 <value>/Fileset/FilesetJobLink</value>

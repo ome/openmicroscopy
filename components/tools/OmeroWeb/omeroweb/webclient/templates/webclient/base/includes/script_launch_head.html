@@ -20,17 +20,8 @@
 
 <script type="text/javascript">
 
-    $(document).ready(function(){
-        
-        function openScriptWindow(event) {
-            // open script url, providing Data_Type and IDs params in request
-            var script_url = $(this).attr('href');
-            if (script_url == "#") return false;
 
-            script_url += "?"+ OME.get_tree_selection();
-            OME.openCenteredWindow(script_url);
-            return false;
-        }
+    $(document).ready(function(){
 
         $('body').click(function(event) {
             if (event.target.id != 'scriptButton') {
@@ -47,10 +38,9 @@
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
                 $("#scriptList").load(script_list_url, function(){
-                    // Now show the menu and add ">>" to any <li> with child <ul>
-                    $("ul.sub_menu li:has(ul)").find("a:first").append("");
+                    $("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
                     // bind links to OME.openPopup
-                    $("#scriptList.sub_menu a").click(openScriptWindow);
+                    $("#scriptList.sub_menu a").click(OME.openScriptWindow);
                     $scriptSpinner.hide();
                 });
             }

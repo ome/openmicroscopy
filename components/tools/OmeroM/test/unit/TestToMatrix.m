@@ -26,9 +26,10 @@ classdef TestToMatrix < TestCase
         matrix
         pixels
         sizeX = 10
-        sizeY = 10
-        sizeZ = 10
+        sizeY = 15
+        sizeZ = 20
         pixelsType
+        type
     end
     
     methods
@@ -41,6 +42,12 @@ classdef TestToMatrix < TestCase
             self.pixelsType = omero.model.PixelsTypeI();
         end
         
+        function tearDown(self)
+            self.pixels = [];
+            self.pixelsType = [];
+        end
+        
+        % Wrong input tests
         function testWrongBinaryInput(self)
             self.binaryData = 'test';
             assertExceptionThrown(@() toMatrix(self.binaryData, self.pixels),...
@@ -53,53 +60,106 @@ classdef TestToMatrix < TestCase
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
-        function testPlane(self)
-            self.binaryData = ones(self.sizeX * self.sizeY, 1);
-            self.pixelsType.setValue(rstring('double'));
-            self.pixels.setPixelsType(self.pixelsType);
-            self.matrix = toMatrix(self.binaryData, self.pixels);
-        end
         
-        function testStack(self)
-            self.binaryData = ones(self.sizeX * self.sizeY * self.sizeZ, 1);
-            self.pixelsType.setValue(rstring('double'));
-            self.pixels.setPixelsType(self.pixelsType);
-            self.matrix = toMatrix(self.binaryData, self.pixels);
+        function testWrongSize(self)
+            self.binaryData = 1;
+            assertExceptionThrown(@() toMatrix(self.binaryData, self.pixels,...
+                [self.sizeX + 1, self.sizeY]),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(@() toMatrix(self.binaryData, self.pixels,...
+                [self.sizeX, self.sizeY + 1]),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
+            assertExceptionThrown(@() toMatrix(self.binaryData, self.pixels,...
+                [self.sizeX, self.sizeY,self.sizeZ + 1]),...
+                'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         % Pixel type tests
-        
-        function testINT8(self)
-            self.binaryData = int8(ones(self.sizeX * self.sizeY, 1));
-            self.pixelsType.setValue(rstring('int8'));
+        function setUpPixelsType(self)
+            self.binaryData = ones(self.sizeX * self.sizeY, 1, self.type);
+            self.pixelsType.setValue(rstring(self.type));
             self.pixels.setPixelsType(self.pixelsType);
             self.matrix = toMatrix(self.binaryData, self.pixels);
+            assertEqual(class(self.matrix), self.type);
+        end
+        
+        function testINT8(self)
+            self.type = 'int8';
+            self.setUpPixelsType();
         end
         
         function testUINT8(self)
-            self.binaryData = uint8(ones(self.sizeX * self.sizeY, 1));
-            self.pixelsType.setValue(rstring('uint8'));
-            self.pixels.setPixelsType(self.pixelsType);
-            self.matrix = toMatrix(self.binaryData, self.pixels);
+            self.type = 'uint8';
+            self.setUpPixelsType();
         end
         
         function testINT16(self)
-            self.binaryData = int16(ones(self.sizeX * self.sizeY, 1));
-            self.pixelsType.setValue(rstring('int16'));
-            self.pixels.setPixelsType(self.pixelsType);
-            self.matrix = toMatrix(self.binaryData, self.pixels);
+            self.type = 'int16';
+            self.setUpPixelsType();
         end
         
         function testUINT16(self)
-            self.binaryData = uint16(ones(self.sizeX * self.sizeY, 1));
-            self.pixelsType.setValue(rstring('uint16'));
-            self.pixels.setPixelsType(self.pixelsType);
-            self.matrix = toMatrix(self.binaryData, self.pixels);
+            self.type = 'uint16';
+            self.setUpPixelsType();
         end
-
-
         
-
+        function testDOUBLE(self)
+            self.type = 'double';
+            self.setUpPixelsType();
+        end
+        
+        function testFLOAT(self)
+            self.type = 'single';
+            self.setUpPixelsType();
+        end
+        
+        % Dimension tests
+        function setUpDimension(self, matrix_size, pass)
+            self.binaryData = ones(prod(matrix_size), 1);
+            self.pixelsType.setValue(rstring('double'));
+            self.pixels.setPixelsType(self.pixelsType);
+            if pass
+                self.matrix = toMatrix(self.binaryData, self.pixels, matrix_size);
+            else
+                self.matrix = toMatrix(self.binaryData, self.pixels);
+            end
+            assertEqual(size(self.matrix), matrix_size);
+        end
+        
+        function testPlaneWithNoSizeArgument(self)
+            self.setUpDimension([self.sizeX, self.sizeY], false);
+        end
+        
+        function testPlaneWithSizeArgument(self)
+            self.setUpDimension([self.sizeX, self.sizeY], true);
+        end
+        
+        function testStackWithNoSizeArgument(self)
+            self.setUpDimension([self.sizeX, self.sizeY, self.sizeZ], false);
+        end
+        
+        function testStackWithSizeArgument(self)
+            self.setUpDimension([self.sizeX, self.sizeY, self.sizeZ], true);
+        end
+        
+        function testTile(self)
+            w = 10;
+            h = 10;
+            self.setUpDimension([w, h], true);
+        end
+        
+        function testHypercube(self)
+            w = 10;
+            h = 10;
+            d = 5;
+            self.setUpDimension([w, h, d], true);
+        end
+        
+        function testScalar(self)
+            w = 1;
+            h = 1;
+            self.setUpDimension([w, h], true);
+        end
     end
     
 end

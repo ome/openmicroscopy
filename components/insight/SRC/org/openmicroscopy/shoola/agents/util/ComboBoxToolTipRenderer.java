@@ -32,6 +32,7 @@ import javax.swing.JList;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.Selectable;
 
 
 /** 
@@ -84,19 +85,23 @@ public class ComboBoxToolTipRenderer extends DefaultListCellRenderer {
 				&& tooltips.size() > index) {
 			list.setToolTipText(tooltips.get(index));
 		}
-		comp.setEnabled(true);
-		if (value instanceof DataNode) {
-			DataNode node = (DataNode) value;
-			if (!node.isDefaultNode()) {
-				comp.setEnabled(node.getDataObject().canLink());
-			}
-			if (userID >= 0 && node.getOwner() != null) {
-				if (node.getOwner().getId() != userID 
-						&& comp instanceof JLabel) {
-					((JLabel) comp).setIcon(NOT_OWNED_ICON);
+		
+		if(value instanceof Selectable<?>)
+		{
+			Selectable<?> entry = (Selectable<?>) value;
+			comp.setEnabled(entry.isSelectable());
+			Object obj = entry.getObject();
+			if (obj instanceof DataNode) {
+				DataNode node = (DataNode) obj;
+	
+				if (userID >= 0 && node.getOwner() != null) {
+					if (node.getOwner().getId() != userID 
+							&& comp instanceof JLabel) {
+						((JLabel) comp).setIcon(NOT_OWNED_ICON);
+					}
 				}
+				
 			}
-			
 		}
 		return comp;
 	}

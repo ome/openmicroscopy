@@ -184,6 +184,7 @@ omero.version=${omero.version}
 				<path refid="omero.test.classpath"/>
 				<pathelement location="${testclasses.dir}"/>
 				<pathelement location="${classes.dir}"/>
+				<pathelement location="${test.dir}"/>
 			</classpath>
 			<files/>
 			<jvmarg value="-Xmx${javac.maxmem}"/>
@@ -202,7 +203,7 @@ omero.version=${omero.version}
 
 
 	<target name="test-compile" depends="testng-init" unless="test.skip">
-		<!-- may be overriden by fail-on-error -->
+		<!-- may be overridden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="emma.enabled"   value="true"/>
 	        <property name="unit.suite" value="unit.testng.xml"/>
@@ -250,7 +251,7 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="test-groups" unless="TEST">
-		<!-- may be overriden by fail-on-error -->
+		<!-- may be overridden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite groups="${GROUPS}">
@@ -261,7 +262,7 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="test-methods" unless="TEST">
-		<!-- may be overriden by fail-on-error -->
+		<!-- may be overridden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite methods="${METHODS}">
@@ -294,7 +295,7 @@ omero.version=${omero.version}
 	</target>
 
 	<target name="integration" depends="test-compile" unless="test.skip">
-		<!-- may be overriden by fail-on-error -->
+		<!-- may be overridden by fail-on-error -->
 		<property name="test.with.fail" value="false"/>
 		<property name="integration.suite" value="integration.testng.xml"/>
 		<suite>

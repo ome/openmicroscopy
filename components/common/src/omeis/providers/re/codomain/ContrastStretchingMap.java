@@ -61,7 +61,7 @@ class ContrastStretchingMap implements CodomainMap {
     }
 
     /**
-     * Overriden to return the name of this map.
+     * Overridden to return the name of this map.
      * 
      * @see Object#toString()
      */

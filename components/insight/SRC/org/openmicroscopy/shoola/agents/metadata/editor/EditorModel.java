@@ -738,6 +738,8 @@ class EditorModel
 			description = ((ScreenData) ref).getDescription();
 		else if (ref instanceof PlateData)
 			description = ((PlateData) ref).getDescription();
+		else if (ref instanceof PlateAcquisitionData)
+			description = ((PlateAcquisitionData) ref).getDescription();
 		else if (ref instanceof TagAnnotationData) {
 			description = ((TagAnnotationData) ref).getTagDescription();
 		} else if (ref instanceof WellSampleData) {
