@@ -32,6 +32,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.net.UnknownHostException;
 
 import ome.conditions.SessionTimeoutException;
+import omero.DatabaseBusyException;
 import Ice.CommunicatorDestroyedException;
 import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
@@ -116,10 +117,12 @@ public class ConnectionExceptionHandler
 				e instanceof SocketException ||
 				e instanceof UnknownHostException)
 			index = NETWORK;
-		else if (cause instanceof ConnectionRefusedException || 
+		else if (cause instanceof ConnectionRefusedException ||
 				e instanceof ConnectionRefusedException ||
-				cause instanceof ConnectionTimeoutException || 
-				e instanceof ConnectionTimeoutException) 
+				cause instanceof ConnectionTimeoutException ||
+				e instanceof ConnectionTimeoutException ||
+				cause instanceof DatabaseBusyException ||
+				e instanceof DatabaseBusyException)
 			index = SERVER_OUT_OF_SERVICE;
 		else if (cause instanceof UnknownException)
 			index = handleIceUnknownException(cause);
