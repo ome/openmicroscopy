@@ -65,7 +65,10 @@ public class ImportException
 	
 	/** Indicates that there is no space left.*/
 	public static int NO_SPACE = 3;
-	
+
+	/** Indicates that there was a checksum mismatch.*/
+	public static int CHECKSUM_MISMATCH = 4;
+
 	/** The status associated to the exception.*/
 	private int status;
 	
@@ -76,7 +79,7 @@ public class ImportException
 	 * @param t The exception to handle.
 	 * @return See above.
 	 */
-	public static String getImportFailureMessage(Throwable t)
+	public static Object getImportFailureMessage(Throwable t)
 	{
 		String message;
 		Throwable cause = t.getCause();
@@ -90,6 +93,8 @@ public class ImportException
 			if (s.length > 0) return s[0];
 		} else if (cause instanceof IOException) {
 			
+		} else if (cause instanceof omero.ChecksumValidationException) {
+			return ((omero.ChecksumValidationException) cause);
 		}
 		return null;
 	}
@@ -116,7 +121,7 @@ public class ImportException
 	 */
 	public ImportException(Throwable cause) 
 	{
-		this(getImportFailureMessage(cause), cause);
+		this((String) getImportFailureMessage(cause), cause);
 	}
 	
 	/**
@@ -162,6 +167,8 @@ public class ImportException
 			String message = cause.getMessage();
 			if (message.contains("No space left on device"))
 				return NO_SPACE;
+		} else if (cause instanceof omero.ChecksumValidationException) {
+			return CHECKSUM_MISMATCH;
 		}
 		return status;
 	}
