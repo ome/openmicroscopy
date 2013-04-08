@@ -10,6 +10,7 @@
 #define OMERO_SERVERERRORS_ICE
 
 #include <Glacier2/Session.ice>
+#include <omero/Collections.ice>
 
 /**
  * Exceptions thrown by OMERO server components. Exceptions thrown client side
@@ -53,7 +54,8 @@
  *   |_ ApiUsageException (misuse of services)
  *   |   |_ OverUsageException (too much)
  *   |   |_ QueryException (bad query string)
- *   |   \_ ValidationException (bad data)
+ *   |   |_ ValidationException (bad data)
+ *   |      \_ ChecksumValidationException (checksum mismatch)
  *   |
  *   |_ SecurityViolation (some no-no)
  *   |   \_ GroupSecurityViolation
@@ -312,6 +314,11 @@ module omero
 
   exception ValidationException extends ApiUsageException
     {
+    };
+
+  exception ChecksumValidationException extends ValidationException
+    {
+        omero::api::IntStringMap failingChecksums;
     };
 
   // SECURITY
