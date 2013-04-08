@@ -294,10 +294,7 @@ class ImViewerModel
     
     /** The number of columns, default is <code>1</code>.*/
     private int numberOfColumns;
-    
-	/** The size of the tile.*/
-	private Dimension tileSize;
-	
+
 	/** The power of 2 used to determine the tile size.*/
 	private Map<Integer, ResolutionLevel> resolutionMap;
 	
@@ -388,13 +385,9 @@ class ImViewerModel
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int levels = getResolutionLevels()-1;
+		int selected = getSelectedResolutionLevel();
+		int size = (int) (getMaxX()/Math.pow(2, levels-selected));
 		edgeWidth = w;
 		int n = size/w;
 		tiledImageSizeX = n*w;
@@ -404,7 +397,7 @@ class ImViewerModel
 			n++;
 		}
 		numberOfColumns = n;
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = (int) (getMaxY()/Math.pow(2, levels-selected));
 		edgeHeight = h;
 		n = size/h;
 		tiledImageSizeY = n*h;
@@ -413,6 +406,7 @@ class ImViewerModel
 			tiledImageSizeY += edgeHeight;
 			n++;
 		}
+		
 		numberOfRows = n;
 		int index = 0;
 		Tile tile;
@@ -1020,21 +1014,14 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		resolutionMap = new HashMap<Integer, ResolutionLevel>();
 		if (rnd != null && isBigImage()) {
-			tileSize = rnd.getTileSize();
-			if (tileSize != null) {
-				int levels = getResolutionLevels();
-				int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
-				int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
-				int index = 0;
-				int vx = 0, vy = 0;
-				for (int i = levels-1; i >= 0; i--) {
-					vx = powerX-index;
-					vy = powerY-index;
-					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
-					index++;
-				}
-				setSelectedResolutionLevel(getDefaultResolutionLevel());
+			int levels = getResolutionLevels();
+			Dimension size;
+			for (int i = levels-1; i >= 0; i--) {
+				rnd.setSelectedResolutionLevel(i);
+				size = rnd.getTileSize();
+				resolutionMap.put(i, new ResolutionLevel(i, size));
 			}
+			setSelectedResolutionLevel(getDefaultResolutionLevel());
 		}
 
 		double f = initZoomFactor();
@@ -2629,13 +2616,9 @@ class ImViewerModel
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(0);
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int levels = getResolutionLevels()-1;
+		int selected = getSelectedResolutionLevel();
+		int size = (int) (getMaxX()/Math.pow(2, levels-selected));
 		edgeWidth = w;
 		int n = size/w;
 		int tiledImageSizeX = n*w;
@@ -2644,7 +2627,7 @@ class ImViewerModel
 			tiledImageSizeX += edgeWidth;
 			n++;
 		}
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = (int) (getMaxY()/Math.pow(2, levels-selected));
 		edgeHeight = h;
 		n = size/h;
 		int tiledImageSizeY = n*h;
@@ -2683,17 +2666,11 @@ class ImViewerModel
 	 */
 	Dimension getTileSize()
 	{
-		if (tileSize != null) return tileSize;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return null;
 		ResolutionLevel r = resolutionMap.get(getSelectedResolutionLevel());
-		if (r == null) {
-			tileSize = rnd.getTileSize();
-			return tileSize; 
-		}
-		tileSize = new Dimension((int) Math.pow(2, r.getPowerAlongX()),
-				(int) Math.pow(2, r.getPowerAlongY()));
-		return tileSize; 
+		if (r == null) return rnd.getTileSize();
+		return r.getTileSize();
 	}
 
     /**
