@@ -95,7 +95,7 @@ public class FileUploader implements Runnable {
 
         // Non-configurable
         ofile.setSize(rSize);
-        ofile.setSha1(this.cpf.getProvider(ChecksumType.SHA1).putBytes(rBuf).checksumAsString());
+        ofile.setHash(this.cpf.getProvider(ChecksumType.SHA1).putBytes(rBuf).checksumAsString());
 
     }
 

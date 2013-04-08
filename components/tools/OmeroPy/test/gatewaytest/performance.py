@@ -34,7 +34,7 @@ class PerformanceTest (lib.GTest):
             originalFile.setName(rstring(name))
             originalFile.setPath(rstring(name))
             originalFile.setSize(rlong(0))
-            originalFile.setSha1(rstring("Foo"))
+            originalFile.setHash(rstring("Foo"))
             originalFile = updateService.saveAndReturnObject(originalFile)
             fa = omero.model.FileAnnotationI()
             fa.setFile(originalFile)

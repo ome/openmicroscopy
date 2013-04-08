@@ -93,7 +93,7 @@ public:
         file->setSize(rlong(0));
         file->setName(rstring(""));
         file->setPath(rstring("/"));
-        file->setSha1(rstring(""));
+        file->setHash(rstring(""));
         return file;
     }
 };

@@ -26,7 +26,7 @@ class TestRFS(lib.ITest):
         ofile.mimetype = rstring("application/octet-stream")
         ofile.name = rstring("test")
         ofile.path = rstring("/tmp/test")
-        ofile.sha1 = rstring("")
+        ofile.hash = rstring("")
         ofile.size = rlong(-1)
         ofile = update.saveAndReturnObject(ofile)
         return ofile
@@ -37,7 +37,7 @@ class TestRFS(lib.ITest):
         query = client.sf.getQueryService()
         ofile = query.get("OriginalFile", ofile.id.val)
         self.assert_(ofile.size.val != -1)
-        self.assert_(ofile.sha1.val != "")
+        self.assert_(ofile.hash.val != "")
 
     def testTicket1961Basic(self):
         ofile = self.file()

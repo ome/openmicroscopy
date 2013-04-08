@@ -241,7 +241,7 @@ class TestDelete(lib.ITest):
             oFile.setName(omero.rtypes.rstring('companion_file.txt'));
             oFile.setPath(omero.rtypes.rstring('/my/path/to/the/file/'));
             oFile.setSize(omero.rtypes.rlong(7471));
-            oFile.setSha1(omero.rtypes.rstring("pending"));
+            oFile.setHash(omero.rtypes.rstring("pending"));
             oFile.setMimetype(omero.rtypes.rstring('Companion/Deltavision'));
 
             ofid = update.saveAndReturnObject(oFile).id.val;

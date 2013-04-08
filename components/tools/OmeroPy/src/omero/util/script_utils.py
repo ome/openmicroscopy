@@ -193,7 +193,7 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     if mt:
         originalFile.mimetype = omero.rtypes.rstring(mt)
     originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
-    originalFile.setSha1(omero.rtypes.rstring(calcSha1(filename)));
+    originalFile.setHash(omero.rtypes.rstring(calcSha1(filename)));
     return updateService.saveAndReturnObject(originalFile); 
     
 
@@ -824,7 +824,7 @@ def createFileFromData(updateService, queryService, filename, data):
     tempFile.setPath(omero.rtypes.rstring(filename));
     tempFile.setMimetype(omero.rtypes.rstring(CSV_FORMAT));
     tempFile.setSize(omero.rtypes.rlong(len(data)));
-    tempFile.setSha1(omero.rtypes.rstring(calcSha1FromData(data)));
+    tempFile.setHash(omero.rtypes.rstring(calcSha1FromData(data)));
     return updateService.saveAndReturnObject(tempFile);
     
 def attachArrayToImage(updateService, image, file, nameSpace):

@@ -261,7 +261,7 @@ public class TicketsUpTo1000Test extends TestCase {
 
     private OriginalFile makeFile() {
         OriginalFile of = new OriginalFile();
-        of.setSha1("ticket:509");
+        of.setHash("ticket:509");
         of.setSize(0L);
         of.setName("ticket:509");
         of.setPath("/dev/null");

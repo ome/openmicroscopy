@@ -313,7 +313,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
                 r = sf.getQueryService()
                 .findByString(ome.model.core.OriginalFile.class,
-                        "sha1", repoUuid);
+                        "hash", repoUuid);
 
                 if (r == null) {
 
@@ -323,7 +323,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp
 
                     String path = FilenameUtils.normalize(new File(fileMaker.getDir()).getAbsolutePath());
                     r = new ome.model.core.OriginalFile();
-                    r.setSha1(repoUuid);
+                    r.setHash(repoUuid);
                     r.setName(FilenameUtils.getName(path));
                     r.setPath(FilenameUtils.getFullPath(path));
                     Timestamp t = new Timestamp(System.currentTimeMillis());

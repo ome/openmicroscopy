@@ -352,7 +352,7 @@ public class ScriptRepoHelper {
 
                         if (modificationCheck) {
                             sha1 = file.sha1();
-                            if (!sha1.equals(ofile.getSha1())) {
+                            if (!sha1.equals(ofile.getHash())) {
                                 ofile = addOrReplace(sqlAction, sf, file, id);
                             }
                         }
@@ -445,7 +445,7 @@ public class ScriptRepoHelper {
             ServiceFactory sf, OriginalFile ofile) {
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
-        ofile.setSha1(repoFile.sha1());
+        ofile.setHash(repoFile.sha1());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
         ofile.getDetails().setGroup(

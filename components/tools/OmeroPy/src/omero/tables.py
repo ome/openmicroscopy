@@ -599,7 +599,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                     finally:
                         rfs.close(ctx)
                     self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
-                        self.file_obj.id.val, file_obj.sha1.val, file_obj.size.val)
+                        self.file_obj.id.val, file_obj.hash.val, file_obj.size.val)
                 except:
                     self.logger.warn("Failed to update file object %s", self.file_obj.id.val, exc_info=1)
 
@@ -841,7 +841,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         self.repo_uuid = self.repo_uuid[2:]
 
         # Using the repo_uuid, find our OriginalFile object
-        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery("select f from OriginalFile f where sha1 = :uuid",
+        self.repo_obj = self.ctx.getSession().getQueryService().findByQuery("select f from OriginalFile f where hash = :uuid",
             omero.sys.ParametersI().add("uuid", rstring(self.repo_uuid)))
         self.repo_mgr = self.communicator.stringToProxy("InternalRepository-%s" % self.repo_uuid)
         self.repo_mgr = self._internal_repo_cast(self.repo_mgr)

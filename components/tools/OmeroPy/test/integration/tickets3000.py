@@ -30,7 +30,7 @@ class TestTickets3000(lib.ITest):
         oFile.setName(rstring(str("txt-name")));
         oFile.setPath(rstring(str("txt-name")));
         oFile.setSize(rlong(len(binary)));
-        oFile.setSha1(rstring("pending"));
+        oFile.setHash(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
 
         of = self.update.saveAndReturnObject(oFile);

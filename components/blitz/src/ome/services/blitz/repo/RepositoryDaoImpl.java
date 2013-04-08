@@ -401,7 +401,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
             if (checked.isRoot) {
                 id = q.findByString(ome.model.core.OriginalFile.class,
-                        "sha1", repoUuid).getId();
+                        "hash", repoUuid).getId();
 
                 if (id == null) {
                     throw new ome.conditions.SecurityViolation(

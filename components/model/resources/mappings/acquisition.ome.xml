@@ -103,7 +103,7 @@
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
 			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
-			<optional name="sha1" type="string"/>
+			<optional name="hash" type="string"/>
 			<optional name="mimetype" type="string"/>
 			<!--
 			Has a default set at the DB level of application/octet-stream.

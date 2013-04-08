@@ -25,7 +25,7 @@ public class RawFileStoreTest extends AbstractManagedContextTest {
         OriginalFile file = new OriginalFile();
         file.setName("name");
         file.setPath("/tmp/path");
-        file.setSha1("");
+        file.setHash("");
         file.setSize(-1L);
         file.setMimetype("application/octet-stream");
         file = iUpdate.saveAndReturnObject(file);
@@ -35,6 +35,6 @@ public class RawFileStoreTest extends AbstractManagedContextTest {
         rfs.close();
         file = iQuery.get(OriginalFile.class, file.getId());
         assertFalse(file.getSize().equals(-1L)); // The should be updated
-        assertFalse(file.getSha1().equals("")); // These should be updated
+        assertFalse(file.getHash().equals("")); // These should be updated
     }
 }

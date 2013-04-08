@@ -4316,7 +4316,7 @@ class OMEROGateway
 			closeService(ctx, store);
 			if (f != null) save = f;
 			final String clientHash = hasher.checksumAsString();
-			final String serverHash = save.getSha1().getValue();
+			final String serverHash = save.getHash().getValue();
 			if (!clientHash.equals(serverHash)) {
 			    throw new ImportException("file checksum mismatch on upload: " + file +
 			            " (client has " + clientHash + ", server has " + serverHash + ")");

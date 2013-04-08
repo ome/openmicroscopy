@@ -409,7 +409,7 @@ public class DeleteServiceFilesTest
 	    RepositoryPrx legacy = getLegacyRepository();
 	    // For admins only. Primarily a test feature.
 	    RawAccessRequest raw = new RawAccessRequest();
-	    raw.repoUuid = legacy.root().getSha1().getValue();
+	    raw.repoUuid = legacy.root().getHash().getValue();
 	    raw.command = "rm";
 	    raw.args = Arrays.asList(path);
 	    doChange(client, factory, raw, true);

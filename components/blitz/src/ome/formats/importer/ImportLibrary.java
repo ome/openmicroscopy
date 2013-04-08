@@ -313,7 +313,7 @@ public class ImportLibrary implements IObservable
                         ofile.getName().getValue(),
                         ofile.getId().getValue()));
                 log.debug(String.format("checksums: client=%s,server=%s",
-                        digestString, ofile.getSha1().getValue()));
+                        digestString, ofile.getHash().getValue()));
             }
             notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                     file.getAbsolutePath(), index, srcFiles.length,

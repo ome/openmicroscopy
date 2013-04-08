@@ -699,7 +699,7 @@ class BaseClient(object):
                 ofile = omero.model.OriginalFileI()
 
             ofile.size = omero.rtypes.rlong(size)
-            ofile.sha1 = omero.rtypes.rstring(self.sha1(file.name))
+            ofile.hash = omero.rtypes.rstring(self.sha1(file.name))
 
             abspath = filepath.normpath().abspath()
             if not ofile.name:
