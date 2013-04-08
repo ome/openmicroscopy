@@ -34,13 +34,24 @@ $(document).ready(function() {
 
     var updateRowCount = function(){
         var colCount = parseInt($("input[name=Max_Columns]").val(), 10);
-        console.log(colCount);
         $(".thumbnail_set td:has(.img_panel)").each(function(){
-            console.log(this);
             var $td = $(this);
             $("br", $td).remove();  // remove old <br>
-            console.log( $(":nth-child(" + colCount + "n)", $td) );
-            $(":nth-child(" + colCount + "n)", $td).after("<br/>");
+            // $(":nth-child(" + colCount + "n)", $td).after("<br/>");
+            // <td> may have <div> children that break up child thumbs
+            var i = 1;
+            $td.children().each(function(){
+                var $child = $(this);
+                if (i % colCount === 0) {
+                    $child.after("<br/>")
+                }
+                if (this.nodeName.toLowerCase() == 'div') {
+                    i = 1;      // new row
+                } else {
+                    i++;
+                }
+            });
+
         });
     };
     $("input[name=Max_Columns]").keyup(updateRowCount);
