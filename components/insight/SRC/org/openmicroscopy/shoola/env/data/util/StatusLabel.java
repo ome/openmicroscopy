@@ -26,20 +26,22 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.awt.FlowLayout;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import org.apache.commons.io.FileUtils;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorHandler;
+
+import org.apache.commons.io.FileUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 
 /**
@@ -103,6 +105,9 @@ public class StatusLabel
 	
 	/** Bound property indicating that the debug text has been sent.*/
 	public static final String DEBUG_TEXT_PROPERTY = "debugText";
+	
+	/** Bound property indicating that the fileset has finished uploading.*/
+	public static final String FILESET_UPLOADED_PROPERTY = "filesetUploaded";
 	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
@@ -342,6 +347,17 @@ public class StatusLabel
 		uploadLabel.setText("");
 	}
 	
+	public void setIcon(Icon icon) {
+		uploadLabel.setIcon(icon);
+	}
+	
+	public void setVisible(boolean b)
+	{
+		if (!generalLabel.isVisible() && !uploadLabel.isVisible()) {
+			generalLabel.setVisible(b);
+			uploadLabel.setVisible(b);
+		}
+	}
 	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
@@ -391,6 +407,12 @@ public class StatusLabel
 			buffer.append("upload finished ");
 			buffer.append(formatUpload(totalUploadedSize));
 			uploadLabel.setText(buffer.toString());
+			ImportEvent.FILESET_UPLOAD_END fue =
+					(ImportEvent.FILESET_UPLOAD_END) event;
+			uploadLabel.setToolTipText(UIUtilities.formatChecksumMapToToolTip(
+					fue.srcFiles, fue.checksums, fue.failingChecksums));
+			firePropertyChange(FILESET_UPLOADED_PROPERTY, fue.checksums,
+					fue.failingChecksums);
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
 			generalLabel.setText("metadata extracted");
 		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {

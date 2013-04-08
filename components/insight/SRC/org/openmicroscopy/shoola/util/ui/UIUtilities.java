@@ -50,8 +50,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -81,14 +83,10 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-
-//Third-party libraries
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
@@ -767,14 +765,33 @@ public class UIUtilities
 	{
 		if (toolTipText == null) toolTipText = "";
 		StringBuffer buf = new StringBuffer(90+toolTipText.length());
-		//buf.
 		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
 		//TODO: change into platform independent font
 		buf.append("<font face=Arial size=2>");  
 		buf.append(toolTipText);
 		buf.append("</font></body></html>");
-		return toolTipText;
-	} 
+		return buf.toString();
+	}
+	
+	public static String formatChecksumMapToToolTip(String[] srcFiles,
+			List<String> checksums, Map<Integer, String> failingChecksums) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<p>");
+		for (int i=0; i < srcFiles.length; ++i) {
+			sb.append(srcFiles[i] + "  ");
+			sb.append(checksums.get(i) + "  ");
+			if (failingChecksums.containsKey(i)) {
+				sb.append("<b>");
+				sb.append(failingChecksums.get(i));
+				sb.append("</b>");
+			} else {
+				sb.append(checksums.get(i));
+			}
+			sb.append("<br>");
+		}
+		sb.append("</p>");
+		return formatToolTipText(sb.toString());
+	}
 	
 	/** 
 	 * Builds a tool tip in a fixed font and color.
@@ -790,8 +807,6 @@ public class UIUtilities
 	{
 		if (toolTipText == null) return "";
 		StringBuffer buf = new StringBuffer();
-		//buf.
-		//buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
 		buf.append("<html><body>");
 		buf.append("<font face=Arial size=2>");  
 		Iterator<String> i = toolTipText.iterator();

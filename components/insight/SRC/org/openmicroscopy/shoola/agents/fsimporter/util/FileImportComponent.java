@@ -57,6 +57,8 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import omero.ChecksumValidationException;
+
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -182,6 +184,9 @@ public class FileImportComponent
 	
 	/** Text to indicate that the file is not accessible. */
 	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
+	
+	/** Text to indicate that the file is not accessible. */
+	private static final String CHECKSUM_MISMATCH_TEXT = "File integrity error during upload.";
 	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
@@ -1486,6 +1491,20 @@ public class FileImportComponent
 			noContainer = true;
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
+		} else if (StatusLabel.FILESET_UPLOADED_PROPERTY.equals(name)) {
+			IconManager icons = IconManager.getInstance();
+			List<String> checksums = (List<String>) evt.getOldValue();
+			Map<Integer, String> failingChecksums =
+					(Map<Integer, String>) evt.getNewValue();
+			if (checksums.size() == failingChecksums.size()) {
+				statusLabel.setIcon(icons.getIcon(IconManager.DELETE));
+				statusLabel.setText(CHECKSUM_MISMATCH_TEXT);
+			} else if (failingChecksums.isEmpty()) {
+				statusLabel.setIcon(icons.getIcon(IconManager.APPLY));
+			} else {
+				statusLabel.setIcon(icons.getIcon(IconManager.APPLY_CANCEL));
+			}
+			statusLabel.setVisible(true);
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
 			SecurityContext ctx = new SecurityContext(group.getId());
