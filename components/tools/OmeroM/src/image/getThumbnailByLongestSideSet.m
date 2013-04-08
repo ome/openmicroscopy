@@ -40,10 +40,10 @@ function thumbnails = getThumbnailByLongestSideSet(session, images, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
+isValidThumbnailSize = @(x) isscalar(x) && x > 2 && round(x) == x;
 ip = inputParser();
 ip.addRequired('images', @(x) isa(x, 'omero.model.ImageI[]') || isvector(x));
-ip.addOptional('size', [], isposint);
+ip.addOptional('size', [], isValidThumbnailSize);
 ip.parse(images, varargin{:});
 
 % Format input thumbnail size

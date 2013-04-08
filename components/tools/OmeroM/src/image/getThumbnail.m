@@ -41,11 +41,11 @@ function thumbnail = getThumbnail(session, image, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-isposint = @(x) isscalar(x) && x > 0 && round(x) == x;
+isValidThumbnailSize = @(x) isscalar(x) && x > 2 && round(x) == x;
 ip = inputParser();
 ip.addRequired('image', @(x) isa(x, 'omero.model.ImageI') || isscalar(x));
-ip.addOptional('width', [], isposint);
-ip.addOptional('height', [], isposint);
+ip.addOptional('width', [], isValidThumbnailSize);
+ip.addOptional('height', [], isValidThumbnailSize);
 ip.parse(image, varargin{:});
 
 % Format input thumbnail dimensions
