@@ -413,7 +413,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
         
         try {
-            buffer.write(nioBuffer, position);
+            do {
+                position += buffer.write(nioBuffer, position);
+            } while (nioBuffer.hasRemaining());
             // Write was successful, update state.
             modified();
             try {
