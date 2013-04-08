@@ -4,7 +4,7 @@ function thumbnailSet = getThumbnailSet(session, images, varargin)
 %   thumbnailSet = getThumbnailSet(session, images) returns a set of cache
 %   thumbnails from a series of input images.
 %
-%   thumbnailSet = getThumbnailSet(session, images, width, height) also 
+%   thumbnailSet = getThumbnailSet(session, images, width, height) also
 %   sets the width and the height of the thumbnails.
 %
 %   thumbnailSet = getThumbnailSet(session, imageIDs) returns a set of
@@ -62,15 +62,29 @@ if isnumeric(images),
     assert(~isempty(images), 'No image found with ID: %u', ip.Results.images);
 end
 
-% Create container service to load thumbnails
-store = session.createThumbnailStore();
-
 % Retrieve thumbnail set
 imageIds = arrayfun(@(x) x.getId().getValue(), images);
 pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
+nPixels = numel(pixelsIds);
+
+% Create container service to load the thumbnails
+% Load at most thubmnails at once
+store = session.createThumbnailStore();
 thumbnailMap = store.getThumbnailSet(width, height,...
-    toJavaList(pixelsIds, 'java.lang.Long'));
+    toJavaList(pixelsIds(1 : min(nPixels, 50)), 'java.lang.Long'));
 store.close();
+
+% Load remaining pixels by series of 50
+if nPixels > 50
+    nIterations = 1 + floor((nPixels - 1)/50 - 1);
+    for i = 1 : nIterations
+        pixelsRange = pixelsIds(i * 50 +1 : min(nPixels, (i + 1) * 50));
+        store = session.createThumbnailStore();
+        thumbnailMap.putAll(store.getThumbnailSet(width, height,...
+            toJavaList(pixelsRange, 'java.lang.Long')));
+        store.close();
+    end
+end
 
 % Fill cell array with thumbnailst
 nThumbnails = thumbnailMap.size;

@@ -64,9 +64,26 @@ store = session.createThumbnailStore();
 % Retrieve thumbnail set
 imageIds = arrayfun(@(x) x.getId().getValue(), images);
 pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
+nPixels = numel(pixelsIds);
+
+% Create container service to load the thumbnails
+% Load at most thubmnails at once
+store = session.createThumbnailStore();
 thumbnailMap = store.getThumbnailByLongestSideSet(size,...
-    toJavaList(pixelsIds, 'java.lang.Long'));
+    toJavaList(pixelsIds(1 : min(nPixels, 50)), 'java.lang.Long'));
 store.close();
+
+% Load remaining pixels by series of 50
+if nPixels > 50
+    nIterations = 1 + floor((nPixels - 1)/50 - 1);
+    for i = 1 : nIterations
+        pixelsRange = pixelsIds(i * 50 +1 : min(nPixels, (i + 1) * 50));
+        store = session.createThumbnailStore();
+        thumbnailMap.putAll(store.getThumbnailByLongestSideSet(size,...
+            toJavaList(pixelsRange, 'java.lang.Long')));
+        store.close();
+    end
+end
 
 % Fill cell array with thumbnailst
 nThumbnails = thumbnailMap.size;
@@ -84,5 +101,4 @@ for i = 1 : nThumbnails
     image = javax.imageio.ImageIO.read(stream);
     stream.close();
     thumbnailSet(i).thumbnail = JavaImageToMatlab(image);
-endnails{i} = JavaImageToMatlab(image);
 end
