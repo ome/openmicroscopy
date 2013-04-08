@@ -2104,6 +2104,7 @@ class RenderingControlProxy
 	public void setSelectedResolutionLevel(int level)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		tileSize = null;
 		if (level > getResolutionLevels())
 			level = getResolutionLevels();
 		isSessionAlive();
