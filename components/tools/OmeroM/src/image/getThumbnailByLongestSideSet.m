@@ -40,9 +40,11 @@ function thumbnailSet = getThumbnailByLongestSideSet(session, images, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
+isValidImagesInput = @(x) isvector(x) &&...
+    (isa(x(1), 'omero.model.ImageI') || isnumeric(x));
 isValidThumbnailSize = @(x) isscalar(x) && x > 2 && round(x) == x;
 ip = inputParser();
-ip.addRequired('images', @(x) isa(x, 'omero.model.ImageI[]') || isvector(x));
+ip.addRequired('images', isValidImagesInput);
 ip.addOptional('size', [], isValidThumbnailSize);
 ip.parse(images, varargin{:});
 
@@ -51,7 +53,7 @@ size = ip.Results.size;
 if ~isempty(size), size = rint(size); end
 
 % Get the pixels from the image
-if ~isa(images, 'omero.model.ImageI[]'),
+if isnumeric(images),
     images = getImages(session, ip.Results.images);
     assert(~isempty(images), 'No image found with ID: %u', ip.Results.images);
 end

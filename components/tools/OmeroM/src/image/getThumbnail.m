@@ -41,9 +41,11 @@ function thumbnail = getThumbnail(session, image, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
+isValidImageInput = @(x) isscalar(x) && ...
+    (isa(x, 'omero.model.ImageI') || isnumeric(x));
 isValidThumbnailSize = @(x) isscalar(x) && x > 2 && round(x) == x;
 ip = inputParser();
-ip.addRequired('image', @(x) isa(x, 'omero.model.ImageI') || isscalar(x));
+ip.addRequired('image', isValidImageInput);
 ip.addOptional('width', [], isValidThumbnailSize);
 ip.addOptional('height', [], isValidThumbnailSize);
 ip.parse(image, varargin{:});
@@ -55,7 +57,7 @@ if ~isempty(width), width = rint(width); end
 if ~isempty(height), height = rint(height); end
 
 % Get the image if image identifier is input
-if ~isa(image, 'omero.model.ImageI'),
+if isnumeric(image),
     image = getImages(session, ip.Results.image);
     assert(numel(image) == 1, 'No image found with ID: %u', ip.Results.image);
 end
