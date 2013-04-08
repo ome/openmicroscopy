@@ -29,7 +29,6 @@ import static omero.rtypes.rstring;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;

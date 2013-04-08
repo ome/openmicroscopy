@@ -27,6 +27,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
@@ -52,6 +53,7 @@ import omero.model.FilesetI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -216,6 +218,7 @@ public class ImportLibrary implements IObservable
         }
 
         final ImportSettings settings = new ImportSettings();
+        settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs, sanitizer);
         return repo.importFileset(fs, settings);

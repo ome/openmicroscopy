@@ -102,6 +102,9 @@ module omero {
         ["java:type:java.util.ArrayList<omero.model.Shape>:java.util.List<omero.model.Shape>"]
             sequence<omero::model::Shape> ShapeList;
 
+        ["java:type:java.util.ArrayList<omero.model.ChecksumAlgorithm>:java.util.List<omero.model.ChecksumAlgorithm>"]
+            sequence<omero::model::ChecksumAlgorithm> ChecksumAlgorithmList;
+
         // Arrays
 
         sequence<bool> BoolArray;

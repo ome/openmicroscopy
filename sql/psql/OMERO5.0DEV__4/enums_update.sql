@@ -125,6 +125,30 @@ insert into binning (id,permissions,value)
     select ome_nextval('seq_binning'),-35,'8x8' from binning where not exists(
         select 1 from binning where value = '8x8') limit 1;
 
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'Adler-32' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'Adler-32') limit 1;
+
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'CRC-32' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'CRC-32') limit 1;
+
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'MD5-128' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'MD5-128') limit 1;
+
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'Murmur3-32' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'Murmur3-32') limit 1;
+
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'Murmur3-128' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'Murmur3-128') limit 1;
+
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-35,'SHA1-160' from checksumalgorithm where not exists(
+        select 1 from checksumalgorithm where value = 'SHA1-160') limit 1;
+
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-35,'Brightfield' from contrastmethod where not exists(
         select 1 from contrastmethod where value = 'Brightfield') limit 1;
@@ -1396,3 +1420,4 @@ insert into renderingmodel (id,permissions,value)
 insert into renderingmodel (id,permissions,value)
     select ome_nextval('seq_renderingmodel'),-35,'greyscale' from renderingmodel where not exists(
         select 1 from renderingmodel where value = 'greyscale') limit 1;
+

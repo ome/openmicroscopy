@@ -13,7 +13,7 @@
 <!-- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Acquisition Context 1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->
 		<properties>
@@ -102,6 +102,7 @@
 			<optional name="atime" type="timestamp"/>
 			<optional name="mtime" type="timestamp"/>
 			<optional name="ctime" type="timestamp"/>
+			<optional name="hasher" type="ome.model.enums.ChecksumAlgorithm"/>
 			<optional name="sha1" type="string"/>
 			<optional name="mimetype" type="string"/>
 			<!--
@@ -648,6 +649,15 @@
 		<entry name="MIAS"/>
 		<entry name="Companion/MIAS"/>
 		<!-- Note: Other and Unknown are not needed use text/plain or application/octet-stream -->
+	</enum>
+	<enum id="ome.model.enums.ChecksumAlgorithm">
+		<!-- names suffixed by bit width for clarity -->
+		<entry name="Adler-32"/>
+		<entry name="CRC-32"/>
+		<entry name="MD5-128"/>
+		<entry name="Murmur3-32"/>
+		<entry name="Murmur3-128"/>
+		<entry name="SHA1-160"/>
 	</enum>
 <!-- Pixels Entity -->
 	<enum id="ome.model.enums.DimensionOrder">
