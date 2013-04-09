@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.awt.FlowLayout;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -347,10 +346,22 @@ public class StatusLabel
 		uploadLabel.setText("");
 	}
 	
+	/**
+	 * Sets the icon of the upload label. Does not change the icon of the
+	 * general label.
+	 *
+	 * @param icon The icon to set.
+	 */
 	public void setIcon(Icon icon) {
 		uploadLabel.setIcon(icon);
 	}
 	
+	/**
+	 * Makes both component labels visible if their previous state was
+	 * invisible.
+	 *
+	 * @param b The boolean flag.
+	 */
 	public void setVisible(boolean b)
 	{
 		if (!generalLabel.isVisible() && !uploadLabel.isVisible()) {
