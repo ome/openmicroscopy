@@ -126,12 +126,14 @@ public class MetadataValidatorTest
         log.info("METADATA VALIDATOR TARGET: " + target);
         sf = new TestServiceFactory().proxy();
         config = new ImportConfig();
-        // CGB: Needs replacing with logback equivalent.
         // Let the user know at what level we're logging
-        // log.info(String.format(
-        //        "Log levels -- Bio-Formats: %s OMERO.importer: %s",
-        //        org.apache.log4j.Logger.getLogger("loci").getLevel(),
-        //        org.apache.log4j.Logger.getLogger("ome.formats").getLevel()));
+        ch.qos.logback.classic.Logger lociLogger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("loci");
+        ch.qos.logback.classic.Logger omeLogger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("ome.formats");
+        log.info(String.format(
+                "Log levels -- Bio-Formats: %s OMERO.importer: %s",
+                lociLogger.getLevel(), omeLogger.getLevel()));
         store = new OMEROMetadataStoreClient();
         store.initialize(sf);
         store.setEnumerationProvider(new TestEnumerationProvider());

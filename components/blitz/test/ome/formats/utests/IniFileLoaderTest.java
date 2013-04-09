@@ -25,7 +25,6 @@ import ome.formats.importer.util.IniFileLoader;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.ini4j.IniFile;
 import org.ini4j.IniFile.Mode;
@@ -154,9 +153,8 @@ public class IniFileLoaderTest {
 
     @Test
     public void testLocation() throws Exception {
-        // CGB: Needs replacing with logback equivalent.
-        // Logger l = LoggerFactory.getLogger("loci");
-        // l.setLevel(Level.DEBUG);
+        ch.qos.logback.classic.Logger lociLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("loci");
+        lociLogger.setLevel(ch.qos.logback.classic.Level.DEBUG);
         Location loc = new Location("/");
         assertTrue(loc.exists());
     }
