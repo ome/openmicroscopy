@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
@@ -2163,5 +2164,41 @@ class RenderingControlProxy
 	 * @see RenderingControl#isShutDown()
 	 */
     public boolean isShutDown() { return shutDown; }
+
+    /** 
+	 * Implemented as specified by {@link RenderingControl}.
+	 * @see RenderingControl#getResolutionDescriptions()
+	 */
+    public List<ResolutionLevel> getResolutionDescriptions()
+    		throws RenderingServiceException, DSOutOfServiceException
+    {
+    	List<ResolutionLevel> levels = new ArrayList<ResolutionLevel>();
+    	Dimension d;
+    	int sizeX = getPixelsDimensionsX();
+    	int sizeY = getPixelsDimensionsY();
+    	if (!isBigImage()) {
+    		d = new Dimension(sizeX, sizeY);
+    		levels.add(new ResolutionLevel(0, d, d));
+    		return levels;
+    	}
+    	try {
+    		int w, h;
+    		ResolutionLevel level;
+    		int n = getResolutionLevels();
+			for (int i = n-1; i >= 0; i--) {
+				setSelectedResolutionLevel(i);
+				w = (int) (sizeX/Math.pow(2, n-i));
+				h = (int) (sizeY/Math.pow(2, n-i));
+				d = new Dimension(w, h);
+				level = new ResolutionLevel(i, getTileSize(), d);
+				level.setRatio((double) w/sizeX, (double) h/sizeY);
+				levels.add(level);
+			}
+		} catch (Exception e) {
+			handleException(e, "An error occurred while retrieving " +
+					"the resolutions.");
+		}
+    	return levels;
+    }
 
 }

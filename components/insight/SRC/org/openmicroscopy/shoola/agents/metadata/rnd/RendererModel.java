@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
@@ -1520,4 +1521,17 @@ class RendererModel
 		if (slaves != null && slaves.size() > 0) list.addAll(slaves);
 		return list;
 	}
+	
+	/**
+	 * Returns the list of the levels.
+	 * 
+	 * @return See above.
+	 */
+	List<ResolutionLevel> getResolutionDescriptions()
+	throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return null;
+		return rndControl.getResolutionDescriptions();
+	}
+	
 }

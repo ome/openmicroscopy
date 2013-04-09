@@ -58,6 +58,7 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -1210,6 +1211,21 @@ class RendererComponent
 	public List<RenderingControl> getRenderingControls()
 	{
 		return model.getRenderingControls();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see Renderer#getResolutionDescriptions()
+	 */
+	public List<ResolutionLevel> getResolutionDescriptions()
+	{
+		try {
+			return model.getResolutionDescriptions();
+		} catch (Exception e) {
+			MetadataViewerAgent.getRegistry().getLogger().error(this,
+					"Cannot retrieve the resolution levels");
+		}
+		return null;
 	}
 
 }
