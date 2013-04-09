@@ -110,6 +110,7 @@
 
         <hr/>
 
+        {% if tags %}
         <!-- Allow user to pick Tags for filtering -->
         <h2>Sort by Tag</h2>
 
@@ -122,11 +123,15 @@
             {% endfor %}
         </select>
 
-        <span title="Include images that have none of the chosen tags"
+        <span title="Include thumbnails that have none of the chosen tags"
                 style="position:relative; top: -10px">
-            Include all thumbnails:
+            Show Untagged Images:
             <input type="checkbox" name="Show_Untagged_Images" checked/>
         </span>
+        {% else %}
+        <h2>No Tags Added</h2>
+        NB: If you add Tags to your images, you can sort these thumbnails by Tag.
+        {% endif %}
 
         <!-- TODO: Do we do anything with this? -->
         <input type="text" name="Parent_ID" class="number"  style="display:none"/>
