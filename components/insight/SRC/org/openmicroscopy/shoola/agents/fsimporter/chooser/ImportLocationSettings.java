@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -38,18 +39,22 @@ abstract class ImportLocationSettings {
 	
 	/** Defines the type of data being imported */
 	private int importDataType;
+
+	/** Defines the user that will own the data on import*/
+	private ExperimenterData importUser;
 	
 	/**
 	 * Creates a ImportLocationSettings for passing user selection data.
 	 * @param type The identifier for this type of data.
 	 * @param group The user group to import data in to.
 	 */
-	ImportLocationSettings(int type, GroupData group)
+	ImportLocationSettings(int type, GroupData group, ExperimenterData user)
 	{
 		this.importDataType = type;
 		this.importGroup = group;
+		this.importUser = user;
 	}
-	
+
 	/**
 	 * The group to import data in to
 	 * @return See above.
@@ -57,6 +62,15 @@ abstract class ImportLocationSettings {
 	GroupData getImportGroup()
 	{
 		return importGroup;
+	}
+	
+	/**
+	 * The user to import data for
+	 * @return See above.
+	 */
+	ExperimenterData getImportUser()
+	{
+		return importUser;
 	}
 	
 	/**

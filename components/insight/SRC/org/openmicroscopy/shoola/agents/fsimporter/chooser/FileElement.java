@@ -28,13 +28,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-//Third-party libraries
 import org.apache.commons.io.FileUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /**
@@ -74,21 +72,26 @@ class FileElement
 	/** The group where the file will be imported.*/
 	private GroupData group;
 	
+	/** The user to import data as */
+	private ExperimenterData user;
+	
 	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param file The file to import.
 	 * @param type The type of container when the file was added.
 	 * @param group The group where to import the data.
+	 * @param user The user to import data as.
 	 */
-	FileElement(File file, int type, GroupData group)
+	FileElement(File file, int type, GroupData group, ExperimenterData user)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
 		this.file = file;
-		this.group = group;
-		length = -1;
 		this.type = type;
+		this.group = group;
+		this.user = user;
+		length = -1;
 		if (type == Importer.SCREEN_TYPE)
 			this.toggleContainer = false;
 	}
@@ -220,4 +223,10 @@ class FileElement
 	 */
 	public String toString() { return getName(); }
 	
+	/**
+	 * Returns the user.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getUser() { return user; }
 }

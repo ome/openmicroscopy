@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
-import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -38,6 +37,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -96,7 +96,7 @@ public class ImagesImporter
 	 */
 	public void load()
 	{
-		handle = ivView.importFiles(context, getCurrentUserID(), groupID, this);
+		handle = ivView.importFiles(context, this);
 	}
 
 	/** 
@@ -118,8 +118,8 @@ public class ImagesImporter
         	Iterator i = m.entrySet().iterator();
         	while (i.hasNext()) {
 				entry = (Entry) i.next();
-				viewer.setImportedFile((File) entry.getKey(), entry.getValue(), 
-						loaderID);
+				viewer.setImportedFile((ImportableFile) entry.getKey(),
+						entry.getValue(), loaderID);
 			}
         }
     }

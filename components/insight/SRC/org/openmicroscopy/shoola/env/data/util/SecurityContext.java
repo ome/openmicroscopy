@@ -23,6 +23,8 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
+import pojos.ExperimenterData;
+
 //Java imports
 
 //Third-party libraries
@@ -43,7 +45,7 @@ public class SecurityContext
 	private long groupID;
 	
 	/** The experimenterID if required.*/
-	private long experimenterID;
+	private ExperimenterData experimenter;
 	
 	/** The name of the server.*/
 	private String host;
@@ -62,17 +64,17 @@ public class SecurityContext
 	public SecurityContext(long groupID)
 	{
 		this.groupID = groupID;
-		experimenterID = -1;
+		experimenter = null;
 	}
 	
 	/**
-	 * Sets the experimenter ID.
+	 * Sets the experimenter
 	 * 
-	 * @param experimenterID The id of the experimenter.
+	 * @param experimenter The experimenter.
 	 */
-	public void setExperimenter(long experimenterID)
+	public void setExperimenter(ExperimenterData experimenter)
 	{
-		this.experimenterID = experimenterID;
+		this.experimenter = experimenter;
 	}
 	
 	/**
@@ -80,8 +82,19 @@ public class SecurityContext
 	 * 
 	 * @return See above.
 	 */
-	public long getExperimenter() { return experimenterID; }
+	public long getExperimenter()
+	{
+		if (experimenter == null) return -1;
+		return experimenter.getId();
+	}
 	
+	/**
+	 * Returns the experimenter.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getExperimenterData() { return experimenter; }
+
 	/**
 	 * Sets the information used to connect to the correct server.
 	 * 
@@ -112,6 +125,13 @@ public class SecurityContext
 	public String getHostName() { return host; }
 	
 	/**
+	 * Returns the port used.
+	 * 
+	 * @return See above.
+	 */
+	public int getPort() { return port; }
+	
+	/**
 	 * Sets the compression level.
 	 * 
 	 * @param compression The value to set.
@@ -135,4 +155,18 @@ public class SecurityContext
 	 */
 	public long getGroupID() { return groupID; }
 	
+	
+	/**
+	 * Returns a copy of the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext copy()
+	{
+		SecurityContext ctx = new SecurityContext(groupID);
+		ctx.setCompression(this.compression);
+		ctx.setExperimenter(this.experimenter);
+		ctx.setServerInformation(this.host, this.port);
+		return ctx;
+	}
 }
