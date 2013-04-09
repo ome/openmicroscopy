@@ -95,14 +95,21 @@ iterator = thumbnailMap.entrySet().iterator();
 thumbnailSet(1 : nThumbnails) = struct('image', [], 'pixels', [], 'thumbnail', []);
 
 for i = 1 : nThumbnails
-    % Read pairs and store pixels and image ID
     pairs = iterator.next();
+    
+    % Read map key and store pixels and image ID
     thumbnailSet(i).pixels = pairs.getKey();
     thumbnailSet(i).image = imageIds(pixelsIds == pairs.getKey());
     
-    % Convert byteArray into Matlab image
-    stream = java.io.ByteArrayInputStream(pairs.getValue());
-    image = javax.imageio.ImageIO.read(stream);
-    stream.close();
-    thumbnailSet(i).thumbnail = JavaImageToMatlab(image);
+    % Read map value and check byteArray
+    byteArray = pairs.getValue();
+    if isempty(byteArray)
+        thumbnailSet(i).thumbnail = [];
+    else
+        % Convert byteArray into Matlab image
+        stream = java.io.ByteArrayInputStream(pairs.getValue());
+        image = javax.imageio.ImageIO.read(stream);
+        stream.close();
+        thumbnailSet(i).thumbnail = JavaImageToMatlab(image);
+    end
 end
