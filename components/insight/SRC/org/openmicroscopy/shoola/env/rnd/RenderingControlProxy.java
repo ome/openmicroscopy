@@ -2184,8 +2184,8 @@ class RenderingControlProxy
     	try {
     		int w, h;
     		ResolutionLevel level;
-    		int n = getResolutionLevels();
-			for (int i = n-1; i >= 0; i--) {
+    		int n = getResolutionLevels()-1;
+			for (int i = n; i >= 0; i--) {
 				setSelectedResolutionLevel(i);
 				w = (int) (sizeX/Math.pow(2, n-i));
 				h = (int) (sizeY/Math.pow(2, n-i));
