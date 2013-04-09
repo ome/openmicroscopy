@@ -18,9 +18,11 @@
 
 $(document).ready(function() {
 
-
+    // Clear selection (only needed on page 'refresh')
     $("#tagChooser option").removeAttr('selected');
 
+
+    // Show / Hide un-tagged images after sorting or checkbox click
     var updateNotTagged = function() {
         var show_untagged_images = $("input[name=Show_Untagged_Images]").is(":checked");
         if (show_untagged_images) {
@@ -32,6 +34,7 @@ $(document).ready(function() {
     $("input[name=Show_Untagged_Images]").click(updateNotTagged);
 
 
+    // Add <br> to break up long rows of thumbnails
     var updateRowCount = function(){
         var colCount = parseInt($("input[name=Max_Columns]").val(), 10);
         $(".thumbnail_set td:has(.img_panel)").each(function(){
@@ -51,7 +54,6 @@ $(document).ready(function() {
                     i++;
                 }
             });
-
         });
     };
     $("input[name=Max_Columns]").bind('keyup input', updateRowCount);
@@ -59,6 +61,24 @@ $(document).ready(function() {
     updateRowCount();   // initialise layout
 
 
+    // If no tags are chosen, we need to return to initial state
+    var clearTagSorting = function() {
+        $(".thumbnail_set").each(function() {
+            var $this = $(this),
+                $toRemove = $('tr:has(.img_panel)', $this);
+
+            $tr = $('<tr><td></td></tr>');
+            $tr.appendTo($this);
+            $td = $('<td></td>').appendTo($tr);
+            $(".img_panel", $this).appendTo($td);
+            // now that we've moved the images, we can clean up!
+            $toRemove.remove();
+            updateRowCount();
+        });
+    }
+
+
+    // Initialise the Chosen plugin, handle Adding / Removing of Tags...
     var $TagIdsInput = $("input[name=Tag_IDs]");
     var selectedTagIds = [];
     $("#tagChooser")
@@ -72,6 +92,11 @@ $(document).ready(function() {
             }
             // update input for form submission
             $TagIdsInput.val(selectedTagIds.join(","));
+
+            if (selectedTagIds.length == 0) {
+                clearTagSorting();
+                return;
+            }
 
             var tagValues = {};
             // Have to look-up the Tag names from the UI
@@ -188,7 +213,7 @@ $(document).ready(function() {
 
                     // Add the images (move from previous position)...
                     for (var i=0; i<tagData.imgIds.length; i++) {
-                        $('#thumbnail-'+tagData.imgIds[i]).show().appendTo($td);
+                        $('#thumbnail-'+tagData.imgIds[i]).appendTo($td);
                     }
 
                 }
