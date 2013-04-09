@@ -28,15 +28,14 @@ import java.awt.Component;
 import java.awt.Point;
 import java.io.File;
 import java.util.Collection;
+
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -143,7 +142,7 @@ public interface Importer
 	 * @param result Depends on the result, it can be an image, an exception.
 	 * @param index The index of the UI components.
 	 */
-	public void setImportedFile(File f, Object result, int index);
+	public void setImportedFile(ImportableFile f, Object result, int index);
 
 	/**
 	 * Returns the view.
@@ -230,19 +229,19 @@ public interface Importer
 	 * 						import, <code>false</code> otherwise.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
-	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
+	 * @param type The type of location to reload, either {@link #PROJECT_TYPE}
 	 * 				or {@link #SCREEN_TYPE}.
+	 * @param userID The id of the user the data are for.
 	 */
-	public void setContainers(Collection result, boolean refreshImport, 
-			boolean changeGroup, int type);
+	public void setContainers(Collection result, boolean refreshImport,
+			boolean changeGroup, int type, long userID);
 
 	/** 
 	 * Reloads the containers where to load the data.
 	 * 
-	 * @param type 	The type of location to reload, either {@link #PROJECT_TYPE}
-	 * 				or {@link #SCREEN_TYPE}.
+	 * @param details Import location details to reload.
 	 */
-	public void refreshContainers(int type);
+	public void refreshContainers(ImportLocationDetails details);
 
 	/** Cancels all the ongoing imports.*/
 	public void cancelAllImports();

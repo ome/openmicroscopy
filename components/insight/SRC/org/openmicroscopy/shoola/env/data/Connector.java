@@ -53,6 +53,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -65,6 +66,9 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.grid.SharedResourcesPrx;
+import omero.model.ExperimenterGroup;
+import omero.model.Session;
+import omero.sys.Principal;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -176,6 +180,15 @@ class Connector
 	private SecurityContext context;
 	
 	/**
+	 * The map of derived connector. This will be only used when
+	 * performing action for other users e.g. import as.
+	 */
+	private Map<String, Connector> derived;
+	
+	/** The name of the group. To be removed when we can use groupId.*/
+	private String groupName;
+
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param context The context hosting information about the user.
@@ -204,6 +217,7 @@ class Connector
 		thumbRetrieval = 0;
 		services = new HashSet<ServiceInterfacePrx>();
 		reServices = new HashMap<Long, List<StatefulServiceInterfacePrx>>();
+		derived = new HashMap<String, Connector>();
 	}
 
 	/**
@@ -623,7 +637,8 @@ class Connector
 		importStore = null;
 	}
 	
-	/** Closes the session.
+	/**
+	 * Closes the session.
 	 * 
 	 * @param networkup Pass <code>true</code> if the network is up,
 	 * <code>false</code> otherwise.
@@ -646,6 +661,7 @@ class Connector
 		secureClient.closeSession();
 		//to be on the safe side
 		if (unsecureClient != null) unsecureClient.__del__();
+		closeDerived(networkup);
 	}
 	
 	/** 
@@ -674,6 +690,32 @@ class Connector
 			importStore.closeServices();
 			importStore = null;
 		}
+		try {
+			closeDerived(false);
+		} catch (Throwable e) {
+			//Todo
+		}
+		
+	}
+	
+	/**
+	 * Closes the connectors associated to the master connector.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void closeDerived(boolean networkup)
+		throws Throwable
+	{
+		Collection<Connector> list = derived.values();
+		Iterator<Connector> i = list.iterator();
+		while (i.hasNext()) {
+			try {
+				i.next().close(networkup);
+			} catch (Throwable e) { //to be decided.
+			}
+		}
+		derived.clear();
 	}
 	
 	/** 
@@ -845,7 +887,43 @@ class Connector
 			list.add(i.next());
 
 		map.put(context, list);
-		return map; 
+		return map;
+	}
+
+	/**
+	 * Returns the connector associated to the specified user.
+	 * If none exists, creates a connector.
+	 * 
+	 * @param userName The name of the user. To be replaced by user's id.
+	 * @return See above.
+	 */
+	Connector getConnector(String userName)
+		throws Throwable
+	{
+		if (userName == null || userName.length() == 0) return this;
+		Connector c = derived.get(userName);
+		if (c != null) return c;
+		if (groupName == null) {
+			ExperimenterGroup g = getAdminService().getGroup(
+					context.getGroupID());
+			groupName = g.getName().getValue();
+		}
+		//Create a connector.
+		Principal p = new Principal();
+		p.group = groupName;
+		p.name = userName;
+		p.eventType = "Sessions";
+		ISessionPrx prx = entryEncrypted.getSessionService();
+		Session session = prx.createSessionWithTimeout(p, 0L);
+		//Create the userSession
+		omero.client client = new omero.client(context.getHostName(),
+				context.getPort());
+		ServiceFactoryPrx userSession = client.createSession(
+				session.getUuid().getValue(), session.getUuid().getValue());
+		c = new Connector(context.copy(), client, userSession,
+				unsecureClient == null);
+		derived.put(userName, c);
+		return c;
 	}
 	
 }
