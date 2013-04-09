@@ -57,7 +57,6 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import omero.ChecksumValidationException;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
@@ -185,8 +184,9 @@ public class FileImportComponent
 	/** Text to indicate that the file is not accessible. */
 	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
 	
-	/** Text to indicate that the file is not accessible. */
-	private static final String CHECKSUM_MISMATCH_TEXT = "File integrity error during upload.";
+	/** Text to indicate that a checksum mismatch occurred during import. */
+	private static final String CHECKSUM_MISMATCH_TEXT =
+			"File integrity error during upload.";
 	
 	/** Tool tip text to indicate to browse the container. */
 	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
@@ -1439,7 +1439,7 @@ public class FileImportComponent
 			}
 			Map<File, StatusLabel> files = (Map<File, StatusLabel>)
 				evt.getNewValue();
-			insertFiles((Map<File, StatusLabel>) evt.getNewValue());
+			insertFiles(files);
 			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null, files.size());
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
