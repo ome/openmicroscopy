@@ -91,8 +91,6 @@ public class TileLoader
     				rt.getWidth(), rt.getHeight());
     		if (asTexture) tile.setImage(proxy.renderAsTexture(def));
     		else tile.setImage(proxy.render(def));
-        	//tile.setImage(service.renderImage(ctx, pixelsID, pDef, asTexture,
-        	//		false));
 		} catch (Exception e) {
 			tile.setImage(Factory.createDefaultImageThumbnail(rt.getWidth(), 
 					rt.getHeight()));

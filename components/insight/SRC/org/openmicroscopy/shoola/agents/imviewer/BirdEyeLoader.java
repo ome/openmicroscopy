@@ -24,16 +24,21 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -57,13 +62,13 @@ public class BirdEyeLoader
 	public static final double MIN_RATIO = 0.1;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** The object the image is for. */
-    private ImageData	image;
+    private ImageData image;
     
     /** Reference to the plane.*/
-    private PlaneDef	plane;
+    private PlaneDef plane;
     
     /** The ratio by which to scale the image down.*/
     private double ratio;
@@ -74,13 +79,12 @@ public class BirdEyeLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The view this loader is for.
-     * 					Mustn't be <code>null</code>.
+     * @param viewer The view this loader is for. Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param image	  	The image to handle.
-     * @param ratio     The ratio by with to scale the image.
+     * @param image The image to handle.
+     * @param ratio The ratio by with to scale the image.
      */
-	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image, 
+	public BirdEyeLoader(ImViewer viewer, SecurityContext ctx, ImageData image,
 			PlaneDef plane, double ratio)
 	{
 		super(viewer, ctx);
@@ -99,8 +103,12 @@ public class BirdEyeLoader
      */
     public void load()
     {
-    	handle = ivView.render(ctx, image.getDefaultPixels().getId(),
-				plane, false, true, this);
+    	//Load the thumbnail
+    	List<DataObject> objects = new ArrayList<DataObject>();
+    	objects.add(image);
+    	handle = hiBrwView.loadThumbnails(ctx, objects,
+    			Factory.THUMB_DEFAULT_WIDTH, Factory.THUMB_DEFAULT_HEIGHT,
+                getCurrentUserID(), HierarchyBrowsingView.IMAGE, this);
     }
     
     /**
@@ -111,15 +119,6 @@ public class BirdEyeLoader
     {
     	cancelled = true;
     	handle.cancel();
-    }
-    
-    /**
-     * Throws an exception b/c not possible to load the bird eye view.
-     * @see DataLoader#handleNullResult()
-     */
-    public void handleNullResult()
-    {
-    	handleException(new Exception("No bird eye view."));
     }
     
     /**
@@ -142,16 +141,20 @@ public class BirdEyeLoader
     }
     
     /** 
-     * Feeds the result back to the viewer. 
-     * @see DataLoader#handleResult(Object)
+     * Feeds the image back to the bird eye viewer, as they arrive.
+     * @see DataLoader#update(DSCallFeedbackEvent)
      */
-    public void handleResult(Object result)
+    public void update(DSCallFeedbackEvent fe)
     {
-        if (viewer.getState() == ImViewer.DISCARDED || cancelled) return;
-        BufferedImage image = (BufferedImage) result;
-        if (image != null && ratio != 1)
-        	image = Factory.magnifyImage(ratio, image);
-        viewer.setBirdEyeView(image);
+        if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
+        List l = (List) fe.getPartialResult();
+        if (l != null && l.size()  > 0) {
+        	ThumbnailData data = (ThumbnailData) l.get(0);
+        	BufferedImage image = (BufferedImage) data.getThumbnail();
+        	if (image != null && ratio != 1)
+        		image = Factory.magnifyImage(ratio, image);
+        	viewer.setBirdEyeView(image);
+        }
     }
 
 }

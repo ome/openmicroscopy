@@ -444,6 +444,7 @@ public class DataServicesFactory
 					Iterator<Long> j;
 					SecurityContext ctx;
 					List<Long> f;
+					RenderingControl p;
 					while (i.hasNext()) {
 						entry = i.next();
 						j = entry.getValue().iterator();
@@ -451,7 +452,10 @@ public class DataServicesFactory
 						while (j.hasNext()) {
 							id = j.next();
 							try {
-								svc.reloadRenderingService(ctx, id);
+								p = PixelsServicesFactory.getRenderingControl(
+										registry, Long.valueOf(id), false);
+								if (!p.isShutDown())
+									svc.reloadRenderingService(ctx, id);
 							} catch (Exception e) {
 								f = failure.get(ctx);
 								if (f == null) {
