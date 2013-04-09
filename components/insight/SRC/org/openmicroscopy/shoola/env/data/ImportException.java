@@ -79,7 +79,7 @@ public class ImportException
 	 * @param t The exception to handle.
 	 * @return See above.
 	 */
-	public static Object getImportFailureMessage(Throwable t)
+	public static String getImportFailureMessage(Throwable t)
 	{
 		String message;
 		Throwable cause = t.getCause();
@@ -94,7 +94,7 @@ public class ImportException
 		} else if (cause instanceof IOException) {
 			
 		} else if (cause instanceof omero.ChecksumValidationException) {
-			return ((omero.ChecksumValidationException) cause);
+			return ((omero.ChecksumValidationException) cause).getMessage();
 		}
 		return null;
 	}
