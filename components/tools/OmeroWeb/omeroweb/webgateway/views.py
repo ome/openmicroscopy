@@ -21,12 +21,14 @@ from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedir
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
+from django.views.decorators.http import require_POST
 from django.core import template_loader
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
 from omero.rtypes import rlong, unwrap
+from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
 
 try:
@@ -1771,3 +1773,163 @@ def su (request, user, conn=None, **kwargs):
     conn.revertGroupForSession()
     conn.seppuku()
     return True
+
+
+def _annotations(request, objtype, objid, conn=None, **kwargs):
+    """
+    Retrieve annotations for object specified by object type and identifier,
+    optionally traversing object model graph.
+    Returns dictionary containing annotations in NSBULKANNOTATIONS namespace
+    if successful, error information otherwise
+
+    Example:  /annotations/Plate/1/
+              retrieves annotations for plate with identifier 1
+    Example:  /annotations/Plate.wells/1/
+              retrieves annotations for plate that contains well with
+              identifier 1
+    Example:  /annotations/Screen.plateLinks.child.wells/22/
+              retrieves annotations for screen that contains plate with
+              well with identifier 22
+
+    @param request:     http request.
+    @param objtype:     Type of target object, or type of target object followed
+                        by a slash-separated list of properties to resolve
+    @param objid:       Identifier of target object, or identifier of object
+                        reached by resolving given properties
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message or
+                        with key 'data' containing an array of dictionaries
+                        with keys 'id' and 'file' of the retrieved annotations
+    """
+    q = conn.getQueryService()
+    # If more than one objtype is specified, use all in query to
+    # traverse object model graph
+    # Example: /annotations/Plate/wells/1/
+    #          retrieves annotations from Plate that contains Well 1
+    objtype = objtype.split('.')
+
+    query = "select obj0 from %s obj0\n" % objtype[0]
+    for i, t in enumerate(objtype[1:]):
+        query += "join fetch obj%d.%s obj%d\n" % (i, t, i+1)
+    query += """
+        left outer join fetch obj0.annotationLinks links
+        left outer join fetch links.child
+        where obj%d.id=:id""" % (len(objtype) - 1)
+
+    try:
+        obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
+                            conn.createServiceOptsDict())
+    except omero.QueryException, ex:
+        return dict(error='%s cannot be queried' % objtype,
+                    query=query)
+
+    if not obj:
+        return dict(error='%s with id %s not found' % (objtype, objid))
+
+    return dict(data=[
+        dict(id=annotation.id.val,
+             file=annotation.file.id.val)
+        for annotation in obj.linkedAnnotationList()
+        if unwrap(annotation.getNs()) == NSBULKANNOTATIONS
+        ])
+
+annotations = login_required()(jsonp(_annotations))
+
+
+def _table_query(request, fileid, conn=None, **kwargs):
+    """
+    Query a table specified by fileid
+    Returns a dictionary with query result if successful, error information
+    otherwise
+
+    @param request:     http request; querystring must contain key 'query'
+                        with query to be executed, or '*' to retrieve all rows.
+                        If query is in the format word-number, e.g. "Well-7",
+                        if will be run as (word==number), e.g. "(Well==7)".
+                        This is supported to allow more readable query strings.
+    @param fileid:      Numeric identifier of file containing the table
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message
+                        or with key 'data' containing a dictionary with keys
+                        'columns' (an array of column names) and 'rows'
+                        (an array of rows, each an array of values)
+    """
+    query = request.GET.get('query')
+    if not query:
+        return dict(error='Must specify query parameter, use * to retrieve all')
+
+    r = conn.getSharedResources()
+    t = r.openTable(omero.model.OriginalFileI(fileid),
+                    conn.createServiceOptsDict())
+    if not t:
+        return dict(error="Table %s not found" % fileid)
+
+    cols = t.getHeaders()
+    rows = t.getNumberOfRows()
+
+    if query == '*':
+        hits = range(rows)
+    else:
+        match = re.match(r'^(\w+)-(\d+)', query)
+        if match:
+            query = '(%s==%s)' % (match.group(1), match.group(2))
+        try:
+            hits = t.getWhereList(query, None, 0, rows, 1)
+        except Exception, e:
+            return dict(error='Error executing query: %s' % query)
+
+    return dict(data=dict(
+        columns=[col.name for col in cols],
+        rows=[
+            [col.values[0] for col in t.read(range(len(cols)), hit, hit+1).columns]
+            for hit in hits
+        ],
+        )
+    )
+
+table_query = login_required()(jsonp(_table_query))
+
+
+@login_required()
+@jsonp
+def object_table_query(request, objtype, objid, conn=None, **kwargs):
+    """
+    Query bulk annotations table attached to an object specified by
+    object type and identifier, optionally traversing object model graph.
+    Returns a dictionary with query result if successful, error information
+    otherwise
+
+    Example:  /table/Plate/1/query/?query=*
+              queries bulk annotations table for plate with identifier 1
+    Example:  /table/Plate.wells/1/query/?query=*
+              queries bulk annotations table for plate that contains well with
+              identifier 1
+    Example:  /table/Screen.plateLinks.child.wells/22/query/?query=Well-22
+              queries bulk annotations table for screen that contains plate with
+              well with identifier 22
+
+    @param request:     http request.
+    @param objtype:     Type of target object, or type of target object followed
+                        by a slash-separated list of properties to resolve
+    @param objid:       Identifier of target object, or identifier of object
+                        reached by resolving given properties
+    @param conn:        L{omero.gateway.BlitzGateway}
+    @param **kwargs:    unused
+    @return:            A dictionary with key 'error' with an error message
+                        or with key 'data' containing a dictionary with keys
+                        'columns' (an array of column names) and 'rows'
+                        (an array of rows, each an array of values)
+    """
+    a = _annotations(request, objtype, objid, conn, **kwargs)
+    if (a.has_key('error')):
+        return a
+
+    if len(a['data']) < 1:
+        return dict(error='Could not retrieve bulk annotations table')
+
+    # multiple bulk annotations files could be attached, use the most recent
+    # one (= the one with the highest identifier)
+    fileId = max(annotation['file'] for annotation in a['data'])
+    return _table_query(request, fileId, conn, **kwargs)
