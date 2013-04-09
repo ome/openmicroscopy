@@ -40,6 +40,9 @@ function thumbnailSet = getThumbnailSet(session, images, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+% Define maximum number of thumbnails that can be retrieved at once
+MAX_RETRIEVAL = 50;
+
 % Input check
 isValidImagesInput = @(x) isvector(x) &&...
     (isa(x(1), 'omero.model.ImageI') || isnumeric(x));
@@ -68,20 +71,20 @@ pixelsIds = arrayfun(@(x) x.getPrimaryPixels().getId().getValue(), images);
 nPixels = numel(pixelsIds);
 
 % Create container service to load the thumbnails
-% Load at most thubmnails at once
 store = session.createThumbnailStore();
+pixelsRange = 1 : min(nPixels, MAX_RETRIEVAL);
 thumbnailMap = store.getThumbnailSet(width, height,...
-    toJavaList(pixelsIds(1 : min(nPixels, 50)), 'java.lang.Long'));
+    toJavaList(pixelsIds(pixelsRange), 'java.lang.Long'));
 store.close();
 
-% Load remaining pixels by series of 50
-if nPixels > 50
-    nIterations = 1 + floor((nPixels - 1)/50 - 1);
+% Load remaining pixels by series of MAX_RETRIEVAL thumbnails
+if nPixels > MAX_RETRIEVAL
+    nIterations = 1 + floor((nPixels - 1) / MAX_RETRIEVAL - 1);
     for i = 1 : nIterations
-        pixelsRange = pixelsIds(i * 50 +1 : min(nPixels, (i + 1) * 50));
+        pixelsRange = i * MAX_RETRIEVAL + 1 : min(nPixels, (i + 1) * MAX_RETRIEVAL);
         store = session.createThumbnailStore();
         thumbnailMap.putAll(store.getThumbnailSet(width, height,...
-            toJavaList(pixelsRange, 'java.lang.Long')));
+            toJavaList(pixelsIds(pixelsRange), 'java.lang.Long')));
         store.close();
     end
 end
