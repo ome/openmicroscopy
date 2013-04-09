@@ -208,13 +208,16 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
+        <available property="jdk1.5+" classname="java.net.Proxy"/>
+        <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
+
         <if>
             <and>
                 <or>
                     <contains string="${os.arch}" substring="x86_64"/>
                     <contains string="${os.arch}" substring="amd64"/>
                 </or>
-                <contains string="${java.version}" substring="1.6" casesensitive="false" />
+                <isset property="jdk1.6+"/>
             </and>
             <then>
                 <property name="maxmem.set" value="false"/>
