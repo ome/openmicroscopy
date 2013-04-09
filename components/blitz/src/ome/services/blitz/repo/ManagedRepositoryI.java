@@ -405,12 +405,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
         map.put("month", String.format("%02d", now.get(Calendar.MONTH)+1));
         map.put("monthname", DATE_FORMAT.getMonths()[now.get(Calendar.MONTH)]);
         map.put("day", String.format("%02d", now.get(Calendar.DAY_OF_MONTH)));
+        map.put("time", String.format("%02d-%02d-%02d.%03d",
+                now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND), now.get(Calendar.MILLISECOND)));
         map.put("session", ec.sessionUuid);
         map.put("sessionId", Long.toString(ec.sessionId));
         map.put("eventId", Long.toString(ec.eventId));
         map.put("perms", ec.groupPermissions.toString());
-        // TODO: new import set ID
-        map.put("importSetId", Long.toString(System.currentTimeMillis() - 1360000000000L));
         return map;
     } 
 
