@@ -435,6 +435,7 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     'omeroweb.webredirect',
     'omeroweb.webstart',
+    'omeroweb.webgallery',
     
 )
 
