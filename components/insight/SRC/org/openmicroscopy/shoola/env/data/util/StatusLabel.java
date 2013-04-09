@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.util.StatusLabel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,7 @@ import pojos.DataObject;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
