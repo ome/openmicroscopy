@@ -98,22 +98,13 @@ public class RenderingControlShutDown
      * {@link #viewer}.
      * @see DSCallAdapter#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
+    public void handleException(Throwable exc)
     {
     	String s = "Problem closing rendering engine: ";
     	LogMessage log = new LogMessage();
     	log.print(s);
     	log.print(exc);
 		registry.getLogger().error(this, log);
-    }
-    
-    /** 
-     * Feeds the result back to the viewer. 
-     * @see EditorLoader#handleResult(Object)
-     */
-    public void handleResult(Object result)
-    {
-        //Nothing to do.
     }
 
 }

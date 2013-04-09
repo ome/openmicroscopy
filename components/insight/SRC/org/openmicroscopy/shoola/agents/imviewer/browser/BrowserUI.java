@@ -161,7 +161,6 @@ class BrowserUI
     	getViewport().setViewPosition(new Point(-1, -1));
     	scrollTo(r, false);
     	if (load) model.loadTiles(null);
-    	setBirdEyeViewLocation();
     }
     
     /** Sets the location of the region.*/
@@ -695,8 +694,8 @@ class BrowserUI
 	{
 		Dimension d = birdEyeView.getImageSize();
 		Rectangle r = birdEyeView.getSelectionRegion();
-		double cx = r.getCenterX()-1;
-		double cy = r.getCenterY()-1;
+		double cx = r.getCenterX();
+		double cy = r.getCenterY();
 		
 		Rectangle rect = getVisibleRectangle();
     	int sizeX = model.getTiledImageSizeX();
