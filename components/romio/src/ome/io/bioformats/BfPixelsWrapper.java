@@ -19,6 +19,7 @@ import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
+import loci.formats.Memoizer;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 
@@ -45,7 +46,7 @@ public class BfPixelsWrapper {
      */
     public BfPixelsWrapper(String path, IFormatReader reader) throws IOException, FormatException {
         this.path = path;
-        this.reader = reader;
+        this.reader = new Memoizer(reader);
         reader.setFlattenedResolutions(false);
         reader.setId(path);
     }

@@ -19,6 +19,7 @@ import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
 import loci.formats.meta.IMinMaxStore;
 import ome.conditions.LockTimeout;
@@ -138,7 +139,7 @@ public class PixelsService extends AbstractFileSystemService
 
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
-	 * 
+	 *
 	 * @param pixels Pixels set to create a pixel buffer for.
 	 * @return Allocated pixel buffer ready to be used.
 	 * @throws IOException If there is an I/O error creating the pixel buffer
@@ -404,6 +405,13 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
+        PixelBuffer pb = _getPixelBuffer(pixels, write);
+        log.warn(pb +" for " + pixels);
+        return pb;
+    }
+
+    public PixelBuffer _getPixelBuffer(Pixels pixels, boolean write)
+    {
         final String originalFilePath = getOriginalFilePath(pixels);
         final boolean requirePyramid = requiresPixelsPyramid(pixels);
         final String pixelsFilePath = getPixelsPath(pixels.getId());
@@ -544,7 +552,7 @@ public class PixelsService extends AbstractFileSystemService
 
 	/**
 	 * Initializes each plane of a PixelBuffer using a null plane byte array.
-	 * 
+	 *
 	 * @param pixbuf Pixel buffer to initialize.
 	 * @throws IOException If there is an I/O error during initialization.
 	 */
@@ -678,6 +686,7 @@ public class PixelsService extends AbstractFileSystemService
             IFormatReader reader = new ImageReader();
             reader = new ChannelFiller(reader);
             reader = new ChannelSeparator(reader);
+            reader = new Memoizer(reader);
             reader.setFlattenedResolutions(false);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
@@ -737,7 +746,7 @@ public class PixelsService extends AbstractFileSystemService
     /**
 	 * Removes files from data repository based on a parameterized List of Long
 	 * pixels ids
-	 * 
+	 *
 	 * @param pixelsIds Long file keys to be deleted
 	 * @throws ResourceError If deletion fails.
 	 */
