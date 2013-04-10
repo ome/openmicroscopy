@@ -34,9 +34,9 @@
 
 {% block script %}
     {{ block.super }}
-    {% include "webgateway/base/includes/script_src_jquery.html" %}
     {% include "webgateway/base/includes/script_src_popup.html" %}
     {% include "webgateway/base/includes/jquery-ui.html" %}
+
     <link rel="stylesheet" href="{% static "3rdparty/jquery-ui-1.8.19/themes/base/jquery.ui.base.css" %}" type="text/css" />
     <script type="text/javascript" src="{% static "webclient/javascript/jquery.form.js" %}"></script>
 
@@ -194,7 +194,7 @@
             <a href="#" onClick="self.close()">Cancel</a>
             <input id="submit" type="submit" value="Create Figure" />
         </div>
-        <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
+        <a href="#" onClick="return OME.openPopup('{% url get_original_file scriptId %}');">View Script</a>
 
         <div id="img_size_slider" title="Zoom Preview Figure"></div>
     </div>
