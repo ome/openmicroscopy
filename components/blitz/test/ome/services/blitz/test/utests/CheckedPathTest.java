@@ -30,18 +30,18 @@ public class CheckedPathTest {
 
     @Test
     public void testCtorWithRootPathPasses() throws Exception {
-        CheckedPath cp = new CheckedPath(this.serverPaths, "", null);
+        CheckedPath cp = new CheckedPath(this.serverPaths, "", null, null);
         Assert.assertTrue(cp.isRoot);
     }
 
     @Test(expectedExceptions=ValidationException.class)
     public void testCtorWithPathAboveRootThrows() throws ValidationException {
-        new CheckedPath(this.serverPaths, "..", null);
+        new CheckedPath(this.serverPaths, "..", null, null);
     }
 
     @Test
     public void testCtorWithPathBelowRootPasses() throws Exception {
-        CheckedPath cp = new CheckedPath(this.serverPaths, "foo", null);
+        CheckedPath cp = new CheckedPath(this.serverPaths, "foo", null, null);
         Assert.assertFalse(cp.isRoot);
     }
 
@@ -49,13 +49,13 @@ public class CheckedPathTest {
     public void testMustExistPassesWithExistingFile() throws Exception {
         File f = new File(this.dir, "foo");
         FileUtils.touch(f);
-        CheckedPath cp = new CheckedPath(this.serverPaths, f.getName(), null);
+        CheckedPath cp = new CheckedPath(this.serverPaths, f.getName(), null, null);
         Assert.assertEquals(cp.mustExist(), cp);
     }
 
     @Test(expectedExceptions=ValidationException.class)
     public void testMustExistThrowsWithNonexistingFile()
             throws ValidationException {
-        new CheckedPath(this.serverPaths, "bar", null).mustExist();
+        new CheckedPath(this.serverPaths, "bar", null, null).mustExist();
     }
 }

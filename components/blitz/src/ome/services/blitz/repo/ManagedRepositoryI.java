@@ -40,7 +40,6 @@ import ome.services.blitz.repo.path.StringTransformer;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-import ome.util.checksum.ChecksumType;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -101,18 +100,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
                 }
     });
 
+    /* used for generating %monthname% for path templates */
+    private static final DateFormatSymbols DATE_FORMAT = new DateFormatSymbols();
+
     private final String template;
 
     private final ProcessContainer processes;
-
-    /**
-     * Fields used in date-time calculations.
-     */
-    private static final DateFormatSymbols DATE_FORMAT;
-
-    static {
-        DATE_FORMAT = new DateFormatSymbols();
-    }
 
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
@@ -297,10 +290,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
         for (int i = 0; i < size; i++) {
             final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            checked.add(checkPath(path, __current));
+            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
         }
 
-        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, __current);
+        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, settings.checksumAlgorithm, checked, __current);
         // Since the fileset saved validly, we create a session for the user
         // and return the process.
 
@@ -334,7 +327,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
         return null;
     }
-    
+
     /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
@@ -546,9 +539,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final String relativeToEnd = path.getPathFrom(basePath).toString();
             data.usedFiles.add(relativeToEnd);
             final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
-            final ChecksumType checksumType = ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
             data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath,
-                    this.checksumProviderFactory.getProvider(checksumType)));
+                    this.checksumProviderFactory, checksumAlgorithm));
         }
 
         makeDir(data.sharedPath, true, __current);
