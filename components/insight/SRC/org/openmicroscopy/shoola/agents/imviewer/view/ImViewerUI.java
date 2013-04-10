@@ -1219,13 +1219,7 @@ class ImViewerUI
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
 			ResolutionLevel level = model.getResolutionDescription();
-			/*
-			int levels = model.getResolutionLevels()-1;
-			int selected = model.getSelectedResolutionLevel();
-			
-			double f = 1/Math.pow(2, (levels-selected));
-			*/
-			double f = level.getRatio();
+			double f = UIUtilities.roundTwoDecimals(level.getRatio());
 			bigImageMagnification = level.getRatio();
 			statusBar.setRigthStatus("x"+f);
 		}
