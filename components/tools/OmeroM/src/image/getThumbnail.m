@@ -1,17 +1,17 @@
 function thumbnail = getThumbnail(session, image, varargin)
-% GETTHUMBNAIL Retrieve thumbnail from an image on the OMERO server
+% GETTHUMBNAIL Retrieve cache thumbnail from an image on the OMERO server
 %
-%   thumbnail = getThumbnail(session, image) returns the thumbnail from the
-%   input image.
+%   thumbnail = getThumbnail(session, image) returns the cache thumbnail
+%   for the input image.
 %
 %   thumbnail = getThumbnail(session, image, width, height) also sets the
-%   width and the height of the thumbnail.
+%   width and the height of the retrieved thumbnail.
 %
-%   thumbnail = getThumbnail(session, imageID) returns the thumbnail from
-%   the input image identifier.
+%   thumbnail = getThumbnail(session, imageID) returns the cache thumbnail
+%   for the input image identifier.
 %
 %   thumbnail = getThumbnail(session, imageID, width, height) also sets the
-%   width and the height of the thumbnail.
+%   width and the height of the retrieved thumbnail.
 %
 %   Examples:
 %

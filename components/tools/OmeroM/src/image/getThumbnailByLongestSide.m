@@ -1,19 +1,19 @@
 function thumbnail = getThumbnailByLongestSide(session, image, varargin)
-% GETTHUMBNAILBYLONGESTSIDE Retrieve thumbnail from an image on the OMERO server
+% GETTHUMBNAILBYLONGESTSIDE Retrieve cache thumbnail from an image on the OMERO server
 %
-%   thumbnail = getThumbnailByLongestSide(session, image) returns the
-%   thumbnail from the input image where the aspect ratio of the original
+%   thumbnail = getThumbnailByLongestSide(session, image) returns the cache
+%   thumbnail for the input image where the aspect ratio of the original
 %   image is preserved.
 %
 %   thumbnail = getThumbnailByLongestSide(session, image, size) also sets
-%   the size of of the longest side.
+%   the size of the longest side of the retrieved thumbnail.
 %
 %   thumbnail = getThumbnailByLongestSide(session, imageID) returns the
-%   thumbnail from the input image identifier where the aspect ratio of the
-%   original image is preserved.
+%   cache thumbnail for the input image identifier where the aspect ratio
+%   of the original image is preserved.
 %
 %   thumbnail = getThumbnailByLongestSide(session, imageID, size) also sets
-%   the size of of the longest side.
+%   the size of the longest side of the retrieved thumbnail.
 %
 %   Examples:
 %

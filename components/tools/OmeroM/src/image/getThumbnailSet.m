@@ -1,17 +1,17 @@
 function thumbnailSet = getThumbnailSet(session, images, varargin)
-% GETTHUMBNAILSET Retrieve a set of thumbnails from images on the OMERO server
+% GETTHUMBNAILSET Retrieve a set of cache thumbnails from images on the OMERO server
 %
 %   thumbnailSet = getThumbnailSet(session, images) returns a set of cache
-%   thumbnails from a series of input images.
+%   thumbnails for a series of input images.
 %
 %   thumbnailSet = getThumbnailSet(session, images, width, height) also
-%   sets the width and the height of the thumbnails.
+%   sets the width and the height of the retrieved thumbnails.
 %
 %   thumbnailSet = getThumbnailSet(session, imageIDs) returns a set of
-%   cache thumbnails from a series of input image identifiers.
+%   cache thumbnails for a series of input image identifiers.
 %
 %   thumbnailSet = getThumbnailSet(session, imageIDs,  width, height) also
-%   sets the width and the height of the thumbnails.
+%   sets the width and the height of the retrieved thumbnails.
 %
 %   Examples:
 %
