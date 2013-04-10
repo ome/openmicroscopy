@@ -47,6 +47,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.LockTimeout;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
+import omero.api.ResolutionDescription;
 import omero.model.Family;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
@@ -2183,17 +2184,33 @@ class RenderingControlProxy
     	}
     	try {
     		int w, h;
+			ResolutionDescription[] v = servant.getResolutionDescriptions();
     		ResolutionLevel level;
-    		int n = getResolutionLevels()-1;
-			for (int i = n; i >= 0; i--) {
-				setSelectedResolutionLevel(i);
-				w = (int) (sizeX/Math.pow(2, n-i));
-				h = (int) (sizeY/Math.pow(2, n-i));
-				d = new Dimension(w, h);
-				level = new ResolutionLevel(i, getTileSize(), d);
-				level.setRatio((double) w/sizeX, (double) h/sizeY);
-				levels.add(level);
-			}
+    		ResolutionDescription r;
+    		int n = getResolutionLevels();
+    		if (v.length != n) {
+    			n = n-1;
+    			for (int i = n-1; i >= 0; i--) {
+    				setSelectedResolutionLevel(i);
+    				w = (int) (sizeX/Math.pow(2, n-i));
+    				h = (int) (sizeY/Math.pow(2, n-i));
+    				d = new Dimension(w, h);
+    				level = new ResolutionLevel(i, getTileSize(), d);
+    				level.setRatio((double) w/sizeX, (double) h/sizeY);
+    				levels.add(level);
+    			}
+    		} else {
+    			n = v.length-1;
+    			for (int i = n; i >= 0; i--) {
+        			r = v[i];
+    				setSelectedResolutionLevel(n-i);
+    				d = new Dimension(r.sizeX, r.sizeY);
+    				level = new ResolutionLevel(n-i, getTileSize(), d);
+    				level.setRatio((double) r.sizeX/sizeX,
+    						(double) r.sizeY/sizeY);
+    				levels.add(level);
+    			}
+    		}
 		} catch (Exception e) {
 			handleException(e, "An error occurred while retrieving " +
 					"the resolutions.");
