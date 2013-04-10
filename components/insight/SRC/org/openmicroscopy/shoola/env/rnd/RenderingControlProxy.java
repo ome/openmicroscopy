@@ -2183,34 +2183,19 @@ class RenderingControlProxy
     		return levels;
     	}
     	try {
-    		int w, h;
 			ResolutionDescription[] v = servant.getResolutionDescriptions();
     		ResolutionLevel level;
     		ResolutionDescription r;
-    		int n = getResolutionLevels();
-    		if (v.length != n) {
-    			n = n-1;
-    			for (int i = n; i >= 0; i--) {
-    				setSelectedResolutionLevel(i);
-    				w = (int) (sizeX/Math.pow(2, n-i));
-    				h = (int) (sizeY/Math.pow(2, n-i));
-    				d = new Dimension(w, h);
-    				level = new ResolutionLevel(i, getTileSize(), d);
-    				level.setRatio((double) w/sizeX, (double) h/sizeY);
-    				levels.add(level);
-    			}
-    		} else {
-    			n = v.length-1;
-    			for (int i = n; i >= 0; i--) {
-        			r = v[i];
-    				setSelectedResolutionLevel(n-i);
-    				d = new Dimension(r.sizeX, r.sizeY);
-    				level = new ResolutionLevel(n-i, getTileSize(), d);
-    				level.setRatio((double) r.sizeX/sizeX,
-    						(double) r.sizeY/sizeY);
-    				levels.add(level);
-    			}
-    		}
+    		int n = v.length-1;
+			for (int i = n; i >= 0; i--) {
+    			r = v[i];
+				setSelectedResolutionLevel(n-i);
+				d = new Dimension(r.sizeX, r.sizeY);
+				level = new ResolutionLevel(n-i, getTileSize(), d);
+				level.setRatio((double) r.sizeX/sizeX,
+						(double) r.sizeY/sizeY);
+				levels.add(level);
+			}
 		} catch (Exception e) {
 			handleException(e, "An error occurred while retrieving " +
 					"the resolutions.");
