@@ -29,7 +29,6 @@ import ome.util.Utils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -158,7 +157,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             try {
 
                 try {
-                    buffer.flush();
+                    buffer.flush(true);
                 } catch (IOException ie) {
                     final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
                     log.warn(msg);
