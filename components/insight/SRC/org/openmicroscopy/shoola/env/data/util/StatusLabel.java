@@ -362,6 +362,7 @@ public class StatusLabel
 	 * invisible.
 	 *
 	 * @param b The boolean flag.
+	 * @see javax.swing.JComponent#setVisible(boolean)
 	 */
 	public void setVisible(boolean b)
 	{
