@@ -199,14 +199,14 @@ $(document).ready(function() {
                     }
                     if (tagsText.length === 0 || tagData.tags[0] !== topLevelTag) {
                         // start a new container...
-                        topLevelTag = tagData.tags[0];
+                        topLevelTag = tagData.tags[0] || tagsText;      // Group under 1st tag (unless we have no tags)
 
-                        $tr = $('<tr><th><h2>' + tagsText + '</h2></th></tr>');
+                        $tr = $('<tr><th><h2>' + topLevelTag + '</h2></th></tr>');
                         $tr.appendTo($this);
                         $td = $('<td></td>').appendTo($tr);
-                    } else {
-                        $td.append('<div>'+ tagsText.replace(topLevelTag, "") + '</div>');
                     }
+                    $td.append('<div class="subsetLabel">'+ tagsText + '</div>');
+
                     if (tagsText === "Not Tagged") {
                         $tr.addClass('notTagged');
                     }
@@ -219,6 +219,14 @@ $(document).ready(function() {
                 }
                 // now that we've moved the images, we can clean up!
                 $toRemove.remove();
+
+                // tidy up by hiding subset labels where there is only 1 subset
+                $('tr:has(.img_panel)', $this).each(function(){
+                    var $subsetLabels = $(this).find('.subsetLabel');
+                    if ($subsetLabels.length === 1) {
+                        $subsetLabels.hide();
+                    }
+                });
 
                 updateNotTagged();
                 updateRowCount();
