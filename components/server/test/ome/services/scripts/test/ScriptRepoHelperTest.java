@@ -130,7 +130,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         assertFalse(helper.isInRepo(oldID));
     }
 
-    public void testFileModificationsUpdateTheSha1() throws Exception {
+    public void testFileModificationsUpdateTheHash() throws Exception {
         path = generateFile();
         files = helper.loadAll(false);
         Long oldID = files.get(0).getId();
@@ -138,9 +138,9 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         files = helper.loadAll(true);
         Long newID = files.get(0).getId();
         assertFalse(oldID.equals(newID));
-        String fsSha1 = path.sha1();
-        String dbSha1 = files.get(0).getHash();
-        assertEquals(dbSha1, fsSha1);
+        String fsHash = path.hash();
+        String dbHash = files.get(0).getHash();
+        assertEquals(dbHash, fsHash);
     }
 
     public void testFilesCanBeDeletedByRelativeValue() throws Exception {
