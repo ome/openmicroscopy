@@ -58,12 +58,27 @@ classdef TestToMatlabList < TestJavaMatlabList
             self.compareLists();
         end
         
+
+        function testSingleImage(self)
+            self.initArrayList(1, omero.model.ImageI());
+            self.matlabList = toMatlabList(self.javaList);
+            self.compareLists();
+            assertTrue(isa(self.matlabList, 'omero.model.ImageI'));
+        end
         
         function testImageList(self)
             self.initArrayList(10, omero.model.ImageI());
             self.matlabList = toMatlabList(self.javaList);
             self.compareLists();
             assertTrue(isa(self.matlabList, 'omero.model.ImageI[]'));
+        end
+        
+        
+        function testSingleDataset(self)
+            self.initArrayList(1, omero.model.DatasetI());
+            self.matlabList = toMatlabList(self.javaList);
+            self.compareLists();
+            assertTrue(isa(self.matlabList, 'omero.model.DatasetI'));
         end
         
         function testDatasetList(self)
@@ -73,6 +88,13 @@ classdef TestToMatlabList < TestJavaMatlabList
             assertTrue(isa(self.matlabList, 'omero.model.DatasetI[]'));
         end
         
+        function testSingleProject(self)
+            self.initArrayList(1, omero.model.ProjectI());
+            self.matlabList = toMatlabList(self.javaList);
+            self.compareLists();
+            assertTrue(isa(self.matlabList, 'omero.model.ProjectI'));
+        end
+        
         function testProjectList(self)
             self.initArrayList(10, omero.model.ProjectI());
             self.matlabList = toMatlabList(self.javaList);
@@ -80,11 +102,25 @@ classdef TestToMatlabList < TestJavaMatlabList
             assertTrue(isa(self.matlabList, 'omero.model.ProjectI[]'));
         end
         
+        function testSinglePlate(self)
+            self.initArrayList(1, omero.model.PlateI());
+            self.matlabList = toMatlabList(self.javaList);
+            self.compareLists();
+            assertTrue(isa(self.matlabList, 'omero.model.PlateI'));
+        end
+        
         function testPlateList(self)
             self.initArrayList(10, omero.model.PlateI());
             self.matlabList = toMatlabList(self.javaList);
             self.compareLists();
             assertTrue(isa(self.matlabList, 'omero.model.PlateI[]'));
+        end
+        
+        function testSingleScreen(self)
+            self.initArrayList(1, omero.model.ScreenI());
+            self.matlabList = toMatlabList(self.javaList);
+            self.compareLists();
+            assertTrue(isa(self.matlabList, 'omero.model.ScreenI'));
         end
         
         function testScreenList(self)

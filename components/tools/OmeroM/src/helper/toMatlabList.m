@@ -40,7 +40,11 @@ if ismember(classname, {'int8', 'uint8', 'int16', 'uint16', 'single', 'double'})
     matlabList = zeros(nElements, 1, classname);
 else
     castFun = str2func(classname);
-    matlabList (1 : arraylist.size()) = castFun();
+    if nElements > 1
+        matlabList(1 : nElements) = castFun();
+    else
+        matlabList = castFun();
+    end
 end
 
 % Fill Matlab array with elements
