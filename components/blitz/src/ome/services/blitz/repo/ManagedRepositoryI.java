@@ -149,6 +149,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
         if (settings == null) {
             settings = new ImportSettings(); // All defaults.
             settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
+        } else if (settings.checksumAlgorithm == null) {
+            throw new omero.ApiUsageException(null, null, "must specify a checksum algorithm for import");
         }
 
         final List<FsFile> paths = new ArrayList<FsFile>();

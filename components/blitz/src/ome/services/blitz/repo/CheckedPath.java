@@ -33,6 +33,7 @@ import loci.formats.FormatException;
 import loci.formats.ReaderWrapper;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ome.io.nio.FileBuffer;
 import ome.services.blitz.repo.path.FsFile;
@@ -126,6 +127,10 @@ public class CheckedPath {
             this.checksumProvider = null;
         } else {
             final ChecksumType checksumType = ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
+            if (checksumType == null) {
+                throw new ValidationException(null, null,
+                        "unknown checksum algorithm: " + checksumAlgorithm.getValue().getValue());
+            }
             this.checksumProvider = checksumProviderFactory.getProvider(checksumType);
         }
         this.fsFile = processSpecialDirectories(new FsFile(path));
