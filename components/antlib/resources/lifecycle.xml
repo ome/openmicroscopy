@@ -4,10 +4,10 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
+#
 # Copyright 2006 University of Dundee. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,6 +116,19 @@ omero.version=${omero.version}
 		<copyResources/>
 	</target>
 
+	<presetdef name="nomemoryjava">
+		<javac
+			fork="yes"
+			sourcepath=""
+			source="${javac.source}"
+			target="${javac.target}"
+			encoding="UTF-8"
+			debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			deprecation="on">
+		</javac>
+	</presetdef>
+
 	<!-- javac macro which can contain any number of path
 	elements for compilation. Usually src.dir and src.dest
 	will need to be compiled together because of inter-
@@ -128,21 +141,26 @@ omero.version=${omero.version}
 
 		<tempfile property="temp.file" deleteonexit="true" prefix="_omero_build_" suffix=".tmp"/>
 		<concat destfile="${temp.file}">-classpath ${toString:@{classpathref}}</concat>
-		<javac
-			fork="yes"
-			destdir="@{destdir}"
-			sourcepath=""
-			source="${javac.source}"
-			target="${javac.target}"
-			encoding="UTF-8"
-			debug="${javac.debug}"
-			debuglevel="${javac.debuglevel}"
-                        deprecation="on"
-			memoryMaximumSize="${javac.maxmem}"
-		>
-		        <compilerarg value="@${temp.file}"/>
-		        <srcelements/>
-		</javac>
+		<if>
+			<isset property="javac.maxmem"/>
+			<then>
+				<nomemoryjava
+					destdir="@{destdir}"
+					memoryMaximumSize="${javac.maxmem}"
+				>
+			        <compilerarg value="@${temp.file}"/>
+			        <srcelements/>
+				</nomemoryjava>
+			</then>
+			<else>
+				<nomemoryjava
+					destdir="@{destdir}"
+				>
+			        <compilerarg value="@${temp.file}"/>
+			        <srcelements/>
+				</nomemoryjava>
+			</else>
+		</if>
 		<delete file="${temp.file}" quiet="true" failonerror="false"/>
 		</sequential>
 	</macrodef>
@@ -163,6 +181,32 @@ omero.version=${omero.version}
 		<ivy:retrieve settingsRef="ivy.${ant.project.name}.test" pattern="${deps.lib.dir}/test/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<taskdef name="testng" classname="org.testng.TestNGAntTask" classpathref="omero.test.classpath"/>
 		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
+		<presetdef name="nomemorytestng">
+			<testng outputDir="${testreports.dir}"
+				haltonfailure="${test.with.fail}"
+				haltonskipped="${test.with.fail}"
+				verbose="${testng.verbose}"
+				useDefaultListeners="${testng.useDefaultListeners}"
+				listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
+				>
+				<classpath>
+					<pathelement location="${emmaclasses.dir}"/>
+					<path refid="omero.test.classpath"/>
+					<pathelement location="${testclasses.dir}"/>
+					<pathelement location="${classes.dir}"/>
+					<pathelement location="${test.dir}"/>
+				</classpath>
+				<jvmarg value="-XX:MaxPermSize=256m"/>
+				<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
+				<jvmarg value="-Dlog4j.configuration=log4j.xml"/>
+				<jvmarg value="-Domero.db.name=${omero.db.name}"/>
+				<jvmarg value="-Domero.db.host=${omero.db.host}"/>
+				<jvmarg value="-Domero.db.port=${omero.db.port}"/>
+				<jvmarg value="-Domero.db.user=${omero.db.user}"/>
+				<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
+				<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
+			</testng>
+		</presetdef>
 	</target>
 
 	<macrodef name="suite">
@@ -170,34 +214,26 @@ omero.version=${omero.version}
 		<attribute name="methods" default=""/>
 		<element name="files" implicit="yes"/>
 		<sequential>
-		<testng outputDir="${testreports.dir}"
-			haltonfailure="${test.with.fail}"
-			haltonskipped="${test.with.fail}"
-			verbose="${testng.verbose}"
+		<if>
+			<isset property="javac.maxmem"/>
+			<then>
+				<nomemorytestng
                         groups="@{groups}"
                         methods="@{methods}"
-                        useDefaultListeners="${testng.useDefaultListeners}"
-                        listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
-			>
-			<classpath>
-				<pathelement location="${emmaclasses.dir}"/>
-				<path refid="omero.test.classpath"/>
-				<pathelement location="${testclasses.dir}"/>
-				<pathelement location="${classes.dir}"/>
-				<pathelement location="${test.dir}"/>
-			</classpath>
-			<files/>
-			<jvmarg value="-Xmx${javac.maxmem}"/>
-			<jvmarg value="-XX:MaxPermSize=256m"/>
-			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
-			<jvmarg value="-Dlog4j.configuration=log4j.xml"/>
-			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
-			<jvmarg value="-Domero.db.host=${omero.db.host}"/>
-			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
-			<jvmarg value="-Domero.db.user=${omero.db.user}"/>
-			<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
-			<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
-		</testng>
+				>
+					<files/>
+					<jvmarg value="-Xmx${javac.maxmem}"/>
+				</nomemorytestng>
+			</then>
+			<else>
+				<nomemorytestng
+                        groups="@{groups}"
+                        methods="@{methods}"
+				>
+					<files/>
+				</nomemorytestng>
+			</else>
+		</if>
 		</sequential>
 	</macrodef>
 
