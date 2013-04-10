@@ -1214,14 +1214,14 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus("x"+
-					Math.round(factor*model.getOriginalRatio()*100)/100.0);
+			statusBar.setRigthStatus(
+					Math.round(factor*model.getOriginalRatio()*100)+"%");
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
 			ResolutionLevel level = model.getResolutionDescription();
-			double f = UIUtilities.roundTwoDecimals(level.getRatio());
+			double f = UIUtilities.roundTwoDecimals(level.getRatio()*100);
 			bigImageMagnification = level.getRatio();
-			statusBar.setRigthStatus("x"+f);
+			statusBar.setRigthStatus(f+"%");
 		}
 	}
 	
