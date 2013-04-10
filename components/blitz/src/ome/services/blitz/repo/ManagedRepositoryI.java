@@ -84,9 +84,9 @@ import Ice.Current;
 public class ManagedRepositoryI extends PublicRepositoryI
     implements _ManagedRepositoryOperations {
 
-    private static final Log log = LogFactory.getLog(ManagedRepositoryI.class);
+    private final static Log log = LogFactory.getLog(ManagedRepositoryI.class);
     
-    private static final int parentDirsToRetain = 3;
+    private final static int parentDirsToRetain = 3;
     
     /* This class is used in the server-side creation of import containers.
      * The suggestImportPaths method sanitizes the paths in due course.
