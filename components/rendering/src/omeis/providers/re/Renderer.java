@@ -961,6 +961,11 @@ public class Renderer {
         return buffer.getResolutionLevels();
     }
 
+    /**
+     * Returns the image's size information per resolution level.
+     * 
+     * @return See above.
+     */
     public List<List<Integer>> getResolutionDescriptions()
     {
         return buffer.getResolutionDescriptions();
