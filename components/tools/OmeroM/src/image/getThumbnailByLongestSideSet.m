@@ -1,17 +1,19 @@
 function thumbnailSet = getThumbnailByLongestSideSet(session, images, varargin)
-% GETTHUMBNAILBYLONGESTSIDESET Retrieve a set of thumbnails from images on the OMERO server
+% GETTHUMBNAILBYLONGESTSIDESET Retrieve a set of cache thumbnails from images on the OMERO server
 %
 %   thumbnailSet = getThumbnailByLongestSideSet(session, images) returns a
-%   set of cache thumbnails from a series of input images.
+%   set of cache thumbnails for a series of input images where the aspect
+%   ratio of the original images are preserved.
 %
 %   thumbnailSet = getThumbnailByLongestSideSet(session, images, size) also
-%   sets the size of the longest side..
+%   sets the size of the longest side of the retrieved thumbnails.
 %
 %   thumbnailSet = getThumbnailByLongestSideSet(session, imageIDs) returns
-%   a set of cache thumbnails from a series of input image identifiers.
+%   a set of cache thumbnails for a series of input image identifiers where
+%   the aspect ratio of the original images are preserved.
 %
 %   thumbnailSet = getThumbnailByLongestSideSet(session, imageIDs,  size)
-%   also sets the size of the longest side.
+%   also sets the size of the longest side of the retrieved thumbnails.
 %
 %   Examples:
 %
