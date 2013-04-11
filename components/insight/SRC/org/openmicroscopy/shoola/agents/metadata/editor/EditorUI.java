@@ -65,19 +65,24 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -553,7 +558,12 @@ class EditorUI
 	{
 		if (data == null) return;
 		if (data instanceof TagAnnotationData || 
-			data instanceof TextualAnnotationData) {
+			data instanceof TextualAnnotationData ||
+			data instanceof TermAnnotationData ||
+			data instanceof XMLAnnotationData ||
+			data instanceof DoubleAnnotationData ||
+			data instanceof LongAnnotationData ||
+			data instanceof BooleanAnnotationData) {
 			generalPane.removeObject(data);
 			if (data.getId() >= 0)
 				saveData(true);
