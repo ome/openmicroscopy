@@ -216,7 +216,7 @@ class AnnotationDataUI
 	private JPanel otherPane;
 	
 	/** Collection of other annotations objects. */
-	private List<DocComponent> otherDocList;
+	private List<DocComponent> otherList;
 	
 	/**
 	 * Creates and displays the menu 
@@ -275,6 +275,14 @@ class AnnotationDataUI
 			if (data != null) nodes.add(data);
 		}
 		layoutAttachments(nodes);
+		
+		i = otherList.iterator();
+		nodes = new ArrayList<Object>();
+		while (i.hasNext()) {
+			data = i.next().getData();
+			if (data != null) nodes.add(data);
+		}
+		layoutOthers(nodes);
 		buildGUI();
 	}
 	
@@ -356,7 +364,7 @@ class AnnotationDataUI
 		tagNames = new ArrayList<String>();
 		tagsDocList = new ArrayList<DocComponent>();
 		filesDocList = new ArrayList<DocComponent>();
-		otherDocList = new ArrayList<DocComponent>();
+		otherList = new ArrayList<DocComponent>();
 		existingTags = new HashMap<String, TagAnnotationData>();
 		
 		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
@@ -829,7 +837,7 @@ class AnnotationDataUI
 	private void layoutOthers(Collection list)
 	{
 		otherPane.removeAll();
-		otherDocList.clear();
+		otherList.clear();
 		DocComponent doc;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
@@ -841,7 +849,7 @@ class AnnotationDataUI
 					while (i.hasNext()) {
 						doc = new DocComponent(i.next(), model);
 						doc.addPropertyChangeListener(controller);
-						otherDocList.add(doc);
+						otherList.add(doc);
 						if (width+doc.getPreferredSize().width >= COLUMN_WIDTH)
 						{
 							otherPane.add(p);
@@ -859,7 +867,7 @@ class AnnotationDataUI
 						data = (DataObject) i.next();
 						doc = new DocComponent(data, model);
 						doc.addPropertyChangeListener(controller);
-						otherDocList.add(doc);
+						otherList.add(doc);
 						if (model.isLinkOwner(data)) {
 							if (width+doc.getPreferredSize().width 
 									>= COLUMN_WIDTH) {
@@ -879,7 +887,7 @@ class AnnotationDataUI
 						data = (DataObject) i.next();
 						doc = new DocComponent(data, model);
 						doc.addPropertyChangeListener(controller);
-						otherDocList.add(doc);
+						otherList.add(doc);
 						if (model.isAnnotatedByOther(data)) {
 							if (width+doc.getPreferredSize().width 
 									>= COLUMN_WIDTH) {
@@ -899,14 +907,14 @@ class AnnotationDataUI
 					case ADDED_BY_OTHERS:
 					case ADDED_BY_ME:
 						doc = new DocComponent(null, model);
-						otherDocList.add(doc);
+						otherList.add(doc);
 						otherPane.add(doc);
 				}
 			} else otherPane.add(p);
 		}
-		if (otherDocList.size() == 0) {
+		if (otherList.size() == 0) {
 			doc = new DocComponent(null, model);
-			otherDocList.add(doc);
+			otherList.add(doc);
 			otherPane.add(doc);
 		}
 		otherPane.revalidate();
@@ -1679,9 +1687,9 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
-		//double h = TableLayout.PREFERRED;
-		//TableLayout layout = (TableLayout) content.getLayout();
-		//layout.setRow(tagRow, h);
+		
+		otherPane.removeAll();
+		otherList.clear();
 		content.revalidate();
 		content.repaint();
 		revalidate();
