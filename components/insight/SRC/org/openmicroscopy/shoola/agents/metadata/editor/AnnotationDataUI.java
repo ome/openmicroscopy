@@ -212,6 +212,9 @@ class AnnotationDataUI
 	/** The document of reference. */
 	private JComponent docRef;
 	
+	/** Components hosting the other annotations. */
+	private JPanel otherPane;
+	
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
@@ -426,6 +429,9 @@ class AnnotationDataUI
 									Boolean.TRUE);
 			}
 		});
+		otherPane = new JPanel();
+		otherPane.setLayout(new BoxLayout(otherPane, BoxLayout.Y_AXIS));
+		otherPane.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/**
@@ -501,12 +507,6 @@ class AnnotationDataUI
 		p.add(otherRating);
 		content.add(p);
 		
-		//tags and attachments.
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
-		p.add(createBar(addTagsButton, removeTagsButton));
-		
 		JPanel panel = new JPanel(new GridBagLayout());
 		panel.setBorder(null);
 		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -518,23 +518,39 @@ class AnnotationDataUI
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		panel.add(p, c);
 		
+		//tags
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
+		p.add(createBar(addTagsButton, removeTagsButton));
+		panel.add(p, c);
 		
+		//attachment
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
-		c.gridy = 3;
+		c.gridy += 3;
 		panel.add(p, c);
+		
+		//other
+		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(UIUtilities.setTextFont("others", Font.BOLD, size));
+		c.gridy += 3;
+		panel.add(p, c);
+		
 		c.gridy = 0;
 		c.gridx++;
 		//c.ipady = 2;
 		c.gridheight = 2;
 		panel.add(tagsPane, c);
-		c.gridy = 3;
+		c.gridy += 3;
 		panel.add(docRef, c);
-		
+		c.gridy += 3;
+		panel.add(otherPane, c);
+
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(panel);
