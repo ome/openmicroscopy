@@ -122,6 +122,7 @@ module omero {
         sequence<DoubleArray> DoubleArrayArray;
         sequence<DoubleArrayArray> DoubleArrayArrayArray;
         sequence<StringArray> StringArrayArray;
+        sequence<RTypeDict> RTypeDictArray;
 
         // Dictionaries
 
