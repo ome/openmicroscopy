@@ -415,7 +415,7 @@ public class CheckedPath {
                     }
                 }
             } else {
-                ofile.setSha1(sha1());
+                ofile.setHash(sha1());
                 ofile.setSize(file.length());
             }
         }

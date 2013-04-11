@@ -500,6 +500,7 @@
   CREATE INDEX i_ObjectiveSettings_objective ON objectivesettings(objective);
   CREATE INDEX i_originalfile_owner ON originalfile(owner_id);
   CREATE INDEX i_originalfile_group ON originalfile(group_id);
+  CREATE INDEX i_OriginalFile_hasher ON originalfile(hasher);
   CREATE INDEX i_originalfileannotationlink_owner ON originalfileannotationlink(owner_id);
   CREATE INDEX i_originalfileannotationlink_group ON originalfileannotationlink(group_id);
   CREATE INDEX i_OriginalFileAnnotationLink_parent ON originalfileannotationlink(parent);
@@ -741,6 +742,7 @@ CREATE SEQUENCE seq_binning; INSERT INTO _lock_ids (name, id) SELECT 'seq_binnin
 CREATE SEQUENCE seq_channel; INSERT INTO _lock_ids (name, id) SELECT 'seq_channel', nextval('_lock_seq');
 CREATE SEQUENCE seq_channelannotationlink; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelannotationlink', nextval('_lock_seq');
 CREATE SEQUENCE seq_channelbinding; INSERT INTO _lock_ids (name, id) SELECT 'seq_channelbinding', nextval('_lock_seq');
+CREATE SEQUENCE seq_checksumalgorithm; INSERT INTO _lock_ids (name, id) SELECT 'seq_checksumalgorithm', nextval('_lock_seq');
 CREATE SEQUENCE seq_codomainmapcontext; INSERT INTO _lock_ids (name, id) SELECT 'seq_codomainmapcontext', nextval('_lock_seq');
 CREATE SEQUENCE seq_contrastmethod; INSERT INTO _lock_ids (name, id) SELECT 'seq_contrastmethod', nextval('_lock_seq');
 CREATE SEQUENCE seq_correction; INSERT INTO _lock_ids (name, id) SELECT 'seq_correction', nextval('_lock_seq');
@@ -1247,7 +1249,7 @@ alter table dbpatch alter message set default 'Updating';
 -- running so that if anything goes wrong, we'll have some record.
 --
 insert into dbpatch (currentVersion, currentPatch, previousVersion, previousPatch, message)
-             values ('OMERO5.0DEV',  3,    'OMERO5.0DEV',   0,             'Initializing');
+             values ('OMERO5.0DEV',  4,    'OMERO5.0DEV',   0,             'Initializing');
 
 --
 -- Here we will create the root account and the necessary groups
@@ -1361,6 +1363,18 @@ insert into binning (id,permissions,value)
     select ome_nextval('seq_binning'),-52,'4x4';
 insert into binning (id,permissions,value)
     select ome_nextval('seq_binning'),-52,'8x8';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'Adler-32';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'CRC-32';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'MD5-128';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'Murmur3-32';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'Murmur3-128';
+insert into checksumalgorithm (id,permissions,value)
+    select ome_nextval('seq_checksumalgorithm'),-52,'SHA1-160';
 insert into contrastmethod (id,permissions,value)
     select ome_nextval('seq_contrastmethod'),-52,'Brightfield';
 insert into contrastmethod (id,permissions,value)
@@ -2130,8 +2144,9 @@ after delete on originalfile
 -- Here we have finished initializing this database.
 update dbpatch set message = 'Database ready.', finished = clock_timestamp()
   where currentVersion = 'OMERO5.0DEV' and
-        currentPatch = 3 and
+        currentPatch = 4 and
         previousVersion = 'OMERO5.0DEV' and
         previousPatch = 0;
 
 COMMIT;
+

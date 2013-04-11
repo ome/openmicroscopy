@@ -119,7 +119,7 @@ TEST(AnnotationTest, fileAnnotation )
         file->setMimetype(rstring("text/xml"));
         file->setName(rstring("my-file.xml"));
         file->setPath(rstring("/tmp"));
-        file->setSha1(rstring("foo"));
+        file->setHash(rstring("foo"));
         file->setSize(rlong(size));
         file = OriginalFilePtr::dynamicCast(u->saveAndReturnObject(file));
 

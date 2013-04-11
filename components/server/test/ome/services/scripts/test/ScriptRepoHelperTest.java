@@ -139,7 +139,7 @@ public class ScriptRepoHelperTest extends AbstractManagedContextTest {
         Long newID = files.get(0).getId();
         assertFalse(oldID.equals(newID));
         String fsSha1 = path.sha1();
-        String dbSha1 = files.get(0).getSha1();
+        String dbSha1 = files.get(0).getHash();
         assertEquals(dbSha1, fsSha1);
     }
 

@@ -239,8 +239,6 @@ public class SqlActionTest extends AbstractManagedContextTest {
         OriginalFile f = new OriginalFile();
         f.setName("name");
         f.setPath("path");
-        f.setSha1(" ");
-        f.setSize(0L);
         f = iUpdate.saveAndReturnObject(f);
         return f;
     }

@@ -285,6 +285,11 @@ module omero {
               **/
              omero::RBool doThumbnails;
 
+             /**
+              * User choice of checksum algorithm for verifying upload.
+              **/
+             omero::model::ChecksumAlgorithm checksumAlgorithm;
+
         };
 
 
@@ -440,6 +445,18 @@ module omero {
              * fileset, then the import will be included.
              **/
             ImportProcessList listImports() throws ServerError;
+
+            /**
+             * Return the list of checksum algorithms supported by this repository
+             * for verifying the integrity of uploaded files.
+             * They are named as "algorithm-integer",
+             * integer being the bit width of the resulting hash code.
+             * It is possible for the same algorithm to be offered with
+             * different bit widths.
+             * They are listed in no particular order and any of them may be
+             * specified for [ImportSettings::checksumAlgorithm].
+             */
+             omero::api::ChecksumAlgorithmList listChecksumAlgorithms();
 
         };
 

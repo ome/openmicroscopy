@@ -302,7 +302,7 @@ public class ModelMockFactory
 		oFile.setName(omero.rtypes.rstring("of1"));
 		oFile.setPath(omero.rtypes.rstring("/omero"));
 		oFile.setSize(omero.rtypes.rlong(0));
-		oFile.setSha1(omero.rtypes.rstring("pending"));
+		oFile.setHash(omero.rtypes.rstring("pending"));
 		oFile.setMimetype(omero.rtypes.rstring("application/octet-stream"));
 		return oFile;
     }

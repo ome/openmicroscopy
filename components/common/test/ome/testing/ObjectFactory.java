@@ -42,7 +42,7 @@ public class ObjectFactory {
         OriginalFile ofile = new OriginalFile();
         ofile.setName("testing");
         ofile.setPath("/dev/null");
-        ofile.setSha1("abc");
+        ofile.setHash("abc");
         ofile.setSize(1L);
         ofile.setMimetype("text/plain");
 

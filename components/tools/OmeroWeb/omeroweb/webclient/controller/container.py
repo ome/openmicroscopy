@@ -709,7 +709,7 @@ class BaseContainer(BaseController):
         oFile.setName(rstring(smart_str(newFile.name)));
         oFile.setPath(rstring(smart_str(newFile.name)));
         oFile.setSize(rlong(long(newFile.size)));
-        oFile.setSha1(rstring("pending"));
+        oFile.setHash(rstring("pending"));
         oFile.setMimetype(rstring(str(format)));
         
         ofid = self.conn.saveAndReturnId(oFile);

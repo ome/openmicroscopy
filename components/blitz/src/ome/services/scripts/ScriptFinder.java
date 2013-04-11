@@ -92,7 +92,7 @@ public abstract class ScriptFinder {
             log.debug("Loading script: " + sha1);
 
             Parameters p = new Parameters();
-            p.addString("sha1", sha1);
+            p.addString("hash", sha1);
             p.addString("name", getName());
             List<OriginalFile> files = loadScripts(sf, p);
 
@@ -118,12 +118,12 @@ public abstract class ScriptFinder {
     }
 
     /**
-     * Load all scripts that match the name, sha1, and format for script
+     * Load all scripts that match the name, hash, and format for script
      */
     protected List<OriginalFile> loadScripts(ServiceFactory sf, Parameters p) {
         p.addLong("gid", roles.getUserGroupId());
         List<OriginalFile> files = sf.getQueryService().findAllByQuery(
-                "select f from OriginalFile f where f.sha1 = :sha1 "
+                "select f from OriginalFile f where f.hash = :hash "
                         + "and f.details.group.id = :gid "
                         + "and f.name = :name "
                         + "and f.mimetype = 'text/x-python'", p);
