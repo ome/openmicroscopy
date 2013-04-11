@@ -292,22 +292,21 @@ public class ModelMapper
         if (parent == null) return;
         if (child == null) throw new IllegalArgumentException("Child cannot" +
                                 "be null.");
-        List l;
-        Iterator it;
+        
+       
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
             Project p = (Project) parent;
             Dataset d = (Dataset) child;
             
-            l = d.copyProjectLinks();
+            List<ProjectDatasetLink> l = d.copyProjectLinks();
             if (l == null) return;
             ProjectDatasetLink link;
-            
-            it = l.iterator();
+            Iterator<ProjectDatasetLink> it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
-                link = (ProjectDatasetLink) it.next();
+                link = it.next();
                 if (id == link.getParent().getId().getValue()) {
                 	p.addProjectDatasetLink(
                 			new ProjectDatasetLinkI(link.getId(), false));
@@ -318,13 +317,13 @@ public class ModelMapper
                 throw new IllegalArgumentException("Child not valid.");
             Dataset p = (Dataset) parent;
             Image d = (Image) child;
-            l = d.copyDatasetLinks();
+            List<DatasetImageLink> l = d.copyDatasetLinks();
             if (l == null) return;
             DatasetImageLink link;
-            it = l.iterator();
+            Iterator<DatasetImageLink> it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
-                link = (DatasetImageLink) it.next();
+                link = it.next();
                 if (id == link.getParent().getId().getValue()) {
                  	p.addDatasetImageLink(
                  			new DatasetImageLinkI(link.getId(), false));
@@ -422,13 +421,11 @@ public class ModelMapper
     {
         if ((child instanceof Dataset) && (parent instanceof Project)) {
             Project mParent = (Project) parent;
-            List s = mParent.copyDatasetLinks();
-            Iterator i = s.iterator();
-            ProjectDatasetLink link;
+            List<ProjectDatasetLink> s = mParent.copyDatasetLinks();
+            Iterator<ProjectDatasetLink> i = s.iterator();
             while (i.hasNext()) { 
-            	link = (ProjectDatasetLink) i.next();
                 mParent.removeProjectDatasetLink(
-                		new ProjectDatasetLinkI(link.getId(), false));
+                		new ProjectDatasetLinkI(i.next().getId(), false));
             }
             return mParent;
         } 
