@@ -74,6 +74,9 @@
             </fileset>
         </copy>
         <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/generated-classes"/>
+        <unjar src="${target.dir}/libs/ice-glacier2.jar" dest="${target.dir}/generated-classes"/>
+        <unjar src="${target.dir}/libs/ice-grid.jar" dest="${target.dir}/generated-classes"/>
+        <unjar src="${target.dir}/libs/ice-storm.jar" dest="${target.dir}/generated-classes"/>
     </target>
 
     <target name="compile" depends="pre-compile,lifecycle.compile"/>
