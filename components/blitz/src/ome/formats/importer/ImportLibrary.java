@@ -296,8 +296,11 @@ public class ImportLibrary implements IObservable
                     file.getAbsolutePath(), index, srcFiles.length,
                     offset, length, null));
 
-            while (stream.available() != 0) {
+            while (true) {
                 rlen = stream.read(buf);
+                if (rlen == -1) {
+                    break;
+                }
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
