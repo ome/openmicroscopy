@@ -22,6 +22,7 @@ import ome.api.IRepositoryInfo;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.RootException;
 import ome.conditions.SecurityViolation;
@@ -292,7 +293,17 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             modified = false;
             file = iQuery.get(OriginalFile.class, fileId);
 
-            String mode = admin.canUpdate(file) ? "rw" : "r";
+            String mode = "r";
+            try {
+                if (admin.canUpdate(file)) {
+                    mode = "rw";
+                }
+            } catch (InternalException ie) {
+                // ticket:10657 this is caused by the current
+                // group being set to "-1" meaning no write permission
+                // logic can be assumed.
+                log.warn("No permissions info: using 'r' as mode for file " + fileId);
+            }
 
             if (buffer == null) {
                 // If no buffer has been provided, then we check that this is
