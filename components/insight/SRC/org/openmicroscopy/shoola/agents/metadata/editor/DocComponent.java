@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
@@ -418,8 +419,14 @@ class DocComponent
 				m = model.getTaggedObjects(annotation);
 				text += "Can remove Tag from ";
 			} else if (annotation instanceof FileAnnotationData) {
-				m = model.getObjectsWithAttachments(annotation);
+				m = model.getObjectsWith(annotation);
 				text += "Can remove Attachment from ";
+			} else if (annotation instanceof XMLAnnotationData) {
+				m = model.getObjectsWith(annotation);
+				text += "Can remove XML files from ";
+			} else if (annotation instanceof TermAnnotationData) {
+				m = model.getObjectsWith(annotation);
+				text += "Can remove Term from ";
 			}
 			if (m == null) return "";
 			j = m.entrySet().iterator();
@@ -521,7 +528,11 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
-		} else if (data instanceof TagAnnotationData) {
+		} else if (data instanceof TagAnnotationData || data instanceof
+				XMLAnnotationData || data instanceof TermAnnotationData ||
+				data instanceof LongAnnotationData ||
+				data instanceof DoubleAnnotationData ||
+				data instanceof BooleanAnnotationData) {
 			checkAnnotators(buf, annotation);
 		}
 		buf.append("</body></html>");
