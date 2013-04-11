@@ -183,6 +183,9 @@ class EditorUI
     /** The menu showing the option to remove attachments.*/
     private PermissionMenu docMenu;
     
+    /** The menu showing the option to remove the other annotation.*/
+    private PermissionMenu otherAnnotationMenu;
+    
     /**
      * Adds the renderer to the tab pane. 
      * 
@@ -632,6 +635,45 @@ class EditorUI
 		}
 	}
 	
+	/**
+	 * Removes the other annotations.
+	 * 
+	 * @param src The mouse clicked location.
+	 * @param location The location of the mouse pressed.
+	 */
+	void removeOtherAnnotations(JComponent src, Point location)
+	{
+		if (!generalPane.hasOtherAnnotationsToUnlink()) return;
+		if (model.isGroupLeader() || model.isAdministrator()) {
+			if (otherAnnotationMenu == null) {
+				otherAnnotationMenu = new PermissionMenu(PermissionMenu.UNLINK, 
+						"Other annotations");
+				otherAnnotationMenu.addPropertyChangeListener(
+						new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String n = evt.getPropertyName();
+						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
+							removeLinks((Integer) evt.getNewValue(), 
+								model.getAllOtherAnnotations());
+						}
+					}
+				});
+			}
+			otherAnnotationMenu.show(src, location.x, location.y);
+			return;
+		}
+		SwingUtilities.convertPointToScreen(location, src);
+		MessageBox box = new MessageBox(model.getRefFrame(),
+				"Remove All Your Other Annotations", 
+		"Are you sure you want to remove all your other annotations?");
+		Dimension d = box.getPreferredSize();
+		Point p = new Point(location.x-d.width/2, location.y);
+		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
+			List<AnnotationData> list = generalPane.removeOtherAnnotations();
+			if (list.size() > 0) saveData(true);
+		}
+	}
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
