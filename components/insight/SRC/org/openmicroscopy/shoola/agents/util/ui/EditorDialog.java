@@ -367,8 +367,9 @@ public class EditorDialog
 			data = d;
     	} else if (data instanceof XMLAnnotationData) {
     		XMLAnnotationData d = (XMLAnnotationData) data;
+    		d.setContent(name);
     		String text = descriptionArea.getText().trim();
-    		if (text.length() > 0) d.setContent(text);
+    		if (text.length() > 0) d.setDescription(text);
 			data = d;
     	} else if (data instanceof TermAnnotationData) {
     		TermAnnotationData d = (TermAnnotationData) data;
