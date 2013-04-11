@@ -215,6 +215,9 @@ class AnnotationDataUI
 	/** Components hosting the other annotations. */
 	private JPanel otherPane;
 	
+	/** Collection of other annotations objects. */
+	private List<DocComponent> otherDocList;
+	
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
@@ -353,6 +356,7 @@ class AnnotationDataUI
 		tagNames = new ArrayList<String>();
 		tagsDocList = new ArrayList<DocComponent>();
 		filesDocList = new ArrayList<DocComponent>();
+		otherDocList = new ArrayList<DocComponent>();
 		existingTags = new HashMap<String, TagAnnotationData>();
 		
 		addTagsButton = new JButton(icons.getIcon(IconManager.PLUS_12));
@@ -818,6 +822,98 @@ class AnnotationDataUI
 	}
 	
 	/**
+	 * Lays out the other annotations.
+	 * 
+	 * @param list The collection of annotation to layout.
+	 */
+	private void layoutOthers(Collection list)
+	{
+		otherPane.removeAll();
+		otherDocList.clear();
+		DocComponent doc;
+		if (list != null && list.size() > 0) {
+			Iterator i = list.iterator();
+			int width = 0;
+			JPanel p = initRow();
+			DataObject data;
+			switch (filter) {
+				case SHOW_ALL:
+					while (i.hasNext()) {
+						doc = new DocComponent(i.next(), model);
+						doc.addPropertyChangeListener(controller);
+						otherDocList.add(doc);
+						if (width+doc.getPreferredSize().width >= COLUMN_WIDTH)
+						{
+							otherPane.add(p);
+							p = initRow();
+							width = 0;
+						} else {
+							width += doc.getPreferredSize().width;
+							width += 2;
+						}
+						p.add(doc);
+					}
+					break;
+				case ADDED_BY_ME:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						otherDocList.add(doc);
+						if (model.isLinkOwner(data)) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								otherPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+								width += 2;
+							}
+							p.add(doc);
+						}
+					}
+					break;
+				case ADDED_BY_OTHERS:
+					while (i.hasNext()) {
+						data = (DataObject) i.next();
+						doc = new DocComponent(data, model);
+						doc.addPropertyChangeListener(controller);
+						otherDocList.add(doc);
+						if (model.isAnnotatedByOther(data)) {
+							if (width+doc.getPreferredSize().width 
+									>= COLUMN_WIDTH) {
+								otherPane.add(p);
+								p = initRow();
+								width = 0;
+							} else {
+								width += doc.getPreferredSize().width;
+								width += 2;
+							}
+							p.add(doc);
+						}
+					}
+			}
+			if (p.getComponentCount() == 0) {
+				switch (filter) {
+					case ADDED_BY_OTHERS:
+					case ADDED_BY_ME:
+						doc = new DocComponent(null, model);
+						otherDocList.add(doc);
+						otherPane.add(doc);
+				}
+			} else otherPane.add(p);
+		}
+		if (otherDocList.size() == 0) {
+			doc = new DocComponent(null, model);
+			otherDocList.add(doc);
+			otherPane.add(doc);
+		}
+		otherPane.revalidate();
+		otherPane.repaint();
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param view Reference to the view. Mustn't be <code>null</code>.
@@ -867,9 +963,14 @@ class AnnotationDataUI
 				buffer.append(")");
 			}
 			otherRating.setVisible(n > 1);
+			l = model.getOtherAnnotations();
+			if (l != null) count += l.size();
+			layoutOthers(l);
+			
 		} else {
 			layoutTags(model.getAllTags());
 			layoutAttachments(model.getAllAttachments());
+			layoutOthers(model.getAllOtherAnnotations());
 			selectedValue = model.getRatingAverage(EditorModel.ME);
 			int n = model.getRatingCount(EditorModel.ME);
 			if (n > 0) {
