@@ -1003,9 +1003,8 @@ class DocComponent
 				data instanceof XMLAnnotationData) {
 				annotation = (AnnotationData) data;
 				text = annotation.getContentAsString();
-			} 
-			text = model.getAnnotationDescription(annotation);
-			description = model.getObjectName(annotation);
+			}
+			description = model.getAnnotationDescription(annotation);
 			if (annotation == null) return;
 			label.setText(text);
 			label.setToolTipText(formatTootTip(annotation, null));
