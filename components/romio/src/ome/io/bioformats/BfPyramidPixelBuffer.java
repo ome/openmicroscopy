@@ -1188,12 +1188,13 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         return delegate().getResolutionLevels();
     }
 
-    public List<List<Integer>> getResolutionDescriptions()
+    public synchronized List<List<Integer>> getResolutionDescriptions()
     {
-        List<Integer> sizes = Arrays.asList(getSizeX(), getSizeY());
-        List<List<Integer>> rv = new ArrayList<List<Integer>>();
-        rv.add(sizes);
-        return rv;
+        if (isWrite())
+        {
+            throw new ApiUsageException("In write mode!");
+        }
+        return delegate().getResolutionDescriptions();
     }
 
     /* (non-Javadoc)
