@@ -13,9 +13,9 @@ import java.util.Map;
 import org.jmock.Mock;
 import org.testng.annotations.BeforeClass;
 
+import ome.io.nio.PixelsService;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
-
 import omero.RType;
 import omero.api.IDeletePrx;
 import omero.cmd.ERR;
@@ -52,7 +52,8 @@ public class AbstractGraphTest extends AbstractServantTest {
         // Register ChgrpI, etc. This happens automatically on the server.
         RequestObjectFactoryRegistry rofr = new RequestObjectFactoryRegistry(
                 user.ctx.getBean(ExtendedMetadata.class),
-                user.ctx.getBean(Roles.class)
+                user.ctx.getBean(Roles.class),
+                user.ctx.getBean("/OMERO/Pixels", PixelsService.class)
                 );
         rofr.setApplicationContext(ctx);
         rofr.setIceCommunicator(ic);
