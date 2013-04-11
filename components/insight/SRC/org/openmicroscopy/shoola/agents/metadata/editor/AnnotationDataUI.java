@@ -77,9 +77,13 @@ import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
+import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
+import pojos.LongAnnotationData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Components displaying the various annotations linked to the related 
@@ -217,6 +221,9 @@ class AnnotationDataUI
 	
 	/** Collection of other annotations objects. */
 	private List<DocComponent> otherList;
+	
+	/** Flag indicating that other annotations have been added or removed. */
+	private boolean otherFlag;
 	
 	/**
 	 * Creates and displays the menu 
@@ -1154,23 +1161,39 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Removes a tag from the view.
+	 * Removes a annotation from the view.
 	 * 
-	 * @param tag The tag to remove.
+	 * @param annotation The annotation to remove.
 	 */
-	void removeTag(TagAnnotationData tag)
+	void removeAnnotation(AnnotationData annotation)
 	{
-		if (tag == null) return;
-		List<TagAnnotationData> tags = getCurrentTagsSelection();
-		Iterator<TagAnnotationData> i = tags.iterator();
-		TagAnnotationData data;
-		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
-		while (i.hasNext()) {
-			data = i.next();
-			if (data.getId() != tag.getId())
-				toKeep.add(data);
-		}
-		handleObjectsSelection(TagAnnotationData.class, toKeep, true);
+		if (annotation == null) return;
+		List<AnnotationData> toKeep = new ArrayList<AnnotationData>();
+		AnnotationData data;
+		if (annotation instanceof TagAnnotationData) {
+			List<TagAnnotationData> tags = getCurrentTagsSelection();
+			Iterator<TagAnnotationData> i = tags.iterator();
+			while (i.hasNext()) {
+				data = i.next();
+				if (data.getId() != annotation.getId())
+					toKeep.add(data);
+			}
+			handleObjectsSelection(TagAnnotationData.class, toKeep, true);
+		} else if (annotation instanceof TermAnnotationData ||
+				annotation instanceof XMLAnnotationData ||
+				annotation instanceof BooleanAnnotationData ||
+				annotation instanceof LongAnnotationData ||
+				annotation instanceof DoubleAnnotationData) {
+			List<AnnotationData> tags = getCurrentOtherSelection();
+			Iterator<AnnotationData> i = tags.iterator();
+			while (i.hasNext()) {
+				data = i.next();
+				if (data.getId() != annotation.getId())
+					toKeep.add(data);
+			}
+			handleObjectsSelection(AnnotationData.class, toKeep, true);
+		} 
+		
 	}
 	
 	/**
@@ -1181,7 +1204,7 @@ class AnnotationDataUI
 	 * @param fire 	  Pass <code>true</code> to notify, <code>false</code>
 	 * 				  otherwise.
 	 */
-	void handleObjectsSelection(Class type, Collection objects, boolean fire)
+	void handleObjectsSelection(Class<?> type, Collection objects, boolean fire)
 	{
 		if (objects == null) return;
 		if (TagAnnotationData.class.equals(type)) {
@@ -1228,6 +1251,30 @@ class AnnotationDataUI
 					data = (FileAnnotationData) i.next();
 					if (data != null && !ids.contains(data.getId())) {
 						docFlag = true;
+						break;
+					}
+				}
+			}
+		} else if (AnnotationData.class.equals(type)) {
+			layoutOthers(objects);
+			List<Long> ids = new ArrayList<Long>();
+			Iterator i = objects.iterator();
+			AnnotationData data;
+			otherFlag = false;
+			Collection<AnnotationData> 
+			annotations = model.getAllOtherAnnotations();
+			if (annotations == null || annotations.size() != objects.size()) {
+				otherFlag = true;
+			} else {
+				while (i.hasNext()) {
+					data = (AnnotationData) i.next();
+					if  (data != null) ids.add(data.getId());
+				}
+				i = annotations.iterator();
+				while (i.hasNext()) {
+					data = (AnnotationData) i.next();
+					if (data != null && !ids.contains(data.getId())) {
+						otherFlag = true;
 						break;
 					}
 				}
@@ -1288,6 +1335,31 @@ class AnnotationDataUI
 			}
 		}
 		return list;
+	}
+	
+	/**
+	 * Returns the other annotations currently selected. 
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData> getCurrentOtherSelection()
+	{
+		List<AnnotationData> selection = new ArrayList<AnnotationData>();
+		if (otherList.size() == 0)  return selection;
+		DocComponent doc;
+		Object object;
+		AnnotationData tag;
+		Iterator<DocComponent> i = otherList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (object instanceof AnnotationData) {
+				tag = (AnnotationData) object;
+				if (tag.getId() > 0)
+					selection.add(tag);
+			}
+		}
+		return selection;
 	}
 	
 	/**
@@ -1433,17 +1505,16 @@ class AnnotationDataUI
 		Iterator<DocComponent> i;
 		Collection original;
 		Iterator j;
+		AnnotationData annotation;
+		idsToKeep = new ArrayList<Long>();
 		if (tagFlag) {
-			idsToKeep = new ArrayList<Long>();
-			
-			TagAnnotationData tag;
 			i = tagsDocList.iterator();
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof TagAnnotationData) {
-					tag = (TagAnnotationData) object;
-					id = tag.getId();
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
 					if (id > 0) 
 						idsToKeep.add(id);
 				}
@@ -1452,22 +1523,20 @@ class AnnotationDataUI
 			original = model.getAllTags();
 			j = original.iterator();
 			while (j.hasNext()) {
-				tag = (TagAnnotationData) j.next();
-				id = tag.getId();
+				annotation = (AnnotationData) j.next();
+				id = annotation.getId();
 				if (!idsToKeep.contains(id))// && model.isAnnotationToDelete(tag))
-					l.add(tag);
+					l.add(annotation);
 			}
 		}
 		if (docFlag) {
-			idsToKeep = new ArrayList<Long>();
 			i = filesDocList.iterator();
-			FileAnnotationData fa;
 			while (i.hasNext()) {
 				doc = i.next();
 				object = doc.getData();
 				if (object instanceof FileAnnotationData) {
-					fa = (FileAnnotationData) object;
-					id = fa.getId();
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
 					if (id > 0) 
 						idsToKeep.add(id);
 				}
@@ -1475,10 +1544,32 @@ class AnnotationDataUI
 			original = model.getAllAttachments();
 			j = original.iterator();
 			while (j.hasNext()) {
-				fa = (FileAnnotationData) j.next();
-				id = fa.getId();
+				annotation = (AnnotationData) j.next();
+				id = annotation.getId();
 				if (!idsToKeep.contains(id))//  && model.isAnnotationToDelete(fa))
-					l.add(fa);
+					l.add(annotation);
+			}
+		}
+		if (otherFlag) {
+			i = otherList.iterator();
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof AnnotationData) {
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
+					if (id > 0) 
+						idsToKeep.add(id);
+				}
+			}
+			
+			original = model.getAllOtherAnnotations();
+			j = original.iterator();
+			while (j.hasNext()) {
+				annotation = (AnnotationData) j.next();
+				id = annotation.getId();
+				if (!idsToKeep.contains(id))// && model.isAnnotationToDelete(tag))
+					l.add(annotation);
 			}
 		}
 		if (model.hasBeenPublished()) {
@@ -1639,7 +1730,7 @@ class AnnotationDataUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		if (tagFlag || docFlag) return true;
+		if (tagFlag || docFlag || otherFlag) return true;
 		Iterator<DocComponent> i = tagsDocList.iterator();
 		while (i.hasNext()) {
 			if (i.next().hasBeenModified()) return true;
