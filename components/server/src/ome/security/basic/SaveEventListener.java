@@ -14,8 +14,8 @@ import ome.model.IEnum;
 import ome.model.IObject;
 import ome.tools.hibernate.HibernateUtils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
@@ -42,7 +42,7 @@ public class SaveEventListener extends DefaultSaveEventListener {
 
     private static final long serialVersionUID = 1111101677298961L;
 
-    private static Log log = LogFactory.getLog(SaveEventListener.class);
+    private static Logger log = LoggerFactory.getLogger(SaveEventListener.class);
 
     private final CurrentDetails cd;
 

@@ -13,8 +13,8 @@ import omero.RCollection;
 import omero.RMap;
 import omero.util.IceMapper.ReturnMapping;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extension of {@link IceMapper} which guarantees that {@link RCollection} and
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class RTypeMapper extends IceMapper {
 
-    private static Log log = LogFactory.getLog(RTypeMapper.class);
+    private static Logger log = LoggerFactory.getLogger(RTypeMapper.class);
 
     public RTypeMapper(ReturnMapping mapping) {
         super(mapping);

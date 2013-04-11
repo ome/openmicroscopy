@@ -10,8 +10,8 @@ package ome.services.blitz.impl;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import Ice.Current;
@@ -40,7 +40,7 @@ public class DeleteHandleI extends AbstractAmdServant implements
 
     private static final long serialVersionUID = 159204352095939345L;
 
-    private static final Log log = LogFactory.getLog(DeleteHandleI.class);
+    private static final Logger log = LoggerFactory.getLogger(DeleteHandleI.class);
 
     /**
      * {@link DeleteCommand} instances passed into this instance on creation. No

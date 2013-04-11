@@ -32,8 +32,8 @@ import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link AbstractHierarchyGraphSpec} specialized for processing light sources.
@@ -43,8 +43,8 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LightSourceGraphSpec extends AbstractHierarchyGraphSpec {
 
-    private final static Log log = LogFactory
-        .getLog(LightSourceGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(LightSourceGraphSpec.class);
 
     //
     // Initialization-time values

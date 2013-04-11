@@ -11,8 +11,8 @@ package ome.tools.hibernate;
 import java.util.Map;
 
 // Third-party imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.event.EventSource;
 import org.hibernate.event.RefreshEvent;
@@ -39,8 +39,8 @@ public class ReloadingRefreshEventListener implements RefreshEventListener {
 
     private static final long serialVersionUID = 4292680015211981832L;
 
-    private static Log log = LogFactory
-            .getLog(ReloadingRefreshEventListener.class);
+    private static Logger log = LoggerFactory
+            .getLogger(ReloadingRefreshEventListener.class);
 
     /**
      * @see RefreshEventListener#onRefresh(RefreshEvent)

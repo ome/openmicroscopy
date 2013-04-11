@@ -13,8 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.conditions.ApiUsageException;
@@ -30,7 +30,7 @@ import ome.conditions.ValidationException;
  */
 public class ApiConstraintChecker {
 
-    private static Log log = LogFactory.getLog(ApiConstraintChecker.class);
+    private static Logger log = LoggerFactory.getLogger(ApiConstraintChecker.class);
 
     public static void errorOnViolation(Class implClass, Method mthd,
             Object[] args) throws ValidationException {

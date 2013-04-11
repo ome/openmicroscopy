@@ -57,10 +57,10 @@ import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
 import org.apache.batik.transcoder.TranscoderException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +85,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     private static final long serialVersionUID = 3047482880497900069L;
 
     /** The logger for this class. */
-    private transient static Log log = LogFactory.getLog(ThumbnailBean.class);
+    private transient static Logger log = LoggerFactory.getLogger(ThumbnailBean.class);
 
     /** The renderer that this service uses for thumbnail creation. */
     private transient Renderer renderer;
@@ -488,7 +488,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             Thumbnail thumb, OutputStream outputStream) {
         int x = thumb.getSizeX();
         int y = thumb.getSizeY();
-        StopWatch s1 = new CommonsLogStopWatch("omero.transcodeSVG");
+        StopWatch s1 = new Slf4JStopWatch("omero.transcodeSVG");
         try
         {
             SVGRasterizer rasterizer = new SVGRasterizer(
@@ -793,7 +793,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /** Actually does the work specified by {@link createThumbnail()}.*/
     private Thumbnail _createThumbnail() {
-        StopWatch s1 = new CommonsLogStopWatch("omero._createThumbnail");
+        StopWatch s1 = new Slf4JStopWatch("omero._createThumbnail");
         if (thumbnailMetadata == null) {
             throw new ValidationException("Missing thumbnail metadata.");
         } else if (ctx.dirtyMetadata(pixels.getId())) {

@@ -60,9 +60,9 @@ import ome.system.ServiceFactory;
 import ome.conditions.ApiUsageException;
 import ome.util.LSID;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.perf4j.StopWatch;
 
 
@@ -81,7 +81,7 @@ import org.perf4j.StopWatch;
 public class OMEROMetadataStore
 {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(OMEROMetadataStore.class);
+    private static Logger log = LoggerFactory.getLogger(OMEROMetadataStore.class);
 
     /** OMERO service factory; all other services are retrieved from here. */
     private ServiceFactory sf;
@@ -1866,7 +1866,7 @@ public class OMEROMetadataStore
     	// Save the entire Image rooted graph using the "insert only"
     	// saveAndReturnIds(). DISABLED until we can find out what is causing
     	// the extreme memory usage on the graph reload.
-    	StopWatch s1 = new CommonsLogStopWatch("omero.saveImportGraph");
+    	StopWatch s1 = new Slf4JStopWatch("omero.saveImportGraph");
     	Image[] imageArray = 
     		imageList.values().toArray(new Image[imageList.size()]);
     	IObject[] saved = sf.getUpdateService().saveAndReturnArray(imageArray);

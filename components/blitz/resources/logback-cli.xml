@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- For assistance related to logback-translator or configuration  -->
+<!-- files in general, please contact the logback user mailing list -->
+<!-- at http://www.qos.ch/mailman/listinfo/logback-user             -->
+<!--                                                                -->
+<!-- For professional support please see                            -->
+<!--    http://www.qos.ch/shop/products/professionalSupport         -->
+<!--                                                                -->
+<configuration>
+  <appender name="stderr" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <encoder>
+      <pattern>%d %-10.10r [%10.10t] %-6.6p %40.40c %x - %m</pattern>
+    </encoder>
+  </appender>
+  <logger name="ome.adapters" level="error"/>
+  <logger name="ome" level="info"/>
+  <logger name="ome.formats" level="info"/>
+  <logger name="loci" level="error"/>
+  <logger name="ome.system" level="warn"/>
+  <root level="warn">
+    <appender-ref ref="stderr"/>
+  </root>
+</configuration>

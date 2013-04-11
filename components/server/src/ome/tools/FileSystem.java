@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.commons.io.FileSystemUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extends Sun Microsystems java.io.File for J2SE 5 only. This class provides
@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileSystem extends File {
 
-    private static Log log = LogFactory.getLog(FileSystem.class);
+    private static Logger log = LoggerFactory.getLogger(FileSystem.class);
     
 	/**
 	 * unique serial identifier

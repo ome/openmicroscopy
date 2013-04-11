@@ -30,8 +30,8 @@ import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.beans.FatalBeanException;
 
@@ -47,8 +47,8 @@ import org.springframework.beans.FatalBeanException;
  */
 public abstract class AbstractHierarchyGraphSpec extends BaseGraphSpec {
 
-    private final static Log log = LogFactory
-        .getLog(AbstractHierarchyGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(AbstractHierarchyGraphSpec.class);
 
     /**
      * Whether or not the type of types[i] is abstract. If true, no processing

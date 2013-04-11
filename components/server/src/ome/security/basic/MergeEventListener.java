@@ -19,8 +19,8 @@ import ome.model.meta.Event;
 import ome.tools.hibernate.HibernateUtils;
 import ome.util.Utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Restrictions;
@@ -53,7 +53,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
 
     private static final long serialVersionUID = 240558701677298961L;
 
-    private static Log log = LogFactory.getLog(MergeEventListener.class);
+    private static Logger log = LoggerFactory.getLogger(MergeEventListener.class);
 
     private final CurrentDetails cd;
 

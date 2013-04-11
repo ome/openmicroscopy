@@ -11,8 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.proxy.HibernateProxy;
@@ -84,7 +84,7 @@ import ome.tools.hibernate.ExtendedMetadata;
 public class BasicSecuritySystem implements SecuritySystem,
         ApplicationContextAware, ApplicationListener<EventLogMessage> {
 
-    private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
+    private final static Logger log = LoggerFactory.getLogger(BasicSecuritySystem.class);
 
     protected final OmeroInterceptor interceptor;
 

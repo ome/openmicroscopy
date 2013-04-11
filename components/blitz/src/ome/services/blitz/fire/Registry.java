@@ -30,8 +30,8 @@ import omero.grid.monitors.MonitorServerPrx;
 import omero.grid.monitors.MonitorServerPrxHelper;
 import omero.grid.monitors._MonitorServerDisp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Glacier2.SessionManagerPrx;
 import Glacier2.SessionPrx;
@@ -104,7 +104,7 @@ public interface Registry {
 
     public class Impl implements Registry {
 
-        private final static Log log = LogFactory.getLog(Registry.class);
+        private final static Logger log = LoggerFactory.getLogger(Registry.class);
 
         private final Ice.Communicator ic;
 

@@ -13,8 +13,8 @@ import java.lang.reflect.Method;
 // Third-party imports
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.event.AbstractEvent;
 
 // Application-internal dependencies
@@ -67,7 +67,7 @@ public class EventMethodInterceptor implements MethodInterceptor {
 
     static volatile int count = 1;
 
-    private static Log log = LogFactory.getLog(EventMethodInterceptor.class);
+    private static Logger log = LoggerFactory.getLogger(EventMethodInterceptor.class);
 
     protected boolean verbose = false;
 

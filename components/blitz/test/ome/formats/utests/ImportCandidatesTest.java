@@ -24,8 +24,8 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.ImportCandidates.SCANNING;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 /**
@@ -46,7 +46,7 @@ import org.testng.annotations.Test;
 public class ImportCandidatesTest extends TestCase {
 
     final List<SCANNING> scannings = new ArrayList<SCANNING>();
-    Log log = LogFactory.getLog(ImportCandidatesTest.class);
+    Logger log = LoggerFactory.getLogger(ImportCandidatesTest.class);
     ImportCandidates c;
 
     ImportConfig config = new ImportConfig();

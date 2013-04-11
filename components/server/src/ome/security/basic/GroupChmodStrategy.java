@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -142,7 +142,7 @@ public class GroupChmodStrategy implements ChmodStrategy,
         }
     }
 
-    private final static Log log = LogFactory.getLog(GroupChmodStrategy.class);
+    private final static Logger log = LoggerFactory.getLogger(GroupChmodStrategy.class);
 
     private final BasicACLVoter voter;
 

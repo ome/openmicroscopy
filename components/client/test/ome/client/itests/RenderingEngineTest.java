@@ -22,8 +22,8 @@ import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 import omeis.providers.re.RenderingEngine;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -32,7 +32,7 @@ import org.testng.annotations.Test;
 )
 public class RenderingEngineTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(RenderingEngineTest.class);
+    private static Logger log = LoggerFactory.getLogger(RenderingEngineTest.class);
 
     /*
      * Pixels p = new Pixels(); AcquisitionContext ac = new

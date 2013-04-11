@@ -85,8 +85,8 @@ import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation for {@link MetadataStore} and {@link MetadataRetrieve} that
@@ -98,7 +98,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OmeroMetadata extends DummyMetadata {
 
-    private final static Log log = LogFactory.getLog(OmeroMetadata.class);
+    private final static Logger log = LoggerFactory.getLogger(OmeroMetadata.class);
 
     /** The base format string for xsd:dateTime. */
     private SimpleDateFormat xsdDateTimeFormat =

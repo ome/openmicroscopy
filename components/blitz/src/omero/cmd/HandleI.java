@@ -27,7 +27,7 @@ import omero.ServerError;
 
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -351,7 +351,7 @@ public class HandleI implements _HandleOperations, IHandle,
             return; // EARLY EXIT!
         }
 
-        StopWatch sw = new CommonsLogStopWatch();
+        StopWatch sw = new Slf4JStopWatch();
         try {
             Map<String, String> merged = mergeContexts();
 
@@ -415,7 +415,7 @@ public class HandleI implements _HandleOperations, IHandle,
     }
 
     public List<Object> steps(SqlAction sql, Session session, ServiceFactory sf) throws Cancel {
-        StopWatch swWhole = new CommonsLogStopWatch();
+        StopWatch swWhole = new Slf4JStopWatch();
         try {
 
             // Initialize. Any exceptions should cancel the process
@@ -427,7 +427,7 @@ public class HandleI implements _HandleOperations, IHandle,
 
             int j = 0;
             while (j < status.steps) {
-                swEach = new CommonsLogStopWatch();
+                swEach = new Slf4JStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw helper.cancel(new ERR(), null, "not-ready");

@@ -232,7 +232,7 @@ public class ChownITest extends AbstractGraphTest {
                 + imageId, null);
         assertEquals(0, l.size());
 
-        // Log into new group.
+        // Logger into new group.
         changeToNewGroup();
 
         // For anyone logged into the new group, it should be present

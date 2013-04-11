@@ -8,8 +8,8 @@ package omero.util;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * SPI type picked up from the Spring configuration and given a chance to
@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class ObjectFactoryRegistry {
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     public static abstract class ObjectFactory implements Ice.ObjectFactory {
 
@@ -30,7 +30,7 @@ public abstract class ObjectFactoryRegistry {
             this.id = id;
         }
 
-        public void register(Log log, Ice.Communicator ic, boolean strict) {
+        public void register(Logger log, Ice.Communicator ic, boolean strict) {
             if (strict) {
                 ic.addObjectFactory(this, id);
             } else {

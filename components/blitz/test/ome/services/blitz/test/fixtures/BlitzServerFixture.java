@@ -31,8 +31,8 @@ import ome.tools.spring.ManagedServiceFactory;
 import omeis.providers.re.RenderingEngine;
 import omero.api.ServiceFactoryPrx;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.util.ResourceUtils;
@@ -43,7 +43,7 @@ import org.springframework.util.ResourceUtils;
  */
 public class BlitzServerFixture extends MockObjectTestCase {
 
-    private static final Log log = LogFactory.getLog(BlitzServerFixture.class);
+    private static final Logger log = LoggerFactory.getLogger(BlitzServerFixture.class);
 
     private final Map<String, Object> STUBS = new HashMap<String, Object>();
 

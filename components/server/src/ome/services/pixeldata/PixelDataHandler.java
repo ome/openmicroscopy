@@ -21,8 +21,8 @@ import ome.system.ServiceFactory;
 import ome.util.ShallowCopy;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class PixelDataHandler extends SimpleWork {
 
-    private final static Log log = LogFactory.getLog(PixelDataHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(PixelDataHandler.class);
 
     final protected PersistentEventLogLoader loader;
 

@@ -13,8 +13,8 @@ import ome.security.SecuritySystem;
 import ome.services.messages.LoginAttemptMessage;
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContextAware;
 public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         PasswordUtility, ApplicationContextAware {
 
-    final protected Log log = LogFactory.getLog(this.getClass());
+    final protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Hash implementation to use for encoding passwords to check and changed

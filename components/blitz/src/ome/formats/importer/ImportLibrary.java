@@ -24,6 +24,7 @@ import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
+
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
@@ -57,8 +58,8 @@ import omero.model.Pixels;
 import omero.model.Screen;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -76,7 +77,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ImportLibrary implements IObservable
 {
-    private static Log log = LogFactory.getLog(ImportLibrary.class);
+    private static Logger log = LoggerFactory.getLogger(ImportLibrary.class);
 
     /** The class used to identify the dataset target.*/
     private static final String DATASET_CLASS = "omero.model.Dataset";

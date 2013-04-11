@@ -29,8 +29,8 @@ import omero.model.Project;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
 
 import Glacier2.CannotCreateSessionException;
@@ -43,7 +43,7 @@ public class TestEngine
     private static final String APP_NAME = "import-tester";
 
 	/** Logger for this class */
-	private static final Log log = LogFactory.getLog(TestEngine.class);
+	private static final Logger log = LoggerFactory.getLogger(TestEngine.class);
 
 	// Immutable state
 

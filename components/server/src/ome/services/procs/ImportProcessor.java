@@ -13,8 +13,8 @@ package ome.services.procs;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class ImportProcessor implements ApplicationContextAware, Processor {
 
-    private final static Log log = LogFactory.getLog(ImportProcessor.class);
+    private final static Logger log = LoggerFactory.getLogger(ImportProcessor.class);
 
     private OmeroContext context;
     //private OMEROMetadataStore store;
@@ -59,7 +59,7 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
             // library.importData(pixId, filename, null);//step);
             // }
         } catch (Exception e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         return null;
 

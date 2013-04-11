@@ -18,8 +18,8 @@ import ome.services.sessions.stats.SessionStats;
 import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Responsible for logging users in and out via the {@link Principal} before and
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public final class BasicSecurityWiring extends HardWiredInterceptor {
 
-    private final static Log log = LogFactory.getLog(BasicSecurityWiring.class);
+    private final static Logger log = LoggerFactory.getLogger(BasicSecurityWiring.class);
 
     protected PrincipalHolder principalHolder;
 

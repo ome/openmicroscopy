@@ -24,12 +24,12 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -61,7 +61,7 @@ public abstract class GraphStep {
 
     }
 
-    private static Log log = LogFactory.getLog(GraphStep.class);
+    private static Logger log = LoggerFactory.getLogger(GraphStep.class);
 
     /**
      * Used to mark {@link #savepoint} after usage.
@@ -351,7 +351,7 @@ public abstract class GraphStep {
         String sspec = aspec.getSuperSpec();
         if (sspec == null || sspec.length() == 0) {
             if (ids != null && ids.size() > 0) {
-                StopWatch swTop = new CommonsLogStopWatch();
+                StopWatch swTop = new Slf4JStopWatch();
 
                 QueryBuilder qb = new QueryBuilder();
                 qb.delete("ome.model.IAnnotationLink"); // FIXME

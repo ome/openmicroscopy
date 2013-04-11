@@ -16,8 +16,8 @@ import java.util.Set;
 
 import ome.model.meta.EventLog;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Thread-safe java.util-like Container for storing {@link EventLog} instances
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class EventBacklog {
 
-    final private static Log logger = LogFactory.getLog(EventBacklog.class);
+    final private static Logger logger = LoggerFactory.getLogger(EventBacklog.class);
 
     final Map<Long, Map<String, Set<String>>> contained = new HashMap<Long, Map<String, Set<String>>>();
 

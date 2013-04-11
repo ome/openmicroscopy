@@ -10,8 +10,8 @@ import java.io.File;
 import java.util.Formatter;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author callan
@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
 public class AbstractFileSystemService {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(AbstractFileSystemService.class);
+    private static Logger log = LoggerFactory.getLogger(AbstractFileSystemService.class);
 
     public final static String ROOT_DEFAULT = File.separator + "OMERO"
             + File.separator;

@@ -20,8 +20,8 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Static methods for dealing with password hashes and the "password" table.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PasswordUtil {
 
-    private final static Log log = LogFactory.getLog(PasswordUtil.class);
+    private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
 
     private final SqlAction sql;
 

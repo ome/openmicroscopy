@@ -35,8 +35,8 @@ import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -59,7 +59,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     private static final long serialVersionUID = -450924529925301925L;
     
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(RawPixelsBean.class);
+    private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
 
     /** The id of the original files instance. */
     private Long id;

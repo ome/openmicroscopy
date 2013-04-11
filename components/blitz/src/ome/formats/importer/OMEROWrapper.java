@@ -50,8 +50,8 @@ import ome.util.PixelData;
 import omero.model.Channel;
 import omero.model.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
 public class OMEROWrapper extends MinMaxCalculator {
 
     @SuppressWarnings("unused")
-    private final static Log log = LogFactory.getLog(OMEROWrapper.class);
+    private final static Logger log = LoggerFactory.getLogger(OMEROWrapper.class);
 
     private ChannelSeparator separator;
     private ChannelFiller filler;

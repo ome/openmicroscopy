@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper around a call to 'glacier2router' to permit Java control over the
@@ -27,7 +27,7 @@ public class Router {
 
     private final static String LOCALHOST = "127.0.0.1";
 
-    private final static Log log = LogFactory.getLog("OMERO.router");
+    private final static Logger log = LoggerFactory.getLogger("OMERO.router");
 
     Process p = null;
 
@@ -73,7 +73,7 @@ public class Router {
         for (String string : map.keySet()) {
             list.add("--" + string + "=" + map.get(string));
         }
-        log.info(list);
+        log.info(list.toString()); // slf4j migration: toString()
         ProcessBuilder pb = new ProcessBuilder(list.toArray(new String[list
                 .size()]));
         try {

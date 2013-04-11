@@ -7,8 +7,8 @@
 
 package ome.services.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Hook run by the context. This hook prints an informative message on
@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServerVersionCheck {
 
-    public final static Log log = LogFactory.getLog(ServerVersionCheck.class);
+    public final static Logger log = LoggerFactory.getLogger(ServerVersionCheck.class);
 
     private final String version;
 

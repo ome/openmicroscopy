@@ -51,8 +51,8 @@ import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -73,7 +73,7 @@ import pojos.TextualAnnotationData;
 @Test(groups = { "client", "integration" })
 public class PojosServiceTest extends TestCase {
 
-    protected static Log log = LogFactory.getLog(PojosServiceTest.class);
+    protected static Logger log = LoggerFactory.getLogger(PojosServiceTest.class);
 
     ServiceFactory factory = new ServiceFactory("ome.client.test");
 

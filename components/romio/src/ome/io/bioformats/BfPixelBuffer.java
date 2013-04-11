@@ -31,8 +31,8 @@ import ome.io.nio.PixelBufferException;
 import ome.io.nio.RomioPixelBuffer;
 import ome.util.PixelData;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link PixelBuffer} implementation which uses Bio-Formats to
@@ -42,7 +42,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BfPixelBuffer implements PixelBuffer, Serializable {
 
-    private final static Log log = LogFactory.getLog(BfPixelBuffer.class);
+    private final static Logger log = LoggerFactory.getLogger(BfPixelBuffer.class);
 
     protected final String filePath;
 

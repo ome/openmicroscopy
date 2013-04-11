@@ -24,8 +24,8 @@ import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.CacheMode;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class FullTextIndexer extends SimpleWork {
 
-    private final static Log log = LogFactory.getLog(FullTextIndexer.class);
+    private final static Logger log = LoggerFactory.getLogger(FullTextIndexer.class);
 
     abstract class Action {
         Class type;
@@ -53,7 +53,7 @@ public class FullTextIndexer extends SimpleWork {
 
         abstract void go(FullTextSession session);
 
-        abstract void log(Log log);
+        abstract void log(Logger log);
     }
 
     class Purge extends Action {
@@ -68,7 +68,7 @@ public class FullTextIndexer extends SimpleWork {
         }
 
         @Override
-        void log(Log log) {
+        void log(Logger log) {
             log.info(String.format("Purged: %s:Id_%d", type, id));
         }
     }
@@ -85,7 +85,7 @@ public class FullTextIndexer extends SimpleWork {
         }
 
         @Override
-        void log(Log log) {
+        void log(Logger log) {
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Indexed: %s", obj));
             }

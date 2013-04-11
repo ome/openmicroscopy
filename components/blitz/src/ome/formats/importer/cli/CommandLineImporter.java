@@ -29,10 +29,9 @@ import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.Screen;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// import org.apache.log4j.Level; CGB: Needs replacing with logback equivalent.
 
 /**
  * The base entry point for the CLI version of the OMERO importer.
@@ -42,7 +41,7 @@ import org.apache.log4j.Logger;
  */
 public class CommandLineImporter {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(CommandLineImporter.class);
+    private static Logger log = LoggerFactory.getLogger(CommandLineImporter.class);
 
     /** Name that will be used for usage() */
     private static final String APP_NAME = "importer-cli";
@@ -326,7 +325,8 @@ public class CommandLineImporter {
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
-                config.configureDebug(Level.toLevel(g.getOptarg()));
+                // CGB: Needs replacing with logback equivalent.
+                // config.configureDebug(Level.toLevel(g.getOptarg()));
                 break;
             }
             case 2: {
@@ -446,11 +446,12 @@ public class CommandLineImporter {
             }
         }
 
+        // CGB: Needs replacing with logback equivalent.
         // Let the user know at what level we're logging
-        log.info(String.format(
-                "Log levels -- Bio-Formats: %s OMERO.importer: %s",
-                Logger.getLogger("loci").getLevel(),
-                Logger.getLogger("ome.formats").getLevel()));
+        //log.info(String.format(
+        //        "Log levels -- Bio-Formats: %s OMERO.importer: %s",
+        //        org.apache.log4j.Logger.getLogger("loci").getLevel(),
+        //        org.apache.log4j.Logger.getLogger("ome.formats").getLevel()));
 
         List<Annotation> annotations =
             toTextAnnotations(annotationNamespaces, textAnnotations);

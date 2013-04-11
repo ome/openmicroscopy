@@ -28,8 +28,8 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -47,7 +47,7 @@ import pojos.TagAnnotationData;
 
 public class PojosTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(PojosTest.class);
+    private static Logger log = LoggerFactory.getLogger(PojosTest.class);
 
     IObject[] all;
 

@@ -17,8 +17,8 @@ import java.util.Set;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.RowMapper;
@@ -33,8 +33,8 @@ import org.springframework.jdbc.core.RowMapper;
  */
 public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
-    public final static Log log = LogFactory
-            .getLog(DropBoxDirectoryCheck.class);
+    public final static Logger log = LoggerFactory
+            .getLogger(DropBoxDirectoryCheck.class);
 
     final String omeroDataDir;
 

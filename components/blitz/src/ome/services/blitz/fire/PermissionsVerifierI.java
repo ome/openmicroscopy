@@ -20,8 +20,8 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +37,8 @@ import Ice.StringHolder;
 @RevisionNumber("$Revision: 1175 $")
 public class PermissionsVerifierI extends _PermissionsVerifierDisp {
 
-    private final static Log log = LogFactory
-            .getLog(PermissionsVerifierI.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(PermissionsVerifierI.class);
 
     private final Ring ring;
 

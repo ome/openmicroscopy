@@ -32,8 +32,8 @@ import ome.model.stats.StatsInfo;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -65,7 +65,7 @@ public interface SqlAction {
 
     public static class LoggingSqlAction implements MethodInterceptor {
 
-        final private static Log log = LogFactory.getLog(SqlAction.class);
+        final private static Logger log = LoggerFactory.getLogger(SqlAction.class);
 
         public Object invoke(MethodInvocation arg0) throws Throwable {
             if (log.isDebugEnabled()) {
@@ -450,7 +450,7 @@ public interface SqlAction {
      */
     public static abstract class Impl implements SqlAction {
 
-        protected final Log log = LogFactory.getLog(this.getClass());
+        protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
         protected abstract SimpleJdbcOperations _jdbc();
 

@@ -5,8 +5,8 @@
  */
 package ome.tools.spring;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 
 /**
@@ -18,8 +18,8 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
  */
 public class ShutdownSafeEhcacheManagerFactoryBean extends EhCacheManagerFactoryBean {
 
-    private static final Log log = LogFactory
-            .getLog(ShutdownSafeEhcacheManagerFactoryBean.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(ShutdownSafeEhcacheManagerFactoryBean.class);
 
     @Override
     public void destroy() {

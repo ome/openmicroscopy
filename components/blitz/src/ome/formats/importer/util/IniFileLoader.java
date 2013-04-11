@@ -38,8 +38,8 @@ import loci.formats.in.FlexReader;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.Version;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.ini4j.IniFile;
 import org.ini4j.IniFile.Mode;
 
@@ -51,7 +51,7 @@ import org.ini4j.IniFile.Mode;
  */
 public class IniFileLoader {
 
-    private final static Log log = LogFactory.getLog(IniFileLoader.class);
+    private final static Logger log = LoggerFactory.getLogger(IniFileLoader.class);
 
     private final static String LOGDIR = System.getProperty("user.home")
             + File.separator + "omero" + File.separator + "log";
@@ -103,7 +103,7 @@ public class IniFileLoader {
         try {
             userPrefs = new IniFile(userConfigFile, Mode.RW);
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             //throw new RuntimeException("Error accessing ini file", e);
         }
     }
@@ -115,7 +115,7 @@ public class IniFileLoader {
         try {
             userPrefs.flush();
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
     }
 
@@ -497,7 +497,7 @@ public class IniFileLoader {
             Preferences prefs = new IniFile(staticFile, Mode.RO);
             return prefs;
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             throw new RuntimeException(e);
         }
     }

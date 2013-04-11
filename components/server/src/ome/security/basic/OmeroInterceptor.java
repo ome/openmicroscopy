@@ -12,8 +12,8 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
@@ -76,7 +76,7 @@ public class OmeroInterceptor implements Interceptor {
 
     static volatile int count = 1;
 
-    private static Log log = LogFactory.getLog(OmeroInterceptor.class);
+    private static Logger log = LoggerFactory.getLogger(OmeroInterceptor.class);
 
     private final Interceptor EMPTY = EmptyInterceptor.INSTANCE;
 

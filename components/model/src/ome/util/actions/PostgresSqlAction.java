@@ -628,7 +628,7 @@ public class PostgresSqlAction extends SqlAction.Impl {
      * fail (I think). See #7432
      */
     protected void handlePotentialPgArrayJarError(UncategorizedSQLException e) {
-        log.error(e);
+        log.error(e.toString()); // slf4j migration: toString()
         throw new InternalException(
                 "Potential jdbc jar error during pgarray access (See #7432)\n"
                 + printThrowable(e));

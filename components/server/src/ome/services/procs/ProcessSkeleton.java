@@ -12,8 +12,8 @@ import java.util.Set;
 
 import ome.conditions.ApiUsageException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ProcessSkeleton implements Process {
 
-    private final Log log;
+    private final Logger log;
 
     private final Set<ProcessCallback> cbs = new HashSet<ProcessCallback>();
 
@@ -32,7 +32,7 @@ public class ProcessSkeleton implements Process {
 
     public ProcessSkeleton(Processor p) {
         this.processor = p;
-        this.log = LogFactory.getLog(this.getClass());
+        this.log = LoggerFactory.getLogger(this.getClass());
     }
 
     public Processor processor() {

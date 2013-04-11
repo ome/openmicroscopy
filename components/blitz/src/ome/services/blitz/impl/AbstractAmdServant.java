@@ -36,8 +36,8 @@ import omero.util.CloseableServant;
 import omero.util.IceMapper;
 import omero.util.ServantHolder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
@@ -58,7 +58,7 @@ import Ice.ObjectAdapterDeactivatedException;
 public abstract class AbstractAmdServant implements ApplicationContextAware,
     CloseableServant {
 
-    final protected Log log = LogFactory.getLog(getClass());
+    final protected Logger log = LoggerFactory.getLogger(getClass());
 
     final protected BlitzExecutor be;
 

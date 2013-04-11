@@ -9,8 +9,8 @@ package ome.io.bioformats;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import loci.formats.FormatException;
 import loci.formats.in.TiffReader;
@@ -26,8 +26,8 @@ import loci.formats.tiff.IFD;
 public class OmeroPixelsPyramidWriter extends TiffWriter {
 
     /** Logger for this class. */
-    private final static Log log =
-        LogFactory.getLog(OmeroPixelsPyramidWriter.class);
+    private final static Logger log =
+        LoggerFactory.getLogger(OmeroPixelsPyramidWriter.class);
 
     /** Current TIFF image comment for OMERO pixels pyramid TIFFs. */
     public static final String IMAGE_DESCRIPTION = "OmeroPixelsPyramid v1.0.0";

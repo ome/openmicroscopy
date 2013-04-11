@@ -196,7 +196,7 @@
             <option>${omero.blitz.permgen}</option>
         </target>
         <option>-Djava.awt.headless=true</option>
-        <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Blitz-${index}</option>
         <target name="jmx">
@@ -226,7 +226,7 @@
       <server id="Indexer-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
-        <option>-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Indexer-${index}</option>
         <option>-jar</option>
@@ -250,7 +250,7 @@
       <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
-        <option>-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=PixelData-${index}</option>
         <option>-jar</option>
@@ -275,7 +275,7 @@
       <server id="Repository-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx400M</option>
         <option>-Djava.awt.headless=true</option>
-        <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Repository-${index}</option>
         <option>-Domero.repo.dir=${dir}</option>

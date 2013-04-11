@@ -24,8 +24,8 @@ import omero.model.Pixels;
 import omero.api.RawPixelsStorePrx;
 import ome.xml.model.primitives.PositiveFloat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link IFormatReader} for use in export. This is copied
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class OmeroReader extends FormatReader {
 
-    private final static Log log = LogFactory.getLog(OmeroReader.class);
+    private final static Logger log = LoggerFactory.getLogger(OmeroReader.class);
 
     private final RawPixelsStore raw;
 

@@ -13,8 +13,8 @@ import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.messages.stats.ObjectsWrittenStatsMessage;
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,7 +26,7 @@ import org.springframework.context.ApplicationEvent;
  */
 public abstract class AbstractThrottlingStrategy implements ApplicationContextAware, ThrottlingStrategy {
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected /*final*/ OmeroContext ctx;
 

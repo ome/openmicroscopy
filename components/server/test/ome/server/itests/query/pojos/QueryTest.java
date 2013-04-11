@@ -36,8 +36,8 @@ import ome.system.ServiceFactory;
 import ome.tools.lsid.LsidUtils;
 import ome.util.RdfPrinter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
@@ -53,7 +53,7 @@ import org.testng.annotations.Test;
 @Test(groups = "internal")
 public class QueryTest extends AbstractManagedContextTest {
 
-    private static Log log = LogFactory.getLog(QueryTest.class);
+    private static Logger log = LoggerFactory.getLogger(QueryTest.class);
 
     @Test
     public void testFindHierarchies() throws Exception {

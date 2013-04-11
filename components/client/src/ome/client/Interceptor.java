@@ -14,8 +14,8 @@ import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jboss.security.SecurityAssociation;
 import org.springframework.jndi.JndiLookupFailureException;
 
@@ -31,7 +31,7 @@ public class Interceptor implements MethodInterceptor {
 
     private final static Principal unknown = new Principal("unknown", "", "");
 
-    private static Log log = LogFactory.getLog(Interceptor.class);
+    private static Logger log = LoggerFactory.getLogger(Interceptor.class);
 
     final protected Principal principal;
 

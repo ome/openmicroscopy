@@ -30,8 +30,8 @@ import ome.security.basic.CurrentDetails;
 import ome.services.util.Executor;
 import ome.system.Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionNumber("$Revision: 1593 $")
 public class SessionBean implements ISession {
 
-    private final static Log log = LogFactory.getLog(SessionBean.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionBean.class);
 
     final private SessionManager mgr;
     

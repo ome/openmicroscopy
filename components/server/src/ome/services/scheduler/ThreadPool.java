@@ -13,8 +13,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.quartz.Scheduler;
 
 /**
@@ -26,7 +26,7 @@ import org.quartz.Scheduler;
  */
 public class ThreadPool {
 
-    private final static Log log = LogFactory.getLog(ThreadPool.class);
+    private final static Logger log = LoggerFactory.getLogger(ThreadPool.class);
 
     private final LinkedBlockingQueue<Runnable> queue;
 

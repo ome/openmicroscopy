@@ -27,8 +27,8 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 
 /**
@@ -148,7 +148,7 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
     // ProcessManager
     //
 
-    private static Log log = LogFactory.getLog(ProcessManager.class);
+    private static Logger log = LoggerFactory.getLogger(ProcessManager.class);
 
     private static Principal PRINCIPAL = new Principal("root", "user",
             "Processing");

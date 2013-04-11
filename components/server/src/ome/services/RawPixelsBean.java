@@ -46,8 +46,8 @@ import ome.util.SqlAction;
 import ome.util.Utils;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -64,7 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RawPixelsBean extends AbstractStatefulBean implements
         RawPixelsStore {
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(RawPixelsBean.class);
+    private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
 
     private static final long serialVersionUID = -6640632220587930165L;
 

@@ -33,8 +33,8 @@ import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 import omero.cmd.HandleI.Cancel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 
 /**
@@ -49,7 +49,7 @@ import org.hibernate.Session;
  */
 public class Helper {
 
-    private final Log log;
+    private final Logger log;
 
     private final AtomicReference<Response> rsp = new AtomicReference<Response>();
 
@@ -81,7 +81,7 @@ public class Helper {
         this.sql = sql;
         this.session = session;
         this.sf = sf;
-        this.log = LogFactory.getLog(
+        this.log = LoggerFactory.getLogger(
             this.request.toString().replaceAll("@", ".@"));
     }
 

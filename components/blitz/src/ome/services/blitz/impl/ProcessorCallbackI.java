@@ -28,8 +28,8 @@ import omero.grid._ProcessorCallbackOperations;
 import omero.grid._ProcessorCallbackTie;
 import omero.model.Job;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +41,7 @@ import Ice.Current;
 public class ProcessorCallbackI extends AbstractAmdServant
     implements _ProcessorCallbackOperations {
 
-    private final static Log log = LogFactory.getLog(ProcessorCallbackI.class);
+    private final static Logger log = LoggerFactory.getLogger(ProcessorCallbackI.class);
 
     private final Job job;
 

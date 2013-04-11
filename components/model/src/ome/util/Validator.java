@@ -9,8 +9,8 @@ package ome.util;
 
 // Java imports
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.IObject;
@@ -28,7 +28,7 @@ import ome.model.core.Pixels;
  */
 public abstract class Validator {
 
-    protected static Log log = LogFactory.getLog(Validator.class);
+    protected static Logger log = LoggerFactory.getLogger(Validator.class);
 
     public static Validation validate(IObject obj) {
         return Validation.VALID();

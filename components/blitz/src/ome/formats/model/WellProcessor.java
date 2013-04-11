@@ -36,8 +36,8 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.Well;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the Wells of an IObjectContainerStore and ensures that the Plate
@@ -50,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
 public class WellProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(WellProcessor.class);
+    private Logger log = LoggerFactory.getLogger(WellProcessor.class);
 
     /** Object container store to process. */
     private IObjectContainerStore store;

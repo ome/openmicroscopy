@@ -14,8 +14,8 @@ import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extends {@link EventContext} to hold a {@link Session}. This is used by the
@@ -56,7 +56,7 @@ public interface SessionContext extends EventContext {
      * @see ticket:2804
      */
     public class Count {
-        private final Log log = LogFactory.getLog(Count.class);
+        private final Logger log = LoggerFactory.getLogger(Count.class);
         private final Object[] refLock = new Object[0];
         private int ref;
         private String uuid;

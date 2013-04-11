@@ -57,8 +57,8 @@ import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,7 +96,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     private static final long serialVersionUID = -4383698215540637039L;
 
     /** Reference to the logger. */
-    private static final Log log = LogFactory.getLog(RenderingBean.class);
+    private static final Logger log = LoggerFactory.getLogger(RenderingBean.class);
 
     /**
      * Returns the service corresponding to this class.

@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.conditions.ApiUsageException;
 
@@ -36,7 +36,7 @@ import ome.conditions.ApiUsageException;
  */
 public class Paths {
 
-    private static Log log = LogFactory.getLog(Paths.class);
+    private static Logger log = LoggerFactory.getLogger(Paths.class);
 
     public final static Long EXISTS = new Long(-3);
 

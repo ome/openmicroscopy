@@ -33,8 +33,8 @@ import omero.model.Image;
 import omero.model.Plate;
 import omero.model.Screen;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the IObjectContainerStore and populates references for the
@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
 public class TargetProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(TargetProcessor.class);
+    private Logger log = LoggerFactory.getLogger(TargetProcessor.class);
 
     /**
      * Processes the OMERO client side metadata store.

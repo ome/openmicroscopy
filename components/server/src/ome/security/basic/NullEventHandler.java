@@ -11,8 +11,8 @@ import ome.tools.hibernate.SessionFactory;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides only the bare minimum of functionality to allow methods to succeed.
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class NullEventHandler implements MethodInterceptor {
 
-    private final static Log log = LogFactory.getLog(NullEventHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(NullEventHandler.class);
 
     private final SecuritySystem secSys;
 

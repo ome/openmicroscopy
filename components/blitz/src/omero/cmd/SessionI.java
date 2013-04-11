@@ -41,8 +41,8 @@ import omero.util.TieAware;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
@@ -64,7 +64,7 @@ public class SessionI implements _SessionOperations {
     // STATIC
     // ===========
 
-    private final static Log log = LogFactory.getLog(SessionI.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionI.class);
 
     // PRIVATE STATE
     // =================

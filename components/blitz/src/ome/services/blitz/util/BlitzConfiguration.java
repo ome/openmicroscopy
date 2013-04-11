@@ -21,8 +21,8 @@ import omero.model.DetailsI;
 import omero.model.PermissionsI;
 import omero.util.ModelObjectFactoryRegistry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.util.ResourceUtils;
 
@@ -41,7 +41,7 @@ public class BlitzConfiguration {
 
     private final static String CONFIG_KEY = "--Ice.Config=";
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Ring blitzRing;
 

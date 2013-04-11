@@ -17,8 +17,8 @@ import ome.formats.importer.ImportFixture;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 /**
@@ -37,7 +37,7 @@ import org.testng.annotations.Test;
  */
 public class ImportConfigTest extends TestCase {
 
-    Log log = LogFactory.getLog(ImportConfigTest.class);
+    Logger log = LoggerFactory.getLogger(ImportConfigTest.class);
     ImportConfig config;
     Properties p;
 

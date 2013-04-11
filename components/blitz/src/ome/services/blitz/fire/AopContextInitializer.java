@@ -14,12 +14,12 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class AopContextInitializer extends HardWiredInterceptor {
 
-    private final static Log log = LogFactory.getLog(AopContextInitializer.class);
+    private final static Logger log = LoggerFactory.getLogger(AopContextInitializer.class);
 
     final ServiceFactory sf;
     

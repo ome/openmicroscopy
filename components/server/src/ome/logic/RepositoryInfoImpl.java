@@ -23,8 +23,8 @@ import ome.tools.FileSystem;
 import ome.tools.RepositoryTask;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -63,8 +63,8 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     public final static double CRITICAL_USAGE = 95.0;
 
     /* The logger for this class. */
-    private transient static Log log = LogFactory
-            .getLog(RepositoryInfoImpl.class);
+    private transient static Logger log = LoggerFactory
+            .getLogger(RepositoryInfoImpl.class);
 
     /* repository filesystem */
     private transient String datadir;

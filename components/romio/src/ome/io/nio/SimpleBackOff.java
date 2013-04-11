@@ -15,10 +15,10 @@ import loci.formats.services.JAIIIOService;
 import ome.conditions.MissingPyramidException;
 import ome.model.core.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Basic {@link BackOff} implementation which attempts several writes of the
@@ -35,7 +35,7 @@ public class SimpleBackOff implements BackOff {
 
     private static final int IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB;
 
-    private final static Log log = LogFactory.getLog(SimpleBackOff.class);
+    private final static Logger log = LoggerFactory.getLogger(SimpleBackOff.class);
 
     private final JAIIIOService service;
 
@@ -110,7 +110,7 @@ public class SimpleBackOff implements BackOff {
         long elapsed = 0;
 
         for (int i = 0; i < count; i++) {
-            sw = new CommonsLogStopWatch(key);
+            sw = new Slf4JStopWatch(key);
             image = new BufferedImage(sizes.getTileWidth(), sizes.getTileHeight(), IMAGE_TYPE);
             stream = new ByteArrayOutputStream();
             service.writeImage(stream, image, false, CODE_BLOCK, 1.0);

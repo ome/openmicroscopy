@@ -16,8 +16,8 @@ import java.util.Date;
 
 import ome.conditions.InternalException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for creating and cleaning up a repository lock file. After
@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileMaker {
 
-    private final static Log log = LogFactory.getLog(FileMaker.class);
+    private final static Logger log = LoggerFactory.getLogger(FileMaker.class);
 
     private final Object[] mutex = new Object[0];
 

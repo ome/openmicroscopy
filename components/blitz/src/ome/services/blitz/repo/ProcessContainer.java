@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import omero.grid.ImportProcessPrx;
 import omero.model.Fileset;
@@ -39,7 +39,7 @@ import omero.model.Fileset;
  */
 public class ProcessContainer {
 
-    private final static Log log = LogFactory.getLog(ProcessContainer.class);
+    private final static Logger log = LoggerFactory.getLogger(ProcessContainer.class);
 
     public interface Process {
         ImportProcessPrx getProxy();
@@ -129,7 +129,7 @@ public class ProcessContainer {
                 errors++;
                 log.info(String.format("Removing process [%s] due to error: %s",
                         process, t));
-                log.debug(t);
+                log.debug(t.toString()); // slf4j migration: toString()
             }
         }
         return errors;

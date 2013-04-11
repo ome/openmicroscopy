@@ -35,8 +35,8 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link Runnable} which keeps a {@link Connector}'s server side resources
@@ -49,7 +49,7 @@ import org.apache.commons.logging.LogFactory;
 public class ClientKeepAlive implements Runnable, IObservable
 {
     /** Logger for this class. */
-    private static Log log = LogFactory.getLog(ClientKeepAlive.class);
+    private static Logger log = LoggerFactory.getLogger(ClientKeepAlive.class);
 
     /** The connector we're trying to keep alive. */
     private OMEROMetadataStoreClient client;
@@ -136,7 +136,7 @@ public class ClientKeepAlive implements Runnable, IObservable
                 observer.update(this, event);
             } catch (Exception e)
             {
-                log.error(e);
+                log.error(e.toString()); // slf4j migration: toString()
             }
         }
     }

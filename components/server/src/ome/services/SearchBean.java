@@ -38,8 +38,8 @@ import ome.services.search.Union;
 import ome.services.util.Executor;
 import ome.system.SelfConfigurableService;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +55,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     private final static long serialVersionUID = 59809384038000069L;
 
     /** The logger for this class. */
-    private final static Log log = LogFactory.getLog(SearchBean.class);
+    private final static Logger log = LoggerFactory.getLogger(SearchBean.class);
 
     private final ActionList actions = new ActionList();
 

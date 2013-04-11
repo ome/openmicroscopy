@@ -9,8 +9,8 @@ package ome.util;
 
 import java.io.Serializable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.cache.access.CollectionRegionAccessStrategy;
 import org.hibernate.cfg.Configuration;
@@ -28,7 +28,7 @@ import org.hibernate.persister.collection.CollectionPersister;
  */
 public class CountCollectionPersister extends BasicCollectionPersister {
 
-    private static Log log = LogFactory.getLog(CountCollectionPersister.class);
+    private static Logger log = LoggerFactory.getLogger(CountCollectionPersister.class);
 
     public CountCollectionPersister(Collection collection,
             CollectionRegionAccessStrategy regions, Configuration cfg,

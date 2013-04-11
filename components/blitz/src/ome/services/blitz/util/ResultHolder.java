@@ -10,12 +10,12 @@ package ome.services.blitz.util;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResultHolder<U> {
 
-    private final static Log log = LogFactory.getLog(ResultHolder.class);
+    private final static Logger log = LoggerFactory.getLogger(ResultHolder.class);
 
     private final CountDownLatch c = new CountDownLatch(1);
 

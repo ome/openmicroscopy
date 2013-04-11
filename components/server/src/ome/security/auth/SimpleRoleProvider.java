@@ -26,8 +26,8 @@ import ome.tools.hibernate.HibernateUtils;
 import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -43,7 +43,7 @@ import org.hibernate.Session;
 
 public class SimpleRoleProvider implements RoleProvider {
 
-    final private static Log log = LogFactory.getLog(SimpleRoleProvider.class);
+    final private static Logger log = LoggerFactory.getLogger(SimpleRoleProvider.class);
 
     final protected SecuritySystem sec;
 

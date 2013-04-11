@@ -26,8 +26,8 @@ import omero.grid.ClusterNodePrx;
 import omero.grid.ClusterNodePrxHelper;
 import omero.grid._ClusterNodeDisp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +50,7 @@ import Ice.Current;
  */
 public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
-    private final static Log log = LogFactory.getLog(Ring.class);
+    private final static Logger log = LoggerFactory.getLogger(Ring.class);
 
     /**
      * UUID for this cluster node. Used to uniquely identify the session manager

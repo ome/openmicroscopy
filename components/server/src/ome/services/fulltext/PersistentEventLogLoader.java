@@ -13,8 +13,8 @@ import ome.model.IEnum;
 import ome.model.meta.EventLog;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 
@@ -28,8 +28,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
  */
 public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentEventLogLoader {
 
-    private final static Log log = LogFactory
-            .getLog(PersistentEventLogLoader.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(PersistentEventLogLoader.class);
 
     /**
      * Called when the configuration database does not contain a valid

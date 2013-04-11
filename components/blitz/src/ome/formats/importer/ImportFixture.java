@@ -21,8 +21,8 @@ import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.model.Dataset;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * test fixture for importing files without a GUI.
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 public class ImportFixture
 {
 
-    Log                        log = LogFactory.getLog(ImportFixture.class);
+    Logger                        log = LoggerFactory.getLogger(ImportFixture.class);
 
     @SuppressWarnings("unused")
 

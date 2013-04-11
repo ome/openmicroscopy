@@ -12,8 +12,8 @@ import ome.conditions.InternalException;
 import ome.system.PreferenceContext;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class DBPatchCheck {
 
-    public final static Log log = LogFactory.getLog(DBPatchCheck.class);
+    public final static Logger log = LoggerFactory.getLogger(DBPatchCheck.class);
 
     final SqlAction sql;
     final PreferenceContext prefs;
@@ -60,7 +60,7 @@ public class DBPatchCheck {
             results[1] = prefs.getProperty("omero.db.version");
             results[2] = prefs.getProperty("omero.db.patch");
         } catch (Exception e) {
-            log.fatal(no_table, e);
+            log.error(no_table, e); // slf4j migration: fatal() to error()
             InternalException ie = new InternalException(no_table);
             throw ie;
         }
@@ -71,7 +71,7 @@ public class DBPatchCheck {
         String omero = version + "__" + dbpatch;
         if (patch == null || !patch.equals(omero)) {
             String str = String.format(wrong_version, patch, omero);
-            log.fatal(str);
+            log.error(str); // slf4j migration: fatal() to error()
             InternalException ie = new InternalException(str);
             throw ie;
         }

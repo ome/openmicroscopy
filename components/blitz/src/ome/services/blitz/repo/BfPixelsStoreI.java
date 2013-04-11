@@ -59,8 +59,8 @@ import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api._RawPixelsStoreDisp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -70,7 +70,7 @@ import Ice.Current;
  */
 public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
-    private final static Log log = LogFactory.getLog(BfPixelsStoreI.class);
+    private final static Logger log = LoggerFactory.getLogger(BfPixelsStoreI.class);
 
     private final BfPixelsWrapper reader;
 

@@ -24,8 +24,8 @@ import ome.model.IObject;
 import ome.model.ModelBased;
 import ome.model.meta.Event;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class ModelMapper extends ContextFilter {
 
-    protected final static Log log = LogFactory.getLog(ModelMapper.class);
+    protected final static Logger log = LoggerFactory.getLogger(ModelMapper.class);
 
     /**
      * TODO identity versus null mappings

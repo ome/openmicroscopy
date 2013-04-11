@@ -10,8 +10,8 @@ package omeis.providers.re.data;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.util.PixelData;
@@ -55,7 +55,7 @@ import ome.model.enums.PixelsType;
 public class Plane2D {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Plane2D.class);
+    private static Logger log = LoggerFactory.getLogger(Plane2D.class);
 
     /** Contains the plane data. */
     private PixelData data;

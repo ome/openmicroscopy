@@ -9,8 +9,8 @@ package ome.services.fulltext;
 
 import java.io.Reader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharTokenizer;
 import org.apache.lucene.analysis.LetterTokenizer;
@@ -27,7 +27,7 @@ import org.apache.lucene.analysis.TokenStream;
  */
 public class FullTextAnalyzer extends Analyzer {
 
-    private final static Log log = LogFactory.getLog(FullTextAnalyzer.class);
+    private final static Logger log = LoggerFactory.getLogger(FullTextAnalyzer.class);
 
     static {
         log.info("Initialized FullTextAnalyzer");
