@@ -849,7 +849,8 @@ class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
         self.loginAsAdmin()
         self.FILENAME = self._getDirectory('RepositoryApiPermissionsTest')
         repository, repodesc = self._getrepo()
-        repository.makeDir(self._getDirectory(''), True)
+        if self._getDirectory('') != '':  # don't try to recreate root
+            repository.makeDir(self._getDirectory(''), True)
         targetfile = repository.file(self.FILENAME, 'rw')
         targetfile.truncate(0)
         targetfile.write('ABC123', 0, 6)
