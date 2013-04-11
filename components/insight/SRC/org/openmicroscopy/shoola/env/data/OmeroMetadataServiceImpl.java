@@ -810,11 +810,12 @@ class OmeroMetadataServiceImpl
 			List<Long> annotationIds = new ArrayList<Long>();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
-				if (data instanceof TermAnnotationData)
+				if (data instanceof TermAnnotationData) {
+					annotationIds.add(data.getId());
 					terms.add((TermAnnotationData) data);
-				else if (data instanceof TextualAnnotationData)
+				} else if (data instanceof TextualAnnotationData)
 					texts.add((TextualAnnotationData) data);
-				else if ((data instanceof TagAnnotationData)) {
+				else if (data instanceof TagAnnotationData) {
 					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
 					tags.add((TagAnnotationData) data);
@@ -825,8 +826,12 @@ class OmeroMetadataServiceImpl
 					map.put(data.getId(), data);
 					attachments.add((FileAnnotationData) data);
 				} else if (data instanceof XMLAnnotationData) {
+					annotationIds.add(data.getId());
 					xml.add((XMLAnnotationData) data);
-				} else other.add(data);
+				} else {
+					annotationIds.add(data.getId());
+					other.add(data);
+				}
 			}
 			//load the links tags and attachments
 			if (annotationIds.size() > 0 && 
