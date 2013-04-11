@@ -21,7 +21,6 @@ import org.apache.commons.io.FilenameUtils;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 /**
  * File type wrapper for paths which are intended for being stored in the
@@ -122,7 +121,7 @@ public class RepoFile {
 
         final public String path;
         final public String name;
-        final private ChecksumAlgorithm hasher = new ChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
+        final private ChecksumAlgorithm hasher = new ChecksumAlgorithm("SHA1-160");
 
         FsFile(String path) {
             this.path = FilenameUtils.normalize(path);

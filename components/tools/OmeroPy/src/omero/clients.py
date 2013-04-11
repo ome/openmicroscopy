@@ -700,6 +700,8 @@ class BaseClient(object):
 
             ofile.size = omero.rtypes.rlong(size)
             ofile.hash = omero.rtypes.rstring(self.sha1(file.name))
+            ofile.hasher = omero.model.ChecksumAlgorithmI()
+            ofile.hasher.value = omero.rtypes.rstring("SHA1-160")
 
             abspath = filepath.normpath().abspath()
             if not ofile.name:

@@ -43,10 +43,13 @@ import omero.api.StatefulServiceInterface;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api._ClientCallbackDisp;
 import omero.constants.AGENT;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.DetailsI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.ModelObjectFactoryRegistry;
 import omero.util.Resources;
 import omero.util.Resources.Entry;
@@ -995,6 +998,10 @@ public class client {
         }
 
         fileObject.setSize(rlong(size));
+
+        final ChecksumAlgorithm hasher = new ChecksumAlgorithmI();
+        hasher.setValue(rstring(ChecksumAlgorithmSHA1160.value));
+        fileObject.setHasher(hasher);
         fileObject.setHash(rstring(sha1(file)));
 
         if (fileObject.getName() == null) {

@@ -42,6 +42,8 @@ import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.ImmutableMap;
+
 /**
  * Raw file gateway which provides access to the OMERO file repository.
  * 
@@ -60,6 +62,20 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     
     /** The logger for this particular class */
     private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
+
+    // TODO: Have the code generator give us enumeration values in ome.model,
+    // then ChecksumAlgorithmMapper functionality can be made widely enough
+    // accessible to eliminate many other copies of the values in the code-base.
+    /* Map of checksum algorithm names to the corresponding checksum type. */
+    private static final ImmutableMap<String, ChecksumType> checksumAlgorithms =
+            ImmutableMap.<String, ChecksumType> builder().
+            put("Adler-32", ChecksumType.ADLER32).
+            put("CRC-32", ChecksumType.CRC32).
+            put("MD5-128", ChecksumType.MD5).
+            put("Murmur3-32", ChecksumType.MURMUR32).
+            put("Murmur3-128", ChecksumType.MURMUR128).
+            put("SHA1-160", ChecksumType.SHA1).
+            build();
 
     /** The id of the original files instance. */
     private Long id;
@@ -179,8 +195,11 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             try {
-                file.setHash(this.checksumProviderFactory
-                        .getProvider(ChecksumType.SHA1).putFile(path).checksumAsString());
+                if (file.getHasher() != null) {
+                    final ChecksumType checksumType = checksumAlgorithms.get(file.getHasher().getValue());
+                    file.setHash(this.checksumProviderFactory
+                            .getProvider(checksumType).putFile(path).checksumAsString());
+                }
 
                 File f = new File(path);
                 long size = f.length();
