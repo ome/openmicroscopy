@@ -371,14 +371,16 @@ class ImporterModel
 	 * @param refreshImport Flag indicating to refresh the on-going import.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
+	 * @param userID The id of the user to load the data for.
 	 */
 	void fireContainerLoading(Class rootType, boolean refreshImport, boolean 
-			changeGroup)
+			changeGroup, long userID)
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
+		if (userID < 0) userID = getExperimenterId();
 		DataLoader loader = new DataLoader(component, ctx, rootType,
-				refreshImport, changeGroup);
+				refreshImport, changeGroup, userID);
 		loader.load();
 	}
 
@@ -390,6 +392,8 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
+		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setExperimenter(data.getExperimenter());
 		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
 		loader.load();

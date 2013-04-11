@@ -31,6 +31,7 @@ import java.io.File;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -69,6 +70,9 @@ public class ImportableFile
 	
 	/** The node of reference if set. */
 	private Object refNode;
+
+	/** The user importing data for */
+	private ExperimenterData user;
 
 	/**
 	 * Creates a new instance.
@@ -187,6 +191,20 @@ public class ImportableFile
 	public GroupData getGroup() { return group; }
 	
 	/**
+	 * Sets the user.
+	 * 
+	 * @param user The user to import data and set as the owner.
+	 */
+	public void setUser(ExperimenterData user) { this.user = user;}
+	
+	/**
+	 * Returns the user.
+	 * 
+	 * @return See above.
+	 */
+	public ExperimenterData getUser() { return user;}
+	
+	/**
 	 * Returns a copy of the object.
 	 * 
 	 * @return See above.
@@ -202,6 +220,21 @@ public class ImportableFile
 		newObject.group = this.group;
 		newObject.status = new StatusLabel();
 		return newObject;
+	}
+	
+	/**
+	 * Returns the details about the absolute path, group id and user id.
+	 * @see #toString()
+	 */
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(getFile().getAbsolutePath());
+		if (group != null)
+			buf.append("_"+group.getId());
+		if (user != null)
+			buf.append("_"+user.getId());
+		return buf.toString();
 	}
 
 }

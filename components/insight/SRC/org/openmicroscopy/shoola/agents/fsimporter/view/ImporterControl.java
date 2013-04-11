@@ -354,10 +354,7 @@ class ImporterControl
 		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			//need to update the count
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
-			Integer value = (Integer) evt.getNewValue();
-			int v = Importer.PROJECT_TYPE;
-			if (value != null) v = value.intValue();
-			model.refreshContainers(v);
+			model.refreshContainers((ImportLocationDetails) evt.getNewValue());
 		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
 			ObjectToCreate l = (ObjectToCreate) evt.getNewValue();
 			model.createDataObject(l);

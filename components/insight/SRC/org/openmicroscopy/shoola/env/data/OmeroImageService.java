@@ -500,7 +500,7 @@ public interface OmeroImageService
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	public Object importFile(ImportableObject object,
-		ImportableFile importable, long userID, boolean close)
+		ImportableFile importable , boolean close)
 		throws ImportException, DSAccessException, DSOutOfServiceException;
 	
 	/**

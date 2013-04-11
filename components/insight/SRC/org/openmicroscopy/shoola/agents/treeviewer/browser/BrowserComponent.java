@@ -162,7 +162,8 @@ class BrowserComponent
 			    	ctx = new SecurityContext(gid);
 			    	if (model.getDisplayMode() ==
 			    			TreeViewer.EXPERIMENTER_DISPLAY)
-			    		ctx.setExperimenter(expNode.getUserObjectId());
+			    		ctx.setExperimenter(
+				    			(ExperimenterData) expNode.getUserObject());
 					m.put(ctx, def);
 		    	}
 			}
@@ -187,7 +188,8 @@ class BrowserComponent
 					    			v.getFoundNodes(),
 									v.getExpandedTopNodes());
 					    	ctx = new SecurityContext(gid);
-							ctx.setExperimenter(expNode.getUserObjectId());
+					    	ctx.setExperimenter(
+					    			(ExperimenterData) expNode.getUserObject());
 							m.put(ctx, def);
 						}
 					}
@@ -1375,7 +1377,8 @@ class BrowserComponent
 					    	ctx = new SecurityContext(gid);
 					    	if (model.getDisplayMode() ==
 					    			TreeViewer.EXPERIMENTER_DISPLAY)
-					    		ctx.setExperimenter(expNode.getUserObjectId());
+					    		ctx.setExperimenter(
+					    			(ExperimenterData) expNode.getUserObject());
 							m.put(ctx, def);
 				    	}
 					}
@@ -1399,7 +1402,8 @@ class BrowserComponent
 							    			v.getFoundNodes(),
 											v.getExpandedTopNodes());
 							    	ctx = new SecurityContext(gid);
-									ctx.setExperimenter(expNode.getUserObjectId());
+							    	ctx.setExperimenter(
+							    	(ExperimenterData) expNode.getUserObject());
 									m.put(ctx, def);
 								}
 							}

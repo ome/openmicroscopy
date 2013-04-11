@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -41,20 +44,19 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
 import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
+
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /**
@@ -75,6 +77,36 @@ class FileSelectionTable
 	implements ActionListener
 {
 
+	private static final String TOOLTIP_BUTTON_REMOVE_ALL = "Remove all files from the queue.";
+
+	private static final String TOOLTIP_BUTTON_REMOVE = "Remove the selected files " +
+			"from the queue.";
+
+	private static final String TOOLTIP_BUTTON_ADD = "Add the selected files to the queue.";
+
+	/** Tooltip text for group column */
+	private static final String TOOLTIP_GROUP = 
+			"The group where to import data.";
+
+	/** Tooltip text for owner column */
+	private static final String TOOLTIP_OWNER = "The owner of imported data";
+
+	/** Tooltip text for archive column */
+	private static final String TOOLTIP_ARCHIVE = "Archive the data.";
+
+	/** Tooltip text for folder as dataset column */
+	private static final String TOOLTIP_FAD = "Convert the folder as dataset.";
+
+	/** Tooltip text for container column */
+	private static final String TOOLTIP_CONTAINER = 
+			"The container where to import the data.";
+
+	/** Tooltip text for size column */
+	private static final String TOOLTIP_SIZE = "Size of File or Folder.";
+
+	/** Tooltip text for file column */
+	private static final String TOOLTIP_FILE = "File or Folder to import.";
+
 	/** Bound property indicating to add files to the queue. */
 	static final String ADD_PROPERTY = "add";
 	
@@ -82,48 +114,58 @@ class FileSelectionTable
 	static final String REMOVE_PROPERTY = "remove";
 	
 	/** Action command ID to add a field to the result table. */
-	private static final int 		ADD = 0;
+	private static final int ADD = 0;
 	
 	/** Action command ID to remove a field from the result table. */
-	private static final int 		REMOVE = 1;
+	private static final int REMOVE = 1;
 	
 	/** Action command ID to remove all fields from the result table. */
-	private static final int 		REMOVE_ALL = 2;
+	private static final int REMOVE_ALL = 2;
 	
 	/** The index of the file's name column. */
-	static final int		FILE_INDEX = 0;
+	static final int FILE_INDEX = 0;
 	
 	/** The index of the file's length column. */
-	static final int		SIZE_INDEX = 1;
+	static final int SIZE_INDEX = 1;
 	
 	/** 
 	 * The index of the column indicating the container where files will
 	 * be imported
 	 */
-	static final int		CONTAINER_INDEX = 2;
+	static final int CONTAINER_INDEX = 2;
 	
-	/** 
-	 * The index of the column indicating the group where to import data.
-	 */
-	static final int		GROUP_INDEX = 3;
+	/** The index of the column indicating the group where to import data. */
+	static final int GROUP_INDEX = 3;
 	
-	/** 
-	 * The index of the column indicating to use the folder
-	 * as a dataset. 
-	 */
-	static final int		FOLDER_AS_CONTAINER_INDEX = 4;
+	/** The index of the column indicating the owner of import data. */
+	static final int OWNER_INDEX = 4;
+	
+	/** The index of the column indicating to use the folder as a dataset. */
+	static final int FOLDER_AS_DATASET_INDEX = 5;
 
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
-	
+
 	/** The columns of the table w/o group information */
 	private static final Vector<String> COLUMNS_NO_GROUP;
+	
+	/** The columns of the table w/o user information */
+	private static final Vector<String> COLUMNS_NO_USER;
+	
+	/** The columns of the table w/o group or user information */
+	private static final Vector<String> COLUMNS_NO_GROUP_NO_USER;
 
 	/** The tool-tip of the columns. */
 	private static final String[] COLUMNS_TOOLTIP;
-	
+
 	/** The tool-tip of the columns. */
 	private static final String[] COLUMNS_NO_GROUP_TOOLTIP;
+	
+	/** The tool-tip of the columns. */
+	private static final String[] COLUMNS_NO_USER_TOOLTIP;
+	
+	/** The tool-tip of the columns. */
+	private static final String[] COLUMNS_NO_GROUP_NO_USER_TOOLTIP;
 	
 	/** The text displayed to use the folder as container. */
 	private static final String FAD_TEXT = "Folder as\nDataset";
@@ -140,61 +182,92 @@ class FileSelectionTable
 	 */
 	private static final String CONTAINER_PROJECT_TEXT = 
 		"Project/Dataset\nor Screen";
-	
+
 	/** The group where the files will be imported.*/
 	private static final String GROUP_TEXT = "Group";
 	
+	/** The owner of the imported data. */
+	private static final String OWNER_TEXT = "Owner";
+	
 	static {
-		int n = 5;
-		COLUMNS = new Vector<String>(n);
+		COLUMNS = new Vector<String>(6);
 		COLUMNS.add(FILE_TEXT);
 		COLUMNS.add(SIZE_TEXT);
 		COLUMNS.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS.add(OWNER_TEXT);
 		COLUMNS.add(GROUP_TEXT);
 		COLUMNS.add(FAD_TEXT);
-		COLUMNS_TOOLTIP = new String[n];
-		COLUMNS_TOOLTIP[FILE_INDEX] = "File or Folder to import.";
-		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
-		COLUMNS_TOOLTIP[CONTAINER_INDEX] = 
-			"The container where to import the data.";
-		COLUMNS_TOOLTIP[GROUP_INDEX] = "The group where to import data.";
-		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
-			"Convert the folder as dataset.";
 		
-		COLUMNS_NO_GROUP = new Vector<String>(n-1);
+		COLUMNS_TOOLTIP = new String[6];
+		COLUMNS_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
+		COLUMNS_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
+		COLUMNS_TOOLTIP[CONTAINER_INDEX] =	TOOLTIP_CONTAINER;
+		COLUMNS_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
+		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
+		COLUMNS_TOOLTIP[FOLDER_AS_DATASET_INDEX] = TOOLTIP_FAD;
+
+		COLUMNS_NO_GROUP = new Vector<String>(5);
 		COLUMNS_NO_GROUP.add(FILE_TEXT);
 		COLUMNS_NO_GROUP.add(SIZE_TEXT);
 		COLUMNS_NO_GROUP.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS_NO_GROUP.add(OWNER_TEXT);
 		COLUMNS_NO_GROUP.add(FAD_TEXT);
-		COLUMNS_NO_GROUP_TOOLTIP = new String[n-1];
-		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = COLUMNS_TOOLTIP[FILE_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = COLUMNS_TOOLTIP[SIZE_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] =
-			COLUMNS_TOOLTIP[CONTAINER_INDEX];
-		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_CONTAINER_INDEX-1] =
-			COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX];
+
+		COLUMNS_NO_GROUP_TOOLTIP = new String[5];
+		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
+		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
+		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
+		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX-1] = TOOLTIP_OWNER;
+		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
+
+		COLUMNS_NO_USER = new Vector<String>(5);
+		COLUMNS_NO_USER.add(FILE_TEXT);
+		COLUMNS_NO_USER.add(SIZE_TEXT);
+		COLUMNS_NO_USER.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS_NO_USER.add(GROUP_TEXT);
+		COLUMNS_NO_USER.add(FAD_TEXT);
+
+		COLUMNS_NO_USER_TOOLTIP = new String[5];
+		COLUMNS_NO_USER_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
+		COLUMNS_NO_USER_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
+		COLUMNS_NO_USER_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
+		COLUMNS_NO_USER_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
+		COLUMNS_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
+
+		COLUMNS_NO_GROUP_NO_USER = new Vector<String>(4);
+		COLUMNS_NO_GROUP_NO_USER.add(FILE_TEXT);
+		COLUMNS_NO_GROUP_NO_USER.add(SIZE_TEXT);
+		COLUMNS_NO_GROUP_NO_USER.add(CONTAINER_PROJECT_TEXT);
+		COLUMNS_NO_GROUP_NO_USER.add(FAD_TEXT);
+
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP = new String[4];
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-2] = 
+				TOOLTIP_FAD;
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
-	private JButton 			addButton;
+	private JButton addButton;
 	
 	/** The button to move an item from the current items to remaining items. */
-	private JButton 			removeButton;
+	private JButton removeButton;
 	
 	/** The button to move all items to the remaining items. */
-	private JButton 			removeAllButton;
+	private JButton removeAllButton;
 
 	/** The table displaying the collection to files to import. */
-	private JTable				table;
+	private JTable table;
 	
 	/** Reference to the model. */
-	private ImportDialog 		model;
-	
+	private ImportDialog model;
+
 	/** The key listener added to the queue. */
-	private KeyAdapter			keyListener;
+	private KeyAdapter keyListener;
 	
 	/** The columns selected for the display.*/
-	private Vector<String>		selectedColumns;
+	private Vector<String> selectedColumns;
 	
 	/** Formats the table model. */
 	private void formatTableModel()
@@ -202,65 +275,118 @@ class FileSelectionTable
 		TableColumnModel tcm = table.getColumnModel();
 		TableColumn tc = tcm.getColumn(FILE_INDEX);
 		tc.setCellRenderer(new FileTableRenderer()); 
-		
+
 		tc = tcm.getColumn(CONTAINER_INDEX);
 		tc.setCellRenderer(new FileTableRenderer());
 		
 		String[] tips;
-		boolean single = model.isSingleGroup();
-		if (!single) {
-			tc = tcm.getColumn(GROUP_INDEX);
-			tc.setCellRenderer(new FileTableRenderer());
-			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
-			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setResizable(false);
-			tips = COLUMNS_TOOLTIP;
+		
+		boolean singleGroup = model.isSingleGroup();
+		
+		if (!singleGroup) {
+
+			if(model.canImportAs()) {
+				tc = tcm.getColumn(GROUP_INDEX);
+				tc.setCellRenderer(new FileTableRenderer());
+				tc = tcm.getColumn(OWNER_INDEX);
+				tc.setCellRenderer(new FileTableRenderer());
+				
+				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX);
+				setColumnAsBoolean(tc);
+
+				tips = COLUMNS_TOOLTIP;
+			} else {
+				tc = tcm.getColumn(GROUP_INDEX);
+				tc.setCellRenderer(new FileTableRenderer());
+				
+				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
+				setColumnAsBoolean(tc);
+
+				tips = COLUMNS_NO_USER_TOOLTIP;
+			}
 		} else {
-			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
-			tc.setCellEditor(table.getDefaultEditor(Boolean.class));
-			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setResizable(false);
-			tips = COLUMNS_NO_GROUP_TOOLTIP;
+			if(model.canImportAs()) {
+				tc = tcm.getColumn(OWNER_INDEX-1);
+				tc.setCellRenderer(new FileTableRenderer());
+				
+				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
+				setColumnAsBoolean(tc);
+				
+				tips = COLUMNS_NO_GROUP_TOOLTIP;
+			} else {
+				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-2);
+				setColumnAsBoolean(tc);
+				
+				tips = COLUMNS_NO_GROUP_NO_USER_TOOLTIP;
+			}
 		}
 
 		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
 		table.setTableHeader(header);
 		
-		tcm.getColumn(SIZE_INDEX).setHeaderRenderer(
-				new MultilineHeaderSelectionRenderer());
+		TableCellRenderer renderer = new MultilineHeaderSelectionRenderer();
 
-		tc = tcm.getColumn(FILE_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-		if (!single) {
-			tc = tcm.getColumn(GROUP_INDEX);
-			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
-			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+		setHeaderRenderer(tcm, SIZE_INDEX, renderer);
+		setHeaderRenderer(tcm, FILE_INDEX, renderer);
+		setHeaderRenderer(tcm, CONTAINER_INDEX, renderer);
+		
+		if (!singleGroup) {
+			if(model.canImportAs()) {
+				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, renderer);
+			} else {
+				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+			}
 		} else {
-			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX-1);
-			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
+			if(model.canImportAs()) {
+				setHeaderRenderer(tcm, OWNER_INDEX-1, renderer);
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+			} else {
+				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, renderer);
+			}
 		}
 		table.getTableHeader().resizeAndRepaint();
 		table.getTableHeader().setReorderingAllowed(false);
 	}
+
+	/**
+	 * Helper method to setup the column as a boolean column
+	 * @param column the column to set
+	 */
+	private void setColumnAsBoolean(TableColumn column) {
+		column.setCellEditor(table.getDefaultEditor(Boolean.class));
+		column.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+		column.setResizable(false);
+	}
 	
+	/**
+	 * Helper method to sets the table header with the specified index to the 
+	 * renderer provided.
+	 * @param columnModel The <see>TableColumnModel</see> to use
+	 * @param columnIndex The index of the column to set
+	 * @param renderer The renderer to set
+	 */
+	private void setHeaderRenderer(TableColumnModel columnModel,
+			int columnIndex, TableCellRenderer renderer) {
+		TableColumn column = columnModel.getColumn(columnIndex);
+		column.setHeaderRenderer(renderer);
+	}
+
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
 		addButton = new JButton(icons.getIcon(IconManager.RIGHT_ARROW));
-		addButton.setToolTipText("Add the selected files to the queue.");
+		addButton.setToolTipText(TOOLTIP_BUTTON_ADD);
 		addButton.setEnabled(false);
 		removeButton = new JButton(icons.getIcon(IconManager.LEFT_ARROW));
-		removeButton.setToolTipText("Remove the selected files " +
-				"from the queue.");
+		removeButton.setToolTipText(TOOLTIP_BUTTON_REMOVE);
 		removeButton.setEnabled(false);
 		removeAllButton = new JButton(
 				icons.getIcon(IconManager.DOUBLE_LEFT_ARROW));
-		removeAllButton.setToolTipText("Remove all files from the queue.");
+		removeAllButton.setToolTipText(TOOLTIP_BUTTON_REMOVE_ALL);
 		removeAllButton.setEnabled(false);
 		addButton.setActionCommand(""+ADD);
 		addButton.addActionListener(this);
@@ -268,11 +394,22 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
-		else selectedColumns = COLUMNS;
+		
+		if (model.isSingleGroup()) {
+			if(model.canImportAs()) {
+				selectedColumns = COLUMNS_NO_GROUP;
+			} else {
+				selectedColumns = COLUMNS_NO_GROUP_NO_USER;
+			}
+		} else {
+			if(model.canImportAs()) {
+				selectedColumns = COLUMNS;
+			} else {
+				selectedColumns = COLUMNS_NO_USER;
+			}
+		}
 		
 		table = new JTable(new FileTableModel(selectedColumns));
-		table.getTableHeader().setReorderingAllowed(false);
 		keyListener = new KeyAdapter() {
 			
 			/**
@@ -320,7 +457,7 @@ class FileSelectionTable
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		Vector v = dtm.getDataVector();
+		Vector<?> v = dtm.getDataVector();
 		List<Object> indexes = new ArrayList<Object>();
 		for (int i = 0; i < table.getRowCount(); i++) {
 			if (table.isRowSelected(i))
@@ -345,9 +482,11 @@ class FileSelectionTable
 	 * @param queue The list of files already in the queue.
 	 * @param f The file to check.
 	 * @param gID The id of the group to import the image into.
+	 * @param userID The id of the user.
 	 * @return See above.
 	 */
-	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID)
+	private boolean allowAddToQueue(List<FileElement> queue, File f, long gID,
+			long userID)
 	{
 		if (f == null) return false;
 		if (queue == null) return true;
@@ -357,7 +496,8 @@ class FileSelectionTable
 		while (i.hasNext()) {
 			fe = i.next();
 			if (fe.getFile().getAbsolutePath().equals(name) &&
-				fe.getGroup().getId() == gID) return false;
+				fe.getGroup().getId() == gID && fe.getUser().getId() == userID)
+				return false;
 		}
 		return true;
 	}
@@ -424,8 +564,7 @@ class FileSelectionTable
 		FileElement element;
 		File file;
 		ImportableFile importable;
-		boolean single = model.isSingleGroup();
-		boolean b;
+		boolean isFolderDataset;
 		DataNodeElement dne;
 		DatasetData dataset;
 		for (int i = 0; i < n; i++) {
@@ -433,20 +572,34 @@ class FileSelectionTable
 			dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX);
 			file = element.getFile();
 			dataset = dne.getLocation();
-			if (single) {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i,
-						FOLDER_AS_CONTAINER_INDEX-1));
-				importable = new ImportableFile(file, b);
+
+			if (model.isSingleGroup()) {
+				if(model.canImportAs()) {
+					isFolderDataset = Boolean.valueOf((Boolean) 
+							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-1));
+					importable = new ImportableFile(file, isFolderDataset);
+				} else {
+					isFolderDataset = Boolean.valueOf((Boolean) 
+							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-2));
+					importable = new ImportableFile(file, isFolderDataset);
+				}
 			} else {
-				b = Boolean.valueOf((Boolean) dtm.getValueAt(i,
-						FOLDER_AS_CONTAINER_INDEX));
-				importable = new ImportableFile(file, b);
+				if(model.canImportAs()) {
+					isFolderDataset = Boolean.valueOf((Boolean) 
+							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX));
+					importable = new ImportableFile(file, isFolderDataset);
+				} else {
+					isFolderDataset = Boolean.valueOf((Boolean) 
+							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-1));
+					importable = new ImportableFile(file, isFolderDataset);
+				}
 			}
 			
-			if (b) dataset = null;
+			if (isFolderDataset) dataset = null;
 			importable.setLocation(dne.getParent(), dataset);
 			importable.setRefNode(dne.getRefNode());
 			importable.setGroup(element.getGroup());
+			importable.setUser(element.getUser());
 			files.add(importable);
 		}
 		return files;
@@ -459,10 +612,24 @@ class FileSelectionTable
 	 */
 	void reset(boolean value)
 	{ 
-		allowAddition(value); 
-		if (model.isSingleGroup()) selectedColumns = COLUMNS_NO_GROUP;
-		else selectedColumns = COLUMNS;
+		allowAddition(value);
+		
+		if (model.isSingleGroup()) {
+			if(model.canImportAs()) {
+				selectedColumns = COLUMNS_NO_GROUP;
+			} else {
+				selectedColumns = COLUMNS_NO_GROUP_NO_USER;
+			}
+		} else {
+			if(model.canImportAs()) {
+				selectedColumns = COLUMNS;
+			} else {
+				selectedColumns = COLUMNS_NO_USER;
+			}
+		}
+		
 		table.setModel(new FileTableModel(selectedColumns));
+		
 		formatTableModel();
 	}
 	
@@ -502,6 +669,7 @@ class FileSelectionTable
 		if (files == null || files.size() == 0) return;
 		boolean fad = settings.isParentFolderAsDataset();
 		GroupData group = settings.getImportGroup();
+		ExperimenterData user = settings.getImportUser();
 		enabledControl(true);
 		File f;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
@@ -513,7 +681,6 @@ class FileSelectionTable
 			inQueue.add(element);
 		}
 		Iterator<File> i = files.iterator();
-		boolean multi = !model.isSingleGroup();
 		DataNode node = settings.getImportLocation();
 		if (node.isDefaultNode() && model.getType() != Importer.SCREEN_TYPE)
 			node.setParent(settings.getParentImportLocation());
@@ -522,8 +689,8 @@ class FileSelectionTable
 		long gID = group.getId();
 		while (i.hasNext()) {
 			f = i.next();
-			if (allowAddToQueue(inQueue, f, gID)) {
-				element = new FileElement(f, model.getType(), group);
+			if (allowAddToQueue(inQueue, f, gID, user.getId())) {
+				element = new FileElement(f, model.getType(), group, user);
 				element.setName(f.getName());
 				value = null;
 				v = false;
@@ -540,16 +707,34 @@ class FileSelectionTable
 						element.setToggleContainer(v);
 					}
 				}
-				if (multi) {
-					dtm.addRow(new Object[] {element, 
-							element.getFileLengthAsString(),
-							new DataNodeElement(node, value), group.getName(),
-							Boolean.valueOf(v)});
+				
+				if (model.isSingleGroup()) {
+					if(model.canImportAs()) {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), 
+								user.getUserName(),
+								Boolean.valueOf(v)});
+					} else {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value),
+								Boolean.valueOf(v)});
+					}
 				} else {
-					dtm.addRow(new Object[] {element, 
-							element.getFileLengthAsString(),
-							new DataNodeElement(node, value),
-							Boolean.valueOf(v)});
+					if(model.canImportAs()) {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), 
+								user.getUserName(), group.getName(),
+								Boolean.valueOf(v)});
+					} else {
+						dtm.addRow(new Object[] {element, 
+								element.getFileLengthAsString(),
+								new DataNodeElement(node, value), 
+								group.getName(),
+								Boolean.valueOf(v)});
+					}
 				}
 			}
 		}
@@ -585,12 +770,14 @@ class FileSelectionTable
 		if (n == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		FileElement element;
-		int j = 0;
-		if (model.isSingleGroup()) j = -1;
+		int offset = 0;
+		if (model.isSingleGroup()) offset--;
+		if (model.canImportAs()) offset--;
+		
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
 			if (element.isDirectory())
-				dtm.setValueAt(fad, i, FOLDER_AS_CONTAINER_INDEX+j);
+				dtm.setValueAt(fad, i, FOLDER_AS_DATASET_INDEX+offset);
 		}
 	}
 	
@@ -643,7 +830,7 @@ class FileSelectionTable
 				removeAllFiles();
 		}
 	}
-
+	
 	/** Inner class so that some cells cannot be edited. */
 	class FileTableModel 
 		extends DefaultTableModel
@@ -671,8 +858,6 @@ class FileSelectionTable
 				case CONTAINER_INDEX:
 				case SIZE_INDEX:
 					return false;
-				case FOLDER_AS_CONTAINER_INDEX:	
-					return false;
 			}
 			return false; 
 		}
@@ -684,7 +869,7 @@ class FileSelectionTable
 		public void setValueAt(Object value, int row, int col)
 		{   
 			if (value instanceof Boolean) {
-				if (col == FOLDER_AS_CONTAINER_INDEX) {
+				if (col == FOLDER_AS_DATASET_INDEX) {
 					DataNodeElement element = (DataNodeElement) getValueAt(row,
 							CONTAINER_INDEX);
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);

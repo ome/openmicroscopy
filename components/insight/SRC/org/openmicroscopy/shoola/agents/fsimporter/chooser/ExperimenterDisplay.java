@@ -19,72 +19,39 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.util.ui;
+package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import pojos.ExperimenterData;
 
 /** 
- * Provides a wrapper class for a selectable option
- *
+ * Provides a wrapper to display the experimenter 
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since 4.4
  */
-public class Selectable<T> {
+public class ExperimenterDisplay  {
 
-	/** The wrapped object */
-	private T obj;
+	/** The user being wrapped */
+	private ExperimenterData data;
 	
-	/** The state of selection */
-	private boolean selectable;
-	
-	/**
-	 * Creates an instance of the selectable class
-	 * @param obj The object being wrapped
-	 * @param selectable Whether the item is selectable or not.
-	 */
-	public Selectable(T obj, boolean selectable)
+	/** Creates an instance wrapping this user data for display */
+	public ExperimenterDisplay(ExperimenterData data)
 	{
-		this.obj = obj;
-		this.selectable = selectable;
+		this.data = data;
 	}
 	
 	/**
-	 * Return the wrapped object
-	 * @return
-	 */
-	public T getObject()
-	{
-		return obj;
-	}
-	
-	/**
-	 * Returns whether the item should be selectable or not.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isSelectable()
-	{
-		return selectable;
-	}
-	
-	/**
-	 * Sets to <code>true</code> if the object can be selected,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param isSelectable The value to set.
-	 */
-	public void setSelectable(boolean isSelectable) {
-		this.selectable = isSelectable;
-	}
-	
-	/**
-	 * Returns the String representation of the wrapped object.
-	 * @see #toString()
+	 * Returns a formatted representation of this user "{firstName} {lastName}"
 	 */
 	public String toString()
 	{
-		return obj.toString();
+		return String.format("%s %s", data.getFirstName(), data.getLastName());
 	}
 
-
+	/**
+	 * Returns the wrapped user data.
+	 * @return see above.
+	 */
+	public ExperimenterData getData() {
+		return data;
+	}
 }
