@@ -141,7 +141,7 @@ public class ExampleUsageTest extends TestCase {
         File mappings = new File(currentDir.getParent() + File.separator
                 + "common" + File.separator + "resources" + File.separator
                 + "Mappings.ome.xml"); // FIXME circular deps.
-        log.error(mappings.toString());
+        log.error(mappings);
         SaxReader nsr = new SaxReader("psql", mappings);
         nsr.parse();
         for (Iterator it = nsr.process().iterator(); it.hasNext();) {

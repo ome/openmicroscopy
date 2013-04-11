@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 
 public class ObjectsVmTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(ExampleUsageTest.class);
+    private static Log log = LogFactory.getLog(ObjectsVmTest.class);
 
     SaxReader sr;
 
