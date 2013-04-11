@@ -17,11 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.springframework.util.ResourceUtils;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-import ch.qos.logback.core.joran.spi.JoranException;
-import ch.qos.logback.core.util.StatusPrinter;
-
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
