@@ -808,13 +808,12 @@ class DocComponent
 	/** Adds or edits the description of the tag. */
 	private void editDescription()
 	{
-		TagAnnotationData tag = (TagAnnotationData) data;
-		String text = model.getTagDescription(tag);
+		if (!(data instanceof AnnotationData)) return;
+		String text = model.getAnnotationDescription((AnnotationData) data);
 		originalDescription = text;
-		originalName = tag.getTagValue();
 		SwingUtilities.convertPointToScreen(popupPoint, this);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		EditorDialog d = new EditorDialog(f, tag, false, 
+		EditorDialog d = new EditorDialog(f, (AnnotationData) data, false, 
 				EditorDialog.EDIT_TYPE);
 		d.addPropertyChangeListener(this);
 		d.setOriginalDescription(originalDescription);
@@ -996,11 +995,22 @@ class DocComponent
 		String name = evt.getPropertyName();
 		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			//reset text and tooltip
-			TagAnnotationData tag = (TagAnnotationData) data;
-			label.setText(tag.getTagValue());
-			label.setToolTipText(formatTootTip(tag, null));
-			originalName = tag.getTagValue();
-			originalDescription = tag.getTagDescription();
+			String text = "";
+			String description = "";
+			AnnotationData annotation = null;
+			if (data instanceof TagAnnotationData ||
+				data instanceof TermAnnotationData ||
+				data instanceof XMLAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = annotation.getContentAsString();
+			} 
+			text = model.getAnnotationDescription(annotation);
+			description = model.getObjectName(annotation);
+			if (annotation == null) return;
+			label.setText(text);
+			label.setToolTipText(formatTootTip(annotation, null));
+			originalName = text;
+			originalDescription = description;
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;
@@ -1030,8 +1040,7 @@ class DocComponent
 			//Check Name space
 			activity.setLegend(fa.getDescription());
 			un.notifyActivity(model.getSecurityContext(), activity);
-			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}
-	
+
 }

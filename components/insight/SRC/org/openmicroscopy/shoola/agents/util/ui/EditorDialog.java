@@ -62,7 +62,10 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.AnnotationData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Basic modal dialog brought up to create a new container.
@@ -81,7 +84,7 @@ public class EditorDialog
     extends JDialog
     implements ActionListener, DocumentListener
 {
-	
+
 	/** Indicates that the dialog is to create object. */
 	public static final int			CREATE_TYPE = 0;
 	
@@ -115,7 +118,7 @@ public class EditorDialog
     private static final int		SAVE = 1;
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextField          nameArea;
+    private JTextArea          nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea          	descriptionArea;
@@ -182,7 +185,8 @@ public class EditorDialog
         privateBox.setSelected(true);
         privateBox.setEnabled(false);
         
-        nameArea = new JTextField();
+        nameArea = new MultilineLabel();
+        nameArea.setEditable(true);
         descriptionArea = new MultilineLabel();
         descriptionArea.setEditable(true);
         originalText = "";
@@ -202,10 +206,10 @@ public class EditorDialog
         cancelButton.setActionCommand(""+CANCEL);
        
         if (type == EDIT_TYPE) {
-        	 saveButton = new JButton("Save");
+        	saveButton = new JButton("Save");
         	saveButton.setToolTipText("Edit the object.");
         } else {
-        	 saveButton = new JButton("Create");
+        	saveButton = new JButton("Create");
         	saveButton.setToolTipText("Create a new object.");
         }
         saveButton.addActionListener(this);
@@ -214,7 +218,7 @@ public class EditorDialog
         getRootPane().setDefaultButton(saveButton);
         addWindowListener(new WindowAdapter()
         {
-        	public void windowOpened(WindowEvent e) { nameArea.requestFocus(); } 
+        	public void windowOpened(WindowEvent e) { nameArea.requestFocus(); }
         });
     }   
     
@@ -232,16 +236,20 @@ public class EditorDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, 5, height}};//, 5, 
-        				//TableLayout.PREFERRED} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-       
-        content.add(UIUtilities.setTextFont("Name"), "0, 0, LEFT, TOP");
-        content.add(nameArea, "1, 0");
-        content.add(UIUtilities.setTextFont("Description"), "0, 2, LEFT, TOP");
-        content.add(new JScrollPane(descriptionArea), "1, 2");
-        //content.add(buildPermissions(), "1, 4, l, t");
+        String value = ", LEFT, TOP";
+        if (data instanceof XMLAnnotationData) {
+            content.add(UIUtilities.setTextFont("Content"), "0, 2"+value);
+            content.add(new JScrollPane(nameArea), "1, 2");
+        } else {
+        	content.add(UIUtilities.setTextFont("Name"), "0, 0"+value);
+            content.add(nameArea, "1, 0");
+            content.add(UIUtilities.setTextFont("Description"), "0, 2"+value);
+            content.add(new JScrollPane(descriptionArea), "1, 2");
+        }
+        
         return content;
     }
     
@@ -290,6 +298,10 @@ public class EditorDialog
         		typeName = "Tag Set";
         		icon = im.getIcon(IconManager.TAG_SET_48);
         	}
+        } else if (data instanceof TermAnnotationData) {
+        	typeName = "Term";
+        } else if (data instanceof XMLAnnotationData) {
+        	typeName = "XML";
         }
         if (type == CREATE_TYPE)
         	tp = new TitlePanel("Create "+typeName, 
@@ -309,8 +321,7 @@ public class EditorDialog
         Container c = getContentPane();
         c.setLayout(new BorderLayout());
         JPanel contentPanel = new JPanel();
-    	contentPanel.setLayout(new BoxLayout(contentPanel, 
-    								BoxLayout.Y_AXIS));
+    	contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
     	contentPanel.add(buildContentPanel());
     	c.add(buildTitlePanel(), BorderLayout.NORTH);
         c.add(buildContentPanel(), BorderLayout.CENTER);
@@ -320,8 +331,8 @@ public class EditorDialog
     /** Closes and disposes. */
     private void close()
     {
-    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.FALSE, 
-    			Boolean.TRUE);
+    	firePropertyChange(CLOSE_EDITOR_DIALOG_PROPERTY, Boolean.valueOf(false),
+    			Boolean.valueOf(true));
         setVisible(false);
         dispose();
     }
@@ -332,8 +343,7 @@ public class EditorDialog
     	String name = nameArea.getText();
     	if (name == null) return;
     	name = name.trim();
-    	int n = name.length();
-    	if (n == 0 || n > 256) return;
+    	if (name.length() == 0) return;
     	if (data instanceof ProjectData) {
     		ProjectData p  = (ProjectData) data;
 			p.setName(name);
@@ -355,6 +365,17 @@ public class EditorDialog
     		String text = descriptionArea.getText().trim();
     		if (text.length() > 0) d.setTagDescription(text);
 			data = d;
+    	} else if (data instanceof XMLAnnotationData) {
+    		XMLAnnotationData d = (XMLAnnotationData) data;
+    		String text = descriptionArea.getText().trim();
+    		if (text.length() > 0) d.setContent(text);
+			data = d;
+    	} else if (data instanceof TermAnnotationData) {
+    		TermAnnotationData d = (TermAnnotationData) data;
+    		d.setContent(name);
+    		String text = descriptionArea.getText().trim();
+    		if (text.length() > 0) d.setTermDescription(text);
+			data = d;
     	}
     	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
     	else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
@@ -370,10 +391,12 @@ public class EditorDialog
     {
     	if (object == null)
     		throw new IllegalArgumentException("No object to create.");
-    	if (object instanceof ProjectData) return;
-    	if (object instanceof DatasetData) return;
-    	if (object instanceof ScreenData) return;
-    	if (object instanceof TagAnnotationData) return;
+    	if (object instanceof ProjectData ||
+    		object instanceof DatasetData ||
+    		object instanceof ScreenData ||
+    		object instanceof TagAnnotationData ||
+    		object instanceof TermAnnotationData ||
+    		object instanceof XMLAnnotationData) return;
     	throw new IllegalArgumentException("Object not supported.");
     }
     
@@ -384,14 +407,16 @@ public class EditorDialog
      */
     private String getDataName()
     {
-    	if (data instanceof ProjectData) 
+    	if (data instanceof ProjectData)
     		return ((ProjectData) data).getName();
-    	if (data instanceof DatasetData) 
+    	if (data instanceof DatasetData)
     		return ((DatasetData) data).getName();
-    	if (data instanceof ScreenData) 
+    	if (data instanceof ScreenData)
     		return ((ScreenData) data).getName();
-    	if (data instanceof TagAnnotationData) 
-    		return ((TagAnnotationData) data).getTagValue();
+    	if (data instanceof TagAnnotationData ||
+    		data instanceof TermAnnotationData ||
+    		data instanceof XMLAnnotationData)
+    		return ((AnnotationData) data).getContentAsString();
     	return "";
     }
     
@@ -408,7 +433,12 @@ public class EditorDialog
     		return ((DatasetData) data).getDescription();
     	if (data instanceof ScreenData) 
     		return ((ScreenData) data).getDescription();
-    	if (data instanceof TagAnnotationData) return "";
+    	if (data instanceof TagAnnotationData)
+    		return ((TagAnnotationData) data).getTagDescription();
+    	if (data instanceof TermAnnotationData)
+    		return ((TermAnnotationData) data).getTermDescription();
+    	if (data instanceof XMLAnnotationData)
+    		return ((XMLAnnotationData) data).getDescription();
     	return "";
     }
     
@@ -422,13 +452,13 @@ public class EditorDialog
     		else {
     			name = name.trim();
             	int l = name.length();
-            	saveButton.setEnabled(l > 0 && l < 256);
+            	saveButton.setEnabled(l > 0);
     		}
     	} else {
     		if (!originalText.equals(name)) {
     			name = name.trim();
             	int l = name.length();
-            	saveButton.setEnabled(l > 0 && l < 256);
+            	saveButton.setEnabled(l > 0);
     		} else {
     			desc = desc.trim();
     			saveButton.setEnabled(!originalDescription.equals(desc));
