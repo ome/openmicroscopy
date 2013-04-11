@@ -3,7 +3,7 @@
  *
  *------------------------------------------------------------------------------
  *
- *  Copyright (C) 2005 Open Microscopy Environment
+ *  Copyright (C) 2005-2013 Open Microscopy Environment
  *      Massachusetts Institute of Technology,
  *      National Institutes of Health,
  *      University of Dundee
@@ -18,8 +18,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
@@ -31,6 +32,7 @@ import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
+import omero.ChecksumValidationException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
@@ -378,23 +380,33 @@ public class ImportLibrary implements IObservable
             throws FormatException, IOException, Throwable
     {
         final ImportProcessPrx proc = createImport(container);
+        final HandlePrx handle;
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
+        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
                 null, index, srcFiles.length, null, null, null));
 
         for (int i = 0; i < srcFiles.length; i++) {
-            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
+            checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory,
+                    buf));
         }
 
-        notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
-                null, index, srcFiles.length, null, null, null));
+        try {
+            handle = proc.verifyUpload(checksums);
+        } catch (ChecksumValidationException cve) {
+            failingChecksums = cve.failingChecksums;
+            throw cve;
+        } finally {
+            notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+                    null, index, srcFiles.length, null, null, srcFiles,
+                    checksums, failingChecksums, null));
+        }
 
         // At this point the import is running, check handle for number of
         // steps.
-        final HandlePrx handle = proc.verifyUpload(checksums);
         final ImportRequest req = (ImportRequest) handle.getRequest();
         final Fileset fs = req.activity.getParent();
         final CmdCallbackI cb = createCallback(proc, handle, container);
