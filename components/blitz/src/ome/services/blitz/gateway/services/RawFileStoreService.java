@@ -64,7 +64,7 @@ public interface RawFileStoreService
 							throws omero.ServerError;
 	
 	/**
-	 * Does the file exist in the RawFileStore.
+	 * Does the file exist in the RawFileStore?
 	 * @param fileId id of the file to work on, 
 	 * @return see above.
 	 * @throws DSOutOfServiceException

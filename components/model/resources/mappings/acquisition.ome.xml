@@ -13,7 +13,7 @@
 <!-- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Acquisition Context 1
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 	<type id="ome.model.core.Image" named="true" described="true" annotated="true"><!-- TODO: review-->
 		<properties>
