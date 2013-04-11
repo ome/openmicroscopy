@@ -1,5 +1,20 @@
 function [javaList] = toJavaList(matlabList, varargin)
-% Convert a MATLAB vector into a Java ArrayList
+% TOJAVALIST Convert a MATLAB array or cell array into a Java ArrayList
+%
+%    javaList = toJavaList(matlabList) converts a Matlab array or cell
+%    array into a java.util.ArrayList.
+%
+%    javaList = toJavaList(matlabList, castFun) converts a Matlab array or
+%    cell array into a java.util.ArrayList and casts each element using the
+%    input casting function/classname.
+%
+%    Examples:
+%
+%        javaList = toJavaList(matlabList)
+%        javaList = toJavaList(matlabList, @java.lang.Long)
+%        javaList = toJavaList(matlabList, 'java.lang.Long')
+%
+% See also: TOMATLABLIST
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -20,9 +35,11 @@ function [javaList] = toJavaList(matlabList, varargin)
 
 % Check input
 ip = inputParser;
-ip.addRequired('matlabList', @(x) isvector(x) || isempty(x));
+ip.addRequired('matlabList', @(x) isvector(x) || iscellstr(x) || isempty(x) || ischar(x));
 ip.addOptional('castFun', @(x) x, @(x) ischar(x) || isa(x, 'function_handle'));
 ip.parse(matlabList, varargin{:})
+
+if ischar(matlabList), matlabList = {matlabList}; end
 
 % Read casting function
 castFun = ip.Results.castFun;
@@ -31,5 +48,9 @@ if ischar(castFun), castFun = str2func(castFun); end
 % Create Java list
 javaList = java.util.ArrayList;
 for i=1:length(matlabList)
-    javaList.add(castFun(matlabList(i)));
+    if iscell(matlabList),
+        javaList.add(castFun(matlabList{i}));
+    else
+        javaList.add(castFun(matlabList(i)));
+    end
 end

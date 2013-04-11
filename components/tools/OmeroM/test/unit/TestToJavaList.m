@@ -22,10 +22,6 @@
 
 classdef TestToJavaList < TestJavaMatlabList
     
-    properties
-        castFun
-    end
-    
     methods
         function self = TestToJavaList(name)
             self = self@TestJavaMatlabList(name);
@@ -33,51 +29,135 @@ classdef TestToJavaList < TestJavaMatlabList
         
         % Input parsing test
         function testWrongMatlabListType(self)
-            self.initMatlabArray(10, 10);
+            self.initMatlabArray(10, 10, 'double');
             assertExceptionThrown(@() toJavaList(self.matlabList),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         function testWrongCastFunType(self)
-            self.initMatlabArray(10, 1);
-            self.castFun = 10;
-            assertExceptionThrown(@() toJavaList(self.matlabList, self.castFun),...
+            self.initMatlabArray(10, 1, 'double');
+            assertExceptionThrown(@() toJavaList(self.matlabList, 10),...
                 'MATLAB:InputParser:ArgumentFailedValidation');
         end
         
         % MatlabList tests
         function testEmptyArray(self)
-            self.initMatlabArray(1, 0);
+            self.initMatlabArray(1, 0, 'double');
             self.javaList = toJavaList(self.matlabList);
-            self.compareLists();
             assertTrue(self.javaList.isEmpty);
         end
         
         function testRowVector(self)
-            self.initMatlabArray(1, 10);
+            self.initMatlabArray(1, 10, 'double');
             self.javaList = toJavaList(self.matlabList);
+            self.javaValue = java.lang.Double(self.matlabList(1));
             self.compareLists();
         end
         
         function testColumnVector(self)
-            self.initMatlabArray(10, 1);
+            self.initMatlabArray(10, 1, 'double');
+            self.javaList = toJavaList(self.matlabList);
+            self.javaValue = java.lang.Double(self.matlabList(1));
+            self.compareLists();
+        end
+        
+        % Numeric input tests
+        function checkNumericInput(self, matlabclass, javaclass)
+            self.initMatlabArray(1, 1, matlabclass);
+            javaConstructor = str2func(javaclass);
+            self.javaValue = javaConstructor(self.matlabList(1));
             self.javaList = toJavaList(self.matlabList);
             self.compareLists();
         end
         
-        % Casting function
-        function testCastFunHandle(self)
-            self.initMatlabArray(1, 10);
-            self.castFun = @java.lang.Integer;
-            self.javaList = toJavaList(self.matlabList, self.castFun);
+        function testDOUBLE(self)
+            self.checkNumericInput('double', 'java.lang.Double');
+        end
+        
+        function testSINGLE(self)
+            self.checkNumericInput('single', 'java.lang.Float');
+        end
+        
+        function testUINT8(self)
+            self.checkNumericInput('uint8', 'java.lang.Byte');
+        end
+        
+        function testINT8(self)
+            self.checkNumericInput('int8', 'java.lang.Byte');
+        end
+        
+        function testUINT16(self)
+            self.checkNumericInput('uint16', 'java.lang.Short');
+        end
+        
+        function testINT16(self)
+            self.checkNumericInput('int16', 'java.lang.Short');
+        end
+        
+        function testUINT32(self)
+            self.checkNumericInput('uint32', 'java.lang.Integer');
+        end
+        
+        function testINT32(self)
+            self.checkNumericInput('int32', 'java.lang.Integer');
+        end
+        
+        function testUINT64(self)
+            self.checkNumericInput('uint64', 'java.lang.Long');
+        end
+        
+        function testINT64(self)
+            self.checkNumericInput('int64', 'java.lang.Long');
+        end
+        
+        % String cell array test
+        function testCellArrayStrings(self)
+            self.initMatlabCellArray(10, 1);
+            self.javaValue = java.lang.String(self.matlabList{1});
+            self.javaList = toJavaList(self.matlabList);
             self.compareLists();
         end
         
-        function testCastFunString(self)
-            self.initMatlabArray(1, 10);
-            self.castFun = 'java.lang.Integer';
-            self.javaList = toJavaList(self.matlabList, self.castFun);
+        function testString(self)
+            self.initMatlabCellArray(1, 1);
+            self.javaValue = java.lang.String(self.matlabList{1});
+            self.javaList = toJavaList(self.matlabList{1});
             self.compareLists();
+        end
+        
+        % Casting function
+        function checkNumericCasting(self, classname)
+            self.initMatlabArray(1, 1, 'double');
+            castFun = str2func(classname);
+            self.javaValue = castFun(self.matlabList(1));
+            self.javaList = toJavaList(self.matlabList, castFun);
+            self.compareLists();
+            self.javaList = toJavaList(self.matlabList, classname);
+            self.compareLists();
+        end
+        
+        function testDouble(self)
+            self.checkNumericCasting('java.lang.Double');
+        end
+        
+        function testFloat(self)
+            self.checkNumericCasting('java.lang.Float');
+        end
+        
+        function testByte(self)
+            self.checkNumericCasting('java.lang.Byte');
+        end
+        
+        function testInteger(self)
+            self.checkNumericCasting('java.lang.Integer');
+        end
+        
+        function testLong(self)
+            self.checkNumericCasting('java.lang.Long');
+        end
+        
+        function testShort(self)
+            self.checkNumericCasting('java.lang.Short');
         end
     end
 end
