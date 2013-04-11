@@ -112,6 +112,7 @@ import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
+import pojos.LongAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -717,6 +718,13 @@ class EditorModel
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) return "Folder";
         	return "File";
+        } else if (refObject instanceof TermAnnotationData) {
+        	return "Term";
+        } else if (refObject instanceof XMLAnnotationData) {
+        	return "XML file";
+        } else if (refObject instanceof LongAnnotationData ||
+        		refObject instanceof DoubleAnnotationData) {
+        	return "Numerical value";
         }
 		return "";
 	}
@@ -1550,7 +1558,7 @@ class EditorModel
 	 * @param refFile The file of reference.
 	 * @return See above.
 	 */
-	Map<DataObject, Boolean> getObjectsWithAttachments(AnnotationData refFile)
+	Map<DataObject, Boolean> getObjectsWith(AnnotationData refFile)
 	{
 		Map<DataObject, StructuredDataResults> 
 		r = parent.getAllStructuredData();
@@ -1559,23 +1567,69 @@ class EditorModel
 		Entry<DataObject, StructuredDataResults> e;
 		Iterator<Entry<DataObject, StructuredDataResults>>
 		i = r.entrySet().iterator();
-		Collection<FileAnnotationData> files;
-		Iterator<FileAnnotationData> j;
-		FileAnnotationData file;
-		DataObject o;
-		StructuredDataResults result;
-		while (i.hasNext()) {
-			e = i.next();
-			result = e.getValue();
-			files = result.getAttachments();
-			if (files != null) {
-				j = files.iterator();
-				while (j.hasNext()) {
-					file = j.next();
-					if (file.getId() == refFile.getId()) {
-						o = (DataObject) result.getRelatedObject();
-						m.put(o, canDeleteLink(file, result));
-						break;
+		if (refFile instanceof TermAnnotationData) {
+			Collection<TermAnnotationData> files;
+			Iterator<TermAnnotationData> j;
+			TermAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getTerms();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
+					}
+				}
+			}
+		} else if (refFile instanceof FileAnnotationData) {
+			Collection<FileAnnotationData> files;
+			Iterator<FileAnnotationData> j;
+			FileAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getAttachments();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
+					}
+				}
+			}
+		} else if (refFile instanceof XMLAnnotationData) {
+			Collection<XMLAnnotationData> files;
+			Iterator<XMLAnnotationData> j;
+			XMLAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getXMLAnnotations();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
 					}
 				}
 			}
