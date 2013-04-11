@@ -664,6 +664,33 @@ public class PixelsService extends AbstractFileSystemService
         }
     }
 
+
+    /**
+     * Short-cut in the FS case where we know that we are dealing with a FS-lite
+     * file, and want to retrieve the actual file as opposed to a pyramid or anything
+     * else. This may be used to access the original metadata.
+     */
+    public IFormatReader getBfReader(Pixels pixels) {
+        // from getPixelBuffer
+        final String originalFilePath = getOriginalFilePath(pixels);
+        final int series = getSeries(pixels);
+        final IFormatReader reader = createBfReader(originalFilePath);
+        reader.setSeries(series);
+        return reader;
+    }
+
+    /**
+     * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
+     * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
+     */
+    protected IFormatReader createBfReader(final String filePath) {
+        IFormatReader reader = new ImageReader();
+        reader = new ChannelFiller(reader);
+        reader = new ChannelSeparator(reader);
+        reader.setFlattenedResolutions(false);
+        return reader;
+    }
+
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
@@ -671,14 +698,11 @@ public class PixelsService extends AbstractFileSystemService
      * @param series series to use
      * @return
      */
-    protected PixelBuffer createBfPixelBuffer(final String filePath,
+    protected BfPixelBuffer createBfPixelBuffer(final String filePath,
                                               final int series) {
         try
         {
-            IFormatReader reader = new ImageReader();
-            reader = new ChannelFiller(reader);
-            reader = new ChannelSeparator(reader);
-            reader.setFlattenedResolutions(false);
+            IFormatReader reader = createBfReader(filePath);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
