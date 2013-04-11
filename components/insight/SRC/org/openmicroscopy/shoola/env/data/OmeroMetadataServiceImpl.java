@@ -64,6 +64,8 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -443,7 +445,7 @@ class OmeroMetadataServiceImpl
 		List<Annotation> toCreate = new ArrayList<Annotation>();
 		//List<IObject> links = new ArrayList<IObject>();
 		//TextualAnnotationData desc;
-		TagAnnotationData tag;
+		AnnotationData tag;
 		//IObject link = null;
 		//DataObject data;
 		while (i.hasNext()) {
@@ -462,10 +464,12 @@ class OmeroMetadataServiceImpl
 				if (iobject != null)
 					toCreate.add(iobject);
 			} else {
-				if (ann instanceof TagAnnotationData) {
+				if (ann instanceof TagAnnotationData ||
+					ann instanceof TermAnnotationData ||
+					ann instanceof XMLAnnotationData) {
 					//update description
-					tag = (TagAnnotationData) ann;
-					ann = (TagAnnotationData) updateAnnotationData(ctx, tag);
+					tag = (AnnotationData) ann;
+					ann = (AnnotationData) updateAnnotationData(ctx, tag);
 				}
 				annotations.add(ann);
 			}
@@ -554,14 +558,34 @@ class OmeroMetadataServiceImpl
 	{
 		long id;
 		String ioType;
-		TagAnnotation ho;
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-			ho = (TagAnnotation) gateway.findIObject(ctx, ioType, id);
+			TagAnnotation ho = (TagAnnotation) gateway.findIObject(ctx, ioType,
+					id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
 			ho.setDescription(omero.rtypes.rstring(tag.getTagDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof TermAnnotationData && ann.isDirty()) {
+			TermAnnotationData tag = (TermAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(TermAnnotationData.class).getName();
+			TermAnnotation ho = (TermAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setTermValue(omero.rtypes.rstring(tag.getTerm()));
+			ho.setDescription(omero.rtypes.rstring(tag.getTermDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof XMLAnnotationData && ann.isDirty()) {
+			XMLAnnotationData tag = (XMLAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(XMLAnnotationData.class).getName();
+			XmlAnnotation ho = (XmlAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setTextValue(omero.rtypes.rstring(tag.getText()));
+			ho.setDescription(omero.rtypes.rstring(tag.getDescription()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
