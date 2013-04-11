@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -329,12 +330,16 @@ public class FileImportComponent
 	
 	/** The group in which to import the file.*/
 	private GroupData group;
+
+	/** The user that will own the data being imported */
+	private ExperimenterData user;
 	
-	/** The component displaying the group where the file is imported. */
-	private JLabel groupLabel;
+	/** The component displaying the group and user where the data is imported. */
+	private JLabel groupUserLabel;
 	
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
+
 	
 	/**
 	 * Logs the exception.
@@ -521,8 +526,9 @@ public class FileImportComponent
 		
 		containerLabel = new JLabel();
 		containerLabel.setVisible(false);
-		groupLabel = new JLabel("Group: "+group.getName());
-		groupLabel.setVisible(false);
+		String text = String.format("Group: %s, Owner: %s", 
+				group.getName(), user.getUserName());
+		groupUserLabel = new JLabel(text);
 		
 		namePane = new JPanel();
 		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -596,7 +602,7 @@ public class FileImportComponent
 		add(Box.createHorizontalStrut(15));
 		add(containerLabel);
 		add(browseButton);
-		add(groupLabel);
+		add(groupUserLabel);
 		add(reimportedLabel);
 	}
 	
@@ -663,7 +669,7 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = i.next();
 			f = entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer, browsable, group,
+			c = new FileImportComponent(f, folderAsContainer, browsable, group, user,
 					singleGroup);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
@@ -707,11 +713,12 @@ public class FileImportComponent
 	 * 							<code>false</code> otherwise.
 	 * @param browsable Flag indicating that the container can be browsed or not.
 	 * @param group The group in which to import the file.
+	 * @param user The user that will own the data being imported
 	 * @param singleGroup Passes <code>true</code> if the user is member of 
 	 * only one group, <code>false</code> otherwise.
 	 */
 	public FileImportComponent(File file, boolean folderAsContainer, boolean
-			browsable, GroupData group, boolean singleGroup)
+			browsable, GroupData group, ExperimenterData user, boolean singleGroup)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
@@ -719,6 +726,7 @@ public class FileImportComponent
 			throw new IllegalArgumentException("No group specified.");
 		this.file = file;
 		this.group = group;
+		this.user = user;
 		this.singleGroup = singleGroup;
 		importCount = 0;
 		this.browsable = browsable;
@@ -886,11 +894,11 @@ public class FileImportComponent
 					browseButton.setVisible(showContainerLabel);
 					containerLabel.setVisible(showContainerLabel);
 				}
-				groupLabel.setVisible(!singleGroup);
+				//groupUserLabel.setVisible(!singleGroup);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
-			groupLabel.setVisible(!singleGroup);
+			//groupUserLabel.setVisible(!singleGroup);
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				
@@ -929,13 +937,13 @@ public class FileImportComponent
 				resultLabel.setVisible(true);
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
-				groupLabel.setVisible(!singleGroup);
+				groupUserLabel.setVisible(!singleGroup);
 				logException(thumbnail.getError());
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			statusLabel.setVisible(false);
-			groupLabel.setVisible(!singleGroup);
+			groupUserLabel.setVisible(!singleGroup);
 			if (browsable) {
 				resultLabel.setText(BROWSE_TEXT);
 				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -954,7 +962,7 @@ public class FileImportComponent
 			}
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
-			groupLabel.setVisible(!singleGroup);
+			groupUserLabel.setVisible(!singleGroup);
 			List list = (List) image;
 			int m = list.size();
 			imageLabel.setData(list.get(0));
@@ -1536,11 +1544,25 @@ public class FileImportComponent
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case DELETE_ID:
-				deleteImage(); 
+				deleteImage();
 				break;
 			case CANCEL_ID:
 				cancel(true);
 		}
 	}
 	
+	/**
+	 * Returns the name of the file and group's id and user's id.
+	 * @see #toString();
+	 */
+	public String toString()
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append(getFile().getAbsolutePath());
+		if (group != null)
+			buf.append("_"+group.getId());
+		if (user != null)
+			buf.append("_"+user.getId());
+		return buf.toString();
+	}
 }

@@ -55,13 +55,13 @@ public class DataObjectCreator
 {
 
     /** The {@link DataObject} to handle. */
-    private DataObject	child;
+    private DataObject child;
     
     /** The parent of the data object to create. */
-    private DataObject	parent;
+    private DataObject parent;
     
 	/** Handle to the asynchronous call so that we can cancel it. */
-	private CallHandle	handle; 
+	private CallHandle handle;
 	
 	/**
 	 * Creates a new instance.
@@ -69,7 +69,7 @@ public class DataObjectCreator
 	 * @param viewer The Importer this data loader is for.
      * Mustn't be <code>null</code>.
      * @param ctx The security context.
-	 * @param child The {@link DataObject} to handle. 
+	 * @param child The {@link DataObject} to handle.
      * @param parent The parent of the object to create,
      *               <code>null</code> if no parent.
 	 */
@@ -79,8 +79,8 @@ public class DataObjectCreator
 		super(viewer, ctx);
 		if (child == null)
 			throw new IllegalArgumentException("No object to create.");
-        this.parent = parent;
-        this.child = child;
+		this.parent = parent;
+		this.child = child;
 	}
 	
 	/** 
@@ -110,4 +110,5 @@ public class DataObjectCreator
 	   if (l != null && l.size() == 1) d = (DataObject) l.get(0);
 	   viewer.onDataObjectSaved(d, parent);
    }
+
 }

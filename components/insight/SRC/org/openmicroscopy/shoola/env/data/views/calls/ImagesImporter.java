@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,18 +53,11 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ImagesImporter 
 	extends BatchCallTree
 {
-     
-    /** The id of the user currently logged in. */
-    private long userID;
-    
-    /** The id of the group is logged as. */
-    private long groupID;
-    
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string. 
      */
-    private Map<File, Object> partialResult;
+    private Map<ImportableFile, Object> partialResult;
     
     /** The object hosting the information for the import. */
     private ImportableObject object;
@@ -79,13 +71,13 @@ public class ImagesImporter
      */
     private void importFile(ImportableFile importable, boolean close)
     {
-    	partialResult = new HashMap<File, Object>();
+    	partialResult = new HashMap<ImportableFile, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		partialResult.put(importable.getFile(), 
-    				os.importFile(object, importable, userID, close));
+    		partialResult.put(importable, 
+    				os.importFile(object, importable, close));
 		} catch (Exception e) {
-			partialResult.put(importable.getFile(), e);
+			partialResult.put(importable, e);
 		}
     }
     
@@ -142,13 +134,11 @@ public class ImagesImporter
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
      */
-    public ImagesImporter(ImportableObject object, long userID, long groupID)
+    public ImagesImporter(ImportableObject object)
     {
     	if (object == null || object.getFiles() == null ||
     			object.getFiles().size() == 0)
     		throw new IllegalArgumentException("No Files to import.");
-    	this.userID = userID;
-    	this.groupID = groupID;
     	this.object = object;
     }
     

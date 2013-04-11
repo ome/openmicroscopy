@@ -78,6 +78,7 @@ import loci.formats.gui.ComboFileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -1188,9 +1189,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * 
 	 * @return See above.
 	 */
-	public int getType() {
-		return type;
-	}
+	public int getType() { return type; }
 
 	/**
 	 * Returns <code>true</code> if only one group for the user,
@@ -1198,22 +1197,31 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 * 
 	 * @return See above.
 	 */
-	boolean isSingleGroup() {
-		Collection<GroupData> l = ImporterAgent.getAvailableUserGroups();
-		return (l.size() <= 1);
+	boolean isSingleGroup()
+	{
+		return ImporterAgent.getAvailableUserGroups().size() <= 1;
 	}
 
+	/**
+	 * Returns <code>true</code> if the user can import the data for other
+	 * users, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canImportAs()
+	{
+		return ImporterAgent.isAdministrator();
+	}
+	
 	/** Display the size of files to add. */
 	void onSelectionChanged() {
-		if (canvas != null) {
-			long size = table.getSizeFilesInQueue();
-			canvas.setSizeInQueue(size);
-			
-			int remaining = (int) Math.round(canvas.getPercentageToImport() * 100);
-			String tooltip = String.format(TOOLTIP_REMAINING_FORMAT, remaining);
-			sizeImportLabel.setText(UIUtilities.formatFileSize(size));
-			sizeImportLabel.setToolTipText(tooltip);
-		}
+		if (canvas == null) return;
+		long size = table.getSizeFilesInQueue();
+		canvas.setSizeInQueue(size);
+		int remaining = (int) Math.round(canvas.getPercentageToImport() * 100);
+		String tooltip = String.format(TOOLTIP_REMAINING_FORMAT, remaining);
+		sizeImportLabel.setText(UIUtilities.formatFileSize(size));
+		sizeImportLabel.setToolTipText(tooltip);
 	}
 
     /**
@@ -1253,16 +1261,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/**
 	 * Resets the text and remove all the files to import.
 	 * 
-	 * @param objects
-	 *            The possible objects.
-	 * @param type
-	 *            One of the constants used to identify the type of import.
-	 * @param changeGroup
-	 *            Flag indicating that the group has been modified if
-	 *            <code>true</code>, <code>false</code> otherwise.
+	 * @param objects The possible objects.
+	 * @param type One of the constants used to identify the type of import.
+	 * @param currentGroupId The id of the group.
+	 * @param userID The if of the user.
 	 */
 	public void reset(Collection<TreeImageDisplay> objects, int type,
-			long currentGroupId) {
+			long currentGroupId, long userID) {
 		TreeImageDisplay selected = null;
 		if (this.selectedContainer != null) {
 			if (objects != null) {
@@ -1301,28 +1306,22 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				}
 			}
 		}
-		reset(selected, objects, type, false, currentGroupId);
+		reset(selected, objects, type, currentGroupId, userID);
 	}
 
 	/**
 	 * Resets the text and remove all the files to import.
 	 * 
-	 * @param selectedContainer
-	 *            The container where to import the files.
-	 * @param objects
-	 *            The possible objects.
-	 * @param type
-	 *            One of the constants used to identify the type of import.
-	 * @param remove
-	 *            Pass <code>true</code> o
-	 * @param changeGroup
-	 *            Flag indicating that the group has been modified if
-	 *            <code>true</code>, <code>false</code> otherwise.
+	 * @param selectedContainer The container where to import the files.
+	 * @param objects The possible objects.
+	 * @param type One of the constants used to identify the type of import.
+	 * @param currentGroupId The id of the group.
+	 * @param userID The id of the user.
 	 */
 	public void reset(TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type, boolean remove,
-			long currentGroupId) {
-		
+			Collection<TreeImageDisplay> objects, int type,
+			long currentGroupId, long userID)
+	{
 		canvas.setVisible(true);
 		this.selectedContainer = checkContainer(selectedContainer);
 		this.objects = objects;
@@ -1343,9 +1342,9 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 			chooser.setFileFilter(currentFilter);
 		}
 
-		locationDialog.reset(this.selectedContainer, this.type, this.objects, 
-				currentGroupId);
-		
+		locationDialog.reset(this.selectedContainer, this.type, this.objects,
+				currentGroupId, userID);
+
 		tagsPane.removeAll();
 		tagsMap.clear();
 	}
@@ -1422,36 +1421,16 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Refreshes the display when the user reconnect to server.
-	 * 
-	 * @param availableGroups The available groups.
-	 * @param currentGroupId The selected group.
-	 */
-	public void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId) {
-		table.removeAllFiles();
-		locationDialog.onReconnected(availableGroups, currentGroupId);
-		tagsPane.removeAll();
-		tagsMap.clear();
-	}
-
-	/**
 	 * Notifies that the new object has been created.
 	 * 
-	 * @param d
-	 *            The newly created object.
-	 * @param parent
-	 *            The parent of the object.
+	 * @param d The newly created object.
+	 * @param parent The parent of the object.
 	 */
 	public void onDataObjectSaved(DataObject d, DataObject parent) {
-		if (d instanceof ProjectData)
-		{
-			locationDialog.createProject(d);
-		} else if (d instanceof ScreenData) {
-			locationDialog.createScreen(d);
-		} else if (d instanceof DatasetData) {
+		if (d instanceof ProjectData) locationDialog.createProject(d);
+		else if (d instanceof ScreenData) locationDialog.createScreen(d);
+		else if (d instanceof DatasetData) 
 			locationDialog.createDataset((DatasetData) d);
-		}
 	}
 
 	/**
@@ -1552,7 +1531,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				currentFilter = chooser.getFileFilter();
 				chooser.rescanCurrentDirectory();
 				chooser.repaint();
-				firePropertyChange(REFRESH_LOCATION_PROPERTY, -1, getType());
+				ImportLocationDetails details = new ImportLocationDetails(getType());
+				firePropertyChange(REFRESH_LOCATION_PROPERTY, null, details);
 				break;
 			case CMD_CANCEL_ALL_IMPORT:
 				firePropertyChange(CANCEL_ALL_IMPORT_PROPERTY,

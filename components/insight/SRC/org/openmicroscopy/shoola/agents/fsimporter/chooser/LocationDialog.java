@@ -42,6 +42,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -59,6 +60,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.ComboBoxToolTipRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -77,6 +79,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PermissionData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -96,8 +99,6 @@ import pojos.ScreenData;
  */
 class LocationDialog extends JDialog implements ActionListener,
 		PropertyChangeListener, ChangeListener, ItemListener {
-	
-	// table design presets
 
 	/** Default GAP value for UI components */
 	private static final int UI_GAP = 5;
@@ -113,27 +114,33 @@ class LocationDialog extends JDialog implements ActionListener,
 	private static final double[] TABLE_PREF = {TableLayout.PREFERRED};
 	
 	/** Table template for 2 settings of Preferred width / height */
-	private static final double[] TABLE_PREF_PREF = 
+	private static final double[] TABLE_PREF_PREF =
 		{TableLayout.PREFERRED, TableLayout.PREFERRED};
 
 	/** Table template for 3 settings of Preferred width / height */
-	private static final double[] TABLE_PREF_PREF_PREF = 
+	private static final double[] TABLE_PREF_PREF_PREF =
 		{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED};
 	
 
 	/** Table template for expandable middle column / row */
-	private static final double[] TABLE_PREF_FILL_PREF = 
+	private static final double[] TABLE_PREF_FILL_PREF =
 		{TableLayout.PREFERRED, TableLayout.FILL, TableLayout.PREFERRED};
 
 	// other constants	
 	/** Minimum width of the dialog in pixels */
 	private static final int MIN_WIDTH = 640;
 
+	/** The preferred size of the selection box.*/
+	private static final Dimension SELECTION_BOX_SIZE = new Dimension(200, 130);
+	
 	// String constants
 	
 	/** The title of the dialog. */
 	private static String TEXT_TITLE =
 			"Import Location - Select where to import your data.";
+
+	/** Text for import as a user */
+	private static final String TEXT_IMPORT_AS = "Import For";
 	
 	/** Text for projects */
 	private static final String TEXT_PROJECTS = "Projects";
@@ -142,11 +149,11 @@ class LocationDialog extends JDialog implements ActionListener,
 	private static final String TEXT_SCREENS = "Screens";
 
 	/** Text for Screens tab */
-	private static final String TOOLTIP_SCREENS_TAB = 
+	private static final String TOOLTIP_SCREENS_TAB =
 			"Import settings for Screens";
 
 	/** Text for Projects tab */
-	private static final String TOOLTIP_PROJECTS_TAB = 
+	private static final String TOOLTIP_PROJECTS_TAB =
 			"Import settings for Projects";
 	
 	/** Text for a project. */
@@ -191,7 +198,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	private static final String TEXT_QUEUE_ITEMS = "Add to the Queue";
 	
 	/** Tooltip text for Add button */
-	private static final String TOOLTIP_QUEUE_ITEMS = 
+	private static final String TOOLTIP_QUEUE_ITEMS =
 			"Add the files to the queue.";
 	
 	// Icon constants
@@ -258,9 +265,12 @@ class LocationDialog extends JDialog implements ActionListener,
 	/** Component indicating to close the dialog. */
 	private JButton closeButton;
 
-	/** component used to select the import group. */
+	/** Component used to select the import group. */
 	private JComboBox groupsBox;
 
+	/** Component used to select the import user. */
+	private JComboBox usersBox;
+	
 	/** Component used to select the default project. */
 	private JComboBox projectsBox;
 
@@ -284,9 +294,6 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/** Tab pane used to hose the Project/Screen selection UI component. */
 	private JTabbedPane tabbedPane;
-
-	/** A reference to the parent object that created this dialog. */
-	private JFrame owner;
 	
 	// Operational variables & constants
 	/** Constant value for no data type */
@@ -328,22 +335,20 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/** The currently selected Screen */
 	private DataNode currentScreen;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent  The parent of the dialog.
+	 * @param parent The parent of the dialog.
 	 * @param selectedContainer The container selected by the user.
 	 * @param objects The screens / projects to be shown.
-	 * @param groups  The available groups to the user.
+	 * @param groups The available groups to the user.
 	 * @param currentGroupId The id of the current user group.
 	 */
     LocationDialog(JFrame parent, TreeImageDisplay selectedContainer,
 			int importDataType, Collection<TreeImageDisplay> objects,
 			Collection<GroupData> groups, long currentGroupId) {
 		super(parent);
-
-		this.owner = parent;
 		this.container = selectedContainer;
 		this.dataType = importDataType;
 		this.objects = objects;
@@ -353,22 +358,25 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		initUIComponents();
 		layoutUI();
-		
-		populateUIWithDisplayData(findWithId(groups, currentGroupId));
+		ExperimenterData exp = ImporterAgent.getUserDetails();
+		populateUIWithDisplayData(findWithId(groups, currentGroupId),
+				exp.getId());
 	}
 
     /** 
      * Populates the various components.
      * 
      * @param selectedGroup The selected group.
+     * @param userID The id of the selected user.
      */
-	private void populateUIWithDisplayData(GroupData selectedGroup)
+	private void populateUIWithDisplayData(GroupData selectedGroup, long userID)
 	{
 		convertToDisplayData(objects);
-		populateGroupBox(groups, selectedGroup);
+		populateGroupBox(sort(groups), selectedGroup, userID);
 		populateLocationComboBoxes();
 		displayViewFor(dataType);
 	}
+	
     /**
      * Returns the loaded experimenter corresponding to the specified user.
      * if the user is not loaded. Returns <code>null</code> if no user 
@@ -398,7 +406,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * Swaps the data view that is currently active.
 	 * @param dataType The id of the data type (Screen/Project)
 	 */
-	private void displayViewFor(int dataType) {
+	private void displayViewFor(int dataType)
+	{
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
@@ -420,10 +429,9 @@ class LocationDialog extends JDialog implements ActionListener,
 			long id) {
 		
 		for (T dataObject : dataObjects) {
-			if(dataObject.getId() == id)
+			if (dataObject.getId() == id)
 				return dataObject;
 		}
-		
 		return null;
 	}
 	
@@ -445,7 +453,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		
 		return null ;
 	}
-
+	
 	/**
 	 * Initialises the UI components of the dialog.
 	 */
@@ -454,7 +462,10 @@ class LocationDialog extends JDialog implements ActionListener,
 
 		// main components
 		groupsBox = new JComboBox();
-		groupsBox.addItemListener(this);
+		
+		usersBox = new JComboBox();
+		//Currently only for the administrator otherwise to do show the option
+		usersBox.setVisible(ImporterAgent.isAdministrator());
 		
 		refreshButton = new JButton(TEXT_REFRESH);
 		refreshButton.setBackground(UIUtilities.BACKGROUND);
@@ -462,7 +473,6 @@ class LocationDialog extends JDialog implements ActionListener,
 		refreshButton.setActionCommand("" + CMD_REFRESH_DISPLAY);
 		refreshButton.addActionListener(this);
 		
-
 		projectsBox = new JComboBox();
 		projectsBox.addItemListener(this);
 		
@@ -551,24 +561,32 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private JPanel buildGroupSelectionPanel() {
 		TableLayout groupLayout = 
-				createTableLayout(TABLE_PREF_PREF, TABLE_PREF);
-		JPanel groupPanel = new JPanel(groupLayout);
+				createTableLayout(TABLE_PREF_PREF_PREF, TABLE_PREF_PREF);
+		final JPanel groupPanel = new JPanel(groupLayout);
         
-		if(groups.size() > 1)
-		{
+		String c1 = "0, 0, r, c";
+		String c2 = "1, 0";
+		if (groups.size() > 1) {
 	        groupPanel.add(UIUtilities.setTextFont(TEXT_GROUP), "0, 0, r, c");
 	        groupPanel.add(groupsBox,"1, 0");
+	        c1 = "0, 1, r, c";
+	        c2 = "1, 1";
 		}
-       
+		if (usersBox.isVisible()) {
+			groupPanel.add(UIUtilities.setTextFont(TEXT_IMPORT_AS), c1);
+			groupPanel.add(usersBox, c2);
+		}
+		
 		return groupPanel;
 	}
 	
 	/**
 	 * Builds a JPanel holding the project selection section.
+	 * 
 	 * @return JPanel holding the project selection UI elements
 	 */
 	private JPanel buildProjectSelectionPanel() {
-		TableLayout projectLayout = 
+		TableLayout projectLayout =
 				createTableLayout(TABLE_PREF_FILL_PREF, TABLE_PREF_PREF_PREF);
 		
 		JPanel projectPanel = new JPanel(projectLayout);
@@ -586,6 +604,7 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds a JPanel holding the screen selection section.
+	 * 
 	 * @return JPanel holding the screen selection UI elements
 	 */
 	private JPanel buildScreenSelectionPanel() {
@@ -603,34 +622,59 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Builds the toolbar when the importer is the entry point.
-	 * @param availableGroups
+	 * 
+	 * @param availableGroups The available group.
+	 * @param selectedGroup The selected group.
+	 * @param userID The selected user.
 	 * @return See above.
 	 */
 	private void populateGroupBox(Collection<GroupData> availableGroups,
-			GroupData selectedGroup) {
+			GroupData selectedGroup, long userID) {
 		groupsBox.removeItemListener(this);
 		groupsBox.removeAllItems();
 		
 		JComboBoxImageObject selectedGroupItem = null;
-		
+		JComboBoxImageObject item;
 		for (GroupData group : availableGroups) {
-			JComboBoxImageObject comboBoxItem = new JComboBoxImageObject(group,
-					getGroupIcon(group));
-			groupsBox.addItem(comboBoxItem);
+			item = new JComboBoxImageObject(group, getGroupIcon(group));
+			groupsBox.addItem(item);
 			if (selectedGroup != null && selectedGroup.getId() == group.getId())
-			{
-				selectedGroupItem = comboBoxItem;
-			}
+				selectedGroupItem = item;
 		}
 		
 		if (selectedGroupItem != null)
+		{
 			groupsBox.setSelectedItem(selectedGroupItem);
-
+			displayUsers(usersBox, selectedGroup, this, userID);
+		}
 		JComboBoxImageRenderer renderer = new JComboBoxImageRenderer();
-		renderer.setPreferredSize(new Dimension(200, 130));
+		renderer.setPreferredSize(SELECTION_BOX_SIZE);
 		groupsBox.setRenderer(renderer);
 		
 		groupsBox.addItemListener(this);
+	}
+
+	/**
+	 * Determines if the logged in user is allowed to import data for the user
+	 * in to the selected group. Returns true if the logged in user is the user,
+	 * is a system administrator or is an owner of the group.
+	 * 
+	 * @param user The user to import data for.
+	 * @param selectedGroup The group to import data in to.
+	 * @return See above.
+	 */
+	private boolean canImportForUserInGroup(ExperimenterData user,
+			GroupData selectedGroup) {
+		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
+		boolean isGroupOwner = false;
+		Set<ExperimenterData> leaders =
+				(Set<ExperimenterData>) selectedGroup.getLeaders();
+		for (ExperimenterData leader : leaders) {
+			if (leader.getId() == loggedInUser.getId())
+				isGroupOwner = true;
+		}
+		return user.getId() == loggedInUser.getId() ||
+				ImporterAgent.isAdministrator() || isGroupOwner;
 	}
 
 	/**
@@ -675,6 +719,14 @@ class LocationDialog extends JDialog implements ActionListener,
 		contentPane.add(mainPanel, "1, 1");
 		
 		// resize the window to minimum size
+		setMinimumSize();
+	}
+
+	/**
+	 * Resizes the window and sets the minimum size to the 
+	 * size required by all components.
+	 */
+	private void setMinimumSize() {
 		this.pack();
 		int minHeight = this.getHeight();
 		
@@ -686,7 +738,8 @@ class LocationDialog extends JDialog implements ActionListener,
 
 	/**
 	 * Creates a TableLayout based on the design passed in
-	 * with a HGap and VGap set to UI_GAP
+	 * with a HGap and VGap set to UI_GAP.
+	 * 
 	 * @param design the column / row template
 	 * @return A table layout with the design & spacing applied
 	 */
@@ -803,14 +856,13 @@ class LocationDialog extends JDialog implements ActionListener,
 					break;
 				case CMD_REFRESH_DISPLAY:
 					storeCurrentSelections();
-					
 					firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-							NO_DATA_TYPE, dataType);
+							null, new ImportLocationDetails(dataType));
 			}
 
 			if (newDataObject != null) {
 				
-				EditorDialog editor = new EditorDialog(owner,
+				EditorDialog editor = new EditorDialog((JFrame) getOwner(),
 						newDataObject, false);
 				editor.addPropertyChangeListener(this);
 				editor.setModal(true);
@@ -821,7 +873,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * Switch to display the projects/datasets/screens from the selected group
+	 * Switches to display the projects/datasets/screens from the selected
+	 * group.
 	 */
 	private void switchToSelectedGroup() {
 		GroupData selectedNewGroup = getSelectedGroup();
@@ -831,33 +884,56 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 
 	/**
-	 * The import settings chosen but the user.
+	 * Switches to display the projects/datasets/screens from the selected user.
+	 */
+	private void switchToSelectedUser()
+	{
+		setInputsEnabled(false);
+		firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
+				new ImportLocationDetails(dataType, getSelectedUser().getId()));
+	}
+
+	/**
+	 * Returns the import settings chosen but the user.
+	 * 
 	 * @return The import settings selected by the user.
 	 */
 	protected ImportLocationSettings getImportSettings() {
 		
 		GroupData group = getSelectedGroup();
+		ExperimenterData user = getSelectedUser();
 		switch(dataType)
 		{
 			case Importer.PROJECT_TYPE:
 				DataNode project = getSelectedItem(projectsBox);
 				DataNode dataset = getSelectedItem(datasetsBox);
-				return new ProjectImportLocationSettings(group,
+				return new ProjectImportLocationSettings(group, user,
 						project, dataset);
 			case Importer.SCREEN_TYPE:
-				DataNode screen = getSelectedItem(screensBox);
-				return new ScreenImportLocationSettings(group, screen);
+				DataNode screen = (DataNode) screensBox.getSelectedItem();
+				return new ScreenImportLocationSettings(group, user, screen);
 		}
 		
-		return new NullImportSettings(group);
+		return new NullImportSettings(group, user);
 	}
 
+	/**
+	 * Returns the selected user in the users combobox
+	 * @return see above.
+	 */
+	private ExperimenterData getSelectedUser() {
+		Selectable<ExperimenterDisplay> selectedItem = 
+				(Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
+		if(selectedItem != null)
+			return selectedItem.getObject().getData();
+		
+		return null;
+	}
 
 	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips.
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 */
 	private void displayItemsWithTooltips(JComboBox comboBox,
 			List<DataNode> listItems) {
@@ -865,45 +941,48 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
-	 * Populates the JComboBox with the items provided adding hover tooltips 
+	 * Populates the JComboBox with the items provided adding hover tooltips
 	 * and selecting the specified item.
+	 * 
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 * @param selected The item to select in the JComboBox
 	 */
-	private void displayItemsWithTooltips(JComboBox comboBox, 
+	private void displayItemsWithTooltips(JComboBox comboBox,
 			List<DataNode> listItems, DataNode selected) {
 		displayItems(comboBox, listItems, selected, null);
 	}
 	
 	/**
-	 * Populates the JComboBox with the items provided adding hover tooltips, 
+	 * Populates the JComboBox with the items provided adding hover tooltips,
 	 * selecting the specified item and attaching the listener.
+	 * 
 	 * @param comboBox The JComboBox to populate
-	 * @param nodes The items to populate the box with
-	 * @param topItem The item to add at the top of the JComboBox
+	 * @param listItems The items to populate the box with
 	 * @param select The item to select in the JComboBox
 	 * @param itemListener An item listener to add for the JComboBox
 	 */
 	private void displayItems(JComboBox comboBox,
-			List<DataNode> items, DataNode select, 
+			List<DataNode> listItems, DataNode select, 
 			ItemListener itemListener) {
 
-		if (comboBox == null || items == null) return;
+		if (comboBox == null || listItems == null) return;
 		//Only add the item the user can actually select
 		if (itemListener != null)
 			comboBox.removeItemListener(itemListener);
 		comboBox.removeAllItems();
 
-		List<String> tooltips = new ArrayList<String>(items.size());
+		List<String> tooltips = new ArrayList<String>(listItems.size());
 		List<String> lines;
 		ExperimenterData exp;
-		ExperimenterData loggedInUser = ImporterAgent.getUserDetails();
-		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		SelectableComboBoxModel model = new SelectableComboBoxModel();
 		Selectable<DataNode> selected = null;
 		
-		for (DataNode node : items) {
+		GroupData group = getSelectedGroup();
+		long userID = getSelectedUser().getId();
+		ExperimenterData loggedIn = ImporterAgent.getUserDetails();
+		long loggedInID = loggedIn.getId();
+		for (DataNode node : listItems) {
 			exp = getExperimenter(node.getOwner());
 			lines = new ArrayList<String>();
 			if (exp != null) {
@@ -914,20 +993,20 @@ class LocationDialog extends JDialog implements ActionListener,
 			
 			boolean selectable = true;
 			if (!node.isDefaultNode()) {
-				selectable = node.getDataObject().canLink();
+				selectable = canLink(node.getDataObject(), userID, group,
+						loggedInID);
 			}
 			
-			Selectable<DataNode> comboBoxItem = 
+			Selectable<DataNode> comboBoxItem =
 					new Selectable<DataNode>(node, selectable);
-			if(select != null && node.getDataObject().getId() == select.getDataObject().getId())
+			if (select != null && 
+				node.getDataObject().getId() == select.getDataObject().getId())
 				selected = comboBoxItem;
 			
 			model.addElement(comboBoxItem);
 		}
 
-		//To be modified
-		ComboBoxToolTipRenderer renderer = new ComboBoxToolTipRenderer(
-				loggedInUser.getId());
+		ComboBoxToolTipRenderer renderer = createComboboxRenderer();
 		renderer.setTooltips(tooltips);
 		comboBox.setModel(model);
 		comboBox.setRenderer(renderer);
@@ -935,7 +1014,93 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (selected != null)
 			comboBox.setSelectedItem(selected);
 
-		if(itemListener != null)
+		if (itemListener != null)
+			comboBox.addItemListener(itemListener);
+	}
+
+	/**
+	 * Returns <code>true</code> if the user currently selected
+	 * can link data to the selected object, <code>false</code> otherwise.
+	 * 
+	 * @param node The node to handle.
+	 * @param userID The id of the selected user.
+	 * @param group The selected group.
+	 * @param loggedUserID the if of the user currently logged in.
+	 * @return See above.
+	 */
+	private boolean canLink(DataObject node, long userID, GroupData group,
+			long loggedUserID)
+	{
+		if (userID == loggedUserID) return true;
+		if (!node.canLink()) return false;
+
+		PermissionData permissions = group.getPermissions();
+		if (permissions.isGroupWrite()) return true;
+		Set leaders = group.getLeaders();
+		if (leaders != null) {
+			Iterator i = leaders.iterator();
+			ExperimenterData exp;
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				if (exp.getId() == userID) return true;
+			}
+		}
+		return node.getOwner().getId() == userID;
+	}
+	
+	/**
+	 * Creates the renderer depending on the selected user.
+	 * 
+	 * @return See above.
+	 */
+	private ComboBoxToolTipRenderer createComboboxRenderer()
+	{
+		ExperimenterData exp = getSelectedUser();
+		long id = -1;
+		if (exp != null) id = exp.getId();
+		return new ComboBoxToolTipRenderer(id);
+	}
+	
+	/**
+	 * Populates the JComboBox with the user details provided, 
+	 * selecting the logged in user and attaching the item listener.
+	 * 
+	 * @param comboBox The JComboBox to populate
+	 * @param group The group being displayed
+	 * @param itemListener An item listener to add for the JComboBox
+	 * @param userID The id of the user.
+	 */
+	private void displayUsers(JComboBox comboBox, GroupData group,
+			ItemListener itemListener, long userID) {
+
+		if (comboBox == null || group == null) return;
+
+		if (itemListener != null)
+			comboBox.removeItemListener(itemListener);
+		comboBox.removeAllItems();
+
+		DefaultComboBoxModel model = new SelectableComboBoxModel();
+		Selectable<ExperimenterDisplay> selected = null;
+		
+		List<ExperimenterData> members = sort(group.getExperimenters());
+		boolean canImportAs;
+		Selectable<ExperimenterDisplay> item;
+		for (ExperimenterData user : members) {
+			canImportAs = canImportForUserInGroup(user, group);
+			item = new Selectable<ExperimenterDisplay>(
+					new ExperimenterDisplay(user), canImportAs);
+			if (user.getId() == userID)
+				selected = item;
+			
+			model.addElement(item);
+		}
+		comboBox.setModel(model);
+		comboBox.setRenderer(createComboboxRenderer());
+		
+		if (selected != null)
+			comboBox.setSelectedItem(selected);
+
+		if (itemListener != null)
 			comboBox.addItemListener(itemListener);
 	}
 	
@@ -1049,7 +1214,8 @@ class LocationDialog extends JDialog implements ActionListener,
 
 			if (child != null) {
 				firePropertyChange(ImportDialog.CREATE_OBJECT_PROPERTY, null,
-						new ObjectToCreate(selectedGroup, child, parent));
+						new ObjectToCreate(selectedGroup, child, parent,
+						getSelectedUser()));
 			}
 		}
 	}
@@ -1066,7 +1232,7 @@ class LocationDialog extends JDialog implements ActionListener,
 
 
 	/**
-	 * Converts the treeNodes in to DataNdoes used to hold display data for the 
+	 * Converts the treeNodes in to DataNdoes used to hold display data for the
 	 * location combo boxes.
 	 * @param treeNodes The nodes to convert for import target options.
 	 */
@@ -1135,7 +1301,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	 * @param list The list to sort
 	 * @return The sorted list
 	 */
-	private <T> List<T> sort(List<T> list)
+	private <T> List<T> sort(Collection<T> list)
 	{
 		return (List<T>) sorter.sort(list);
 	}
@@ -1267,30 +1433,37 @@ class LocationDialog extends JDialog implements ActionListener,
 	}
 	
 	/**
-	 * Resets the display to the selection and group specified
+	 * Resets the display to the selection and group specified.
+	 * 
 	 * @param container The container that is selected
 	 * @param type The data type identifier (Project / SCreen)
 	 * @param objects The objects to use.
 	 * @param currentGroupId The currently active user group.
+	 * @param userID The id of the user.
 	 */
 	void reset(TreeImageDisplay container, int type,
-			Collection<TreeImageDisplay> objects , long currentGroupId) {
-
+			Collection<TreeImageDisplay> objects , long currentGroupId,
+			long userID)
+	{
 		this.dataType = type;
 		this.objects = objects;
 		this.container = container;
-		onReconnected(groups, currentGroupId);
+		onReconnected(groups, currentGroupId, userID);
 	}
 
 	/**
 	 * Re-populates and resets the groups, screens, projects & dataset options.
+	 * 
 	 * @param availableGroups The list of available groups to this user.
 	 * @param currentGroupId The currently active user group's ID.
+	 * @param userID The id of the user.
 	 */
 	void onReconnected(Collection<GroupData> availableGroups,
-			long currentGroupId) {
+			long currentGroupId, long userID)
+	{
 		this.groups = availableGroups;
-		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId));
+		populateUIWithDisplayData(findWithId(availableGroups, currentGroupId),
+				userID);
 		setInputsEnabled(true);
 	}
 	
@@ -1311,9 +1484,10 @@ class LocationDialog extends JDialog implements ActionListener,
 				newDataType = Importer.SCREEN_TYPE;
 			
 			storeCurrentSelections();
-			
+
 			firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY,
-					dataType, newDataType);
+					null, new ImportLocationDetails(newDataType, 
+							getSelectedUser().getId()));
 		}
 	}
 
@@ -1364,8 +1538,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		{
 			if (source == groupsBox) {
 				storeCurrentSelections();
-				
 				switchToSelectedGroup();
+			} else if(source == usersBox) {
+				switchToSelectedUser();
 			} else if (source == projectsBox) {
 				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);
@@ -1415,5 +1590,9 @@ class LocationDialog extends JDialog implements ActionListener,
 		newDatasetButton.setEnabled(isEnabled);
 		newScreenButton.setEnabled(isEnabled);
 		addButton.setEnabled(isEnabled);
+		groupsBox.setEnabled(isEnabled);
+		usersBox.setEnabled(isEnabled);
+		tabbedPane.setEnabled(isEnabled);
+		refreshButton.setEnabled(isEnabled);
 	}
 }

@@ -1355,7 +1355,8 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
+	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx, 
+			String userName)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		Connector c = null;
@@ -1365,6 +1366,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -1453,6 +1455,7 @@ class OMEROGateway
 		//We are going to create a connector and activate a session.
 		try {
 			UserCredentials uc = dsFactory.getCredentials();
+			ctx.setServerInformation(uc.getHostName(), port);
 			client client = new client(uc.getHostName(), port);
 			ServiceFactoryPrx prx = client.createSession(uc.getUserName(), 
 					uc.getPassword());
@@ -1540,6 +1543,22 @@ class OMEROGateway
 	private IUpdatePrx getUpdateService(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		return getUpdateService(ctx, null);
+	}
+
+	/**
+	 * Returns the {@link IUpdatePrx} service.
+	 * 
+	 * @param ctx The security context.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
+		throws DSAccessException, DSOutOfServiceException
+	{
 		Connector c = null;
 		IUpdatePrx prx = null;
 		try {
@@ -1547,6 +1566,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getUpdateService();
 		} catch (Throwable e) {
 			//method throws exception
@@ -1557,7 +1577,6 @@ class OMEROGateway
 					"Cannot access the Update service.");
 		return prx;
 	}
-
 	/**
 	 * Returns the {@link IMetadataPrx} service.
 	 * 
@@ -2129,6 +2148,13 @@ class OMEROGateway
 		connectors = new ArrayList<Connector>();
 		networkChecker = new NetworkChecker();
 	}
+	
+	/**
+	 * Returns the port used.
+	 * 
+	 * @return See above.
+	 */
+	int getPort() { return port; }
 	
 	/**
 	 * Sets the port value.
@@ -2955,8 +2981,8 @@ class OMEROGateway
 	 * Creates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to create.
-	 * @param options   Options to create the data.  
+	 * @param object The object to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -2966,20 +2992,39 @@ class OMEROGateway
 	IObject createObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObject(ctx, object, null);
+	}
+
+	/**
+	 * Creates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param object The object to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObject(IObject, Map)
+	 */
+	IObject createObject(SecurityContext ctx, IObject object, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, object, null);
+			return saveAndReturnObject(ctx, object, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Creates the specified objects.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to create.
-	 * @param options   Options to create the data.  
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -2989,14 +3034,34 @@ class OMEROGateway
 	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObjects(ctx, objects, null);
+	}
+
+	/**
+	 * Creates the specified objects.
+	 * 
+	 * @param ctx The security context.
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user.s
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObjects(IObject[], Map)
+	 */
+	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects,
+			String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, objects, null);
+			return saveAndReturnObject(ctx, objects, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
 		return new ArrayList<IObject>();
 	}
-
+	
 	/**
 	 * Deletes the specified object.
 	 * 
@@ -3049,9 +3114,9 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to update.
-	 * @param options   Options to update the data.   
-	 * @return          The updated object.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
@@ -3076,20 +3141,48 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to update.
-	 * @param options   Options to update the data.
-	 * @return          The updated object.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @param userName The name of the user to create the data for.
+	 * @return The updated object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#updateDataObject(IObject, Map)
+	 */
+	IObject saveAndReturnObject(SecurityContext ctx, IObject object,
+			Map options, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
+		try {
+			if (options == null) return service.saveAndReturnObject(object);
+			return service.saveAndReturnObject(object, options);
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the object.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Updates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param objects The objects to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	List<IObject> saveAndReturnObject(SecurityContext ctx,
-			List<IObject> objects, Map options)
+			List<IObject> objects, Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		IUpdatePrx service = getUpdateService(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
 		try {
 			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {
@@ -6640,12 +6733,13 @@ class OMEROGateway
 	 * @param usedFiles The files returned composing the import.
      * @param close Pass <code>true</code> to close the import,
      * 		<code>false</code> otherwise.
+     * @param userName The user's name.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
     Object importImage(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs)
+            boolean close, boolean hcs, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
         ImportConfig config = new ImportConfig();
@@ -6659,23 +6753,22 @@ class OMEROGateway
        
         ic.setUserPixels(object.getPixelsSize());
         return importImageNew(ctx,
-                config, ic ,status, close, hcs);
+                config, ic ,status, close, hcs, userName);
 	}
 
     Object importImageNew(SecurityContext ctx,
             ImportConfig config, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs)
+            boolean close, boolean hcs, String userName)
         throws ImportException
     {
         isSessionAlive(ctx);
         OMEROMetadataStoreClient omsc = null;
         OMEROWrapper reader = null;
 		try {
-			omsc = getImportStore(ctx);
+			omsc = getImportStore(ctx, userName);
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
-
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
@@ -8506,7 +8599,7 @@ class OMEROGateway
 	 * Removes the security context.
 	 * 
 	 * @param ctx The security context.
-	 * @throws Throwable Thrown if the connector cannot be closed.
+	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
 	void removeGroup(SecurityContext ctx) 
 	throws Exception
@@ -8553,4 +8646,23 @@ class OMEROGateway
 		return new HashSet<DataObject>();
 	}
 
+	/** 
+	 * Shuts down the connectors created while creating/importing data for 
+	 * other users.
+	 * 
+	 * @param ctx
+	 * @throws Exception Thrown if the connector cannot be closed.
+	 */
+	void shutDownDerivedConnector(SecurityContext ctx)
+		throws Exception
+	{
+		Connector c = getConnector(ctx);
+		if (c == null) return;
+		isNetworkUp();
+		try {
+			c.closeDerived(networkup);
+		} catch (Throwable e) {
+			new Exception("Cannot close the derived connectors", e);
+		}
+	}
 }

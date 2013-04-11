@@ -92,7 +92,7 @@ public class FileTableRenderer
 			if (element.isDirectory()) setIcon(DIRECTORY_ICON);
 			else setIcon(FILE_ICON);
 			setText(element.toString());
-		} else if (column == FileSelectionTable.FOLDER_AS_CONTAINER_INDEX) {
+		} else if (column == FileSelectionTable.FOLDER_AS_DATASET_INDEX) {
 			Component 
 			c = table.getDefaultRenderer(
 					Boolean.class).getTableCellRendererComponent(
