@@ -500,7 +500,7 @@ public class ModelMapper
     		((XmlAnnotation) annotation).setTextValue(
     				omero.rtypes.rstring(data.getContentAsString()));
     		annotation.setDescription(omero.rtypes.rstring(
-    				((TagAnnotationData) data).getTagDescription()));
+    				((XMLAnnotationData) data).getDescription()));
     		String ns = data.getNameSpace();
     		if (ns != null && ns.length() > 0) {
     			annotation.setNs(omero.rtypes.rstring(ns));
