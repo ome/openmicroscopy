@@ -516,7 +516,7 @@ class EditorModel
 	 * @return See above.
 	 */
 	private boolean canDeleteLink(Object data, StructuredDataResults result)
-	{ 
+	{
 		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		if (result == null) return false;
