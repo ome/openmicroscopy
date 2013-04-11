@@ -91,6 +91,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -1213,17 +1214,14 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus("x"+
-					Math.round(factor*model.getOriginalRatio()*100)/100.0);
+			statusBar.setRigthStatus(
+					Math.round(factor*model.getOriginalRatio()*100)+"%");
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			int levels = model.getResolutionLevels()-1;
-			int selected = model.getSelectedResolutionLevel();
-			
-			double f = 1/Math.pow(2, (levels-selected));
-			bigImageMagnification = 
-				(double) model.getTiledImageSizeX()/model.getMaxX();
-			statusBar.setRigthStatus("x"+f);
+			ResolutionLevel level = model.getResolutionDescription();
+			double f = UIUtilities.roundTwoDecimals(level.getRatio()*100);
+			bigImageMagnification = level.getRatio();
+			statusBar.setRigthStatus(f+"%");
 		}
 	}
 	
