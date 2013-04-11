@@ -170,11 +170,12 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             String path = buffer.getPath();
 
             try {
-                buffer.force(true); // Flush to disk.
+                buffer.flush(true);
             } catch (IOException ie) {
-                log.error("Failed to flush to disk.", ie);
-                throw new ResourceError("Failed to flush to disk:"
-                        + ie.getMessage());
+                final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
+                log.warn(msg);
+                clean();
+                throw new ResourceError(msg);
             }
 
             try {
@@ -401,7 +402,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
 
         try {
-            buffer.write(nioBuffer, position);
+            do {
+                position += buffer.write(nioBuffer, position);
+            } while (nioBuffer.hasRemaining());
             // Write was successful, update state.
             modified();
         } catch (NonWritableChannelException nwce) {
