@@ -44,6 +44,8 @@ import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.DoubleAnnotation;
+import omero.model.DoubleAnnotationI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -94,9 +96,11 @@ import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
@@ -504,6 +508,14 @@ public class ModelMapper
     		if (ns != null && ns.length() > 0) {
     			annotation.setNs(omero.rtypes.rstring(ns));
     		}
+    	} else if (data instanceof LongAnnotationData) {
+    		annotation = new LongAnnotationI();
+    		((LongAnnotation) annotation).setLongValue(omero.rtypes.rlong(
+    										(Long) data.getContent()));
+    	} else if (data instanceof DoubleAnnotationData) {
+    		annotation = new DoubleAnnotationI();
+    		((DoubleAnnotation) annotation).setDoubleValue(omero.rtypes.rdouble(
+    										(Double) data.getContent()));
     	}
     	return annotation;
     }
@@ -664,7 +676,6 @@ public class ModelMapper
     		n.setLastName(o.getLastName());
     		n.setMiddleName(o.getMiddleName());
     		n.setInstitution(o.getInstitution());
-    		//n.setDefaultGroup(o.getDefaultGroup());
     	} else if (oldObject instanceof Screen) {
     		Screen n = (Screen) newObject;
     		Screen o = (Screen) oldObject;
