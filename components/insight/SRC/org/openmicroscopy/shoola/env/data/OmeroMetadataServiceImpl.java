@@ -43,8 +43,10 @@ import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
 import omero.model.Annotation;
+import omero.model.BooleanAnnotation;
 import omero.model.Channel;
 import omero.model.DatasetAnnotationLink;
+import omero.model.DoubleAnnotation;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -53,6 +55,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
 import omero.model.LogicalChannel;
+import omero.model.LongAnnotation;
 import omero.model.Medium;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -85,10 +88,12 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -586,6 +591,33 @@ class OmeroMetadataServiceImpl
 					ioType, id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getText()));
 			ho.setDescription(omero.rtypes.rstring(tag.getDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof LongAnnotationData && ann.isDirty()) {
+			LongAnnotationData tag = (LongAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(LongAnnotationData.class).getName();
+			LongAnnotation ho = (LongAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setLongValue(omero.rtypes.rlong(tag.getDataValue()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof DoubleAnnotationData && ann.isDirty()) {
+			DoubleAnnotationData tag = (DoubleAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(DoubleAnnotationData.class).getName();
+			DoubleAnnotation ho = (DoubleAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setDoubleValue(omero.rtypes.rdouble(tag.getDataValue()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof BooleanAnnotationData && ann.isDirty()) {
+			BooleanAnnotationData tag = (BooleanAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(BooleanAnnotationData.class).getName();
+			BooleanAnnotation ho = (BooleanAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
