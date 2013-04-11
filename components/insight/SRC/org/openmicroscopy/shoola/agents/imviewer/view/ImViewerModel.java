@@ -334,17 +334,16 @@ class ImViewerModel
     {
     	//Determine the level according to the window size.
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int w = 9*(screenSize.width/10);
-        int h = 8*(screenSize.height/10);
-        Iterator<ResolutionLevel> i = resolutions.iterator();
-        ResolutionLevel level;
-        Dimension d;
-        while (i.hasNext()) {
-			level = i.next();
-			d = level.getImageSize();
-			if (d.width < w || d.height < h)
-				return level.getLevel();
-		}
+    	int w = 9*(screenSize.width/10);
+    	int h = 8*(screenSize.height/10);
+    	ResolutionLevel level;
+    	Dimension d;
+    	for (int i = resolutions.size() - 1; i >= 0; i--) {
+    		level = resolutions.get(i);
+    		d = level.getImageSize();
+    		if (d.width < w || d.height < h)
+    			return level.getLevel();
+    	}
     	return 0;
     }
     
