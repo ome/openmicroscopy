@@ -103,6 +103,7 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -660,8 +661,9 @@ class EditorModel
 			name = ((DatasetData) ref).getName();
 		else if (ref instanceof ProjectData)
 			name = ((ProjectData) ref).getName();
-		else if (ref instanceof TagAnnotationData)
-			name = ((TagAnnotationData) ref).getTagValue();
+		else if (ref instanceof TagAnnotationData ||
+				ref instanceof TermAnnotationData)
+			name = ((AnnotationData) ref).getContentAsString();
 		else if (ref instanceof ScreenData)
 			name = ((ScreenData) ref).getName();
 		else if (ref instanceof PlateData)
@@ -3161,28 +3163,21 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the description of the passed tag.
+	 * Returns the description of the passed annotation.
 	 * 
-	 * @param tag The tag to handle.
+	 * @param annotation The annotation to handle.
 	 * @return See above.
 	 */
-	String getTagDescription(TagAnnotationData tag)
+	String getAnnotationDescription(AnnotationData annotation)
 	{
-		if (tag == null) return "";
-		/*
-		List l = tag.getTagDescriptions();
-		if (l != null && l.size() > 0) {
-			long userID = MetadataViewerAgent.getUserDetails().getId();
-			Iterator i = l.iterator();
-			TextualAnnotationData desc;
-			while (i.hasNext()) {
-				desc = (TextualAnnotationData) i.next();
-				if (desc != null && desc.getOwner().getId() == userID) 
-					return desc.getText();
-			}
-		}
-		*/
-		return tag.getTagDescription();
+		if (annotation == null) return "";
+		if (annotation instanceof TagAnnotationData)
+			return ((TagAnnotationData) annotation).getTagDescription();
+		else if (annotation instanceof TermAnnotationData)
+			return ((TermAnnotationData) annotation).getTermDescription();
+		else if (annotation instanceof XMLAnnotationData)
+			return ((XMLAnnotationData) annotation).getDescription();
+		return "";
 	}
 	
 	/**
