@@ -52,17 +52,59 @@ public class ResolutionLevel
 	/** The tile size.*/
 	private Dimension tileSize;
 	
+	/** The image size.*/
+	private Dimension imageSize;
+	
+	/** The ratio along the X-axis.*/
+	private double ratioX;
+	
+	/** The ratio along the Y-axis.*/
+	private double ratioY;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param level The resolution level.
 	 * @param tileSize The dimension of the tile.
+	 * @param imageSize The size of the image.
 	 */
-	public ResolutionLevel(int level, Dimension tileSize)
+	public ResolutionLevel(int level, Dimension tileSize, Dimension imageSize)
 	{
 		this.level = level;
 		this.tileSize = tileSize;
+		this.imageSize = imageSize;
+		setRatio(1, 1);
 	}
+	
+	/**
+	 * Sets the ratio along the X and Y-axis.
+	 * 
+	 * @param ratioX The ratio along the X-axis.
+	 * @param ratioY The ratio along the Y-axis.
+	 */
+	public void setRatio(double ratioX, double ratioY)
+	{
+		this.ratioX = ratioX;
+		this.ratioY = ratioY;
+	}
+	
+	/**
+	 * Returns the lowest of the ratio.
+	 * 
+	 * @return See above.
+	 */
+	public double getRatio()
+	{
+		if (ratioX < ratioY) return ratioX;
+		return ratioY;
+	}
+	
+	/**
+	 * Returns the image's size.
+	 * 
+	 * @return See above.
+	 */
+	public Dimension getImageSize() { return imageSize; }
 	
 	/**
 	 * Returns the resolution level.
