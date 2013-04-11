@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.UIUtilities
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -50,8 +50,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -81,14 +83,10 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-
-//Third-party libraries
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
@@ -99,6 +97,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:a.falconi@dundee.ac.uk">
  * 					a.falconi@dundee.ac.uk</a>
+ * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @version 2.2
  * <small>
  * (<b>Internal version:</b> $Revision$ $Date$)
@@ -767,14 +766,57 @@ public class UIUtilities
 	{
 		if (toolTipText == null) toolTipText = "";
 		StringBuffer buf = new StringBuffer(90+toolTipText.length());
-		//buf.
 		buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
 		//TODO: change into platform independent font
 		buf.append("<font face=Arial size=2>");  
 		buf.append(toolTipText);
 		buf.append("</font></body></html>");
-		return toolTipText;
-	} 
+		return buf.toString();
+	}
+	
+	/**
+	 * Builds a tooltip from a set of array, list and map.
+	 * The structure returned is of the form:
+	 * <p>
+	 * <code>filename client_checksum server_checksum</code>
+	 * </p>
+	 * If a failure is indicated in the <code>failingChecksums</code> map, that
+	 * specific checksum will be taken from the map, appended to the string
+	 * and printed in bold. In case of matching checksums, the client checksum
+	 * will be used twice after the filename.
+	 *
+	 * @param srcFiles An array of filenames.
+	 * @param checksums Client-side calculated checksums.
+	 * @param failingChecksums A map of index to checksum indicating at witch
+	 *						   index of the checkum list a mismatch occurred.
+	 * @return
+	 */
+	public static String formatChecksumMapToToolTip(String[] srcFiles,
+			List<String> checksums, Map<Integer, String> failingChecksums) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<table><tr>");
+		sb.append("<th>File name</th>");
+		sb.append("<th>Client checksum</th>");
+		sb.append("<th>Server checksum</th>");
+		sb.append("</tr>");
+		for (int i=0; i < srcFiles.length; ++i) {
+			sb.append("<tr><td>");
+			sb.append(srcFiles[i] + "  ");
+			sb.append("</td><td>");
+			sb.append(checksums.get(i) + "  ");
+			sb.append("</td><td>");
+			if (failingChecksums.containsKey(i)) {
+				sb.append("<b>");
+				sb.append(failingChecksums.get(i));
+				sb.append("</b>");
+			} else {
+				sb.append(checksums.get(i));
+			}
+			sb.append("</td></tr>");
+		}
+		sb.append("</table>");
+		return formatToolTipText(sb.toString());
+	}
 	
 	/** 
 	 * Builds a tool tip in a fixed font and color.
@@ -790,8 +832,6 @@ public class UIUtilities
 	{
 		if (toolTipText == null) return "";
 		StringBuffer buf = new StringBuffer();
-		//buf.
-		//buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
 		buf.append("<html><body>");
 		buf.append("<font face=Arial size=2>");  
 		Iterator<String> i = toolTipText.iterator();

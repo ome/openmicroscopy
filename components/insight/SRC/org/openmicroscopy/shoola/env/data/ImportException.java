@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.ImportException 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -44,6 +44,7 @@ import loci.formats.UnsupportedCompressionException;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author Blazej Pindelski, bpindelski at dundee.ac.uk
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
@@ -65,7 +66,10 @@ public class ImportException
 	
 	/** Indicates that there is no space left.*/
 	public static int NO_SPACE = 3;
-	
+
+	/** Indicates that there was a checksum mismatch.*/
+	public static int CHECKSUM_MISMATCH = 4;
+
 	/** The status associated to the exception.*/
 	private int status;
 	
@@ -90,6 +94,8 @@ public class ImportException
 			if (s.length > 0) return s[0];
 		} else if (cause instanceof IOException) {
 			
+		} else if (cause instanceof omero.ChecksumValidationException) {
+			return ((omero.ChecksumValidationException) cause).getMessage();
 		}
 		return null;
 	}
@@ -116,7 +122,7 @@ public class ImportException
 	 */
 	public ImportException(Throwable cause) 
 	{
-		this(getImportFailureMessage(cause), cause);
+		this((String) getImportFailureMessage(cause), cause);
 	}
 	
 	/**
@@ -162,6 +168,8 @@ public class ImportException
 			String message = cause.getMessage();
 			if (message.contains("No space left on device"))
 				return NO_SPACE;
+		} else if (cause instanceof omero.ChecksumValidationException) {
+			return CHECKSUM_MISMATCH;
 		}
 		return status;
 	}

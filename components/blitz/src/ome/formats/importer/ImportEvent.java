@@ -1,13 +1,14 @@
 /*
  *   $Id$
  *
- *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.formats.importer;
 
 import java.util.List;
+import java.util.Map;
 
 import omero.model.Fileset;
 import omero.model.IObject;
@@ -209,11 +210,18 @@ public class ImportEvent {
     }
 
     public static class FILESET_UPLOAD_END extends FILE_UPLOAD_EVENT {
+        public final String[] srcFiles;
+        public final List<String> checksums;
+        public final Map<Integer, String> failingChecksums;
         public FILESET_UPLOAD_END(String filename, int fileIndex,
                 int fileTotal, Long uploadedBytes, Long contentLength,
-                Exception exception) {
+                String[] srcFiles, List<String> checksums,
+                Map<Integer, String> failingChecksums, Exception exception) {
             super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
                     exception);
+            this.srcFiles = srcFiles;
+            this.checksums = checksums;
+            this.failingChecksums = failingChecksums;
         }
     }
 

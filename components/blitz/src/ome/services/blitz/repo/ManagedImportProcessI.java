@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Glencoe Software, Inc. All rights reserved.
+ * Copyright (C) 2012-2013 Glencoe Software, Inc. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
  */
 package ome.services.blitz.repo;
 
+import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -247,18 +249,23 @@ public class ManagedImportProcessI extends AbstractAmdServant
                             hashes.size()));
         }
 
+        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
         for (int i = 0; i < size; i++) {
             String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
             CheckedPath cp = repo.checkPath(usedFile, this.current);
             final String clientHash = hashes.get(i);
             final String serverHash = cp.sha1();
             if (!clientHash.equals(serverHash)) {
-                throw new omero.ValidationException(null, null,
-                        "file checksum mismatch on upload: " + usedFile +
-                        " (client has " + clientHash + ", server has " + serverHash + ")");
+                failingChecksums.put(i, serverHash);
             }
         }
 
+        if (!failingChecksums.isEmpty()) {
+            throw new omero.ChecksumValidationException(null,
+                    omero.ChecksumValidationException.class.toString(),
+                    "A checksum mismatch has occured.",
+                    failingChecksums);
+        }
         // i==0 is the upload job which is implicit.
         FilesetJobLink link = fs.getFilesetJobLink(0);
         repo.repositoryDao.updateJob(link.getChild(),
