@@ -345,7 +345,7 @@ public class UpdateTest extends AbstractUpdateTest {
         ImportJob job = new ImportJob();
         OriginalFile file = new OriginalFile();
         file.setPath("");
-        file.setSha1("");
+        file.setHash("");
         file.setName("");
         file.setSize(0L);
         job.linkOriginalFile(file);

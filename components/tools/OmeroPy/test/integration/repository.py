@@ -152,7 +152,7 @@ class AbstractRepoTest(lib.ITest):
             client = self.client
         mrepo = self.getManagedRepo(self.client)
         obj = mrepo.root()
-        sha = obj.sha1.val
+        sha = obj.hash.val
         raw_access = omero.grid.RawAccessRequest()
         raw_access.repoUuid = sha
         raw_access.command = command
@@ -210,7 +210,7 @@ class TestRepository(AbstractRepoTest):
             rawFileStore.close()
 
         # Check the SHA1
-        sha1_remote = ofile.sha1.val
+        sha1_remote = ofile.hash.val
         sha1_local = self.client.sha1(test_file)
         self.assertEquals(sha1_remote, sha1_local)
 

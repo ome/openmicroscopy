@@ -19,6 +19,7 @@ module omero {
         class Annotation;
         class Arc;
         class BooleanAnnotation;
+        class ChecksumAlgorithm;
         class Dataset;
         class Details;
         class Event;
@@ -58,8 +59,8 @@ module omero {
         class TextAnnotation;
         class Well;
 
-
     };
+
 };
 
 #endif

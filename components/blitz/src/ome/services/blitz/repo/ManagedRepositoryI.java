@@ -36,6 +36,7 @@ import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.StringTransformer;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
@@ -46,6 +47,7 @@ import omero.grid.ImportProcessPrx;
 import omero.grid.ImportSettings;
 import omero.grid._ManagedRepositoryOperations;
 import omero.grid._ManagedRepositoryTie;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.FilesetEntry;
 import omero.model.FilesetI;
@@ -60,6 +62,7 @@ import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 
 import org.apache.commons.lang.text.StrLookup;
@@ -89,7 +92,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * The suggestImportPaths method sanitizes the paths in due course.
      * From the server side, we cannot imitate ImportLibrary.createImport
      * in applying client-side specifics to clean up the path. */
-    private static ClientFilePathTransformer nopClientTransformer = 
+    private static final ClientFilePathTransformer nopClientTransformer =
             new ClientFilePathTransformer(new StringTransformer() {
                 // @Override  since JDK6
                 public String apply(String from) {
@@ -151,6 +154,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         if (settings == null) {
             settings = new ImportSettings(); // All defaults.
+            settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
         }
 
         final List<FsFile> paths = new ArrayList<FsFile>();
@@ -173,7 +177,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         // If any two files clash in that chosen basePath directory, then
         // we want to suggest a similar alternative.
         ImportLocation location =
-                suggestImportPaths(relPath, basePath, paths, readerClass, __current);
+                suggestImportPaths(relPath, basePath, paths, readerClass, settings.checksumAlgorithm, __current);
 
         return createImportProcess(fs, location, settings, __current);
     }
@@ -230,6 +234,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
 
         return proxies;
+    }
+
+    public List<ChecksumAlgorithm> listChecksumAlgorithms(Current __current) {
+        return ChecksumAlgorithmMapper.getAllChecksumAlgorithms();
     }
 
     //
@@ -507,10 +515,12 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param relPath Path parsed from the template
      * @param basePath Common base of all the listed paths ("/my/path")
      * @param reader BioFormats reader for data, may be null
+     * @param checksumAlgorithm the checksum algorithm to use in verifying the integrity of uploaded files
      * @return {@link ImportLocation} instance
      */
     protected ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
-            Class<? extends FormatReader> reader, Ice.Current __current) throws omero.ServerError {
+            Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm, Ice.Current __current) 
+                    throws omero.ServerError {
         final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
@@ -535,8 +545,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final String relativeToEnd = path.getPathFrom(basePath).toString();
             data.usedFiles.add(relativeToEnd);
             final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
+            final ChecksumType checksumType = ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
             data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath,
-                    this.checksumProviderFactory.getProvider(ChecksumType.SHA1)));
+                    this.checksumProviderFactory.getProvider(checksumType)));
         }
 
         makeDir(data.sharedPath, true, __current);

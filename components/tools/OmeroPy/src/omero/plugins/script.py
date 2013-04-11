@@ -265,7 +265,7 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         admin = client.sf.getAdminService()
         current_user = self.ctx._event_context.userId
-        query = "select o from OriginalFile o where o.sha1 = '%s' and o.details.owner.id = %s" % (sha1, current_user)
+        query = "select o from OriginalFile o where o.hash = '%s' and o.details.owner.id = %s" % (sha1, current_user)
         files = client.sf.getQueryService().findAllByQuery(query, None)
         if len(files) == 0:
             msg("Saving demo script to %s" % t)

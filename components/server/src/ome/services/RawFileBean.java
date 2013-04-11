@@ -89,21 +89,6 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     private transient boolean diskSpaceChecking;
 
     /**
-     * {@link ChecksumProvider} maintained for sequential write files. On any
-     * write with offset = 0, a new {@link ChecksumProvider} will be created. As
-     * long as all write calls happen sequentially and without gaps, then
-     * checksumProvider.checksumAsBytes() will represent the actual state of the
-     * file. Any non-sequential call will cause the instance to be nulled.
-     */
-    private transient ChecksumProvider checksumProvider;
-
-    /**
-     * Used to track the last sequential offset to
-     * {@link #write(byte[], long, long)}.
-     */
-    private transient long mdOffset = 0;
-    
-    /**
      * default constructor
      */
     public RawFileBean() {}
@@ -193,7 +178,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             try {
-                file.setSha1(this.checksumProviderFactory
+                file.setHash(this.checksumProviderFactory
                         .getProvider(ChecksumType.SHA1).putFile(path).checksumAsString());
 
                 File f = new File(path);
@@ -415,24 +400,10 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             iRepositoryInfo.sanityCheckRepository();
         }
 
-        if (position == 0) {
-            checksumProvider = checksumProviderFactory.getProvider(ChecksumType.SHA1);
-            mdOffset = 0;
-        } else if (mdOffset != position) {
-            checksumProvider = null;
-        }
-        
         try {
             buffer.write(nioBuffer, position);
             // Write was successful, update state.
             modified();
-            try {
-                checksumProvider.putBytes(buf);
-                mdOffset += length;
-            } catch (RuntimeException re) {
-                checksumProvider = null;
-                throw re;
-            }
         } catch (NonWritableChannelException nwce) {
             throw new SecurityViolation("File not writeable!");
         } catch (IOException e) {

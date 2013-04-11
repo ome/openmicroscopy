@@ -65,7 +65,7 @@ public class ImageMeasurementsTest extends AbstractRoiITest {
         fa.setNs(rstring(NSMEASUREMENT.value));
         OriginalFile file = new OriginalFileI();
         file.setName(rstring("meas"));
-        file.setSha1(rstring("meas"));
+        file.setHash(rstring("meas"));
         file.setPath(rstring("meas"));
         file.setAtime(rtime(0));
         file.setCtime(rtime(0));

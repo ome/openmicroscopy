@@ -143,10 +143,8 @@ public class FileParserTest extends AbstractTest {
         String uuid = uuid();
         OriginalFile f = new OriginalFile();
         f.setName(uuid);
-        f.setSha1("");
         f.setMimetype("text/plain");
         f.setPath("/tmp/empty");
-        f.setSize(0L);
 
         i = new_Image();
         i.setName("annotated with file");

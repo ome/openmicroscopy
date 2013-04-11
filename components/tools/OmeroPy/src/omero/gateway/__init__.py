@@ -2934,7 +2934,7 @@ class _BlitzGateway (object):
         h = hash_sha1()
         h.update(fo.read())
         shaHast = h.hexdigest()
-        originalFile.setSha1(rstring(shaHast))
+        originalFile.setHash(rstring(shaHast))
         originalFile = updateService.saveAndReturnObject(originalFile)
 
         # upload file

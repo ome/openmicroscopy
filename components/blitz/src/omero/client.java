@@ -995,7 +995,7 @@ public class client {
         }
 
         fileObject.setSize(rlong(size));
-        fileObject.setSha1(rstring(sha1(file)));
+        fileObject.setHash(rstring(sha1(file)));
 
         if (fileObject.getName() == null) {
             fileObject.setName(rstring(file.getName()));
