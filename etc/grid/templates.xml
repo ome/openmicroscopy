@@ -250,7 +250,7 @@
       <server id="PixelData-${index}" exe="${JAVA}" activation="always" pwd="${OMERO_HOME}">
         <option>-Xmx256M</option>
         <option>-Djava.awt.headless=true</option>
-        <option>-Dlogback.configurationFile=${OMERO_ETC}logback.xml</option>
+        <option>-Dlogback.configurationFile=${OMERO_ETC}logback-indexing.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=PixelData-${index}</option>
         <option>-jar</option>
