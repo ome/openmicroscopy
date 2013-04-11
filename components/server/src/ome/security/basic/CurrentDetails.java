@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import ome.api.local.LocalAdmin;
@@ -64,7 +64,7 @@ import ome.tools.hibernate.HibernateUtils;
  */
 public class CurrentDetails implements PrincipalHolder {
 
-    private static Log log = LogFactory.getLog(CurrentDetails.class);
+    private static Logger log = LoggerFactory.getLogger(CurrentDetails.class);
 
     private final SessionCache cache;
 

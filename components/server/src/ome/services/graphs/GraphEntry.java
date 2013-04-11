@@ -16,8 +16,8 @@ import ome.services.graphs.GraphOpts.Op;
 import ome.system.EventContext;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -32,7 +32,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  */
 public class GraphEntry {
 
-    private final static Log log = LogFactory.getLog(GraphEntry.class);
+    private final static Logger log = LoggerFactory.getLogger(GraphEntry.class);
 
     final public static Op DEFAULT = Op.HARD;
 

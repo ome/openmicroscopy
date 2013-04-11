@@ -11,8 +11,8 @@ import ome.model.IObject;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.MultiFieldQueryParser;
 import org.apache.lucene.queryParser.ParseException;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 @Test( groups = "integration" )
 public class SearchTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(SearchTest.class);
+    private static Logger log = LoggerFactory.getLogger(SearchTest.class);
 
     @Test
     public void testEvent() throws Exception {

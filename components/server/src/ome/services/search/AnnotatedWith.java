@@ -29,8 +29,8 @@ import ome.model.internal.Details;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class AnnotatedWith extends SearchAction {
 
-    private static final Log log = LogFactory.getLog(AnnotatedWith.class);
+    private static final Logger log = LoggerFactory.getLogger(AnnotatedWith.class);
 
     private static final long serialVersionUID = 1L;
 

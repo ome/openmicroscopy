@@ -17,8 +17,8 @@
  */
 package ome.services.blitz.repo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
@@ -41,7 +41,7 @@ import omero.grid.ImportProcess;
  */
 public class ManagedRawFileStoreI extends RawFileStoreI {
 
-    private final static Log log = LogFactory.getLog(ManagedRawFileStoreI.class);
+    private final static Logger log = LoggerFactory.getLogger(ManagedRawFileStoreI.class);
 
     private final ManagedImportProcessI proc;
 

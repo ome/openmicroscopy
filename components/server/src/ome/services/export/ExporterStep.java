@@ -18,8 +18,8 @@ import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 
 /**
@@ -30,7 +30,7 @@ import org.hibernate.Session;
  */
 public class ExporterStep extends GraphStep {
 
-    final private static Log log = LogFactory.getLog(ExporterStep.class);
+    final private static Logger log = LoggerFactory.getLogger(ExporterStep.class);
 
     public ExporterStep(int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {

@@ -21,8 +21,8 @@ import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 
 /**
@@ -36,8 +36,8 @@ import org.springframework.beans.FatalBeanException;
  */
 public class AnnotationGraphSpec extends AbstractHierarchyGraphSpec {
 
-    private final static Log log = LogFactory
-        .getLog(AnnotationGraphSpec.class);
+    private final static Logger log = LoggerFactory
+        .getLogger(AnnotationGraphSpec.class);
 
     /**
      * Collection of namespace values (or LIKE values if they contain '%' or

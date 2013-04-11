@@ -18,8 +18,8 @@ import ome.security.SecurityFilter;
 import ome.system.EventContext;
 import ome.system.Roles;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
@@ -38,7 +38,7 @@ import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 public abstract class AbstractSecurityFilter extends FilterDefinitionFactoryBean
     implements SecurityFilter {
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final Roles roles;
 

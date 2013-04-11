@@ -17,8 +17,8 @@ import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyTermEnum;
@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
  */
 public class SimilarTerms extends SearchAction {
 
-    private static final Log log = LogFactory.getLog(SimilarTerms.class);
+    private static final Logger log = LoggerFactory.getLogger(SimilarTerms.class);
 
     private static final long serialVersionUID = 1L;
 

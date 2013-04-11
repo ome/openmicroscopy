@@ -11,8 +11,8 @@ package omeis.providers.re;
 import java.io.IOException;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.model.core.Pixels;
@@ -48,7 +48,7 @@ import omeis.providers.re.quantum.QuantizationException;
 abstract class RenderingStrategy {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(RenderingStrategy.class);
+    private static Logger log = LoggerFactory.getLogger(RenderingStrategy.class);
     
     /** The rendering context. */
     protected Renderer renderer;

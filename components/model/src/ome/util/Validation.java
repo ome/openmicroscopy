@@ -13,8 +13,8 @@ package ome.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 
@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Validation {
 
-    protected static Log log = LogFactory.getLog(Validation.class);
+    protected static Logger log = LoggerFactory.getLogger(Validation.class);
 
     boolean valid = true;
 

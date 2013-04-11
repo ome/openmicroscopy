@@ -25,12 +25,12 @@ import ome.system.OmeroContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action performed by {@link DeleteState}.
@@ -40,7 +40,7 @@ import org.perf4j.commonslog.CommonsLogStopWatch;
  */
 public class DeleteStep extends GraphStep {
 
-    final private static Log log = LogFactory.getLog(DeleteStep.class);
+    final private static Logger log = LoggerFactory.getLogger(DeleteStep.class);
 
     final private OmeroContext ctx;
 
@@ -70,7 +70,7 @@ public class DeleteStep extends GraphStep {
         optionallyNullField(session, nullOp, id);
 
         // Phase 3: primary action
-        StopWatch swStep = new CommonsLogStopWatch();
+        StopWatch swStep = new Slf4JStopWatch();
         qb.param("id", id);
         Query q = qb.query(session);
         int count = q.executeUpdate();

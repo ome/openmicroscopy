@@ -7,8 +7,8 @@ package ome.tools.spring;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,7 +25,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 public abstract class OnContextRefreshedEventListener implements
         ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private/* final */ApplicationContext ctx;
 

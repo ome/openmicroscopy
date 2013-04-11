@@ -14,8 +14,8 @@ import ome.formats.importer.ImportEvent;
 import omero.model.IObject;
 import omero.model.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic import process monitor that writes information to the log.
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LoggingImportMonitor implements IObserver
 {
-    private static Log log = LogFactory.getLog(LoggingImportMonitor.class);
+    private static Logger log = LoggerFactory.getLogger(LoggingImportMonitor.class);
 
     public void update(IObservable importLibrary, ImportEvent event)
     {

@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.FilePathResolver;
@@ -29,7 +29,7 @@ import ome.util.SqlAction;
 public class OmeroFilePathResolver implements FilePathResolver
 {
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(FilePathResolver.class);
+    private static Logger log = LoggerFactory.getLogger(FilePathResolver.class);
 
     /** SQL action instance for this class. */
     protected final SqlAction sql;

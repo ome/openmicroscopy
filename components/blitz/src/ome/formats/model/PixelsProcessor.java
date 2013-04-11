@@ -42,8 +42,8 @@ import omero.model.Annotation;
 import omero.model.Image;
 import omero.model.Pixels;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
@@ -58,7 +58,7 @@ import org.apache.commons.logging.LogFactory;
 public class PixelsProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(PixelsProcessor.class);
+    private Logger log = LoggerFactory.getLogger(PixelsProcessor.class);
 
     /** First file importer **/
     private Timestamp earliestMTime;

@@ -10,8 +10,8 @@ package ome.util;
 import java.io.Serializable;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.MappingException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.SessionImplementor;
@@ -28,7 +28,7 @@ import org.hibernate.type.Type;
  */
 public class TableIdGenerator extends TableGenerator {
 
-    private final static Log log = LogFactory.getLog(TableIdGenerator.class);
+    private final static Logger log = LoggerFactory.getLogger(TableIdGenerator.class);
 
     long value;
 

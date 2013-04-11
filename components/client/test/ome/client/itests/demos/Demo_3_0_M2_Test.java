@@ -8,8 +8,8 @@ package ome.client.itests.demos;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.*;
 
@@ -31,7 +31,7 @@ import omeis.providers.re.RenderingEngine;
 groups = { "ignore", "manual", "client", "integration", "demo", "3.0", "3.0-M2" })
 public class Demo_3_0_M2_Test extends TestCase {
 
-    private static Log TESTLOG = LogFactory.getLog("TEST-"
+    private static Logger TESTLOG = LoggerFactory.getLogger("TEST-"
             + Demo_3_0_M2_Test.class.getName());
 
     static int Xmax = 1024, Ymax = 1024, Zmax = 24, Tmax = 120, Cmax = 3;

@@ -10,8 +10,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Basic {@link CacheEventListener} which does nothing other than log.
@@ -21,8 +21,8 @@ import org.apache.commons.logging.LogFactory;
  */
 class LoggingCacheListener implements CacheEventListener {
 
-    private final static Log log = LogFactory
-            .getLog(LoggingCacheListener.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(LoggingCacheListener.class);
 
     @Override
     public Object clone() throws CloneNotSupportedException {

@@ -11,8 +11,8 @@ import ome.model.IObject;
 import ome.model.internal.GraphHolder;
 import ome.model.internal.Token;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages a special token (a unique object) which can be inserted into
@@ -25,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TokenHolder {
 
-    private static Log log = LogFactory.getLog(TokenHolder.class);
+    private static Logger log = LoggerFactory.getLogger(TokenHolder.class);
 
     private final Token token = new Token();
 

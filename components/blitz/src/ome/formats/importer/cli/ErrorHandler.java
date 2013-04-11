@@ -16,8 +16,8 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.ImportCandidates.SCANNING;
 import ome.formats.importer.util.ErrorContainer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link IObserver} based on the gui ErrorHandler code which collects all
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
 
-    private final static Log log = LogFactory.getLog(ErrorHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(ErrorHandler.class);
 
     public ErrorHandler(ImportConfig config) {
         super(config);

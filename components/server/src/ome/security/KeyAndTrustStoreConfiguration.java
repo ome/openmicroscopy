@@ -7,8 +7,8 @@
 
 package ome.security;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -18,7 +18,7 @@ import org.springframework.beans.factory.InitializingBean;
  */
 public class KeyAndTrustStoreConfiguration implements InitializingBean {
 
-    private final static Log log = LogFactory.getLog("omero.security");
+    private final static Logger log = LoggerFactory.getLogger("omero.security");
 
     private static final String JAVAX_NET_SSL_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
     private static final String JAVAX_NET_SSL_KEY_STORE = "javax.net.ssl.keyStore";

@@ -17,8 +17,8 @@ import java.util.NoSuchElementException;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -35,7 +35,7 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class FileParser implements ApplicationContextAware {
 
-    private final static Log log = LogFactory.getLog(FileParser.class);
+    private final static Logger log = LoggerFactory.getLogger(FileParser.class);
 
     protected OmeroContext context;
 

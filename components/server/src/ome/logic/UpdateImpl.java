@@ -41,8 +41,8 @@ import ome.tools.hibernate.ReloadFilter;
 import ome.tools.hibernate.UpdateFilter;
 import ome.util.Utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
@@ -58,7 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = false)
 public class UpdateImpl extends AbstractLevel1Service implements LocalUpdate {
 
-    private final Log log = LogFactory.getLog(UpdateImpl.class);
+    private final Logger log = LoggerFactory.getLogger(UpdateImpl.class);
 
     protected transient LocalQuery localQuery;
 

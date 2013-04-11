@@ -54,8 +54,8 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.ContextFilter;
 import ome.util.Filterable;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -73,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ShareBean extends AbstractLevel2Service implements LocalShare {
 
-    public final static Log log = LogFactory.getLog(ShareBean.class);
+    public final static Logger log = LoggerFactory.getLogger(ShareBean.class);
 
     public final static String NS_ENABLED = "ome.share.enabled";
 

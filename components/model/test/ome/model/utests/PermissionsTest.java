@@ -24,14 +24,14 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class PermissionsTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(PermissionsTest.class);
+    private static Logger log = LoggerFactory.getLogger(PermissionsTest.class);
 
     Permissions p;
 

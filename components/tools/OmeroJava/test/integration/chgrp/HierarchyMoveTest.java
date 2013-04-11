@@ -909,7 +909,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
         sql = "select i from Project as i where i.id = :id";
         assertNull(iQuery.findByQuery(sql, param));
 
-        // Log in to other group
+        // Logger in to other group
         loginUser(g);
 
         param = new ParametersI();

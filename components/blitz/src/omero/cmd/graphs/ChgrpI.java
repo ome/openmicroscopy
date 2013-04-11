@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
@@ -93,7 +93,7 @@ public class ChgrpI extends Chgrp implements IRequest {
 
             this.spec.initialize(id, "", options);
 
-            StopWatch sw = new CommonsLogStopWatch();
+            StopWatch sw = new Slf4JStopWatch();
             state = new GraphState(ec, factory, helper.getSql(),
                 helper.getSession(), spec);
 

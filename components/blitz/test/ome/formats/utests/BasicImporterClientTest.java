@@ -15,8 +15,8 @@ import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.cli.ErrorHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 /**
@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
 @Test(groups={"manual"})
 public class BasicImporterClientTest extends TestCase {
 
-    Log log = LogFactory.getLog(BasicImporterClientTest.class);
+    Logger log = LoggerFactory.getLogger(BasicImporterClientTest.class);
 
     @Test
     public void testSimpleClientWthErrorHandling() throws Exception {

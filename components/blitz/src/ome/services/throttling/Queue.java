@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ome.system.OmeroContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** * Manages AMD-based method dispatches from blitz. * */
 public class Queue {
 
-    private final static Log log = LogFactory.getLog(Queue.class);
+    private final static Logger log = LoggerFactory.getLogger(Queue.class);
 
     static class CancelledException extends Exception {
     }

@@ -13,7 +13,7 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.testng.annotations.Test;
 
 @Test(groups = { "integration" })
@@ -29,7 +29,7 @@ public class ImportMetadataTest extends AbstractManagedContextTest {
 
     @Test
     public void testSave() {
-        StopWatch sw = new CommonsLogStopWatch("test.import.save");
+        StopWatch sw = new Slf4JStopWatch("test.import.save");
         List<Long> ids = iUpdate.saveAndReturnIds(data());
         Long[] ids2 = new Long[ids.size()];
         for (int i = 0; i < ids.size(); i++) {
@@ -41,7 +41,7 @@ public class ImportMetadataTest extends AbstractManagedContextTest {
     }
 
     public void testMerge() {
-        StopWatch sw = new CommonsLogStopWatch("test.import.merge");
+        StopWatch sw = new Slf4JStopWatch("test.import.merge");
         iUpdate.saveAndReturnArray(data());
         sw.stop();
     }

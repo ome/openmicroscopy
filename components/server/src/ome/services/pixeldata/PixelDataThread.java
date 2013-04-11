@@ -32,8 +32,8 @@ import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class PixelDataThread extends ExecutionThread implements ApplicationListener<MissingPyramidMessage> {
 
-    private final static Log log = LogFactory.getLog(PixelDataThread.class);
+    private final static Logger log = LoggerFactory.getLogger(PixelDataThread.class);
 
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "Task");
@@ -158,9 +158,9 @@ public class PixelDataThread extends ExecutionThread implements ApplicationListe
                     }
                 }
             } catch (InterruptedException ie) {
-                log.fatal("Interrupted exception during multiple thread handling." +
-				"Other threads may not have been successfully completed.",
-                    ie);
+                log.error("Interrupted exception during multiple thread handling." +
+				        "Other threads may not have been successfully completed.",
+                        ie); // slf4j migration: fatal() to error()
             }
         }
     }

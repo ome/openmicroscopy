@@ -11,8 +11,8 @@ package omeis.providers.re;
 import java.io.IOException;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Application-internal dependencies
 import ome.conditions.ResourceError;
@@ -41,7 +41,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 class GreyScaleStrategy extends RenderingStrategy {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(GreyScaleStrategy.class);
+    private static Logger log = LoggerFactory.getLogger(GreyScaleStrategy.class);
     
     /** The channel we're operating on */
     private int channel;

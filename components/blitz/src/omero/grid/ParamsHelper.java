@@ -20,8 +20,8 @@ import omero.model.OriginalFileI;
 import omero.model.ParseJob;
 import omero.model.ParseJobI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ import Ice.UnmarshalOutOfBoundsException;
  */
 public class ParamsHelper {
 
-    private final static Log log = LogFactory.getLog(ParamsHelper.class);
+    private final static Logger log = LoggerFactory.getLogger(ParamsHelper.class);
 
     /** The text representation of the format in a python script. */
     public final static String PYTHONSCRIPT = "text/x-python";

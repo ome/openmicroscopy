@@ -18,8 +18,8 @@ import java.net.UnknownHostException;
 
 import ome.util.Utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contacts a given URL which should be an OME server which will return either
@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class UpgradeCheck implements Runnable {
 
-    private final static Log log = LogFactory.getLog(UpgradeCheck.class);
+    private final static Logger log = LoggerFactory.getLogger(UpgradeCheck.class);
 
     /**
      * Default timeout is 10 seconds.

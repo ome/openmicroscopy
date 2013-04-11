@@ -14,8 +14,8 @@ import java.util.Set;
 import ome.conditions.ValidationException;
 import ome.security.SecuritySystem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
 
@@ -33,7 +33,7 @@ import org.springframework.ldap.core.LdapOperations;
  */
 public class AttributeNewUserGroupBean implements NewUserGroupBean {
 
-    private final static Log log = LogFactory.getLog(AttributeNewUserGroupBean.class);
+    private final static Logger log = LoggerFactory.getLogger(AttributeNewUserGroupBean.class);
 
     /**
      * The value following ":*attribute:" in the configuration, where "*"

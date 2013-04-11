@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Properties;
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -37,7 +37,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
  */
 public abstract class SqlPropertiesParser {
 
-    private static Log log = LogFactory.getLog(SqlPropertiesParser.class);
+    private static Logger log = LoggerFactory.getLogger(SqlPropertiesParser.class);
 
     static class MyPropertyPlaceholderConfigurer extends
             PropertyPlaceholderConfigurer {

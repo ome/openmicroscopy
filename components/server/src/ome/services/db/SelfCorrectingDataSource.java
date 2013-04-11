@@ -19,8 +19,8 @@ import javax.sql.DataSource;
 import ome.conditions.DatabaseBusyException;
 import ome.util.messages.UserSignalMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.datasource.DelegatingDataSource;
@@ -31,8 +31,8 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
 public class SelfCorrectingDataSource extends DelegatingDataSource 
     implements ApplicationListener<UserSignalMessage> {
 
-    private final static Log log = LogFactory
-            .getLog(SelfCorrectingDataSource.class);
+    private final static Logger log = LoggerFactory
+            .getLogger(SelfCorrectingDataSource.class);
 
     /**
      * Length of time that errors are used in the calculation of

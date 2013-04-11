@@ -13,8 +13,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Third-party libraries
 
@@ -32,7 +32,7 @@ import ome.api.IScale;
  */
 public class AWTScaleService implements IScale {
     /** The logger for this class. */
-    private static Log log = LogFactory.getLog(AWTScaleService.class);
+    private static Logger log = LoggerFactory.getLogger(AWTScaleService.class);
 
     /*
      * (non-Javadoc)

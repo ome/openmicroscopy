@@ -16,8 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Java imports
 
@@ -56,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ContextFilter implements Filter {
 
-    private static Log log = LogFactory.getLog(ContextFilter.class);
+    private static Logger log = LoggerFactory.getLogger(ContextFilter.class);
 
     private Object dummy;
 

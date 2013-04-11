@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.util.PropertyPlaceholderHelper;
@@ -41,7 +41,7 @@ import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
  */
 public class PreferenceContext extends PropertyPlaceholderConfigurer {
 
-    private final static Log log = LogFactory.getLog(PreferenceContext.class);
+    private final static Logger log = LoggerFactory.getLogger(PreferenceContext.class);
 
     final private Map<String, Preference> preferences = new ConcurrentHashMap<String, Preference>();
 

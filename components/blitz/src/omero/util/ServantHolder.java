@@ -17,8 +17,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import omero.api._StatefulServiceInterfaceOperations;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manager for all active servants in a single session.
@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ServantHolder {
 
-    private final static Log log = LogFactory.getLog(ServantHolder.class);
+    private final static Logger log = LoggerFactory.getLogger(ServantHolder.class);
 
     /**
      * Note: servants are stored by String since {@link Ice.Identity} does not

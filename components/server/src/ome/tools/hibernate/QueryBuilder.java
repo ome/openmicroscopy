@@ -17,8 +17,8 @@ import ome.conditions.ApiUsageException;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.aop.framework.Advised;
@@ -39,7 +39,7 @@ import org.springframework.aop.framework.AopProxy;
  */
 public class QueryBuilder {
 
-    private final static Log log = LogFactory.getLog(QueryBuilder.class);
+    private final static Logger log = LoggerFactory.getLogger(QueryBuilder.class);
 
     private int count = 0;
 

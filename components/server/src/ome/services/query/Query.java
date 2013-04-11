@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.HibernateException;
@@ -50,7 +50,7 @@ import ome.parameters.QueryParameter;
  * @since OMERO 3.0
  */
 public abstract class Query<T> implements HibernateCallback {
-    private static Log log = LogFactory.getLog(Query.class);
+    private static Logger log = LoggerFactory.getLogger(Query.class);
 
     // For Criteria
     /**

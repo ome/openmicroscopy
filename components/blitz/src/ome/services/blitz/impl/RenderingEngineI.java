@@ -78,7 +78,7 @@ import omero.romio.PlaneDef;
 import omero.util.IceMapper;
 
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 import Ice.Current;
 
@@ -252,10 +252,10 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     		// Load the table and find the index of the mask column, throwing an
     		// exception if the mask column does not exist.
-    		StopWatch s1 = new CommonsLogStopWatch("omero.getTable");
+    		StopWatch s1 = new Slf4JStopWatch("omero.getTable");
     		TablePrx table = roiService.getTable(tableId.getValue());
     		s1.stop();
-    		s1 = new CommonsLogStopWatch("omero.getHeaders");
+    		s1 = new Slf4JStopWatch("omero.getHeaders");
     		Column[] columns = table.getHeaders();
     		s1.stop();
     		int maskColumnIndex = 0;
@@ -275,7 +275,7 @@ public class RenderingEngineI extends AbstractPyramidServant implements
 
     		// Slice the table and feed the byte array encoded bit masks to the
     		// rendering engine servant.
-    		s1 = new CommonsLogStopWatch("omero.sliceAndBuildREMap");
+    		s1 = new Slf4JStopWatch("omero.sliceAndBuildREMap");
     		Data data = table.slice(new long[] { maskColumnIndex }, rows);
     		MaskColumn maskColumn = (MaskColumn) data.columns[0];
     		final Map<byte[], Integer> forRenderingEngine = 

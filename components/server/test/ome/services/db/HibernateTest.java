@@ -17,8 +17,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration" )
 public class HibernateTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(HibernateTest.class);
+    private static Logger log = LoggerFactory.getLogger(HibernateTest.class);
 
     boolean ok;
     Session s;

@@ -27,8 +27,8 @@ import ome.conditions.ApiUsageException;
 import ome.model.core.Pixels;
 import ome.util.PixelData;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class implementation of the PixelBuffer interface for standard "proprietary"
@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(RomioPixelBuffer.class);
+    private static Logger log = LoggerFactory.getLogger(RomioPixelBuffer.class);
 
     /** Default maximum buffer size for planar data transfer. (1MB) */
     public static final int MAXIMUM_BUFFER_SIZE = 1048576;

@@ -22,8 +22,8 @@ import omero.RType;
 import omero.ServerError;
 import omero.grid.TablePrx;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parser API implementation for storing result measurements from SPW companion
@@ -35,7 +35,7 @@ public class MeasurementStore implements OmeroMeasurementStore {
 
     // Static
 
-    private final static Log log = LogFactory.getLog(MeasurementStore.class);
+    private final static Logger log = LoggerFactory.getLogger(MeasurementStore.class);
 
     // Final
 

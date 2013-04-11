@@ -22,8 +22,8 @@ import ome.parameters.Parameters;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,7 +40,7 @@ import org.testng.annotations.Test;
 @Test(groups = "integration")
 public class PojosDaoTest extends TestCase {
 
-    private static Log log = LogFactory.getLog(PojosDaoTest.class);
+    private static Logger log = LoggerFactory.getLogger(PojosDaoTest.class);
 
     protected OmeroContext applicationContext;
 

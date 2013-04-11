@@ -32,11 +32,11 @@ import ome.services.messages.RegisterServiceCleanupMessage;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.PropertyValueException;
 import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -54,7 +54,7 @@ import org.springframework.transaction.CannotCreateTransactionException;
  */
 public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
-    private static Log log = LogFactory.getLog(ServiceHandler.class);
+    private static Logger log = LoggerFactory.getLogger(ServiceHandler.class);
 
     private final CurrentDetails cd;
 
@@ -110,7 +110,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         Object o;
         StringBuilder finalOutput = new StringBuilder();
 
-        StopWatch stopWatch = new CommonsLogStopWatch();
+        StopWatch stopWatch = new Slf4JStopWatch();
         try {
 
             o = arg0.proceed();
@@ -125,7 +125,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             throw getAndLogException(t);
         } finally {
             if (log.isInfoEnabled()) {
-                log.info(finalOutput);
+                log.info(finalOutput.toString()); // slf4j migration: toString()
             }
 
             // Logging long invocations. Very long invocations are indicative

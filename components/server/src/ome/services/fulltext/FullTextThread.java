@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import ome.services.eventlogs.EventLogLoader;
@@ -39,7 +39,7 @@ import ome.util.DetailsFieldBridge;
  */
 public class FullTextThread extends ExecutionThread {
 
-    private final static Log log = LogFactory.getLog(FullTextThread.class);
+    private final static Logger log = LoggerFactory.getLogger(FullTextThread.class);
 
     private final static Principal DEFAULT_PRINCIPAL = new Principal("root",
             "system", "FullText");

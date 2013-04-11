@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.directory.server.core.DefaultDirectoryService;
 import org.apache.directory.server.core.authn.AuthenticationInterceptor;
 import org.apache.directory.server.core.exception.ExceptionInterceptor;
@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  */
 class ApacheDSContainer implements InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
-    private Log logger = LogFactory.getLog(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     DirectoryServiceFactory factory;
     DefaultDirectoryService service;

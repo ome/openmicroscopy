@@ -18,8 +18,8 @@ import ome.security.basic.TokenHolder;
 import ome.services.sharing.ShareStore;
 import ome.system.EventContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.util.Assert;
 
@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
  */
 public class SharingACLVoter implements ACLVoter {
 
-    private final static Log log = LogFactory.getLog(SharingACLVoter.class);
+    private final static Logger log = LoggerFactory.getLogger(SharingACLVoter.class);
 
     private final SystemTypes sysTypes;
 

@@ -24,7 +24,6 @@ public class BlitzEntryTest extends MockObjectTestCase {
         class Work extends Thread {
             @Override
             public void run() {
-                Entry.configureLogging();
                 e.start();
             }
         }

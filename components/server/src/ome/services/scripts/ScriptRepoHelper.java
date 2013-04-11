@@ -45,8 +45,8 @@ import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,7 +84,7 @@ public class ScriptRepoHelper {
 
     private final Roles roles;
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * @see #ScriptRepoHelper(String, File, Executor, Principal)
@@ -132,7 +132,7 @@ public class ScriptRepoHelper {
      * is no lib/script directory. Otherwise, all devs will need to mkdir -p
      * that directory both at the top-level and under blitz/ etc.
      */
-    static File sanityCheck(Log log, File dir) {
+    static File sanityCheck(Logger log, File dir) {
 
         String error = null;
         String testing = System.getProperty("omero.testing", "false").toLowerCase();

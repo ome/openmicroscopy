@@ -39,8 +39,8 @@ import omero.model.LightSettings;
 import omero.model.ObjectiveSettings;
 import omero.model.WellSample;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the references of an IObjectContainerStore and ensures
@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
 public class ReferenceProcessor implements ModelProcessor
 {
     /** Logger for this class */
-    private Log log = LogFactory.getLog(ReferenceProcessor.class);
+    private Logger log = LoggerFactory.getLogger(ReferenceProcessor.class);
 
     /* (non-Javadoc)
      * @see ome.formats.model.ModelProcessor#process(ome.formats.model.IObjectContainerStore)

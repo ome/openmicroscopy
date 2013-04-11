@@ -24,8 +24,8 @@ import ome.system.OmeroContext;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -92,7 +92,7 @@ public class SessionHandler implements MethodInterceptor,
      */
     private final Method close;
 
-    private final static Log log = LogFactory.getLog(SessionHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(SessionHandler.class);
 
     /**
      * Access to this collection should only be performed by the protected

@@ -65,8 +65,8 @@ import omero.model.FilesetJobLink;
 import omero.model.ScriptJob;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +79,7 @@ import Ice.UserException;
 public class MetadataStoreI extends AbstractAmdServant implements
         _MetadataStoreOperations, ServiceFactoryAware, BlitzOnly {
 
-    private final static Log log = LogFactory.getLog(MetadataStoreI.class);
+    private final static Logger log = LoggerFactory.getLogger(MetadataStoreI.class);
 
     protected final Set<Long> savedPlates = new HashSet<Long>();
 

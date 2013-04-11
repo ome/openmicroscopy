@@ -9,8 +9,8 @@ package ome.io.bioformats;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import loci.common.RandomAccessInputStream;
 import loci.formats.CoreMetadata;
@@ -29,8 +29,8 @@ import loci.formats.tiff.TiffParser;
 public class OmeroPixelsPyramidReader extends MinimalTiffReader {
 
     /** Logger for this class. */
-    private final static Log log =
-        LogFactory.getLog(OmeroPixelsPyramidReader.class);
+    private final static Logger log =
+        LoggerFactory.getLogger(OmeroPixelsPyramidReader.class);
 
    /* (non-Javadoc)
     * @see loci.formats.FormatReader#isThisType(java.lang.String, boolean)

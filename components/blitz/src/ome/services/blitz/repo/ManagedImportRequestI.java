@@ -34,8 +34,8 @@ import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
@@ -84,7 +84,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private static final long serialVersionUID = -303948503984L;
 
-    private static Log log = LogFactory.getLog(ManagedImportRequestI.class);
+    private static Logger log = LoggerFactory.getLogger(ManagedImportRequestI.class);
 
     /**
      * Helper instance for this class. Will create a number of sub-helper
@@ -232,21 +232,21 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 reader.close();
             }
         } catch (Throwable e){
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         try {
             if (store != null) {
                 store.logout();
             }
         } catch (Throwable e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
         try {
             if (sf != null) {
                 sf.destroy();
             }
         } catch (Throwable e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
         }
     }
 

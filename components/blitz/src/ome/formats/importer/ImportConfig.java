@@ -34,10 +34,9 @@ import ome.system.UpgradeCheck;
 import omero.model.Annotation;
 import omero.model.FilesetVersionInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+// import org.apache.log4j.Level; CGB: Needs replacing with logback equivalent.
 
 /**
  * Utility class which configures the Import.
@@ -46,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public class ImportConfig {
 
-    private final static Log log = LogFactory.getLog(ImportConfig.class);
+    private final static Logger log = LoggerFactory.getLogger(ImportConfig.class);
 
     /**
      * Delimiter used to encode multiple servers in one preferences value.
@@ -263,18 +262,19 @@ public class ImportConfig {
         // TODO: add java version info
     }
 
+    //CGB: Need replacing with logback equivalent.
     /**
      * Modifies the Log4j logging level of everything under the
      * <code>ome.format</code> and <code>loci</code> package hierarchically.
      * @param level if null, then {@link #ini#getDebugLevel()} will be used.
      */
-    public void configureDebug(Level level) {
-        if (level == null) {
-            level = Level.toLevel(ini.getDebugLevel());
-        }
-        Logger.getLogger("ome.formats").setLevel(level);
-        Logger.getLogger("loci").setLevel(level);
-    }
+    // public void configureDebug(Level level) {
+    //     if (level == null) {
+    //         level = Level.toLevel(ini.getDebugLevel());
+    //     }
+    //     org.apache.log4j.Logger.getLogger("ome.formats").setLevel(level);
+    //     org.apache.log4j.Logger.getLogger("loci").setLevel(level);
+    // }
 
     //
     // Login methods
@@ -678,7 +678,7 @@ public class ImportConfig {
             prefs.flush();
             ini.flushPreferences();
         } catch (BackingStoreException e) {
-            log.error(e);
+            log.error(e.toString()); // slf4j migration: toString()
             throw new RuntimeException(e);
         }
     }

@@ -14,8 +14,8 @@ import java.io.Reader;
 
 import ome.services.messages.RegisterServiceCleanupMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 
@@ -27,7 +27,7 @@ import org.pdfbox.util.PDFTextStripper;
  */
 public class PdfParser extends FileParser {
 
-    private final static Log log = LogFactory.getLog(PdfParser.class);
+    private final static Logger log = LoggerFactory.getLogger(PdfParser.class);
 
     @Override
     public Iterable<Reader> doParse(File file) throws Exception {
@@ -53,7 +53,7 @@ public class PdfParser extends FileParser {
 
 class PdfThread extends Thread {
 
-    private final static Log log = LogFactory.getLog(PdfThread.class);
+    private final static Logger log = LoggerFactory.getLogger(PdfThread.class);
 
     final File file;
     final PipedWriter writer;

@@ -22,8 +22,8 @@ import ome.util.SqlAction;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -50,7 +50,7 @@ import org.springframework.transaction.interceptor.TransactionAttributeSource;
  */
 public class EventHandler implements MethodInterceptor, ApplicationListener<ContextMessage>{
 
-    private static Log log = LogFactory.getLog(EventHandler.class);
+    private static Logger log = LoggerFactory.getLogger(EventHandler.class);
 
     protected final TransactionAttributeSource txSource;
 

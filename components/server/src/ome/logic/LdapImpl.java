@@ -52,7 +52,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -333,7 +333,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     private void modifyGroups(Experimenter e, Collection<Long> base,
             Collection<Long> minus, boolean add) {
 
-        final Log log = getBeanHelper().getLogger();
+        final Logger log = getBeanHelper().getLogger();
 
         Set<Long> ids = new HashSet<Long>(base);
         ids.removeAll(minus);

@@ -15,8 +15,8 @@ import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import omero.constants.cluster.REDIRECT;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ public abstract class AbstractRedirector implements Redirector {
 
     protected final static String ROUTED_FROM = "omero.routed_from";
 
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final Executor executor;
 

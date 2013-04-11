@@ -28,11 +28,12 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action produced by {@link ChownStepFactory}
@@ -42,7 +43,7 @@ import org.perf4j.commonslog.CommonsLogStopWatch;
  */
 public class ChownStep extends GraphStep {
 
-    final private static Log log = LogFactory.getLog(ChownStep.class);
+    final private static Logger log = LoggerFactory.getLogger(ChownStep.class);
 
     final private OmeroContext ctx;
 
@@ -133,7 +134,7 @@ public class ChownStep extends GraphStep {
     }
 
     private Long findImproperIncomingLinks(Session session, String[] lock) {
-        CommonsLogStopWatch sw = new CommonsLogStopWatch();
+        StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
                 "select count(*) from %s source where source.%s.id = ? and not " +
                 "(source.details.group.id = ? OR source.details.group.id = ?)",

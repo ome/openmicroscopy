@@ -50,8 +50,8 @@ import omero.model.LogicalChannel;
 import omero.model.Pixels;
 import omero.model.TransmittanceRange;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes the pixels sets of an IObjectContainerStore and ensures
@@ -78,7 +78,7 @@ public class ChannelProcessor implements ModelProcessor
 	public static final String ALPHA_TEXT = "Alpha";
 
 	/** Logger for this class */
-	private Log log = LogFactory.getLog(ChannelProcessor.class);
+	private Logger log = LoggerFactory.getLogger(ChannelProcessor.class);
 
 	/** Container store we're currently working with. */
 	private IObjectContainerStore store;

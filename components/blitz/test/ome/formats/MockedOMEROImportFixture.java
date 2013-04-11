@@ -13,8 +13,8 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jmock.MockObjectTestCase;
 
 /**
@@ -41,7 +41,7 @@ import org.jmock.MockObjectTestCase;
  */
 public class MockedOMEROImportFixture extends OMEROImportFixture {
 
-    Log log = LogFactory.getLog(MockedOMEROImportFixture.class);
+    Logger log = LoggerFactory.getLogger(MockedOMEROImportFixture.class);
 
     omero.client client;
 

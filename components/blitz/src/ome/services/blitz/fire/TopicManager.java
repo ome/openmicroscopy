@@ -12,8 +12,8 @@ import java.lang.reflect.Method;
 import omero.ApiUsageException;
 import omero.InternalException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -58,7 +58,7 @@ public interface TopicManager extends ApplicationListener {
 
     public final static class Impl implements TopicManager {
 
-        private final static Log log = LogFactory.getLog(Impl.class);
+        private final static Logger log = LoggerFactory.getLogger(Impl.class);
 
         private final Ice.Communicator communicator;
 

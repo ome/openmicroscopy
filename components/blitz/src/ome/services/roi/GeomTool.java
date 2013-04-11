@@ -44,8 +44,8 @@ import omero.model.SmartShape;
 import omero.util.IceMapper;
 import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
@@ -63,7 +63,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  */
 public class GeomTool {
 
-    protected Log log = LogFactory.getLog(GeomTool.class);
+    protected Logger log = LoggerFactory.getLogger(GeomTool.class);
 
     protected final AtomicBoolean hasShapes = new AtomicBoolean(true);
 

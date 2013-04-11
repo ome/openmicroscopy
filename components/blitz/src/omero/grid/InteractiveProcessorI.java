@@ -38,8 +38,8 @@ import omero.model.ParseJob;
 import omero.util.CloseableServant;
 import omero.util.IceMapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import Glacier2.SessionControlPrx;
@@ -60,7 +60,7 @@ public class InteractiveProcessorI implements _InteractiveProcessorOperations,
 
     private static Session UNINITIALIZED = new Session();
 
-    private static Log log = LogFactory.getLog(InteractiveProcessorI.class);
+    private static Logger log = LoggerFactory.getLogger(InteractiveProcessorI.class);
 
     private final SessionManager mgr;
 

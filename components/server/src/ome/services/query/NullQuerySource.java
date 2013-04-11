@@ -17,8 +17,8 @@ package ome.services.query;
 // Java imports
 
 // Third-party libraries
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.parameters.Parameters;
 
@@ -33,7 +33,7 @@ import ome.parameters.Parameters;
  */
 public class NullQuerySource extends QuerySource {
 
-    private static Log log = LogFactory.getLog(NullQuerySource.class);
+    private static Logger log = LoggerFactory.getLogger(NullQuerySource.class);
 
     @Override
     public Query lookup(String queryID, Parameters parameters) {

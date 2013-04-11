@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" debug="false">
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+    <file>${omero.logfile}</file>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${omero.logfile}.%i</fileNamePattern>
+      <minIndex>1</minIndex>
+      <maxIndex>9</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>500MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>
+    </encoder>
+
+  </appender>
+
+  <!-- PERF4J ///////////////////////////////////////////////////////////////// -->
+  <appender name="Perf4jJmxAppender" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
+    <param name="TagNamesToExpose" value="omero.call.success,omero.call.exception,omero.session"/>
+  </appender>
+
+  <appender name="CoalescingStatistics" class="org.perf4j.logback.AsyncCoalescingStatisticsAppender">
+    <param name="TimeSlice" value="30000"/>
+    <appender-ref ref="Perf4jJmxAppender"/>
+  </appender>
+
+  <logger name="org.perf4j.TimingLogger">
+    <level value="INFO"/>
+    <appender-ref ref="CoalescingStatistics"/>
+  </logger>
+
+  <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
+  <logger name="ome" level="INFO"/>
+  <logger name="ome.formats" level="INFO"/>
+  <logger name="omero" level="INFO"/>
+  <logger name="omeis" level="INFO"/>
+  <logger name="OMERO" level="INFO"/>
+  <!-- Inherit from Spring/etc and so are a bit verbose -->
+  <logger name="ome.system.OmeroContext" level="WARN"/>
+  <logger name="ome.system.PreferenceContext" level="WARN"/>
+  <logger name="ome.security.basic.CurrentDetails" level="INFO"/>
+  <logger name="ome.services.blitz.impl.ServiceFactoryI" level="INFO"/>
+  <logger name="ome.services.blitz.impl.OmeroMetadata" level="INFO"/>
+  <logger name="ome.services.blitz.util.ShutdownSafeEhcacheManagerFactoryBean" level="WARN"/>
+  <!-- Often useful to change to DEBUG -->
+  <logger name="omero.cmd" level="INFO"/>
+  <logger name="ome.services.graphs" level="INFO"/>
+  <logger name="ome.services.chgrp" level="INFO"/>
+  <logger name="ome.services.chmod" level="INFO"/>
+  <logger name="ome.services.delete" level="INFO"/>
+  <!-- Adapters are also too so is a bit verbose -->
+  <logger name="ome.adapters" level="ERROR"/>
+
+  <!-- THIRD PARTY //////////////////////////////////////////////////////////// -->
+  <logger name="org.apache" level="WARN"/>
+  <logger name="org.jgroups" level="WARN"/>
+  <logger name="org.quartz" level="WARN"/>
+  <logger name="org.hibernate" level="WARN"/>
+  <logger name="org.springframework" level="WARN"/>
+  <!-- Suppressing "Warning missing properties files" -->
+  <logger name="org.springframework.beans" level="ERROR"/>
+  <!-- Whether or not to print jamon timing INFO. ERROR or TRACE -->
+  <logger name="org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor" level="TRACE"/>
+  <!-- Quieting blitz startup -->
+  <logger name="net.sf.ehcache" level="ERROR"/>
+  <logger name="loci" level="INFO"/><!-- Bio-Formats -->
+  <logger name="ucar" level="WARN"/><!-- NetCDF -->
+
+  <!-- BUILD ////////////////////////////////////////////////////////////////// -->
+  <logger name="org.hibernate.tool.hbm2x.POJOExporter" level="ERROR"/>
+  <logger name="velocity" level="ERROR"/>
+  <logger name="ome.dsl.utests" level="WARN"/>
+  <logger name="ome.util.utests.PojoOptionsTest" level="WARN"/>
+
+  <!-- DATABASE /////////////////////////////////////////////////////////////// -->
+  <logger name="bitronix" level="WARN"/>
+  <!-- Limit memory WARNing -->
+  <logger name="org.hibernate.hql.ast.QueryTranslatorImpl" level="ERROR"/>
+  <!-- Limit fail-safe cleanup -->
+  <logger name="org.hibernate.engine.loading.LoadContexts" level="ERROR"/>
+  <!-- This is bogus, and will be caught by our exception handlers anyway -->
+  <logger name="org.hibernate.util.JDBCExceptionReporter" level="ERROR"/>
+  <!-- Printed on startup -->
+  <logger name="org.hibernate.search.engine.DocumentBuilderContainedEntity" level="ERROR"/>
+  <!-- Other overly verbose messages -->
+  <logger name="org.hibernate.SQL" level="ERROR"/>
+  <logger name="org.hibernate.cfg" level="ERROR"/>
+  <logger name="org.hibernate.engine" level="ERROR"/>
+  <logger name="org.hibernate.hql" level="WARN"/> <!-- for first/max in memory -->
+  <logger name="org.hibernate.hql.PARSER" level="FATAL"/>
+  <logger name="org.hibernate.loader" level="ERROR"/>
+  <logger name="org.hibernate.persister" level="ERROR"/>
+  <logger name="org.hibernate.pretty" level="ERROR"/>
+  <logger name="org.hibernate.type" level="ERROR"/>
+  <logger name="org.hibernate.validator" level="ERROR"/>
+
+  <root level="OFF">
+    <appender-ref ref="FILE"/>
+  </root>
+
+</configuration>

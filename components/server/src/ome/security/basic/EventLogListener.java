@@ -12,8 +12,8 @@ package ome.security.basic;
 // Third-party imports
 import ome.model.IObject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -32,7 +32,7 @@ public class EventLogListener implements PostUpdateEventListener,
 
     private static final long serialVersionUID = 3245068515908082533L;
 
-    private static Log log = LogFactory.getLog(EventLogListener.class);
+    private static Logger log = LoggerFactory.getLogger(EventLogListener.class);
 
     protected final CurrentDetails cd;
 

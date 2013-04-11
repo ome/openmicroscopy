@@ -62,8 +62,8 @@ import omero.model.Pixels;
 import omero.util.IceMapper;
 import omero.util.TempFileManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -85,7 +85,7 @@ import Ice.Current;
 public class ExporterI extends AbstractAmdServant implements
         _ExporterOperations, ServiceFactoryAware, BlitzOnly {
 
-    private final static Log log = LogFactory.getLog(ExporterI.class);
+    private final static Logger log = LoggerFactory.getLogger(ExporterI.class);
 
     private final static int MAX_SIZE = 1024 * 1024;
 
@@ -288,7 +288,7 @@ public class ExporterI extends AbstractAmdServant implements
                             try {
                                  xmlMetadata = convertXml(retrieve);
                             } catch (ServiceException e) {
-                                log.error(e);
+                                log.error(e.toString()); // slf4j migration: toString()
                                 return null;
                             }
                             if (xmlMetadata != null) {
@@ -315,13 +315,13 @@ public class ExporterI extends AbstractAmdServant implements
                                         return null; // ONLY VALID EXIT
 
                                     } catch (IOException ioe) {
-                                        log.error(ioe);
+                                        log.error(ioe.toString()); // slf4j migration: toString()
 
                                     } catch (TransformerException e) {
-                                        log.error(e);
+                                        log.error(e.toString()); // slf4j migration: toString()
 
                                     } catch (ParserConfigurationException e) {
-                                        log.error(e);
+                                        log.error(e.toString()); // slf4j migration: toString()
                                     }
                                 }
                             }
