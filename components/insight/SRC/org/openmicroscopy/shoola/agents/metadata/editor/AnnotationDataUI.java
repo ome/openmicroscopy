@@ -225,6 +225,9 @@ class AnnotationDataUI
 	/** Flag indicating that other annotations have been added or removed. */
 	private boolean otherFlag;
 	
+	/** Button to remove all other annotations. */
+	private JButton removeOtherAnnotationsButton;
+	
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
@@ -368,6 +371,7 @@ class AnnotationDataUI
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		tagFlag = false;
 		docFlag = false;
+		otherFlag = false;
 		tagNames = new ArrayList<String>();
 		tagsDocList = new ArrayList<DocComponent>();
 		filesDocList = new ArrayList<DocComponent>();
@@ -401,12 +405,22 @@ class AnnotationDataUI
 		removeTagsButton.setToolTipText("Unlink Tags.");
 		removeTagsButton.addMouseListener(controller);
 		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
+		
 		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
 		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		removeDocsButton.setToolTipText("Unlink Attachments.");
 		removeDocsButton.addMouseListener(controller);
 		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
+		
+		removeOtherAnnotationsButton = new JButton(
+				icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(removeOtherAnnotationsButton);
+		removeOtherAnnotationsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		removeOtherAnnotationsButton.setToolTipText("Unlink Annotations.");
+		removeOtherAnnotationsButton.addMouseListener(controller);
+		removeOtherAnnotationsButton.setActionCommand(
+				""+EditorControl.REMOVE_OTHER_ANNOTATIONS);
 		
 		selectedValue = 0;
 		initialValue = selectedValue;
@@ -466,11 +480,8 @@ class AnnotationDataUI
 		bar.setFloatable(false);
 		bar.setBorder(null);
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		bar.add(addButton);
-		if (removeButton != null) {
-			//bar.add(Box.createHorizontalStrut(2));
-			bar.add(removeButton);
-		}
+		if (addButton != null) bar.add(addButton);
+		if (removeButton != null) bar.add(removeButton);
 		return bar;
 	}
 	
@@ -557,6 +568,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("others", Font.BOLD, size));
+		p.add(createBar(null, removeOtherAnnotationsButton));
 		c.gridy += 3;
 		panel.add(p, c);
 		
@@ -1001,9 +1013,7 @@ class AnnotationDataUI
 		
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
-		
-		
-		
+
 		filterButton.setEnabled(count > 0);
 		//Allow to handle annotation.
 		boolean enabled = model.canAnnotate();
@@ -1017,6 +1027,7 @@ class AnnotationDataUI
 		enabled = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
+		removeOtherAnnotationsButton.setEnabled(enabled);
 		enabled = model.canDelete(); //to be reviewed
 		unrateButton.setEnabled(enabled);
 		buildGUI();
@@ -1032,6 +1043,7 @@ class AnnotationDataUI
 		b = model.canDeleteAnnotationLink();
 		removeTagsButton.setEnabled(b);
 		removeDocsButton.setEnabled(b);
+		removeOtherAnnotationsButton.setEnabled(b);
 	}
 	
 	/**
@@ -1423,7 +1435,42 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns the collection of other annotations.
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData> removeOtherAnnotation()
+	{
+		List<AnnotationData> list = new ArrayList<AnnotationData>();
+		if (otherList.size() == 0)  {
+			otherFlag = false;
+			return list;
+		}
+		List<AnnotationData> toKeep = new ArrayList<AnnotationData>();
+		AnnotationData data;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = otherList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof AnnotationData) {
+					data = (AnnotationData) object;
+					if (data.getId() > 0)
+						list.add(data);
+				} 
+			} else {
+				toKeep.add((AnnotationData) object);
+			}
+		}
+		handleObjectsSelection(AnnotationData.class, toKeep, false);
+		if (list.size() == 0) otherFlag = false;
+		return list;
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -1440,14 +1487,38 @@ class AnnotationDataUI
 			if (doc.canUnlink()) {
 				if (object instanceof TagAnnotationData) {
 					return true;
-				} 
+				}
 			}
 		}
 		return false;
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns <code>true</code> some tags can be unlinked,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOtherAnnotationsToUnlink()
+	{
+		if (otherList.size() == 0) return false;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = otherList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof AnnotationData) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -1464,7 +1535,7 @@ class AnnotationDataUI
 			if (doc.canUnlink()) {
 				if (object instanceof FileAnnotationData) {
 					return true;
-				} 
+				}
 			}
 		}
 		return false;
@@ -1701,6 +1772,58 @@ class AnnotationDataUI
 				}
 			}
 		}
+		if (otherFlag) {
+			original = model.getAllOtherAnnotations();
+			j = original.iterator();
+			ids = new ArrayList<Long>();
+			while (j.hasNext()) {
+				ids.add(((AnnotationData) j.next()).getId());
+			}
+			i = otherList.iterator();
+			Map<Long, Integer> map = new HashMap<Long, Integer>();
+			Map<Long, AnnotationData> 
+				annotations = new HashMap<Long, AnnotationData>();
+			Integer count;
+			while (i.hasNext()) {
+				doc = i.next();
+				object = doc.getData();
+				if (object instanceof AnnotationData) {
+					annotation = (AnnotationData) object;
+					id = annotation.getId();
+					if (!ids.contains(id)) {
+						l.add(annotation);
+					} else {
+						count = map.get(id);
+						if (count != null) {
+							count++;
+							map.put(id, count);
+						} else {
+							count = 1;
+							annotations.put(id, annotation);
+							map.put(id, count);
+						}
+					}
+				}
+			}
+			
+			//check the count
+			Entry<Long, Integer> entry;
+			Iterator<Entry<Long, Integer>> k = map.entrySet().iterator();
+			int n = otherList.size();
+			Map<DataObject, Boolean> m;
+			while (k.hasNext()) {
+				entry = k.next();
+				count = entry.getValue();
+				if (count != null && count == n) {
+					//Check if the annotation needs to be added
+					annotation = annotations.get(entry.getKey());
+					m = model.getObjectsWith(annotation);
+					if (m.size() < count) {
+						l.add(annotation);
+					}
+				}
+			}
+		}
 		if (selectedValue != initialValue)
 			l.add(new RatingAnnotationData(selectedValue));
 		
@@ -1746,8 +1869,6 @@ class AnnotationDataUI
 		tagNames.clear();
 		existingTags.clear();
 		selectedValue = 0;
-		//if (!model.isMultiSelection())
-		//    selectedValue = model.getUserRating();
 		initialValue = 0;
 		otherRating.setText("");
 		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 
@@ -1768,7 +1889,7 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
-		
+		otherFlag = false;
 		otherPane.removeAll();
 		otherList.clear();
 		content.revalidate();

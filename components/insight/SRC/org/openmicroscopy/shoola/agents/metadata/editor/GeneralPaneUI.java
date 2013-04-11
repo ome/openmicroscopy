@@ -547,7 +547,17 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns the collection of other annotation.
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData> removeOtherAnnotations()
+	{
+		return annotationUI.removeOtherAnnotation();
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -558,7 +568,7 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -566,6 +576,17 @@ class GeneralPaneUI
 	boolean hasTagsToUnlink()
 	{
 		return annotationUI.hasTagsToUnlink();
+	}
+	
+	/**
+	 * Returns <code>true</code> some other annotations can be unlinked,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOtherAnnotationsToUnlink()
+	{
+		return annotationUI.hasOtherAnnotationsToUnlink();
 	}
 	
 	/**

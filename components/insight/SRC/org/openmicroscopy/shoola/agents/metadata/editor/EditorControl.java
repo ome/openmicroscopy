@@ -210,6 +210,10 @@ class EditorControl
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
 	
+	/** Action id indicating to remove other annotations. */
+	static final int REMOVE_OTHER_ANNOTATIONS = 24;
+	
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -844,6 +848,9 @@ class EditorControl
 				break;
 			case REMOVE_DOCS:
 				view.removeAttachedFiles(src, p);
+				break;
+			case REMOVE_OTHER_ANNOTATIONS:
+				view.removeOtherAnnotations(src, p);
 		}
 	}
 	
