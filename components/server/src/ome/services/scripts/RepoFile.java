@@ -15,7 +15,7 @@ import static org.apache.commons.io.FilenameUtils.separatorsToUnix;
 
 import java.io.File;
 
-import ome.util.Utils;
+import ome.model.enums.ChecksumAlgorithm;
 
 import org.apache.commons.io.FilenameUtils;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -97,8 +97,12 @@ public class RepoFile {
         return rel;
     }
 
-    public String sha1() {
-        return fs.sha1();
+    public ChecksumAlgorithm hasher() {
+        return fs.hasher();
+    }
+
+    public String hash() {
+        return fs.hash();
     }
 
     public long length() {
@@ -117,6 +121,7 @@ public class RepoFile {
 
         final public String path;
         final public String name;
+        final private ChecksumAlgorithm hasher = new ChecksumAlgorithm("SHA1-160");
 
         FsFile(String path) {
             this.path = FilenameUtils.normalize(path);
@@ -131,7 +136,11 @@ public class RepoFile {
             return new File(path).length();
         }
 
-        public String sha1() {
+        public ChecksumAlgorithm hasher() {
+            return this.hasher;
+        }
+
+        public String hash() {
             return cpf.getProvider(ChecksumType.SHA1).putFile(path).checksumAsString();
         }
 
@@ -142,4 +151,3 @@ public class RepoFile {
 
     }
 }
-

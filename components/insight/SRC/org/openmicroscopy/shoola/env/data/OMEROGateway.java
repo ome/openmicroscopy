@@ -142,6 +142,8 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
@@ -192,6 +194,7 @@ import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
@@ -4336,6 +4339,8 @@ class OMEROGateway
 		RawFileStorePrx store = getRawFileService(ctx);;
 		OriginalFile save = null;
 		boolean fileCreated = false;
+		final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
+		checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
 		try {
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
@@ -4349,6 +4354,7 @@ class OMEROGateway
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
+				oFile.setHasher(checksumAlgorithm);
 				save = 
 					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
 							oFile);
@@ -4368,6 +4374,7 @@ class OMEROGateway
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
 					oFile.setMimetype(omero.rtypes.rstring(mimeType));
+					oFile.setHasher(checksumAlgorithm);
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(oFile);
 					store.setFileId(save.getId().getValue());
@@ -4379,7 +4386,12 @@ class OMEROGateway
 					newFile.setPath(omero.rtypes.rstring(
 							file.getAbsolutePath()));
 					newFile.setSize(omero.rtypes.rlong(file.length()));
-					oFile.setMimetype(oFile.getMimetype());
+					ChecksumAlgorithm oldHasher = oFile.getHasher();
+					if (oldHasher == null) {
+					    oldHasher = checksumAlgorithm;
+					}
+					newFile.setHasher(oldHasher);
+					newFile.setMimetype(oFile.getMimetype());
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(newFile);
 					store.setFileId(save.getId().getValue());
