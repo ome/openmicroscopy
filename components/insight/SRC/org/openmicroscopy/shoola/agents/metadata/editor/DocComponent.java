@@ -264,13 +264,13 @@ class DocComponent
 			if (b) count++;
 		}
 		if (downloadButton != null) {
-			b = true;//model.canAnnotate(data);
+			b = true;
 			downloadButton.setEnabled(b);
 			downloadButton.setVisible(b);
 			if (b) count++;
 		}
 		if (openButton != null) {
-			b = true;//model.canAnnotate(data);
+			b = true;
 			openButton.setEnabled(b);
 			openButton.setVisible(b);
 			if (b) count++;
@@ -547,7 +547,7 @@ class DocComponent
 		if (data == null) return;
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
-			Registry reg = MetadataViewerAgent.getRegistry();		
+			Registry reg = MetadataViewerAgent.getRegistry();
 			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
 					f));
 		}
@@ -918,7 +918,7 @@ class DocComponent
 			if (!originalName.equals(tag.getTagValue())) return true;
 			String txt = tag.getTagDescription();
 			if (txt != null) 
-				return !(originalDescription.equals(txt));	
+				return !(originalDescription.equals(txt));
 			return false;
 		}
 		return false;
@@ -952,7 +952,7 @@ class DocComponent
 	void setThumbnail(String path)
 	{
 		if (path == null) return;
-		this.thumbnail = Factory.createIcon(path, 
+		this.thumbnail = Factory.createIcon(path,
 				Factory.THUMB_DEFAULT_WIDTH/2, 
 				Factory.THUMB_DEFAULT_HEIGHT/2);
 		if (thumbnail != null) {
