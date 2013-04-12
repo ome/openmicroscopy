@@ -4147,42 +4147,38 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.	
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
-		return download(ctx, file, fileID, size);
+		return download(ctx, file, fileID);
 	}
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized File download(SecurityContext ctx, File file,
-			long fileID, long size)
+			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		if (of == null) return null;
-		if (size <= 0) {
-			if (of != null) size = of.getSize().getValue();
-		}
+		long size = of.getSize().getValue();
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);

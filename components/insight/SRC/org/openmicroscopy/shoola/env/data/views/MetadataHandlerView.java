@@ -70,23 +70,26 @@ public interface MetadataHandlerView
 	/** Indicates to load the file annotation if original file is not set. */
 	public static final int FILE_ANNOTATION = FilesLoader.FILE_ANNOTATION;
 	
+	/** Indicates to load the metadata file linked to the image. */
+	public static final int METADATA_FROM_IMAGE =
+			FilesLoader.METADATA_FROM_IMAGE;
+	
 	/** Identifies that the file is of type protocol. */
-	public static final int		EDITOR_PROTOCOL =
+	public static final int EDITOR_PROTOCOL =
 			OmeroMetadataService.EDITOR_PROTOCOL;
 	
 	/** Identifies that the file is of type experiment. */
-	public static final int		EDITOR_EXPERIMENT =
+	public static final int EDITOR_EXPERIMENT =
 		OmeroMetadataService.EDITOR_EXPERIMENT;
 	
 	/** Identifies that the file is of type movie. */
-	public static final int		MOVIE = OmeroMetadataService.MOVIE;
+	public static final int MOVIE = OmeroMetadataService.MOVIE;
 	
 	/** Identifies that the file is of type other. */
-	public static final int		OTHER = OmeroMetadataService.OTHER;
+	public static final int OTHER = OmeroMetadataService.OTHER;
 	
 	/** Identifies that the tag and tag sets used but not owned. */
-	public static final int		TAG_NOT_OWNED =
-			OmeroMetadataService.TAG_NOT_OWNED;
+	public static final int TAG_NOT_OWNED = OmeroMetadataService.TAG_NOT_OWNED;
 	
 	/**
 	 * Loads all the containers containing the specified object.
@@ -252,12 +255,11 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param file The file to copy the date into.
 	 * @param fileID The id of the original file.
-	 * @param size The size of the file.
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFile(SecurityContext ctx, File file, long fileID,
-			long size, AgentEventListener observer);
+			AgentEventListener observer);
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
