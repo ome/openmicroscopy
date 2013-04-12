@@ -65,32 +65,27 @@ public class FileLoader
     
     /** The id of the file to load. */
     private long fileID;
-    
-    /** The size of the file to load. */
-    private long fileSize;
-    
+
     /** Utility file where the raw data are loaded. */
     private File file;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer	The Editor this data loader is for.
-     *                  Mustn't be <code>null</code>.
+     * @param viewer The Editor this data loader is for.
+     * Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param fileName	The name of the file to edit.
-     * @param fileID	The id of the file to load OR 
+     * @param fileName The name of the file to edit.
+     * @param fileID The id of the file to load OR 
      * 					of the fileAnnotation if fileName is <code>null</code>.
-     * @param fileSize	The size of the file to load.
      */
 	public FileLoader(Editor viewer, SecurityContext ctx, String fileName,
-			long fileID, long fileSize)
+			long fileID)
 	{
 		super(viewer, ctx);
 		if (fileID < 0)
 			throw new IllegalArgumentException("ID not valid.");
 		this.fileID = fileID;
-		this.fileSize = fileSize;
 		if (fileName != null) file = new File(fileName);
 	}
 	
@@ -100,7 +95,7 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadFile(ctx, file, fileID, fileSize, this);
+		handle = mhView.loadFile(ctx, file, fileID, this);
 	}
 
 	/**

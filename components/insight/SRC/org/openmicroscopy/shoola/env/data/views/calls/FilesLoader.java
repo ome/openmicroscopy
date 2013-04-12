@@ -59,11 +59,14 @@ public class FilesLoader
 	extends BatchCallTree
 {
 
-	/** Indicates to load the original file if original file is not set. */
+	/** Indicates to load the original file if original file is not set.*/
 	public static final int ORIGINAL_FILE = 0;
 	
-	/** Indicates to load the file annotation if original file is not set. */
+	/** Indicates to load the file annotation if original file is not set.*/
 	public static final int FILE_ANNOTATION = 1;
+	
+	/** Indicates to load the metadata from the image ID.*/
+	public static final int METADATA_FROM_IMAGE = 2;
 	
 	/** Loads the specified annotations. */
     private BatchCall   loadCall;
@@ -83,20 +86,18 @@ public class FilesLoader
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
      * 
-	 * @param file	The absolute form of this abstract pathname.
-	 * @param fileID		The id of the file to download.
-	 * @param size			The size of the file.
+	 * @param file The absolute form of this abstract pathname.
+	 * @param fileID The id of the file to download.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final File file, 
-    						final long fileID, final long size)
+    						final long fileID)
     {
         return new BatchCall("Downloading files.") {
             public void doCall() throws Exception
             {
                 OmeroMetadataService service = context.getMetadataService();
-                File f = service.downloadFile(ctx, file, fileID, size);
-                result = f;
+                result = service.downloadFile(ctx, file, fileID);
             }
         };
     }
@@ -115,10 +116,27 @@ public class FilesLoader
                 OmeroMetadataService service = context.getMetadataService();
                 FileAnnotationData fa = (FileAnnotationData) 
                 	service.loadAnnotation(ctx, id);
-                File f = service.downloadFile(ctx, new File(fa.getFileName()), 
-                		fa.getFileID(), fa.getFileSize());
-
-                result = f;
+                result = service.downloadFile(ctx, new File(fa.getFileName()),
+                		fa.getFileID());
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to download the metadata associated to the 
+     * image.
+     * 
+     * @param file the 
+	 * @param id The id of the image to handle.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeFromImageBatchCall(final File file, final long id)
+    {
+        return new BatchCall("Downloading original metadata.") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService service = context.getMetadataService();
+                result = service.downloadMetadataFile(ctx, file, id);
             }
         };
     }
@@ -140,7 +158,7 @@ public class FilesLoader
                 Map<FileAnnotationData, File> m = 
                 	new HashMap<FileAnnotationData, File>();
                 File f = service.downloadFile(ctx, new File(fa.getFileName()), 
-                		fa.getFileID(), fa.getFileSize());
+                		fa.getFileID());
                 m.put(fa, f);
                 result = m;
             }
@@ -161,8 +179,7 @@ public class FilesLoader
         OriginalFile of;
         of = ((FileAnnotation) fa.asAnnotation()).getFile();
         try {
-        	service.downloadFile(ctx, f, of.getId().getValue(),
-    				of.getSize().getValue());
+        	service.downloadFile(ctx, f, of.getId().getValue());
         	m.put(fa, f);
         	currentFile = m;
 		} catch (Exception e) {
@@ -201,17 +218,17 @@ public class FilesLoader
     	if (files == null && loadCall != null) add(loadCall);
     	else if (files != null) {
     		result = null;
-    		Iterator i = files.entrySet().iterator();
-    		Entry entry;
+    		Iterator<Entry<FileAnnotationData, File>>
+    		i = files.entrySet().iterator();
+    		Entry<FileAnnotationData, File> entry;
     		String description = "Loading file";
     		while (i.hasNext()) {
-    			entry = (Entry) i.next();
-				final FileAnnotationData 
-					fa = (FileAnnotationData) entry.getKey();
-				final File f = (File) entry.getValue();
+    			entry = i.next();
+				final FileAnnotationData fa = entry.getKey();
+				final File f = entry.getValue();
 				add(new BatchCall(description) {
             		public void doCall() { loadFile(fa, f); }
-            	});  
+            	});
 			}
     	}
     }
@@ -239,11 +256,11 @@ public class FilesLoader
 	 * @param fileID	The id of the file to download.
 	 * @param size		The size of the file.
      */
-    public FilesLoader(SecurityContext ctx, File file, long fileID, long size)
+    public FilesLoader(SecurityContext ctx, File file, long fileID)
     {
     	this.ctx = ctx;
     	if (file == null) loadCall = makeBatchCall(fileID);
-    	else loadCall = makeBatchCall(file, fileID, size);
+    	else loadCall = makeBatchCall(file, fileID);
     }
     
     /**
@@ -259,7 +276,11 @@ public class FilesLoader
     	this.ctx = ctx;
     	if (file == null || index == FILE_ANNOTATION) 
     		loadCall = makeFileBatchCall(fileID);
-    	else loadCall = makeBatchCall(file, fileID, -1);
+    	else {
+    		if (index == METADATA_FROM_IMAGE)
+    			loadCall = makeFromImageBatchCall(file, fileID);
+    		else loadCall = makeBatchCall(file, fileID);
+    	}
     }
     
     /**

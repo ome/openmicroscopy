@@ -158,6 +158,11 @@ class ToolBar
 	/** View the image.*/
 	private JButton viewButton;
 	
+	/** 
+	 * Component used to download the original metadata associated to the
+	 * image.*/
+	private JMenuItem downloadOriginalMetadataItem;
+
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -180,8 +185,21 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		//downloadItem.setEnabled(false);
     		saveAsMenu.add(downloadItem);
+    		
+    		downloadOriginalMetadataItem = new JMenuItem(
+    				icons.getIcon(IconManager.DOWNLOAD));
+    		downloadOriginalMetadataItem.setToolTipText("Download the " +
+    				"metadata read from the image files.");
+    		downloadOriginalMetadataItem.setText(
+    				"Download Original metadata...");
+    		downloadOriginalMetadataItem.addActionListener(controller);
+    		downloadOriginalMetadataItem.setActionCommand(
+    				""+EditorControl.DOWNLOAD_METADATA);
+    		downloadOriginalMetadataItem.setBackground(
+    				UIUtilities.BACKGROUND_COLOR);
+    		saveAsMenu.add(downloadOriginalMetadataItem);
+    		
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
     		exportAsOmeTiffItem.setText("Export as OME-TIFF...");
