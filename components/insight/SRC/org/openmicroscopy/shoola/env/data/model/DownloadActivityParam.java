@@ -56,6 +56,10 @@ public class DownloadActivityParam
 	/** Indicates to load the file annotation if original file is not set. */
 	public static final int FILE_ANNOTATION = FileLoader.FILE_ANNOTATION;
 	
+	/** Indicates to load the metadata file associated to the image id. */
+	public static final int METADATA_FROM_IMAGE = FileLoader.METADATA_FROM_IMAGE;
+	
+	
     /** The icon associated to the parameters. */
     private Icon			icon;
     
@@ -84,7 +88,7 @@ public class DownloadActivityParam
     private JComponent source;
 
     /** Indicates to register in UI.*/
-    private boolean		uiRegister;
+    private boolean uiRegister;
     
     /** 
      * Checks if the index is valid.
@@ -96,6 +100,7 @@ public class DownloadActivityParam
     	switch (index) {
 			case ORIGINAL_FILE:
 			case FILE_ANNOTATION:
+			case METADATA_FROM_IMAGE:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

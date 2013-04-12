@@ -1074,6 +1074,18 @@ class EditorUI
 	ImageData getImage() { return model.getImage(); }
 	
 	/**
+	 * Returns the companion file generated while importing the file
+	 * and containing the metadata found in the file, or <code>null</code>
+	 * if no file was generated.
+	 * 
+	 * @return See above
+	 */
+	FileAnnotationData getOriginalMetadata()
+	{
+		return model.getOriginalMetadata();
+	}
+
+	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
 	 */
