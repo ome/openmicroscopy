@@ -304,7 +304,7 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		String location, AgentEventListener observer);
+		File location, AgentEventListener observer);
 	
 	/**
 	 * Filters by annotation.
