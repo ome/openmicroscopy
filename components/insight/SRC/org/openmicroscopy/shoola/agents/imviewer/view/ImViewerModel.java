@@ -294,12 +294,9 @@ class ImViewerModel
     
     /** The number of columns, default is <code>1</code>.*/
     private int numberOfColumns;
-    
-	/** The size of the tile.*/
-	private Dimension tileSize;
-	
-	/** The power of 2 used to determine the tile size.*/
-	private Map<Integer, ResolutionLevel> resolutionMap;
+
+	/** The collection of resolutions levels.*/
+	private List<ResolutionLevel> resolutions;
 	
 	/** The size of the tiled image along the X-axis.*/
 	private int tiledImageSizeX;
@@ -327,26 +324,7 @@ class ImViewerModel
     
     /** The number of tiles already loaded.*/
     private int tileLoadedCount;
-    
-    /**
-     * Checks if the level is suitable w.r.t the size of the screen.
-     * Returns <code>true</code> if the level is suitable, <code>false</code>
-     * otherwise.
-     * 
-     * @param selected The level to check.
-     * @param w The width of reference.
-     * @param h The height of reference.
-     * @return See above.
-     */
-    private boolean checkLevel(int selected, int w, int h)
-    {
-    	int levels = getResolutionLevels()-1;
-    	int sizeX = getMaxX();
-		int sizeY = getMaxY();
-		double f = 1/Math.pow(2, (levels-selected));
-		return ((int) (sizeX*f) < w || (int) (sizeY*f) < h);
-    }
-    
+  
     /**
      * Returns the default resolution level.
      * 
@@ -356,13 +334,16 @@ class ImViewerModel
     {
     	//Determine the level according to the window size.
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int w = 9*(screenSize.width/10);
-        int h = 8*(screenSize.height/10);
-        int levels = getResolutionLevels()-1;
-        for (int i = levels; i >= 0; i--) {
-			if (checkLevel(i, w, h))
-				return i;
-		}
+    	int w = 9*(screenSize.width/10);
+    	int h = 8*(screenSize.height/10);
+    	ResolutionLevel level;
+    	Dimension d;
+    	for (int i = resolutions.size() - 1; i >= 0; i--) {
+    		level = resolutions.get(i);
+    		d = level.getImageSize();
+    		if (d.width < w || d.height < h)
+    			return level.getLevel();
+    	}
     	return 0;
     }
     
@@ -383,18 +364,13 @@ class ImViewerModel
 	/** Initializes the tiles objects.*/
 	private void initializeTiles()
 	{
-		Dimension d = getTileSize();
+		ResolutionLevel level = getResolutionDescription();
+		Dimension d = level.getTileSize();
 		int w = d.width;
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int size = level.getImageSize().width;
 		edgeWidth = w;
 		int n = size/w;
 		tiledImageSizeX = n*w;
@@ -404,7 +380,7 @@ class ImViewerModel
 			n++;
 		}
 		numberOfColumns = n;
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = level.getImageSize().height;
 		edgeHeight = h;
 		n = size/h;
 		tiledImageSizeY = n*h;
@@ -413,6 +389,7 @@ class ImViewerModel
 			tiledImageSizeY += edgeHeight;
 			n++;
 		}
+		
 		numberOfRows = n;
 		int index = 0;
 		Tile tile;
@@ -1018,23 +995,10 @@ class ImViewerModel
 	{
 		state = ImViewer.READY;
 		Renderer rnd = metadataViewer.getRenderer();
-		resolutionMap = new HashMap<Integer, ResolutionLevel>();
+		
 		if (rnd != null && isBigImage()) {
-			tileSize = rnd.getTileSize();
-			if (tileSize != null) {
-				int levels = getResolutionLevels();
-				int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
-				int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
-				int index = 0;
-				int vx = 0, vy = 0;
-				for (int i = levels-1; i >= 0; i--) {
-					vx = powerX-index;
-					vy = powerY-index;
-					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
-					index++;
-				}
-				setSelectedResolutionLevel(getDefaultResolutionLevel());
-			}
+			resolutions = rnd.getResolutionDescriptions();
+			setSelectedResolutionLevel(getDefaultResolutionLevel());
 		}
 
 		double f = initZoomFactor();
@@ -2624,18 +2588,13 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		PlaneDef pDef = createPlaneDef();
-		Dimension d = getTileSize();
+		ResolutionLevel level = getResolutionDescription();
+		Dimension d = level.getTileSize();
 		int w = d.width;
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(0);
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int size = level.getImageSize().width;
 		edgeWidth = w;
 		int n = size/w;
 		int tiledImageSizeX = n*w;
@@ -2644,7 +2603,7 @@ class ImViewerModel
 			tiledImageSizeX += edgeWidth;
 			n++;
 		}
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = level.getImageSize().height;
 		edgeHeight = h;
 		n = size/h;
 		int tiledImageSizeY = n*h;
@@ -2683,19 +2642,42 @@ class ImViewerModel
 	 */
 	Dimension getTileSize()
 	{
-		if (tileSize != null) return tileSize;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return null;
-		ResolutionLevel r = resolutionMap.get(getSelectedResolutionLevel());
-		if (r == null) {
-			tileSize = rnd.getTileSize();
-			return tileSize; 
-		}
-		tileSize = new Dimension((int) Math.pow(2, r.getPowerAlongX()),
-				(int) Math.pow(2, r.getPowerAlongY()));
-		return tileSize; 
+		ResolutionLevel r = getResolutionDescription();
+		if (r == null) return rnd.getTileSize();
+		return r.getTileSize();
 	}
 
+	/**
+	 * Returns the resolution level corresponding to the selected level.
+	 * 
+	 * @return See above.
+	 */
+	ResolutionLevel getResolutionDescription()
+	{
+		return getResolutionDescription(getSelectedResolutionLevel());
+	}
+	
+	/**
+	 * Returns the resolution level corresponding to the selected level.
+	 * 
+	 * @param index The selected index.
+	 * @return See above.
+	 */
+	ResolutionLevel getResolutionDescription(int index)
+	{
+		if (resolutions == null) return null;
+		Iterator<ResolutionLevel> i = resolutions.iterator();
+		ResolutionLevel level;
+		while (i.hasNext()) {
+			level = i.next();
+			if (index == level.getLevel())
+				return level;
+		}
+		return null;
+	}
+	
     /**
      * Returns the number of rows, default is <code>1</code>.
      * 

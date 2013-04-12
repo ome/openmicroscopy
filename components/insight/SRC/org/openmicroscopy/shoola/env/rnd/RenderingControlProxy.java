@@ -47,6 +47,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.LockTimeout;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
+import omero.api.ResolutionDescription;
 import omero.model.Family;
 import omero.model.Pixels;
 import omero.model.QuantumDef;
@@ -59,6 +60,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
@@ -2104,6 +2106,7 @@ class RenderingControlProxy
 	public void setSelectedResolutionLevel(int level)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		tileSize = null;
 		if (level > getResolutionLevels())
 			level = getResolutionLevels();
 		isSessionAlive();
@@ -2162,5 +2165,42 @@ class RenderingControlProxy
 	 * @see RenderingControl#isShutDown()
 	 */
     public boolean isShutDown() { return shutDown; }
+
+    /** 
+	 * Implemented as specified by {@link RenderingControl}.
+	 * @see RenderingControl#getResolutionDescriptions()
+	 */
+    public List<ResolutionLevel> getResolutionDescriptions()
+    		throws RenderingServiceException, DSOutOfServiceException
+    {
+    	List<ResolutionLevel> levels = new ArrayList<ResolutionLevel>();
+    	Dimension d;
+    	int sizeX = getPixelsDimensionsX();
+    	int sizeY = getPixelsDimensionsY();
+    	if (!isBigImage()) {
+    		d = new Dimension(sizeX, sizeY);
+    		levels.add(new ResolutionLevel(0, d, d));
+    		return levels;
+    	}
+    	try {
+			ResolutionDescription[] v = servant.getResolutionDescriptions();
+    		ResolutionLevel level;
+    		ResolutionDescription r;
+    		int n = v.length-1;
+			for (int i = n; i >= 0; i--) {
+    			r = v[i];
+				setSelectedResolutionLevel(n-i);
+				d = new Dimension(r.sizeX, r.sizeY);
+				level = new ResolutionLevel(n-i, getTileSize(), d);
+				level.setRatio((double) r.sizeX/sizeX,
+						(double) r.sizeY/sizeY);
+				levels.add(level);
+			}
+		} catch (Exception e) {
+			handleException(e, "An error occurred while retrieving " +
+					"the resolutions.");
+		}
+    	return levels;
+    }
 
 }
