@@ -59,9 +59,18 @@ module omero {
              **/
             omero::RLong fileAnnotationId;
 
+            /**
+             * Metadata which applies to the entire [omero::model::Fileset]
+             **/
             omero::RTypeDict globalMetadata;
 
-            omero::api::RTypeDictArray seriesMetadata;
+            /**
+             * Metadata specific to the series id of this [omero::model::Image].
+             * In the [omero::model::Fileset] that this [omero::model::Image] is
+             * contained in, there may be a large number of other images, but the
+             * series metadata applies only to this specific one.
+             **/
+            omero::RTypeDict seriesMetadata;
         };
     };
 };
