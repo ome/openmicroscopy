@@ -31,6 +31,7 @@ import ome.model.core.Pixels;
 import ome.model.fs.Fileset;
 import ome.parameters.Parameters;
 import omero.RType;
+import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.OriginalMetadataRequest;
@@ -106,18 +107,21 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 	 * instance. If no {@link Fileset} is present, then there <em>may</em> be a
 	 * {@link FileAnnotation} present which has a static version of the metadata.
 	 */
-	@SuppressWarnings("unchecked")
 	protected void loadFileset() {
 		rsp.filesetId = firstIdOrNull("select i.fileset.id from Image i where i.id = :id");
 		if (rsp.filesetId != null) {
 			final Image image = helper.getServiceFactory().getQueryService().get(Image.class, imageId);
 			final Pixels pixels = image.getPrimaryPixels();
-			final IFormatReader reader = service.getBfReader(pixels);
-			final Hashtable<String, Object> global = reader.getGlobalMetadata();
-			final Hashtable<String, Object> series = reader.getSeriesMetadata();
-			rsp.globalMetadata = wrap(global);
-			rsp.seriesMetadata = wrap(series);
 
+			try {
+				final IFormatReader reader = service.getBfReader(pixels);
+				final Hashtable<String, Object> global = reader.getGlobalMetadata();
+				final Hashtable<String, Object> series = reader.getSeriesMetadata();
+				rsp.globalMetadata = wrap(global);
+				rsp.seriesMetadata = wrap(series);
+			} catch (Throwable t) {
+				helper.cancel(new ERR(), t, "bf-reader-failure", "pixels", ""+pixels.getId());
+			}
 		}
 	}
 
