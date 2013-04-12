@@ -1514,18 +1514,10 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     except ValueError:
         fromid = None
     if fromid is not None and len(toids) > 0:
-        
         fromimg = conn.getObject("Image", fromid)
-        frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if fromimg.canWrite():
-            ctx = conn.SERVICE_OPTS.copy()
-            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
-            ctx.setOmeroUser(userid)
-            rsettings = conn.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
-            if fromid in json_data[True]:
-                del json_data[True][json_data[True].index(fromid)]
+        json_data = conn.applySettingsToImages(fromid, toids)
+        if json_data and True in json_data:
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
