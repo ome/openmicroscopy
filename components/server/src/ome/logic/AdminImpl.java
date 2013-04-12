@@ -56,6 +56,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
@@ -281,7 +282,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new ApiUsageException("Argument cannot be null");
         }
 
-        Class c = Utils.trueClass(obj.getClass());
+        final Class<? extends IObject> c = Utils.trueClass(obj.getClass());
         IObject trusted = iQuery.get(c, obj.getId());
         return aclVoter.allowAnnotate(trusted, trusted.getDetails());
     }
@@ -293,7 +294,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new ApiUsageException("Argument cannot be null");
         }
         
-        Class c = Utils.trueClass(obj.getClass());
+        final Class<? extends IObject> c = Utils.trueClass(obj.getClass());
         IObject trusted = iQuery.get(c, obj.getId());
         return aclVoter.allowUpdate(trusted, trusted.getDetails());
     }
@@ -480,6 +481,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setName(filename);
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
+            file.setHasher(new ChecksumAlgorithm("SHA1-160"));
             file.setHash(cpf.getProvider(ChecksumType.SHA1).putBytes(data)
                     .checksumAsString());
             file.setMimetype(mimetype);

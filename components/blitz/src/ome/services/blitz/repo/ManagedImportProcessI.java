@@ -252,9 +252,9 @@ public class ManagedImportProcessI extends AbstractAmdServant
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
         for (int i = 0; i < size; i++) {
             String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            CheckedPath cp = repo.checkPath(usedFile, this.current);
+            CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
             final String clientHash = hashes.get(i);
-            final String serverHash = cp.sha1();
+            final String serverHash = cp.hash();
             if (!clientHash.equals(serverHash)) {
                 failingChecksums.put(i, serverHash);
             }

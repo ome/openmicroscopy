@@ -314,7 +314,7 @@ public class ScriptRepoHelper {
      * Walks all files in the repository (via {@link #iterate()} and adds them
      * if not found in the database.
      *
-     * If modificationCheck is true, then a change in the sha1 for a file in
+     * If modificationCheck is true, then a change in the hash for a file in
      * the repository will cause the old file to be removed from the repository
      * <pre>(uuid == null)</pre> and a new file created in its place.
      *
@@ -339,7 +339,7 @@ public class ScriptRepoHelper {
                     f = it.next();
                     file = new RepoFile(dir, f);
                     Long id = findInDb(sqlAction, file, false); // non-scripts count
-                    String sha1 = null;
+                    String hash = null;
                     OriginalFile ofile = null;
                     if (id == null) {
                         ofile = addOrReplace(sqlAction, sf, file, null);
@@ -351,8 +351,8 @@ public class ScriptRepoHelper {
                         }
 
                         if (modificationCheck) {
-                            sha1 = file.sha1();
-                            if (!sha1.equals(ofile.getHash())) {
+                            hash = file.hash();
+                            if (!hash.equals(ofile.getHash())) {
                                 ofile = addOrReplace(sqlAction, sf, file, id);
                             }
                         }
@@ -445,7 +445,8 @@ public class ScriptRepoHelper {
             ServiceFactory sf, OriginalFile ofile) {
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
-        ofile.setHash(repoFile.sha1());
+        ofile.setHasher(repoFile.hasher());
+        ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
         ofile.getDetails().setGroup(
