@@ -331,6 +331,16 @@ OME.initToolbarDropdowns = function() {
     });
 };
 
+// Simply add query to thumbnail src to force refresh
+OME.refreshThumbnails = function() {
+    var rdm = Math.random();
+    $("#dataIcons img").each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+}
+
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({
         bodyHandler: function() {
