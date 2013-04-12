@@ -185,8 +185,14 @@ public class EditorDialog
         privateBox.setSelected(true);
         privateBox.setEnabled(false);
         
-        nameArea = new MultilineLabel();
-        nameArea.setEditable(true);
+        if (data instanceof XMLAnnotationData) {
+        	nameArea = new MultilineLabel();
+        	nameArea.setEditable(true);
+        } else {
+        	nameArea = new JTextArea();
+        	nameArea.setBorder(BorderFactory.createEtchedBorder());
+        }
+       
         descriptionArea = new MultilineLabel();
         descriptionArea.setEditable(true);
         originalText = "";
