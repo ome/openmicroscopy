@@ -793,6 +793,12 @@ class TestOriginalMetadata(AbstractRepoTest):
         req.imageId = image.id.val
 
         gateway = BlitzGateway(client_obj=client)
+
+        # Load via the gateway
+        image = gateway.getObject("Image", image.id.val)
+        print image.loadOriginalMetadata()
+
+        # Load via raw request
         handle = client.sf.submit(req)
         try:
             gateway._waitOnCmd(handle, failonerror=True)
