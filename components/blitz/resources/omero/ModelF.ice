@@ -56,8 +56,8 @@ module omero {
         class TextAnnotation;
         class Well;
 
-
     };
+
 };
 
 #endif
