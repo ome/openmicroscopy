@@ -17,6 +17,7 @@ import java.util.Map;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
+import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.MinMaxCalculator;
@@ -669,12 +670,15 @@ public class PixelsService extends AbstractFileSystemService
      * Short-cut in the FS case where we know that we are dealing with a FS-lite
      * file, and want to retrieve the actual file as opposed to a pyramid or anything
      * else. This may be used to access the original metadata.
+     * @throws FormatException
+     * @throws IOException
      */
-    public IFormatReader getBfReader(Pixels pixels) {
+    public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
         // from getPixelBuffer
         final String originalFilePath = getOriginalFilePath(pixels);
         final int series = getSeries(pixels);
         final IFormatReader reader = createBfReader(originalFilePath);
+        reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
         reader.setSeries(series);
         return reader;
     }
