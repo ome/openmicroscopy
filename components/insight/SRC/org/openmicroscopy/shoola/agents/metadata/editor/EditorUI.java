@@ -1066,6 +1066,14 @@ class EditorUI
 	Set<FilesetData> getFileset() { return model.getFileset(); }
 	
 	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return model.getImage(); }
+	
+	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
 	 */
