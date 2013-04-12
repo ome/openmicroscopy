@@ -80,7 +80,7 @@ public class ExportActivity
 		String path = folder.getAbsolutePath();
 		switch (parameters.getIndex()) {
 			case ExportActivityParam.EXPORT_AS_OME_TIFF:
-				if (!path.endsWith(OMETIFFFilter.OME_TIF) ||
+				if (!path.endsWith(OMETIFFFilter.OME_TIF) &&
 					!path.endsWith(OMETIFFFilter.OME_TIFF))
 					extension = "."+OMETIFFFilter.OME_TIFF;
 				break;
