@@ -197,7 +197,6 @@ public class DownloadActivity extends ActivityComponent {
 	 * @see ActivityComponent#createLoader()
 	 */
 	protected UserNotifierLoader createLoader() {
-		System.err.println("loader");
 		OriginalFile f = parameters.getFile();
 		File folder = parameters.getFolder();
 
