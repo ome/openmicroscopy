@@ -221,7 +221,6 @@ public class ImportLibrary implements IObservable
         }
 
         final ImportSettings settings = new ImportSettings();
-        settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs, sanitizer);
         return repo.importFileset(fs, settings);
@@ -275,7 +274,9 @@ public class ImportLibrary implements IObservable
             final ChecksumProviderFactory cpf, final byte[] buf)
             throws ServerError, IOException {
 
-        ChecksumProvider cp = cpf.getProvider(ChecksumType.SHA1);
+        ChecksumProvider cp = cpf.getProvider(
+                ChecksumAlgorithmMapper.getChecksumType(
+                        proc.getImportSettings().checksumAlgorithm));
         String digestString = null;
         File file = new File(srcFiles[index]);
         long length = file.length();

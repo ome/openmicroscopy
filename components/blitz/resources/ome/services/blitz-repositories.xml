@@ -45,6 +45,7 @@
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
+              <constructor-arg ref="checksumAlgorithm"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -76,6 +77,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="processContainer"/>
               <constructor-arg ref="checksumProviderFactory"/>
+              <constructor-arg ref="checksumAlgorithm"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -109,6 +111,7 @@
           <bean class="ome.services.blitz.repo.PublicRepositoryI">
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
+              <constructor-arg ref="checksumAlgorithm"/>
           </bean>
       </constructor-arg>
   </bean>
