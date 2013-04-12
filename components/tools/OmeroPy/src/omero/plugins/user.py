@@ -276,12 +276,12 @@ class UserControl(UserGroupControl):
         try:
             if args.no_password:
                 id = admin.createExperimenter(e, group, groups)
-                self.ctx.out("Added user %s without password" % id)
+                self.ctx.out("Added user %s (id=%s) without password" % (login, id))
             else:
                 if pasw is None:
                     self._ask_for_password(" for your new user (%s)" % login, strict = True)
                 id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
-                self.ctx.out("Added user %s with password" % id)
+                self.ctx.out("Added user %s (id=%s) with password" % (login, id))
         except omero.ValidationException, ve:
             # Possible, though unlikely after previous check
             if self.exc.is_constraint_violation(ve):
