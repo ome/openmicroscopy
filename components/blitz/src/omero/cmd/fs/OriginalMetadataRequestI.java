@@ -17,6 +17,7 @@
 
 package omero.cmd.fs;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -165,15 +166,48 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 	 * throw an exception on unknown types.
 	 */
 	protected Map<String, RType> wrap(Hashtable<String, Object> table) {
-		final IceMapper mapper = new IceMapper();
 		final Map<String, RType> rv = new HashMap<String, RType>();
+		if (table == null || table.size() == 0) {
+			return rv;
+		}
+
+		final IceMapper mapper = new IceMapper();
 		for (Entry<String, Object> entry : table.entrySet()) {
 			try {
-				rsp.globalMetadata.put(entry.getKey(), mapper.toRType(entry.getValue()));
+				rv.put(entry.getKey(), mapper.toRType(entry.getValue()));
 			} catch (Exception e) {
-				helper.warn("Could not convert to rtype: " + entry.getValue());
+				String msg = "Count not convert to rtype " + entry.getValue();
+				if (helper == null) {
+					// from command-line
+					System.err.println(msg);
+				} else {
+					helper.warn(msg);
+				}
 			}
 		}
 		return rv;
+	}
+
+	protected static void parseOriginalMetadataTxt(File file,
+			Map<String, RType> global, Map<String, RType> series) {
+		// TBD: See #10703
+	}
+
+	public static void main(String[] args) {
+		OriginalMetadataRequestI omr = new OriginalMetadataRequestI(null);
+		Map<String, RType> global = omr.wrap(null);
+		Map<String, RType> series = omr.wrap(null);
+		printMap("[Global metadata]", global);
+		printMap("[Series metadata]", series);
+	}
+
+	private static void printMap(String title, Map<String, RType> map) {
+		System.out.println(title);
+		for (Map.Entry<String, RType> entry : map.entrySet()) {
+			System.out.print(entry.getKey());
+			System.out.print("=");
+			System.out.print(entry.getValue());
+			System.out.print("\n");
+		}
 	}
 }
