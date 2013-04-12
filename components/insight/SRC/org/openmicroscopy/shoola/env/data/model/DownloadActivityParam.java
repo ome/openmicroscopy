@@ -58,31 +58,30 @@ public class DownloadActivityParam
 	
 	/** Indicates to load the metadata file associated to the image id. */
 	public static final int METADATA_FROM_IMAGE = FileLoader.METADATA_FROM_IMAGE;
-	
-	
+
     /** The icon associated to the parameters. */
-    private Icon			icon;
+    private Icon icon;
     
     /** The folder where to download the file. */
-    private File			folder; 
+    private File folder; 
     
     /** The file to download. */
-    private OriginalFile	file;
+    private OriginalFile file;
     
     /** Create a legend as a separate text file. */
-    private String			legend;
+    private String legend;
     
     /** The name of the file to save. */
-    private String			fileName;
+    private String fileName;
     
     /** The extension for the legend. Default is <code>null</code>.*/
-    private String			legendExtension;
+    private String legendExtension;
     
     /** One of the constants defined by this class. */
-    private int 			index;
+    private int index;
     
     /** The id of the original file or of the annotation. */
-    private long			id;
+    private long id;
     
     /** The source triggering the operation.*/
     private JComponent source;
@@ -110,9 +109,9 @@ public class DownloadActivityParam
     /**
      * Downloads the passed file.
      * 
-     * @param file 	 	The file to download.
-     * @param folder 	The folder where to download the file.
-     * @param icon	 	The associated icon.
+     * @param file The file to download.
+     * @param folder The folder where to download the file.
+     * @param icon The associated icon.
      */
     public DownloadActivityParam(OriginalFile file, File folder, Icon icon)
     {
@@ -184,13 +183,12 @@ public class DownloadActivityParam
     /**
 	 * Sets the legend associated to the file.
 	 * 
-	 * @param legend
-	 *            The value to set.
+	 * @param legend  The value to set.
 	 */
     public void setLegend(String legend) { this.legend = legend; }
     
     /**
-     * Returns the legend associated to the text. 
+     * Returns the legend associated to the text.
      * 
      * @return See above.
      */
@@ -207,7 +205,7 @@ public class DownloadActivityParam
     }
     
     /**
-     * Returns the legend extension. 
+     * Returns the legend extension.
      * 
      * @return See above.
      */
@@ -276,5 +274,5 @@ public class DownloadActivityParam
 	 * @return See above.
 	 */
 	public JComponent getSource() { return source; }
-	
+
 }
