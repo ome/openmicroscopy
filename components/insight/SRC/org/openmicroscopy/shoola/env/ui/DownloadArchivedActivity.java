@@ -94,7 +94,9 @@ public class DownloadArchivedActivity
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
 		initialize("Downloading Archived Image", parameters.getIcon());
-		messageLabel.setText("in "+parameters.getLocation());
+		File f = parameters.getLocation();
+		if (f.isFile()) f = f.getParentFile();
+		messageLabel.setText("in "+f.getAbsolutePath());
 		this.parameters = parameters;
 	}
 
@@ -141,6 +143,7 @@ public class DownloadArchivedActivity
 						parameters.getImage().getName());
 				File zipFolder = new File(parameters.getLocation(),
 				FilenameUtils.removeExtension(v));
+
 				zipFolder.mkdir();
 				//copy file into the directory
 				Iterator<File> j = files.iterator();

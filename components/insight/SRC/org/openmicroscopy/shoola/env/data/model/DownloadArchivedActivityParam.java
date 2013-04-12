@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.io.File;
+
 import javax.swing.Icon;
 
 //Third-party libraries
@@ -49,22 +51,22 @@ public class DownloadArchivedActivityParam
 {
 
 	/** The icon associated to the parameters. */
-    private Icon			icon;
+    private Icon icon;
     
-    /** The location where to download the archived files. */
-    private String			location;
+    /** The file to download the content into. */
+    private File location;
     
     /** The collection of archived images to download. */
-    private ImageData 		image;
+    private ImageData image;
     
     /**
      * Creates a new instance.
      * 
-     * @param location  The location where to download the archived files.
-     * @param image     The archived images to download.
-     * @param icon	    The icon associated to the parameters.
+     * @param location The file to download the content into.
+     * @param image The archived images to download.
+     * @param icon The icon associated to the parameters.
      */
-    public DownloadArchivedActivityParam(String location, ImageData image, 
+    public DownloadArchivedActivityParam(File location, ImageData image,
     		Icon icon)
     {
     	this.location = location;
@@ -84,7 +86,7 @@ public class DownloadArchivedActivityParam
      * 
      * @return See above.
      */
-    public String getLocation() { return location; }
+    public File getLocation() { return location; }
     
     /**
      * Returns the archived image to download.
@@ -92,5 +94,5 @@ public class DownloadArchivedActivityParam
      * @return See above.
      */
     public ImageData getImage() { return image; }
-    
+
 }
