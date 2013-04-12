@@ -328,6 +328,7 @@ class EditorControl
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setApproveButtonText("Download");
+		chooser.setCheckOverride(true);
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {
