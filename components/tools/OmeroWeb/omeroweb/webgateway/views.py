@@ -1492,8 +1492,12 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 @jsonp
 def copy_image_rdef_json (request, conn=None, **kwargs):
     """
-    Copy the rendering settings from one image to a list of images.
-    Images are specified in request by 'fromid' and list of 'toids'
+    If 'fromid' is in request, copy the image ID to session, 
+    for applying later using this same method.
+    If list of 'toids' is in request, paste the image ID from the session
+    to the specified images.
+    If 'fromid' AND 'toids' are in the reqest, we simply 
+    apply settings and don't save anything to request.
     Returns json dict of Boolean:[Image-IDs] for images that have successfully 
     had the rendering settings applied, or not. 
     
@@ -1506,9 +1510,21 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
+    fromid = r.get('fromid', None)
+    toids = r.getlist('toids')
+
+    # Only 'fromid' is given, simply save to session
+    if fromid is not None and len(toids) == 0:
+        request.session.modified = True
+        request.session['fromid'] = fromid
+        return True
+    # Check session for 'fromid'
+    if fromid is None:
+        fromid = request.session.get('fromid', None)
+    # If we have both, apply settings...
     try:
-        fromid = long(r.get('fromid', None))
-        toids = map(lambda x: long(x), r.getlist('toids'))
+        fromid = long(fromid)
+        toids = map(lambda x: long(x), toids)
     except TypeError:
         fromid = None
     except ValueError:
