@@ -18,7 +18,6 @@
 	<classpathentry kind="src" path="components/romio/resources"/>
 	<classpathentry kind="src" path="components/romio/src"/>
 	<classpathentry kind="src" path="components/romio/test"/>
-	<classpathentry kind="src" path="components/specification/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/autogen/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats/test"/>
@@ -34,6 +33,7 @@
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio-devel/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio-devel/test"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/specification/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/stubs/lwf-stubs/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/src"/>
 	<!-- Broken.
