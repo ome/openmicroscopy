@@ -64,7 +64,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     private static Logger log = LoggerFactory.getLogger(RawPixelsBean.class);
 
     // TODO: Have the code generator give us enumeration values in ome.model,
-    // then ChecksumAlgorithmMapper functionality can be made widely enough
+    // then ChecksumAlgorithmMapper functionality can be made widely enough
     // accessible to eliminate many other copies of the values in the code-base.
     /* Map of checksum algorithm names to the corresponding checksum type. */
     private static final ImmutableMap<String, ChecksumType> checksumAlgorithms =
