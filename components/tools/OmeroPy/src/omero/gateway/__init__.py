@@ -6169,7 +6169,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                      (series_metadata, rsp.seriesMetadata)):
 
             for k, v in m.items():
-                l[k] = unwrap(v) # RType!
+                l.append((k, unwrap(v))) # was RType!
 
         # Either FileAnnotation OR Fileset may be returned!
         return (None, (global_metadata), (series_metadata))
