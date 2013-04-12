@@ -85,16 +85,7 @@ public class ExportActivity
 					extension = "."+OMETIFFFilter.OME_TIFF;
 				break;
 		}
-		//
-		File parent = folder.getParentFile();
 		String name = folder.getAbsolutePath();
-		if (parent != null) {
-			name = getFileName(parent.listFiles(), folder.getName()+extension, 
-					folder.getName()+extension, 
-					parent.getAbsolutePath()+File.separator, 1, extension);
-			return parent+File.separator+name;
-		}
-		
     	return name+extension;
     }
     
