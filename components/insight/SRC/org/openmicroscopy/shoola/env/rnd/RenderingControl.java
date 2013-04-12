@@ -37,6 +37,8 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -852,4 +854,12 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	boolean isShutDown();
+	
+	/**
+	 * Returns the list of the levels.
+	 * 
+	 * @return See above.
+	 */
+	List<ResolutionLevel> getResolutionDescriptions()
+		throws RenderingServiceException, DSOutOfServiceException;
 }
