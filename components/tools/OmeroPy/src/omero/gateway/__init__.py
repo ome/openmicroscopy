@@ -2849,10 +2849,9 @@ class _BlitzGateway (object):
         fromimg = self.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if fromimg.canWrite():
+        if fromimg.canAnnotate():
             ctx = self.SERVICE_OPTS.copy()
             ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
-            ctx.setOmeroUser(userid)
             rsettings = self.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
             if fromid in json_data[True]:
