@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -490,16 +491,16 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getArchivedFiles(SecurityContext, String, long)
+	 * @see OmeroDataService#getArchivedFiles(SecurityContext, File, long)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String folderPath, long imageID) 
+			File file, long imageID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		context.getLogger().debug(this, folderPath);
+		context.getLogger().debug(this, file.getAbsolutePath());
 		//Check the image is archived.
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		return gateway.getArchivedFiles(ctx, folderPath, image);
+		return gateway.getArchivedFiles(ctx, file, image);
 	}
 
 	/**

@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -66,7 +68,7 @@ public class ArchivedImageLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final long imageID, final String folder) 
+    		final long imageID, final File folder) 
     {
         return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
@@ -99,7 +101,7 @@ public class ArchivedImageLoader
      * @param folderPath The location where to download the archived image.
      */
     public ArchivedImageLoader(SecurityContext ctx, long imageID,
-    		String folderPath)
+    		File folderPath)
     {
     	if (imageID < 0)
     		 throw new IllegalArgumentException("Image's ID not valid.");
