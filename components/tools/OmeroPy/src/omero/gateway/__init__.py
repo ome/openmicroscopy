@@ -2837,6 +2837,28 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
+    def applySettingsToImages(self, fromid, toids):
+        """
+        Applies the rendering settings from one image to others.
+        Returns a dict of success { True:[ids], False:[ids] }
+
+        @param fromid:      ID of Image to copy settings from.
+        @param toids:       List of Image IDs to apply setting to.
+        """
+        json_data = False
+        fromimg = self.getObject("Image", fromid)
+        frompid = fromimg.getPixelsId()
+        userid = fromimg.getOwner().getId()
+        if fromimg.canWrite():
+            ctx = self.SERVICE_OPTS.copy()
+            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
+            ctx.setOmeroUser(userid)
+            rsettings = self.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
+            if fromid in json_data[True]:
+                del json_data[True][json_data[True].index(fromid)]
+        return json_data
+
     def setChannelNames(self, data_type, ids, nameDict, channelCount=None):
         """
         Sets and saves new names for channels of specified Images.
