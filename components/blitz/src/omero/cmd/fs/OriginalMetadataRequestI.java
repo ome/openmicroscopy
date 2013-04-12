@@ -113,16 +113,10 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			final Image image = helper.getServiceFactory().getQueryService().get(Image.class, imageId);
 			final Pixels pixels = image.getPrimaryPixels();
 			final IFormatReader reader = service.getBfReader(pixels);
-			final int count = reader.getSeriesCount();
-
 			final Hashtable<String, Object> global = reader.getGlobalMetadata();
+			final Hashtable<String, Object> series = reader.getSeriesMetadata();
 			rsp.globalMetadata = wrap(global);
-			rsp.seriesMetadata = new Map[count];
-			for (int i = 0; i < count; i++) {
-				reader.setSeries(i);
-				final Hashtable<String, Object> series = reader.getSeriesMetadata();
-				rsp.seriesMetadata[i] = wrap(series);
-			}
+			rsp.seriesMetadata = wrap(series);
 
 		}
 	}
