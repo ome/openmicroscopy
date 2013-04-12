@@ -787,7 +787,7 @@ class TestOriginalMetadata(AbstractRepoTest):
         req = omero.cmd.OriginalMetadataRequest()
 
         client = self.new_client()
-        rsp = self.fullImport(client)
+        rsp = self.fullImport(client) # Note: fake test produces no metadata!
         image = rsp.objects[0]
 
         req.imageId = image.id.val
@@ -796,14 +796,15 @@ class TestOriginalMetadata(AbstractRepoTest):
 
         # Load via the gateway
         image = gateway.getObject("Image", image.id.val)
-        print image.loadOriginalMetadata()
+        self.assertEquals(3, len(image.loadOriginalMetadata()))
 
         # Load via raw request
         handle = client.sf.submit(req)
         try:
             gateway._waitOnCmd(handle, failonerror=True)
             rsp = handle.getResponse()
-            print rsp.globalMetadata
+            self.assertEquals(dict, type(rsp.globalMetadata))
+            self.assertEquals(dict, type(rsp.seriesMetadata))
         finally:
             handle.close()
 
