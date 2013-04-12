@@ -93,7 +93,7 @@ public class DownloadArchivedActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
-		initialize("Downloaded Archived Image", parameters.getIcon());
+		initialize("Downloading Archived Image", parameters.getIcon());
 		messageLabel.setText("in "+parameters.getLocation());
 		this.parameters = parameters;
 	}
