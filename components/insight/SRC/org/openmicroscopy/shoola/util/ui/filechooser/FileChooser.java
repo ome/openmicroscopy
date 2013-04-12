@@ -38,11 +38,16 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * Default Dialog used to display a file chooser.
@@ -321,6 +326,7 @@ public class FileChooser
     void acceptSelection()
     {
     	option = JFileChooser.APPROVE_OPTION;
+    	File[] files;
     	if (getChooserType() == FOLDER_CHOOSER) {
     		File f = uiDelegate.getCurrentDirectory();
     		if (f != null) {
@@ -329,24 +335,31 @@ public class FileChooser
     				path += File.separator;
     			firePropertyChange(APPROVE_SELECTION_PROPERTY, null, path);
     		}
+    		return;
     	} else {
-    		File[] files;
     		if (uiDelegate.isMultisSelectionEnabled()) {
     			files = getSelectedFiles();
     		} else {
     			files = new File[1];
     			files[0] = getSelectedFile();
     		}
-    		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
-    				Boolean.valueOf(false), files);
     	}
     	
         if (uiDelegate.isSetDefaultFolder() 
         	&& getChooserType() != FileChooser.FOLDER_CHOOSER)
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
+        File f = getSelectedFile();
+        String extension = FilenameUtils.getExtension(f.getName());
+        if (StringUtils.isBlank(extension)) {
+        	FileFilter filter = getSelectedFilter();
+        	if (filter instanceof CustomizedFileFilter) {
+        		extension = ((CustomizedFileFilter) filter).getExtension();
+        		f = new File(f.getAbsolutePath()+"."+extension);
+        	}
+        }
         if (getChooserType() != FileChooser.FOLDER_CHOOSER) {
-        	if (getSelectedFile().exists() && checkOverride)
+        	if (f.exists() && checkOverride)
             {
             	MessageBox msg = new MessageBox(this, 
             			"Overwrite existing file.",
@@ -356,6 +369,8 @@ public class FileChooser
             		return;
     		}
         }
+        firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.valueOf(false),
+        		files);
     	setVisible(false);
     	dispose();
     }

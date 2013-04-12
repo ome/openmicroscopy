@@ -465,16 +465,17 @@ class EditorControl
 				"Select where to export the image as OME-TIFF.", exportFilters);
 		try {
 			String path = 
-				MetadataViewerAgent.getRegistry().getTaskBar().
-				getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
+					MetadataViewerAgent.getRegistry().getTaskBar().
+					getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
 			chooser.parseData(path);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
-	        msg.print(e);
-	        MetadataViewerAgent.getRegistry().getLogger().debug(this, msg);
+			msg.print(e);
+			MetadataViewerAgent.getRegistry().getLogger().debug(this, msg);
 		}
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
-		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
+		chooser.setSelectedFileFull(s);
+		chooser.setCheckOverride(true);
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));
