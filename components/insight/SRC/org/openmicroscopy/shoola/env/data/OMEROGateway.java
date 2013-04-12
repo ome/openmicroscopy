@@ -3970,7 +3970,7 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -3978,13 +3978,13 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
 		if (image.isArchived())
-			return retrieveArchivedFiles(ctx, folderPath, image);
+			return retrieveArchivedFiles(ctx, file, image);
 		return null;
 	}
 	
@@ -3992,7 +3992,7 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -4000,7 +4000,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
@@ -4029,7 +4029,11 @@ class OMEROGateway
 		File f;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
-		String fullPath;
+		String folderPath = null;
+		if (files.size() > 1) {
+			if (file.isDirectory()) folderPath = file.getAbsolutePath();
+			else folderPath = file.getParent();
+		}
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
@@ -4038,8 +4042,9 @@ class OMEROGateway
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = folderPath+of.getName().getValue();
-			f = new File(fullPath);
+			if (folderPath != null) {
+				f = new File(folderPath+of.getName().getValue());
+			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
@@ -4051,7 +4056,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int) (size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -4071,8 +4076,8 @@ class OMEROGateway
 				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
-				throw new DSAccessException("Cannot create file with path " +
-											fullPath, e);
+				throw new DSAccessException("Cannot create file in folderPath",
+						e);
 			}
 			closeService(ctx, store);
 		}

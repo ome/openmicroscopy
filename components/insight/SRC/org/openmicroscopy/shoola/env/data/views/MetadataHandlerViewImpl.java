@@ -238,7 +238,7 @@ class MetadataHandlerViewImpl
 	 * AgentEventListener)
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-			String path, AgentEventListener observer) 
+			File path, AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new ArchivedImageLoader(ctx, imageID, path);
 		return cmd.exec(observer);
