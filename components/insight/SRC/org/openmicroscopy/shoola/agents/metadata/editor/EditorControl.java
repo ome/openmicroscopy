@@ -50,8 +50,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import omero.model.OriginalFile;
+
+
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+import org.apache.commons.io.FilenameUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
@@ -75,6 +79,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -215,6 +220,10 @@ class EditorControl
 
 	/** Action id indicating to remove other annotations. */
 	static final int REMOVE_OTHER_ANNOTATIONS = 25;
+
+	/** Action ID to download the metadata files. */
+	static final int DOWNLOAD_METADATA = 26;
+
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -230,6 +239,53 @@ class EditorControl
 	
 	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
+
+	/** Download the original metadata.*/
+	private void downloadMetadata()
+	{
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download Metadata", "Download the metadata file.", null, true);
+		chooser.setSelectedFileFull(FileAnnotationData.ORIGINAL_METADATA_NAME);
+		chooser.setCheckOverride(true);
+		FileAnnotationData data = view.getOriginalMetadata();
+		String name = "";
+		if (data != null) name = data.getFileName();
+		else {
+			ImageData img = view.getImage();
+			name = FilenameUtils.removeExtension(img.getName());
+		}
+		chooser.setSelectedFileFull(name);
+		chooser.setApproveButtonText("Download");
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			/** 
+			 * Handles the download of the original files
+			 */
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
+					if (folder == null)
+						folder = UIUtilities.getDefaultFolder();
+					UserNotifier un =
+							MetadataViewerAgent.getRegistry().getUserNotifier();
+					ImageData img = view.getImage();
+					if (img == null) return;
+					IconManager icons = IconManager.getInstance();
+					DownloadActivityParam activity =
+							new DownloadActivityParam(img.getId(),
+						DownloadActivityParam.METADATA_FROM_IMAGE,
+								folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					un.notifyActivity(model.getSecurityContext(), activity);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
 	
 	/** Launches RAPID. */
 	private void openFLIM()
@@ -841,6 +897,9 @@ class EditorControl
 			case FILE_PATH:
 				if (view.getFileset() != null) view.displayFileset();
 				else loadFileset();
+				break;
+			case DOWNLOAD_METADATA:
+				downloadMetadata();
 		}
 	}
 
