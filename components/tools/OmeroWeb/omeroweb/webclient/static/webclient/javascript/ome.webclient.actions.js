@@ -334,7 +334,14 @@ OME.initToolbarDropdowns = function() {
 // Simply add query to thumbnail src to force refresh
 OME.refreshThumbnails = function() {
     var rdm = Math.random();
+    // handle Dataset thumbs
     $("#dataIcons img").each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+    // handle SPW thumbs
+    $("#spw img").each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
