@@ -246,11 +246,17 @@
                 }
                 // Paste settings from 'session' to selected Images
                 var pasteRenderingSettings = function(selected) {
-                    var ids = [];
+                    var ids = [],
+                        rdef_url = copy_paste_rdef_url,
+                        rel = selected.attr('rel').replace('-locked','');
                     selected.each(function(){
                         ids.push(this.id.split('-')[1]);
                     });
-                    $.getJSON(copy_paste_rdef_url + "?toids=" + ids.join("&toids="), function(data){
+                    rdef_url += "?toids=" + ids.join("&toids=");
+                    if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
+                        rdef_url += '&to_type='+ rel;
+                    }
+                    $.getJSON(rdef_url, function(data){
                         // update thumbnails
                         OME.refreshThumbnails();
                     });
@@ -940,8 +946,11 @@
                                 // ...if it's an image, we can copy settings
                                 config["renderingsettings"]["_disabled"] = false;
                                 config["renderingsettings"]["submenu"]["copy"]["_disabled"] = false;
-                                // if 'canAnnotate' then we can paste settings
+                            }
+                            if($.inArray(obj.attr("rel").replace('-locked',''), ["image", "dataset", "plate", "acquisition"])>=0) {
+                                // if 'canAnnotate' then we can paste settings to image/dataset/plate
                                 if(obj.hasClass('canAnnotate')) {
+                                    config["renderingsettings"]["_disabled"] = false;
                                     config["renderingsettings"]["submenu"]["paste"]["_disabled"] = false;
                                 }
                             }
