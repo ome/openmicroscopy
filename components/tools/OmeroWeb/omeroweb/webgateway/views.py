@@ -1498,6 +1498,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     to the specified images.
     If 'fromid' AND 'toids' are in the reqest, we simply 
     apply settings and don't save anything to request.
+    If 'to_type' is in request, this can be 'dataset', 'plate', 'acquisition'
     Returns json dict of Boolean:[Image-IDs] for images that have successfully 
     had the rendering settings applied, or not. 
     
@@ -1512,7 +1513,9 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     r = request.REQUEST
     fromid = r.get('fromid', None)
     toids = r.getlist('toids')
-
+    to_type = str(r.get('to_type', 'image'))
+    if to_type not in ('dataset', 'plate', 'acquisition'):
+        to_type = None  # default is image
     # Only 'fromid' is given, simply save to session
     if fromid is not None and len(toids) == 0:
         request.session.modified = True
@@ -1532,7 +1535,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if fromid is not None and len(toids) > 0:
         fromimg = conn.getObject("Image", fromid)
         userid = fromimg.getOwner().getId()
-        json_data = conn.applySettingsToImages(fromid, toids)
+        json_data = conn.applySettingsToImages(fromid, toids, to_type)
         if json_data and True in json_data:
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
