@@ -331,17 +331,30 @@ OME.initToolbarDropdowns = function() {
     });
 };
 
-// Simply add query to thumbnail src to force refresh
-OME.refreshThumbnails = function() {
-    var rdm = Math.random();
+// Simply add query to thumbnail src to force refresh.
+// By default we do ALL thumbnails, but can also specify ID
+OME.refreshThumbnails = function(imageId) {
+    var rdm = Math.random(),
+        thumbs_selector = "#dataIcons img",
+        spw_selector = "#spw img";
     // handle Dataset thumbs
-    $("#dataIcons img").each(function(){
+    if (typeof imageId != "undefined") {
+        thumbs_selector += "#"+imageId;
+        spw_selector += "#image-"+imageId;
+    }
+    $(thumbs_selector).each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
     });
     // handle SPW thumbs
-    $("#spw img").each(function(){
+    $(spw_selector).each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+    // Preview viewport
+    $("#viewport-img").each(function(){
         var $this = $(this),
             base_src = $this.attr('src').split('?')[0];
         $this.attr('src', base_src + "?_="+rdm);
