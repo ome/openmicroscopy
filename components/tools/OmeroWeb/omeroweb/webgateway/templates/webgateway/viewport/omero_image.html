@@ -870,7 +870,7 @@
                     if (!(success && rv)) {
                         alert('Setting image defaults failed.');
                     }
-                    if (window.opener.OME.refreshThumbnails) {
+                    if (window.opener && window.opener.OME.refreshThumbnails) {
                         window.opener.OME.refreshThumbnails({{ image.id }});
                     }
                   });
@@ -891,7 +891,7 @@
         } else {
           viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
         }
-        if (window.opener.OME.refreshThumbnails) {
+        if (window.opener && window.opener.OME.refreshThumbnails) {
             window.opener.OME.refreshThumbnails({{ image.id }});
         }
       },
