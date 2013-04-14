@@ -283,7 +283,6 @@ class EditorUI
     		component = defaultPane;
     	} else {
         	toolBar.buildUI();
-        	toolBar.setControls();
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;

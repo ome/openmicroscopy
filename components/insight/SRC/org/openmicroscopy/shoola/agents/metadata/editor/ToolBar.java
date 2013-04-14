@@ -648,17 +648,7 @@ class ToolBar
     	initComponents();
     	buildGUI();
     }
-    
-    /** Enables the various controls. */
-    void setControls()
-    { 
-    	if (model.getRefObject() instanceof FileAnnotationData) {
-    		downloadButton.setEnabled(true); 
-    	} else 
-    		downloadButton.setEnabled(model.isArchived()); 
-    	checkBinaryAvailability();
-    }
-    
+
     /**
      * Enables the {@link #saveButton} depending on the passed value.
      * 
