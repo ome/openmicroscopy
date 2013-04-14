@@ -1175,7 +1175,7 @@ class EditorComponent
 	public void setLargeImage(Boolean value)
 	{
 		model.setLargeImage(value);
-		
+		view.onSizeLoaded();
 	}
 	
     /** 

@@ -713,12 +713,7 @@ class ToolBar
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
-    		ImageData img = null;
-        	if (ref instanceof ImageData) {
-        		img = (ImageData) ref;
-        	} else if (ref instanceof WellSampleData) {
-        		img = ((WellSampleData) ref).getImage();
-        	}
+    		ImageData img = model.getImage();
         	if (img != null) {
         		try {
         			img.getDefaultPixels();
@@ -787,7 +782,7 @@ class ToolBar
 	/** Invokes when the size is loaded.*/
 	void onSizeLoaded()
 	{
-		if (exportAsOmeTiffItem != null) {
+		if (exportAsOmeTiffItem != null && model.getImage() != null) {
 			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
 		}
 	}

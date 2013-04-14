@@ -1094,5 +1094,5 @@ class EditorUI
 		if (generalPane != null) 
 			generalPane.setExtentWidth(getVisibleRect().width);
 	}
-	
+
 }
