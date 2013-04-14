@@ -708,6 +708,8 @@ class ToolBar
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (pathButton != null) pathButton.setEnabled(false);
+    	if (downloadOriginalMetadataItem != null)
+    		downloadOriginalMetadataItem.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
     	if (model.isSingleMode()) {
@@ -729,6 +731,9 @@ class ToolBar
         				downloadItem.setEnabled(true);
         			viewButton.setEnabled(true);
         			if (pathButton != null) pathButton.setEnabled(true);
+        			if (downloadOriginalMetadataItem != null)
+        				downloadOriginalMetadataItem.setEnabled(
+        					model.getOriginalMetadata() != null);
     			} catch (Exception e) {}
         	}
     	}
