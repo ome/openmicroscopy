@@ -314,7 +314,6 @@ class EditorUI
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
-		toolBar.setRootObject();
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, "");
 		boolean preview = false;

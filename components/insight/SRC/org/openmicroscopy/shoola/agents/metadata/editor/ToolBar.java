@@ -61,6 +61,7 @@ import javax.swing.SwingUtilities;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
+import org.jdesktop.swingx.JXLoginPane.SaveMode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -227,6 +228,7 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		downloadItem.setEnabled(!model.isArchived());
     		saveAsMenu.add(downloadItem);
     		
     		downloadOriginalMetadataItem = new JMenuItem(
@@ -240,6 +242,8 @@ class ToolBar
     				""+EditorControl.DOWNLOAD_METADATA);
     		downloadOriginalMetadataItem.setBackground(
     				UIUtilities.BACKGROUND_COLOR);
+    		downloadOriginalMetadataItem.setEnabled(
+    				model.getOriginalMetadata() != null);
     		saveAsMenu.add(downloadOriginalMetadataItem);
     		
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
@@ -673,6 +677,7 @@ class ToolBar
     /** Updates the UI when a new object is selected. */
     void buildUI()
     {
+    	saveAsMenu = null;
     	Object refObject = model.getRefObject();
     	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
@@ -689,17 +694,17 @@ class ToolBar
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
+    	setRootObject();
     	checkBinaryAvailability();
     	revalidate();
     	repaint();
     }
 
     /** Sets the root object. */
-	void setRootObject()
+	private void setRootObject()
 	{ 
 		Object ref = model.getRefObject();
-		if ((ref instanceof ExperimenterData) || 
-			(ref instanceof GroupData)) {
+		if (ref instanceof ExperimenterData || ref instanceof GroupData) {
 			publishingButton.setEnabled(false);
 			analysisButton.setEnabled(false);
 			scriptsButton.setEnabled(false);
@@ -708,36 +713,28 @@ class ToolBar
 		viewButton.setEnabled(false);
     	exportAsOmeTiffButton.setEnabled(false);
     	if (pathButton != null) pathButton.setEnabled(false);
+		if (exportAsOmeTiffButton != null)
+			exportAsOmeTiffButton.setEnabled(false);
     	if (downloadOriginalMetadataItem != null)
     		downloadOriginalMetadataItem.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
-    	if (model.isSingleMode()) {
-    		ImageData img = model.getImage();
-        	if (img != null) {
-        		try {
-        			img.getDefaultPixels();
-        			boolean b = !model.isLargeImage();
-        			exportAsOmeTiffButton.setEnabled(b);
-        			if (exportAsOmeTiffItem != null) {
-        				exportAsOmeTiffButton.setEnabled(b);
-        			}
-        			if (downloadItem != null && model.isArchived())
-        				downloadItem.setEnabled(true);
-        			viewButton.setEnabled(true);
-        			if (pathButton != null) pathButton.setEnabled(true);
-        			if (downloadOriginalMetadataItem != null)
-        				downloadOriginalMetadataItem.setEnabled(
-        					model.getOriginalMetadata() != null);
-    			} catch (Exception e) {}
-        	}
+    	if (model.isSingleMode() && model.getImage() != null) {
+    		if (exportAsOmeTiffItem != null)
+				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
+			if (downloadItem != null)
+				downloadItem.setEnabled(model.isArchived());
+			viewButton.setEnabled(true);
+			if (pathButton != null) pathButton.setEnabled(true);
+			if (downloadOriginalMetadataItem != null)
+				downloadOriginalMetadataItem.setEnabled(
+					model.getOriginalMetadata() != null);
     	}
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
 		scriptsButton.setEnabled(true);
 		if (publishingDialog != null) publishingDialog.setRootObject();
 		if (analysisDialog != null) analysisDialog.setRootObject();
-		checkBinaryAvailability();
 	}
 
 	/**
