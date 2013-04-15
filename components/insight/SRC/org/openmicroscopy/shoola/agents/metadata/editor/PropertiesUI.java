@@ -52,6 +52,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -682,7 +683,18 @@ class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE, 
+    	JLabel label = UIUtilities.setTextFont(EditorUtil.ARCHIVED,
+    			Font.BOLD, size);
+    	JCheckBox box = new JCheckBox();
+    	box.setEnabled(false);
+    	box.setBackground(UIUtilities.BACKGROUND);
+    	box.setSelected(model.isArchived());
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(box, c);
+    	c.gridy++; 
+    	c.gridx = 0;
+    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE,
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
@@ -690,10 +702,10 @@ class PropertiesUI
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
-    	c.gridy++; 	
+    	c.gridy++; 
     	c.gridx = 0;
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE, 
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE,
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	v =  UIUtilities.formatShortDateTime(image.getInserted());
@@ -705,7 +717,7 @@ class PropertiesUI
 		} catch (Exception e) {
 			
 		}
-    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);

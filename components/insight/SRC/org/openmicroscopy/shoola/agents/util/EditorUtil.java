@@ -248,6 +248,9 @@ public class EditorUtil
     /** Identifies the <code>Imported date</code> field. */
     public static final String  IMPORTED_DATE = "Imported";
     
+    /** Identifies the <code>Archived</code> field. */
+    public static final String ARCHIVED = "Archived";
+    
     /** Identifies the <code>XY Dimension</code> field. */
     public static final String  XY_DIMENSION = "Dimensions (XY)";
     
