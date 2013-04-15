@@ -1567,10 +1567,11 @@ class UserGroupControl(BaseControl):
 
         # Test found groups
         if g1 and g2:
-            g = g1
             if not g1.id.val == g2.id.val:
                 self.error_ambiguous_group(id_or_name, fatal = fatal)
-                self.ctx.out("Using group %s (id=%s)" % (g.name.val, g.id.val))
+                return None, None
+            else:
+                 g = g1
         elif g1:
             g = g1
         elif g2:
