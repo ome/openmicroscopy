@@ -8,7 +8,8 @@ function annotations = getAnnotations(session, ids, type)
 %
 %      annotations = getAnnotations(session, ids, type);
 %
-% See also: GETANNOTATIONTYPES
+% See also: GETANNOTATIONTYPES, GETTAGANNOTATIONS, GETCOMMENTANNOTATIONS,
+% GETFILEANNOTATIONS, GETXMLANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
