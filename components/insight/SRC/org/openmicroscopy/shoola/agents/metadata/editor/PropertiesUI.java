@@ -865,17 +865,6 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	Object refObject = model.getRefObject();
-        if (refObject instanceof ImageData) {
-        	ImageData img = (ImageData) refObject;
-        	try {
-        		img.getDefaultPixels();
-    		} catch (Exception e) {}
-        } else if (refObject instanceof WellSampleData) {
-        	ImageData img = ((WellSampleData) refObject).getImage();
-        	if (img != null && img.getId() > 0) {
-        		img.getDefaultPixels();
-        	}
-        }
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
