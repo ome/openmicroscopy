@@ -21,6 +21,28 @@
 
   </appender>
 
+
+  <appender name="SIFT" class="ome.util.logback.SiftingWhileRejectingDefaultAppender">
+    <!-- in the absence of the class attribute, it is assumed that the
+         desired discriminator type is
+         ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+    <discriminator>
+      <key>fileset</key>
+      <defaultValue>default</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${fileset}" class="ch.qos.logback.core.FileAppender">
+        <file>${omero.logbase}${fileset}.log</file>
+        <append>false</append>
+        <encoder>
+          <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>
+        </encoder>
+      </appender>
+    </sift>
+  </appender>
+
+
+
   <!-- PERF4J ///////////////////////////////////////////////////////////////// -->
   <appender name="Perf4jJmxAppender" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
     <param name="TagNamesToExpose" value="omero.call.success,omero.call.exception,omero.session"/>
@@ -35,6 +57,14 @@
     <level value="INFO"/>
     <appender-ref ref="CoalescingStatistics"/>
   </logger>
+
+  <!-- Import logs //////////////////////////////////////////////////////////// -->
+  <logger name="ome.services.blitz.repo.ManagedImportRequestI">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <!-- All below are ROOT loggers -->
 
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
   <logger name="ome" level="INFO"/>

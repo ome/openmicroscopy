@@ -17,10 +17,18 @@
 
 package ome.services.blitz.repo;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.sift.SiftingAppender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.sift.AppenderTracker;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +44,7 @@ import loci.formats.in.MIASReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
@@ -167,6 +176,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     "location-type", location.getClass().getName());
         }
 
+        MDC.put("fileset", location.sharedPath);
+        log.debug("init starting... ");
+
         file = ((ManagedImportLocationI) location).getTarget();
 
         try {
@@ -218,6 +230,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw c;
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
+        } finally {
+            log.debug("init stopped");
+            MDC.clear();
         }
 
 
@@ -227,6 +242,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * Called during {@link #getResponse()}.
      */
     private void cleanup() {
+
+        MDC.put("fileset", location.sharedPath);
+        log.debug("cleanup starting... ");
+
         try {
             if (reader != null) {
                 reader.close();
@@ -248,11 +267,17 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable e) {
             log.error(e.toString()); // slf4j migration: toString()
         }
+
+        log.debug("... cleanup stopped");
+        uploadLogFile();
+        MDC.clear();
     }
 
     public Object step(int step) {
         helper.assertStep(step);
         try {
+            MDC.put("fileset", location.sharedPath);
+            log.debug("Step "+step+" starting...");
             Job j = activity.getChild();
             if (j == null) {
                 throw helper.cancel(new ERR(), null, "null-job");
@@ -309,12 +334,17 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                     fileName, new RuntimeException(t), usedFiles, format));
             throw helper.cancel(new ERR(), t, "import-request-failure");
+        } finally {
+            log.debug("Step "+step+" stopped");
+            MDC.clear();
         }
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
+        MDC.put("fileset", location.sharedPath);
+        log.debug("buildResponse starting.. ");
         if (step == 4) {
             ImportResponse rsp = new ImportResponse();
             Map<String, List<IObject>> rv = (Map<String, List<IObject>>) object;
@@ -324,6 +354,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             addObjects(rsp.objects, rv, Image.class.getSimpleName());
             helper.setResponseIfNull(rsp);
         }
+        log.debug("buildResponse stopped");
+        MDC.clear();
     }
 
     private void addObjects(List<IObject> objects,
@@ -667,6 +699,41 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private void notifyObservers(Object...args) {
         // TEMPORARY REPLACEMENT. FIXME
+    }
+
+    private void uploadLogFile() {
+
+        AppenderTracker<ILoggingEvent> thisAppenderTracker = null;
+        Appender<ILoggingEvent> thisAppender = null;
+        String thisLogFile = null;
+
+        log.debug("Logging info...");
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
+        log.debug("Logger="+logger.getName());
+        for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext();) {
+            Appender<ILoggingEvent> appender = index.next();
+            log.debug("Appender="+appender.getName());
+            if (appender.getName().equals("SIFT")) {
+                AppenderTracker<ILoggingEvent> appenderTracker = ((SiftingAppender) appender).getAppenderTracker();
+                for(Appender<ILoggingEvent> app : appenderTracker.valueList()) {
+                    if (app instanceof FileAppender) {
+                        String logFile = ((FileAppender<ILoggingEvent>) app).getFile();
+                        if (logFile.contains(location.sharedPath)) {
+                            thisAppenderTracker = appenderTracker;
+                            thisAppender = app;
+                            log.debug("File="+logFile+" **");
+                        } else {
+                            log.debug("File="+logFile);
+                        }
+                    }
+                }
+            }
+        }
+        log.debug("End logging info");
+
+        if(thisAppender != null) {
+            thisAppenderTracker.stopAndRemoveNow(thisAppender.getName());
+        }
     }
 
 }
