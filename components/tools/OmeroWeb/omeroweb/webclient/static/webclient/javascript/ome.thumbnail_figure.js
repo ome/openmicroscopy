@@ -234,7 +234,9 @@ $(document).ready(function() {
 
     });
 
+    // Hacks to make the Chosen plugin to wide enough.
     $(".chzn-container").width('350px');
+    $(".chzn-container input").width('300px');
 
     // Bonus feature - Zoom the preview thumbs with slider
     // Make a list of styles (for quick access on zoom)
