@@ -73,7 +73,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     private LegacyRepositoryI mk() throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
         return new LegacyRepositoryI(oa, reg, ex, p, tmpRepo.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf));
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null));
     }
 
     private OriginalFile file() {

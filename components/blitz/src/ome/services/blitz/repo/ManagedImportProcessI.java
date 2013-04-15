@@ -43,6 +43,7 @@ import omero.grid.ImportRequest;
 import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 
@@ -181,6 +182,10 @@ public class ManagedImportProcessI extends AbstractAmdServant
 
     public Fileset getFileset() {
         return this.fs;
+    }
+
+    public ImportSettings getImportSettings(Current __current) {
+        return this.settings;
     }
 
     //

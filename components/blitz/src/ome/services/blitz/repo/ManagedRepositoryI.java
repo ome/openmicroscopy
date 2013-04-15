@@ -62,7 +62,6 @@ import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 
 import org.apache.commons.lang.text.StrLookup;
@@ -114,13 +113,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param dao
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
-        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl());
+        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
+                null);
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
-            ChecksumProviderFactory checksumProviderFactory) throws Exception {
-        super(dao, checksumProviderFactory);
+            ChecksumProviderFactory checksumProviderFactory,
+            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
+        super(dao, checksumProviderFactory, checksumAlgorithm);
         this.template = template;
         this.processes = processes;
         log.info("Repository template: " + this.template);
@@ -148,9 +149,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         if (settings == null) {
             settings = new ImportSettings(); // All defaults.
-            settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
-        } else if (settings.checksumAlgorithm == null) {
-            throw new omero.ApiUsageException(null, null, "must specify a checksum algorithm for import");
+        }
+        if (settings.checksumAlgorithm == null) {
+            settings.checksumAlgorithm = this.checksumAlgorithm;
         }
 
         final List<FsFile> paths = new ArrayList<FsFile>();
