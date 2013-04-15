@@ -54,7 +54,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
         Principal p = new Principal("mock-uuid");
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,
                 p, dir.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf));
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null));
     }
 
 }

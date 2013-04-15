@@ -126,14 +126,18 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final ChecksumProviderFactory checksumProviderFactory;
 
+    protected final omero.model.ChecksumAlgorithm checksumAlgorithm;
+
     protected OmeroContext context;
 
     private String repoUuid;
 
     public PublicRepositoryI(RepositoryDao repositoryDao,
-            ChecksumProviderFactory checksumProviderFactory) throws Exception {
+            ChecksumProviderFactory checksumProviderFactory,
+            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
+        this.checksumAlgorithm = checksumAlgorithm;
         this.repoUuid = null;
     }
 

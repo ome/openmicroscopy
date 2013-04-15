@@ -342,6 +342,8 @@ module omero {
              **/
              omero::cmd::Handle* getHandle() throws ServerError;
 
+             ImportSettings getImportSettings();
+
         };
 
         ["java:type:java.util.ArrayList<omero.grid.ImportProcessPrx>:java.util.List<omero.grid.ImportProcessPrx>"]
