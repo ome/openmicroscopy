@@ -269,7 +269,7 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Collection<AnnotationData> getOtherAnnotation()
+	public Collection<AnnotationData> getOtherAnnotations()
 	{ 
 		return otherAnnotation; 
 	}
