@@ -119,7 +119,7 @@ def getThumbnailSet(thumbnailStore, length, pixelIds):
 		return None
 	
 def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(255,255,255), 
-			leftLabel=None, textColour=(0,0,0), fontsize=None):
+			leftLabel=None, textColour=(0,0,0), fontsize=None, topLabel=None):
 	""" 
 	Retrieves thumbnails for each pixelId, and places them in a grid, with White background. 
 	Option to add a vertical label to the left of the canvas
@@ -144,22 +144,28 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 	while (colCount * rowCount) < imgCount:	# check that we have enough rows and cols...
 		rowCount += 1
 		
-	leftSpace = spacing
+	leftSpace = topSpace = spacing
+	minWidth = 0
 	
 	textHeight = 0
-	if leftLabel:
+	if leftLabel or topLabel:
 		# if no images (no rows), need to make at least one row to show label
-		if rowCount == 0: rowCount = 1
+		if leftLabel is not None and rowCount == 0: rowCount = 1
 		if fontsize == None: 
 			fontsize = length/10 + 5
 		font = getFont(fontsize)
-		textHeight = font.getsize("Textq")[1]
-		leftSpace = spacing + textHeight + spacing
-	
+		if leftLabel:
+			textWidth, textHeight = font.getsize(leftLabel)
+			leftSpace = spacing + textHeight + spacing
+		if topLabel:
+			textWidth, textHeight = font.getsize(topLabel)
+			topSpace = spacing + textHeight + spacing
+			minWidth = leftSpace + textWidth + spacing
+
 	# work out the canvas size needed, and create a white canvas
 	colsNeeded = min(colCount, imgCount)
-	canvasWidth = leftSpace + colsNeeded * (length+spacing)
-	canvasHeight = rowCount * (length+spacing) + spacing
+	canvasWidth = max(minWidth, (leftSpace + colsNeeded * (length+spacing)))
+	canvasHeight = topSpace + rowCount * (length+spacing) + spacing
 	mode = "RGB"
 	size = (canvasWidth, canvasHeight)
 	canvas = Image.new(mode, size, bg)
@@ -177,6 +183,16 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 		verticalCanvas = textCanvas.rotate(90)
 		pasteImage(verticalCanvas, canvas, 0, 0)
 		del draw
+	
+	if topLabel is not None:
+		labelCanvasWidth = canvasWidth
+		labelCanvasHeight = textHeight + spacing
+		labelSize = (labelCanvasWidth, labelCanvasHeight)
+		textCanvas = Image.new(mode, labelSize, bg)
+		draw = ImageDraw.Draw(textCanvas)
+		draw.text((spacing, spacing), topLabel, font=font, fill=textColour)
+		pasteImage(textCanvas, canvas, leftSpace, 0)
+		del draw
 		
 	# loop through the images, getting a thumbnail and placing it on a new row and column
 	r = 0
@@ -189,7 +205,7 @@ def paintThumbnailGrid(thumbnailStore, length, spacing, pixelIds, colCount, bg=(
 				thumbImage = Image.open(StringIO.StringIO(thumbnail))	# make an "Image" from the string-encoded thumbnail
 				# paste the image onto the canvas at the correct coordinates for the current row and column 
 				x = c*(length+spacing) + leftSpace
-				y = r*(length+spacing) + spacing
+				y = r*(length+spacing) + topSpace
 				pasteImage(thumbImage, canvas, x, y)
 				
 		# increment the column, and if we're at the last column, start a new row
