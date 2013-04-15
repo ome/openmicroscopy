@@ -45,140 +45,190 @@ classdef TestToMatlabList < TestJavaMatlabList
             assertTrue(isempty(self.matlabList));
         end
         
-        % Test input type
-        function testVector(self)
-            self.initArrayList(10, 1);
+        function checkNumericInput(self, class)
+            constructor = str2func(class);
+            self.initArrayList(10, constructor(1));
             self.matlabList = toMatlabList(self.javaList);
+            self.matlabClass = 'double';
             self.compareLists();
+        end
+        
+        % Test Matlab numeric input
+        function testDOUBLE(self)
+            self.checkNumericInput('double');
+        end
+        
+        function testSINGLE(self)
+            self.checkNumericInput('single');
+        end
+        
+        function testUINT8(self)
+            self.checkNumericInput('uint8');
+        end
+        
+        function testINT8(self)
+            self.checkNumericInput('int8');
+        end
+        
+        function testUINT16(self)
+            self.checkNumericInput('uint16');
+        end
+        
+        function testINT16(self)
+            self.checkNumericInput('int16');
+        end
+        
+        function testUINT32(self)
+            self.checkNumericInput('uint32');
+        end
+        
+        function testINT32(self)
+            self.checkNumericInput('int32');
+        end
+        
+        function testUINT64(self)
+            self.checkNumericInput('uint16');
+        end
+        
+        function testINT64(self)
+            self.checkNumericInput('int64');
+        end
+        
+        % Test Java numeric input
+        function testDouble(self)
+            self.checkNumericInput('java.lang.Double');
+        end
+        
+        function testFloat(self)
+            self.checkNumericInput('java.lang.Float');
+        end
+        
+        function testByte(self)
+            self.checkNumericInput('java.lang.Byte');
+        end
+        
+        function testInteger(self)
+            self.checkNumericInput('java.lang.Integer');
         end
         
         function testLong(self)
-            self.initArrayList(10, java.lang.Long(1));
+            self.checkNumericInput('java.lang.Long');
+        end
+        
+        function testShort(self)
+            self.checkNumericInput('java.lang.Short');
+        end
+        
+        % String cell array test
+        function testStringCellArray(self)
+            self.initArrayList(10, java.lang.String('test'))
+            
             self.matlabList = toMatlabList(self.javaList);
+            self.matlabClass = 'cell';
             self.compareLists();
         end
         
-
-        function testSingleImage(self)
-            self.initArrayList(1, omero.model.ImageI());
+        % Test OMERO objects
+        function checkOmeroObjectList(self, class, n)
+            constructor = str2func(class);
+            self.initArrayList(n, constructor());
             self.matlabList = toMatlabList(self.javaList);
+            if n > 1
+                self.matlabClass = [class '[]'];
+            else
+                self.matlabClass = class;
+            end
             self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ImageI'));
+        end
+        
+        function testSingleImage(self)
+            self.checkOmeroObjectList('omero.model.ImageI', 1);
         end
         
         function testImageList(self)
-            self.initArrayList(10, omero.model.ImageI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ImageI[]'));
+            self.checkOmeroObjectList('omero.model.ImageI', 10);
         end
         
-        
         function testSingleDataset(self)
-            self.initArrayList(1, omero.model.DatasetI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.DatasetI'));
+            self.checkOmeroObjectList('omero.model.ImageI', 1);
         end
         
         function testDatasetList(self)
-            self.initArrayList(10, omero.model.DatasetI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.DatasetI[]'));
+            self.checkOmeroObjectList('omero.model.DatasetI', 10);
         end
         
         function testSingleProject(self)
-            self.initArrayList(1, omero.model.ProjectI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ProjectI'));
+            self.checkOmeroObjectList('omero.model.ProjectI', 1);
         end
         
         function testProjectList(self)
-            self.initArrayList(10, omero.model.ProjectI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ProjectI[]'));
+            self.checkOmeroObjectList('omero.model.ProjectI', 10);
         end
         
         function testSinglePlate(self)
-            self.initArrayList(1, omero.model.PlateI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.PlateI'));
+            self.checkOmeroObjectList('omero.model.PlateI', 1);
         end
         
         function testPlateList(self)
-            self.initArrayList(10, omero.model.PlateI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.PlateI[]'));
+            self.checkOmeroObjectList('omero.model.PlateI', 10);
         end
         
         function testSingleScreen(self)
-            self.initArrayList(1, omero.model.ScreenI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ScreenI'));
+            self.checkOmeroObjectList('omero.model.ScreenI', 10);
         end
         
         function testScreenList(self)
-            self.initArrayList(10, omero.model.ScreenI());
-            self.matlabList = toMatlabList(self.javaList);
-            self.compareLists();
-            assertTrue(isa(self.matlabList, 'omero.model.ScreenI[]'));
+            self.checkOmeroObjectList('omero.model.ScreenI', 10);
         end
         
         
         % Test casting functions
-        function testINT8(self)
+        function checkNumericCasting(self, class)
             self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'int8');
-            assertTrue(isa(self.matlabList, 'int8'));
-            assertExceptionThrown(@(x) self.compareLists(), 'assertEqual:classNotEqual');
-        end
-        
-        function testUINT8(self)
-            self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'uint8');
-            assertTrue(isa(self.matlabList, 'uint8'));
-            assertExceptionThrown(@(x) self.compareLists(), 'assertEqual:classNotEqual');
-        end
-        
-        function testINT16(self)
-            self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'int16');
-            assertTrue(isa(self.matlabList, 'int16'));
-            assertExceptionThrown(@(x) self.compareLists(), 'assertEqual:classNotEqual');
-        end
-        
-        function testUINT16(self)
-            self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'uint16');
-            assertTrue(isa(self.matlabList, 'uint16'));
-            assertExceptionThrown(@(x) self.compareLists(), 'assertEqual:classNotEqual');
-        end
-        
-        function testSINGLE(self)
-            self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'single');
-            assertTrue(isa(self.matlabList, 'single'));
-            assertExceptionThrown(@(x) self.compareLists(), 'assertEqual:classNotEqual');
-        end
-        
-        function testDOUBLE(self)
-            self.initArrayList(1, 1);
-            self.matlabList = toMatlabList(self.javaList, 'double');
-            assertTrue(isa(self.matlabList, 'double'));
+            self.matlabList = toMatlabList(self.javaList, class);
+            self.matlabClass = class;
+            
             self.compareLists();
         end
         
-        function testImageListWithCast(self)
-            self.initArrayList(10, omero.model.ImageI());
-            self.matlabList = toMatlabList(self.javaList, 'omero.model.ImageI');
-            assertTrue(isa(self.matlabList, 'omero.model.ImageI[]'));
-            self.compareLists();
+        function testToINT8(self)
+            self.checkNumericCasting('int8');
+        end
+        
+        function testToUINT8(self)
+            self.checkNumericCasting('uint8');
+        end
+        
+        function testToINT16(self)
+            self.checkNumericCasting('int16');
+        end
+        
+        function testToUINT16(self)
+            self.checkNumericCasting('uint16');
+        end
+        
+        function testToINT32(self)
+            self.checkNumericCasting('int32');
+        end
+        
+        function testToUINT32(self)
+            self.checkNumericCasting('uint32');
+        end
+        
+        function testToINT64(self)
+            self.checkNumericCasting('int64');
+        end
+        
+        function testToUINT64(self)
+            self.checkNumericCasting('uint64');
+        end
+        
+        function testToSINGLE(self)
+            self.checkNumericCasting('single');
+        end
+        
+        function testToDOUBLE(self)
+            self.checkNumericCasting('double');
         end
     end
 end
