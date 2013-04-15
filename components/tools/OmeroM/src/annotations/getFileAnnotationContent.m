@@ -2,14 +2,19 @@ function getFileAnnotationContent(session, fileAnnotation, path)
 % GETFILEANNOTATIONCONTENT Reads the file content of a file annotation
 %
 %    getFileAnnotationContent(session, fileAnnotation, path) reads the file
-%    content of the input file annotation and saves it in the files
+%    content of the input file annotation and saves it to the file
 %    specified by the input path.
+%
+%    getFileAnnotationContent(session, faid, path) reads the file content
+%    of the file annotation specified by the input identifier and saves it
+%    to the file specified by the input path.
 %
 %    Examples:
 %
 %        getFileAnnotationContent(session, fileAnnotation, path)
+%        getFileAnnotationContent(session, faid, path)
 %
-% See also:
+% See also: GETFILEANNOTATIONS
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -29,10 +34,19 @@ function getFileAnnotationContent(session, fileAnnotation, path)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
+isLoadedFA = @(x) isa(x, 'omero.model.FileAnnotationI') && x.isLoaded();
 ip = inputParser;
-ip.addRequired('fileAnnotation', @(x) isa(x, 'omero.model.FileAnnotationI'));
+ip.addRequired('fileAnnotation', @(x) isLoadedFA(x) || isscalar(x));
 ip.addRequired('path', @ischar);
 ip.parse(fileAnnotation, path);
+
+if ~isa(fileAnnotation, 'omero.model.fileAnnotation'),
+    % Load the file annotation from the server
+    faID = ip.Results.fileAnnotation;
+    fileAnnotation = getFileAnnotations(session, faID);
+    assert(isLoadedFA(fileAnnotation),...
+        'Could not load the file annotation: %u', faID);
+end
 
 % Initialize raw file store
 store = session.createRawFileStore();
