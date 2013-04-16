@@ -188,12 +188,12 @@ public class FileUploader implements IObservable
                         if (fileLength == -1) {
 
                             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                                    file.getName(), count, files.length, uploadedBytes, null, null));
+                                    file.getName(), count, files.length, uploadedBytes, null, null, null));
 
                         } else {
 
                             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                                    file.getName(), count, files.length, uploadedBytes, fileLength, null));
+                                    file.getName(), count, files.length, uploadedBytes, fileLength, null, null));
 
                         }
                     }
