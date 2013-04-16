@@ -1,7 +1,7 @@
 /*
  * pojos.ImageData
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -26,6 +26,7 @@ import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetImageLink;
+import omero.model.Fileset;
 import omero.model.Format;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -291,7 +292,11 @@ public class ImageData extends DataObject {
      */
     public boolean isArchived() {
     	omero.RBool value = asImage().getArchived();
-    	if (value == null) return false;
+    	if (value == null) {
+    		//Add FS check
+    		Fileset fs = asImage().getFileset();
+    		return (fs != null);
+    	}
     	return value.getValue();
     }
     
