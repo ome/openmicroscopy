@@ -2171,8 +2171,8 @@ class OmeroMetadataServiceImpl
 		long fileID = -1;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
-			if (fa.getFileName().equals(
-					FileAnnotationData.ORIGINAL_METADATA_NAME)){
+			if (FileAnnotationData.ORIGINAL_METADATA_NAME.equals(
+					fa.getFileName())) {
 				fileID = fa.getFileID();
 				break;
 			}
