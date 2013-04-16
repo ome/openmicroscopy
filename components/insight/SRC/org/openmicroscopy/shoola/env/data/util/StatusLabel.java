@@ -169,6 +169,29 @@ public class StatusLabel
 		return buffer.toString();
 	}
 	
+	/**
+	 * Formats the time left to finish the upload from milliseconds to
+	 * a human-readable format.
+	 *
+	 * @param value milliseconds.
+	 * @return See above.
+	 */
+	private String formatUploadTime(long milliseconds) {
+		StringBuffer buffer = new StringBuffer();
+		long seconds = milliseconds / 1000;
+		long minutes = seconds / 60;
+		long hours = minutes / 60;
+		buffer.append(hours < 10 ? "0" : "");
+		buffer.append(hours + "h");
+		buffer.append(":");
+		buffer.append(minutes < 10 ? "0" : "");
+		buffer.append((minutes - hours * 60) + "m");
+		buffer.append(":");
+		buffer.append(seconds < 10 ? "0" : "");
+		buffer.append((seconds - minutes * 60) + "s");
+		return buffer.toString();
+	}
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
@@ -410,6 +433,10 @@ public class StatusLabel
 				buffer.append(" ");
 			}
 			buffer.append(formatUpload(totalUploadedSize+e.uploadedBytes));
+			if (e.timeLeft != 0) {
+				buffer.append(" time left: ");
+				buffer.append(formatUploadTime(e.timeLeft));
+			}
 			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
