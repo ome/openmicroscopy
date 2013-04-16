@@ -5,18 +5,20 @@ function pas = getPlateAcquisitions(session, varargin)
 %   by the session user in the context of the session group.
 %
 %   pas = getPlateAcquisitions(session, ids) returns all the plate runs
-%   identified by the input ids owned by the session user in the context of
-%   the session group.
+%   identified by the input ids in the context of the session group.
 %
-%   pas = getPlateAcquisitions(session, ids, 'owmer', ownerId) returns all
+%   pas = getPlateAcquisitions(session, 'owner', ownerId) returns all the
+%   plate runs owned by the input owner in the context of the session group.
+%
+%   pas = getPlateAcquisitions(session, ids, 'owner', ownerId) returns all
 %   the plate runs identified by the input ids owned by the input owner in
 %   the context of the session group.
 %
 %   Examples:
 %
 %      pas = getPlateAcquisitions(session);
-%      pas = getPlateAcquisitions(session, ids);
 %      pas = getPlateAcquisitions(session, 'owner', ownerId);
+%      pas = getPlateAcquisitions(session, ids);
 %      pas = getPlateAcquisitions(session, ids, 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPLATES
@@ -39,11 +41,12 @@ function pas = getPlateAcquisitions(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addParamValue('owner', userId, @isscalar);
+ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
+% Delegate unmatched arguments check to getObjects function
+unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
 pas = getObjects(session, ip.Results.ids, 'plateacquisition',...
-    'owner', ip.Results.owner);
+    unmatchedArgs{:});

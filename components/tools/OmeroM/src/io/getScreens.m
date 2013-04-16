@@ -5,23 +5,25 @@ function screens = getScreens(session, varargin)
 %   session user in the context of the session group.
 %
 %   screens = getScreens(session, ids) returns all the screens identified
-%   by the input ids owned by the session user in the context of the
-%   session group.
+%   by the input ids in the context of the session group.
 %
 %   By default, getScreens() loads all the plates attached to the screens.
 %   This may have consequences in terms of loading time depending on the
 %   number of screens to load and plates attached to them.
 %
-%   screens = getScreens(session, ids, 'owner', ownerId) returns all the
-%   screens identified by the input ids owned by the input owner in the
+%   screens = getScreens(session, 'owner', owner) returns all the screens
+%   owned by the input owner in the context of the session group.
+%
+%   screens = getScreens(session, ids, 'owner', owner) returns all the
+%   screens identified by the input ids owned by the input user in the
 %   context of the session group.
 %
 %   Examples:
 %
 %      screens = getScreens(session);
+%      screens = getScreens(session, 'owner', ownerId);
 %      screens = getScreens(session, ids);
-%      plates = getPlates(session, 'owner', ownerId);
-%      plates = getPlates(session, ids, 'owner', ownerId);
+%      screens = getScreens(session, ids, 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPLATES, GETIMAGES
 
@@ -43,11 +45,11 @@ function screens = getScreens(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
-ip.addParamValue('owner', userId, @isscalar);
+ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
-screens = getObjects(session, ip.Results.ids, 'screen',...
-    'owner', ip.Results.owner);
+% Delegate unmatched arguments check to getObjects function
+unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+screens = getObjects(session, ip.Results.ids, 'screen', unmatchedArgs{:});

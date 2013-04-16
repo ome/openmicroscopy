@@ -5,17 +5,18 @@ function projects = getProjects(session, varargin)
 %   session user in the context of the session group.
 %
 %   projects = getProjects(session, ids) returns all the projects
-%   identified by the input ids owned by the session user in the context of
-%   the session group.
+%   identified by the input ids in the context of the session group.
 %
 %   projects = getProjects(session, ids, loaded) returns all the projects
-%   identified by the input ids owned by the session user in the context of
-%   the session group. If loaded is True, the images attached to the
-%   datasets are loaded.
+%   identified by the input ids in the context of the session group. If
+%   loaded is True, the images attached to the  datasets are loaded.
 %
 %   By default, getProjects() loads the entire projects/datasets/images
 %   graph. This may have consequences in terms of loading time depending on
 %   the images contained in the projects' datasets.
+%
+%   projects = getProjects(session, 'owner', ownerId) returns all the
+%   projects owned by the input owner in the context of the session group.
 %
 %   projects = getProjects(session, ids, 'owner', ownerId) returns all the
 %   projects identified by the input ids owned by the input owner in the
@@ -24,11 +25,10 @@ function projects = getProjects(session, varargin)
 %   Examples:
 %
 %      projects = getProjects(session);
-%      projects = getProjects(session, ids);
-%      projects = getProjects(session, ids, false);
-%      projects = getProjects(session, [], false);
 %      projects = getProjects(session, 'owner', ownerId);
-%      datasets = getProjects(session, ids, 'owner', ownerId);
+%      projects = getProjects(session, ids);
+%      projects = getProjects(session, ids, 'owner', ownerId);
+%      projects = getProjects(session, ids, false);
 %      projects = getProjects(session, ids, false, 'owner', ownerId);
 %
 %
@@ -52,16 +52,17 @@ function projects = getProjects(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
-userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addOptional('loaded', true, @islogical);
-ip.addParamValue('owner', userId, @isscalar);
+ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
 parameters = omero.sys.ParametersI();
 % Load the images attached to the datasets if loaded is True
 if ip.Results.loaded, parameters.leaves(); end
 
+% Delegate unmatched arguments check to getObjects function
+unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
 projects = getObjects(session, ip.Results.ids, 'project', parameters,...
-    'owner', ip.Results.owner);
+    unmatchedArgs{:});

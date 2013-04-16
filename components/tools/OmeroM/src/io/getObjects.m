@@ -2,13 +2,17 @@ function objects = getObjects(session, ids, type, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
 %   objects = getObjects(session, ids, type) returns all the objects of the
-%   specified type, identified by the input ids and owned by the session
-%   user in the context of the session group.
+%   specified type, identified by the input ids in the context of the
+%   session group.
 %
 %   objects = getObjects(session, ids, type, parameters) returns all the
 %   objects of the specified type, identified by the input ids, owned by
 %   the session user in the context of the session group using the supplied
 %   loading parameters.
+%
+%   If the input ids is an empty array, only the objects belonging to the
+%   session user are returned else all the readable objects belonging to
+%   any user are returned.
 %
 %   objects = getObjects(session, ids, type, 'owner', ownerId) returns all
 %   the objects of the specified type, identified by the input ids, owned
@@ -22,7 +26,6 @@ function objects = getObjects(session, ids, type, varargin)
 %      objects = getObjects(session, ids, type, parameters, 'owner', ownerId);
 %
 % See also: GETOBJECTTYPES
-
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -41,23 +44,33 @@ function objects = getObjects(session, ids, type, varargin)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-% Check input
+% Check required input parameters
 objectTypes = getObjectTypes();
 objectNames = {objectTypes.name};
-userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addRequired('session');
 ip.addRequired('ids', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
+ip.parse(session, ids, type);
+objectType = objectTypes(strcmp(type, objectNames));
+
+% Check optional input parameters
+ip = inputParser;
 ip.addOptional('parameters', omero.sys.ParametersI(),...
     @(x) isa(x, 'omero.sys.ParametersI'));
-ip.addParamValue('owner', userId, @isscalar);
-ip.parse(session, ids, type, varargin{:});
-objectType = objectTypes(strcmp(type, objectNames));
+if isempty(ids),
+    % If no input id, return the objects owned by the session user by default
+    defaultOwner = session.getAdminService().getEventContext().userId;
+else
+    % If ids are specified, return the objects owned by any user by default
+    defaultOwner = -1;
+end
+ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+ip.parse(varargin{:});
 
 % Use getImages function if retrieving images
 if strcmp(type, 'image'),
-    objects = getImages(session, ids);
+    objects = getImages(session, ids, varargin{:});
     return
 end
 
@@ -66,7 +79,7 @@ parameters = ip.Results.parameters;
 parameters.exp(rlong(ip.Results.owner));
 
 % Create list of objects to load
-ids = toJavaList(ip.Results.ids, 'java.lang.Long');
+ids = toJavaList(ids, 'java.lang.Long');
 
 % Create container service to load objects
 proxy = session.getContainerService();
