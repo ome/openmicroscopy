@@ -172,6 +172,96 @@ class AbstractRepoTest(lib.ITest):
         rsp = cb.getResponse()
         self.assertTrue(isinstance(rsp, omero.cmd.ERR))
 
+    def create_test_dir(self):
+        folder = create_path(folder=True)
+        (folder / "a.fake").touch()
+        (folder / "b.fake").touch()
+        return folder
+
+    def create_fileset(self, folder):
+        fileset = omero.model.FilesetI()
+        for f in folder.files():
+            entry = omero.model.FilesetEntryI()
+            entry.setClientPath(rstring(str(f.abspath())))
+            fileset.addFilesetEntry(entry)
+
+        # Fill BF info
+        system, node, release, version, machine, processor = platform.uname()
+        try:
+            preferred_locale = locale.getdefaultlocale()[0]
+        except:
+            preferred_locale = "Unknown"
+
+        clientVersionInfo = omero.model.FilesetVersionInfoI()
+        clientVersionInfo.setBioformatsReader(rstring("DirectoryReader"))
+        clientVersionInfo.setBioformatsVersion(rstring("Unknown"))
+        clientVersionInfo.setOmeroVersion(rstring(omero_version));
+        clientVersionInfo.setOsArchitecture(rstring(machine))
+        clientVersionInfo.setOsName(rstring(system))
+        clientVersionInfo.setOsVersion(rstring(release))
+        clientVersionInfo.setLocale(rstring(preferred_locale))
+
+        upload = omero.model.UploadJobI()
+        upload.setVersionInfo(clientVersionInfo)
+        fileset.linkJob(upload)
+        return fileset
+
+    def create_settings(self):
+        settings = omero.grid.ImportSettings()
+        settings.doThumbnails = rbool(True)
+        settings.userSpecifiedTarget = None
+        settings.userSpecifiedName = None
+        settings.userSpecifiedDescription = None
+        settings.userSpecifiedAnnotationList = None
+        settings.userSpecifiedPixels = None
+        return settings
+
+    def upload_folder(self, proc, folder):
+        ret_val = []
+        for i, fobj in enumerate(folder.files()):  # Assuming same order
+            rfs = proc.getUploader(i)
+            try:
+                f = fobj.open()
+                try:
+                    offset = 0
+                    block = []
+                    rfs.write(block, offset, len(block)) # Touch
+                    while True:
+                        block = f.read(1000*1000)
+                        if not block:
+                            break
+                        rfs.write(block, offset, len(block))
+                        offset += len(block)
+                    ret_val.append(self.client.sha1(fobj.abspath()))
+                finally:
+                    f.close()
+            finally:
+                rfs.close()
+        return ret_val
+
+    def fullImport(self, client):
+        """
+        Re-usable method for a basic import
+        """
+        mrepo = self.getManagedRepo(client)
+        folder = self.create_test_dir()
+        fileset = self.create_fileset(folder)
+        settings = self.create_settings()
+
+        proc = mrepo.importFileset(fileset, settings)
+        try:
+            return self.assertImport(client, proc, folder)
+        finally:
+            proc.close()
+
+    def assertImport(self, client, proc, folder):
+        hashes = self.upload_folder(proc, folder)
+        handle = proc.verifyUpload(hashes)
+        cb = CmdCallbackI(client, handle)
+        rsp = self.assertPasses(cb)
+        self.assertEquals(1, len(rsp.pixels))
+        return rsp
+
 
 class TestRepository(AbstractRepoTest):
 
@@ -428,88 +518,6 @@ class TestManagedRepositoryMultiUser(AbstractRepoTest):
 
 class TestPythonImporter(AbstractRepoTest):
 
-    def create_test_dir(self):
-        folder = create_path(folder=True)
-        (folder / "a.fake").touch()
-        (folder / "b.fake").touch()
-        return folder
-
-    def create_fileset(self, folder):
-        fileset = omero.model.FilesetI()
-        for f in folder.files():
-            entry = omero.model.FilesetEntryI()
-            entry.setClientPath(rstring(str(f.abspath())))
-            fileset.addFilesetEntry(entry)
-
-        # Fill BF info
-        system, node, release, version, machine, processor = platform.uname()
-        try:
-            preferred_locale = locale.getdefaultlocale()[0]
-        except:
-            preferred_locale = "Unknown"
-
-        clientVersionInfo = omero.model.FilesetVersionInfoI()
-        clientVersionInfo.setBioformatsReader(rstring("DirectoryReader"))
-        clientVersionInfo.setBioformatsVersion(rstring("Unknown"))
-        clientVersionInfo.setOmeroVersion(rstring(omero_version));
-        clientVersionInfo.setOsArchitecture(rstring(machine))
-        clientVersionInfo.setOsName(rstring(system))
-        clientVersionInfo.setOsVersion(rstring(release))
-        clientVersionInfo.setLocale(rstring(preferred_locale))
-
-        upload = omero.model.UploadJobI()
-        upload.setVersionInfo(clientVersionInfo)
-        fileset.linkJob(upload)
-        return fileset
-
-    def create_settings(self):
-        settings = omero.grid.ImportSettings()
-        settings.doThumbnails = rbool(True)
-        settings.userSpecifiedTarget = None
-        settings.userSpecifiedName = None
-        settings.userSpecifiedDescription = None
-        settings.userSpecifiedAnnotationList = None
-        settings.userSpecifiedPixels = None
-        return settings
-
-    def upload_folder(self, proc, folder):
-        ret_val = []
-        for i, fobj in enumerate(folder.files()):  # Assuming same order
-            rfs = proc.getUploader(i)
-            try:
-                f = fobj.open()
-                try:
-                    offset = 0
-                    block = []
-                    rfs.write(block, offset, len(block)) # Touch
-                    while True:
-                        block = f.read(1000*1000)
-                        if not block:
-                            break
-                        rfs.write(block, offset, len(block))
-                        offset += len(block)
-                    ret_val.append(self.client.sha1(fobj.abspath()))
-                finally:
-                    f.close()
-            finally:
-                rfs.close()
-        return ret_val
-
-    def fullImport(self, client):
-        """
-        Re-usable method for a basic import
-        """
-        mrepo = self.getManagedRepo(client)
-        folder = self.create_test_dir()
-        fileset = self.create_fileset(folder)
-        settings = self.create_settings()
-
-        proc = mrepo.importFileset(fileset, settings)
-        try:
-            self.assertImport(client, proc, folder)
-        finally:
-            proc.close()
-
     def testImportFileset(self):
         client = self.new_client()
         self.fullImport(client)
@@ -541,12 +549,6 @@ class TestPythonImporter(AbstractRepoTest):
         client.sf.setSecurityContext(group2)
         self.fullImport(client)
 
-    def assertImport(self, client, proc, folder):
-        hashes = self.upload_folder(proc, folder)
-        handle = proc.verifyUpload(hashes)
-        cb = CmdCallbackI(client, handle)
-        rsp = self.assertPasses(cb)
-        self.assertEquals(1, len(rsp.pixels))
 
 class TestRawAccess(AbstractRepoTest):
 
