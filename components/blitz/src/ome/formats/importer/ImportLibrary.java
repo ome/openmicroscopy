@@ -327,7 +327,7 @@ public class ImportLibrary implements IObservable
                     chunkTime = alpha * (Long) samples.get()
                             + (1 - alpha) * chunkTime;
                 }
-                timeLeft = (long) chunkTime * ((length-offset)/rlen);
+                timeLeft = rlen == 0 ? 0 : (long) chunkTime * ((length-offset)/rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                         file.getAbsolutePath(), index, srcFiles.length, offset,
                         length, timeLeft, null));
