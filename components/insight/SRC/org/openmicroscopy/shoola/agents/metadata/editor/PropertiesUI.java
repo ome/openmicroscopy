@@ -692,7 +692,7 @@ class PropertiesUI
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(box, c);
-    	c.gridy++; 
+    	c.gridy++;
     	c.gridx = 0;
     	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE,
     			Font.BOLD, size);
@@ -702,7 +702,7 @@ class PropertiesUI
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
-    	c.gridy++; 
+    	c.gridy++;
     	c.gridx = 0;
     	try { //just to be on the save side
     		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE,
@@ -748,7 +748,7 @@ class PropertiesUI
         	content.add(value, c);
     	}
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
@@ -811,7 +811,7 @@ class PropertiesUI
      * @param sizeRow   The size of the row.
      * @return See above.
      */
-    private JPanel layoutEditablefield(Component button, JComponent component, 
+    private JPanel layoutEditablefield(Component button, JComponent component,
     		int sizeRow)
     {
     	JPanel p = new JPanel();
@@ -968,7 +968,7 @@ class PropertiesUI
         			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
         		String description = fa.getDescription();
         		if (description != null && description.length() > 0) {
-        			PreviewPanel panel = new PreviewPanel(description, 
+        			PreviewPanel panel = new PreviewPanel(description,
         					fa.getId());
         			panel.addPropertyChangeListener(controller);
         			add(Box.createVerticalStrut(5));
@@ -997,7 +997,7 @@ class PropertiesUI
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field, JButton button, 
+	private void editField(JPanel panel, JComponent field, JButton button,
 			boolean editable)
 	{
 		if (field == namePane) {
@@ -1048,7 +1048,7 @@ class PropertiesUI
 	 * @param rowIndex Indicates how to label the rows.
 	 * @return See above.
 	 */
-	private String getWellLabel(WellData well, int columnIndex, 
+	private String getWellLabel(WellData well, int columnIndex,
 			int rowIndex)
 	{
 		int k = well.getRow()+1;
@@ -1079,14 +1079,14 @@ class PropertiesUI
 			parentLabel.setText("Plate: "+s);
 			parentLabel.setToolTipText(text);
 			parentLabel.repaint();
-			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
+			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(),
 					plate.getRowSequenceIndex());
 			wellLabel.setText(text);
 		}
 		parent = model.getGrandParentRootObject();
 		if (parent instanceof ScreenData) {
 			ScreenData screen = (ScreenData) parent;
-			text = "Screen: "; 
+			text = "Screen: ";
 			text += screen.getName();
 			gpLabel.setText(text);
 			gpLabel.repaint();
@@ -1096,10 +1096,10 @@ class PropertiesUI
     /**
      * Creates a new instance.
      * 
-     * @param model 		Reference to the {@link EditorModel}.
-     * 						Mustn't be <code>null</code>.   
-     * @param controller 	Reference to the {@link EditorControl}.
-     * 						Mustn't be <code>null</code>.                             
+     * @param model Reference to the {@link EditorModel}.
+     * Mustn't be <code>null</code>.
+     * @param controller Reference to the {@link EditorControl}.
+     * Mustn't be <code>null</code>.
      */
     PropertiesUI(EditorModel model, EditorControl controller)
     {
@@ -1204,7 +1204,7 @@ class PropertiesUI
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = modifiedName;//namePane.getText().trim();
+		String name = modifiedName;
 		String desc = descriptionWiki.getText().trim();
 		if (name != null) {
 			if (name.equals(originalName) || name.equals(originalDisplayedName))
@@ -1212,7 +1212,7 @@ class PropertiesUI
 		}
 		String value = desc;
 		if (desc != null) {
-			String v = OMEWikiComponent.prepare(originalDescription.trim(), 
+			String v = OMEWikiComponent.prepare(originalDescription.trim(),
 					true);
 			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
 			if (v2.equals(v)) value = "";
@@ -1249,7 +1249,6 @@ class PropertiesUI
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
-			//if (f.isImage()) f.setDescription(desc);
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
