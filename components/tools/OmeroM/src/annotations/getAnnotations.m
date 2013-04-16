@@ -2,7 +2,7 @@ function annotations = getAnnotations(session, ids, type)
 % GETANNOTATIONS Retrieve annotations from a given type from the OMERO server
 %
 %   annotations = getAnnotations(session, ids, type) returns all the 
-%   annotations dentified by the input ids of the specified type.
+%   annotations identified by the input ids of the specified type.
 %
 %   Examples:
 %
