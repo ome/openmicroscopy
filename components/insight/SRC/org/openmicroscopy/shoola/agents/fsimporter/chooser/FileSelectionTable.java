@@ -898,7 +898,7 @@ class FileSelectionTable
 		int index = ARCHIVED_INDEX;
 		if (model.isSingleGroup())
 			index = index-1;
-		if(model.canImportAs())
+		if (!model.canImportAs())
 			index = index -1;
 		for (int i = 0; i < n; i++) {
 			dtm.setValueAt(archive, i, index);
