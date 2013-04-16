@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.FilesLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -69,13 +69,13 @@ public class FilesLoader
 	public static final int METADATA_FROM_IMAGE = 2;
 	
 	/** Loads the specified annotations. */
-    private BatchCall   loadCall;
+    private BatchCall loadCall;
     
     /** The result of the call. */
-    private Object		result;
+    private Object result;
     
     /** The result of the call. */
-    private Object		currentFile;
+    private Object currentFile;
     
     /** The files to load. */
     private Map<FileAnnotationData, File> files;
@@ -90,55 +90,54 @@ public class FilesLoader
 	 * @param fileID The id of the file to download.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final File file, 
-    						final long fileID)
+    private BatchCall makeBatchCall(final File file, final long fileID)
     {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                result = service.downloadFile(ctx, file, fileID);
-            }
-        };
+    	return new BatchCall("Downloading files.") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroMetadataService service = context.getMetadataService();
+    			result = service.downloadFile(ctx, file, fileID);
+    		}
+    	};
     }
     
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
      * 
-	 * @param id	The id of the file annotation to download.
+	 * @param id The id of the file annotation to download.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeFileBatchCall(final long id)
     {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                FileAnnotationData fa = (FileAnnotationData) 
-                	service.loadAnnotation(ctx, id);
-                result = service.downloadFile(ctx, new File(fa.getFileName()),
-                		fa.getFileID());
-            }
-        };
+    	return new BatchCall("Downloading files.") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroMetadataService service = context.getMetadataService();
+    			FileAnnotationData fa = (FileAnnotationData) 
+    					service.loadAnnotation(ctx, id);
+    			result = service.downloadFile(ctx, new File(fa.getFileName()),
+    					fa.getFileID());
+    		}
+    	};
     }
     
     /**
-     * Creates a {@link BatchCall} to download the metadata associated to the 
+     * Creates a {@link BatchCall} to download the metadata associated to the
      * image.
      * 
-     * @param file the 
+     * @param file where to write the content.
 	 * @param id The id of the image to handle.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeFromImageBatchCall(final File file, final long id)
     {
-        return new BatchCall("Downloading original metadata.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                result = service.downloadMetadataFile(ctx, file, id);
-            }
-        };
+    	return new BatchCall("Downloading original metadata.") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroMetadataService service = context.getMetadataService();
+    			result = service.downloadMetadataFile(ctx, file, id);
+    		}
+    	};
     }
     
     /**
@@ -149,20 +148,20 @@ public class FilesLoader
      */
     private BatchCall makeBatchCall(final long fileAnnotationID)
     {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                FileAnnotationData fa = (FileAnnotationData) 
-                	service.loadAnnotation(ctx, fileAnnotationID);
-                Map<FileAnnotationData, File> m = 
-                	new HashMap<FileAnnotationData, File>();
-                File f = service.downloadFile(ctx, new File(fa.getFileName()), 
-                		fa.getFileID());
-                m.put(fa, f);
-                result = m;
-            }
-        };
+    	return new BatchCall("Downloading files.") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroMetadataService service = context.getMetadataService();
+    			FileAnnotationData fa = (FileAnnotationData) 
+    					service.loadAnnotation(ctx, fileAnnotationID);
+    			Map<FileAnnotationData, File> m = 
+    					new HashMap<FileAnnotationData, File>();
+    			File f = service.downloadFile(ctx, new File(fa.getFileName()),
+    					fa.getFileID());
+    			m.put(fa, f);
+    			result = m;
+    		}
+    	};
     }
 
     /** 
@@ -174,19 +173,19 @@ public class FilesLoader
     private void loadFile(final FileAnnotationData fa, final File f)
     {
     	OmeroMetadataService service = context.getMetadataService();
-        Map<FileAnnotationData, File> m = 
-        	new HashMap<FileAnnotationData, File>();
-        OriginalFile of;
-        of = ((FileAnnotation) fa.asAnnotation()).getFile();
-        try {
-        	service.downloadFile(ctx, f, of.getId().getValue());
-        	m.put(fa, f);
-        	currentFile = m;
-		} catch (Exception e) {
-			m.put(fa, null);
-			context.getLogger().error(this, 
-        			"Cannot retrieve file: "+e.getMessage());
-		}
+    	Map<FileAnnotationData, File> m = 
+    			new HashMap<FileAnnotationData, File>();
+    	OriginalFile of;
+    	of = ((FileAnnotation) fa.asAnnotation()).getFile();
+    	try {
+    		service.downloadFile(ctx, f, of.getId().getValue());
+    		m.put(fa, f);
+    		currentFile = m;
+    	} catch (Exception e) {
+    		m.put(fa, null);
+    		context.getLogger().error(this,
+    				"Cannot retrieve file: "+e.getMessage());
+    	}
     }
     
     
@@ -194,19 +193,19 @@ public class FilesLoader
      * Creates a {@link BatchCall} to load the files identified by
      * the passed type.
      * 
-     * @param type 		The type of files to load.
-	 * @param userID    The id of the user.
+     * @param type The type of files to load.
+	 * @param userID The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeLoadFilesBatchCall(final int type, final long userID)
     {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                result = service.loadFiles(ctx, type, userID);
-            }
-        };
+    	return new BatchCall("Downloading files.") {
+    		public void doCall() throws Exception
+    		{
+    			OmeroMetadataService service = context.getMetadataService();
+    			result = service.loadFiles(ctx, type, userID);
+    		}
+    	};
     }
     
     /**
@@ -252,9 +251,8 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param file	 	The file where to write the data.
-	 * @param fileID	The id of the file to download.
-	 * @param size		The size of the file.
+	 * @param file The file where to write the data.
+	 * @param fileID The id of the file to download.
      */
     public FilesLoader(SecurityContext ctx, File file, long fileID)
     {
@@ -267,9 +265,9 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param file	 	The file where to write the data.
-	 * @param fileID	The id of the file to download.
-	 * @param size		The size of the file.
+	 * @param file The file where to write the data.
+	 * @param fileID The id of the file to download.
+	 * @param index One of the constants defined by this class.
      */
     public FilesLoader(SecurityContext ctx, File file, long fileID, int index)
     {
@@ -301,13 +299,13 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param type 		The type of files to load.
-	 * @param userID    The id of the user.
+	 * @param type The type of files to load.
+	 * @param userID The id of the user.
      */
     public FilesLoader(SecurityContext ctx, int type, long userID)
     {
     	this.ctx = ctx;
     	loadCall = makeLoadFilesBatchCall(type, userID);
     }
-    
+
 }
