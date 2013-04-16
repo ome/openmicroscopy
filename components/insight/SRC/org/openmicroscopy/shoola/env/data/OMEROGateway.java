@@ -4403,7 +4403,8 @@ class OMEROGateway
 		}
 		byte[] buf = new byte[INC]; 
 		FileInputStream stream = null;
-		final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
+		final ChecksumProvider hasher = checksumProviderFactory.getProvider(
+				ChecksumType.SHA1);
 		try {
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4419,13 +4420,18 @@ class OMEROGateway
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
-			if (f != null) save = f;
-			final String clientHash = hasher.checksumAsString();
-			final String serverHash = save.getHash().getValue();
-			if (!clientHash.equals(serverHash)) {
-			    throw new ImportException("file checksum mismatch on upload: " + file +
-			            " (client has " + clientHash + ", server has " + serverHash + ")");
+			if (f != null) { //happens when the file is of size = 0
+				save = f;
+				final String clientHash = hasher.checksumAsString();
+				final String serverHash = save.getHash().getValue();
+				if (!clientHash.equals(serverHash)) {
+				    throw new ImportException("file checksum mismatch on" +
+				    		"upload: " + file +
+				            " (client has " + clientHash + "," +
+				            		"server has " + serverHash + ")");
+				}
 			}
+			
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
