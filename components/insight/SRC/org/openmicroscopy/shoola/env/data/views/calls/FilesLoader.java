@@ -85,9 +85,9 @@ public class FilesLoader
     
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
-     * 
-	 * @param file The absolute form of this abstract pathname.
-	 * @param fileID The id of the file to download.
+     *
+     * @param file The absolute form of this abstract pathname.
+     * @param fileID The id of the file to download.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final File file, final long fileID)
@@ -103,8 +103,8 @@ public class FilesLoader
     
     /**
      * Creates a {@link BatchCall} to download a file previously loaded.
-     * 
-	 * @param id The id of the file annotation to download.
+     *
+     * @param id The id of the file annotation to download.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeFileBatchCall(final long id)
@@ -126,7 +126,7 @@ public class FilesLoader
      * image.
      * 
      * @param file where to write the content.
-	 * @param id The id of the image to handle.
+     * @param id The id of the image to handle.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeFromImageBatchCall(final File file, final long id)
@@ -166,7 +166,7 @@ public class FilesLoader
 
     /** 
      * Loads the specified file.
-     * 
+     *
      * @param fa The file annotation to handle.
      * @param f  The file to load.
      */
@@ -194,7 +194,7 @@ public class FilesLoader
      * the passed type.
      * 
      * @param type The type of files to load.
-	 * @param userID The id of the user.
+     * @param userID The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeLoadFilesBatchCall(final int type, final long userID)
@@ -251,8 +251,8 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param file The file where to write the data.
-	 * @param fileID The id of the file to download.
+     * @param file The file where to write the data.
+     * @param fileID The id of the file to download.
      */
     public FilesLoader(SecurityContext ctx, File file, long fileID)
     {
@@ -265,9 +265,9 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param file The file where to write the data.
-	 * @param fileID The id of the file to download.
-	 * @param index One of the constants defined by this class.
+     * @param file The file where to write the data.
+     * @param fileID The id of the file to download.
+     * @param index One of the constants defined by this class.
      */
     public FilesLoader(SecurityContext ctx, File file, long fileID, int index)
     {
@@ -285,7 +285,7 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param files The files to load.
+     * @param files The files to load.
      */
     public FilesLoader(SecurityContext ctx, Map<FileAnnotationData, File> files)
     {
@@ -299,8 +299,8 @@ public class FilesLoader
      * Creates a new instance.
      * 
      * @param ctx The security context.
-	 * @param type The type of files to load.
-	 * @param userID The id of the user.
+     * @param type The type of files to load.
+     * @param userID The id of the user.
      */
     public FilesLoader(SecurityContext ctx, int type, long userID)
     {
