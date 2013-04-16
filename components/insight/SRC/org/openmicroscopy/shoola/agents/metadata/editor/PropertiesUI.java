@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.util.editor.PropertiesUI 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -52,6 +52,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -682,7 +683,18 @@ class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE, 
+    	JLabel label = UIUtilities.setTextFont(EditorUtil.ARCHIVED,
+    			Font.BOLD, size);
+    	JCheckBox box = new JCheckBox();
+    	box.setEnabled(false);
+    	box.setBackground(UIUtilities.BACKGROUND);
+    	box.setSelected(model.isArchived());
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(box, c);
+    	c.gridy++;
+    	c.gridx = 0;
+    	label = UIUtilities.setTextFont(EditorUtil.ACQUISITION_DATE,
     			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
@@ -690,10 +702,10 @@ class PropertiesUI
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
-    	c.gridy++; 	
+    	c.gridy++;
     	c.gridx = 0;
     	try { //just to be on the save side
-    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE, 
+    		label = UIUtilities.setTextFont(EditorUtil.IMPORTED_DATE,
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	v =  UIUtilities.formatShortDateTime(image.getInserted());
@@ -705,7 +717,7 @@ class PropertiesUI
 		} catch (Exception e) {
 			
 		}
-    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.XY_DIMENSION, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
@@ -736,7 +748,7 @@ class PropertiesUI
         	content.add(value, c);
     	}
     	c.gridy++;
-    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD, 
+    	label = UIUtilities.setTextFont(EditorUtil.Z_T_FIELDS, Font.BOLD,
     			size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SECTIONS);
@@ -799,7 +811,7 @@ class PropertiesUI
      * @param sizeRow   The size of the row.
      * @return See above.
      */
-    private JPanel layoutEditablefield(Component button, JComponent component, 
+    private JPanel layoutEditablefield(Component button, JComponent component,
     		int sizeRow)
     {
     	JPanel p = new JPanel();
@@ -865,17 +877,6 @@ class PropertiesUI
     private JPanel buildProperties()
     {
     	Object refObject = model.getRefObject();
-        if (refObject instanceof ImageData) {
-        	ImageData img = (ImageData) refObject;
-        	try {
-        		img.getDefaultPixels();
-    		} catch (Exception e) {}
-        } else if (refObject instanceof WellSampleData) {
-        	ImageData img = ((WellSampleData) refObject).getImage();
-        	if (img != null && img.getId() > 0) {
-        		img.getDefaultPixels();
-        	}
-        }
         JPanel p = new JPanel();
         p.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -967,7 +968,7 @@ class PropertiesUI
         			FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns)) {
         		String description = fa.getDescription();
         		if (description != null && description.length() > 0) {
-        			PreviewPanel panel = new PreviewPanel(description, 
+        			PreviewPanel panel = new PreviewPanel(description,
         					fa.getId());
         			panel.addPropertyChangeListener(controller);
         			add(Box.createVerticalStrut(5));
@@ -996,7 +997,7 @@ class PropertiesUI
 	 * @param editable	Pass <code>true</code> if  to <code>edit</code>,
 	 * 					<code>false</code> otherwise.
 	 */
-	private void editField(JPanel panel, JComponent field, JButton button, 
+	private void editField(JPanel panel, JComponent field, JButton button,
 			boolean editable)
 	{
 		if (field == namePane) {
@@ -1047,7 +1048,7 @@ class PropertiesUI
 	 * @param rowIndex Indicates how to label the rows.
 	 * @return See above.
 	 */
-	private String getWellLabel(WellData well, int columnIndex, 
+	private String getWellLabel(WellData well, int columnIndex,
 			int rowIndex)
 	{
 		int k = well.getRow()+1;
@@ -1078,14 +1079,14 @@ class PropertiesUI
 			parentLabel.setText("Plate: "+s);
 			parentLabel.setToolTipText(text);
 			parentLabel.repaint();
-			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
+			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(),
 					plate.getRowSequenceIndex());
 			wellLabel.setText(text);
 		}
 		parent = model.getGrandParentRootObject();
 		if (parent instanceof ScreenData) {
 			ScreenData screen = (ScreenData) parent;
-			text = "Screen: "; 
+			text = "Screen: ";
 			text += screen.getName();
 			gpLabel.setText(text);
 			gpLabel.repaint();
@@ -1095,10 +1096,10 @@ class PropertiesUI
     /**
      * Creates a new instance.
      * 
-     * @param model 		Reference to the {@link EditorModel}.
-     * 						Mustn't be <code>null</code>.   
-     * @param controller 	Reference to the {@link EditorControl}.
-     * 						Mustn't be <code>null</code>.                             
+     * @param model Reference to the {@link EditorModel}.
+     * Mustn't be <code>null</code>.
+     * @param controller Reference to the {@link EditorControl}.
+     * Mustn't be <code>null</code>.
      */
     PropertiesUI(EditorModel model, EditorControl controller)
     {
@@ -1203,7 +1204,7 @@ class PropertiesUI
 	{
 		if (!hasDataToSave()) return;
 		Object object =  model.getRefObject();
-		String name = modifiedName;//namePane.getText().trim();
+		String name = modifiedName;
 		String desc = descriptionWiki.getText().trim();
 		if (name != null) {
 			if (name.equals(originalName) || name.equals(originalDisplayedName))
@@ -1211,7 +1212,7 @@ class PropertiesUI
 		}
 		String value = desc;
 		if (desc != null) {
-			String v = OMEWikiComponent.prepare(originalDescription.trim(), 
+			String v = OMEWikiComponent.prepare(originalDescription.trim(),
 					true);
 			String v2 = OMEWikiComponent.prepare(desc.trim(), true);
 			if (v2.equals(v)) value = "";
@@ -1248,7 +1249,6 @@ class PropertiesUI
 		} else if (object instanceof FileData) {
 			FileData f = (FileData) object;
 			if (f.getId() > 0) return;
-			//if (f.isImage()) f.setDescription(desc);
 		} else if (object instanceof PlateAcquisitionData) {
 			PlateAcquisitionData pa = (PlateAcquisitionData) object;
 			if (name.length() > 0) pa.setName(name);
