@@ -114,7 +114,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
      */
     @Test
     public void testClientPathSafety() throws IOException {
-        testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/_.[]", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>");
+        testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/.[]._", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>.");
     }
     
     /**
