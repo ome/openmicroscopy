@@ -5,25 +5,27 @@ function images = getImages(session, varargin)
 %   user in the context of the session group.
 %
 %   images = getImages(session, ids) returns all the images identified by
-%   the input ids owned by the session user in the context of the session
-%   group.
+%   the input ids in the context of the session group.
 %
-%   images = getImages(session, ids, type) returns all the images contained
-%   in the objects of input type identified by the input ids and owned by
-%   the session user in the context of the session group.
+%   images = getImages(session, 'owner', ownerId) returns all the images
+%   owned by the input owner in the context of the session group.
 %
 %   images = getImages(session, ids, 'owner', ownerId) returns all the
 %   images identified by the input ids and owned by the input owner in the
 %   context of the session group.
 %
+%   images = getImages(session, ids, type) returns all the images contained
+%   in the objects of input type identified by the input ids and owned by
+%   the session user in the context of the session group.
+%
+%
 %   Examples:
 %
 %      images = getImages(session);
-%      images = getImages(session, ids);
-%      images = getImages(session, [], 'project);
-%      images = getImages(session, datasetIds, 'dataset');
 %      images = getImages(session, 'owner', ownerId);
+%      images = getImages(session, ids);
 %      images = getImages(session, ids, 'owner', ownerId);
+%      images = getImages(session, datasetIds, 'dataset');
 %      images = getImages(session, ids, 'project', 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETDATASETS, GETPLATES
@@ -47,12 +49,25 @@ function images = getImages(session, varargin)
 
 % Input check
 types = {'image', 'dataset', 'project'};
-userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
+ip.addRequired('session');
 ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addOptional('type', 'image', @(x) ismember(x, types));
-ip.addParamValue('owner', userId, @isscalar);
-ip.parse(varargin{:});
+ip.KeepUnmatched = true;
+ip.parse(session, varargin{:});
+
+% Check optional input parameters
+if isempty(ip.Results.ids),
+    % If no input id, return the objects owned by the session user by default
+    defaultOwner = session.getAdminService().getEventContext().userId;
+else
+    % If ids are specified, return the objects owned by any user by default
+    defaultOwner = -1;
+end
+ip.addParamValue('owner', defaultOwner, @(x) isscalar(x) && isnumeric(x));
+ip.KeepUnmatched = false;
+ip.parse(session, varargin{:});
+
 
 if strcmp(ip.Results.type, 'image')
     % Add the owner user id to the loading parameters
