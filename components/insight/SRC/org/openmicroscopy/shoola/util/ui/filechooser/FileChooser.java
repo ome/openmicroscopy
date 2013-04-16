@@ -385,19 +385,8 @@ public class FileChooser
 	void setFolderPath(String path)
 	{
 		if (path == null) return;
-		char separator = File.separatorChar;
-    	File[] l = uiDelegate.getCurrentDirectory().listFiles();
-        boolean exist = false;
-        for (int i = 0; i < l.length; i++) {
-            if ((l[i].getAbsolutePath()).equals(path)) {
-                exist = true;
-                break;
-            }
-        }
     	folderPath = path;
-		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
-		//if (uiDelegate.isSetDefaultFolder()) 
-		//	UIUtilities.setDefaultFolder(path);
+		firePropertyChange(LOCATION_PROPERTY, null, path+File.separatorChar);
 		setVisible(false);
     	dispose();	
 	}
