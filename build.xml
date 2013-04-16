@@ -972,6 +972,11 @@ omero.version=${omero.version}
         <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
+    <target name="hot-bio-formats" depends="init" description="Re-launch running server with new bio-formats">
+        <property name="targets" value="dist"/>
+        <hotdeploy component="${bioformats.comp}" targets="${targets}"/>
+    </target>
+
     <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${blitz.comp}" targets="${targets}"/>
