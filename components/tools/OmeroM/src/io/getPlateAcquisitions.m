@@ -1,17 +1,23 @@
-function plates = getPlateAcquisitions(session, varargin)
+function pas = getPlateAcquisitions(session, varargin)
 % GETPLATEACQUISITIONS Retrieve plate acquisition objects from the OMERO server
 %
-%   plates = getPlateAcquisitions(session) returns all the plateruns owned
+%   pas = getPlateAcquisitions(session) returns all the plateruns owned
 %   by the session user in the context of the session group.
 %
-%   plates = getPlateAcquisitions(session, ids) returns all the plate runs
+%   pas = getPlateAcquisitions(session, ids) returns all the plate runs
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
+%   pas = getPlateAcquisitions(session, ids, 'owmer', ownerId) returns all
+%   the plate runs identified by the input ids owned by the input owner in
+%   the context of the session group.
+%
 %   Examples:
 %
-%      plates = getPlateAcquisitions(session);
-%      plates = getPlateAcquisitions(session, ids);
+%      pas = getPlateAcquisitions(session);
+%      pas = getPlateAcquisitions(session, ids);
+%      pas = getPlateAcquisitions(session, 'owner', ownerId);
+%      pas = getPlateAcquisitions(session, ids, 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPLATES
 
@@ -33,8 +39,11 @@ function plates = getPlateAcquisitions(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Input check
+userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
-ip.addOptional('ids', [], @isvector);
+ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
+ip.addParamValue('owner', userId, @isscalar);
 ip.parse(varargin{:});
 
-plates = getObjects(session, ip.Results.ids, 'plateacquisition');
+pas = getObjects(session, ip.Results.ids, 'plateacquisition',...
+    'owner', ip.Results.owner);

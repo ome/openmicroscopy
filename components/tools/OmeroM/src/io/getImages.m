@@ -12,6 +12,9 @@ function images = getImages(session, varargin)
 %   in the objects of input type identified by the input ids and owned by
 %   the session user in the context of the session group.
 %
+%   images = getImages(session, ids, 'owner', ownerId) returns all the
+%   images identified by the input ids and owned by the input owner in the
+%   context of the session group.
 %
 %   Examples:
 %
@@ -19,6 +22,9 @@ function images = getImages(session, varargin)
 %      images = getImages(session, ids);
 %      images = getImages(session, [], 'project);
 %      images = getImages(session, datasetIds, 'dataset');
+%      images = getImages(session, 'owner', ownerId);
+%      images = getImages(session, ids, 'owner', ownerId);
+%      images = getImages(session, ids, 'project', 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETDATASETS, GETPLATES
 
@@ -41,20 +47,21 @@ function images = getImages(session, varargin)
 
 % Input check
 types = {'image', 'dataset', 'project'};
+userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
-ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addOptional('type', 'image', @(x) ismember(x, types));
+ip.addParamValue('owner', userId, @isscalar);
 ip.parse(varargin{:});
 
 if strcmp(ip.Results.type, 'image')
-    % Add the current user id to the loading parameters
+    % Add the owner user id to the loading parameters
     parameters = omero.sys.ParametersI();
-    userId = session.getAdminService().getEventContext().userId;
-    parameters.exp(rlong(userId));
+    parameters.exp(rlong(ip.Results.owner));
     
     % Create container service to load objects
     proxy = session.getContainerService();
-
+    
     if isempty(ip.Results.ids),
         % Load all images belonging to current session user
         imageList = proxy.getUserImages(parameters);
@@ -68,14 +75,16 @@ if strcmp(ip.Results.type, 'image')
     images = toMatlabList(imageList);
     
 else
-    % Get loaded projects/datasets 
+    % Get loaded projects/datasets
     if strcmp(ip.Results.type, 'project')
-        projects = getProjects(session, ip.Results.ids, true);
+        projects = getProjects(session, ip.Results.ids, true,...
+            'owner', ip.Results.owner);
         datasetList = arrayfun(@(x) toMatlabList(x.linkedDatasetList), projects,...
             'UniformOutput', false);
         datasets = [datasetList{:}];
     elseif strcmp(ip.Results.type, 'dataset')
-        datasets = getDatasets(session, ip.Results.ids, true);
+        datasets = getDatasets(session, ip.Results.ids, true,...
+            'owner', ip.Results.owner);
     end
     
     % Reconstruct image lists from dataset array
