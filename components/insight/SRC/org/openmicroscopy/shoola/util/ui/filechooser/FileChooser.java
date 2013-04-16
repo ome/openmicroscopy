@@ -356,6 +356,7 @@ public class FileChooser
         	if (filter instanceof CustomizedFileFilter) {
         		extension = ((CustomizedFileFilter) filter).getExtension();
         		f = new File(f.getAbsolutePath()+"."+extension);
+        		files[0] = f;
         	}
         }
         if (getChooserType() != FileChooser.FOLDER_CHOOSER) {
@@ -367,6 +368,9 @@ public class FileChooser
             	int option = msg.centerMsgBox();
             	if (option == MessageBox.NO_OPTION) 
             		return;
+            	String path = f.getAbsolutePath();
+            	f.delete();
+            	files[0] = new File(path);
     		}
         }
         firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.valueOf(false),
