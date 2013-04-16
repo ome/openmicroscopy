@@ -82,12 +82,26 @@ class FileSelectionTable
 	implements ActionListener
 {
 
-	private static final String TOOLTIP_BUTTON_REMOVE_ALL = "Remove all files from the queue.";
+	/**
+	 * Tooltip text for the button used to remove all the files from the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_REMOVE_ALL =
+			"Remove all files from the queue.";
 
-	private static final String TOOLTIP_BUTTON_REMOVE = "Remove the selected files " +
-			"from the queue.";
+	/**
+	 * Tooltip text for the button used to remove the selected files from the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_REMOVE =
+			"Remove the selected files from the queue.";
 
-	private static final String TOOLTIP_BUTTON_ADD = "Add the selected files to the queue.";
+	/**
+	 * Tooltip text for the button used to add the selected files to the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_ADD =
+			"Add the selected files to the queue.";
 
 	/** Tooltip text for group column */
 	private static final String TOOLTIP_GROUP = 
