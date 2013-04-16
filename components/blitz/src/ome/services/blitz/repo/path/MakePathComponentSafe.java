@@ -61,7 +61,7 @@ public class MakePathComponentSafe implements StringTransformer {
         transformationMatrix.put(0x7C, getCodePoint('!'));  // |
         
         unsafePrefixes = new HashSet<String>();
-        unsafePrefixes.add(".");
+        //unsafePrefixes.add(".");
         unsafePrefixes.add("$");
         
         unsafeSuffixes = new HashSet<String>();
