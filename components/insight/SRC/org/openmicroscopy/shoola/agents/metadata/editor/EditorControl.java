@@ -50,9 +50,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import omero.model.OriginalFile;
-
-
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 import org.apache.commons.io.FilenameUtils;
