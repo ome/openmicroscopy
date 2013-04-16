@@ -1584,7 +1584,7 @@ class OmeroImageServiceImpl
 		String path = file.getAbsolutePath();
 		switch (index) {
 			case EXPORT_AS_OMETIFF:
-				if (!(path.endsWith(OMETIFFFilter.OME_TIFF) &&
+				if (!(path.endsWith(OMETIFFFilter.OME_TIFF)||
 						path.endsWith(OMETIFFFilter.OME_TIF))) {
 					path += "."+OMETIFFFilter.OME_TIFF;
 					file.delete();
