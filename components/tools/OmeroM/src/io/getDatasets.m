@@ -8,7 +8,7 @@ function datasets = getDatasets(session, varargin)
 %   identified by the input ids owned by the session user in the context of
 %   the session group.
 %
-%   projects = getDatasets(session, ids, loaded) returns all the datasets
+%   datasets = getDatasets(session, ids, loaded) returns all the datasets
 %   identified by the input ids owned by the session user in the context of
 %   the session group. If loaded is True, the images attached to the
 %   datasets are loaded.
@@ -17,12 +17,18 @@ function datasets = getDatasets(session, varargin)
 %   This may have consequences in terms of loading time depending on the
 %   number of images in the datasets.
 %
+%   datasets = getDatasets(session, ids, 'owner', owner) returns all the
+%   datasets identified by the input ids owned by the input user in the
+%   context of the session group.
+%
 %   Examples:
 %
 %      datasets = getDatasets(session);
 %      datasets = getDatasets(session, ids);
 %      datasets = getDatasets(session, ids, false);
-%      datasets = getDatasets(session, [], false);
+%      datasets = getDatasets(session, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, 'owner', ownerId);
+%      datasets = getDatasets(session, ids, false, 'owner', ownerId);
 %
 % See also: GETOBJECTS, GETPROJECTS, GETIMAGES
 
@@ -45,13 +51,16 @@ function datasets = getDatasets(session, varargin)
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Check input
+userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
-ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addOptional('loaded', true, @islogical);
+ip.addParamValue('owner', userId, @isscalar);
 ip.parse(varargin{:});
 
 parameters = omero.sys.ParametersI();
 % Load the images attached to the datasets if loaded is True
 if ip.Results.loaded, parameters.leaves(); end
 
-datasets = getObjects(session, ip.Results.ids, 'dataset', parameters);
+datasets = getObjects(session, ip.Results.ids, 'dataset', parameters,...
+    'owner', ip.Results.owner);

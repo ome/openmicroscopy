@@ -10,10 +10,16 @@ function objects = getObjects(session, ids, type, varargin)
 %   the session user in the context of the session group using the supplied
 %   loading parameters.
 %
+%   objects = getObjects(session, ids, type, 'owner', ownerId) returns all
+%   the objects of the specified type, identified by the input ids, owned
+%   by the input owner in the context of the session group.
+%
 %   Examples:
 %
 %      objects = getObjects(session, ids, type);
 %      objects = getObjects(session, ids, type, parameters);
+%      objects = getObjects(session, ids, type, 'owner', ownerId);
+%      objects = getObjects(session, ids, type, parameters, 'owner', ownerId);
 %
 % See also: GETOBJECTTYPES
 
@@ -38,12 +44,14 @@ function objects = getObjects(session, ids, type, varargin)
 % Check input
 objectTypes = getObjectTypes();
 objectNames = {objectTypes.name};
+userId = session.getAdminService().getEventContext().userId;
 ip = inputParser;
 ip.addRequired('session');
-ip.addRequired('ids', @(x) isvector(x) || isempty(x));
+ip.addRequired('ids', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
 ip.addOptional('parameters', omero.sys.ParametersI(),...
     @(x) isa(x, 'omero.sys.ParametersI'));
+ip.addParamValue('owner', userId, @isscalar);
 ip.parse(session, ids, type, varargin{:});
 objectType = objectTypes(strcmp(type, objectNames));
 
@@ -53,10 +61,9 @@ if strcmp(type, 'image'),
     return
 end
 
-% Add the current user id to the loading parameters
+% Add the owner to the loading parameters
 parameters = ip.Results.parameters;
-userId = session.getAdminService().getEventContext().userId;
-parameters.exp(rlong(userId));
+parameters.exp(rlong(ip.Results.owner));
 
 % Create list of objects to load
 ids = toJavaList(ip.Results.ids, 'java.lang.Long');
