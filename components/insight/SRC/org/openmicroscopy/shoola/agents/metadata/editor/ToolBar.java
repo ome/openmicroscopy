@@ -253,7 +253,9 @@ class ToolBar
     		exportAsOmeTiffItem.addActionListener(controller);
     		exportAsOmeTiffItem.setActionCommand(
     				""+EditorControl.EXPORT_AS_OMETIFF);
-    		exportAsOmeTiffItem.setEnabled(!model.isLargeImage());
+    		boolean b = model.getRefObject() instanceof ImageData && 
+    			!model.isLargeImage();
+    		exportAsOmeTiffItem.setEnabled(b);
     		saveAsMenu.add(exportAsOmeTiffItem);
     		JMenu menu = new JMenu();
     		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
@@ -779,8 +781,10 @@ class ToolBar
 	/** Invokes when the size is loaded.*/
 	void onSizeLoaded()
 	{
-		if (exportAsOmeTiffItem != null && model.getImage() != null) {
-			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
+		if (exportAsOmeTiffItem != null) {
+			boolean b = model.getRefObject() instanceof ImageData && 
+					!model.isLargeImage();
+			exportAsOmeTiffButton.setEnabled(b);
 		}
 	}
 	
