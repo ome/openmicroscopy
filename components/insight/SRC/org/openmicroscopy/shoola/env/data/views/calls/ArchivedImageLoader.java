@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,12 +25,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
