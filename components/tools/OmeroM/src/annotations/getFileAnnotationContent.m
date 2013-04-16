@@ -40,7 +40,7 @@ ip.addRequired('fileAnnotation', @(x) isLoadedFA(x) || isscalar(x));
 ip.addRequired('path', @ischar);
 ip.parse(fileAnnotation, path);
 
-if ~isa(fileAnnotation, 'omero.model.fileAnnotation'),
+if ~isa(fileAnnotation, 'omero.model.FileAnnotationI'),
     % Load the file annotation from the server
     faID = ip.Results.fileAnnotation;
     fileAnnotation = getFileAnnotations(session, faID);
