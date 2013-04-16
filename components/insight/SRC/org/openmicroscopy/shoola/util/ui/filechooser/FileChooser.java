@@ -434,12 +434,12 @@ public class FileChooser
      * 
      * @param name The name to set.
      */
-    public void setSelectedFile(String name) 
+    public void setSelectedFile(String name)
     { 
-    	if (name == null || name.trim().length() == 0)
+    	if (StringUtils.isBlank(name))
     		throw new IllegalArgumentException("File name not valid.");
     	String s = getPartialName(name);
-    	if (s == null || s.trim().length() == 0) s = name;
+    	if (StringUtils.isBlank(s)) s = name;
     	uiDelegate.setSelectedFile(new File(s));
     }
     
@@ -450,7 +450,7 @@ public class FileChooser
      */
     public void setSelectedFileFull(String name)
     { 
-    	if (name == null || name.trim().length() == 0)
+    	if (StringUtils.isBlank(name))
     		return;
     	uiDelegate.setSelectedFile(new File(name));
     }
@@ -474,7 +474,7 @@ public class FileChooser
      */
     public void setCurrentDirectory(String dir)
     { 
-    	if (dir == null || dir.trim().length() == 0)
+    	if (StringUtils.isBlank(dir))
     		throw new IllegalArgumentException("Folder name not valid.");
     	uiDelegate.setCurrentDirectory(new File(dir));
     }
@@ -563,7 +563,7 @@ public class FileChooser
      */
     public void setApproveButtonText(String text)
     {
-    	if (text == null || text.trim().length() == 0) return;
+    	if (StringUtils.isBlank(text)) return;
     	uiDelegate.setApproveButtonText(text);
     }
 
@@ -575,7 +575,7 @@ public class FileChooser
      */
     public void setApproveButtonToolTipText(String text)
     {
-    	if (text == null || text.trim().length() == 0) return;
+    	if (StringUtils.isBlank(text)) return;
     	uiDelegate.setApproveButtonToolTipText(text);
     }
     
