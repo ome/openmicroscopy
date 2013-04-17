@@ -44,6 +44,8 @@ import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.DoubleAnnotation;
+import omero.model.DoubleAnnotationI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -88,19 +90,24 @@ import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
+import omero.model.XmlAnnotation;
+import omero.model.XmlAnnotationI;
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding
@@ -285,22 +292,21 @@ public class ModelMapper
         if (parent == null) return;
         if (child == null) throw new IllegalArgumentException("Child cannot" +
                                 "be null.");
-        List l;
-        Iterator it;
+        
+       
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
             Project p = (Project) parent;
             Dataset d = (Dataset) child;
             
-            l = d.copyProjectLinks();
+            List<ProjectDatasetLink> l = d.copyProjectLinks();
             if (l == null) return;
             ProjectDatasetLink link;
-            
-            it = l.iterator();
+            Iterator<ProjectDatasetLink> it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
-                link = (ProjectDatasetLink) it.next();
+                link = it.next();
                 if (id == link.getParent().getId().getValue()) {
                 	p.addProjectDatasetLink(
                 			new ProjectDatasetLinkI(link.getId(), false));
@@ -311,13 +317,13 @@ public class ModelMapper
                 throw new IllegalArgumentException("Child not valid.");
             Dataset p = (Dataset) parent;
             Image d = (Image) child;
-            l = d.copyDatasetLinks();
+            List<DatasetImageLink> l = d.copyDatasetLinks();
             if (l == null) return;
             DatasetImageLink link;
-            it = l.iterator();
+            Iterator<DatasetImageLink> it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
-                link = (DatasetImageLink) it.next();
+                link = it.next();
                 if (id == link.getParent().getId().getValue()) {
                  	p.addDatasetImageLink(
                  			new DatasetImageLinkI(link.getId(), false));
@@ -415,13 +421,11 @@ public class ModelMapper
     {
         if ((child instanceof Dataset) && (parent instanceof Project)) {
             Project mParent = (Project) parent;
-            List s = mParent.copyDatasetLinks();
-            Iterator i = s.iterator();
-            ProjectDatasetLink link;
+            List<ProjectDatasetLink> s = mParent.copyDatasetLinks();
+            Iterator<ProjectDatasetLink> i = s.iterator();
             while (i.hasNext()) { 
-            	link = (ProjectDatasetLink) i.next();
                 mParent.removeProjectDatasetLink(
-                		new ProjectDatasetLinkI(link.getId(), false));
+                		new ProjectDatasetLinkI(i.next().getId(), false));
             }
             return mParent;
         } 
@@ -491,6 +495,24 @@ public class ModelMapper
     				BooleanAnnotationData.INSIGHT_PUBLISHED_NS));
     		((BooleanAnnotation) annotation).setBoolValue(omero.rtypes.rbool(
     				((BooleanAnnotationData) data).getValue()));
+    	} else if (data instanceof XMLAnnotationData) {
+    		annotation = new XmlAnnotationI();
+    		((XmlAnnotation) annotation).setTextValue(
+    				omero.rtypes.rstring(data.getContentAsString()));
+    		annotation.setDescription(omero.rtypes.rstring(
+    				((XMLAnnotationData) data).getDescription()));
+    		String ns = data.getNameSpace();
+    		if (ns != null && ns.length() > 0) {
+    			annotation.setNs(omero.rtypes.rstring(ns));
+    		}
+    	} else if (data instanceof LongAnnotationData) {
+    		annotation = new LongAnnotationI();
+    		((LongAnnotation) annotation).setLongValue(omero.rtypes.rlong(
+    										(Long) data.getContent()));
+    	} else if (data instanceof DoubleAnnotationData) {
+    		annotation = new DoubleAnnotationI();
+    		((DoubleAnnotation) annotation).setDoubleValue(omero.rtypes.rdouble(
+    										(Double) data.getContent()));
     	}
     	return annotation;
     }
@@ -651,7 +673,6 @@ public class ModelMapper
     		n.setLastName(o.getLastName());
     		n.setMiddleName(o.getMiddleName());
     		n.setInstitution(o.getInstitution());
-    		//n.setDefaultGroup(o.getDefaultGroup());
     	} else if (oldObject instanceof Screen) {
     		Screen n = (Screen) newObject;
     		Screen o = (Screen) oldObject;

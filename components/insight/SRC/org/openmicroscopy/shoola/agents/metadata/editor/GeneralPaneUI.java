@@ -49,15 +49,20 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Component displaying the annotation.
@@ -542,7 +547,17 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns the collection of other annotation.
+	 * 
+	 * @return See above.
+	 */
+	List<AnnotationData> removeOtherAnnotations()
+	{
+		return annotationUI.removeOtherAnnotation();
+	}
+	
+	/**
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -553,7 +568,7 @@ class GeneralPaneUI
 	}
 	
 	/**
-	 * Returns <code>true</code> some tags can be unlink, 
+	 * Returns <code>true</code> some tags can be unlinked,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -564,6 +579,17 @@ class GeneralPaneUI
 	}
 	
 	/**
+	 * Returns <code>true</code> some other annotations can be unlinked,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOtherAnnotationsToUnlink()
+	{
+		return annotationUI.hasOtherAnnotationsToUnlink();
+	}
+	
+	/**
 	 * Removes the annotation from the view.
 	 * 
 	 * @param annotation The annotation to remove.
@@ -571,8 +597,13 @@ class GeneralPaneUI
 	void removeObject(DataObject annotation)
 	{
 		if (annotation == null) return;
-		if (annotation instanceof TagAnnotationData)
-			annotationUI.removeTag((TagAnnotationData) annotation);
+		if (annotation instanceof TagAnnotationData ||
+			annotation instanceof TermAnnotationData ||
+			annotation instanceof XMLAnnotationData ||
+			annotation instanceof LongAnnotationData ||
+			annotation instanceof DoubleAnnotationData ||
+			annotation instanceof BooleanAnnotationData)
+			annotationUI.removeAnnotation((AnnotationData) annotation);
 		else if (annotation instanceof TextualAnnotationData)
 			textualAnnotationsUI.removeTextualAnnotation(
 					(TextualAnnotationData) annotation);

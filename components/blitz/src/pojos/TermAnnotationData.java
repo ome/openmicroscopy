@@ -100,6 +100,19 @@ public class TermAnnotationData extends AnnotationData {
     }
     
     /**
+     * Sets the description of the tag.
+     * 
+     * @param value The value to set.
+     */
+    public void setTermDescription(String value) {
+        if (value == null || value.trim().length() == 0) {
+            return;
+        }
+        setDirty(true);
+        asAnnotation().setDescription(rstring(value));
+    }
+    
+    /**
      * Returns the textual content of the annotation.
      *
      * @see AnnotationData#getContent()

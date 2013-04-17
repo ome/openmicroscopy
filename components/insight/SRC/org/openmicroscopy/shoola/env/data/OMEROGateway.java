@@ -150,6 +150,7 @@ import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -195,12 +196,14 @@ import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -227,6 +230,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -2203,18 +2207,18 @@ class OMEROGateway
 	 */
 	Class convertPojos(Class nodeType)
 	{
-		if (ProjectData.class.equals(nodeType)) 
+		if (ProjectData.class.equals(nodeType))
 			return Project.class;
-		else if (DatasetData.class.equals(nodeType)) 
+		else if (DatasetData.class.equals(nodeType))
 			return Dataset.class;
-		else if (ImageData.class.equals(nodeType)) 
+		else if (ImageData.class.equals(nodeType))
 			return Image.class;
 		else if (BooleanAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
 		else if (RatingAnnotationData.class.equals(nodeType) ||
-				LongAnnotationData.class.equals(nodeType)) 
+				LongAnnotationData.class.equals(nodeType))
 			return LongAnnotation.class;
-		else if (TagAnnotationData.class.equals(nodeType)) 
+		else if (TagAnnotationData.class.equals(nodeType))
 			return TagAnnotation.class;
 		else if (TextualAnnotationData.class.equals(nodeType)) 
 			return CommentAnnotation.class;
@@ -2222,23 +2226,27 @@ class OMEROGateway
 			return FileAnnotation.class;
 		else if (TermAnnotationData.class.equals(nodeType))
 			return TermAnnotation.class;
-		else if (ScreenData.class.equals(nodeType)) 
+		else if (ScreenData.class.equals(nodeType))
 			return Screen.class;
-		else if (PlateData.class.equals(nodeType)) 
+		else if (PlateData.class.equals(nodeType))
 			return Plate.class;
-		else if (WellData.class.equals(nodeType)) 
+		else if (WellData.class.equals(nodeType))
 			return Well.class;
-		else if (WellSampleData.class.equals(nodeType)) 
+		else if (WellSampleData.class.equals(nodeType))
 			return WellSample.class;
 		else if (PlateAcquisitionData.class.equals(nodeType))
 			return PlateAcquisition.class;
-		else if (FileData.class.equals(nodeType) || 
+		else if (FileData.class.equals(nodeType) ||
 				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;
 		else if (ExperimenterData.class.equals(nodeType))
 			return Experimenter.class;
+		else if (DoubleAnnotationData.class.equals(nodeType))
+			return DoubleAnnotation.class;
+		else if (XMLAnnotationData.class.equals(nodeType))
+			return XmlAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
