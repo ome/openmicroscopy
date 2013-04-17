@@ -77,6 +77,32 @@ public class StructuredAnnotationLoader
     private SecurityContext ctx;
     
     /**
+     * Creates a {@link BatchCall} to load the specified annotation.
+     * 
+     * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadSpeficiedAnnotationLinkedTo(final Class<?> rootType,
+    		final List<Long> rootIDs, final Class<?> annotationType,
+    		final List<String> nsInclude, final List<String> nsExlcude)
+    {
+        return new BatchCall("Loading Specified annotation") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadAnnotations(ctx, rootType, rootIDs,
+                		annotationType, nsInclude, nsExlcude);
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to load the existing annotations of the 
      * specified type related to the passed type of object.
      * 
@@ -401,5 +427,26 @@ public class StructuredAnnotationLoader
     		Class annotationType, long userID)
     {
     	loadCall = loadAnnotations(ctx, annotationType, userID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+     */
+    public StructuredAnnotationLoader(SecurityContext ctx, Class<?> rootType,
+    		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+    		List<String> nsExlcude)
+    {
+    	this.ctx = ctx;
+    	loadCall = loadSpeficiedAnnotationLinkedTo(rootType, rootIDs,
+    			annotationType, nsInclude, nsExlcude);
     }
 }

@@ -32,6 +32,8 @@ import java.util.Set;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
@@ -477,4 +479,24 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,
 		long imageId, AgentEventListener observer);
+	
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+		List<String> nsExlcude, AgentEventListener observer);
+
 }
