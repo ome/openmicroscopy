@@ -137,9 +137,10 @@ public class DownloadArchivedActivity
 		if (files.size() > 1) {//zip the result
 			try {
 				//Create a folder
-				
+				String v = FilenameUtils.getName(
+						parameters.getImage().getName());
 				File zipFolder = new File(parameters.getLocation(),
-				FilenameUtils.removeExtension(parameters.getImage().getName()));
+				FilenameUtils.removeExtension(v));
 				zipFolder.mkdir();
 				//copy file into the directory
 				Iterator<File> j = files.iterator();
