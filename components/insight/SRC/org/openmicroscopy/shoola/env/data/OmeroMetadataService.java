@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -709,6 +709,7 @@ public interface OmeroMetadataService
 	 * Image.
 	 * @param rootIDs The collection of object's ids the annotations are linked
 	 * to.
+	 * @param annotationType The type of annotation to load.
 	 * @param nsInclude The annotation's name space to include if any.
 	 * @param nsExlcude The annotation's name space to exclude if any.
 	 * @return 
