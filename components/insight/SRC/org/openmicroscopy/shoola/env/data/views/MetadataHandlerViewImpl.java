@@ -437,4 +437,17 @@ class MetadataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadAnnotations(SecurityContext, Class, List,
+	 * Class, List, List, AgentEventListener)
+	 */
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExlcude, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(ctx, rootType,
+			rootIDs, annotationType, nsInclude, nsExlcude);
+		return cmd.exec(observer);
+	}
 }
