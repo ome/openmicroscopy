@@ -2278,4 +2278,22 @@ class OmeroMetadataServiceImpl
 		return buffer.toString();
 	}
 	
+
+	/**
+	 * @see OmeroMetadataService#loadRatings(SecurityContext, Class, List,
+	 * String, String)
+	 */
+	public Map<Long, Collection<AnnotationData>>
+		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+			throw new IllegalArgumentException("No node specified");
+		if (annotationType == null)
+			throw new IllegalArgumentException("No annotation type specified");
+		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
+				annotationType, nsInclude, nsExclude, new Parameters());
+	}
 }
