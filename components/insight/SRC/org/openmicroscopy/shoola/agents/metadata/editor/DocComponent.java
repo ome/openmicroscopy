@@ -82,10 +82,15 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Component displaying the annotation, either <code>FileAnnotationData</code>
@@ -129,7 +134,10 @@ class DocComponent
 	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
-		
+	
+	/** The maximum length of the text to display.*/
+	private static final int TEXT_LENGTH = 10;
+	
 	static {
 		FILTERS = new ArrayList<CustomizedFileFilter>();
 		FILTERS.add(new TIFFFilter());
@@ -200,7 +208,7 @@ class DocComponent
 	
 	/** Flag indicating if the node can be deleted. */
 	private boolean		deletable;
-	
+
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
 	 * Returns <code>true</code> if some controls are visible, 
@@ -256,13 +264,13 @@ class DocComponent
 			if (b) count++;
 		}
 		if (downloadButton != null) {
-			b = true;//model.canAnnotate(data);
+			b = true;
 			downloadButton.setEnabled(b);
 			downloadButton.setVisible(b);
 			if (b) count++;
 		}
 		if (openButton != null) {
-			b = true;//model.canAnnotate(data);
+			b = true;
 			openButton.setEnabled(b);
 			openButton.setVisible(b);
 			if (b) count++;
@@ -411,8 +419,14 @@ class DocComponent
 				m = model.getTaggedObjects(annotation);
 				text += "Can remove Tag from ";
 			} else if (annotation instanceof FileAnnotationData) {
-				m = model.getObjectsWithAttachments(annotation);
+				m = model.getObjectsWith(annotation);
 				text += "Can remove Attachment from ";
+			} else if (annotation instanceof XMLAnnotationData) {
+				m = model.getObjectsWith(annotation);
+				text += "Can remove XML files from ";
+			} else if (annotation instanceof TermAnnotationData) {
+				m = model.getObjectsWith(annotation);
+				text += "Can remove Term from ";
 			}
 			if (m == null) return "";
 			j = m.entrySet().iterator();
@@ -514,7 +528,11 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
-		} else if (data instanceof TagAnnotationData) {
+		} else if (data instanceof TagAnnotationData || data instanceof
+				XMLAnnotationData || data instanceof TermAnnotationData ||
+				data instanceof LongAnnotationData ||
+				data instanceof DoubleAnnotationData ||
+				data instanceof BooleanAnnotationData) {
 			checkAnnotators(buf, annotation);
 		}
 		buf.append("</body></html>");
@@ -529,7 +547,7 @@ class DocComponent
 		if (data == null) return;
 		if (data instanceof FileAnnotationData) {
 			FileAnnotationData f = (FileAnnotationData) data;
-			Registry reg = MetadataViewerAgent.getRegistry();		
+			Registry reg = MetadataViewerAgent.getRegistry();
 			reg.getEventBus().post(new EditFileEvent(model.getSecurityContext(),
 					f));
 		}
@@ -596,13 +614,11 @@ class DocComponent
 					deleteButton = new JMenuItem(icons.getIcon(
 							IconManager.DELETE_12));
 					deleteButton.setText("Delete");
-					//deleteButton.addActionListener(this);
-					//deleteButton.setActionCommand(""+DELETE);
 					deleteButton.addMouseListener(new MouseAdapter() {
 						
 						public void mousePressed(MouseEvent e) {
 							Point p = e.getPoint();
-							SwingUtilities.convertPointToScreen(p, 
+							SwingUtilities.convertPointToScreen(p,
 									menuButton);
 							deleteDocument(p);
 						}
@@ -626,15 +642,14 @@ class DocComponent
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
 			}
-		} else if (data instanceof TagAnnotationData) {
-			unlinkButton.setToolTipText("Unlink the Tag.");
+		} else if (data instanceof TagAnnotationData ||
+				data instanceof XMLAnnotationData ||
+				data instanceof TermAnnotationData ||
+				data instanceof LongAnnotationData ||
+				data instanceof DoubleAnnotationData) {
+			unlinkButton.setToolTipText("Unlink the annotation.");
 			editButton = new JMenuItem(icons.getIcon(IconManager.EDIT_12));
 			editButton.setText("Edit");
-			//editButton.setOpaque(false);
-			//UIUtilities.unifiedButtonLookAndFeel(editButton);
-			//editButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-			//editButton.setToolTipText("Add or Edit the description.");
-			
 			editButton.setActionCommand(""+EDIT);
 			editButton.addActionListener(this);
 			editButton.addMouseListener(new MouseAdapter() {
@@ -649,7 +664,7 @@ class DocComponent
 				}
 			
 			});
-		}	
+		}
 	}
 	
 	/** Initializes the components composing the display. */
@@ -692,7 +707,6 @@ class DocComponent
 						break;
 					}
 				}
-				initButtons();
 				if (id < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -708,7 +722,6 @@ class DocComponent
 						*/
 				}
 			} else if (data instanceof File) {
-				initButtons();
 				File f = (File) data;
 				label.setText(EditorUtil.getPartialName(f.getName()));
 				label.setForeground(Color.BLUE);
@@ -716,7 +729,34 @@ class DocComponent
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setText(tag.getTagValue());
 				label.setToolTipText(formatTootTip(tag, null));
-				initButtons();
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			} else if (data instanceof XMLAnnotationData) {
+				XMLAnnotationData tag = (XMLAnnotationData) data;
+				label.setText(EditorUtil.truncate(tag.getText(), TEXT_LENGTH));
+				label.setToolTipText(formatTootTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			} else if (data instanceof TermAnnotationData) {
+				TermAnnotationData tag = (TermAnnotationData) data;
+				label.setText(tag.getTerm());
+				label.setToolTipText(formatTootTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			} else if (data instanceof LongAnnotationData) {
+				LongAnnotationData tag = (LongAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatTootTip(tag, null));
+				if (tag.getId() < 0)
+					label.setForeground(
+						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
+			} else if (data instanceof DoubleAnnotationData) {
+				DoubleAnnotationData tag = (DoubleAnnotationData) data;
+				label.setText(tag.getContentAsString());
+				label.setToolTipText(formatTootTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -779,13 +819,12 @@ class DocComponent
 	/** Adds or edits the description of the tag. */
 	private void editDescription()
 	{
-		TagAnnotationData tag = (TagAnnotationData) data;
-		String text = model.getTagDescription(tag);
+		if (!(data instanceof AnnotationData)) return;
+		String text = model.getAnnotationDescription((AnnotationData) data);
 		originalDescription = text;
-		originalName = tag.getTagValue();
 		SwingUtilities.convertPointToScreen(popupPoint, this);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		EditorDialog d = new EditorDialog(f, tag, false, 
+		EditorDialog d = new EditorDialog(f, (AnnotationData) data, false, 
 				EditorDialog.EDIT_TYPE);
 		d.addPropertyChangeListener(this);
 		d.setOriginalDescription(originalDescription);
@@ -879,7 +918,7 @@ class DocComponent
 			if (!originalName.equals(tag.getTagValue())) return true;
 			String txt = tag.getTagDescription();
 			if (txt != null) 
-				return !(originalDescription.equals(txt));	
+				return !(originalDescription.equals(txt));
 			return false;
 		}
 		return false;
@@ -913,7 +952,7 @@ class DocComponent
 	void setThumbnail(String path)
 	{
 		if (path == null) return;
-		this.thumbnail = Factory.createIcon(path, 
+		this.thumbnail = Factory.createIcon(path,
 				Factory.THUMB_DEFAULT_WIDTH/2, 
 				Factory.THUMB_DEFAULT_HEIGHT/2);
 		if (thumbnail != null) {
@@ -967,11 +1006,21 @@ class DocComponent
 		String name = evt.getPropertyName();
 		if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
 			//reset text and tooltip
-			TagAnnotationData tag = (TagAnnotationData) data;
-			label.setText(tag.getTagValue());
-			label.setToolTipText(formatTootTip(tag, null));
-			originalName = tag.getTagValue();
-			originalDescription = tag.getTagDescription();
+			String text = "";
+			String description = "";
+			AnnotationData annotation = null;
+			if (data instanceof TagAnnotationData ||
+				data instanceof TermAnnotationData ||
+				data instanceof XMLAnnotationData) {
+				annotation = (AnnotationData) data;
+				text = annotation.getContentAsString();
+			}
+			description = model.getAnnotationDescription(annotation);
+			if (annotation == null) return;
+			label.setText(text);
+			label.setToolTipText(formatTootTip(annotation, null));
+			originalName = text;
+			originalDescription = description;
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
 			if (data == null) return;
@@ -1001,8 +1050,7 @@ class DocComponent
 			//Check Name space
 			activity.setLegend(fa.getDescription());
 			un.notifyActivity(model.getSecurityContext(), activity);
-			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}
-	
+
 }
