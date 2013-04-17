@@ -25,19 +25,18 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
+
 import pojos.AnnotationData;
 import pojos.FileAnnotationData;
 
@@ -84,7 +83,8 @@ public class AnnotationDataLoader
 	 */
 	public void load()
 	{
-		List<String> nsInclude = null; //to be modified
+		List<String> nsInclude = new ArrayList<String>();
+		nsInclude.add(FileAnnotationData.LOG_FILE_NS);
 		handle = mhView.loadAnnotations(ctx, ImageData.class,
 				Arrays.asList(imageID), FileAnnotationData.class, nsInclude,
 				null, this);
@@ -105,7 +105,6 @@ public class AnnotationDataLoader
 		if (viewer.getState() == Importer.DISCARDED) return;
 		Map<Long, Collection<AnnotationData>> map =
 				(Map<Long, Collection<AnnotationData>>) result;
-		//Add method to set the log file
-		//setLogFile(map.get(ImageID), index);
+		viewer.setLogFile(map.get(imageID), index);
 	}
 }
