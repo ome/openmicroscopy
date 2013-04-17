@@ -2853,8 +2853,10 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean isArchived()
-	{ 
-		return getRefObject() instanceof ImageData;
+	{
+		ImageData img = getImage();
+		if (img == null) return false;
+		return img.isArchived();
 	}
 
 	/** 
