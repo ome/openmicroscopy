@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -731,6 +732,16 @@ class ImporterComponent
 			rootType = ScreenData.class;
 		model.fireContainerLoading(rootType, false, true, -1);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setLogFile(Collection, int)
+	 */
+	public void setImportLogFile(Collection<AnnotationData> collection, int index) {
+		if (model.getState() == DISCARDED) {
+			return;
+		}
 	}
 
 	/** 
