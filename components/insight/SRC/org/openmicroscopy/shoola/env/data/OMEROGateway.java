@@ -199,6 +199,7 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
@@ -8685,4 +8686,44 @@ class OMEROGateway
 			new Exception("Cannot close the derived connectors", e);
 		}
 	}
+	
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param options Options to retrieve the data.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Collection<AnnotationData>>
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude, Parameters options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		String type = convertAnnotation(annotationType);
+		IMetadataPrx service = getMetadataService(ctx);
+		try {
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
+							nsExclude, convertPojos(rootType).getName(),
+							rootIDs, options));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find annotation of "+annotationType+" " +
+					"for "+rootType+".");
+		}
+		return new HashMap<Long, Collection<AnnotationData>>();
+	}
+	
 }

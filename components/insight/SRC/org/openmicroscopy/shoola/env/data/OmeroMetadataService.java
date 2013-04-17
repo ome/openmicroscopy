@@ -699,4 +699,27 @@ public interface OmeroMetadataService
 			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @return 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public Map<Long, Collection<AnnotationData>>
+	loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+		List<String> nsExlcude)
+	throws DSOutOfServiceException, DSAccessException;
+
 }
