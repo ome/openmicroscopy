@@ -105,6 +105,6 @@ public class AnnotationDataLoader
 		if (viewer.getState() == Importer.DISCARDED) return;
 		Map<Long, Collection<AnnotationData>> map =
 				(Map<Long, Collection<AnnotationData>>) result;
-		viewer.setLogFile(map.get(imageID), index);
+		viewer.setImportLogFile(map.get(imageID), index);
 	}
 }

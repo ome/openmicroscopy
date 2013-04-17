@@ -150,7 +150,7 @@ public interface Importer
 	 * @param collection A collection of file annotations.
 	 * @param index The index of the UI component.
 	 */
-	public void setLogFile(Collection<AnnotationData> collection, int index);
+	public void setImportLogFile(Collection<AnnotationData> collection, int index);
 
 	/**
 	 * Returns the view.
