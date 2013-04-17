@@ -25,8 +25,8 @@ import loci.formats.IFormatReader;
 import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Standard {@ReaderWrapper} stack that is used throughout OMERO.
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 public class CachingWrapper extends MinMaxCalculator {
 
     @SuppressWarnings("unused")
-    private final static Log log = LogFactory.getLog(CachingWrapper.class);
+    private final static Logger log = LoggerFactory.getLogger(CachingWrapper.class);
 
     protected Memoizer memoizer;
 

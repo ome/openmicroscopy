@@ -23,8 +23,6 @@ import loci.formats.Memoizer;
 import loci.formats.meta.IMinMaxStore;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
