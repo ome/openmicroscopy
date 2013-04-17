@@ -74,6 +74,7 @@ import omero.model.Image;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -106,6 +107,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private final Registry reg;
 
     private final TileSizes sizes;
+
+    private final RepositoryDao dao;
+
+    private OriginalFile logFile;
 
     //
     // Import items. Initialized in init(Helper)
@@ -149,10 +154,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
-    public ManagedImportRequestI(Registry reg, TileSizes sizes) {
+    public ManagedImportRequestI(Registry reg, TileSizes sizes, RepositoryDao dao, OMEROWrapper wrapper) {
         this.reg = reg;
         this.sizes = sizes;
-
+        this.dao = dao;
+		this.wrapper = wrapper;
     }
 
     //
@@ -178,6 +184,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         MDC.put("fileset", location.sharedPath);
         log.debug("init starting... ");
+        logFile = registerLogFile();
 
         file = ((ManagedImportLocationI) location).getTarget();
 
@@ -269,7 +276,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
         log.debug("... cleanup stopped");
-        uploadLogFile();
+        attachLogFile();
         MDC.clear();
     }
 
@@ -701,39 +708,44 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         // TEMPORARY REPLACEMENT. FIXME
     }
 
-    private void uploadLogFile() {
+    private OriginalFile registerLogFile() {
 
-        AppenderTracker<ILoggingEvent> thisAppenderTracker = null;
-        Appender<ILoggingEvent> thisAppender = null;
-        String thisLogFile = null;
+        String thisLogFilename = null;
+        OriginalFile logFile = null;
 
-        log.debug("Logging info...");
+        /*
+         * This gets the name of the current log file from the logger. It may be more than
+         * is necessary if we know that we are using the ManagedRepo for the location. We
+         * may just as easily construct the file name from the repo path and the shared path.
+         */
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-        log.debug("Logger="+logger.getName());
         for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext();) {
             Appender<ILoggingEvent> appender = index.next();
-            log.debug("Appender="+appender.getName());
             if (appender.getName().equals("SIFT")) {
                 AppenderTracker<ILoggingEvent> appenderTracker = ((SiftingAppender) appender).getAppenderTracker();
                 for(Appender<ILoggingEvent> app : appenderTracker.valueList()) {
                     if (app instanceof FileAppender) {
-                        String logFile = ((FileAppender<ILoggingEvent>) app).getFile();
-                        if (logFile.contains(location.sharedPath)) {
-                            thisAppenderTracker = appenderTracker;
-                            thisAppender = app;
-                            log.debug("File="+logFile+" **");
+                        String logFilename = ((FileAppender<ILoggingEvent>) app).getFile();
+                        if (logFilename.contains(location.sharedPath)) {
+                            thisLogFilename = logFilename;
+                            log.debug("File="+logFilename+" **");
                         } else {
-                            log.debug("File="+logFile);
+                            log.debug("File="+logFilename);
                         }
                     }
                 }
             }
         }
-        log.debug("End logging info");
 
-        if(thisAppender != null) {
-            thisAppenderTracker.stopAndRemoveNow(thisAppender.getName());
-        }
+        //logFile = dao.register(...);
+        return logFile;
+
+    }
+
+    private void attachLogFile() {
+
+        // use sf to get the services to link Fileset and the OriginalFile
+
     }
 
 }
