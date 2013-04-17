@@ -100,10 +100,14 @@
             {% if manager.global_metadata or manager.series_metadata %}
             <h1 class="can-collapse defclose">{% trans "Original Metadata" %}</h1>
                 <div>
-                    {% comment %}
+                    {% if manager.image %}
                     <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
-                        onClick="document.location.href='{% url download_annotation manager.original_metadata.id %}';"/>
-                    {% endcomment %}
+                        onClick="document.location.href='{% url download_orig_metadata manager.image.id %}';"/>
+                    {% endif %}
+                    {% if manager.well %}
+                    <input type="button" value="Download" style="padding: 1px 15px; position:absolute; right:3px"
+                        onClick="document.location.href='{% url download_orig_metadata manager.well.getWellSample.image.id %}';"/>
+                    {% endif %}
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
