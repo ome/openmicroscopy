@@ -1769,6 +1769,31 @@ def download_annotation(request, annId, conn=None, **kwargs):
     rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
 
+
+@login_required()
+def download_orig_metadata(request, imageId, conn=None, **kwargs):
+    """ Downloads the 'Original Metadata' as a text file """
+
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        raise Http404("No Image found with ID %s" % imageId)
+
+    om = image.loadOriginalMetadata()
+
+    txtLines = ["[Global Metadata]"]
+    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[1]] )
+
+    txtLines.append("[Series Metadata]")
+    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[2]] )
+    rspText = "\n".join(txtLines)
+
+    rsp = HttpResponse(rspText)
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = len(rspText)
+    rsp['Content-Disposition'] = 'attachment; filename=Original_Metadata.txt'
+    return rsp
+
+
 @login_required()
 @render_response()
 def load_public(request, share_id=None, conn=None, **kwargs):
