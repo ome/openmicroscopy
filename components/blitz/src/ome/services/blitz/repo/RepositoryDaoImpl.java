@@ -362,7 +362,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
                  .execute(current.ctx, currentUser(current),
                          new Executor.SimpleWork(this, "getOriginalFile", repoId) {
                      @Transactional(readOnly = true)
@@ -383,7 +383,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
+             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>) executor
                 .execute(current.ctx, currentUser(current),
                         new Executor.SimpleWork(this,
                         "getOriginalFiles", repoUuid, checked) {
