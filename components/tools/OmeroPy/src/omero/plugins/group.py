@@ -57,15 +57,12 @@ More information is available at:
         sub = parser.sub()
         add = parser.add(sub, self.add, "Add a new group with given permissions " + PERM_TXT)
         add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
-        add.add_argument("name", help="ExperimenterGroup.name value")
+        add.add_argument("name", help="Name of the group")
+        self.add_permissions_arguments(add)
 
         perms = parser.add(sub, self.perms, "Modify a group's permissions " + PERM_TXT)
-        perms.add_argument("id_or_name", help="ExperimenterGroup's id or name")
-
-        for x in (add, perms):
-            group = x.add_mutually_exclusive_group()
-            group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
-            group.add_argument("--type", help="Group permissions set symbolically", default="private", choices = defaultperms.keys())
+        self.add_group_arguments(perms)
+        self.add_permissions_arguments(perms)
 
         list = parser.add(sub, self.list, "List current groups")
         printgroup = list.add_mutually_exclusive_group()
@@ -81,20 +78,34 @@ More information is available at:
         copyusers.add_argument("--as-owner", action="store_true", default=False, help="Copy the group owners only")
 
         adduser = parser.add(sub, self.adduser, "Add one or more users to a group")
-        adduser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to add to the group")
-        adduser.add_argument("--as-owner", action="store_true", default=False, help="Add the users as owners of the group")
+        self.add_group_arguments(adduser)
+        group = self.add_user_arguments(adduser, "add to the group")
+        group.add_argument("--as-owner", action="store_true", default=False, help="Add the users as owners of the group")
         
         removeuser = parser.add(sub, self.removeuser, "Remove one or more users from a group")
-        removeuser.add_argument("USER", metavar="user", nargs="+", help = "ID or name of the user to remove")
-        removeuser.add_argument("--as-owner", action="store_true", default=False, help="Remove the users from the group owner list")
-        
-        for x in (adduser, removeuser):
-            group = x.add_mutually_exclusive_group()
-            group.add_argument("--id", metavar="group", help="ID of the group")
-            group.add_argument("--name", metavar="group", help="Name of the group")
+        self.add_group_arguments(removeuser)
+        group = self.add_user_arguments(removeuser, "remove from the group")
+        group.add_argument("--as-owner", action="store_true", default=False, help="Remove the users from the group owner list")        
         
         for x in (add, perms, list, copyusers, adduser, removeuser):
             x.add_login_arguments()
+
+    def add_permissions_arguments(self, parser):
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--perms", help="Group permissions set as string, e.g. 'rw----' ")
+        group.add_argument("--type", help="Group permissions set symbolically", default="private", choices = defaultperms.keys())
+
+    def add_group_arguments(self, parser):
+        group = parser.add_mutually_exclusive_group()
+        group.add_argument("--id", help="ID of the group")
+        group.add_argument("--name", help="Name of the group")
+
+    def add_user_arguments(self, parser, action = "join", owner_desc = ""):
+        group = parser.add_argument_group('User arguments')
+        group.add_argument("user_id_or_name",  metavar="user", nargs="*", help = "ID or name of the user(s) to %s" % action)
+        group.add_argument("--user-id", metavar="user", nargs="+", help="ID  of the user(s) to %s" % action)
+        group.add_argument("--user-name", metavar="user", nargs="+", help="Name of the user(s) to %s" % action)
+        return group
 
     def parse_perms(self, args):
         from omero_model_PermissionsI import PermissionsI as Perms
@@ -208,13 +219,32 @@ More information is available at:
         else:
             self.error_no_input_group(fatal = True)
 
-    def list_users(self, a, users):
+    def list_users(self, a, args):
 
+        # Check input arguments
+        if not args.user_id_or_name and not args.user_id and not args.user_name:
+            self.error_no_input_user(fatal = True)
+
+        # Retrieve groups by id or name
         uid_list = []
-        for user in users:
-            [uid, u] = self.find_user(a, user, fatal = False)
-            if uid is not None:
-                uid_list.append(uid)
+        if args.user_id_or_name:
+            for user in args.user_id_or_name:
+                [uid, u] = self.find_user(a, user, fatal = False)
+                if uid is not None:
+                    uid_list.append(uid)
+
+        if args.user_id:
+            for user_id in args.user_id:
+                [uid, u] = self.find_user_by_id(a, user_id, fatal = False)
+                if uid is not None:
+                    uid_list.append(uid)
+
+        if args.user_name:
+            for user_name in args.user_name:
+                [uid, u] = self.find_user_by_name(a, user_name, fatal = False)
+                if uid is not None:
+                    uid_list.append(uid)
+
         if not uid_list:
             self.error_no_user_found(fatal = True)
 
@@ -265,7 +295,7 @@ More information is available at:
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
-        uids = self.list_users(a, args.USER)
+        uids = self.list_users(a, args)
         uids = self.filter_users(uids, group, args.as_owner, True)
         
         if args.as_owner:
@@ -278,7 +308,7 @@ More information is available at:
         c = self.ctx.conn(args)
         a = c.sf.getAdminService()
         group = self.parse_groupid(a, args)[1]
-        uids = self.list_users(a, args.USER)
+        uids = self.list_users(a, args)
         uids = self.filter_users(uids, group, args.as_owner, False)
         
         if args.as_owner:
