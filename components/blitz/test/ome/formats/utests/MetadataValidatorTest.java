@@ -151,8 +151,8 @@ public class MetadataValidatorTest
         minimalWrapper.setMetadataOptions(
                 new DefaultMetadataOptions(MetadataLevel.MINIMUM));
         wrapper.setMetadataStore(store);
-        store.setReader(wrapper.getImageReader());
-        minimalStore.setReader(minimalWrapper.getImageReader());
+        store.setReader(wrapper);
+        minimalStore.setReader(minimalWrapper.unwrap());
     }
 
     @AfterClass

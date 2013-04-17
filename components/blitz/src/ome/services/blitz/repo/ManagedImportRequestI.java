@@ -140,9 +140,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
-    public ManagedImportRequestI(Registry reg, TileSizes sizes) {
+    public ManagedImportRequestI(Registry reg, TileSizes sizes, OMEROWrapper wrapper) {
         this.reg = reg;
         this.sizes = sizes;
+        this.reader = wrapper;
 
     }
 
@@ -158,7 +159,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         this.helper = helper;
         helper.setSteps(5);
 
-        final ImportConfig config = new ImportConfig();
         final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
         final String clientUuid = UUID.randomUUID().toString();
 
@@ -172,7 +172,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         try {
             sf = reg.getInternalServiceFactory(
                     sessionUuid, "unused", 3, 1, clientUuid);
-            reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
             store.initialize(sf);
 
@@ -202,7 +201,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                         "usedFiles must be non-null");
             }
 
-            IFormatReader baseReader = reader.getImageReader().getReader();
+            IFormatReader baseReader = reader.unwrap();
             if (log.isInfoEnabled())
             {
                 log.info("File format: " + format);
@@ -477,7 +476,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         // reader.close(); This instance is no longer re-used
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
-        store.setReader(reader.getImageReader());
+        store.setReader(reader);
         targetFile.bfSetId(reader);
         //reset series count
         if (log.isDebugEnabled())
@@ -614,7 +613,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             List<Pixels> pixelsList, List<Long> plateIds)
         throws FormatException, IOException
     {
-        IFormatReader baseReader = reader.getImageReader().getReader();
+        IFormatReader baseReader = reader.unwrap();
         if (baseReader instanceof MIASReader)
         {
             try
