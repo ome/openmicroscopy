@@ -7,6 +7,9 @@ slice_generated*
 *.loT
 *.o
 *.os
+*.gcno
+*.gcda
+*.html
 Makefile
 aclocal.m4
 autom4te.cache
@@ -24,3 +27,4 @@ missing
 stamp-h1
 test/unit.exe
 test/integration.exe
+target/coverage/*
