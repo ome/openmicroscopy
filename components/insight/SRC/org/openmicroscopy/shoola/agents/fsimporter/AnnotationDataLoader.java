@@ -35,7 +35,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
@@ -85,8 +84,8 @@ public class AnnotationDataLoader
 	{
 		List<String> nsInclude = new ArrayList<String>();
 		nsInclude.add(FileAnnotationData.LOG_FILE_NS);
-		handle = mhView.loadAnnotations(ctx, ImageData.class,
-				Arrays.asList(fileSetID), FilesetData.class, nsInclude,
+		handle = mhView.loadAnnotations(ctx, FilesetData.class,
+				Arrays.asList(fileSetID), FileAnnotationData.class, nsInclude,
 				null, this);
 	}
 	
