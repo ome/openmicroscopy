@@ -8693,9 +8693,14 @@ class OMEROGateway
 	 * @param commands The commands to execute.
 	 * @param ctx The security context is any.
 	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 * in.
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMEDS service.
 	 */
 	RequestCallback submit(List<Request> commands, SecurityContext ctx)
-		throws Throwable
+		throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		try {

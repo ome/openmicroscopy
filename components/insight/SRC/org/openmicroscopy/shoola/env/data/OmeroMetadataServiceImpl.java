@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +44,15 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
+import omero.RType;
+import omero.cmd.DoAllRsp;
+import omero.cmd.OriginalMetadataRequest;
+import omero.cmd.OriginalMetadataResponse;
+import omero.cmd.Request;
+import omero.cmd.Response;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
@@ -2155,10 +2167,60 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
 	 */
 	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
-			throws DSOutOfServiceException, DSAccessException
+			throws ProcessException, DSOutOfServiceException, DSAccessException
 	{
 		//Get the file annotation
 		if (id < 0) return null;
+		ImageData img = gateway.getImage(ctx, id, new Parameters());
+		if (img == null) return null;
+		if (img.asImage().getFileset() != null) {
+			String extension = FilenameUtils.getExtension(file.getAbsolutePath());
+			String path = file.getAbsolutePath();
+			if (StringUtils.isBlank(extension)) {
+				path += ".txt";
+				file = new File(path);
+			}
+			
+			OriginalMetadataRequest cmd = new OriginalMetadataRequest();
+			cmd.imageId = id;
+			RequestCallback request = gateway.submit(
+					Arrays.<Request>asList(cmd), ctx);
+			BufferedWriter bufferWriter = null;
+			try {
+				if (!file.exists()) file.createNewFile();
+				FileWriter writer = new FileWriter(file.getAbsolutePath(), true);
+				bufferWriter= new BufferedWriter(writer);
+				request.loop(50, 500);
+				DoAllRsp r = (DoAllRsp) request.getResponse();
+				List<Response> responses = r.responses;
+				Iterator<Response> i = responses.iterator();
+				OriginalMetadataResponse rsp;
+				StringBuffer buffer = new StringBuffer();
+				while (i.hasNext()) {
+					rsp = (OriginalMetadataResponse) i.next();
+					buffer.append("[global Metadata]");
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(writeMap(rsp.globalMetadata));
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append("[series Metadata]");
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(writeMap(rsp.seriesMetadata));
+				}
+				bufferWriter.write(buffer.toString());
+				request.close(true);
+			} catch (Exception e) {
+				if (file != null) file.delete();
+			}
+			
+			try {
+				if (bufferWriter != null) bufferWriter.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			return file;
+		}
+		
+		
 		List<Class> types = new ArrayList<Class>();
 		types.add(FileAnnotationData.class);
 		Map map = gateway.loadAnnotations(ctx, ImageData.class,
@@ -2180,4 +2242,40 @@ class OmeroMetadataServiceImpl
 		if (fileID < 0) return null;
 		return downloadFile(ctx, file, fileID);
 	}
+	
+	private String writeMap(Map<String, RType> map)
+	{
+		if (map == null || map.size() == 0) return null;
+		Entry<String, RType> entry;
+		Iterator<Entry<String, RType>> i = map.entrySet().iterator();
+		StringBuffer buffer = new StringBuffer();
+		Object v;
+		while (i.hasNext()) {
+			entry = i.next();
+			buffer.append(entry.getKey());
+			buffer.append(" ");
+			v = ModelMapper.convertRTypeToJava(entry.getValue());
+			if (v instanceof List) {
+				List<Object> l = (List<Object>) v;
+				Iterator<Object> j = l.iterator();
+				while (j.hasNext()) {
+					buffer.append(j.next());
+					buffer.append(" ");
+				}
+			} else if (v instanceof Map) {
+				Map<String, Object> l = (Map<String, Object>) v;
+				Entry<String, Object> e;
+				Iterator<Entry<String, Object>> j = l.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					buffer.append(e.getKey());
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(e.getValue());
+				}
+			}
+			buffer.append(System.getProperty("line.separator"));
+		}
+		return buffer.toString();
+	}
+	
 }
