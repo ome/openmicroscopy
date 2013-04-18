@@ -55,6 +55,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
+import ome.util.SqlAction;
 import ome.util.Utils;
 
 import omero.ServerError;
@@ -745,7 +746,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             }
         }
 
-        //logFile = dao.register(...);
+        String relPath = new java.io.File(thisLogFilename).getName();
+        CheckedPath checkedPath = file.parent().child(relPath);
+        ome.model.core.OriginalFile _logFile =
+                dao.register(repoUuid, checkedPath,
+                        "text/plain", helper.getServiceFactory(),
+                        helper.getSql());
+        logFile = new omero.model.OriginalFileI(_logFile.getId(), false);
     }
 
     private void attachLogFile() throws Exception {
