@@ -82,12 +82,26 @@ class FileSelectionTable
 	implements ActionListener
 {
 
-	private static final String TOOLTIP_BUTTON_REMOVE_ALL = "Remove all files from the queue.";
+	/**
+	 * Tooltip text for the button used to remove all the files from the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_REMOVE_ALL =
+			"Remove all files from the queue.";
 
-	private static final String TOOLTIP_BUTTON_REMOVE = "Remove the selected files " +
-			"from the queue.";
+	/**
+	 * Tooltip text for the button used to remove the selected files from the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_REMOVE =
+			"Remove the selected files from the queue.";
 
-	private static final String TOOLTIP_BUTTON_ADD = "Add the selected files to the queue.";
+	/**
+	 * Tooltip text for the button used to add the selected files to the
+	 * queue.
+	 */
+	private static final String TOOLTIP_BUTTON_ADD =
+			"Add the selected files to the queue.";
 
 	/** Tooltip text for group column */
 	private static final String TOOLTIP_GROUP = 
@@ -270,7 +284,7 @@ class FileSelectionTable
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
-		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-2] = 
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-2] =
 				TOOLTIP_FAD;
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[ARCHIVED_INDEX-2] = TOOLTIP_ARCHIVE;
 	}
@@ -320,7 +334,6 @@ class FileSelectionTable
 		
 		
 		if (!singleGroup) {
-
 			if(model.canImportAs()) {
 				tc = tcm.getColumn(GROUP_INDEX);
 				tc.setCellRenderer(new FileTableRenderer());
@@ -455,7 +468,7 @@ class FileSelectionTable
 				selectedColumns = COLUMNS_NO_GROUP_NO_USER;
 			}
 		} else {
-			if(model.canImportAs()) {
+			if (model.canImportAs()) {
 				selectedColumns = COLUMNS;
 			} else {
 				selectedColumns = COLUMNS_NO_USER;
@@ -592,7 +605,7 @@ class FileSelectionTable
 	}
 	
 	/** 
-	 * Creates a new instance. 
+	 * Creates a new instance.
 	 * 
 	 * @param model The model.
 	 */
@@ -653,30 +666,30 @@ class FileSelectionTable
 			dataset = dne.getLocation();
 			if (model.isSingleGroup()) {
 				if(model.canImportAs()) {
-					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 							FOLDER_AS_DATASET_INDEX-1));
-					importable = new ImportableFile(file, 
-							Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					importable = new ImportableFile(file,
+							Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						ARCHIVED_INDEX-1)), isFolderDataset);
 				} else {
-					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 							FOLDER_AS_DATASET_INDEX-2));
-					importable = new ImportableFile(file, 
-							Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					importable = new ImportableFile(file,
+							Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						ARCHIVED_INDEX-2)), isFolderDataset);
 				}
 			} else {
-				if(model.canImportAs()) {
-					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+				if (model.canImportAs()) {
+					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 							FOLDER_AS_DATASET_INDEX));
-					importable = new ImportableFile(file, 
-							Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					importable = new ImportableFile(file,
+							Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						ARCHIVED_INDEX)), isFolderDataset);
 				} else {
-					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					isFolderDataset = Boolean.valueOf((Boolean) dtm.getValueAt(i,
 							FOLDER_AS_DATASET_INDEX-1));
-					importable = new ImportableFile(file, 
-							Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					importable = new ImportableFile(file,
+							Boolean.valueOf((Boolean) dtm.getValueAt(i,
 						ARCHIVED_INDEX-1)), isFolderDataset);
 				}
 			}
@@ -701,7 +714,7 @@ class FileSelectionTable
 		allowAddition(value);
 		
 		if (model.isSingleGroup()) {
-			if(model.canImportAs()) {
+			if (model.canImportAs()) {
 				selectedColumns = COLUMNS_NO_GROUP;
 			} else {
 				selectedColumns = COLUMNS_NO_GROUP_NO_USER;
@@ -800,26 +813,26 @@ class FileSelectionTable
 				
 				if (model.isSingleGroup()) {
 					if(model.canImportAs()) {
-						dtm.addRow(new Object[] {element, 
+						dtm.addRow(new Object[] {element,
 								element.getFileLengthAsString(),
 								new DataNodeElement(node, value),
 								user.getUserName(),
-								Boolean.valueOf(v), Boolean.valueOf(a)});;
+								Boolean.valueOf(v), Boolean.valueOf(a)});
 					} else {
-						dtm.addRow(new Object[] {element, 
+						dtm.addRow(new Object[] {element,
 								element.getFileLengthAsString(),
 								new DataNodeElement(node, value),
 								Boolean.valueOf(v), Boolean.valueOf(a)});
 					}
 				} else {
 					if(model.canImportAs()) {
-						dtm.addRow(new Object[] {element, 
+						dtm.addRow(new Object[] {element,
 								element.getFileLengthAsString(),
 								new DataNodeElement(node, value),
 								user.getUserName(), group.getName(),
 								Boolean.valueOf(v), Boolean.valueOf(a)});
 					} else {
-						dtm.addRow(new Object[] {element, 
+						dtm.addRow(new Object[] {element,
 								element.getFileLengthAsString(),
 								new DataNodeElement(node, value),
 								group.getName(),
@@ -885,7 +898,7 @@ class FileSelectionTable
 		int index = ARCHIVED_INDEX;
 		if (model.isSingleGroup())
 			index = index-1;
-		if(model.canImportAs())
+		if (!model.canImportAs())
 			index = index -1;
 		for (int i = 0; i < n; i++) {
 			dtm.setValueAt(archive, i, index);
