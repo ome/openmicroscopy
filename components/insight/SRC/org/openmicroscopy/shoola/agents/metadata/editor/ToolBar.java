@@ -201,7 +201,7 @@ class ToolBar
     		downloadOriginalMetadataItem.setBackground(
     				UIUtilities.BACKGROUND_COLOR);
     		downloadOriginalMetadataItem.setEnabled(
-    				model.getOriginalMetadata() != null);
+    				model.hasOriginalMetadata());
     		saveAsMenu.add(downloadOriginalMetadataItem);
     		
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
@@ -670,7 +670,7 @@ class ToolBar
 			viewButton.setEnabled(true);
 			if (downloadOriginalMetadataItem != null)
 				downloadOriginalMetadataItem.setEnabled(
-					model.getOriginalMetadata() != null);
+					model.hasOriginalMetadata());
     	}
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
