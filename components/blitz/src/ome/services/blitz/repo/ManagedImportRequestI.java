@@ -59,6 +59,7 @@ import ome.util.Utils;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
+import omero.api.IUpdatePrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -68,6 +69,11 @@ import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.Fileset;
+import omero.model.FilesetAnnotationLink;
+import omero.model.FilesetAnnotationLinkI;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
@@ -109,8 +115,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private final TileSizes sizes;
 
     private final RepositoryDao dao;
-
-    private OriginalFile logFile;
 
     //
     // Import items. Initialized in init(Helper)
@@ -184,7 +188,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         MDC.put("fileset", location.sharedPath);
         log.debug("init starting... ");
-        logFile = registerLogFile();
+        registerLogFile();
 
         file = ((ManagedImportLocationI) location).getTarget();
 
@@ -276,7 +280,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
         log.debug("... cleanup stopped");
-        attachLogFile();
+        try {
+            attachLogFile(); // This should be attached earlier.
+        } catch (Throwable e) {
+            log.error(e.toString());
+        }
         MDC.clear();
     }
 
@@ -708,7 +716,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         // TEMPORARY REPLACEMENT. FIXME
     }
 
-    private OriginalFile registerLogFile() {
+    private void registerLogFile() {
 
         String thisLogFilename = null;
         OriginalFile logFile = null;
@@ -738,13 +746,29 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
         //logFile = dao.register(...);
-        return logFile;
-
     }
 
-    private void attachLogFile() {
+    private void attachLogFile() throws Exception {
+
+        final String LOG_FILE_NS =
+                omero.constants.namespaces.NSLOGFILE.value;
+
+        IUpdatePrx iUpdate = sf.getUpdateService();
 
         // use sf to get the services to link Fileset and the OriginalFile
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs(omero.rtypes.rstring(LOG_FILE_NS));
+        fa.setFile(logFile);
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        long faid = fa.getId().getValue();
+
+        Fileset fs = activity.getParent();
+        List<IObject> links = new ArrayList<IObject>();
+        FilesetAnnotationLink fsl = new FilesetAnnotationLinkI();
+        fsl.setChild(new FileAnnotationI(faid, false));
+        fsl.setParent(fs);
+        links.add(fsl);
+        iUpdate.saveAndReturnArray(links);
 
     }
 

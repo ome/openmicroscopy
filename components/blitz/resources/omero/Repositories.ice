@@ -391,6 +391,11 @@ module omero {
              **/
              ImportLocation location;
 
+            /**
+             * [OriginalFile] object representing the import log file.
+             **/
+             omero::model::OriginalFile logFile;
+
 
         };
 
