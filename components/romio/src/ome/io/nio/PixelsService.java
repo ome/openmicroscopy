@@ -17,6 +17,7 @@ import java.util.Map;
 
 import loci.formats.ChannelFiller;
 import loci.formats.ChannelSeparator;
+import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.Memoizer;
@@ -674,6 +675,32 @@ public class PixelsService extends AbstractFileSystemService
         }
     }
 
+
+    /**
+     * Short-cut in the FS case where we know that we are dealing with a FS-lite
+     * file, and want to retrieve the actual file as opposed to a pyramid or anything
+     * else. This may be used to access the original metadata.
+     * @throws FormatException
+     * @throws IOException
+     */
+    public IFormatReader getBfReader(Pixels pixels) throws FormatException, IOException {
+        // from getPixelBuffer
+        final String originalFilePath = getOriginalFilePath(pixels);
+        final int series = getSeries(pixels);
+        final IFormatReader reader = createBfReader();
+        reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
+        reader.setSeries(series);
+        return reader;
+    }
+
+    /**
+     * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
+     * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
+     */
+    protected CachingWrapper createBfReader() {
+        return new CachingWrapper(100, new File("/tmp/memo"));
+    }
+
     /**
      * Helper method to properly log any exceptions raised by Bio-Formats.
      * @param filePath Non-null.
@@ -681,11 +708,12 @@ public class PixelsService extends AbstractFileSystemService
      * @param series series to use
      * @return
      */
-    protected PixelBuffer createBfPixelBuffer(final String filePath,
+    protected BfPixelBuffer createBfPixelBuffer(final String filePath,
                                               final int series) {
         try
         {
-            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, new CachingWrapper(100, new File("/tmp/memo")));
+            CachingWrapper reader = createBfReader();
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
                     filePath, series));

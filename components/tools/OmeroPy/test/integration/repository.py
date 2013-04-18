@@ -779,5 +779,35 @@ class TestFilesetQueries(AbstractRepoTest):
         self.project(query, params)
 
 
+class TestOriginalMetadata(AbstractRepoTest):
+
+    def testFakeImport(self):
+
+        # TODO: should likely be in the "fs" namespace
+        req = omero.cmd.OriginalMetadataRequest()
+
+        client = self.new_client()
+        rsp = self.fullImport(client) # Note: fake test produces no metadata!
+        image = rsp.objects[0]
+
+        req.imageId = image.id.val
+
+        gateway = BlitzGateway(client_obj=client)
+
+        # Load via the gateway
+        image = gateway.getObject("Image", image.id.val)
+        self.assertEquals(3, len(image.loadOriginalMetadata()))
+
+        # Load via raw request
+        handle = client.sf.submit(req)
+        try:
+            gateway._waitOnCmd(handle, failonerror=True)
+            rsp = handle.getResponse()
+            self.assertEquals(dict, type(rsp.globalMetadata))
+            self.assertEquals(dict, type(rsp.seriesMetadata))
+        finally:
+            handle.close()
+
+
 if __name__ == '__main__':
     unittest.main()
