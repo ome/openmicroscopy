@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 
 import pojos.AnnotationData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 
 /**
  * Loads the annotations of a given type linked to the specified image.
@@ -58,7 +59,7 @@ public class AnnotationDataLoader
 	private int index;
 	
 	/** The identifier of the image.*/
-	private long imageID;
+	private long fileSetID;
 	
 	/**
 	 * Creates a new instance.
@@ -67,13 +68,13 @@ public class AnnotationDataLoader
 	 * Mustn't be <code>null</code>.
      * @param ctx The security context.
 	 * @param imageID The identifier of the image.
-	 * @param index The index of the UI element
+	 * @param index The index of the UI element.
 	 */
 	public AnnotationDataLoader(Importer viewer, SecurityContext ctx,
-			long imageID, int index)
+			long fileSetID, int index)
 	{
 		super(viewer, ctx);
-		this.imageID = imageID;
+		this.fileSetID = fileSetID;
 		this.index = index;
 	}
 	
@@ -86,7 +87,7 @@ public class AnnotationDataLoader
 		List<String> nsInclude = new ArrayList<String>();
 		nsInclude.add(FileAnnotationData.LOG_FILE_NS);
 		handle = mhView.loadAnnotations(ctx, ImageData.class,
-				Arrays.asList(imageID), FileAnnotationData.class, nsInclude,
+				Arrays.asList(fileSetID), FilesetData.class, nsInclude,
 				null, this);
 	}
 	
@@ -105,6 +106,6 @@ public class AnnotationDataLoader
 		if (viewer.getState() == Importer.DISCARDED) return;
 		Map<Long, Collection<AnnotationData>> map =
 				(Map<Long, Collection<AnnotationData>>) result;
-		viewer.setImportLogFile(map.get(imageID), index);
+		viewer.setImportLogFile(map.get(fileSetID), index);
 	}
 }

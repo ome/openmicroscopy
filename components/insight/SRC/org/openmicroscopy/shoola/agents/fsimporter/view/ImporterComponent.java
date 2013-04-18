@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import org.jfree.util.Log;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
@@ -312,7 +313,8 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
 		if (element != null) {
-			element.setImportedFile(f, result);
+			long fileSetID = element.setImportedFile(f, result);
+			if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
@@ -734,15 +736,22 @@ class ImporterComponent
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
 	}
 
-	/**
-	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setLogFile(Collection, int)
-	 */
-	public void setImportLogFile(Collection<AnnotationData> collection, int index) {
-		if (model.getState() == DISCARDED) {
-			return;
-		}
-	}
+//	/**
+//	 * Implemented as specified by the {@link Importer} interface.
+//	 * @see Importer#setLogFile(Collection, int)
+//	 */
+//	public void setImportLogFile(Collection<AnnotationData> collection,
+//			long fileSetID, int index) {
+//		if (model.getState() == DISCARDED) {
+//			throw new IllegalStateException(
+//					"This method cannot be invoked in the DISCARDED state.");
+//		}
+//		Collection<ImporterUIElement> list = view.getImportElements();
+//		if (list == null || list.size() == 0) {
+//			return;
+//		}
+//		ImporterUIElement e;
+//	}
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
