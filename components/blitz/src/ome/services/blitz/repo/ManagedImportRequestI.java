@@ -163,7 +163,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         this.reg = reg;
         this.sizes = sizes;
         this.dao = dao;
-		this.wrapper = wrapper;
+		this.reader = wrapper;
     }
 
     //
