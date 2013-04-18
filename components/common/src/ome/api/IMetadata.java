@@ -251,7 +251,8 @@ public interface IMetadata
      * for that node. Otherwise it will be a <code>Set</code>
      * containing {@link Annotation} objects.
      * The <code>rootNodeType</code> supported are:
-     * Project, Dataset, Image, Pixels, Screen, Plate, PlateAcquisition, Well.
+     * Project, Dataset, Image, Pixels, Screen, Plate, PlateAcquisition, Well,
+     * Fileset.
      * 
      * @param type      The type of annotations to load.
      * @param include Include the annotations with the specified name spaces.
