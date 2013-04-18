@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import ome.api.IUpdate;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -54,13 +55,14 @@ import ome.formats.importer.ImportSize;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
+import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.fire.Registry;
 import ome.util.SqlAction;
 import ome.util.Utils;
 
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
-import omero.api.IUpdatePrx;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
@@ -70,11 +72,7 @@ import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
-import omero.model.FileAnnotation;
-import omero.model.FileAnnotationI;
 import omero.model.Fileset;
-import omero.model.FilesetAnnotationLink;
-import omero.model.FilesetAnnotationLinkI;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
@@ -189,9 +187,15 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         MDC.put("fileset", location.sharedPath);
         log.debug("init starting... ");
-        registerLogFile();
 
         file = ((ManagedImportLocationI) location).getTarget();
+
+        try {
+            registerLogFile();
+        } catch (Throwable e) {
+            // Do we need to do more than this?
+            log.error("Failed to register log file:", e);
+        }
 
         try {
             sf = reg.getInternalServiceFactory(
@@ -281,11 +285,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
         log.debug("... cleanup stopped");
-        try {
-            attachLogFile(); // This should be attached earlier.
-        } catch (Throwable e) {
-            log.error(e.toString());
-        }
         MDC.clear();
     }
 
@@ -305,6 +304,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (step == 0) {
                 return importMetadata((MetadataImportJob) j);
             } else if (step == 1) {
+                try {
+                    // This should be attached earlier.
+                    attachLogFile();
+                } catch (Throwable e) {
+                    // and if this fails what does it mean?
+                    log.error("Failed to attach log file", e);
+                }
                 return pixelData(null);//(ThumbnailGenerationJob) j);
             } else if (step == 2) {
                 return generateThumbnails(null);//(PixelDataJob) j); Nulls image
@@ -717,10 +723,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         // TEMPORARY REPLACEMENT. FIXME
     }
 
-    private void registerLogFile() {
+    private void registerLogFile() throws Exception {
 
         String thisLogFilename = null;
-        OriginalFile logFile = null;
 
         /*
          * This gets the name of the current log file from the logger. It may be more than
@@ -747,7 +752,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
 
         String relPath = new java.io.File(thisLogFilename).getName();
-        CheckedPath checkedPath = file.parent().child(relPath);
+        // This needs to be more sophisticated as the target file could be deeper.
+        CheckedPath checkedPath = file.parent().parent().child(relPath);
         ome.model.core.OriginalFile _logFile =
                 dao.register(repoUuid, checkedPath,
                         "text/plain", helper.getServiceFactory(),
@@ -760,23 +766,21 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         final String LOG_FILE_NS =
                 omero.constants.namespaces.NSLOGFILE.value;
 
-        IUpdatePrx iUpdate = sf.getUpdateService();
+        IUpdate iUpdate = helper.getServiceFactory().getUpdateService();
 
         // use sf to get the services to link Fileset and the OriginalFile
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setNs(omero.rtypes.rstring(LOG_FILE_NS));
-        fa.setFile(logFile);
+        FileAnnotation fa = new FileAnnotation();
+        fa.setNs(LOG_FILE_NS);
+        fa.setFile(new ome.model.core.OriginalFile(logFile.getId().getValue(), false));
         fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        long faid = fa.getId().getValue();
+        long faid = fa.getId();
 
         Fileset fs = activity.getParent();
-        List<IObject> links = new ArrayList<IObject>();
-        FilesetAnnotationLink fsl = new FilesetAnnotationLinkI();
-        fsl.setChild(new FileAnnotationI(faid, false));
-        fsl.setParent(fs);
-        links.add(fsl);
+        FilesetAnnotationLink fsl = new FilesetAnnotationLink();
+        fsl.setChild(new FileAnnotation(faid, false));
+        fsl.setParent(new ome.model.fs.Fileset(fs.getId().getValue(), false));
+        ome.model.IObject[] links = {fsl};
         iUpdate.saveAndReturnArray(links);
-
     }
 
 }
