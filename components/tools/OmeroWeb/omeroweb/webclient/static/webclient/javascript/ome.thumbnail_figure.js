@@ -193,7 +193,7 @@ $(document).ready(function() {
                 for (var r=0; r<results.length; r++) {
 
                     var tagData = results[r],
-                        tagsText = tagData.tags.join(" ");     // 'Metaphase Dead'
+                        tagsText = tagData.tags.join(", ");     // 'Metaphase, Dead'
                     if (tagsText.length === 0) {
                         tagsText = "Not Tagged";
                     }
@@ -221,9 +221,11 @@ $(document).ready(function() {
                 $toRemove.remove();
 
                 // tidy up by hiding subset labels where there is only 1 subset
+                // AND the subset has only 1 Tag
                 $('tr:has(.img_panel)', $this).each(function(){
                     var $subsetLabels = $(this).find('.subsetLabel');
-                    if ($subsetLabels.length === 1) {
+                    if (($subsetLabels.length === 1)
+                            && ($subsetLabels.text().split(", ").length === 1)) {
                         $subsetLabels.hide();
                     }
                 });
