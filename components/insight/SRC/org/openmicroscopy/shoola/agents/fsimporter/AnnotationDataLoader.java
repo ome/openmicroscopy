@@ -103,8 +103,8 @@ public class AnnotationDataLoader
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Importer.DISCARDED) return;
-		Map<Long, Collection<FilesetData>> map =
-				(Map<Long, Collection<FilesetData>>) result;
+		Map<Long, Collection<FileAnnotationData>> map =
+				(Map<Long, Collection<FileAnnotationData>>) result;
 		viewer.setImportLogFile(map.get(fileSetID), fileSetID, index);
 	}
 }

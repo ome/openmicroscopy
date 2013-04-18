@@ -58,6 +58,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import omero.model.OriginalFile;
+
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -65,11 +67,15 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -79,9 +85,11 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
@@ -152,6 +160,11 @@ public class FileImportComponent
 	 * failed or successful.
 	 */
 	public static final String IMPORT_STATUS_CHANGE_PROPERTY = "importStatusChange";
+	
+	/**
+	 * Bound property indicating to load the content of the log file.
+	 */
+	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
 	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
@@ -340,6 +353,8 @@ public class FileImportComponent
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
+	/** The log file if any to load.*/
+	private FileAnnotationData logFile;
 	
 	/**
 	 * Logs the exception.
@@ -786,11 +801,32 @@ public class FileImportComponent
 		}
 	}
 	
-	public void setImportLogFile(Collection<FilesetData> fileSetData, long id) {
+	public void setImportLogFile(Collection<FileAnnotationData> data, long id) {
 		long fileSetID = getFileSetID();
 		if (id != fileSetID) return;
 		// Put the button for the log file download here using
 		// UIUtilities.createHyperLinkButton(String)?
+		//First determine the log file
+		// Put the button for the log file download here
+		Iterator<FileAnnotationData> i = data.iterator();
+		FileAnnotationData fa;
+		while (i.hasNext()) {
+			fa = i.next();
+			//Check name space
+			if (FileAnnotationData.LOG_FILE_NS.equals(fa.getNameSpace())) {
+				logFile = fa;
+				break;
+			}
+		}
+		if (logFile == null) return;
+		JButton log = new JButton("log");
+		log.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent evt) {
+				firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+			}
+		});
+		//Add button to UI
 	}
 	
 	private long getFileSetID()

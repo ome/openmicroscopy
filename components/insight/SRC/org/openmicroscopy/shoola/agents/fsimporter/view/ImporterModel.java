@@ -456,5 +456,12 @@ class ImporterModel
 			tags = null;
 		}
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 
 }
