@@ -2,14 +2,13 @@ function screens = getScreens(session, varargin)
 % GETSCREENS Retrieve screen objects from the OMERO server
 %
 %   screens = getScreens(session) returns all the screens owned by the
-%   session user in the context of the session group.
+%   session user in the context of the session group. By default,
+%   getScreens loads all the plates attached to the screens. This may have
+%   consequences in terms of loading time depending on the number of
+%   screens to load and plates attached to them.
 %
 %   screens = getScreens(session, ids) returns all the screens identified
 %   by the input ids in the context of the session group.
-%
-%   By default, getScreens() loads all the plates attached to the screens.
-%   This may have consequences in terms of loading time depending on the
-%   number of screens to load and plates attached to them.
 %
 %   screens = getScreens(session, 'owner', owner) returns all the screens
 %   owned by the input owner in the context of the session group.

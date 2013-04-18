@@ -2,18 +2,17 @@ function datasets = getDatasets(session, varargin)
 % GETDATASETS Retrieve dataset objects from the OMERO server
 %
 %   datasets = getDatasets(session) returns all the datasets owned by the
-%   session user in the context of the session group.
+%   session user in the context of the session group. By default,
+%   getDatasets loads all the images attached to the datasets. This may
+%   have consequences in terms of loading time depending on the number of
+%   images in the datasets.
 %
 %   datasets = getDatasets(session, ids) returns all the datasets
 %   identified by the input ids in the context of the session group.
 %
 %   datasets = getDatasets(session, ids, loaded) returns all the datasets
 %   identified by the input ids in the context of the session group. If
-%   loaded is True, the images attached to the datasets are loaded.
-%
-%   By default, getDatasets() loads all the images attached to the datasets.
-%   This may have consequences in terms of loading time depending on the
-%   number of images in the datasets.
+%   loaded is False, the images attached to the datasets are not loaded.
 %
 %   datasets = getDatasets(session, 'owner', owner) returns all the
 %   datasets owned by the input owner in the context of the session group.
