@@ -8,6 +8,8 @@ import ome.api.RawFileStore;
 import ome.io.nio.FileBuffer;
 import ome.services.RawFileBean;
 import ome.services.blitz.repo.path.FsFile;
+import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 import ome.util.SqlAction.DeleteLog;
 
 import omero.RMap;
@@ -152,6 +154,24 @@ public interface RepositoryDao {
      */
     OriginalFile register(String repoUuid, CheckedPath checked, String mimetype,
             final Ice.Current current) throws ServerError;
+
+    /**
+     * Like {@link #register(String, CheckedPath, String, Ice.Current) but
+     * does not create a new transaction. Instead, the {@link ServiceFactory}
+     * and {@link SqlAction} must be passed in. The returned OriginalFile
+     * instance is still connected to Hibernate.
+     *
+     * @param repoUuid
+     * @param checked
+     * @param mimetype
+     * @param sf
+     * @param sql
+     * @return
+     * @throws ServerError
+     */
+    public ome.model.core.OriginalFile register(String repoUuid, CheckedPath checked,
+            final String mimetype, final ServiceFactory sf, final SqlAction sql)
+                    throws ServerError;
 
     /**
      * Get an {@link FsFile} object based on its ID. Returns null if
