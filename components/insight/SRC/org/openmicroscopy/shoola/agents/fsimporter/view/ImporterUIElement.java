@@ -444,6 +444,8 @@ class ImporterUIElement
 						setNumberOfImport();
 					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
 							name)) {
+						// TODO: can be changed to using the model
+						// to query for the log file
 						FileAnnotationData v = (FileAnnotationData)
 								evt.getNewValue();
 						if (v == null) return;
