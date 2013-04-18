@@ -736,7 +736,7 @@ public class PixelsService extends AbstractFileSystemService
                 // #5159. Creating the path if we need to write.
                 createSubpath(filePath);
             }
-            return new BfPyramidPixelBuffer(pixels, filePath, write);
+            return new BfPyramidPixelBuffer(sizes, pixels, filePath, write);
         }
         catch (Exception e)
         {
