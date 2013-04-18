@@ -4169,5 +4169,17 @@ class EditorModel
 		if (data == null) return false;
 		return data.isLoaded();
 	}
+	
+	/**
+	 * Returns <code>true</code> if the image has an original metadata file
+	 * linked to it, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOriginalMetadata()
+	{
+		FileAnnotationData fa = getOriginalMetadata();
+		return fa != null;
+	}
 
 }
