@@ -533,6 +533,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
+        data.logFile = checkPath(relPath.toString()+".log", checksumAlgorithm, __current);
 
         // try actually making directories
         final FsFile newBase = FsFile.concatenate(relPath, basePath);

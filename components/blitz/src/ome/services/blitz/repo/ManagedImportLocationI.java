@@ -31,11 +31,21 @@ public class ManagedImportLocationI extends ImportLocation {
 
     public List<CheckedPath> checkedPaths;
 
+    public CheckedPath logFile;
+
     /**
      * Return the server-side {@link CheckedPath} instance which can be passed to
      * a Bio-Formats reader.
      */
     public CheckedPath getTarget() {
         return checkedPaths.get(0);
+    }
+
+    /**
+     * Return the server-side {@link CheckedPath} instance which can be used
+     * for writing a log file for a fileset.
+     */
+    public CheckedPath getLogFile() {
+        return logFile;
     }
 }
