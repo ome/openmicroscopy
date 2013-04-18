@@ -32,7 +32,8 @@
     </discriminator>
     <sift>
       <appender name="FILE-${fileset}" class="ch.qos.logback.core.FileAppender">
-        <file>${omero.logbase}${fileset}.log</file>
+        <!-- The first part of this path needs to come from somewhere else -->
+        <file>/OMERO/ManagedRepository/${fileset}</file>
         <append>false</append>
         <encoder>
           <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>

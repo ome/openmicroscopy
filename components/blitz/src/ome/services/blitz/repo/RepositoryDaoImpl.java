@@ -566,7 +566,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
         final CheckedPath parent = checked.parent();
 
-        return _internalRegister(repoUuid, checked, mimetype,
+        return _internalRegister(repoUuid, checked, null, mimetype,
                 parent, sf, sql);
 
     }

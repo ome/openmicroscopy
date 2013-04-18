@@ -115,6 +115,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private final RepositoryDao dao;
 
+    private String logFilename;
+
     //
     // Import items. Initialized in init(Helper)
     //
@@ -184,8 +186,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw helper.cancel(new ERR(), null, "bad-location",
                     "location-type", location.getClass().getName());
         }
-
-        MDC.put("fileset", location.sharedPath);
+        logFilename = ((ManagedImportLocationI) location).getLogFile().getFullFsPath();
+        MDC.put("fileset", logFilename);
         log.debug("init starting... ");
 
         file = ((ManagedImportLocationI) location).getTarget();
@@ -259,7 +261,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      */
     private void cleanup() {
 
-        MDC.put("fileset", location.sharedPath);
+        MDC.put("fileset", logFilename);
         log.debug("cleanup starting... ");
 
         try {
@@ -291,7 +293,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     public Object step(int step) {
         helper.assertStep(step);
         try {
-            MDC.put("fileset", location.sharedPath);
+            MDC.put("fileset", logFilename);
             log.debug("Step "+step+" starting...");
             Job j = activity.getChild();
             if (j == null) {
@@ -365,7 +367,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        MDC.put("fileset", location.sharedPath);
+        MDC.put("fileset", logFilename);
         log.debug("buildResponse starting.. ");
         if (step == 4) {
             ImportResponse rsp = new ImportResponse();
@@ -725,35 +727,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private void registerLogFile() throws Exception {
 
-        String thisLogFilename = null;
-
-        /*
-         * This gets the name of the current log file from the logger. It may be more than
-         * is necessary if we know that we are using the ManagedRepo for the location. We
-         * may just as easily construct the file name from the repo path and the shared path.
-         */
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) log;
-        for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext();) {
-            Appender<ILoggingEvent> appender = index.next();
-            if (appender.getName().equals("SIFT")) {
-                AppenderTracker<ILoggingEvent> appenderTracker = ((SiftingAppender) appender).getAppenderTracker();
-                for(Appender<ILoggingEvent> app : appenderTracker.valueList()) {
-                    if (app instanceof FileAppender) {
-                        String logFilename = ((FileAppender<ILoggingEvent>) app).getFile();
-                        if (logFilename.contains(location.sharedPath)) {
-                            thisLogFilename = logFilename;
-                            log.debug("File="+logFilename+" **");
-                        } else {
-                            log.debug("File="+logFilename);
-                        }
-                    }
-                }
-            }
-        }
-
-        String relPath = new java.io.File(thisLogFilename).getName();
-        // This needs to be more sophisticated as the target file could be deeper.
-        CheckedPath checkedPath = file.parent().parent().child(relPath);
+        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
         ome.model.core.OriginalFile _logFile =
                 dao.register(repoUuid, checkedPath,
                         "text/plain", helper.getServiceFactory(),
