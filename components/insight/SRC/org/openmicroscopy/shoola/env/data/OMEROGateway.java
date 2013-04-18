@@ -122,6 +122,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.Delete;
+import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -8685,4 +8686,26 @@ class OMEROGateway
 			new Exception("Cannot close the derived connectors", e);
 		}
 	}
+	
+	/**
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @param ctx The security context is any.
+	 * @return See above.
+	 */
+	RequestCallback submit(List<Request> commands, SecurityContext ctx)
+		throws Throwable
+	{
+		isSessionAlive(ctx);
+		try {
+	         Connector c = getConnector(ctx);
+	         return c.submit(commands, ctx);
+		} catch (Throwable e) {
+		 	handleException(e, "Cannot submit the requests.");
+			// Never reached
+			throw new ProcessException("Cannot submit the requests.", e);
+		}
+	}
+
 }
