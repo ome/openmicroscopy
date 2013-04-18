@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -38,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,13 +58,8 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
-
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
@@ -80,9 +78,11 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -786,6 +786,26 @@ public class FileImportComponent
 		}
 	}
 	
+	public void setImportLogFile(Collection<FilesetData> fileSetData, long id) {
+		long fileSetID = getFileSetID();
+		if (id != fileSetID) return;
+		// Put the button for the log file download here
+	}
+	
+	private long getFileSetID()
+	{
+		ImageData img = null;
+		if (image instanceof ImageData) {
+			img = (ImageData) image;
+			
+		} else if (image instanceof ThumbnailData) {
+			ThumbnailData thumb = (ThumbnailData) image;
+			img = thumb.getImage();
+		}
+		if (img == null) return -1;
+		return img.asImage().getFileset().getId().getValue();
+	}
+	
 	/**
 	 * Returns the dataset or <code>null</code>.
 	 * 
@@ -844,7 +864,7 @@ public class FileImportComponent
 	 * @param status Flag indicating the status of the import.
 	 * @param image  The image.
 	 */
-	public void setStatus(boolean status, Object image)
+	public long setStatus(boolean status, Object image)
 	{
 		this.image = image;	
 		busyLabel.setBusy(false);
@@ -1064,6 +1084,7 @@ public class FileImportComponent
 			}
 		}
 		repaint();
+		return getFileSetID();
 	}
 	
 	/**
@@ -1415,7 +1436,7 @@ public class FileImportComponent
 		reimportedLabel.setVisible(true);
 		repaint();
 	}
-	
+
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
@@ -1513,6 +1534,8 @@ public class FileImportComponent
 			} else {
 				statusLabel.setIcon(icons.getIcon(IconManager.APPLY_CANCEL));
 			}
+			// Add code to query for log file and create a download button
+			
 			statusLabel.setVisible(true);
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
