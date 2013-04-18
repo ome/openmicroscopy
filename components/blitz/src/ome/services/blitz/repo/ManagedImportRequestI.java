@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import ome.api.IUpdate;
+import ome.api.IQuery;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -321,6 +322,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 store.launchProcessing();
                 return null;
             } else if (step == 4) {
+                updateLogFileSize();
                 return objects;
             } else {
                 throw helper.cancel(new ERR(), null, "bad-step",
@@ -755,6 +757,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         fsl.setParent(new ome.model.fs.Fileset(fs.getId().getValue(), false));
         ome.model.IObject[] links = {fsl};
         iUpdate.saveAndReturnArray(links);
+    }
+
+    private void updateLogFileSize() throws Exception {
+        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
+        IQuery iQuery = helper.getServiceFactory().getQueryService();
+        ome.model.core.OriginalFile of = iQuery
+                .get(ome.model.core.OriginalFile.class, logFile.getId().getValue());
+        of.setSize(checkedPath.size());
     }
 
 }
