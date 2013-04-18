@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,10 +41,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -52,11 +55,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
@@ -69,8 +68,10 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -685,12 +686,13 @@ class ImporterUIElement
 	 * @param f The file to import.
 	 * @param result The result.
 	 */
-	void setImportedFile(ImportableFile f, Object result)
+	long setImportedFile(ImportableFile f, Object result)
 	{
 		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
+		long fileSetID = -1;
 		if (c != null) {
-			c.setStatus(false, result);
+			fileSetID = c.setStatus(false, result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
@@ -762,6 +764,7 @@ class ImporterUIElement
 				}
 			}
 		}
+		return fileSetID;
 	}
 	
 	/**
@@ -914,6 +917,24 @@ class ImporterUIElement
 		return false;
 	}
 
+	/**
+	 * Sets the import log file for each import component.
+	 *
+	 * @param fileSetData Collection of FileSet file annotations.
+	 * @param id UI element id.
+	 */
+	void setImportLogFile(Collection<FilesetData> fileSetData, long id)
+	{
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			fc.setImportLogFile(fileSetData, id);
+		}
+	}
 	/**
 	 * Returns <code>true</code> if files to reimport, <code>false</code>
 	 * otherwise.
