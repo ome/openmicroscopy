@@ -355,24 +355,32 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
         }
 
         // Since we don't control the lock here, we will try to
-        // obtain it an release it immediately.
+        // obtain it and release it immediately.
 
         try {
             lockFile = lockFile();
             lockRaf = new RandomAccessFile(lockFile, "rw");
-            try {
-                fileLock = lockRaf.getChannel().tryLock();
-            } catch (OverlappingFileLockException ofle) {
-                // Another object in this JVM controls the lock.
-            }
-            if (fileLock == null) {
-                // If we don't control the fileLock, then we
-                // also don't have the right to delete the
-                // lockFile. #5655
-                lockFile = null;
-                return true;
-            } else {
-                return false;
+            // In the general case in the server, sizes is created once
+            // for the entire OmeroContext and injected into each instance.
+            // Locking on it should come close to guaranteeing that only
+            // one server thread will be checking tryLock() at a time.
+            // This should prevent the infrequent but incorrect
+            // LockTimeout exceptions which can be seen by clients.
+            synchronized (sizes) {
+                try {
+                    fileLock = lockRaf.getChannel().tryLock();
+                } catch (OverlappingFileLockException ofle) {
+                    // Another object in this JVM controls the lock.
+                }
+                if (fileLock == null) {
+                    // If we don't control the fileLock, then we
+                    // also don't have the right to delete the
+                    // lockFile. #5655
+                    lockFile = null;
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } catch (IOException e) {
             lockFile = null;
