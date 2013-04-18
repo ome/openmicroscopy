@@ -208,6 +208,7 @@ import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -2248,6 +2249,8 @@ class OMEROGateway
 			return DoubleAnnotation.class;
 		else if (XMLAnnotationData.class.equals(nodeType))
 			return XmlAnnotation.class;
+		else if (FilesetData.class.equals(nodeType))
+			return Fileset.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
