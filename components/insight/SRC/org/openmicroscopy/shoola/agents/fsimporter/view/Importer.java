@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
-import pojos.FilesetData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 
 /** 
@@ -147,10 +147,11 @@ public interface Importer
 	/**
 	 * Sets the import log file.
 	 *
-	 * @param collection A collection of file annotations.
+	 * @param collection A collection of file annotations linked to the file set.
+	 * @param fileSetID The id of the file set.
 	 * @param index The index of the UI component.
 	 */
-	public void setImportLogFile(Collection<FilesetData> collection,
+	public void setImportLogFile(Collection<FileAnnotationData> collection,
 			long fileSetID, int index);
 
 	/**

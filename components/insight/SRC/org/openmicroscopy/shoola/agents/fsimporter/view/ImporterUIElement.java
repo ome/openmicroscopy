@@ -61,16 +61,22 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -436,6 +442,25 @@ class ImporterUIElement
 								countFilesImported++;
 						}
 						setNumberOfImport();
+					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
+							name)) {
+						FileAnnotationData v = (FileAnnotationData)
+								evt.getNewValue();
+						if (v == null) return;
+						Environment env = (Environment) 
+								ImporterAgent.getRegistry().lookup(
+										LookupNames.ENV);
+						String path = env.getOmeroFilesHome();
+						path += File.separator+v.getFileID();
+						File f = new File(path);
+						DownloadAndLaunchActivityParam activity;
+						activity = new DownloadAndLaunchActivityParam(
+								v.getFileID(),
+								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
+								f, null);
+						UserNotifier un =
+								ImporterAgent.getRegistry().getUserNotifier();
+						un.notifyActivity(model.getSecurityContext(), activity);
 					}
 				}
 			});
@@ -920,10 +945,10 @@ class ImporterUIElement
 	/**
 	 * Sets the import log file for each import component.
 	 *
-	 * @param fileSetData Collection of FileSet file annotations.
-	 * @param id UI element id.
+	 * @param data Collection of file annotations linked to the file set.
+	 * @param id The id of the file set.
 	 */
-	void setImportLogFile(Collection<FilesetData> fileSetData, long id)
+	void setImportLogFile(Collection<FileAnnotationData> data, long id)
 	{
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
@@ -932,7 +957,7 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			fc.setImportLogFile(fileSetData, id);
+			fc.setImportLogFile(data, id);
 		}
 	}
 	/**

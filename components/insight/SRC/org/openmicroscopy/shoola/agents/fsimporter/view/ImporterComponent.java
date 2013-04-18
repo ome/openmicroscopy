@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ProjectData;
@@ -737,9 +738,9 @@ class ImporterComponent
 
 	/**
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setLogFile(Collection, int)
+	 * @see Importer#setLogFile(Collection, long, int)
 	 */
-	public void setImportLogFile(Collection<FilesetData> collection,
+	public void setImportLogFile(Collection<FileAnnotationData> collection,
 			long fileSetID, int index) {
 		if (model.getState() == DISCARDED) {
 			throw new IllegalStateException(
