@@ -710,6 +710,6 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ProcessException, DSOutOfServiceException, DSAccessException;
 
 }
