@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 
-import pojos.AnnotationData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
 

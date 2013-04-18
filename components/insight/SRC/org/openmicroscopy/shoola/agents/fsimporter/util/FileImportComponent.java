@@ -789,7 +789,8 @@ public class FileImportComponent
 	public void setImportLogFile(Collection<FilesetData> fileSetData, long id) {
 		long fileSetID = getFileSetID();
 		if (id != fileSetID) return;
-		// Put the button for the log file download here
+		// Put the button for the log file download here using
+		// UIUtilities.createHyperLinkButton(String)?
 	}
 	
 	private long getFileSetID()
