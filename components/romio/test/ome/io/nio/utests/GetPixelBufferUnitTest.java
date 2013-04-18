@@ -15,6 +15,7 @@ import loci.formats.FormatException;
 
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
+import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.nio.PixelBuffer;
@@ -422,8 +423,8 @@ public class GetPixelBufferUnitTest extends MockObjectTestCase {
         }
 
         @Override
-        protected PixelBuffer createBfPixelBuffer(String filePath, int series) {
-            return get("createBf", bf, null);
+        protected BfPixelBuffer createBfPixelBuffer(String filePath, int series) {
+            return (BfPixelBuffer) get("createBf", bf, null);
         }
 
         @Override

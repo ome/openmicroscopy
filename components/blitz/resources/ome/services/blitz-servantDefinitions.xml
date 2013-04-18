@@ -344,6 +344,7 @@
   <bean class="omero.cmd.RequestObjectFactoryRegistry" lazy-init="false">
       <constructor-arg ref="extendedMetadata"/>
       <constructor-arg ref="roles"/>
+      <constructor-arg ref="/OMERO/Pixels"/>
       <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 
