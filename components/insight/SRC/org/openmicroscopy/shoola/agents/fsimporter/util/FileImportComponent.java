@@ -281,6 +281,9 @@ public class FileImportComponent
 	/** Button to delete the imported image. */
 	private JButton deleteButton;
 	
+	/** Button to download the import log file */
+	private JButton importLogButton;
+	
 	/** The data object corresponding to the folder. */
 	private DataObject containerFromFolder;
 	
@@ -516,7 +519,13 @@ public class FileImportComponent
 			}
 		});
 		cancelButton.setVisible(true);
-		
+		importLogButton = new JButton("Import Log");
+		importLogButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+			}
+		});
+		importLogButton.setVisible(false);
 		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
 		if (browsable) {
 			browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
@@ -619,6 +628,7 @@ public class FileImportComponent
 		add(browseButton);
 		add(groupUserLabel);
 		add(reimportedLabel);
+		add(importLogButton);
 	}
 	
 	/**
@@ -803,11 +813,7 @@ public class FileImportComponent
 	
 	public void setImportLogFile(Collection<FileAnnotationData> data, long id) {
 		long fileSetID = getFileSetID();
-		if (id != fileSetID) return;
-		// Put the button for the log file download here using
-		// UIUtilities.createHyperLinkButton(String)?
-		//First determine the log file
-		// Put the button for the log file download here
+		if (id != fileSetID || data == null) return;
 		Iterator<FileAnnotationData> i = data.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
@@ -819,14 +825,7 @@ public class FileImportComponent
 			}
 		}
 		if (logFile == null) return;
-		JButton log = new JButton("log");
-		log.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent evt) {
-				firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
-			}
-		});
-		//Add button to UI
+		importLogButton.setVisible(true);
 	}
 	
 	private long getFileSetID()

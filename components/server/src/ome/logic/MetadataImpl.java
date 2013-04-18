@@ -49,6 +49,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.fs.Fileset;
 import ome.model.screen.Plate;
 import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
@@ -161,6 +162,8 @@ public class MetadataImpl
 			sb.append("select l from WellAnnotationLink as l ");
 		else if (Pixels.class.getName().equals(rootType.getName()))
 				sb.append("select l from PixelsAnnotationLink as l ");
+		else if (Fileset.class.getName().equals(rootType.getName()))
+		        sb.append("select l from FilesetAnnotationLink as l ");
 
 		if (rootType != null) {
 			sb.append("left outer join fetch l.parent ");
