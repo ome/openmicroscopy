@@ -48,5 +48,5 @@ ip.parse(varargin{:});
 
 % Delegate unmatched arguments check to getObjects function
 unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
-pas = getObjects(session, ip.Results.ids, 'plateacquisition',...
+pas = getObjects(session, 'plateacquisition', ip.Results.ids,...
     unmatchedArgs{:});

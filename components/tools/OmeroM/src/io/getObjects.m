@@ -1,11 +1,11 @@
-function objects = getObjects(session, ids, type, varargin)
+function objects = getObjects(session, type, ids, varargin)
 % GETOBJECTS Retrieve objects from a given type from the OMERO server
 %
-%   objects = getObjects(session, ids, type) returns all the objects of the
+%   objects = getObjects(session, type, ids) returns all the objects of the
 %   specified type, identified by the input ids in the context of the
 %   session group.
 %
-%   objects = getObjects(session, ids, type, parameters) returns all the
+%   objects = getObjects(session, type, ids, parameters) returns all the
 %   objects of the specified type, identified by the input ids, owned by
 %   the session user in the context of the session group using the supplied
 %   loading parameters.
@@ -14,16 +14,16 @@ function objects = getObjects(session, ids, type, varargin)
 %   session user are returned else all the readable objects belonging to
 %   any user are returned.
 %
-%   objects = getObjects(session, ids, type, 'owner', ownerId) returns all
+%   objects = getObjects(session, type, ids, 'owner', ownerId) returns all
 %   the objects of the specified type, identified by the input ids, owned
 %   by the input owner in the context of the session group.
 %
 %   Examples:
 %
-%      objects = getObjects(session, ids, type);
-%      objects = getObjects(session, ids, type, parameters);
-%      objects = getObjects(session, ids, type, 'owner', ownerId);
-%      objects = getObjects(session, ids, type, parameters, 'owner', ownerId);
+%      objects = getObjects(session, type, ids);
+%      objects = getObjects(session, type, ids, parameters);
+%      objects = getObjects(session, type, ids, 'owner', ownerId);
+%      objects = getObjects(session, type, ids, parameters, 'owner', ownerId);
 %
 % See also: GETOBJECTTYPES
 
@@ -49,9 +49,9 @@ objectTypes = getObjectTypes();
 objectNames = {objectTypes.name};
 ip = inputParser;
 ip.addRequired('session');
-ip.addRequired('ids', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addRequired('type', @(x) ischar(x) && ismember(x, objectNames));
-ip.parse(session, ids, type);
+ip.addRequired('ids', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
+ip.parse(session, type, ids);
 objectType = objectTypes(strcmp(type, objectNames));
 
 % Check optional input parameters
