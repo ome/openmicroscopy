@@ -54,6 +54,11 @@ ip.addRequired('ids', @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.parse(session, type, ids);
 objectType = objectTypes(strcmp(type, objectNames));
 
+% Throw exception if type is plate acquisition
+assert(~strcmp(objectType.class, 'omero.model.PlateAcquisition'),...
+    ['Plate acquisitions are loaded together with plates. '...
+    'Use getPlates() instead.']);
+
 % Check optional input parameters
 ip = inputParser;
 ip.addOptional('parameters', omero.sys.ParametersI(),...
