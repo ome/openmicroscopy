@@ -46,7 +46,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     protected final String filePath;
 
-    protected final CachingWrapper bfReader;
+    protected final IFormatReader bfReader;
 
     protected final AtomicReference<BfPixelsWrapper> reader = new AtomicReference<BfPixelsWrapper>();
 
@@ -58,9 +58,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelBuffer(String filePath, CachingWrapper wrapper) throws IOException, FormatException {
+    public BfPixelBuffer(String filePath, IFormatReader bfReader) throws IOException, FormatException {
         this.filePath = filePath;
-        this.bfReader = wrapper;
+        this.bfReader = bfReader;
     }
 
     protected BfPixelsWrapper reader() {

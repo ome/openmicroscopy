@@ -320,7 +320,8 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         BfPixelsStoreI rps;
         try {
             // FIXME ImportConfig should be injected
-            rps = new BfPixelsStoreI(path, new OMEROWrapper(new ImportConfig()));
+            rps = new BfPixelsStoreI(path,
+                    new OMEROWrapper(new ImportConfig()).getImageReader());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;

@@ -190,7 +190,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                     readerFile.getAbsolutePath()), 15*1000, 0);
         }
         reader = new OmeroPixelsPyramidReader();
-        delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), new CachingWrapper(reader, 100, new File("/tmp/memo")));
+        delegate = new BfPixelBuffer(readerFile.getAbsolutePath(), reader);
         byteOrder = delegate.isLittleEndian()? ByteOrder.LITTLE_ENDIAN
                 : ByteOrder.BIG_ENDIAN;
     }

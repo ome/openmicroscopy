@@ -18,12 +18,13 @@ import java.util.List;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
+import loci.formats.IFormatReader;
+import loci.formats.Memoizer;
+import ome.io.nio.RomioPixelBuffer;
+import ome.io.nio.DimensionsOutOfBoundsException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.RomioPixelBuffer;
 
 /**
  *
@@ -33,7 +34,7 @@ public class BfPixelsWrapper {
 
     private final static Logger log = LoggerFactory.getLogger(BfPixelsWrapper.class);
 
-    private final CachingWrapper reader;
+    private final IFormatReader reader;
 
     private final String path;
 
@@ -43,9 +44,10 @@ public class BfPixelsWrapper {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelsWrapper(String path, CachingWrapper wrapper) throws IOException, FormatException {
+    public BfPixelsWrapper(String path, IFormatReader reader) throws IOException, FormatException {
         this.path = path;
-        this.reader = wrapper;
+        this.reader = reader; // don't re-memoize
+        reader.setFlattenedResolutions(false);
         reader.setId(path);
     }
 

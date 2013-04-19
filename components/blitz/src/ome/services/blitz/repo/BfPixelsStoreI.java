@@ -11,8 +11,6 @@ import java.util.List;
 
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
-
-import ome.formats.importer.OMEROWrapper;
 import ome.io.bioformats.BfPixelsWrapper;
 import ome.io.nio.RomioPixelBuffer;
 import omero.ServerError;
@@ -76,8 +74,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     private final BfPixelsWrapper reader;
 
-    public BfPixelsStoreI(String path, OMEROWrapper wrapper) throws IOException, FormatException {
-        reader = new BfPixelsWrapper(path, wrapper);
+    public BfPixelsStoreI(String path, ImageReader bfReader) throws IOException, FormatException {
+        reader = new BfPixelsWrapper(path, bfReader);
     }
 
     public void calculateMessageDigest_async(
