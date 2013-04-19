@@ -26,7 +26,6 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
 import ome.io.bioformats.BfPixelBuffer;
-import ome.io.bioformats.CachingWrapper;
 import ome.util.PixelData;
 import omero.api.IPixelsPrx;
 import omero.api.IQuery;
@@ -70,7 +69,7 @@ public class BfPixelBufferTest extends AbstractServerTest {
 
         // Access the data from file via BfPixelBuffer
         destFileName = destFile.getCanonicalPath();
-        bf = new BfPixelBuffer(destFileName, new CachingWrapper(Integer.MAX_VALUE, null));
+        bf = new BfPixelBuffer(destFileName, new ImageReader());
     }
 
     private void tidyUp() throws Throwable {

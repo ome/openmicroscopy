@@ -21,19 +21,14 @@ import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.Memoizer;
+import loci.formats.MinMaxCalculator;
 import loci.formats.meta.IMinMaxStore;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.FatalBeanException;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-
 import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
+import ome.formats.importer.OMEROWrapper;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
-import ome.io.bioformats.CachingWrapper;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.messages.MissingStatsInfoMessage;
 import ome.model.core.Pixels;
@@ -659,7 +654,7 @@ public class PixelsService extends AbstractFileSystemService
     {
         try
         {
-            CachingWrapper wrapper = new CachingWrapper(100, new File("/tmp/memo"));
+            OMEROWrapper wrapper = new OMEROWrapper(null, 100, new File("/tmp/memo"));
             wrapper.setMinMaxStore(store);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, wrapper);
             pixelBuffer.setSeries(series);
@@ -712,7 +707,11 @@ public class PixelsService extends AbstractFileSystemService
                                               final int series) {
         try
         {
-            CachingWrapper reader = createBfReader();
+            IFormatReader reader = new ImageReader();
+            reader = new ChannelFiller(reader);
+            reader = new ChannelSeparator(reader);
+            reader = new Memoizer(reader);
+            reader.setFlattenedResolutions(false);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",

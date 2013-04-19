@@ -27,7 +27,6 @@ import loci.formats.ChannelSeparator;
 import loci.formats.FormatTools;
 import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
-import loci.formats.in.SVSReader;
 import loci.formats.meta.DummyMetadata;
 import loci.formats.ome.OMEXMLMetadataImpl;
 
@@ -82,7 +81,7 @@ public class OMEROWrapperTest {
     @BeforeMethod
     public void setUp() {
         config = new ImportConfig();
-        wrapper = new OMEROWrapper(config, 0 /*min */, null);
+        wrapper = new OMEROWrapper(config);
     }
 
     @AfterMethod
@@ -129,59 +128,20 @@ public class OMEROWrapperTest {
 
     @Test
     public void testMismatchedWrappers() throws Exception {
-
-        Memoizer m = null;
-        try {
-            m = new Memoizer(0L /* min elapsed */);
-            m.setId(fake.getAbsolutePath());
-            assertTrue(m.isSavedToMemo());
-            assertFalse(m.isLoadedFromMemo());
-        } finally {
-            m.close();
-        }
-
-        for (int i = 0; i < 1; i++) {
-        try {
-            m = new Memoizer();
-            m.setId(fake.getAbsolutePath());
-            assertTrue(m.isLoadedFromMemo());
-            assertFalse(m.isSavedToMemo());
-            m.close();
-
-
-            //m = new Memoizer(new MinMaxCalculator(), 0L /* min elapsed */);
-            //m.setId(fake.getAbsolutePath());
-            //assertFalse(m.isLoadedFromMemo());
-        } finally {
-            //m.close();
-        }
-        }
-    }
-
-    @Test
-    public void testRepeated() throws Exception {
-
-        Memoizer m = null;
-        try {
-            m = new Memoizer(0L /* min elapsed */);
-            m.setId(fake.getAbsolutePath());
-            assertTrue(m.isSavedToMemo());
-            assertFalse(m.isLoadedFromMemo());
-        } finally {
-            m.close();
-        }
-
         for (int i = 0; i < 100; i++) {
-            try {
-                m = new Memoizer();
-                m.setId(fake.getAbsolutePath());
-                assertTrue(m.isLoadedFromMemo());
-                assertFalse(m.isSavedToMemo());
-            } finally {
-                m.close();
-            }
-        }
+        Memoizer m = new Memoizer(0L /* min elapsed */);
+        try {
+            m.setId(fake.getAbsolutePath());
+            m.close();
+            assertTrue(m.isSavedToMemo());
 
+            m = new Memoizer(new MinMaxCalculator(), 0L /* min elapsed */);
+            m.setId(fake.getAbsolutePath());
+            assertFalse(m.isLoadedFromMemo());
+        } finally {
+            m.close();
+        }
+        }
     }
 
     @Test
@@ -193,7 +153,7 @@ public class OMEROWrapperTest {
 
         wrapper.setId(png.getAbsolutePath());
         assertTrue(((Memoizer)wrapper.getReader()).isLoadedFromMemo());
-        assertFalse(((Memoizer)wrapper.getReader()).isSavedToMemo());
+        assertTrue(((Memoizer)wrapper.getReader()).isSavedToMemo());
         assertEquals(OMEXMLMetadataImpl.class,
                 wrapper.getMetadataStore().getClass());
 
@@ -207,12 +167,4 @@ public class OMEROWrapperTest {
         wrapper.setId(png.getAbsolutePath());
     }
 
-    @Test
-    public void testDirectory() throws Exception {
-        Memoizer m = new Memoizer(0L /* min */,
-                TempFileManager.create_path("memo.", ".dir", true));
-        m.setId(fake.getAbsolutePath());
-        assertTrue(m.isSavedToMemo());
-        m.close();
-    }
 }

@@ -33,11 +33,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import loci.formats.ChannelFiller;
+import loci.formats.ChannelSeparator;
 import loci.formats.ClassList;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.Memoizer;
+import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
 import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
@@ -47,7 +51,10 @@ import loci.formats.meta.MetadataStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ome.io.bioformats.CachingWrapper;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+
+import ome.formats.OMEXMLModelComparator;
 import ome.util.PixelData;
 
 import omero.model.Channel;
@@ -58,14 +65,25 @@ import omero.model.Pixels;
  * @author Chris Allan callan at blackcat.ca
  *
  */
-public class OMEROWrapper extends CachingWrapper {
+public class OMEROWrapper extends MinMaxCalculator {
 
     @SuppressWarnings("unused")
     private final static Logger log = LoggerFactory.getLogger(OMEROWrapper.class);
 
-    private ImportConfig config;
-
+    private ChannelSeparator separator;
+    private ChannelFiller filler;
+    private Memoizer memoizer;
     public Boolean minMaxSet = null;
+
+    /**
+     * Reference copy of <i>reader</i> so that we can be compatible with the
+     * IFormatReader/ReaderWrapper interface but still maintain functionality
+     * that we require.
+     */
+    private ImageReader iReader;
+
+
+    private ImportConfig config;
 
     /**
      * Wrapper for bio-formats
@@ -80,8 +98,29 @@ public class OMEROWrapper extends CachingWrapper {
 
     public OMEROWrapper(ImportConfig config, int minimumElapsed, File directory)
     {
-        super(createReader(config), minimumElapsed, directory);
+        super(createReader(config));
+
         this.config = config;
+        this.iReader = (ImageReader) reader; // Save old value
+        this.reader = null;
+        filler = new ChannelFiller(iReader);
+        separator  = new ChannelSeparator(filler);
+        memoizer = new Memoizer(separator, minimumElapsed, directory) {
+            public Deser getDeser() {
+                KryoDeser k = new KryoDeser();
+                k.kryo.register(OMEXMLModelComparator.class);
+                return k;
+            }
+        };
+        reader = memoizer;
+
+        // Force unreadable characters to be removed from metadata key/value pairs
+        iReader.setMetadataFiltered(true);
+        filler.setMetadataFiltered(true);
+        separator.setMetadataFiltered(true);
+        // Force images with multiple sub-resolutions to not "duplicate" their
+        // series.
+        iReader.setFlattenedResolutions(false);
     };
 
     private static ImageReader createReader(ImportConfig config)
@@ -163,7 +202,7 @@ public class OMEROWrapper extends CachingWrapper {
         // all of the plane data (all three channels) from the file if the file
         // is RGB.
         ByteBuffer plane;
-        if (unwrap().isRGB() || isLeicaReader()) {
+        if (iReader.isRGB() || isLeicaReader()) {
             // System.err.println("RGB, not using cached buffer.");
             byte[] bytePlane = openBytes(planeNumber, x, y, w, h);
             plane = ByteBuffer.wrap(bytePlane);
@@ -181,13 +220,9 @@ public class OMEROWrapper extends CachingWrapper {
      * @return true if reader being used is LeicaReader
      */
     public boolean isLeicaReader() {
-        try {
-            if (unwrap() instanceof LeicaReader) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
+        if (iReader.getReader() instanceof LeicaReader) {
+            return true;
+        } else {
             return false;
         }
     }
@@ -236,6 +271,15 @@ public class OMEROWrapper extends CachingWrapper {
     }
 
     /**
+     * Return the base image reader
+     *
+     * @return See above.
+     */
+    public ImageReader getImageReader() {
+        return iReader;
+    }
+
+    /**
      * @return true if using SPW reader
      */
     public boolean isSPWReader()
@@ -244,6 +288,32 @@ public class OMEROWrapper extends CachingWrapper {
         return Arrays.asList(domains).contains(FormatTools.HCS_DOMAIN);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#getMetadataOptions()
+     */
+    @Override
+    public MetadataOptions getMetadataOptions()
+    {
+        return iReader.getMetadataOptions();
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#setMetadataOptions(loci.formats.in.MetadataOptions)
+     */
+    @Override
+    public void setMetadataOptions(MetadataOptions options)
+    {
+        iReader.setMetadataOptions(options);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.ReaderWrapper#getSupportedMetadataLevels()
+     */
+    @Override
+    public Set<MetadataLevel> getSupportedMetadataLevels()
+    {
+        return iReader.getSupportedMetadataLevels();
+    }
 }
 
 /**

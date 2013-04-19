@@ -24,8 +24,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
 import ome.system.OmeroContext;
@@ -58,8 +56,7 @@ public class RequestObjectFactoryRegistry extends
                 ManagedImportRequestI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
-                return new ManagedImportRequestI(reg, sizes,
-                        new OMEROWrapper(new ImportConfig(), 100, new java.io.File("/tmp/memo")));
+                return new ManagedImportRequestI(reg, sizes);
             }
 
         });
