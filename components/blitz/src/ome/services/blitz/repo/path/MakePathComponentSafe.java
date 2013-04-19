@@ -19,11 +19,6 @@
 
 package ome.services.blitz.repo.path;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.common.base.Function;
 
 /**
@@ -31,80 +26,28 @@ import com.google.common.base.Function;
  * @since 5.0
  */
 public class MakePathComponentSafe implements Function<String, String> {
-    protected static final Map<Integer, Integer> transformationMatrix;
-    protected static final Set<String> unsafePrefixes;
-    protected static final Set<String> unsafeSuffixes;
-    protected static final Set<String> unsafeNames;
-    
-    protected static final char safeCharacter = '_';
-    
-    private static int getCodePoint(char character) {
-        final char[] singletonCharacterArray = new char[] {character};
-        return Character.codePointAt(singletonCharacterArray, 0);
-    }
-    
-    static {
-        /* Some information on Windows naming strategies is to be found at
-         * http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx */
-        
-        transformationMatrix = new HashMap<Integer, Integer>();
-        final int underscore = getCodePoint(safeCharacter);
-        for (int codePoint = 0; codePoint < 0x100; codePoint++)
-            if (Character.getType(codePoint) == Character.CONTROL)
-                transformationMatrix.put(codePoint, underscore);
-        transformationMatrix.put(0x22, getCodePoint('\'')); // "
-        transformationMatrix.put(0x2A, getCodePoint('x'));  // *
-        transformationMatrix.put(0x2F, getCodePoint('!'));  // /
-        transformationMatrix.put(0x3A, getCodePoint(';'));  // :
-        transformationMatrix.put(0x3C, getCodePoint('['));  // <
-        transformationMatrix.put(0x3E, getCodePoint(']'));  // >
-        transformationMatrix.put(0x3F, getCodePoint('%'));  // ?
-        transformationMatrix.put(0x5C, getCodePoint('!'));  // \
-        transformationMatrix.put(0x7C, getCodePoint('!'));  // |
-        
-        unsafePrefixes = new HashSet<String>();
-        //unsafePrefixes.add(".");
-        unsafePrefixes.add("$");
-        
-        unsafeSuffixes = new HashSet<String>();
-        unsafeSuffixes.add(".");
-        unsafeSuffixes.add(" ");
-        
-        unsafeNames = new HashSet<String>();
-        unsafeNames.add("AUX");
-        unsafeNames.add("CLOCK$");
-        unsafeNames.add("CON");
-        unsafeNames.add("NUL");
-        unsafeNames.add("PRN");
-        for (char number = '0'; number <= '9'; number++) {
-            unsafeNames.add("COM" + number);
-            unsafeNames.add("LPT" + number);
-        }
-        
-        for (final String unsafeName : unsafeNames)
-            unsafePrefixes.add(unsafeName + ".");
-    }
-    
+    protected static final FilePathRestrictions rules = FilePathRestrictions.CONSERVATIVE_RULES;
+
     /**
      * {@inheritDoc}
      */
     // @Override only since Java SE 6
     public String apply(String string) {
         final String ucString = string.toUpperCase();
-        for (final String unsafeName : unsafeNames)
+        for (final String unsafeName : rules.unsafeNames)
             if (ucString.equals(unsafeName))
-                string = string + safeCharacter;
-        for (final String unsafePrefix : unsafePrefixes)
+                string = string + rules.safeCharacter;
+        for (final String unsafePrefix : rules.unsafePrefixes)
             if (ucString.startsWith(unsafePrefix))
-                string = safeCharacter + string;
-        for (final String unsafeSuffix : unsafeSuffixes)
+                string = rules.safeCharacter + string;
+        for (final String unsafeSuffix : rules.unsafeSuffixes)
             if (ucString.endsWith(unsafeSuffix))
-                string = string + safeCharacter;
+                string = string + rules.safeCharacter;
         final int codePointCount = string.codePointCount(0, string.length());
         final int[] codePointArray = new int[codePointCount];
         for (int codePointIndex = 0; codePointIndex < codePointCount; codePointIndex++) {
             final int originalCodePoint = string.codePointAt(string.offsetByCodePoints(0, codePointIndex));
-            final Integer substituteCodePoint = transformationMatrix.get(originalCodePoint);
+            final Integer substituteCodePoint = rules.transformationMap.get(originalCodePoint);
             if (substituteCodePoint == null)
                 codePointArray[codePointIndex] = originalCodePoint;
             else
