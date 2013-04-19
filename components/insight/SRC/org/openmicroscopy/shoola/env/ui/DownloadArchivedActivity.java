@@ -93,8 +93,10 @@ public class DownloadArchivedActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
-		initialize("Downloaded Archived Image", parameters.getIcon());
-		messageLabel.setText("in "+parameters.getLocation());
+		initialize("Downloading Archived Image", parameters.getIcon());
+		File f = parameters.getLocation();
+		if (f.isFile()) f = f.getParentFile();
+		messageLabel.setText("in "+f.getAbsolutePath());
 		this.parameters = parameters;
 	}
 
@@ -137,8 +139,10 @@ public class DownloadArchivedActivity
 		if (files.size() > 1) {//zip the result
 			try {
 				//Create a folder
-				
-				File zipFolder = new File(parameters.getLocation(),
+				File location = parameters.getLocation();
+				if (!location.isDirectory())
+					location = location.getParentFile();
+				File zipFolder = new File(location,
 				FilenameUtils.removeExtension(parameters.getImage().getName()));
 				zipFolder.mkdir();
 				//copy file into the directory
