@@ -24,14 +24,16 @@
 package org.openmicroscopy.shoola.util;
 
 //Java imports
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-
 //Third-party libraries
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -45,6 +47,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since 4.4
  */
 public class NetworkChecker {
+
+    private final static Logger log = LoggerFactory.getLogger(NetworkChecker.class);
 
 	/**
 	 * Returns <code>true</code> if the network is still up, otherwise
@@ -79,12 +83,24 @@ public class NetworkChecker {
 		//tmp code
 		boolean networkup = false;
 		if (UIUtilities.isLinuxOS()) {
+			if (log.isDebugEnabled()) {
+				log.debug("LinuxOS - checking network connection [HTTP]");
+			}
+
 			try {
-				Socket s = new Socket("www.openmicroscopy.org.uk", 80);
-				s.close();
+				// use HTTP URL instead of plain socket connection to avoid
+				// network checks timeouts for clients behind a web proxy
+				// (requires adequate system property in startup script)
+				URL url = new URL("http://www.openmicroscopy.org.uk");
+				InputStream is = url.openStream();
+				is.close();
 				networkup = true;
 			} catch (Exception e) {}
 		} else {
+			if (log.isDebugEnabled()) {
+				log.debug("Win/MacOS - checking network connection [NIC]");
+			}
+
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
 			if (interfaces != null) {

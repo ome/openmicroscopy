@@ -34,6 +34,9 @@
   If you're running on Unix or Mac OS X, make sure the provided startup script
   is executable.
 
+  If you're connecting to the internet through a web proxy, make sure you edit
+  the startup script accordingly (example configuration is provided within
+  shell script).
 
   ____________________
   Running The Software
