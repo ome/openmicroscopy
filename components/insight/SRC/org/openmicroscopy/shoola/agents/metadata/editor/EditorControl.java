@@ -100,13 +100,19 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
+import pojos.BooleanAnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -203,9 +209,12 @@ class EditorControl
 	
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
-	
+
 	/** Action ID to load the file path.*/
 	static final int FILE_PATH = 24;
+
+	/** Action id indicating to remove other annotations. */
+	static final int REMOVE_OTHER_ANNOTATIONS = 25;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -570,7 +579,12 @@ class EditorControl
 				if (data instanceof File) view.removeAttachedFile(data);
 				else if (data instanceof FileAnnotationData)
 					view.removeAttachedFile(data);
-				else if (data instanceof TagAnnotationData)
+				else if (data instanceof TagAnnotationData ||
+						data instanceof TermAnnotationData ||
+						data instanceof XMLAnnotationData ||
+						data instanceof LongAnnotationData ||
+						data instanceof DoubleAnnotationData ||
+						data instanceof BooleanAnnotationData)
 					view.removeObject((DataObject) data);
 			} 
 		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
@@ -843,6 +857,9 @@ class EditorControl
 				break;
 			case REMOVE_DOCS:
 				view.removeAttachedFiles(src, p);
+				break;
+			case REMOVE_OTHER_ANNOTATIONS:
+				view.removeOtherAnnotations(src, p);
 		}
 	}
 	

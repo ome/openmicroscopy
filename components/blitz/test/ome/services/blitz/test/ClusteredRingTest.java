@@ -19,8 +19,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -35,8 +35,8 @@ public class ClusteredRingTest extends MockObjectTestCase {
     PlatformTransactionManager tm;
     TransactionStatus tx;
 
-    @BeforeTest
-    public void setup() throws Exception {
+    @BeforeMethod
+    public void createFixtures() throws Exception {
 
         // To run everything in a single transaction, uncomment;
         // tm = (PlatformTransactionManager) ctx.getBean("transactionManager");
@@ -52,8 +52,8 @@ public class ClusteredRingTest extends MockObjectTestCase {
         fixture2 = new MockFixture(this);
     }
 
-    @AfterTest(alwaysRun = true)
-    public void tearDown() throws Exception {
+    @AfterMethod(alwaysRun = true)
+    public void teardownFixtures() throws Exception {
         if (fixture1 != null) {
             fixture1.tearDown();
         }
@@ -128,7 +128,7 @@ public class ClusteredRingTest extends MockObjectTestCase {
             throws Exception {
         fail();
     }
-    
+
     @Test
     public void testIfRedirectIsDeletedAnotherHostTakesOver() throws Exception {
         fail();

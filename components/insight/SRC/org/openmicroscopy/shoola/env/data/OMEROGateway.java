@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -150,6 +150,7 @@ import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -195,15 +196,19 @@ import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -227,6 +232,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -2204,18 +2210,18 @@ class OMEROGateway
 	 */
 	Class convertPojos(Class nodeType)
 	{
-		if (ProjectData.class.equals(nodeType)) 
+		if (ProjectData.class.equals(nodeType))
 			return Project.class;
-		else if (DatasetData.class.equals(nodeType)) 
+		else if (DatasetData.class.equals(nodeType))
 			return Dataset.class;
-		else if (ImageData.class.equals(nodeType)) 
+		else if (ImageData.class.equals(nodeType))
 			return Image.class;
 		else if (BooleanAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
 		else if (RatingAnnotationData.class.equals(nodeType) ||
-				LongAnnotationData.class.equals(nodeType)) 
+				LongAnnotationData.class.equals(nodeType))
 			return LongAnnotation.class;
-		else if (TagAnnotationData.class.equals(nodeType)) 
+		else if (TagAnnotationData.class.equals(nodeType))
 			return TagAnnotation.class;
 		else if (TextualAnnotationData.class.equals(nodeType)) 
 			return CommentAnnotation.class;
@@ -2223,23 +2229,29 @@ class OMEROGateway
 			return FileAnnotation.class;
 		else if (TermAnnotationData.class.equals(nodeType))
 			return TermAnnotation.class;
-		else if (ScreenData.class.equals(nodeType)) 
+		else if (ScreenData.class.equals(nodeType))
 			return Screen.class;
-		else if (PlateData.class.equals(nodeType)) 
+		else if (PlateData.class.equals(nodeType))
 			return Plate.class;
-		else if (WellData.class.equals(nodeType)) 
+		else if (WellData.class.equals(nodeType))
 			return Well.class;
-		else if (WellSampleData.class.equals(nodeType)) 
+		else if (WellSampleData.class.equals(nodeType))
 			return WellSample.class;
 		else if (PlateAcquisitionData.class.equals(nodeType))
 			return PlateAcquisition.class;
-		else if (FileData.class.equals(nodeType) || 
+		else if (FileData.class.equals(nodeType) ||
 				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;
 		else if (ExperimenterData.class.equals(nodeType))
 			return Experimenter.class;
+		else if (DoubleAnnotationData.class.equals(nodeType))
+			return DoubleAnnotation.class;
+		else if (XMLAnnotationData.class.equals(nodeType))
+			return XmlAnnotation.class;
+		else if (FilesetData.class.equals(nodeType))
+			return Fileset.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -8679,4 +8691,44 @@ class OMEROGateway
 			new Exception("Cannot close the derived connectors", e);
 		}
 	}
+	
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param options Options to retrieve the data.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Collection<AnnotationData>>
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude, Parameters options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		String type = convertAnnotation(annotationType);
+		IMetadataPrx service = getMetadataService(ctx);
+		try {
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
+							nsExclude, convertPojos(rootType).getName(),
+							rootIDs, options));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find annotation of "+annotationType+" " +
+					"for "+rootType+".");
+		}
+		return new HashMap<Long, Collection<AnnotationData>>();
+	}
+	
 }

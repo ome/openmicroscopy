@@ -38,18 +38,18 @@
     <constructor-arg ref="executor"/>
   </bean>
 
-  <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
-  <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
-
-  <bean id="roles" class="ome.system.Roles"/>
-
-  <bean id="Ice.Communicator" class="Ice.Util" factory-method="initialize"/>
-
-<!--
-  <bean id="topicManagerMock" class="org.jmock.Mock">
-    <constructor-arg value="ome.services.blitz.fire.TopicManager" type="java.lang.Class"/>
+  <bean id="registryMock" class="org.jmock.Mock">
+    <constructor-arg value="ome.services.blitz.fire.Registry" type="java.lang.Class"/>
+    <property name="defaultStub"><bean class="org.jmock.core.stub.DefaultResultStub"/></property>
   </bean>
 
-  <bean id="topicManager" factory-bean="topicManagerMock" factory-method="proxy"/>
--->
+  <bean id="Registry" factory-bean="registryMock" factory-method="proxy"/>
+
+  <bean id="topicManagerMock" class="org.jmock.Mock">
+    <constructor-arg value="ome.services.blitz.fire.TopicManager" type="java.lang.Class"/>
+    <property name="defaultStub"><bean class="org.jmock.core.stub.DefaultResultStub"/></property>
+  </bean>
+
+  <bean id="TopicManager" factory-bean="topicManagerMock" factory-method="proxy"/>
+
 </beans>

@@ -23,11 +23,11 @@ import org.testng.annotations.Test;
 
 @Test(enabled = false, groups = { "broken", "client", "integration", "security" })
 public class AbstractSecurityTest extends TestCase {
-    
-    protected OmeroContext context = OmeroContext.getInstance("OMERO.security.test");
-    
+
+    protected OmeroContext context = null;
+
     protected client c;
-    
+
     protected ome.system.ServiceFactory tmp = null; // new ome.system.ServiceFactory(context);
 
     protected DataSource dataSource = null; // (DataSource) tmp.getContext().getBean( "omero.security.test");
@@ -50,10 +50,13 @@ public class AbstractSecurityTest extends TestCase {
     // in their beforeTestClass i.e. super.setup(); ...
     protected void init() throws Exception {
 
-        // TODO: Make work        
+        // See ticket:10560 for issues with omero.db.poolsize
+        context = OmeroContext.getInstance("OMERO.security.test");
+
+        // TODO: Make work
         c = new client();
         serviceFactory = c.createSession(rootLogin.getName(), rootLogin.getPassword());
-        
+
         // Blitz services
         rootUpdate = serviceFactory.getUpdateService();
         rootQuery = serviceFactory.getQueryService();

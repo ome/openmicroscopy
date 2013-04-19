@@ -15,6 +15,7 @@ if omero.__import_style__ is None:
 # New Command API
 IceImport.load("omero_cmd_API_ice")
 IceImport.load("omero_cmd_Basic_ice")
+IceImport.load("omero_cmd_FS_ice")
 IceImport.load("omero_cmd_Graphs_ice")
 
 # Previous ServiceFactory API

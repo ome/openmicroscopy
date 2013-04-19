@@ -6144,41 +6144,35 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def loadOriginalMetadata(self):
         """
-        Gets original metadata from the file annotation. 
-        Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple. 
-        Metadata lists are lists of (key, value) tuples. 
-        
+        Gets original metadata from the file annotation.
+        Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple.
+        Metadata lists are lists of (key, value) tuples.
+
         @return:    Tuple of (file-annotation, global-metadata, series-metadata)
         @rtype:     Tuple (L{FileAnnotationWrapper}, [], [])
         """
-        
+
+        req = omero.cmd.OriginalMetadataRequest()
+        req.imageId = self.id
+
+        handle = self._conn.c.sf.submit(req)
+        try:
+            cb = self._conn._waitOnCmd(handle)
+            rsp = cb.getResponse()
+        finally:
+            handle.close()
+
         global_metadata = list()
         series_metadata = list()
-        if self is not None:
-            for a in self.listAnnotations():
-                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
-                    t_file = list()
-                    for piece in a.getFileInChunks():
-                        t_file.append(piece)
-                    temp_file = "".join(t_file).split('\n')
-                    flag = None
-                    for l in temp_file:
-                        if l.startswith("[GlobalMetadata]"):
-                            flag = 1
-                        elif l.startswith("[SeriesMetadata]"):
-                            flag = 2
-                        else:
-                            if len(l) < 1:
-                                l = None
-                            else:
-                                l = tuple(l.split("="))                            
-                            if l is not None:
-                                if flag == 1:
-                                    global_metadata.append(l)
-                                elif flag == 2:
-                                    series_metadata.append(l)
-                    return (a, (global_metadata), (series_metadata))
-        return None
+
+        for l, m in ((global_metadata, rsp.globalMetadata), \
+                     (series_metadata, rsp.seriesMetadata)):
+
+            for k, v in m.items():
+                l.append((k, unwrap(v))) # was RType!
+
+        # Either FileAnnotation OR Fileset may be returned!
+        return (None, (global_metadata), (series_metadata))
 
     @assert_re()
     def _getProjectedThumbnail (self, size, pos):
