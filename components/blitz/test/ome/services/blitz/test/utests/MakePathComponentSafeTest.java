@@ -33,66 +33,22 @@ import java.util.Set;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.util.TempFileManager;
 
+import nl.javadude.assumeng.Assumption;
+import nl.javadude.assumeng.AssumptionListener;
+
 import org.testng.Assert;
-import org.testng.SkipException;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
-
-/**
- * A enumeration of operating systems under which tests may be occurring.
- * Some file path tests are platform-specific.
- * @see MakePathComponentSafeTest#requireOperatingSystem
- * @author m.t.b.carroll@dundee.ac.uk
- * @since 5.0
- */
-enum OperatingSystem {
-    WINDOWS("Microsoft Windows"),
-    LINUX("Linux"),
-    MAC("Apple Mac OS X");
-    
-    private final String name;
-
-    OperatingSystem(String name) {
-        this.name = name;
-    }
-    
-    @Override
-    public String toString() {
-        return this.name;
-    }
-}
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */
 @Test(groups = {"fs"})
+@Listeners(AssumptionListener.class)
 public class MakePathComponentSafeTest extends MakePathComponentSafe {
     private static final MakePathComponentSafe sanitizer = new MakePathComponentSafe();
-    
-    private static final OperatingSystem os;
-    
-    static {
-        final String osName = System.getProperty("os.name");
-        if (osName.startsWith("Windows "))
-            os = OperatingSystem.WINDOWS;
-        else if (osName.equals("Linux"))
-            os = OperatingSystem.LINUX;
-        else if (osName.equals("Mac OS X"))
-            os = OperatingSystem.MAC;
-        else
-            os = null;
-    }
 
-    /**
-     * If the current operating system differs from the given, then skip the current test.
-     * @deprecated migrate to AssumeNG
-     * @param os an operating system
-     */
-    private static void requireOperatingSystem(OperatingSystem os) {
-        if (os != MakePathComponentSafeTest.os)
-            throw new SkipException("test requires " + os + " but this is " + MakePathComponentSafeTest.os);
-    }
-    
     private static final Set<Integer> codePointsOfTypeControl;
     
     private static final TempFileManager tempFileManager =
@@ -194,8 +150,8 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      * @throws IOException unexpected
      */
     @Test
+    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
     public void testUnsafeCharacterUnsafetyWindows() throws IOException {
-        requireOperatingSystem(OperatingSystem.WINDOWS);
         final File tempDir = tempFileManager.createPath("testUnsafeCharacterUnsafetyWindows", null, true);
         for (final int unsafeCodePoint : MakePathComponentSafe.transformationMatrix.keySet()) {
             if (codePointsOfTypeControl.contains(unsafeCodePoint))
