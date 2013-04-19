@@ -64,7 +64,7 @@ public class RequestObjectFactoryRegistry extends
             @Override
             public Ice.Object create(String name) {
                 return new ManagedImportRequestI(reg, sizes, dao,
-                        new OMEROWrapper(new ImportConfig(), 100, new java.io.File("/tmp/memo")));
+                        new OMEROWrapper(new ImportConfig()));
             }
 
         });
