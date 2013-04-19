@@ -73,6 +73,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
         }
     }
 
+    /** Query to load the original file.*/
+    private static final String LOAD_ORIGINAL_FILE =
+    "select f from OriginalFile as f join fetch f.hasher where ";
+
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
     protected final Principal principal;
@@ -358,12 +362,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
                  .execute(current.ctx, currentUser(current),
                          new Executor.SimpleWork(this, "getOriginalFile", repoId) {
                      @Transactional(readOnly = true)
                      public Object doWork(Session session, ServiceFactory sf) {
-                         return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+                        return sf.getQueryService().findByQuery(
+                        LOAD_ORIGINAL_FILE+" f.id = :id",
+                        new Parameters().addId(repoId));
                      }
                  });
              return (OriginalFileI) new IceMapper().map(oFile);
@@ -377,7 +383,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
+             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>) executor
                 .execute(current.ctx, currentUser(current),
                         new Executor.SimpleWork(this,
                         "getOriginalFiles", repoUuid, checked) {
@@ -422,6 +428,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
             // Load parent directory to possibly cause
             // a read sec-vio.
+            //
             q.get(ome.model.core.OriginalFile.class, id);
 
             List<Long> ids = sql.findRepoFiles(repoUuid,
@@ -432,8 +439,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
             Parameters p = new Parameters();
             p.addIds(ids);
-            return q.findAllByQuery(
-                    "select o from OriginalFile o where o.id in (:ids)", p);
+            return q.findAllByQuery(LOAD_ORIGINAL_FILE+"f.id in (:ids)", p);
 
     }
 
