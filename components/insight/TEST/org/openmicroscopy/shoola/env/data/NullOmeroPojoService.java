@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -190,7 +191,7 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
-	public Map getArchivedImage(SecurityContext ctx, String location,
+	public Map getArchivedImage(SecurityContext ctx, File location,
 			long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{

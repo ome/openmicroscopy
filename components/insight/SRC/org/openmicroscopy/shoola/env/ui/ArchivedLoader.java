@@ -57,13 +57,13 @@ public class ArchivedLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  			handle;
+    private CallHandle handle;
     
     /** The archived image to load. */
-    private ImageData 				image;
+    private ImageData image;
 
-    /** The file where to export the image. */
-    private String					folderPath;
+    /** The file where to download the content of the image. */
+    private File file;
     
     /** Flag indicating that the export has been marked to be cancel.*/
     private boolean cancelled;
@@ -86,18 +86,18 @@ public class ArchivedLoader
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
      * @param image The image to export.
-     * @param folderPat The location where to export the image.
+     * @param file The location where to download the image.
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer,  Registry registry,
-			SecurityContext ctx, ImageData image, String folderPath,
+			SecurityContext ctx, ImageData image, File file,
 			ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		this.image = image;
-		this.folderPath = folderPath;
+		this.file = file;
 	}
 	
 	/**
@@ -106,7 +106,7 @@ public class ArchivedLoader
      */
     public void load()
     {
-    	handle = mhView.loadArchivedImage(ctx, image.getId(), folderPath, this);
+    	handle = mhView.loadArchivedImage(ctx, image.getId(), file, this);
     }
     
     /**

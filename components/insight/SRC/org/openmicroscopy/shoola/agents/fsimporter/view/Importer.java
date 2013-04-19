@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.io.File;
 import java.util.Collection;
 
 import javax.swing.JFrame;
@@ -40,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 
 /** 
@@ -143,6 +143,16 @@ public interface Importer
 	 * @param index The index of the UI components.
 	 */
 	public void setImportedFile(ImportableFile f, Object result, int index);
+
+	/**
+	 * Sets the import log file.
+	 *
+	 * @param collection A collection of file annotations linked to the file set.
+	 * @param fileSetID The id of the file set.
+	 * @param index The index of the UI component.
+	 */
+	public void setImportLogFile(Collection<FileAnnotationData> collection,
+			long fileSetID, int index);
 
 	/**
 	 * Returns the view.

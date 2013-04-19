@@ -59,23 +59,24 @@ public class FileLoader
 	public static final int FILE_ANNOTATION = 
 		MetadataHandlerView.FILE_ANNOTATION;
 	
-	/** The id of the file to download. */
-	private long 		fileID;
+	/** Indicates to load the metadata from the image ID.*/
+	public static final int METADATA_FROM_IMAGE = 
+			MetadataHandlerView.METADATA_FROM_IMAGE;
+	
+	/** The id of the object to handle. */
+	private long id;
 	
 	/** The absolute of the new file. */
-	private File 		file;
-	
-	/** The size of the file. */
-	private long		size;
-	
+	private File file;
+
 	/** Pass <code>true</code> to load, <code>false</code> otherwise. */
-	private boolean		toLoad;
+	private boolean toLoad;
 	
 	/** One of the constants defined by this class. */
-	private int 		index;
+	private int index;
 	
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle handle;
 
     /**
      * Notifies that an error occurred.
@@ -89,23 +90,20 @@ public class FileLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	Reference to the parent.
-     * @param reg    	Reference to the registry.
+     * @param viewer Reference to the parent.
+     * @param reg Reference to the registry.
      * @param ctx The security context.
-     * @param file	 	The absolute path to the file.
-     * @param fileID 	The file ID.
-     * @param size   	The size of the file.
-     * @param toLoad 	Indicates to download the file.
-     * @param activity 	The activity associated to this loader.
+     * @param file The absolute path to the file.
+     * @param id The file ID.
+     * @param toLoad Indicates to download the file.
+     * @param activity The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
-		File file, long fileID, long size, boolean toLoad,
-		ActivityComponent activity)
+	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx,
+		File file, long id, boolean toLoad, ActivityComponent activity)
 	{
 		super(viewer, reg, ctx, activity);
 		this.file = file;
-		this.fileID = fileID;
-		this.size = size;
+		this.id = id;
 		this.toLoad = toLoad;
 		index = -1;
 	}
@@ -113,21 +111,21 @@ public class FileLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	Reference to the parent.
-     * @param reg    	Reference to the registry.
-     * @param file	 	The absolute path to the file.
-     * @param fileID 	The file ID.
-     * @param index   	One of the constants defined by this class.
-     * @param toLoad 	Indicates to download the file.
-     * @param activity 	The activity associated to this loader.
+     * @param viewer Reference to the parent.
+     * @param reg Reference to the registry.
+     * @param file The absolute path to the file.
+     * @param id The id of the file to handle.
+     * @param index One of the constants defined by this class.
+     * @param toLoad Indicates to download the file.
+     * @param activity The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx, 
+	FileLoader(UserNotifier viewer, Registry reg, SecurityContext ctx,
 		File file, long fileID, int index, boolean toLoad,
 		ActivityComponent activity)
 	{
 		super(viewer, reg, ctx, activity);
 		this.file = file;
-		this.fileID = fileID;
+		this.id = fileID;
 		this.toLoad = toLoad;
 		this.index = index;
 	}
@@ -142,10 +140,11 @@ public class FileLoader
 			switch (index) {
 				case ORIGINAL_FILE:
 				case FILE_ANNOTATION:
-					handle = mhView.loadFile(ctx, file, fileID, index, this);
+				case METADATA_FROM_IMAGE:
+					handle = mhView.loadFile(ctx, file, id, index, this);
 					break;
 				default:
-					handle = mhView.loadFile(ctx, file, fileID, size, this);
+					handle = mhView.loadFile(ctx, file, id, this);
 			}
 		} else handleResult(file);
 	}

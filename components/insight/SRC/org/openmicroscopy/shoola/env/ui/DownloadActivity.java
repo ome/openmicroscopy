@@ -202,8 +202,7 @@ public class DownloadActivity extends ActivityComponent {
 
 		if (folder.isDirectory())
 			file = new File(folder + File.separator + fileName);
-		else
-			file = folder;
+		else file = folder;
 
 		registry.getLogger().debug(
 				this,
@@ -215,14 +214,15 @@ public class DownloadActivity extends ActivityComponent {
 			load = false;
 
 		switch (parameters.getIndex()) {
-		case DownloadActivityParam.FILE_ANNOTATION:
-		case DownloadActivityParam.ORIGINAL_FILE:
-			loader = new FileLoader(viewer, registry, ctx, file,
-					parameters.getId(), parameters.getIndex(), load, this);
-			break;
-		default:
-			loader = new FileLoader(viewer, registry, ctx, file, f.getId()
-					.getValue(), f.getSize().getValue(), load, this);
+			case DownloadActivityParam.FILE_ANNOTATION:
+			case DownloadActivityParam.ORIGINAL_FILE:
+			case DownloadActivityParam.METADATA_FROM_IMAGE:
+				loader = new FileLoader(viewer, registry, ctx, file,
+						parameters.getId(), parameters.getIndex(), load, this);
+				break;
+			default:
+				loader = new FileLoader(viewer, registry, ctx, file, f.getId()
+						.getValue(), load, this);
 		}
 		return loader;
 	}
@@ -286,7 +286,6 @@ public class DownloadActivity extends ActivityComponent {
 	 * 
 	 * @see ActivityComponent#notifyActivityError()
 	 */
-	protected void notifyActivityError() {
-	}
+	protected void notifyActivityError() {}
 
 }

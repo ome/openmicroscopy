@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -122,6 +122,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.Delete;
+import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -199,6 +200,7 @@ import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
@@ -207,6 +209,7 @@ import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -2247,6 +2250,8 @@ class OMEROGateway
 			return DoubleAnnotation.class;
 		else if (XMLAnnotationData.class.equals(nodeType))
 			return XmlAnnotation.class;
+		else if (FilesetData.class.equals(nodeType))
+			return Fileset.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -3991,27 +3996,27 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		return retrieveArchivedFiles(ctx, folderPath, image);
+		return retrieveArchivedFiles(ctx, file, image);
 	}
 	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -4019,7 +4024,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
@@ -4071,25 +4076,29 @@ class OMEROGateway
 		
 		RawFileStorePrx store;
 		OriginalFile of;
-		long size;	
+		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
-		String fullPath;
-		Iterator<OriginalFile> k;
-		 k = values.iterator();
-		while (k.hasNext()) {
-			of = k.next();
+		String folderPath = null;
+		if (files.size() > 1) {
+			if (file.isDirectory()) folderPath = file.getAbsolutePath();
+			else folderPath = file.getParent();
+		}
+		i = values.iterator();
+		while (i.hasNext()) {
+			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = folderPath+of.getName().getValue();
-			f = new File(fullPath);
+			if (folderPath != null) {
+				f = new File(folderPath+of.getName().getValue());
+			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
@@ -4101,7 +4110,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int) (size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -4121,8 +4130,8 @@ class OMEROGateway
 				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
-				throw new DSAccessException("Cannot create file with path " +
-											fullPath, e);
+				throw new DSAccessException("Cannot create file in folderPath",
+						e);
 			}
 			closeService(ctx, store);
 		}
@@ -4137,42 +4146,38 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.	
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
-		return download(ctx, file, fileID, size);
+		return download(ctx, file, fileID);
 	}
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized File download(SecurityContext ctx, File file,
-			long fileID, long size)
+			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		if (of == null) return null;
-		if (size <= 0) {
-			if (of != null) size = of.getSize().getValue();
-		}
+		long size = of.getSize().getValue();
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
@@ -8684,5 +8689,71 @@ class OMEROGateway
 		} catch (Throwable e) {
 			new Exception("Cannot close the derived connectors", e);
 		}
+	}
+	
+	/**
+<<<<<<< HEAD
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @param ctx The security context is any.
+	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 * in.
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMEDS service.
+	 */
+	RequestCallback submit(List<Request> commands, SecurityContext ctx)
+		throws ProcessException, DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		try {
+	         Connector c = getConnector(ctx);
+	         return c.submit(commands, ctx);
+		} catch (Throwable e) {
+		 	handleException(e, "Cannot submit the requests.");
+			// Never reached
+			throw new ProcessException("Cannot submit the requests.", e);
+		}
+	}
+
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param options Options to retrieve the data.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Collection<AnnotationData>>
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude, Parameters options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		String type = convertAnnotation(annotationType);
+		IMetadataPrx service = getMetadataService(ctx);
+		try {
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
+							nsExclude, convertPojos(rootType).getName(),
+							rootIDs, options));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find annotation of "+annotationType+" " +
+					"for "+rootType+".");
+		}
+		return new HashMap<Long, Collection<AnnotationData>>();
 	}
 }

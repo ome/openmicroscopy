@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +44,15 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import org.apache.commons.collections.ListUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
+import omero.RType;
+import omero.cmd.DoAllRsp;
+import omero.cmd.OriginalMetadataRequest;
+import omero.cmd.OriginalMetadataResponse;
+import omero.cmd.Request;
+import omero.cmd.Response;
 //Application-internal dependencies
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
@@ -1344,17 +1356,16 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, long, int)
+	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, int)
 	 */
-	public File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size) 
+	public File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (fileID < 0)
 			throw new IllegalArgumentException("File ID not valid");
 		if (file == null)
 			throw new IllegalArgumentException("File path not valid");
-		return gateway.downloadFile(ctx, file, fileID, size);
+		return gateway.downloadFile(ctx, file, fileID);
 	}
 	
 	/**
@@ -2149,5 +2160,140 @@ class OmeroMetadataServiceImpl
 			index++;
 		}
 		return m;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 */
+	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
+			throws ProcessException, DSOutOfServiceException, DSAccessException
+	{
+		//Get the file annotation
+		if (id < 0) return null;
+		ImageData img = gateway.getImage(ctx, id, new Parameters());
+		if (img == null) return null;
+		if (img.asImage().getFileset() != null) {
+			String extension = FilenameUtils.getExtension(file.getAbsolutePath());
+			String path = file.getAbsolutePath();
+			if (StringUtils.isBlank(extension)) {
+				path += ".txt";
+				file = new File(path);
+			}
+			
+			OriginalMetadataRequest cmd = new OriginalMetadataRequest();
+			cmd.imageId = id;
+			RequestCallback request = gateway.submit(
+					Arrays.<Request>asList(cmd), ctx);
+			BufferedWriter bufferWriter = null;
+			try {
+				if (!file.exists()) file.createNewFile();
+				FileWriter writer = new FileWriter(file.getAbsolutePath(), true);
+				bufferWriter= new BufferedWriter(writer);
+				request.loop(50, 500);
+				DoAllRsp r = (DoAllRsp) request.getResponse();
+				List<Response> responses = r.responses;
+				Iterator<Response> i = responses.iterator();
+				OriginalMetadataResponse rsp;
+				StringBuffer buffer = new StringBuffer();
+				while (i.hasNext()) {
+					rsp = (OriginalMetadataResponse) i.next();
+					buffer.append("[global Metadata]");
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(writeMap(rsp.globalMetadata));
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append("[series Metadata]");
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(writeMap(rsp.seriesMetadata));
+				}
+				bufferWriter.write(buffer.toString());
+				request.close(true);
+			} catch (Exception e) {
+				if (file != null) file.delete();
+			}
+			
+			try {
+				if (bufferWriter != null) bufferWriter.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+			return file;
+		}
+		
+		
+		List<Class> types = new ArrayList<Class>();
+		types.add(FileAnnotationData.class);
+		Map map = gateway.loadAnnotations(ctx, ImageData.class,
+				Arrays.asList(id), types, null, new Parameters());
+		if (map == null || map.size() == 0) return null;
+		Collection values = (Collection) map.get(id);
+		if (values == null || values.size() == 0) return null;
+		Iterator i = values.iterator();
+		FileAnnotationData fa;
+		long fileID = -1;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			if (FileAnnotationData.ORIGINAL_METADATA_NAME.equals(
+					fa.getFileName())) {
+				fileID = fa.getFileID();
+				break;
+			}
+		}
+		if (fileID < 0) return null;
+		return downloadFile(ctx, file, fileID);
+	}
+	
+	private String writeMap(Map<String, RType> map)
+	{
+		if (map == null || map.size() == 0) return null;
+		Entry<String, RType> entry;
+		Iterator<Entry<String, RType>> i = map.entrySet().iterator();
+		StringBuffer buffer = new StringBuffer();
+		Object v;
+		while (i.hasNext()) {
+			entry = i.next();
+			buffer.append(entry.getKey());
+			buffer.append(" ");
+			v = ModelMapper.convertRTypeToJava(entry.getValue());
+			if (v instanceof List) {
+				List<Object> l = (List<Object>) v;
+				Iterator<Object> j = l.iterator();
+				while (j.hasNext()) {
+					buffer.append(j.next());
+					buffer.append(" ");
+				}
+			} else if (v instanceof Map) {
+				Map<String, Object> l = (Map<String, Object>) v;
+				Entry<String, Object> e;
+				Iterator<Entry<String, Object>> j = l.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					buffer.append(e.getKey());
+					buffer.append(System.getProperty("line.separator"));
+					buffer.append(e.getValue());
+				}
+			}
+			buffer.append(System.getProperty("line.separator"));
+		}
+		return buffer.toString();
+	}
+	
+
+	/**
+	 * @see OmeroMetadataService#loadRatings(SecurityContext, Class, List,
+	 * String, String)
+	 */
+	public Map<Long, Collection<AnnotationData>>
+		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+			throw new IllegalArgumentException("No node specified");
+		if (annotationType == null)
+			throw new IllegalArgumentException("No annotation type specified");
+		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
+				annotationType, nsInclude, nsExclude, new Parameters());
 	}
 }
