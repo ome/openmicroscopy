@@ -26,7 +26,6 @@ import loci.formats.meta.IMinMaxStore;
 import ome.conditions.LockTimeout;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
-import ome.formats.importer.OMEROWrapper;
 import ome.io.bioformats.BfPixelBuffer;
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
@@ -654,9 +653,13 @@ public class PixelsService extends AbstractFileSystemService
     {
         try
         {
-            OMEROWrapper wrapper = new OMEROWrapper(null, 100, new File("/tmp/memo"));
-            wrapper.setMinMaxStore(store);
-            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, wrapper);
+            IFormatReader reader = new ImageReader();
+            reader = new ChannelFiller(reader);
+            reader = new ChannelSeparator(reader);
+            reader.setFlattenedResolutions(false);
+            MinMaxCalculator calculator = new MinMaxCalculator(reader);
+            calculator.setMinMaxStore(store);
+            BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
                     filePath, series));

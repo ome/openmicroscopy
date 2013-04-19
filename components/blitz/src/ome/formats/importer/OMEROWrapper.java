@@ -92,12 +92,6 @@ public class OMEROWrapper extends MinMaxCalculator {
      */
     public OMEROWrapper(ImportConfig config)
     {
-        // Passes MAX_VALUE which disables memoization
-        this(config, Integer.MAX_VALUE, null);
-    }
-
-    public OMEROWrapper(ImportConfig config, int minimumElapsed, File directory)
-    {
         super(createReader(config));
 
         this.config = config;
@@ -105,7 +99,7 @@ public class OMEROWrapper extends MinMaxCalculator {
         this.reader = null;
         filler = new ChannelFiller(iReader);
         separator  = new ChannelSeparator(filler);
-        memoizer = new Memoizer(separator, minimumElapsed, directory) {
+        memoizer = new Memoizer(separator) {
             public Deser getDeser() {
                 KryoDeser k = new KryoDeser();
                 k.kryo.register(OMEXMLModelComparator.class);
@@ -125,31 +119,33 @@ public class OMEROWrapper extends MinMaxCalculator {
 
     private static ImageReader createReader(ImportConfig config)
     {
-        if (config != null)
+        if (config == null) {
+            throw new IllegalArgumentException(
+                    "An ImportConfig must be instantitated \n " +
+                    "in order to properly configure all readers.");
+        }
+        String readersPath = config.readersPath.get();
+        // Since we now use all readers apart from the ZipReader, just
+        // initialize in this manner which helps us by not requiring
+        // us to keep up with all changes in readers.txt and removes
+        // the requirement for importer_readers.txt (See #2859).
+        // Chris Allan <callan@blackcat.ca> -- Fri 10 Sep 2010 17:24:49 BST
+        ClassList<IFormatReader> readers =
+            ImageReader.getDefaultReaderClasses();
+        readers.removeClass(ZipReader.class);
+        if (readersPath != null)
         {
-            String readersPath = config.readersPath.get();
-            // Since we now use all readers apart from the ZipReader, just
-            // initialize in this manner which helps us by not requiring
-            // us to keep up with all changes in readers.txt and removes
-            // the requirement for importer_readers.txt (See #2859).
-            // Chris Allan <callan@blackcat.ca> -- Fri 10 Sep 2010 17:24:49 BST
-            ClassList<IFormatReader> readers =
-                ImageReader.getDefaultReaderClasses();
-            readers.removeClass(ZipReader.class);
-            if (readersPath != null)
+            Class<?> k = OMEROWrapper.class;
+            if (new File(readersPath).exists()) {
+                k = null;
+            }
+            try
             {
-                Class<?> k = OMEROWrapper.class;
-                if (new File(readersPath).exists()) {
-                    k = null;
-                }
-                try
-                {
-                    return new ImageReader(new ClassList<IFormatReader>(
-                        readersPath, IFormatReader.class, k));
-                } catch (IOException e)
-                {
-                    throw new RuntimeException("Unable to load readers.txt.");
-                }
+                return new ImageReader(new ClassList<IFormatReader>(
+                    readersPath, IFormatReader.class, k));
+            } catch (IOException e)
+            {
+                throw new RuntimeException("Unable to load readers.txt.");
             }
         }
         return new ImageReader();

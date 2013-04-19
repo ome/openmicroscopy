@@ -46,7 +46,7 @@ public class BfPixelsWrapper {
      */
     public BfPixelsWrapper(String path, IFormatReader reader) throws IOException, FormatException {
         this.path = path;
-        this.reader = reader; // Don't re-memoize!
+        this.reader = new Memoizer(reader);
         reader.setFlattenedResolutions(false);
         reader.setId(path);
     }
