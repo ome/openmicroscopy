@@ -812,7 +812,7 @@ public class FileImportComponent
 	}
 	
 	public void setImportLogFile(Collection<FileAnnotationData> data, long id) {
-		long fileSetID = getFileSetID();
+		long fileSetID = getFileSetID(image);
 		if (id != fileSetID || data == null) return;
 		Iterator<FileAnnotationData> i = data.iterator();
 		FileAnnotationData fa;
@@ -828,15 +828,16 @@ public class FileImportComponent
 		importLogButton.setVisible(true);
 	}
 	
-	private long getFileSetID()
+	private long getFileSetID(Object data)
 	{
 		ImageData img = null;
-		if (image instanceof ImageData) {
-			img = (ImageData) image;
-			
-		} else if (image instanceof ThumbnailData) {
-			ThumbnailData thumb = (ThumbnailData) image;
+		if (data instanceof ImageData) {
+			img = (ImageData) data;
+		} else if (data instanceof ThumbnailData) {
+			ThumbnailData thumb = (ThumbnailData) data;
 			img = thumb.getImage();
+		} else if (data instanceof List) {
+			return getFileSetID(((List) data).get(0));
 		}
 		if (img == null) return -1;
 		return img.asImage().getFileset().getId().getValue();
@@ -1120,7 +1121,7 @@ public class FileImportComponent
 			}
 		}
 		repaint();
-		return getFileSetID();
+		return getFileSetID(image);
 	}
 	
 	/**
