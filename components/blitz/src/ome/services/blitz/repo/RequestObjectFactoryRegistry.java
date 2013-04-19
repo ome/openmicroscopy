@@ -28,6 +28,10 @@ import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
 import ome.system.OmeroContext;
 
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.OMEROWrapper;
+
+
 /**
  * Requests which are handled by the repository servants.
  */
