@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
@@ -66,7 +67,7 @@ public class ArchivedImageLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final long imageID, final String folder) 
+    		final long imageID, final File folder) 
     {
         return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
@@ -99,7 +100,7 @@ public class ArchivedImageLoader
      * @param folderPath The location where to download the archived image.
      */
     public ArchivedImageLoader(SecurityContext ctx, long imageID,
-    		String folderPath)
+    		File folderPath)
     {
     	if (imageID < 0)
     		 throw new IllegalArgumentException("Image's ID not valid.");

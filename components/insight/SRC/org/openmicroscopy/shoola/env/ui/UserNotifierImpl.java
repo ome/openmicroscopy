@@ -432,9 +432,6 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 			comp = new DataTransferActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
-			UserNotifierLoader loader = comp.createLoader();
-			if (loader == null)
-				return;
 			if (startActivity) {
 				if (register)
 					comp.startActivity();
