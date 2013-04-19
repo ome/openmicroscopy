@@ -48,17 +48,24 @@ import omero.model.OriginalFile;
  */
 public class FileAnnotationData extends AnnotationData {
 
-	/**  The name space used to identify the experimenter photo. */
+    /**  The name space used to identify the experimenter photo. */
     public static final String EXPERIMENTER_PHOTO_NS = 
     	omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
     	
-	/** 
+    /**
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a companion file.
      */
     public static final String COMPANION_FILE_NS = 
     	omero.constants.namespaces.NSCOMPANIONFILE.value;
-    
+
+    /**
+     * The name space used to indicate that the <code>FileAnnotation</code>
+     * is an import log file.
+     */
+    public static final String LOG_FILE_NS =
+        omero.constants.namespaces.NSLOGFILE.value;
+
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a protocol.
