@@ -653,10 +653,7 @@ public class PixelsService extends AbstractFileSystemService
     {
         try
         {
-            IFormatReader reader = new ImageReader();
-            reader = new ChannelFiller(reader);
-            reader = new ChannelSeparator(reader);
-            reader.setFlattenedResolutions(false);
+            IFormatReader reader = createBfReader();
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
@@ -695,8 +692,13 @@ public class PixelsService extends AbstractFileSystemService
      * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
      * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
      */
-    protected CachingWrapper createBfReader() {
-        return new CachingWrapper(100, new File("/tmp/memo"));
+    protected IFormatReader createBfReader() {
+        IFormatReader reader = new ImageReader();
+        reader = new ChannelFiller(reader);
+        reader = new ChannelSeparator(reader);
+        reader = new Memoizer(reader, 100, new File("/tmp/memo"));
+        reader.setFlattenedResolutions(false);
+        return reader;
     }
 
     /**
@@ -710,11 +712,7 @@ public class PixelsService extends AbstractFileSystemService
                                               final int series) {
         try
         {
-            IFormatReader reader = new ImageReader();
-            reader = new ChannelFiller(reader);
-            reader = new ChannelSeparator(reader);
-            reader = new Memoizer(reader);
-            reader.setFlattenedResolutions(false);
+            IFormatReader reader = createBfReader();
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
