@@ -295,12 +295,9 @@ class EditorModel
 	 */
 	void fireFileLoading()
 	{
-		long size = 0;
-		if (fileAnnotation != null) size = fileAnnotation.getFileSize();
-		
 		// fileID can be annotationID if fileName is null 
 		// E.g. if EditorModel(long annotationID) was the constructor. 
-		currentLoader = new FileLoader(component, ctx, fileName, fileID, size);
+		currentLoader = new FileLoader(component, ctx, fileName, fileID);
 		currentLoader.load();
 		state = Editor.LOADING;
 	}

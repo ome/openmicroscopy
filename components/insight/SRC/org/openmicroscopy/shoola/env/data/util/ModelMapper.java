@@ -25,12 +25,22 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 //Third-party libraries
 
+import omero.RDouble;
+import omero.RList;
+import omero.RLong;
+import omero.RBool;
+import omero.RMap;
 //Application-internal dependencies
 import omero.RString;
+import omero.RType;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
@@ -704,4 +714,39 @@ public class ModelMapper
     	}
     }
   
+    /**
+     * Converts the passed OMERO type into its corresponding Java type.
+     * 
+     * @param type The type to handle.
+     * @return See above.
+     */
+    public static Object convertRTypeToJava(RType type)
+    {
+    	if (type instanceof RString) return ((RString) type).getValue();
+    	if (type instanceof RLong) return ((RLong) type).getValue();
+    	if (type instanceof RBool) return ((RBool) type).getValue();
+    	if (type instanceof RDouble) return ((RDouble) type).getValue();
+    	if (type instanceof RList) {
+    		List<RType> types = ((RList) type).getValue();
+    		List<Object> l = new ArrayList<Object>(types.size());
+    		Iterator<RType> i = types.iterator();
+    		while (i.hasNext()) {
+				l.add(convertRTypeToJava(i.next()));
+			}
+    		return l;
+    	}
+    	if (type instanceof RMap) {
+    		Map<String, RType> types = ((RMap) type).getValue();
+    		Map<String, Object> l = new LinkedHashMap<String, Object>(
+    				types.size());
+    		Entry<String, RType> e;
+    		Iterator<Entry<String, RType>> i = types.entrySet().iterator();
+    		while (i.hasNext()) {
+				e = i.next();
+				l.put(e.getKey(), convertRTypeToJava(e.getValue()));
+			}
+    		return l;
+    	}
+    	return "";
+    }
 }

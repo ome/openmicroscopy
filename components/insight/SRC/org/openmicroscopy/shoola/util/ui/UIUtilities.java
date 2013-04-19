@@ -84,6 +84,7 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
@@ -1951,45 +1952,7 @@ public class UIUtilities
      */
     public static String removeFileExtension(String originalName)
     {
-    	String name = originalName;
-    	String[] l = UIUtilities.splitString(originalName);
-    	StringBuffer buffer;
-    	if (l != null) {
-    		 int n = l.length;
-             if (n >= 1) name = l[n-1]; 
-    	} else {
-    		if (Pattern.compile("\\.").matcher(name).find()) {
-        		l = name.split("\\.");
-        		if (l.length >= 1) {
-        			name = "";
-        			int n = l.length-1;
-        			buffer = new StringBuffer();
-            		for (int i = 0; i < n; i++) {
-            			buffer.append(l[i]);
-        				if (i < (n-1)) buffer.append(".");
-        			}
-            		name = buffer.toString();
-        		}
-        	}
-    		if (name.length() == 0) name = originalName;
-    		return name;
-    	}
-    	   	
-    	if (Pattern.compile("\\.").matcher(name).find()) {
-    		l = name.split("\\.");
-    		if (l.length >= 1) {
-    			name = "";
-    			int n = l.length-1;
-    			buffer = new StringBuffer();
-        		for (int i = 0; i < n; i++) {
-        			buffer.append(l[i]);
-    				if (i < (n-1)) buffer.append(".");
-    			}
-        		name = buffer.toString();
-    		}
-    	}
-    	if (name.length() == 0) name = originalName;
-        return name;
+    	return FilenameUtils.removeExtension(originalName);
     }
     
 	/**

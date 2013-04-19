@@ -361,7 +361,8 @@ class UserNotifierManager
 		if (start) comp.startActivity();
 		EventBus bus = getRegistry().getEventBus();
 		bus.post(new ActivityProcessEvent(comp, false));
-		comp.createLoader().load();
+		UserNotifierLoader loader = comp.createLoader();
+		if (loader != null) loader.load();
 	}
 	
 	/**
