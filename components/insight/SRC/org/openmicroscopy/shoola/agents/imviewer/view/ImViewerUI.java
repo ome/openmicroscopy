@@ -2653,6 +2653,16 @@ class ImViewerUI
     	controlPane.onChannelUpdated();
     }
     
+    /**
+    * Sets the compression index.
+    * 
+    * @param index
+    */
+   void resetCompressionLevel(int index)
+    {
+    	toolBar.setCompressionLevel(index);
+    }
+   
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
