@@ -1071,7 +1071,7 @@ public class AdminServiceTest
         assertFalse(permissions.isGroupWrite());
         
         //change permissions
-        representation = "rwr--";
+        representation = "rwr---";
         
         Chmod mod = createChmodCommand(REF_GROUP,
         		g.getId().getValue(), representation);
