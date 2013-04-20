@@ -102,9 +102,12 @@ More information is available at:
 
     def add_user_arguments(self, parser, action = "join", owner_desc = ""):
         group = parser.add_argument_group('User arguments')
-        group.add_argument("user_id_or_name",  metavar="user", nargs="*", help = "ID or name of the user(s) to %s" % action)
-        group.add_argument("--user-id", metavar="user", nargs="+", help="ID  of the user(s) to %s" % action)
-        group.add_argument("--user-name", metavar="user", nargs="+", help="Name of the user(s) to %s" % action)
+        group.add_argument("user_id_or_name",  metavar="user", nargs="*",
+            help = "ID or name of the user(s) to %s" % action)
+        group.add_argument("--user-id", metavar="user", nargs="+",
+            help="ID of the user(s) to %s" % action)
+        group.add_argument("--user-name", metavar="user", nargs="+",
+            help="Name of the user(s) to %s" % action)
         return group
 
     def parse_perms(self, args):
