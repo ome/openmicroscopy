@@ -2515,8 +2515,10 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
         thumbSets = []  # multiple collections of images
         tags = []
+        figureName = "Thumbnail_Figure"
         if datasetIds is not None:
             for d in conn.getObjects("Dataset", datasetIds):
+                figureName = d.getName()
                 imgIds = [i.id for i in d.listChildren()]
                 imageTags, ts = loadImageTags(imgIds)
                 thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
@@ -2525,6 +2527,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
             imageTags, ts = loadImageTags(imageIds)
             thumbSets.append({'name':'images', 'imageTags': imageTags})
             tags.extend(ts)
+            figureName = conn.getObject("Image", imageIds[0]).getParent().getName()
         uniqueTagIds = set()      # remove duplicates
         uniqueTags = []
         for t in tags:
@@ -2534,6 +2537,7 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         uniqueTags.sort(key=lambda x: x.getTextValue().lower())
         context['thumbSets'] = thumbSets
         context['tags'] = uniqueTags
+        context['figureName'] = figureName.replace(" ", "_")
 
     scriptService = conn.getScriptService()
     scriptId = scriptService.getScriptID(scriptPath);
