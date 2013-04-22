@@ -147,7 +147,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        if (isModified()) {
+        if (isModified() || size() == 0) {
             Long id = (file == null) ? null : file.getId();
             if (id == null) {
                 return null;
