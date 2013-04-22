@@ -29,7 +29,6 @@ from omero.util import get_user_dir, make_logname
 from path import path
 
 import logging
-import exceptions
 
 
 class SessionsStore(object):
@@ -216,7 +215,7 @@ class SessionsStore(object):
             elif len(n) == 1:
                 return n[0]
             else:
-                raise exceptions.Exception("Multiple names found for uuid=%s: %s" % (uuid, ", ".join(n)))
+                raise Exception("Multiple names found for uuid=%s: %s" % (uuid, ", ".join(n)))
 
     def contents(self):
         """
@@ -317,7 +316,7 @@ class SessionsStore(object):
             try:
                 client = self.attach(hS, nS, sS)
                 client.killSession()
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.logger.debug("Exception on killSession: %s" % e)
             s.remove()
             removed.append(s)

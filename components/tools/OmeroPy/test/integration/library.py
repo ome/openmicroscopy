@@ -18,7 +18,6 @@ import logging
 import unittest
 import tempfile
 import traceback
-import exceptions
 import subprocess
 
 import omero

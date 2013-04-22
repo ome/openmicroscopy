@@ -24,7 +24,7 @@ See LICENSE for details.
 sys = __import__("sys")
 cmd = __import__("cmd")
 
-import string, re, os, subprocess, socket, exceptions, traceback, glob, platform, time
+import string, re, os, subprocess, socket, traceback, glob, platform, time
 import shlex
 from exceptions import Exception as Exc
 from threading import Thread, Lock
@@ -135,7 +135,7 @@ class WriteOnceNamespace(Namespace):
     """
     def __setattr__(self, name, value):
         if hasattr(self, name):
-            raise exceptions.Exception("%s already has field %s" % (self.__class__.__name__, name))
+            raise Exception("%s already has field %s" % (self.__class__.__name__, name))
         else:
             return Namespace.__setattr__(self, name, value)
 
@@ -408,7 +408,7 @@ class Context:
             self.err(text, newline)
 
     def die(self, rc, args):
-        raise exceptions.Exception((rc,args))
+        raise Exception((rc,args))
 
     def exit(self, args):
         self.out(args)
@@ -1051,7 +1051,7 @@ class CLI(cmd.Cmd, Context):
                 return self._client
             except KeyboardInterrupt:
                 raise
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.dbg("Removing client: %s" % e)
                 self._client.closeSession()
                 self._client = None

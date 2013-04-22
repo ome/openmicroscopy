@@ -10,7 +10,6 @@
 
 import shlex
 import logging
-import exceptions
 import string
 import os
 import platform

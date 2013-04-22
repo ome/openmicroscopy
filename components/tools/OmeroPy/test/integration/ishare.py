@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import exceptions
 import unittest, time
 import integration.library as lib
 import omero

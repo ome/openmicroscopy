@@ -25,7 +25,6 @@
 #
 
 import cStringIO
-import exceptions
 import traceback
 import logging
 

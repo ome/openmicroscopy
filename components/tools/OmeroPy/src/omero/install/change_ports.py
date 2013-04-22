@@ -15,7 +15,7 @@
 """
 
 
-import re, sys, exceptions
+import re, sys
 import fileinput
 from path import path
 
@@ -130,6 +130,6 @@ if __name__ == "__main__":
             glacier2insecure = len(args) > 2 and int(args[2]) or 4063
             change_ports(glacier2, glacier2insecure, registry, revert)
             sys.exit(0)
-    except exceptions.Exception, e:
+    except Exception, e:
         print "Failed to set ports: ", e
         sys.exit(1)

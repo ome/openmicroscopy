@@ -23,7 +23,6 @@
 # Version: 1.0
 #
 
-import exceptions
 import traceback
 import logging
 import httplib, urllib

@@ -37,7 +37,6 @@
 # @since 3.0-Beta4
 #
 
-import exceptions
 import logging
 import getopt, sys, os, subprocess
 from struct import *

@@ -20,7 +20,6 @@ import os
 import path
 import time
 import logging
-import exceptions
 import portalocker
 
 import xml.dom.minidom
@@ -193,7 +192,7 @@ class ConfigXml(object):
                         x.set("value", val)
                         self.logger.info("Upgraded 4.2.0 property:  %s => %s", orig, val)
         else:
-            raise exceptions.Exception("Version mismatch: %s has %s" % (props.get("id"), version))
+            raise Exception("Version mismatch: %s has %s" % (props.get("id"), version))
 
     def internal(self):
         return self.properties(self.INTERNAL)
