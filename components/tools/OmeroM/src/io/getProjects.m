@@ -2,27 +2,34 @@ function projects = getProjects(session, varargin)
 % GETPROJECTS Retrieve project objects from the server
 %
 %   projects = getProjects(session) returns all the projects owned by the
-%   session user in the context of the session group.
+%   session user in the context of the session group. By default,
+%   getProjects loads the entire projects/datasets/images graph. This may
+%   have consequences in terms of loading time depending on the images
+%   contained in the projects' datasets.
 %
 %   projects = getProjects(session, ids) returns all the projects
-%   identified by the input ids owned by the session user in the context of
-%   the session group.
+%   identified by the input ids in the context of the session group.
 %
 %   projects = getProjects(session, ids, loaded) returns all the projects
-%   identified by the input ids owned by the session user in the context of
-%   the session group. If loaded is True, the images attached to the
-%   datasets are loaded.
+%   identified by the input ids in the context of the session group. If
+%   loaded is False, the images attached to the  datasets are not loaded.
 %
-%   By default, getProjects() loads the entire projects/datasets/images
-%   graph. This may have consequences in terms of loading time depending on
-%   the images contained in the projects' datasets.
+%   projects = getProjects(session, 'owner', ownerId) returns all the
+%   projects owned by the input owner in the context of the session group.
+%
+%   projects = getProjects(session, ids, 'owner', ownerId) returns all the
+%   projects identified by the input ids owned by the input owner in the
+%   context of the session group.
 %
 %   Examples:
 %
 %      projects = getProjects(session);
+%      projects = getProjects(session, 'owner', ownerId);
 %      projects = getProjects(session, ids);
+%      projects = getProjects(session, ids, 'owner', ownerId);
 %      projects = getProjects(session, ids, false);
-%      projects = getProjects(session, [], false);
+%      projects = getProjects(session, ids, false, 'owner', ownerId);
+%
 %
 % See also: GETOBJECTS, GETDATASETS, GETIMAGES
 
@@ -45,12 +52,16 @@ function projects = getProjects(session, varargin)
 
 % Input check
 ip = inputParser;
-ip.addOptional('ids', [], @(x) isempty(x) || isvector(x));
+ip.addOptional('ids', [], @(x) isempty(x) || (isvector(x) && isnumeric(x)));
 ip.addOptional('loaded', true, @islogical);
+ip.KeepUnmatched = true;
 ip.parse(varargin{:});
 
 parameters = omero.sys.ParametersI();
 % Load the images attached to the datasets if loaded is True
 if ip.Results.loaded, parameters.leaves(); end
 
-projects = getObjects(session, ip.Results.ids, 'project', parameters);
+% Delegate unmatched arguments check to getObjects function
+unmatchedArgs =[fieldnames(ip.Unmatched)' struct2cell(ip.Unmatched)'];
+projects = getObjects(session, 'project', ip.Results.ids, parameters,...
+    unmatchedArgs{:});
