@@ -25,6 +25,7 @@
 #
 
 import cStringIO
+import exceptions
 import traceback
 import logging
 
@@ -69,6 +70,13 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 
 from omeroweb.connector import Server
+
+try:
+    import hashlib
+    hash_sha1 = hashlib.sha1
+except:
+    import sha
+    hash_sha1 = sha.new
 
 try:
     PAGE = settings.PAGE
@@ -1323,13 +1331,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         store.setFileId(oFile_id, self.SERVICE_OPTS);
         pos = 0
         rlen = 0
-        
+        hash = hash_sha1()
+
         for chunk in binary.chunks():
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
+            hash.update(chunk)
             pos = pos + rlen
-        return store.save(self.SERVICE_OPTS)
-    
+        ofile = store.save(self.SERVICE_OPTS)
+        store.close()
+
+        serverhash = ofile.sha1.val
+        clienthash = hash.hexdigest()
+
+        if serverhash != clienthash:
+            msg = "SHA-1 checksums do not match in file upload: client has %s but server has %s" % (clienthash, serverhash)
+            logger.error(msg)
+            raise Exception(msg)
+
+        return ofile
+
     ##############################################
     ##   IShare
     
