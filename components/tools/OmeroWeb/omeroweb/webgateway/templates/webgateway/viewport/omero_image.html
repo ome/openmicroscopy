@@ -861,12 +861,12 @@
   }
 
   function setImageDefaults (obj, callback, skip_apply) {
+    if (!skip_apply) applyRDCW();
     var old = $(obj).html();
     gs_modalJson('{{ viewport_server }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
-                    if (!skip_apply) applyRDCW();
                     if (!(success && rv)) {
                         alert('Setting image defaults failed.');
                     }
