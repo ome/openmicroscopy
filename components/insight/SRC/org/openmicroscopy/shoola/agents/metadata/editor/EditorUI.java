@@ -283,7 +283,6 @@ class EditorUI
     		component = defaultPane;
     	} else {
         	toolBar.buildUI();
-        	toolBar.setControls();
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
@@ -315,7 +314,6 @@ class EditorUI
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
-		toolBar.setRootObject();
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, "");
 		boolean preview = false;
@@ -1066,6 +1064,26 @@ class EditorUI
 	Set<FilesetData> getFileset() { return model.getFileset(); }
 	
 	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return model.getImage(); }
+	
+	/**
+	 * Returns the companion file generated while importing the file
+	 * and containing the metadata found in the file, or <code>null</code>
+	 * if no file was generated.
+	 * 
+	 * @return See above
+	 */
+	FileAnnotationData getOriginalMetadata()
+	{
+		return model.getOriginalMetadata();
+	}
+
+	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
 	 */
@@ -1075,5 +1093,5 @@ class EditorUI
 		if (generalPane != null) 
 			generalPane.setExtentWidth(getVisibleRect().width);
 	}
-	
+
 }
