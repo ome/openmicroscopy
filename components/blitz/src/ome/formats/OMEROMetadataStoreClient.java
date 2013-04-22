@@ -1786,28 +1786,30 @@ public class OMEROMetadataStoreClient
      * @return An original file if one can be looked up by UUID and
      * <code>null</code> otherwise.
      */
-    private OriginalFile byUUID(
-		String path, Map<String, OriginalFile> originalFileMap)
-    {
-	for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
-	{
-		try {
-			if (path.contains(ORIGINAL_METADATA_KEY))
-			{
-				String[] tokens = entry.getKey().split("/");
-				if (tokens.length > 1 && path.endsWith(File.separator + tokens[tokens.length - 2]))
-				{
-					return entry.getValue();
-				}
-			}
-		} catch (ArrayIndexOutOfBoundsException e)
-		{
-			log.error("byUUID error, path: " + path + ", entry.key: " + entry.getKey(), e);
-			throw e;
-		}
-	}
+    private OriginalFile byUUID(final String path, Map<String, OriginalFile> originalFileMap) {
+        if (path.contains(ORIGINAL_METADATA_KEY)) {
+            for (final Entry<String, OriginalFile> entry : originalFileMap.entrySet()) {
+                final String[] tokens = entry.getKey().split("/");
+                final String tokenUUID;
+                if (tokens.length < 2) {
+                    /* token path is too short */
+                    continue;
+                } else {
+                    tokenUUID = tokens[tokens.length - 2];
+                }
+                try {
+                    UUID.fromString(tokenUUID);
+                } catch (IllegalArgumentException e) {
+                    /* tokenUUID is not actually a UUID */
+                    continue;
+                }
+                if (path.endsWith(tokenUUID)) {
+                    return entry.getValue();
+                }
+            }
+        }
 
-	return null;
+        return null;
     }
 
     /**
