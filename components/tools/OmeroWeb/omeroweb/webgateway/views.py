@@ -1515,7 +1515,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     toids = r.getlist('toids')
     to_type = str(r.get('to_type', 'image'))
     if to_type not in ('dataset', 'plate', 'acquisition'):
-        to_type = None  # default is image
+        to_type = "Image"  # default is image
     # Only 'fromid' is given, simply save to session
     if fromid is not None and len(toids) == 0:
         request.session.modified = True
@@ -1535,7 +1535,7 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     if fromid is not None and len(toids) > 0:
         fromimg = conn.getObject("Image", fromid)
         userid = fromimg.getOwner().getId()
-        json_data = conn.applySettingsToImages(fromid, toids, to_type)
+        json_data = conn.applySettingsToSet(fromid, to_type, toids)
         if json_data and True in json_data:
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
