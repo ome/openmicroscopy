@@ -34,6 +34,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.AnnotationDataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
@@ -385,6 +386,19 @@ class ImporterModel
 	}
 
 	/**
+	 * Fires an asynchronous call to load the import log file.
+	 *
+	 * @param fileSetID The fileSet id.
+	 * @param index The index of the UI element.
+	 */
+	void fireImportLogFileLoading(long fileSetID, int index)
+	{
+		AnnotationDataLoader loader = new AnnotationDataLoader(component, ctx,
+				fileSetID, index);
+		loader.load();
+	}
+	
+	/**
 	 * Creates a new data object.
 	 * 
 	 * @param data The object hosting information about the object to create.
@@ -442,5 +456,12 @@ class ImporterModel
 			tags = null;
 		}
 	}
+	
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	SecurityContext getSecurityContext() { return ctx; }
 
 }
