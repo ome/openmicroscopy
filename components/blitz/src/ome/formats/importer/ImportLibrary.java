@@ -58,6 +58,8 @@ import omero.model.Pixels;
 import omero.model.Screen;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,6 +293,12 @@ public class ImportLibrary implements IObservable
             int rlen = 0;
             long offset = 0;
 
+            // Fields used for timing measurements
+            long start, timeLeft = 0L;
+            float alpha, chunkTime;
+            int sampleSize = 5;
+            Buffer samples = new CircularFifoBuffer(sampleSize);
+
             notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                     file.getAbsolutePath(), index, srcFiles.length,
                     null, length, null));
@@ -299,9 +307,13 @@ public class ImportLibrary implements IObservable
             rawFileStore.write(new byte[0], offset, 0);
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null));
+                    offset, length, timeLeft, null));
 
             while (true) {
+                // Due to weirdness with System.nanoTime() on multi-core
+                // CPUs, falling back to currentTimeMillis()
+                chunkTime = 0;
+                start = System.currentTimeMillis();
                 rlen = stream.read(buf);
                 if (rlen == -1) {
                     break;
@@ -309,9 +321,16 @@ public class ImportLibrary implements IObservable
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
+                samples.add(System.currentTimeMillis() - start);
+                alpha = 2f / (samples.size() + 1);
+                for (int i = 0; i < samples.size(); i++) {
+                    chunkTime = alpha * (Long) samples.get()
+                            + (1 - alpha) * chunkTime;
+                }
+                timeLeft = rlen == 0 ? 0 : (long) chunkTime * ((length-offset)/rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), index, srcFiles.length,
-                        offset, length, null));
+                        file.getAbsolutePath(), index, srcFiles.length, offset,
+                        length, timeLeft, null));
             }
 
             digestString = cp.checksumAsString();
