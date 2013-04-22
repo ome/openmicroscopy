@@ -57,6 +57,8 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -311,7 +313,8 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
 		if (element != null) {
-			element.setImportedFile(f, result);
+			long fileSetID = element.setImportedFile(f, result);
+			if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
@@ -731,6 +734,28 @@ class ImporterComponent
 			rootType = ScreenData.class;
 		model.fireContainerLoading(rootType, false, true, -1);
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldId, group.getId());
+	}
+
+	/**
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setLogFile(Collection, long, int)
+	 */
+	public void setImportLogFile(Collection<FileAnnotationData> collection,
+			long fileSetID, int index) {
+		if (model.getState() == DISCARDED) {
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		}
+		Collection<ImporterUIElement> list = view.getImportElements();
+		if (list == null || list.size() == 0) {
+			return;
+		}
+		Iterator<ImporterUIElement> i = list.iterator();
+		ImporterUIElement element;
+		while (i.hasNext()) {
+			element = i.next();
+			element.setImportLogFile(collection, fileSetID);
+		}
 	}
 
 	/** 

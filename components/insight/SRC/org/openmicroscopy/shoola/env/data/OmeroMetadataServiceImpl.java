@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -2150,4 +2150,24 @@ class OmeroMetadataServiceImpl
 		}
 		return m;
 	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadRatings(SecurityContext, Class, List,
+	 * String, String)
+	 */
+	public Map<Long, Collection<AnnotationData>>
+		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+			throw new IllegalArgumentException("No node specified");
+		if (annotationType == null)
+			throw new IllegalArgumentException("No annotation type specified");
+		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
+				annotationType, nsInclude, nsExclude, new Parameters());
+	}
+
 }
