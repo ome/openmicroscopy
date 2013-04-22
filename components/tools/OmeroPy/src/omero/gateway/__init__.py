@@ -2837,7 +2837,7 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
-    def applySettingsToSet(self, fromid, toids, to_type="Image"):
+    def applySettingsToSet(self, fromid, to_type, toids):
         """
         Applies the rendering settings from one image to others.
         Returns a dict of success { True:[ids], False:[ids] }
@@ -2851,6 +2851,8 @@ class _BlitzGateway (object):
         fromimg = self.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
+        if to_type is None:
+            to_type="Image"
         if to_type.lower() == "acquisition":
             to_type = "Plate"
         to_type = to_type.title()
