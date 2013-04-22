@@ -438,7 +438,8 @@ class OMEROGateway
 		buffer.append("select fs from Fileset as fs ");
 		buffer.append("join fetch fs.images as image ");
 		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
-		buffer.append("join fetch usedFile.originalFile ");
+		buffer.append("join fetch usedFile.originalFile as f ");
+		buffer.append("join fetch f.hasher ");
 		buffer.append("where image.id in (:imageIds)");
 		return buffer.toString();
 	}
@@ -4032,6 +4033,7 @@ class OMEROGateway
 				StringBuffer buffer = new StringBuffer();
 				id = image.getDefaultPixels().getId();
 				buffer.append("select ofile from OriginalFile as ofile ");
+				buffer.append("join fetch ofile.hasher ");
 				buffer.append("left join ofile.pixelsFileMaps as pfm ");
 				buffer.append("left join pfm.child as child ");
 				buffer.append("where child.id = :id");
