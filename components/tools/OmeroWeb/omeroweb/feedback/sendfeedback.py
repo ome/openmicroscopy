@@ -23,6 +23,7 @@
 # Version: 1.0
 #
 
+import exceptions
 import traceback
 import logging
 import httplib, urllib
@@ -81,7 +82,7 @@ class SendFeedback(object):
                         logger.info(response.read())
                     else:
                         logger.error("Feedback server error: %s" % response.reason)
-                        raise "Feedback server error: %s" % response.reason
+                        raise Exception("Feedback server error: %s" % response.reason)
                 except Exception, x:
                     logger.error("Feedback could not be sent.")
                     logger.error(traceback.format_exc())
@@ -130,7 +131,7 @@ class SendFeedback(object):
                         logger.info(response.read())
                     else:
                         logger.error("Feedback server error: %s" % response.reason)
-                        raise "Feedback server error: %s" % response.reason
+                        raise Exception("Feedback server error: %s" % response.reason)
                 except Exception, x:
                     logger.error("Feedback could not be sent.")
                     logger.error(traceback.format_exc())

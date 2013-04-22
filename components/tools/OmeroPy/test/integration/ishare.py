@@ -9,6 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+import exceptions
 import unittest, time
 import integration.library as lib
 import omero
@@ -364,7 +365,7 @@ class TestIShare(lib.ITest):
         createTestImage(self.root.sf)
         rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
         if len(rdefs) == 0:
-            raise "Must have at least one rendering def"
+            raise Exception("Must have at least one rendering def")
         share = self.root.sf.getShareService()
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)
