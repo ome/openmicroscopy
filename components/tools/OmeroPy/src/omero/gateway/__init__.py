@@ -2837,43 +2837,28 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
-    def applySettingsToImages(self, fromid, toids, to_type=None):
+    def applySettingsToSet(self, fromid, toids, to_type="Image"):
         """
         Applies the rendering settings from one image to others.
         Returns a dict of success { True:[ids], False:[ids] }
 
         @param fromid:      ID of Image to copy settings from.
         @param toids:       List of Image IDs to apply setting to.
-        @param to_type:     toids refers to Images by default, but can refer to 'Dataset' or 'Plate'
+        @param to_type:     toids refers to Images by default, but can refer to 
+                                Project, Dataset, Image, Plate, Screen, Pixels
         """
         json_data = False
         fromimg = self.getObject("Image", fromid)
         frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if to_type is not None:
-            to_type = to_type.lower()
-            iids = []
-            if to_type == "dataset":
-                for d in self.getObjects(to_type, toids):
-                    iids.extend([i.id for i in d.listChildren()])
-            if to_type in ("plate", "acquisition"):
-                plates = []
-                if to_type == "plate":
-                    plates = self.getObjects(to_type, toids)
-                elif to_type == "acquisition":
-                    pas = self.getObjects("plateacquisition", toids)
-                    for pa in pas:
-                        plates.extend(list(pa.listParents()))
-                for p in plates:
-                    for well in p._listChildren():
-                        for ws in well.copyWellSamples():
-                            iids.append(ws.image.id.val)
-            toids = iids
+        if to_type.lower() == "acquisition":
+            to_type = "Plate"
+        to_type = to_type.title()
         if fromimg.canAnnotate():
             ctx = self.SERVICE_OPTS.copy()
             ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
             rsettings = self.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
+            json_data = rsettings.applySettingsToSet(frompid, to_type, list(toids),  ctx)
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
         return json_data
