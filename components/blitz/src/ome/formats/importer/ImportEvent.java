@@ -157,10 +157,13 @@ public class ImportEvent {
     }
 
     public static class FILE_UPLOAD_BYTES extends FILE_UPLOAD_EVENT {
+        public Long timeLeft;
         public FILE_UPLOAD_BYTES(String filename, int fileIndex, int fileTotal,
-                Long uploadedBytes, Long contentLength, Exception exception) {
+                Long uploadedBytes, Long contentLength, Long timeLeft,
+                Exception exception) {
             super(filename, fileIndex, fileTotal, uploadedBytes, contentLength,
                     exception);
+            this.timeLeft = timeLeft;
         }
 
         @Override

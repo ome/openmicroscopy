@@ -410,6 +410,10 @@ public class StatusLabel
 				buffer.append(" ");
 			}
 			buffer.append(formatUpload(totalUploadedSize+e.uploadedBytes));
+			if (e.timeLeft != 0) {
+				buffer.append(" time left: ");
+				buffer.append(UIUtilities.calculateHMSFromMilliseconds(e.timeLeft));
+			}
 			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
