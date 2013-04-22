@@ -71,10 +71,15 @@ public class PixelsService extends AbstractFileSystemService
 	protected FilePathResolver resolver;
 
 	/** BackOff implementation for calculating MissingPyramidExceptions */
-	protected BackOff backOff;
+	protected final BackOff backOff;
 
 	/** TileSizes implementation for default values */
-	protected TileSizes sizes;
+	protected final TileSizes sizes;
+
+	/**
+	 * Location where cached data from the {@link Memoizer} should be stored.
+	 */
+	protected final File memoizerDirectory;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -114,10 +119,26 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path, FilePathResolver resolver, BackOff backOff, TileSizes sizes)
     {
+        this(path, new File(new File(path), "BioFormatsCache"), resolver,
+                backOff, sizes);
+    }
+
+    public PixelsService(String path, File memoizerDirectory,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes)
+    {
         super(path);
         this.resolver = resolver;
         this.backOff = backOff;
         this.sizes = sizes;
+        this.memoizerDirectory = memoizerDirectory;
+        if (!this.memoizerDirectory.exists())
+        {
+            log.info("Creating Bio-Formats Cache: {}", memoizerDirectory);
+            this.memoizerDirectory.mkdirs();
+        } else {
+            log.info("Using Bio-Formats Cache: {}", memoizerDirectory);
+        }
+
         if (log.isInfoEnabled())
         {
             log.info("PixelsService(path=" +
@@ -696,7 +717,7 @@ public class PixelsService extends AbstractFileSystemService
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
-        reader = new Memoizer(reader, 100, new File("/tmp/memo"));
+        reader = new Memoizer(reader, 100, memoizerDirectory);
         reader.setFlattenedResolutions(false);
         return reader;
     }
