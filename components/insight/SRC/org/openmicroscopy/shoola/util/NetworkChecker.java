@@ -32,8 +32,6 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 //Third-party libraries
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -47,8 +45,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since 4.4
  */
 public class NetworkChecker {
-
-    private final static Logger log = LoggerFactory.getLogger(NetworkChecker.class);
 
 	/**
 	 * Returns <code>true</code> if the network is still up, otherwise
@@ -83,10 +79,6 @@ public class NetworkChecker {
 		//tmp code
 		boolean networkup = false;
 		if (UIUtilities.isLinuxOS()) {
-			if (log.isDebugEnabled()) {
-				log.debug("LinuxOS - checking network connection [HTTP]");
-			}
-
 			try {
 				// use HTTP URL instead of plain socket connection to avoid
 				// network checks timeouts for clients behind a web proxy
@@ -97,10 +89,6 @@ public class NetworkChecker {
 				networkup = true;
 			} catch (Exception e) {}
 		} else {
-			if (log.isDebugEnabled()) {
-				log.debug("Win/MacOS - checking network connection [NIC]");
-			}
-
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
 			if (interfaces != null) {

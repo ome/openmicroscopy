@@ -31,10 +31,10 @@
     * This install file.
 
   
-  If you're running on Unix or Mac OS X, make sure the provided startup script
+  If you are running on Unix or Mac OS X, make sure the provided startup script
   is executable.
 
-  If you're connecting to the internet through a web proxy, make sure you edit
+  If you are connecting to the internet through a web proxy, make sure you edit
   the startup script accordingly (example configuration is provided within
   shell script).
 
