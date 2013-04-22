@@ -650,14 +650,8 @@ class Connector
 		if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
 		if (networkup) {
 			shutDownServices(true);
-		} else {
-			thumbnailService = null;
-			pixelsStore = null;
-			fileStore = null;
-			searchService = null;
-			importStore = null;
-			reServices.clear();
 		}
+		clear();
 		secureClient.closeSession();
 		//to be on the safe side
 		if (unsecureClient != null) unsecureClient.__del__();

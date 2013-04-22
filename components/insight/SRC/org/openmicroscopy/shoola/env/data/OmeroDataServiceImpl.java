@@ -522,7 +522,7 @@ class OmeroDataServiceImpl
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) 
 			gateway.changeCurrentGroup(ctx, exp, group.getId());
-		data = gateway.getUserDetails(ctx, uc.getUserName());
+		data = gateway.getUserDetails(ctx, uc.getUserName(), true);
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.

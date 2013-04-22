@@ -106,7 +106,7 @@ class AdminServiceImpl
 		}
 		String userName = uc.getUserName();
 		if (asAdmin) userName = exp.getUserName();
-		data = gateway.getUserDetails(ctx, userName);
+		data = gateway.getUserDetails(ctx, userName, true);
 		if (currentUser.getId() != exp.getId()) 
 			return data;
 
@@ -227,14 +227,15 @@ class AdminServiceImpl
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		if (exp == null) {
-			exp = gateway.getUserDetails(ctx, uc.getUserName());
+			exp = gateway.getUserDetails(ctx, uc.getUserName(), false);
 		}
 		if (groupID < 0)
 			throw new DSAccessException("No group specified.");
 		if (exp.getDefaultGroup().getId() != groupID) {
 			gateway.changeCurrentGroup(ctx, exp, groupID);
 		}
-		ExperimenterData data = gateway.getUserDetails(ctx, uc.getUserName());
+		ExperimenterData data = gateway.getUserDetails(ctx, uc.getUserName(),
+				true);
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
