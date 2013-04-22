@@ -1318,6 +1318,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def saveAndReturnFile(self, binary, oFile_id):
         """
         Provide method for directly updating a file object and return binary.
+        Assumes that the checksum algorithm used for file integrity verification is SHA-1.
 
         @param binary       Binary. Not null.
         @type binary        String
@@ -1340,7 +1341,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         ofile = store.save(self.SERVICE_OPTS)
         store.close()
 
-        serverhash = ofile.sha1.val
+        serverhash = ofile.hash.val
         clienthash = hash.hexdigest()
 
         if serverhash != clienthash:
