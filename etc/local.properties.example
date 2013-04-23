@@ -22,8 +22,8 @@ javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
 # "600m" should suffice on 64 bit for Ice 3.4
-javac.maxmem=600m
-javadoc.maxmem=600m
+javac.maxmem=750m
+javadoc.maxmem=750m
 exe4j.home=/opt/exe4j
 
 # Which version of Ice this build of OMERO is
