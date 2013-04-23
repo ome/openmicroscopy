@@ -202,10 +202,11 @@
         <target name="jmx">
             <!-- Be sure to understand the consequences of enabling JMX.
                  It allows calling remote methods on your JVM -->
-            <option>-Dcom.sun.management.jmxremote=${jmxhost}</option>
+            <option>-Dcom.sun.management.jmxremote</option>
             <option>-Dcom.sun.management.jmxremote.port=${jmxport}</option>
             <option>-Dcom.sun.management.jmxremote.authenticate=false</option>
             <option>-Dcom.sun.management.jmxremote.ssl=false</option>
+            <option>-Djava.rmi.server.hostname=${jmxhost}</option>
         </target>
         <option>-jar</option>
         <option>${OMERO_JARS}blitz.jar</option>
