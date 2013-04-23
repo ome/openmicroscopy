@@ -2755,7 +2755,8 @@ class ImViewerComponent
 		int index = view.getUICompressionLevel();
 		if (old == index) return;
 		view.setCompressionLevel(index);
-		ImViewerFactory.setCompressionLevel(index);
+		if (!model.isBigImage())
+			ImViewerFactory.setCompressionLevel(index);
 		renderXYPlane();
 	}
 
@@ -2903,6 +2904,8 @@ class ImViewerComponent
 		model.onRndLoaded();
 		if (!reload) {
 			if (model.isBigImage()) {
+				view.setCompressionLevel(ToolBar.LOW);
+				view.resetCompressionLevel(view.convertCompressionLevel());
 				model.fireBirdEyeViewRetrieval();
 				fireStateChange();
 				return;
@@ -3125,6 +3128,7 @@ class ImViewerComponent
 			default:
 				controller.setPreferences();
 				//tmp store compression
+				if (!model.isBigImage())
 				ImViewerFactory.setCompressionLevel(
 						view.getUICompressionLevel());
 				if (!saveOnClose(notifyUser)) {
