@@ -186,15 +186,25 @@
             // * highlights the thumbnails accordingly.
             var $selectee = $("#dataIcons").find("li.ui-selectee");
 
+            // When an image(s) are selected, also indicate others with the same fileset(s).
+            var highlightFilesets = function(fsIds) {
+                $selectee.css('border', '1px solid white');    // clear FS highlight
+                for (var fsid in fsIds) {
+                    $selectee.filter("[data-fileset='"+ fsid + "']").css('border', '1px solid #87ABD2');
+                }
+            }
+
             var syncThumbSelection = function() {
                 var sel_objs = $("body").data("selected_objects.ome");
                 $selectee.removeClass('ui-selected');    // clear selection
+                var fsIds = {};
                 var sel_obj, imgId;
                 for (var _s=0; _s<sel_objs.length; _s++) {
                     sel_obj = sel_objs[_s];
                     if (sel_obj.rel == "image") {
                         imgId = sel_obj.id.split("-")[1];
                         $("#image_icon-"+imgId).addClass('ui-selected');
+                        fsIds[sel_obj.fileset] = true;
                     }
                 }
 
@@ -202,6 +212,7 @@
                 if (sel_objs.length > 0 && sel_objs[0].id.split("-")[0] === 'plate') {
                     $("td.ui-selected").removeClass("ui-selected");
                 }
+                highlightFilesets(fsIds);
             }
 
             // Sync selection on selection change (in tree)...
@@ -371,7 +382,7 @@
             <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
-            <li class='row' id="image_icon-{{ c.id }}">
+            <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.getFileset.id }}">
                 <div class="image">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
