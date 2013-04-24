@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 
@@ -50,7 +51,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
      */
     @BeforeClass
     public void setup() throws IOException {
-        this.fptc = new ClientFilePathTransformer(new MakePathComponentSafe());
+        this.fptc = new ClientFilePathTransformer(new MakePathComponentSafe(FilePathRestrictions.CONSERVATIVE_RULES));
     }
     
     /**

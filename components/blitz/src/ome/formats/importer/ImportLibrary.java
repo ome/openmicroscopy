@@ -28,6 +28,7 @@ import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
@@ -87,7 +88,7 @@ public class ImportLibrary implements IObservable
 
     /* adjusts file paths to the format required by managed repository */
     private static final ClientFilePathTransformer sanitizer = 
-            new ClientFilePathTransformer(new MakePathComponentSafe());
+            new ClientFilePathTransformer(new MakePathComponentSafe(FilePathRestrictions.CONSERVATIVE_RULES));
 
     /* checksum provider factory for verifying file integrity in upload */
     private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
