@@ -189,7 +189,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
         logFilename = ((ManagedImportLocationI) location).getLogFile().getFullFsPath();
         MDC.put("fileset", logFilename);
-        log.debug("init starting... ");
 
         file = ((ManagedImportLocationI) location).getTarget();
 
@@ -250,7 +249,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
         } finally {
-            log.debug("init stopped");
             MDC.clear();
         }
 
@@ -263,8 +261,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private void cleanup() {
 
         MDC.put("fileset", logFilename);
-        log.debug("cleanup starting... ");
-
         try {
             if (reader != null) {
                 reader.close();
@@ -286,8 +282,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable e) {
             log.error(e.toString()); // slf4j migration: toString()
         }
-
-        log.debug("... cleanup stopped");
         MDC.clear();
     }
 
@@ -295,7 +289,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         helper.assertStep(step);
         try {
             MDC.put("fileset", logFilename);
-            log.debug("Step "+step+" starting...");
+            log.debug("Step "+step);
             Job j = activity.getChild();
             if (j == null) {
                 throw helper.cancel(new ERR(), null, "null-job");
@@ -361,7 +355,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     fileName, new RuntimeException(t), usedFiles, format));
             throw helper.cancel(new ERR(), t, "import-request-failure");
         } finally {
-            log.debug("Step "+step+" stopped");
             MDC.clear();
         }
     }
@@ -369,8 +362,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
-        MDC.put("fileset", logFilename);
-        log.debug("buildResponse starting.. ");
         if (step == 4) {
             ImportResponse rsp = new ImportResponse();
             Map<String, List<IObject>> rv = (Map<String, List<IObject>>) object;
@@ -380,8 +371,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             addObjects(rsp.objects, rv, Image.class.getSimpleName());
             helper.setResponseIfNull(rsp);
         }
-        log.debug("buildResponse stopped");
-        MDC.clear();
     }
 
     private void addObjects(List<IObject> objects,
