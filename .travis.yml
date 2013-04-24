@@ -7,7 +7,7 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install -qq git
     - sudo apt-get install -qq zeroc-ice34
-    - sudo apt-get install -qq python-imaging python-numpy python-tables
+    - sudo apt-get install -qq python-imaging python-numpy python-tables python-genshi
 
 install: python build.py build-all test-compile-all
 
