@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.util.TempFileManager;
@@ -61,7 +62,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     }
 
     public MakePathComponentSafeTest() {
-        super(FilePathRestrictions.CONSERVATIVE_RULES);
+        super(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values()));
     }
 
     /**

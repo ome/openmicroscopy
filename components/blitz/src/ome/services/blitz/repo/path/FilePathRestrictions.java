@@ -45,10 +45,6 @@ public class FilePathRestrictions {
 
     private static final Predicate<Integer> isNotControlCodePoint;
 
-    /** the conservative rules that should work across many likely file-systems */
-    @Deprecated
-    public static final FilePathRestrictions CONSERVATIVE_RULES;
-
     /* the full rules */
     public final ImmutableSetMultimap<Integer, Integer> transformationMatrix;  /* values never empty */
     public final ImmutableSet<String> unsafePrefixes;
@@ -59,16 +55,6 @@ public class FilePathRestrictions {
     /* quick lookups to characters that satisfy the above rules */
     public final char safeCharacter;
     public final ImmutableMap<Integer, Integer> transformationMap;
-
-    /**
-     * Convert the given character to the corresponding Unicode code point.
-     * @param character a character
-     * @return the character's code point
-     */
-    private static int getCodePoint(char character) {
-        final char[] singletonCharacterArray = new char[] {character};
-        return Character.codePointAt(singletonCharacterArray, 0);
-    }
 
     static {
         final ImmutableSet.Builder<Integer> controlCodePointsBuilder = ImmutableSet.builder();
@@ -84,48 +70,6 @@ public class FilePathRestrictions {
             }};
     }
 
-    static {
-        /* Some information on Windows naming strategies is to be found at
-         * http://msdn.microsoft.com/en-us/library/aa365247(VS.85).aspx */
-
-        final Set<Character> safeCharacters = new HashSet<Character>();
-        safeCharacters.add('_');
-
-        final SetMultimap<Integer, Integer> transformationMatrix = HashMultimap.create();
-        transformationMatrix.put(0x22, getCodePoint('\'')); // "
-        transformationMatrix.put(0x2A, getCodePoint('x'));  // *
-        transformationMatrix.put(0x2F, getCodePoint('!'));  // /
-        transformationMatrix.put(0x3A, getCodePoint(';'));  // :
-        transformationMatrix.put(0x3C, getCodePoint('['));  // <
-        transformationMatrix.put(0x3E, getCodePoint(']'));  // >
-        transformationMatrix.put(0x3F, getCodePoint('%'));  // ?
-        transformationMatrix.put(0x5C, getCodePoint('!'));  // \
-        transformationMatrix.put(0x7C, getCodePoint('!'));  // |
-
-        final Set<String> unsafePrefixes = new HashSet<String>();
-        unsafePrefixes.add("$");
-
-        final Set<String> unsafeSuffixes = new HashSet<String>();
-        unsafeSuffixes.add(".");
-        unsafeSuffixes.add(" ");
-
-        final Set<String> unsafeNames = new HashSet<String>();
-        unsafeNames.add("AUX");
-        unsafeNames.add("CLOCK$");
-        unsafeNames.add("CON");
-        unsafeNames.add("NUL");
-        unsafeNames.add("PRN");
-        for (char number = '0'; number <= '9'; number++) {
-            unsafeNames.add("COM" + number);
-            unsafeNames.add("LPT" + number);
-        }
-        
-        for (final String unsafeName : unsafeNames)
-            unsafePrefixes.add(unsafeName + ".");
-
-        CONSERVATIVE_RULES = new FilePathRestrictions(transformationMatrix, unsafePrefixes, unsafeSuffixes, unsafeNames, safeCharacters);
-    }
-
     /**
      * Minimally adjust a set of rules to include transformations away from Unicode control characters.
      * @param rules a set of rules
@@ -135,7 +79,7 @@ public class FilePathRestrictions {
         final Set<Character> safeCharacters = new HashSet<Character>(rules.safeCharacters.size());
         final Set<Integer> safeCodePoints = new HashSet<Integer>(rules.safeCharacters.size());
         for (final Character safeCharacter : rules.safeCharacters) {
-            final int safeCodePoint = getCodePoint(safeCharacter);
+            final int safeCodePoint = FilePathRestrictionInstance.getCodePoint(safeCharacter);
             if (!controlCodePoints.contains(safeCodePoint)) {
                 safeCharacters.add(safeCharacter);
                 safeCodePoints.add(safeCodePoint);
@@ -235,10 +179,10 @@ public class FilePathRestrictions {
         this.unsafeNames    = unsafeNames    == null ? ImmutableSet.<String>of() : ImmutableSet.copyOf(unsafeNames);
         this.safeCharacters = ImmutableSet.copyOf(safeCharacters);
 
-        this.safeCharacter = safeCharacters.iterator().next();
-        int safeCodePoint = getCodePoint(this.safeCharacter);
+        this.safeCharacter = this.safeCharacters.iterator().next();
+        int safeCodePoint = FilePathRestrictionInstance.getCodePoint(this.safeCharacter);
         final ImmutableMap.Builder<Integer, Integer> transformationMapBuilder = ImmutableMap.builder();
-        for (final Entry<Integer, Collection<Integer>> transformation : transformationMatrix.asMap().entrySet()) {
+        for (final Entry<Integer, Collection<Integer>> transformation : this.transformationMatrix.asMap().entrySet()) {
             final Collection<Integer> values = transformation.getValue();
             final Integer selectedValue = values.contains(safeCodePoint) ? safeCodePoint : values.iterator().next();
             transformationMapBuilder.put(transformation.getKey(), selectedValue);
