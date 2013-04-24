@@ -8,12 +8,14 @@ set -x
 export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 export OMERO_ALT=${OMERO_ALT:-ome/alt}
 export BREW_DIR=${BREW_DIR:-/usr/local}
+export VENV_DIR=${VENV_DIR:-$BREW_DIR/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
+
 if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
     CURL="curl ${CURL_OPTS-} --insecure -O"
 else
@@ -24,40 +26,34 @@ fi
 # Homebrew & pip uninstallation
 ###################################################################
 
-# Remove existing formulas and ome/alt tap
-if [ -d "$BREW_DIR" ]; then
-    cd $BREW_DIR
-    if (bin/pip --version)
-    then
-        echo "Removing pip-installed packages"
+# Remove existing PIP virtualenvironment
+if [ -f "$VENV_DIR/bin/pip" ]
+then
+    echo "Removing pip-installed packages IN $VENV_DIR"
+    # Solve Cython uninstallation error exit
+    ($VENV_DIR/bin/pip freeze -l | grep Cython && $VENV_DIR/bin/pip freeze uninstall -y Cython) || echo "Cython uninstalled"
 
-        # Solve Cython uninstallation error exit
-        (bin/pip freeze -l | grep Cython && bin/pip uninstall -y Cython) || echo "Cython uninstalled"
+    for plugin in $($VENV_DIR/bin/pip freeze -l); do
+        packagename=$(echo "$plugin" | awk -F == '{print $1}')
+        echo "Uninstalling $packagename..."
+        $VENV_DIR/bin/pip uninstall -y $packagename
+    done
 
-        for plugin in $(bin/pip freeze -l); do
-            packagename=$(echo "$plugin" | awk -F == '{print $1}')
-            echo "Uninstalling $packagename..."
-            bin/pip uninstall -y $packagename
-        done
-    fi
+    echo "Deleting $VENV_DIR"
+    rm -rf $VENV_DIR
+fi
 
-    if [ -d "$BREW_DIR/.git" ]
-    then
-        echo "Cleaning Homebrew for reinstallation"
-        rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && bin/brew cleanup
-    fi
+# Remove Homebrew installation
+if [ -d "$BREW_DIR/.git" ]
+then
+    echo "Uninstalling Homebrew"
+    rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
+fi
 
-    if [ -d "$BREW_DIR/Library/Taps" ]
-    then
-        echo "Cleaning Homebrew taps"
-        rm -rf $BREW_DIR/Library/Taps
-    fi
-
-    if [ -f "$BREW_DIR/bin/pip" ]
-    then
-        echo "Deleting $BREW_DIR/bin/pip"
-        rm $BREW_DIR/bin/pip
-    fi
+if [ -d "$BREW_DIR/Library/Taps" ]
+then
+    echo "Cleaning Homebrew taps"
+    rm -rf $BREW_DIR/Library/Taps
 fi
 
 ###################################################################
@@ -84,24 +80,24 @@ bin/brew doctor
 ###################################################################
 
 # Python virtualenv/pip support
-if (bin/pip --version)
-then
-    echo "Using existing pip"
-else
-    rm -rf virtualenv.py
-    $CURL "$VENV_URL"
-    /usr/bin/python virtualenv.py --no-site-packages .
-fi
+rm -rf virtualenv.py
+$CURL "$VENV_URL"
+/usr/bin/python virtualenv.py --no-site-packages $VENV_DIR
+
+# Activate the virtual environment
+set +u
+source $VENV_DIR/bin/activate
+set -u
 
 # Install scc tools
-bin/pip install -U scc || echo "scc installed"
+$VENV_DIR/bin/pip install -U scc || echo "scc installed"
 
 # Tap ome-alt library
 bin/brew tap $OMERO_ALT || echo "Already tapped"
 
 # Merge homebrew-alt PRs
 cd Library/Taps/${OMERO_ALT/\//-}
-scc merge master
+$VENV_DIR/bin/scc merge master
 cd $BREW_DIR
 
 ###################################################################
@@ -121,7 +117,7 @@ bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
 # Install additional Python dependencies
-source "$JOB_WS/docs/install/python_deps.sh"
+bash $JOB_WS/docs/install/python_deps.sh
 
 # Set environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
