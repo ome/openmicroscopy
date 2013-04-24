@@ -7439,18 +7439,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         files that created this image, if available.
         """
         # If we have an FS image, return Fileset files.
-        if self.countFilesetFiles() > 0:
-            params = omero.sys.Parameters()
-            params.map = {'imageId': rlong(self.getId())}
-            query = "select fs from Fileset as fs "\
-                    "left outer join fetch fs.images as image "\
-                    "left outer join fetch fs.usedFiles as usedFile " \
-                    "join fetch usedFile.originalFile where image.id=:imageId"
-            queryService = self._conn.getQueryService()
-            filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
-            for fs in filesets:
-                for usedfile in fs.copyUsedFiles():
-                    yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+        fs = self.getFileset()
+        if fs is not None:
+            for usedfile in fs.copyUsedFiles():
+                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
 
         # Otherwise, return Original Archived Files
         pid = self.getPixelsId()
@@ -7460,6 +7452,22 @@ class _ImageWrapper (BlitzObjectWrapper):
         links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
+
+    def getFileset (self):
+        """
+        Returns the Fileset linked to this Image.
+        Fileset images, usedFiles and originalFiles are loaded.
+        """
+        if self.countFilesetFiles() > 0:
+            params = omero.sys.Parameters()
+            params.map = {'fsId': rlong(self.fileset.id.val)}
+            query = "select fs from Fileset as fs "\
+                    "left outer join fetch fs.images as image "\
+                    "left outer join fetch fs.usedFiles as usedFile " \
+                    "join fetch usedFile.originalFile where fs.id=:fsId"
+            queryService = self._conn.getQueryService()
+            fileset = queryService.findByQuery(query, params, self._conn.SERVICE_OPTS)
+            return BlitzObjectWrapper(self._conn, fileset)
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
