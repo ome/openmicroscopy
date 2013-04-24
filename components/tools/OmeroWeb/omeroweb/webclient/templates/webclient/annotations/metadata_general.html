@@ -495,8 +495,14 @@
             <div style="clear:both"></div>
                   
                   
-                  
-            
+            {% with fileset=manager.image.getFileset %}
+                {% if fileset.copyImages|length > 1 %}
+                    {% for fsImg in manager.image.getFileset.copyImages %}
+                        <img class="fileset_image" src="{% url render_thumbnail_resize 96 fsImg.id.val %}" style="max-width:35px" />
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
                   
                   
