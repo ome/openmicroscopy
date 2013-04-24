@@ -385,8 +385,8 @@ class ToolBar
 			ImViewerAgent.getRegistry().lookup(LookupNames.CONNECTION_SPEED);
 		int setUp = view.convertCompressionLevel(value);
 		if (compression != setUp) compression = setUp;
-		if (view.isBigImage() && compression == ImViewer.UNCOMPRESSED) {
-			compression = ImViewer.MEDIUM;
+		if (view.isBigImage()) {
+			compression = ImViewer.LOW;
 		}
 		int index = view.convertCompressionLevel();
 		if (compression >= UNCOMPRESSED && compression <= LOW)
@@ -395,6 +395,20 @@ class ToolBar
 		compressionBox.addActionListener(
     			controller.getAction(ImViewerControl.COMPRESSION));
     	buildGUI(); 
+    }
+    
+    /**
+     * Sets the compression index.
+     * 
+     * @param index
+     */
+    void setCompressionLevel(int index)
+    {
+    	compressionBox.removeActionListener(
+    			controller.getAction(ImViewerControl.COMPRESSION));
+    	compressionBox.setSelectedIndex(index);
+    	compressionBox.addActionListener(
+    			controller.getAction(ImViewerControl.COMPRESSION));
     }
     
     /** Selects or deselects the {@link #rndButton}. */
