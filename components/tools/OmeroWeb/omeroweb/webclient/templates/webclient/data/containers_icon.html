@@ -180,6 +180,35 @@
                 }
             });
 
+            // ** The code above uses the 'ui-selected' class to mark selected images...
+            // * Then calls syncTreeSelection() to update the tree (using image Ids)
+            // * The code below responds to ALL changes in tree selection and 
+            // * highlights the thumbnails accordingly.
+            var $selectee = $("#dataIcons").find("li.ui-selectee");
+
+            var syncThumbSelection = function() {
+                var sel_objs = $("body").data("selected_objects.ome");
+                $selectee.removeClass('ui-selected');    // clear selection
+                var sel_obj, imgId;
+                for (var _s=0; _s<sel_objs.length; _s++) {
+                    sel_obj = sel_objs[_s];
+                    if (sel_obj.rel == "image") {
+                        imgId = sel_obj.id.split("-")[1];
+                        $("#image_icon-"+imgId).addClass('ui-selected');
+                    }
+                }
+
+                // Also clear well selection if 'plate' selected
+                if (sel_objs.length > 0 && sel_objs[0].id.split("-")[0] === 'plate') {
+                    $("td.ui-selected").removeClass("ui-selected");
+                }
+            }
+
+            // Sync selection on selection change (in tree)...
+            $("body").bind("selection_change.ome", syncThumbSelection);
+            //...and on page load
+            syncThumbSelection()
+
             // switch between 'icon' or 'table' layout by switching CSS
             var setLayout = function(layout) {
                 if (layout == "icon"){
