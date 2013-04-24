@@ -78,14 +78,15 @@ OME.handle_tree_selection = function(data) {
             }
         }
         selected.each(function(){
-            var oid = $(this).attr('id');
+            var $this = $(this),
+                oid = $this.attr('id');
             if (typeof oid !== "undefined") {
                 // after copy & paste, node will have id E.g. copy_dataset-123
                 if (oid.substring(0,5) == "copy_") {
                     oid = oid.substring(5, oid.length);
                 }
-                var selected_obj = {"id":oid, "rel":$(this).attr('rel')};
-                selected_obj["class"] = $(this).attr('class');
+                var selected_obj = {"id":oid, "rel":$this.attr('rel')};
+                selected_obj["class"] = $this.attr('class');
                 if (share_id) {
                     selected_obj["share"] = share_id;
                 }
