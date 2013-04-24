@@ -377,7 +377,7 @@
             <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
-            <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.getFileset.id }}">
+            <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
                 <div class="image">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
