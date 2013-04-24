@@ -523,4 +523,16 @@ public class ImageData extends DataObject {
     	return instrument.getId().getValue();
     }
 
+    /**
+     * Returns <code>true</code> is the image has been imported the new
+     * import strategy known as FS import, <code>false</code> if imported
+     * using the previous import approach (data duplication).
+     * 
+     * @return See above.
+     */
+    public boolean isFSImage()
+    {
+    	return asImage().getFileset() != null;
+    }
+
 }
