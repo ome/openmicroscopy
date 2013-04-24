@@ -207,11 +207,6 @@
                         fsIds[sel_obj.fileset] = true;
                     }
                 }
-
-                // Also clear well selection if 'plate' selected
-                if (sel_objs.length > 0 && sel_objs[0].id.split("-")[0] === 'plate') {
-                    $("td.ui-selected").removeClass("ui-selected");
-                }
                 highlightFilesets(fsIds);
             }
 
