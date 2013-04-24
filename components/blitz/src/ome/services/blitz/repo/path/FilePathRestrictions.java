@@ -219,19 +219,20 @@ public class FilePathRestrictions {
 
     /**
      * Construct a set of rules by which local files may not be named on the file-system.
-     * @param transformationMatrix how to make specific characters safe
-     * @param unsafePrefixes which name prefixes are proscribed
-     * @param unsafeSuffixes which name suffixes are proscribed
-     * @param unsafeNames which names are proscribed
-     * @param safeCharacters safe characters that may be used in making file names safe
+     * @param transformationMatrix how to make specific characters safe, may be null
+     * @param unsafePrefixes which name prefixes are proscribed, may be null
+     * @param unsafeSuffixes which name suffixes are proscribed, may be null
+     * @param unsafeNames which names are proscribed, may be null
+     * @param safeCharacters safe characters that may be used in making file names safe, may <em>not</em> be null
      */
     public FilePathRestrictions(SetMultimap<Integer, Integer> transformationMatrix,
             Set<String> unsafePrefixes, Set<String> unsafeSuffixes, Set<String> unsafeNames,
             Set<Character> safeCharacters) {
-        this.transformationMatrix = ImmutableSetMultimap.copyOf(transformationMatrix);
-        this.unsafePrefixes = ImmutableSet.copyOf(unsafePrefixes);
-        this.unsafeSuffixes = ImmutableSet.copyOf(unsafeSuffixes);
-        this.unsafeNames = ImmutableSet.copyOf(unsafeNames);
+        this.transformationMatrix = transformationMatrix == null ? ImmutableSetMultimap.<Integer, Integer>of() 
+                                                                 : ImmutableSetMultimap.copyOf(transformationMatrix);
+        this.unsafePrefixes = unsafePrefixes == null ? ImmutableSet.<String>of() : ImmutableSet.copyOf(unsafePrefixes);
+        this.unsafeSuffixes = unsafeSuffixes == null ? ImmutableSet.<String>of() : ImmutableSet.copyOf(unsafeSuffixes);
+        this.unsafeNames    = unsafeNames    == null ? ImmutableSet.<String>of() : ImmutableSet.copyOf(unsafeNames);
         this.safeCharacters = ImmutableSet.copyOf(safeCharacters);
 
         this.safeCharacter = safeCharacters.iterator().next();
