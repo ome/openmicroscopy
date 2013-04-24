@@ -174,9 +174,12 @@ public class FilePathRestrictions {
         this.safeCharacters = ImmutableSet.copyOf(safeCharacters);
         
         this.safeCharacter = safeCharacters.iterator().next();
+        int safeCodePoint = getCodePoint(this.safeCharacter);
         final Builder<Integer, Integer> transformationMapBuilder = ImmutableMap.builder();
         for (final Entry<Integer, Collection<Integer>> transformation : transformationMatrix.asMap().entrySet()) {
-            transformationMapBuilder.put(transformation.getKey(), transformation.getValue().iterator().next());
+            final Collection<Integer> values = transformation.getValue();
+            final Integer selectedValue = values.contains(safeCodePoint) ? safeCodePoint : values.iterator().next();
+            transformationMapBuilder.put(transformation.getKey(), selectedValue);
         }
         this.transformationMap = transformationMapBuilder.build();
     }
