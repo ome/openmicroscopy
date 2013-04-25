@@ -237,6 +237,7 @@
 			<!-- Note: offsetValue is called Offset in model-->
 			<optional name="readOutRate" type="double"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
+			<optional name="integration" type="PositiveInteger"/>
 			<required name="detector" type="ome.model.acquisition.Detector"/>
 			<!-- Note: detector is ID in model-->
 		</properties>
