@@ -236,6 +236,32 @@
         // Stuff to do on load...
         $(function() 
             {
+                var copy_paste_rdef_url = "{% url webgateway.views.copy_image_rdef_json %}";
+                // Copy the selected Image ID to the 'session' (right-click menu only allows this on 'image')
+                var copyRenderingSettings = function(selected) {
+                    if (selected.length == 1) {
+                        var imageId = selected[0].id.split('-')[1];
+                        $.getJSON(copy_paste_rdef_url + "?fromid=" + imageId);
+                    }
+                }
+                // Paste settings from 'session' to selected Images
+                var pasteRenderingSettings = function(selected) {
+                    var ids = [],
+                        rdef_url = copy_paste_rdef_url,
+                        rel = selected.attr('rel').replace('-locked','');
+                    selected.each(function(){
+                        ids.push(this.id.split('-')[1]);
+                    });
+                    rdef_url += "?toids=" + ids.join("&toids=");
+                    if (rel === 'dataset' || rel === 'plate' || rel === 'acquisition') {
+                        rdef_url += '&to_type='+ rel;
+                    }
+                    $.getJSON(rdef_url, function(data){
+                        // update thumbnails
+                        OME.refreshThumbnails();
+                    });
+                }
+
                 $("#left_panel_tabs").tabs({
                     select: function(event, ui) {
                         var url = $.data(ui.tab, 'load.tabs');
@@ -764,6 +790,25 @@
                                     OME.addToBasket(this.get_selected(), '{% url update_basket %}');
                                 }
                             };
+
+                            config["renderingsettings"] = {
+                                "label" : "Rendering Settings...",
+                                "action" : false,
+                                "submenu" : {
+                                    "copy"  : {
+                                        "label" : "Copy",
+                                        "icon"  : '{% static "webclient/image/icon_basic_copy_16.png" %}',
+                                        "action": copyRenderingSettings
+                                    },
+                                    "paste": {
+                                        "label" : "Paste",
+                                        "icon"  : '{% static "webclient/image/icon_basic_paste_16.png" %}',
+                                        "action": function() {
+                                            pasteRenderingSettings(this.get_selected());
+                                        }
+                                    }
+                                }
+                            };
                             
                             {% if myGroups|length < 2 %}
                             config["chgrp"]["_disabled"] = true;
@@ -891,6 +936,22 @@
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
                                     config["delete"]["_disabled"] = true;
+                                }
+                            }
+                            // Handle rendering settings options. Disabled by default...
+                            config["renderingsettings"]["_disabled"] = true;
+                            config["renderingsettings"]["submenu"]["copy"]["_disabled"] = true;
+                            config["renderingsettings"]["submenu"]["paste"]["_disabled"] = true;
+                            if(obj.attr("id").indexOf("image")>=0) {
+                                // ...if it's an image, we can copy settings
+                                config["renderingsettings"]["_disabled"] = false;
+                                config["renderingsettings"]["submenu"]["copy"]["_disabled"] = false;
+                            }
+                            if($.inArray(obj.attr("rel").replace('-locked',''), ["image", "dataset", "plate", "acquisition"])>=0) {
+                                // if 'canAnnotate' then we can paste settings to image/dataset/plate
+                                if(obj.hasClass('canAnnotate')) {
+                                    config["renderingsettings"]["_disabled"] = false;
+                                    config["renderingsettings"]["submenu"]["paste"]["_disabled"] = false;
                                 }
                             }
                             
