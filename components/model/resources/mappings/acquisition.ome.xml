@@ -873,6 +873,7 @@
 		<entry name="MultiPass"/>
 		<entry name="Dichroic"/>
 		<entry name="NeutralDensity"/>
+		<entry name="Tuneable"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>
