@@ -345,7 +345,7 @@
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
-			<optional name="nominalMagnification" type="PositiveInteger"/>
+			<optional name="nominalMagnification" type="double"/>
 			<optional name="calibratedMagnification" type="double"/>
 			<optional name="lensNA" type="double"/>
 			<required name="immersion" type="ome.model.enums.Immersion"/>
