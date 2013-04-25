@@ -1521,6 +1521,12 @@ class UserGroupControl(BaseControl):
         else:
             self.ctx.err(msg)
 
+    def error_ambiguous_user(self, id_or_name, msg="Ambiguous user identifier: %s", code = 515, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % id_or_name)
+        else:
+            self.ctx.err(msg % id_or_name)
+
     def find_group_by_id(self, admin, group_id, fatal = False):
         import omero
         try:
@@ -1584,18 +1590,35 @@ class UserGroupControl(BaseControl):
 
     def find_user(self, admin, id_or_name, fatal =  False):
         import omero
+
+        # Find user by name
         try:
-            try:
-                uid = long(id_or_name)
-            except ValueError:
-                u = admin.lookupExperimenter(id_or_name)
-                uid = u.id.val
-            else:
-                u = admin.getExperimenter(uid)
+            u1 = admin.lookupExperimenter(id_or_name)
         except omero.ApiUsageException:
+            u1 = None
+
+        # Find user by id
+        try:
+            u2 = admin.getExperimenter(long(id_or_name))
+        except (ValueError, omero.ApiUsageException):
+            u2 = None
+
+        # Test found users
+        if u1 and u2:
+            if not u1.id.val == u2.id.val:
+                self.error_ambiguous_user(id_or_name, fatal = fatal)
+                return None, None
+            else:
+                 u = u1
+        elif u1:
+            u = u1
+        elif u2:
+            u = u2
+        else:
             self.error_invalid_user(id_or_name, fatal = fatal)
             return None, None
-        return uid, u
+
+        return u.id.val, u
 
     def addusersbyid(self, admin, group, users):
         import omero
