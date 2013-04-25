@@ -14,7 +14,6 @@
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
     <dependency org="omero" name="omero-icemock" rev="${versions.ice}"/>
     <dependency org="bf-deps" name="assumeng" rev="1.2.4"/>
-    <dependency org="bf-deps" name="testng" rev="6.8"/>
   </dependencies>
 </ivy-module>
 
