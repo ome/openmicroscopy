@@ -35,6 +35,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathNamingValidator;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -103,6 +104,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
     /* used for generating %monthname% for path templates */
     private static final DateFormatSymbols DATE_FORMAT = new DateFormatSymbols();
 
+    private final FilePathNamingValidator filePathNamingValidator;
+
     private final String template;
 
     private final ProcessContainer processes;
@@ -126,6 +129,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         super(dao, checksumProviderFactory, checksumAlgorithm, pathRules);
         this.template = template;
         this.processes = processes;
+        this.filePathNamingValidator = new FilePathNamingValidator(this.filePathRestrictions);
         log.info("Repository template: " + this.template);
     }
 
@@ -523,15 +527,14 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final Paths trimmedPaths = trimPaths(basePath, paths, reader);
         basePath = trimmedPaths.basePath;
         paths = trimmedPaths.fullPaths;
-        
-        // sanitize paths (should already be sanitary; could introduce conflicts)
-        final Function<String, String> sanitizer = serverPaths.getPathSanitizer();
-        relPath = relPath.transform(sanitizer);
-        basePath = basePath.transform(sanitizer);
-        int index = paths.size();
-        while (--index >= 0)
-            paths.set(index, paths.get(index).transform(sanitizer));
-        
+
+        // validate paths
+        this.filePathNamingValidator.validateFilePathNaming(relPath);
+        this.filePathNamingValidator.validateFilePathNaming(basePath);
+        for (final FsFile path : paths) {
+            this.filePathNamingValidator.validateFilePathNaming(path);
+        }
+
         // Static elements which will be re-used throughout
         final ManagedImportLocationI data = new ManagedImportLocationI(); // Return value
 

@@ -55,7 +55,8 @@
  *   |   |_ OverUsageException (too much)
  *   |   |_ QueryException (bad query string)
  *   |   |_ ValidationException (bad data)
- *   |      \_ ChecksumValidationException (checksum mismatch)
+ *   |      |_ ChecksumValidationException (checksum mismatch)
+ *   |      \_ FilePathNamingException (repository path badly named)
  *   |
  *   |_ SecurityViolation (some no-no)
  *   |   \_ GroupSecurityViolation
@@ -305,9 +306,6 @@ module omero
     {
     };
 
-  /**
-   *
-   */
   exception QueryException extends ApiUsageException
     {
     };
@@ -319,6 +317,17 @@ module omero
   exception ChecksumValidationException extends ValidationException
     {
         omero::api::IntStringMap failingChecksums;
+    };
+
+  exception FilePathNamingException extends ValidationException
+    {
+        /* the file path that breaks the server's rules */
+        string illegalFilePath;
+        /* the rules actually violated by the file path */
+        omero::api::IntegerList illegalCodePoints;  /* proscribed Unicode code points */
+        omero::api::StringSet illegalPrefixes;      /* proscribed name prefixes */
+        omero::api::StringSet illegalSuffixes;      /* proscribed name suffixes */
+        omero::api::StringSet illegalNames;         /* proscribed names */
     };
 
   // SECURITY
