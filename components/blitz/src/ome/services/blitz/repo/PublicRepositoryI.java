@@ -133,7 +133,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final omero.model.ChecksumAlgorithm checksumAlgorithm;
 
-    protected final FilePathRestrictions filePathRestrictions;
+    protected /*final*/ FilePathRestrictions filePathRestrictions;
 
     protected OmeroContext context;
 
@@ -154,7 +154,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                 terms.add(term.trim());
             }
         }
-        this.filePathRestrictions = FilePathRestrictionInstance.getFilePathRestrictions(terms.toArray(new String[terms.size()]));
+        final String[] termArray = terms.toArray(new String[terms.size()]);
+        try {
+            this.filePathRestrictions = FilePathRestrictionInstance.getFilePathRestrictions(termArray);
+        } catch (NullPointerException e) {
+            throw new ServerError(null, null, "unknown rule set named in: " + pathRules);
+        }
     }
 
     /**
