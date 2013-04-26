@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -325,9 +327,9 @@ class EditorModel
 	/** 
 	 * Downloads the archived images. 
 	 * 
-	 * @param folder The folder to save the file into.
+	 * @param file The file where to download the content.
 	 */
-	private void downloadImages(File folder)
+	private void downloadImages(File file)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
 		Collection l = parent.getRelatedNodes();
@@ -352,13 +354,13 @@ class EditorModel
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			IconManager icons = IconManager.getInstance();
-			String path = folder.getAbsolutePath();
-			if (!path.endsWith(File.separator)) path += File.separator;
+			if (images.size() > 1)
+				file = file.getParentFile();
+			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+			SecurityContext ctx = getSecurityContext();
 			while (i.hasNext()) {
-				img = i.next();
-				p = new DownloadArchivedActivityParam(path, img, 
-						icons.getIcon(IconManager.DOWNLOAD_22));
-				un.notifyActivity(getSecurityContext(), p);
+				p = new DownloadArchivedActivityParam(file, i.next(), icon);
+				un.notifyActivity(ctx, p);
 			}
 		}
 	}
@@ -2862,14 +2864,15 @@ class EditorModel
 	/** 
 	 * Starts an asynchronous loading. 
 	 * 
-	 * @param folder The folder to save the file into.
+	 * @param file The file where to download the content.
+	 * If it is a multi-images file a zip will be created.
 	 */
-	void download(File folder)
+	void download(File file)
 	{
 		if (refObject instanceof ImageData) {
-			downloadImages(folder);
+			downloadImages(file);
 		} else if (refObject instanceof FileAnnotationData) {
-			downloadFiles(folder);
+			downloadFiles(file);
 		}
 	}
 
@@ -4165,6 +4168,18 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
 		return data.isLoaded();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image has an original metadata file
+	 * linked to it, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOriginalMetadata()
+	{
+		FileAnnotationData fa = getOriginalMetadata();
+		return fa != null;
 	}
 
 }

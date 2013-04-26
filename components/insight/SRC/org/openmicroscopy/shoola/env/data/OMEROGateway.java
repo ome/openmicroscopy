@@ -3996,27 +3996,27 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		return retrieveArchivedFiles(ctx, folderPath, image);
+		return retrieveArchivedFiles(ctx, file, image);
 	}
 	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -4024,7 +4024,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
@@ -4077,25 +4077,29 @@ class OMEROGateway
 		
 		RawFileStorePrx store;
 		OriginalFile of;
-		long size;	
+		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
-		String fullPath;
-		Iterator<OriginalFile> k;
-		 k = values.iterator();
-		while (k.hasNext()) {
-			of = k.next();
+		String folderPath = null;
+		if (files.size() > 1) {
+			if (file.isDirectory()) folderPath = file.getAbsolutePath();
+			else folderPath = file.getParent();
+		}
+		i = values.iterator();
+		while (i.hasNext()) {
+			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = folderPath+of.getName().getValue();
-			f = new File(fullPath);
+			if (folderPath != null) {
+				f = new File(folderPath+of.getName().getValue());
+			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
@@ -4107,7 +4111,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int) (size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -4127,8 +4131,8 @@ class OMEROGateway
 				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
-				throw new DSAccessException("Cannot create file with path " +
-											fullPath, e);
+				throw new DSAccessException("Cannot create file in folderPath",
+						e);
 			}
 			closeService(ctx, store);
 		}
@@ -4143,42 +4147,38 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.	
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
-		return download(ctx, file, fileID, size);
+		return download(ctx, file, fileID);
 	}
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized File download(SecurityContext ctx, File file,
-			long fileID, long size)
+			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		if (of == null) return null;
-		if (size <= 0) {
-			if (of != null) size = of.getSize().getValue();
-		}
+		long size = of.getSize().getValue();
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
