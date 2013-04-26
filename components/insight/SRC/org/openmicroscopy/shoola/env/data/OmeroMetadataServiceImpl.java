@@ -1344,17 +1344,16 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, long, int)
+	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, int)
 	 */
-	public File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size) 
+	public File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (fileID < 0)
 			throw new IllegalArgumentException("File ID not valid");
 		if (file == null)
 			throw new IllegalArgumentException("File path not valid");
-		return gateway.downloadFile(ctx, file, fileID, size);
+		return gateway.downloadFile(ctx, file, fileID);
 	}
 	
 	/**
@@ -2153,8 +2152,8 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#loadRatings(SecurityContext, Class, List,
-	 * String, String)
+	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, List,
+	 * Class, List, List)
 	 */
 	public Map<Long, Collection<AnnotationData>>
 		loadAnnotations(SecurityContext ctx, Class<?> rootType,
@@ -2170,4 +2169,34 @@ class OmeroMetadataServiceImpl
 				annotationType, nsInclude, nsExclude, new Parameters());
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 */
+	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		//Get the file annotation
+		if (id < 0) return null;
+		List<Class> types = new ArrayList<Class>();
+		types.add(FileAnnotationData.class);
+		Map map = gateway.loadAnnotations(ctx, ImageData.class,
+				Arrays.asList(id), types, null, new Parameters());
+		if (map == null || map.size() == 0) return null;
+		Collection values = (Collection) map.get(id);
+		if (values == null || values.size() == 0) return null;
+		Iterator i = values.iterator();
+		FileAnnotationData fa;
+		long fileID = -1;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			if (FileAnnotationData.ORIGINAL_METADATA_NAME.equals(
+					fa.getFileName())) {
+				fileID = fa.getFileID();
+				break;
+			}
+		}
+		if (fileID < 0) return null;
+		return downloadFile(ctx, file, fileID);
+	}
 }

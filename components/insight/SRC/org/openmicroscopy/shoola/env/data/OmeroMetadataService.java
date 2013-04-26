@@ -406,15 +406,13 @@ public interface OmeroMetadataService
 	 * @param ctx The security context.
 	 * @param file The file to write the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file to download
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size)
+	public File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -697,6 +695,21 @@ public interface OmeroMetadataService
 	 */
 	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
 			long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param ctx The security context.
+	 * @param file The file to write the data into.
+	 * @param id The id of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
