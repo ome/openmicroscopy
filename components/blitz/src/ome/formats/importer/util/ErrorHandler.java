@@ -79,7 +79,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     /**
-     * Unlike {@link FILE_EXECEPTION}, UKNOWN_FORMAT does not have a reader
+     * Unlike {@link FILE_EXCEPTION}, UNKNOWN_FORMAT does not have a reader
      * since bio-formats is telling us that it does not know how to handle
      * the given file. This should be generally be considered less fatal
      * than a {@link FILE_EXCEPTION}, but if the user is specifically saying
@@ -113,7 +113,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     }
 
     /**
-     * Similar to {@link UKNOWN_FORMAT} UNREADABLE_FILE specifies that the
+     * Similar to {@link UNKNOWN_FORMAT} UNREADABLE_FILE specifies that the
      * file which is being accessed is unreadable (does not exist or canRead
      * is false), so if the user is specifically saying that the file should
      * be imported, there may be some underlying issue.
@@ -147,7 +147,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * {@link FILE_EXCEPTION}s are thrown any time in the context of a particular
      * file and otherwise unspecified exception takes place. An example of an
-     * exception which receives separate handling is {@link UKNOWN_FORMAT} which
+     * exception which receives separate handling is {@link UNKNOWN_FORMAT} which
      * can be considered less serious than {@link FILE_EXCEPTION}. Subclasses of
      * this class may should receive special handling. For example,
      * {@link ImportCandidates#SCANNING_FILE_EXCEPTION} may be considered less
