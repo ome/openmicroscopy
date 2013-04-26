@@ -150,14 +150,14 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     }
 
     /**
-     * On Windows, test that data cannot be stored in files named using unsafe characters.
+     * Test that data cannot be stored in files named using unsafe characters.
+     * @param ruleId the rules for the platform to be tested
      * @throws IOException unexpected
      */
-    @Test
-    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
-    public void testUnsafeCharacterUnsafetyWindows() throws IOException {
+    private void testUnsafeCharacterUnsafety(FilePathRestrictionInstance ruleId) throws IOException {
+        final FilePathRestrictions rules = FilePathRestrictionInstance.getFilePathRestrictions(ruleId);
         final File tempDir = tempFileManager.createPath("testUnsafeCharacterUnsafetyWindows", null, true);
-        for (final int unsafeCodePoint : this.rules.transformationMatrix.keySet()) {
+        for (final int unsafeCodePoint : rules.transformationMatrix.keySet()) {
             if (codePointsOfTypeControl.contains(unsafeCodePoint))
                 /* no point testing, one wants to avoid control characters in filenames whatever the operating system permits */
                 continue;
@@ -178,6 +178,36 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
             }
         }
         tempFileManager.removePath(tempDir);
+    }
+
+    /**
+     * On Microsoft Windows, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyWindows() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.WINDOWS_REQUIRED);
+    }
+
+    /**
+     * On Linux, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isLinux"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyLinux() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
+    }
+
+    /**
+     * On Apple Mac OS X, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isMacOSX"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyMacOSX() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
     }
 
     /**
