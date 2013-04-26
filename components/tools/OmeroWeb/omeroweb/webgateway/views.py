@@ -246,9 +246,7 @@ def render_birds_eye_view (request, iid, size=None,
                            conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
-    for image 'iid'. Rendering settings can be specified in the request
-    parameters as in L{render_image} and L{render_image_region}; see
-    L{getImgDetailsFromReq} for a complete list.
+    for image 'iid'. We now use a thumbnail for performance. #10626
 
     @param request:     http request
     @param iid:         Image ID
@@ -256,13 +254,9 @@ def render_birds_eye_view (request, iid, size=None,
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
     @return:            http response containing jpeg
     """
-    server_id = request.session['connector'].server_id
-    img = _get_prepared_image(request, iid, conn=conn, server_id=server_id)
-    if img is None:
-        logger.debug("(b)Image %s not found..." % (str(iid)))
-        raise Http404
-    img, compress_quality = img
-    return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
+    if size is None:
+        size = 96       # Use cached thumbnail
+    return render_thumbnail(request, iid, w=size)
 
 @login_required()
 def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
