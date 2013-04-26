@@ -24,4 +24,11 @@
 # -Xms or "max" -Xmx memory size. More information about these command line
 # switches may be found by running "java -X"
 
+# If you are running insight behind a web proxy you need to add the following
+# options to your JVM:
+# -Dhttp.proxyHost=<your_proxy_host>
+# -Dhttp.proxyPort=<your_proxy_port>
+# Eg.
+# java -Dhttp.proxyHost=squid.example.net -Dhttp.proxyPort=8080 -jar omero.insight.jar
+
 java -Xms256000000 -Xmx1024000000 -jar omero.insight.jar
