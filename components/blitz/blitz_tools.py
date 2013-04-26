@@ -7,6 +7,7 @@
 #
 
 import sys, os, glob, exceptions, subprocess
+import optparse
 from SCons.Script.SConscript import *
 from SCons.Script import AddOption, GetOption
 from SCons.SConf import *
@@ -139,7 +140,15 @@ class OmeroEnvironment(SConsEnvironment):
         except KeyError:
             tools = ['default', 'packaging']
 
-        AddOption('--release',
+        # omero_quiet is for internal use in order to
+        # quiet down this instance for re-use.
+        try:
+            self.omero_quiet = kwargs.pop("omero_quiet")
+        except KeyError:
+            self.omero_quiet = False
+
+        try:
+            AddOption('--release',
                   dest='release',
                   type='string',
                   nargs=1,
@@ -147,13 +156,15 @@ class OmeroEnvironment(SConsEnvironment):
                   metavar='RELEASE',
                   help='Release version [debug (default) or Os]')
 
-        AddOption('--arch',
+            AddOption('--arch',
                   dest='arch',
                   type='string',
                   nargs=1,
                   action='store',
                   metavar='ARCH',
                   help='Architecture to build for [x86, x64, or detect (default)]')
+        except optparse.OptionConflictError, e:
+            pass  # These are global so this has been used twice
 
         # Very odd error: using ENV = os.environ, rather than ENV = dict(os.environ)
         # causes *sub*processes to receive a fresh environment with registry values
@@ -180,28 +191,28 @@ class OmeroEnvironment(SConsEnvironment):
             self.AppendUnique(CPPDEFINES=["NDEBUG"])
 
         if not self.iswin32():
-            self.Append(CPPFLAGS=self.Split("-Wall -ansi"))
-            self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
-            self.Append(CPPFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value"))
-            # self.Append(CPPFLAGS=self.Split("-pedantic -ansi")) Ice fails pedantic due to extra ";"
-            # self.Append(CPPFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
-            # self.Append(CPPFLAGS=self.Split("-Werror")) http://lists.openmicroscopy.org.uk/pipermail/ome-devel/2010-February/001557.html
+            self.Append(CXXFLAGS=self.Split("-Wall -ansi"))
+            self.Append(CXXFLAGS=self.Split("-Wno-long-long -Wnon-virtual-dtor"))
+            self.Append(CXXFLAGS=self.Split("-Wno-unused-parameter -Wno-unused-function -Wunused-variable -Wunused-value"))
+            # self.Append(CXXFLAGS=self.Split("-pedantic -ansi")) Ice fails pedantic due to extra ";"
+            # self.Append(CXXFLAGS=self.Split("-Wno-long-long -Wctor-dtor-privacy -Wnon-virtual-dtor")) Ice fails the ctor check.
+            # self.Append(CXXFLAGS=self.Split("-Werror")) http://lists.openmicroscopy.org.uk/pipermail/ome-devel/2010-February/001557.html
             if self.isdebug():
-                self.Append(CPPFLAGS=self.Split("-O0 -g"))
+                self.Append(CXXFLAGS=self.Split("-O0 -g"))
             else:
-                self.Append(CPPFLAGS=self.Split("-Os"))
+                self.Append(CXXFLAGS=self.Split("-Os"))
 
         else:
             self.AppendUnique(CPPDEFINES=["WIN32_LEAN_AND_MEAN"])
             if self["CC"] == "cl":
-                self.AppendUnique(CPPFLAGS=self.Split("/bigobj"))
-                self.AppendUnique(CPPFLAGS=self.Split("/EHsc"))
+                self.AppendUnique(CXXFLAGS=self.Split("/bigobj"))
+                self.AppendUnique(CXXFLAGS=self.Split("/EHsc"))
                 if self.isdebug():
                     self.Append(CXXFLAGS=["/Zi","/Od"])
-                    self.AppendUnique(CPPFLAGS = ["/MDd"])
+                    self.AppendUnique(CXXFLAGS = ["/MDd"])
                 else:
                     self.Append(CXXFLAGS=["/Os"])
-                    self.AppendUnique(CPPFLAGS = ["/MD"])
+                    self.AppendUnique(CXXFLAGS = ["/MD"])
 
 
                 # Correcting for registry lookup under WoW64
@@ -216,7 +227,7 @@ class OmeroEnvironment(SConsEnvironment):
 
         # Now let user override
         if "CXXFLAGS" in os.environ:
-            self.Append(CPPFLAGS=self.Split(os.environ["CXXFLAGS"]))
+            self.Append(CXXFLAGS=self.Split(os.environ["CXXFLAGS"]))
 
         #
         # LINKFLAGS
@@ -239,7 +250,7 @@ class OmeroEnvironment(SConsEnvironment):
 
         # Now let user override
         if "LINKFLAGS" in os.environ:
-            self.Append(CPPFLAGS=self.Split(os.environ["LINKFLAGS"]))
+            self.Append(CXXFLAGS=self.Split(os.environ["LINKFLAGS"]))
 
         #
         # CPPPATH
@@ -285,7 +296,8 @@ class OmeroEnvironment(SConsEnvironment):
                 import warnings
                 warnings.warn("Unknown release value. Using 'debug'")
 
-        print "Debug setting: %s (%s)" % (self._isdbg, RELEASE)
+        if not self.omero_quiet:
+            print "Debug setting: %s (%s)" % (self._isdbg, RELEASE)
         return self._isdbg
 
 
@@ -327,7 +339,8 @@ class OmeroEnvironment(SConsEnvironment):
                 import platform
                 self._bit64 = platform.architecture()[0] == "64bit"
 
-        print "64-Bit build: %s (%s)" % (self._bit64, ARCH)
+        if not self.omero_quiet:
+            print "64-Bit build: %s (%s)" % (self._bit64, ARCH)
         return self._bit64
 
     def icelibs(self):

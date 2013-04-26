@@ -266,14 +266,14 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long)
+	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long, 
+	 * boolean)
 	 */
-	public Set getExperimenterImages(SecurityContext ctx, long userID)
+	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
+			orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		ParametersI po = new ParametersI();
-		po.exp(omero.rtypes.rlong(userID));
-		return gateway.getUserImages(ctx, po);
+		return gateway.getUserImages(ctx, userID, orphan);
 	}
 
 	/**
@@ -488,27 +488,6 @@ class OmeroDataServiceImpl
 				addExistingObjects(ctx, (DataObject) parent,
 						(Set) entry.getValue());
 		}
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getChannelsMetadata(SecurityContext, long)
-	 */
-	public List getChannelsMetadata(SecurityContext ctx, long pixelsID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Pixels pixels = gateway.getPixels(ctx, pixelsID);
-		if (pixels == null) return new ArrayList<ChannelData>();
-		Collection l = pixels.copyChannels();
-		if (l == null) return new ArrayList<ChannelData>();
-		Iterator i = l.iterator();
-		List<ChannelData> m = new ArrayList<ChannelData>(l.size());
-		int index = 0;
-		while (i.hasNext()) {
-			m.add(new ChannelData(index, (Channel) i.next()));
-			index++;
-		}
-		return m;
 	}
 
 	/**
@@ -802,7 +781,7 @@ class OmeroDataServiceImpl
 			long plateID, long acquisitionID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.loadPlateWells(ctx, plateID, acquisitionID, userID);
+		return gateway.loadPlateWells(ctx, plateID, acquisitionID);
 	}
 
 	/**

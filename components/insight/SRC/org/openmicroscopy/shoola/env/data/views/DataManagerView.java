@@ -39,8 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.ui.DataObjectTransfer;
-
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -87,11 +86,13 @@ public interface DataManagerView
 	 * 
 	 * @param ctx The security context.
 	 * @param userID The ID of the user.
+	 * @param orphan Indicates to load all the images or only the images not
+	 * in any container.
 	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadImages(SecurityContext ctx, long userID,
-			AgentEventListener observer);
+			boolean orphan, AgentEventListener observer);
 
 	/**
 	 * Retrieves the images container in the specified root nodes.
@@ -319,10 +320,36 @@ public interface DataManagerView
 	 * Moves the passed collection to another group.
 	 * 
 	 * @param object The objects to transfer.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle changeGroup(TransferableObject object,
 			AgentEventListener observer);
+
+	/**
+	 * Checks if the image is a large image or not.
+	 * 
+	 * @param ctx The security context.
+	 * @param pixelsID The identifier of the pixels set.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle isLargeImage(SecurityContext ctx, long pixelsID,
+			AgentEventListener observer);
+
+	/**
+	 * Saves the channels. Applies the changes to all the images contained in
+	 * the specified objects. This could be datasets, plates or images.
+	 * 
+	 * @param ctx The security context.
+	 * @param channels The channels to update.
+	 * @param objects The objects to apply the changes to. If the objects are
+	 * datasets, then all the images within the datasets will be updated.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects,
+			AgentEventListener channelDataSaver);
 	
 }

@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.events.metadata;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries

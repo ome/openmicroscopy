@@ -7,16 +7,34 @@
 #ifndef OMERO_CLIENTF_H
 #define OMERO_CLIENTF_H
 
-#include <IceUtil/Handle.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#   include <Ice/Object.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
+
+#ifndef OMERO_API
+#   ifdef OMERO_API_EXPORTS
+#       define OMERO_API ICE_DECLSPEC_EXPORT
+#   else
+#       define OMERO_API ICE_DECLSPEC_IMPORT
+#   endif
+#endif
 
 namespace omero {
-
-    /*
-     * Forward definitions and handles
-     */
-
     class client;
+    class CallbackI;
+}
 
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  OMERO_API ::Ice::Object* upCast(::omero::CallbackI*);
+}
+#endif
+
+namespace omero {
     /*
      * Typedef for using Ice's smart pointer reference counting
      * infrastructure.
@@ -26,9 +44,11 @@ namespace omero {
      */
     typedef IceUtil::Handle<client> client_ptr;
 
-    class CallbackI;
-
+#if ICE_INT_VERSION / 100 >= 304
+    typedef IceInternal::Handle<CallbackI> CallbackIPtr;
+#else
     typedef IceUtil::Handle<CallbackI> CallbackIPtr;
+#endif
 
 }
 #endif // OMERO_CLIENTF_H

@@ -289,7 +289,6 @@ class RendererUI
     	if (results == null || results.size() == 0) return;
     	DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
 		pane.displayViewedBy(results);
-    	
     }
 
     /** 
@@ -304,4 +303,13 @@ class RendererUI
 		pane.setInputRange(absolute);
 	}
 	
+    /**
+     * Updates the component displaying the channels' details after update.
+     */
+    void onChannelUpdated()
+    {
+    	DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
+    	pane.onChannelUpdated();
+    }
+
 }

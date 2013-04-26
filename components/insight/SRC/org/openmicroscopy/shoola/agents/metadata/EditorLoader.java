@@ -131,7 +131,6 @@ public abstract class EditorLoader
     	LogMessage msg = new LogMessage();
         msg.print("No data returned.");
         registry.getLogger().error(this, msg);
-        registry.getLogger().info(this, msg);
         //handleException(new Exception("No data available."));
     }
     

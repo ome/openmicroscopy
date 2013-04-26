@@ -129,8 +129,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return self.dataset
         if self.image is not None: return self.image
         if self.screen is not None: return self.screen
-        if self.plate is not None: return self.plate
         if self.acquisition is not None: return self.acquisition
+        if self.plate is not None: return self.plate
         if self.well is not None: return self.well
         if self.tag is not None: return self.tag
         if self.file is not None: return self.file
@@ -140,8 +140,8 @@ class BaseContainer(BaseController):
         if self.dataset is not None: return "dataset"
         if self.image is not None: return "image"
         if self.screen is not None: return "screen"
-        if self.plate is not None: return "plate"
         if self.acquisition is not None: return "acquisition"
+        if self.plate is not None: return "plate"
         if self.well is not None: return "well"
         if self.tag is not None: return "tag"
         if self.file is not None: return "file"
@@ -158,7 +158,25 @@ class BaseContainer(BaseController):
         obj = self._get_object()
         return obj is not None and obj.canEdit() or None
 
+    def getPermsCss(self):
+        """ Shortcut to get permissions flags, E.g. for css """
+        return self._get_object().getPermsCss()
 
+    def getNumberOfFields(self):
+        """ Applies to Plates (all fields) or PlateAcquisitions"""
+        if self.plate is not None:
+            return self.plate.getNumberOfFields()
+        elif self.acquisition:
+            p = self.conn.getObject("Plate", self.acquisition._obj.plate.id.val)
+            return p.getNumberOfFields(self.acquisition.getId())
+    
+    def getPlateId(self):
+        """ Used by templates that display Plates or PlateAcquisitions """
+        if self.plate is not None:
+            return self.plate.getId()
+        elif self.acquisition:
+            return self.acquisition._obj.plate.id.val
+        
     def openAstexViewerCompatible(self):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
@@ -248,15 +266,18 @@ class BaseContainer(BaseController):
         im_list = list(self.conn.getObjectsByAnnotations('Image',[self.tag.id]))
         sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
         pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
+        pa_list = list(self.conn.getObjectsByAnnotations('PlateAcquisition',[self.tag.id]))
         
         pr_list.sort(key=lambda x: x.getName() and x.getName().lower())
         ds_list.sort(key=lambda x: x.getName() and x.getName().lower())
         im_list.sort(key=lambda x: x.getName() and x.getName().lower())
         sc_list.sort(key=lambda x: x.getName() and x.getName().lower())
         pl_list.sort(key=lambda x: x.getName() and x.getName().lower())
+        pa_list.sort(key=lambda x: x.getName() and x.getName().lower())
         
-        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 'screens':sc_list, 'plates':pl_list}
-        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)
+        self.containers={'projects': pr_list, 'datasets': ds_list, 'images': im_list, 
+            'screens':sc_list, 'plates':pl_list, 'aquisitions': pa_list}
+        self.c_size = len(pr_list)+len(ds_list)+len(im_list)+len(sc_list)+len(pl_list)+len(pa_list)
         
     def listImagesInDataset(self, did, eid=None, page=None, load_pixels=False):
         if eid is not None:
@@ -462,7 +483,7 @@ class BaseContainer(BaseController):
         return batchAnns
 
 
-    def getTagsByObject(self):
+    def getTagsByObject(self, parent_type=None, parent_ids=None):
         eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         
         def sort_tags(tag_gen):
@@ -486,6 +507,11 @@ class BaseContainer(BaseController):
             return sort_tags(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.acquisition is not None:
             return sort_tags(self.acquisition.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+        elif parent_type and parent_ids:
+            parent_type = parent_type.title()
+            if parent_type == "Acquisition":
+                parent_type = "PlateAcquisition"
+            return sort_tags(self.conn.listOrphanedAnnotations(parent_type, parent_ids, eid=eid, anntype='Tag'))
         else:
             if eid is not None:
                 params = omero.sys.Parameters()
@@ -494,7 +520,7 @@ class BaseContainer(BaseController):
                 return sort_tags(self.conn.getObjects("TagAnnotation", params=params))
             return sort_tags(self.conn.getObjects("TagAnnotation"))
     
-    def getFilesByObject(self):
+    def getFilesByObject(self, parent_type=None, parent_ids=None):
         eid = (not self.canUseOthersAnns()) and self.conn.getEventContext().userId or None
         ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
         
@@ -519,6 +545,11 @@ class BaseContainer(BaseController):
             return sort_file_anns(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.acquisition is not None:
             return sort_file_anns(self.acquisition.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
+        elif parent_type and parent_ids:
+            parent_type = parent_type.title()
+            if parent_type == "Acquisition":
+                parent_type = "PlateAcquisition"
+            return sort_file_anns(self.conn.listOrphanedAnnotations(parent_type, parent_ids, eid=eid, ns=ns, anntype='File'))
         else:
             return sort_file_anns(self.conn.listFileAnnotations(eid=eid))
     ####################################################################
@@ -928,7 +959,7 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove( self, parents ):
+    def remove( self, parents, index):
         """
         Removes the current object (file, tag, comment, dataset, plate, image) from it's parents by
         manually deleting the link.
@@ -942,6 +973,10 @@ class BaseContainer(BaseController):
             parentId = long(parent[1])
             if dtype == "acquisition":
                 dtype = "PlateAcquisition"
+            if dtype == "well":
+                dtype = "Image"
+                w = self.conn.getObject("Well", parentId)
+                parentId = w.getWellSample(index=index).image().getId()
             if self.tag:
                 for al in self.tag.getParentLinks(dtype, [parentId]):
                     if al is not None and al.canDelete():

@@ -99,6 +99,12 @@ class SplashScreenManager
 	/** Reference to the component. */
 	private SplashScreen		component;
 	
+	/** 
+	 * The credentials stored if the login button is pressed before the
+	 * end of the initialization sequence.
+	 */
+	private LoginCredentials lc;
+	
 	/**
 	 * Attempts to log onto <code>OMERO</code>.
 	 * 
@@ -106,6 +112,10 @@ class SplashScreenManager
 	 */
 	private void login(LoginCredentials lc)
 	{
+		if (doneTasks != totalTasks) {
+			this.lc = lc;
+			return;
+		}
 		try {
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
@@ -113,7 +123,9 @@ class SplashScreenManager
 			uc.setEncrypted(lc.isEncrypted());
 			uc.setGroup(lc.getGroup());
 			userCredentials.set(uc);
+			this.lc = null;
 		} catch (Exception e) {
+			e.printStackTrace();
 			UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
@@ -238,7 +250,7 @@ class SplashScreenManager
 	{
 		//close() has already been called.
 		view.setVisible(true);
-		view.setStatusVisible(true);
+		view.setStatusVisible(true, false);
 		isOpen = true;
 		container.getRegistry().bind(LookupNames.LOGIN_SPLASHSCREEN, 
 				Boolean.valueOf(true));
@@ -291,8 +303,8 @@ class SplashScreenManager
 		int n = doneTasks++;
 		view.setStatus(task, n);
 		if (doneTasks == totalTasks) {
-			view.setStatusVisible(false);
-			view.requestFocusOnField();
+			view.setStatusVisible(false, lc == null);
+			if (lc == null) view.requestFocusOnField();
 			if (!connectToServer()) view.setVisible(false);
 		}
 	}
@@ -307,11 +319,16 @@ class SplashScreenManager
     void collectUserCredentials(SplashScreenFuture future, boolean init)
     {
         userCredentials = future;
+        if (lc != null) {
+        	login(lc);
+        	return;
+        }
         if (view != null) view.setControlsEnabled(true);
         if (!init) {
         	if (view != null) view.cleanField(ScreenLogin.PASSWORD_FIELD);
             updateView();
         }
+		
     }
 	
     /**
@@ -343,6 +360,7 @@ class SplashScreenManager
 		String name = evt.getPropertyName();
 		if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
 			LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+			this.lc = lc;
 			if (userCredentials != null  && lc != null) login(lc);
 		} else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
 			container.exit();

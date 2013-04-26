@@ -11,6 +11,7 @@
 #include <omero/cmd/Graphs.h>
 #include <omero/model/ImageI.h>
 #include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/Config.h>
 #include <IceUtil/Handle.h>
 #include <functional>
 #include <iostream>
@@ -124,6 +125,10 @@ T strToNum(const std::string &inputString,
     return t;
 }
 
+class ChgrpCall;
+
+typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
+
 class ChgrpCall : public IceUtil::Shared {
 private:
     // Preventing copy-construction and assigning by value.
@@ -180,8 +185,9 @@ public:
         if (wait == 0) {
             cout << "Exiting immediately..." << endl;
         } else if (wait < 0) {
-            while (!rsp && wait != 0) {
-                rsp = cb->block(500);
+            bool blocked = true;
+            while (blocked) {
+                blocked = cb->block(500);
             }
         } else {
             int loops = wait * 2;
@@ -201,8 +207,6 @@ public:
         }
     }
 };
-
-typedef IceUtil::Handle<ChgrpCall> ChgrpCallPtr;
 
 static ChgrpCallPtr call;
 

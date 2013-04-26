@@ -804,41 +804,8 @@ class BlitzObjectWrapper (object):
         @rtype:             L{AnnotationWrapper} generator
         """
         
-        if anntype is not None:
-            if anntype.title() not in ('Text', 'Tag', 'File', 'Long', 'Boolean'):
-                raise AttributeError('It only retrieves: Text, Tag, File, Long, Boolean')
-            sql = "select an from %sAnnotation as an " % anntype.title()
-        else:
-            sql = "select an from Annotation as an " \
-        
-        if anntype.title() == "File":
-            sql += " join fetch an.file "
-        
-        p = omero.sys.Parameters()
-        p.map = {}
-        
-        filterlink = ""
-        if addedByMe:
-            userId = self._conn.getUserId()
-            filterlink = " and obal.details.owner.id=:linkOwner"
-            p.map["linkOwner"] = rlong(userId)
-        
-        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
-                "where obal.child=an.id and obal.parent.id=:oid%s)" % (self.OMERO_CLASS, filterlink)
-        
-        q = self._conn.getQueryService()                
-        p.map["oid"] = rlong(self._oid)
-        if ns is None:            
-            sql += " and an.ns is null"
-        else:
-            p.map["ns"] = rlist([rstring(n) for n in ns])
-            sql += " and (an.ns not in (:ns) or an.ns is null)"        
-        if eid is not None:
-            sql += " and an.details.owner.id=:eid"
-            p.map["eid"] = rlong(eid)
- 
-        for e in q.findAllByQuery(sql,p,self._conn.SERVICE_OPTS):
-            yield AnnotationWrapper._wrap(self._conn, e)
+        return self._conn.listOrphanedAnnotations(self.OMERO_CLASS, [self.getId()], eid, ns, anntype, addedByMe)
+
 
     def _linkObject (self, obj, lnkobjtype):
         """
@@ -2691,6 +2658,72 @@ class _BlitzGateway (object):
             yield AnnotationLinkWrapper(self, r)
 
 
+    def listOrphanedAnnotations(self, parent_type, parent_ids, eid=None, ns=None, anntype=None, addedByMe=True):
+        """
+        Retrieve all Annotations not linked to the given parents: Projects, Datasets, Images,
+        Screens, Plates OR Wells etc.
+
+        @param parent_type:     E.g. 'Dataset', 'Image' etc.
+        @param parent_ids:      IDs of the parent.
+        @param eid:             Optional filter by Annotation owner
+        @param ns:              Filter by annotation namespace
+        @param anntype:         Optional specify 'Text', 'Tag', 'File', 'Long', 'Boolean'
+        @return:                Generator yielding AnnotationWrappers
+        @rtype:                 L{AnnotationWrapper} generator
+        """
+
+        if anntype is not None:
+            if anntype.title() not in ('Text', 'Tag', 'File', 'Long', 'Boolean'):
+                raise AttributeError('Use annotation type: Text, Tag, File, Long, Boolean')
+            sql = "select an from %sAnnotation as an " % anntype.title()
+        else:
+            sql = "select an from Annotation as an " \
+
+        if anntype.title() == "File":
+            sql += " join fetch an.file "
+
+        p = omero.sys.Parameters()
+        p.map = {}
+
+        filterlink = ""
+        if addedByMe:
+            userId = self.getUserId()
+            filterlink = " and link.details.owner.id=:linkOwner"
+            p.map["linkOwner"] = rlong(userId)
+
+        q = self.getQueryService()
+        wheres = []
+
+        if len(parent_ids) == 1:
+            # We can use a single query to exclude links to a single parent
+            p.map["oid"] = rlong(parent_ids[0])
+            wheres.append("not exists ( select link from %sAnnotationLink as link "\
+                    "where link.child=an.id and link.parent.id=:oid%s)" % (parent_type, filterlink))
+        else:
+            # for multiple parents, we first need to find annotations linked to ALL of them, then exclude those from query
+            p.map["oids"] = omero.rtypes.wrap(parent_ids)
+            query = "select link.child.id, count(link.id) from %sAnnotationLink link where link.parent.id in (:oids)%s group by link.child.id" % (parent_type, filterlink)
+            # count annLinks and check if count == number of parents (all parents linked to annotation)
+            usedAnnIds = [e[0].getValue() for e in q.projection(query,p,self.SERVICE_OPTS) if e[1].getValue() == len(parent_ids)]
+            if len(usedAnnIds) > 0:
+                p.map["usedAnnIds"] = omero.rtypes.wrap(usedAnnIds)
+                wheres.append("an.id not in (:usedAnnIds)")
+
+        if ns is None:
+            wheres.append("an.ns is null")
+        else:
+            p.map["ns"] = rlist([rstring(n) for n in ns])
+            wheres.append("(an.ns not in (:ns) or an.ns is null)")
+        if eid is not None:
+            wheres.append("an.details.owner.id=:eid")
+            p.map["eid"] = rlong(eid)
+
+        if len(wheres) > 0:
+            sql += "where " + " and ".join(wheres)
+
+        for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
+            yield AnnotationWrapper._wrap(self, e)
+
     def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
@@ -2743,14 +2776,14 @@ class _BlitzGateway (object):
                 raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
             sizeY, sizeX = firstPlane.shape
             channelList = range(1, sizeC+1)
-            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
             imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None)[0]
+            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
 
         def uploadPlane(plane, z, c, t):
             byteSwappedPlane = plane.byteswap();
             convertedPlane = byteSwappedPlane.tostring();
-            rawPixelsStore.setPlane(convertedPlane, z, c, t)
+            rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
         channelsMinMax = []
@@ -2777,7 +2810,7 @@ class _BlitzGateway (object):
             logger.error("Failed to setPlane() on rawPixelsStore while creating Image", exc_info=True)
             exc = e
         try:
-            rawPixelsStore.close()
+            rawPixelsStore.close(self.SERVICE_OPTS)
         except Exception, e:
             logger.error("Failed to close rawPixelsStore", exc_info=True)
             if exc is None:
@@ -2791,7 +2824,7 @@ class _BlitzGateway (object):
             pass
 
         for theC, mm in enumerate(channelsMinMax):
-            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]))
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(mm[0]), float(mm[1]), self.SERVICE_OPTS)
             #resetRenderingSettings(renderingEngine, pixelsId, theC, mm[0], mm[1])
 
         # put the image in dataset, if specified.
@@ -2799,9 +2832,67 @@ class _BlitzGateway (object):
             link = omero.model.DatasetImageLinkI()
             link.parent = omero.model.DatasetI(dataset.getId(), False)
             link.child = omero.model.ImageI(image.id.val, False)
-            updateService.saveObject(link)
+            updateService.saveObject(link, self.SERVICE_OPTS)
 
         return ImageWrapper(self, image)
+
+
+    def setChannelNames(self, data_type, ids, nameDict):
+        """
+        Sets and saves new names for channels of specified Images.
+        If an image has fewer channels than the max channel index in nameDict, then
+        the channel names will not be set for that image.
+
+        @param data_type:   'Image', 'Dataset', 'Plate'
+        @param ids:         Image, Dataset or Plate IDs
+        @param nameDict:    A dict of index:'name' ** 1-based ** E.g. {1:"DAPI", 2:"GFP"}
+        @return:            {'imageCount':totalImages, 'updateCount':updateCount}
+        """
+
+        if data_type == "Image":
+            imageIds = [long(i) for i in ids]
+        elif data_type == "Dataset":
+            images = self.getContainerService().getImages("Dataset", ids, None, self.SERVICE_OPTS)
+            imageIds = [i.getId().getValue() for i in images]
+        elif data_type == "Plate":
+            imageIds = []
+            plates = self.getObjects("Plate", ids)
+            for p in plates:
+                for well in p._listChildren():
+                    for ws in well.copyWellSamples():
+                        imageIds.append(ws.image.id.val)
+        else:
+            raise AttributeError("setChannelNames() supports data_types 'Image', 'Dataset', 'Plate' only, not '%s'" % data_type)
+
+        queryService = self.getQueryService()
+        params = omero.sys.Parameters()
+        params.map = {'ids': omero.rtypes.wrap( imageIds )}
+
+        # load Pixels, Channels, Logical Channels and Images
+        query = "select p from Pixels p left outer join fetch p.channels as c join fetch c.logicalChannel as lc join fetch p.image as i where i.id in (:ids)"
+        pix = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
+
+        maxIdx = max(nameDict.keys())
+        toSave = set()      # NB: we may have duplicate Logical Channels (Many Iamges in Plate linked to same LogicalChannel)
+        updateCount = 0
+        ctx = self.SERVICE_OPTS.copy()
+        for p in pix:
+            if p.getSizeC().getValue() < maxIdx:
+                continue
+            updateCount += 1
+            group_id = p.details.group.id.val
+            ctx.setOmeroGroup(group_id)
+            for i, c in enumerate(p.iterateChannels()):
+                if i+1 not in nameDict:
+                    continue
+                lc = c.logicalChannel
+                lc.setName(rstring(nameDict[i+1]))
+                toSave.add(lc)
+
+        toSave = list(toSave)
+        self.getUpdateService().saveCollection(toSave, ctx)
+        return {'imageCount':len(imageIds), 'updateCount':updateCount}
+
 
     def createOriginalFileFromFileObj (self, fo, path, name, fileSize, mimetype=None, ns=None):
         """
@@ -4724,7 +4815,16 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
                 name = "Plate %i" % self.id
         return name
     name = property(getName)
-    
+
+    def listParents (self, withlinks=False):
+        """
+        Because PlateAcquisitions are direct children of plates, with no links in between,
+        a special listParents is needed
+        """
+        rv = self._conn.getObject('Plate', self.plate.id.val)
+        if withlinks:
+            return [(rv, None)]
+        return [rv]
 
 PlateAcquisitionWrapper = _PlateAcquisitionWrapper
 
@@ -4945,6 +5045,18 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         @rtype:     L{ImageWrapper}
         """
         return self.getImage()
+
+    def getPlateAcquisition (self):
+        """
+        Gets the PlateAcquisition for this well sample, or None
+
+        @return:    The PlateAcquisition
+        @rtype:     L{PlateAcquisitionWrapper} or None
+        """
+        aquisition = self._obj.plateAcquisition
+        if aquisition is None:
+            return None
+        return PlateAcquisitionWrapper(self._conn, aquisition)
 
 WellSampleWrapper = _WellSampleWrapper
 
@@ -5387,7 +5499,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         rv = lc.name
         if rv is None or len(rv.strip())==0:
             rv = lc.emissionWave
-        if rv is None or len(str(rv).strip())==0:
+        if rv is None or len(unicode(rv).strip())==0:
             rv = self._idx
         return unicode(rv)
 
@@ -7922,6 +8034,7 @@ def refreshWrappers ():
                   "screen":ScreenWrapper,
                   "plate":PlateWrapper,
                   "plateacquisition": PlateAcquisitionWrapper,
+                  "acquisition": PlateAcquisitionWrapper,
                   "well":WellWrapper,
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,

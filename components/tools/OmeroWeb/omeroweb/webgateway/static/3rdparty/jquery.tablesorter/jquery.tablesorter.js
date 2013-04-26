@@ -295,7 +295,7 @@
 			
 				for(var i = 0; i < table.tHead.rows.length; i++) { tableHeadersRows[i]=0; };
 				
-				$tableHeaders = $("thead th",table);
+				var $tableHeaders = $("thead th",table);
 		
 				$tableHeaders.each(function(index) {
 							
@@ -367,7 +367,7 @@
 			};
 			
 			function formatSortingOrder(v) {
-				
+				var i;
 				if(typeof(v) != "Number") {
 					i = (v.toLowerCase() == "desc") ? 1 : 0;
 				} else {

@@ -13,7 +13,6 @@ using omero::model::ImagePtr;
 
 TEST(OperatorsTest, EqualityOperatorOnPointers)
 {
-  Fixture f;
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
   ASSERT_NE( img1, img2 );
@@ -21,7 +20,6 @@ TEST(OperatorsTest, EqualityOperatorOnPointers)
 
 TEST(OperatorsTest, EqualityOperatorOnRawObject)
 {
-  Fixture f;
   ImagePtr img1 = new_ImageI();
   ImagePtr img2 = new_ImageI();
   // CHECK( *img1 != *img2 );

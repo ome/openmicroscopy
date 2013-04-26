@@ -56,6 +56,8 @@ LONGHELP = """
         Password:
         $ bin/omero sessions login user@omero.example.com
         Password:
+        $ bin/omero sessions login user@omero.example.com:24064
+        Password:
         $ bin/omero sessions logout
         $ bin/omero sessions login
         Reuse current session? [Y/n]
@@ -89,27 +91,34 @@ class SessionsControl(BaseControl):
             self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
+        parser.add_login_arguments()
         sub = parser.sub()
         help = parser.add(sub, self.help, "Extended help")
         login = parser.add(sub, self.login, "Login to a given server, and store session key locally")
         logout = parser.add(sub, self.logout, "Logout and remove current session key")
-        self._configure_login(login, logout)
+        self._configure_login(login)
+
         group = parser.add(sub, self.group, "Set the group of the current session by id or name")
         group.add_argument("target", help="Id or name of the group to switch this session to")
+
         list = parser.add(sub, self.list, "List all locally stored sessions")
         purge = list.add_mutually_exclusive_group()
         purge.add_argument("--purge", action="store_true", default = True, help="Remove inactive sessions")
         purge.add_argument("--no-purge", dest="purge", action="store_false", help="Do not remove inactive sessions")
+
         keepalive = parser.add(sub, self.keepalive, "Keeps the current session alive")
         keepalive.add_argument("-f", "--frequency", type=int, default=60, help="Time in seconds between keep alive calls", metavar="SECS")
+
         clear = parser.add(sub, self.clear, "Close and remove locally stored sessions")
         clear.add_argument("--all", action="store_true", help="Remove all locally stored sessions not just inactive ones")
+
         file = parser.add(sub, self.file, "Print the path to the current session file")
 
         for x in (file, logout, keepalive, list, clear, group):
             self._configure_dir(x)
 
-    def _configure_login(self, login, logout = None):
+    def _configure_login(self, login):
+        login.add_login_arguments()
         login.add_argument("-t", "--timeout", help="Timeout for session. After this many inactive seconds, the session will be closed")
         login.add_argument("connection", nargs="?", help="Connection string. See extended help for examples")
         self._configure_dir(login)
@@ -143,8 +152,6 @@ class SessionsControl(BaseControl):
 
         # Basic props, don't get fiddled with
         props = {}
-        if args.port:
-            props["omero.port"] = args.port
         if args.group:
             props["omero.group"] = args.group
 
@@ -155,6 +162,7 @@ class SessionsControl(BaseControl):
         #
         server = getattr(args, "connection", None) # May be called by another plugin
         name = None
+        port = None
 
         if args.server:
             if server:
@@ -162,13 +170,19 @@ class SessionsControl(BaseControl):
             else:
                 server = args.server
 
-        if server: server, name = self._parse_conn(server, name)
+        if server: server, name, port = self._parse_conn(server, name)
 
         if args.user:
             if name:
                 self.ctx.die(4, "Username specified twice: %s and %s" % (name, args.user))
             else:
                 name = args.user
+
+        if args.port:
+            if port:
+                self.ctx.die(5, "Port specified twice: %s and %s" % (port, args.port))
+            else:
+                port = args.port
 
         #
         # If a key is provided, then that takes precedence.
@@ -193,8 +207,9 @@ class SessionsControl(BaseControl):
 
                 server_differs = (server is not None and server != previous[0])
                 name_differs = (name is not None and name != previous[1])
+                port_differs = (port is not None and port != previous_port)
 
-                if not create and not server_differs and not name_differs:
+                if not create and not server_differs and not name_differs and not port_differs:
                     try:
                         if previous[2] is not None: # Missing session uuid file. Deleted? See #4199
                             conflicts = store.conflicts(previous[0], previous[1], previous[2], props, True)
@@ -222,11 +237,13 @@ class SessionsControl(BaseControl):
         # an active session or has requested another (different options)
         # If they've omitted some required value, we must ask for it.
         #
-        if not server: server, name = self._get_server(store, name)
+        if not server: server, name, prt = self._get_server(store, name)
         if not name: name = self._get_username(previous[1])
 
         props["omero.host"] = server
         props["omero.user"] = name
+        if port:
+            props["omero.port"] = port
 
         rv = None
         #
@@ -271,7 +288,10 @@ class SessionsControl(BaseControl):
                         self.ctx.err(pde.reason)
                         pasw = None
                 except Ice.ConnectionRefusedException:
-                    self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+                    if port:
+                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s:%s isn't running" % (server, port))
+                    else:
+                        self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
                 except exceptions.Exception, e:
@@ -489,15 +509,25 @@ class SessionsControl(BaseControl):
     def _parse_conn(self, server, name):
         try:
             idx = server.rindex("@")
-            return  server[idx+1:], server[0:idx] # server, user which may also contain an @
+            name = server[0:idx] # user which may also contain an @
+            server = server[idx+1:] # server which may also contain the port
         except ValueError:
-            return server, name
+            pass
+
+        try:
+            idx = server.rindex(":")
+            port = server[idx+1:]
+            server = server[0:idx]
+        except ValueError:
+            port = None
+
+        return server, name, port
 
     def _get_server(self, store, name):
         defserver = store.last_host()
         rv = self.ctx.input("Server: [%s]" % defserver)
         if not rv:
-            return defserver, name
+            return defserver, name, None
         else:
             return self._parse_conn(rv, name)
 

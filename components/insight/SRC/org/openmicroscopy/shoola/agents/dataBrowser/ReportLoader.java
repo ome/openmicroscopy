@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 //Third-party libraries
@@ -134,19 +133,18 @@ public class ReportLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	Map m = (Map) result;
+    	Map<DataObject, StructuredDataResults> m = 
+    			(Map<DataObject, StructuredDataResults>) result;
     	Map<ImageNode, StructuredDataResults> 
     		r = new LinkedHashMap<ImageNode, StructuredDataResults>();
-    	Set set = m.entrySet();
-    	Entry entry;
-    	Iterator i = set.iterator();
-    	Long id;
+    	Entry<DataObject, StructuredDataResults> entry;
+    	Iterator<Entry<DataObject, StructuredDataResults>>
+    	i = m.entrySet().iterator();
     	ImageNode n;
     	while (i.hasNext()) {
-    		entry = (Entry) i.next();
-			id = (Long) entry.getKey();
-			n = imageMap.get(id);
-			r.put(n, (StructuredDataResults) entry.getValue());
+    		entry = i.next();
+			n = imageMap.get(entry.getKey().getId());
+			r.put(n, entry.getValue());
 		}
     	viewer.setReportData(r, types, path);
     }

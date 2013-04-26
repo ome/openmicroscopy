@@ -46,9 +46,6 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
@@ -75,7 +72,6 @@ import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -154,20 +150,6 @@ class ImporterControl
 	{
 		menu.removeAll();
 		menu.add(new ActivateAction(model));
-		/*
-		menu.removeAll();
-		Collection<ImporterUIElement> elements = view.getImportElements();
-		if (elements == null || elements.size() == 0) return;
-		Iterator<ImporterUIElement> i = elements.iterator();
-		ImporterUIElement e;
-		ActivateAction a;
-		while (i.hasNext()) {
-			e = i.next();
-			a = new ActivateAction(model, e.getName(), e.getImportIcon(),
-					e.getID());
-			menu.add(new JMenuItem(a));
-		}
-		*/
 	}
 	
 	/** Attaches listener to the window listener. */
@@ -363,7 +345,6 @@ class ImporterControl
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
-			//getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 			getAction(SEND_BUTTON).setEnabled(view.hasSelectedFailuresToSend());
 			getAction(RETRY_BUTTON).setEnabled(view.hasFailuresToReimport());
 		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
@@ -387,6 +368,9 @@ class ImporterControl
 			ActionEvent event = 
 				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
 			a.actionPerformed(event);
+		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
+			GroupData newGroup = (GroupData) evt.getNewValue();
+			model.setUserGroup(newGroup);
 		}
 	}
 

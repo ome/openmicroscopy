@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,7 +53,6 @@ import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
@@ -116,8 +116,11 @@ class MetadataViewerModel
 	/** The object of reference for the viewer i.e. the root. */
 	private Object parentRefObject;
 	
+	/** The object of reference for the viewer i.e. the root. */
+	private Object grandParent;
+	
 	/** The object hosting the various annotations linked to an object. */
-	private StructuredDataResults data;
+	private Map<DataObject, StructuredDataResults> data;
 	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults parentData;
@@ -128,8 +131,8 @@ class MetadataViewerModel
 	/** Reference to the editor. */
 	private Editor editor;
 	
-	/** The active data loaders. */
-	private Map<TreeBrowserDisplay, MetadataLoader> loaders;
+	/** Use to load annotations when multiple objects are selected.*/
+	private StructuredDataLoader multiDataLoader;
 	
 	/** Only used when it is a batch call. */
 	private Class dataType;
@@ -141,7 +144,7 @@ class MetadataViewerModel
 	private boolean singleMode;
 	
 	/** Collection of nodes related to the node of reference. */
-	private List relatedNodes;
+	private List<DataObject> relatedNodes;
 	
 	/** 
 	 * One of the Rendering constants defined by the 
@@ -160,6 +163,31 @@ class MetadataViewerModel
 	
 	/** The security context.*/
 	private SecurityContext ctx;
+	
+	/** The number of loader used.*/
+	private int loaderID;
+	
+	/** The active loaders.*/
+	private Map<Integer, MetadataLoader> loaders;
+
+	/**
+	 * Returns the loader's ID if any corresponding to the class.
+	 * 
+	 * @param refClass The class of reference.
+	 * @return See above.
+	 */
+	private Integer getLoaderID(Class refClass)
+	{
+		Entry<Integer, MetadataLoader> e;
+		Iterator<Entry<Integer, MetadataLoader>>
+			i = loaders.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			if (e.getValue().getClass().equals(refClass))
+				return e.getKey();
+		}
+		return null;
+	}
 	
 	/**
 	 * Returns the collection of the attachments linked to the 
@@ -206,7 +234,8 @@ class MetadataViewerModel
 				this.index = MetadataViewer.RND_GENERAL;
 		}
 		this.refObject = refObject;
-		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
+		loaderID = 0;
+		loaders = new HashMap<Integer, MetadataLoader>();
 		data = null;
 		dataType = null;
 		singleMode = true;
@@ -255,13 +284,16 @@ class MetadataViewerModel
 	void discard()
 	{
 		state = MetadataViewer.DISCARDED;
-		Iterator<TreeBrowserDisplay> i = loaders.keySet().iterator();
+		loaders.entrySet().iterator();
+		Iterator<Entry<Integer, MetadataLoader>>
+		i = loaders.entrySet().iterator();
 		MetadataLoader loader;
 		while (i.hasNext()) {
-			loader = loaders.get(i.next());
+			loader = i.next().getValue();
 			if (loader != null) loader.cancel();
 		}
 		loaders.clear();
+		if (multiDataLoader != null) multiDataLoader.cancel();
 	}
 	
 	/**
@@ -288,15 +320,7 @@ class MetadataViewerModel
 		parentRefObject = null;
 		viewedBy = null;
 	}
-	
-	/** Refreshes the general view.*/
-	void refresh()
-	{
-		data = null;
-		parentData = null;
-		browser.setRootObject(refObject);
-	}
-	
+
 	/**
 	 * Sets the parent of the object of reference.
 	 * 
@@ -306,6 +330,7 @@ class MetadataViewerModel
 	void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
 		this.parentRefObject = parentRefObject;
+		this.grandParent = grandParent;
 		editor.setParentRootObject(parentRefObject, grandParent);
 	}
 	
@@ -344,28 +369,17 @@ class MetadataViewerModel
 	/** 
 	 * Cancels any ongoing data loading. 
 	 * 
-	 * @param refNode The node of reference.
+	 * @param loaderID The identifier of the loader.
 	 */
-	void cancel(TreeBrowserDisplay refNode)
+	void cancel(int loaderID)
 	{
-		MetadataLoader loader = loaders.get(refNode);
+		MetadataLoader loader = loaders.get(loaderID);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(refNode);
+			loaders.remove(loaderID);
 		}
 	}
 
-	/**
-	 * Invokes when the data are loaded, the loader is then 
-	 * removed from the map.
-	 * 
-	 * @param refNode
-	 */
-	void notifyLoadingEnd(TreeBrowserDisplay refNode)
-	{
-		MetadataLoader loader = loaders.get(refNode);
-		if (loader != null) loaders.remove(refNode);
-	}
 	
 	/**
 	 * Starts the asynchronous retrieval of the attachments related 
@@ -376,14 +390,15 @@ class MetadataViewerModel
 	 */
 	void fireParentLoading(TreeBrowserSet refNode)
 	{
-		cancel(refNode);
-		//Object ho = getParentObject(refNode);
+		Integer id = getLoaderID(ContainersLoader.class);
+		if (id != null) cancel(id);
 		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
+			loaderID++;
 			ContainersLoader loader = new ContainersLoader(
 					component, ctx, refNode, ho.getClass(),
-					((DataObject) ho).getId());
-			loaders.put(refNode, loader);
+					((DataObject) ho).getId(), loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 		}
 	}
@@ -393,33 +408,19 @@ class MetadataViewerModel
 	 * Starts the asynchronous retrieval of the structured data related
 	 * to the passed node.
 	 * 
-	 * @param refNode The node to handle.
+	 * @param node The node to handle.
 	 */
-	void fireStructuredDataLoading(TreeBrowserDisplay refNode)
+	void fireStructuredDataLoading(Object node)
 	{
-		Object uo = refNode.getUserObject();
-		//if (!(uo instanceof DataObject)) return;
-		if (uo instanceof ExperimenterData) return;
-		if ((uo instanceof DataObject)) {
-			//DataObject data = (DataObject) uo;
-			//if (data.getId() < 0) return;
-			cancel(refNode);
-			if (uo instanceof WellSampleData) {
-				WellSampleData wsd = (WellSampleData) uo;
-				uo = wsd.getImage();
-				if (!loaders.containsKey(refNode) && parentData == null
-						&& parentRefObject != null) {
-					StructuredDataLoader l = new StructuredDataLoader(component,
-						ctx, refNode, parentRefObject);
-					loaders.put(refNode, l);
-					l.load();
-					state = MetadataViewer.LOADING_METADATA;
-					return;
-				}
-			}
+		if (!(node instanceof DataObject)) return;
+		if (node instanceof ExperimenterData) return;
+		if (node instanceof DataObject) {
+			Integer id = getLoaderID(StructuredDataLoader.class);
+			if (id != null) cancel(id);
+			loaderID++;
 			StructuredDataLoader loader = new StructuredDataLoader(component,
-					ctx, refNode, uo);
-			loaders.put(refNode, loader);
+					ctx, Arrays.asList((DataObject) node), loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.LOADING_METADATA;
 		}
@@ -430,30 +431,39 @@ class MetadataViewerModel
 	 * <code>false</code> otherwise.
 	 * 
 	 * @param uo The object to compare.
+	 * @param ref The object of reference.
 	 * @return See above.
 	 */
-	boolean isSameObject(DataObject uo)
+	boolean isSameObject(DataObject uo, Object ref)
 	{
-		if (uo == null || !(refObject instanceof DataObject)) return false;
-		Class klass = refObject.getClass();
-		if (refObject instanceof WellSampleData) {
-			klass = ((WellSampleData) refObject).getImage().getClass();
-		}
-		if (!uo.getClass().equals(klass))
-			return false;
+		if (uo == null || !(ref instanceof DataObject)) return false;
+		Class klass = ref.getClass();
 		DataObject object;
-		if (refObject instanceof WellSampleData)
-			object = ((WellSampleData) refObject).getImage();
-		else object = (DataObject) refObject;
-		if (uo.getId() != object.getId()) return false;
-		if (data == null) return false;
-		Object o = data.getRelatedObject();
-		if (!(o instanceof DataObject)) return false;
-		object = (DataObject) o;
-		if (!uo.getClass().equals(object.getClass()))
-			return false;
-		if (uo.getId() != object.getId()) return false;
-		return true;
+		if (ref instanceof WellSampleData) {
+			klass = ((WellSampleData) ref).getImage().getClass();
+			object = ((WellSampleData) ref).getImage();
+		} else object = (DataObject) ref;
+			
+		Class hoKlass = uo.getClass();
+		if (uo instanceof WellSampleData) {
+			hoKlass = ((WellSampleData) uo).getImage().getClass();
+			uo = ((WellSampleData) uo).getImage();
+		}
+		if (!hoKlass.equals(klass)) return false;
+		return uo.getId() == object.getId();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed object is the reference object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param uo The object to compare.
+	 * @return See above.
+	 */
+	boolean isSameObject(Object uo)
+	{
+		if (!(uo instanceof DataObject)) return false;
+		return isSameObject((DataObject) uo, refObject);
 	}
 	
 	/** 
@@ -551,8 +561,10 @@ class MetadataViewerModel
 			toRemove = object.getToRemove();
 		}
 		if (asynch) {
+			loaderID++;
 			DataSaver loader = new DataSaver(component, ctx, data, toAdd,
-					toRemove, metadata);
+					toRemove, metadata, loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -594,8 +606,10 @@ class MetadataViewerModel
 	void fireExperimenterSaving(ExperimenterData data, boolean async)
 	{
 		if (async) {
+			loaderID++;
 			ExperimenterEditor loader = new ExperimenterEditor(component, ctx,
-					data);
+					data, loaderID);
+			loaders.put(loaderID, loader);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -629,13 +643,16 @@ class MetadataViewerModel
 			switch (data.getIndex()) {
 				case AdminObject.UPDATE_GROUP:
 					GroupData group = data.getGroup();
+					loaderID++;
 					loader = new GroupEditor(component, c, group, 
-							data.getPermissions());
+							data.getPermissions(), loaderID);
+					loaders.put(loaderID, loader);
 					break;
 				case AdminObject.UPDATE_EXPERIMENTER:
-					
+					loaderID++;
 					loader = new AdminEditor(component, c, data.getGroup(),
-							data.getExperimenters());
+							data.getExperimenters(), loaderID);
+					loaders.put(loaderID, loader);
 			}	
 			if (loader != null) {
 				loader.load();
@@ -685,11 +702,12 @@ class MetadataViewerModel
 	 * Sets the structured data.
 	 * 
 	 * @param data The value to set.
-	 * @param refNode The node of reference.
+	 * @param loaderID The identifier of the loader
 	 */
-	void setStructuredDataResults(StructuredDataResults data,
-			TreeBrowserDisplay refNode)
+	void setStructuredDataResults(Map<DataObject, StructuredDataResults> data, 
+			int loaderID)
 	{
+		loaders.remove(loaderID);
 		this.data = data;
 		state = MetadataViewer.READY;
 	}
@@ -701,9 +719,9 @@ class MetadataViewerModel
 	 * @param refNode The node of reference.
 	 */
 	void setParentDataResults(StructuredDataResults parentData,
-			TreeBrowserDisplay refNode)
+			DataObject node, int loaderID)
 	{
-		loaders.remove(refNode);
+		loaders.remove(loaderID);
 		this.parentData = parentData;
 		state = MetadataViewer.READY;
 	}
@@ -713,7 +731,28 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	StructuredDataResults getStructuredData() { return data; }
+	StructuredDataResults getStructuredData()
+	{
+		return getStructuredData(refObject); 
+	}
+	
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @param object The object to 
+	 * @return See above.
+	 */
+	StructuredDataResults getStructuredData(Object object)
+	{
+		if (data == null) return null;
+		if (object instanceof DataObject) {
+			if (object instanceof WellSampleData)
+				object = ((WellSampleData) object).getImage();
+			return data.get((DataObject) object);
+		}
+			
+		return null; 
+	}
 	
 	/**
 	 * Returns the structured data.
@@ -748,8 +787,9 @@ class MetadataViewerModel
 						toRemove, Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, ctx,
-				toSave, toAdd, toRemove);
+				toSave, toAdd, toRemove, loaderID);
 		loader.load();
+		loaderID++;
 		state = MetadataViewer.BATCH_SAVING;
 	}
 	
@@ -778,9 +818,16 @@ class MetadataViewerModel
 	 * 
 	 * @param relatedNodes The value to set.
 	 */
-	void setRelatedNodes(List relatedNodes)
+	void setRelatedNodes(List<DataObject> relatedNodes)
 	{ 
 		this.relatedNodes = relatedNodes;
+		//fire load
+		loaderID++;
+		StructuredDataLoader loader = new StructuredDataLoader(component,
+				ctx, relatedNodes, loaderID);
+		loaders.put(loaderID, loader);
+		loader.load();
+		state = MetadataViewer.LOADING_METADATA;
 	}
 	
 	/**
@@ -788,7 +835,7 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	List getRelatedNodes() { return relatedNodes; }
+	List<DataObject> getRelatedNodes() { return relatedNodes; }
 
 	/**
 	 * Sets the state.
@@ -806,8 +853,13 @@ class MetadataViewerModel
 	 */
 	void loadParents(Class type, long id)
 	{
-		ContainersLoader loader = new ContainersLoader(component, ctx, type, id);
+		loaderID++;
+		ContainersLoader loader 
+		= new ContainersLoader(component, ctx, type, id, loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
+		
+		
 	}
 
 	/**
@@ -819,12 +871,6 @@ class MetadataViewerModel
 	{
 		if (parameters == null) return;
 		if (!(refObject instanceof ImageData)) return;
-		/*
-		ImageData img = (ImageData) refObject;
-		MovieCreator loader = new MovieCreator(component, parameters, 
-				null, img);
-		loader.load();
-		*/
 	}
 	
 	/**
@@ -843,12 +889,12 @@ class MetadataViewerModel
 	{
 		if (!(refObject instanceof ImageData)) return null;
 		if (data == null) return null;
-		Collection l = data.getAttachments();
+		Collection<FileAnnotationData> l = getStructuredData().getAttachments();
 		if (l == null || l.size() == 0) return null;
-		Iterator i = l.iterator();
+		Iterator<FileAnnotationData> i = l.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
-			fa = (FileAnnotationData) i.next();
+			fa = i.next();
 			if (fa.getFileName().contains("irf"))
 				return fa;
 		}
@@ -928,8 +974,10 @@ class MetadataViewerModel
 			img = ((WellSampleData) refObject).getImage();
 		if (img == null) return;
 		getEditor().getRenderer().loadRndSettings(false, null);
+		loaderID++;
 		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
-				ctx, img.getDefaultPixels().getId());
+				ctx, img.getDefaultPixels().getId(), loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
 	}
 	
@@ -947,7 +995,10 @@ class MetadataViewerModel
 			ids.add(((ExperimenterData) i.next()).getId());
 		}
 		if (ids.size() == 0) return;
-		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image, ids);
+		loaderID++;
+		ThumbnailLoader loader = new ThumbnailLoader(component, ctx, image,
+				ids, loaderID);
+		loaders.put(loaderID, loader);
 		loader.load();
 	}
 	
@@ -1016,5 +1067,45 @@ class MetadataViewerModel
 			return MetadataViewerAgent.getAdminContext();
 		return null;
 	}
+
+	/**
+	 * Returns the structured data.
+	 * 
+	 * @return See above.
+	 */
+	Map<DataObject, StructuredDataResults> getAllStructuredData()
+	{
+		return data;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the collection of specified objects
+	 * corresponding to the list of related nodes, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param keys The nodes to handle.
+	 * @return See above.
+	 */
+	boolean isSameSelection(Collection<DataObject> keys)
+	{
+		if (keys == null) return false;
+		List<DataObject> nodes = getRelatedNodes();
+		if (nodes == null) return false;
+		//Check that the selection is still the same.
+		int count = 0;
+		DataObject o;
+		Iterator<DataObject> j = keys.iterator(), k;
+		while (j.hasNext()) {
+			o = j.next();
+			k = nodes.iterator();
+			while (k.hasNext()) {
+				if (isSameObject(o, k.next())) {
+					count++;
+				}
+			}
+		}
+		return count == nodes.size() && count == keys.size();
+	}
+	
 
 }

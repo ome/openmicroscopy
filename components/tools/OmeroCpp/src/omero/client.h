@@ -20,7 +20,6 @@
 #include <omero/System.h>
 #include <omero/model/OriginalFile.h>
 #include <Ice/Ice.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/RecMutex.h>
 #include <Glacier2/Glacier2.h>
 #include <string>

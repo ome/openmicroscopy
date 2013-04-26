@@ -223,12 +223,12 @@
                 })
                 .delegate("a", "dblclick", function(e) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     buttonsShowHide(data.rslt.obj);
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     var pr = $(data.args[1]);
@@ -265,7 +265,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "removecontentButton":
-                    var confirm_remove = confirm_dialog('Remove Image?',
+                    var confirm_remove = OME.confirm_dialog('Remove Image?',
                         function() {
                             if(confirm_remove.data("clicked_button") == "OK") {
                                 var jstree = $.jstree._focused();

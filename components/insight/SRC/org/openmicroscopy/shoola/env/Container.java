@@ -382,7 +382,9 @@ public final class Container
 		Integer v = (Integer) getRegistry().lookup(LookupNames.PLUGIN);
 		int value = -1;
 		if (v != null) value = v.intValue();
-		if (value <= 0) System.exit(0);
+		if (value <= 0) {
+			System.exit(0);
+		}
 		else {
 			getRegistry().getEventBus().post(new ConnectedEvent(false));
 			singleton = null;

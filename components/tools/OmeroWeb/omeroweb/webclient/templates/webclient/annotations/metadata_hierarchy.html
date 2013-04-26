@@ -23,11 +23,15 @@
 {% endcomment %}
 
 {% block link %}
-    <link rel="stylesheet" href="{% static "3rdparty/jquery.jstree/themes/default/style.css" %}" type="text/css" media="screen"/>
-	
-	
-	
 
+<style type="text/css">
+    #hierarchyTree a .jstree-icon {
+        background-position: 100px 100px;   /* clear background */
+    }
+    #hierarchyTree ins {
+        background: none !important;
+    }
+</style>
 {% endblock %}
 
 
@@ -37,7 +41,7 @@
     {% if manager.image.countParents %}
     <ul>
         {% for c in manager.image.listParents %}
-            <li id='dataset-{{ c.id }}' rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}">
+            <li rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}">
                 <ins class="jstree-icon">&nbsp;</ins>
                 <a href="{% url webindex %}?show=dataset-{{ c.id }}">
                     <ins class="jstree-icon">
@@ -47,7 +51,7 @@
                 {% if c.countParents %}
                 <ul>
                     {% for d in c.listParents %}
-                        <li id='project-{{ d.id }}' rel="project" class="jstree-last jstree-leaf">
+                        <li rel="project" class="jstree-last jstree-leaf">
                             <ins class="jstree-icon">&nbsp;</ins>
                             <a href="{% url webindex %}?show=project-{{ d.id }}">
                                 <ins class="jstree-icon">

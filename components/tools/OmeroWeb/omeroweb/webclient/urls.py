@@ -83,6 +83,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', webgateway.render_thumbnail, {'w':80, '_defcb':defaultThumbnail}, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<w>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', webgateway.render_thumbnail, {'_defcb':defaultThumbnail}, name="render_thumbnail_resize" ),
+    url( r'^edit_channel_names/(?P<imageId>[0-9]+)/$', views.edit_channel_names, name="edit_channel_names"),
 
     #image webgateway extention
     url( r'^(?:(?P<share_id>[0-9]+)/)?render_image_region/(?P<iid>[0-9]+)/(?P<z>[0-9]+)/(?P<t>[0-9]+)/$', webgateway.render_image_region, name="web_render_image_region"),
@@ -110,7 +111,6 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^annotate_comment/$', views.annotate_comment, name="annotate_comment" ),
     url( r'^annotate_file/$', views.annotate_file, name="annotate_file" ),
     url( r'^annotation/(?P<annId>[0-9]+)/$', views.download_annotation, name="download_annotation" ),
-    url( r'^archived_files/download/(?P<iid>[0-9]+)/$', views.archived_files, name="archived_files" ),
     
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     

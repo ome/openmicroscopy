@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement;
 
 //Java imports
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -37,6 +38,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
+import org.openmicroscopy.shoola.agents.events.metadata.ChannelSavedEvent;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -46,6 +48,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.ReconnectedEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
 import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -53,6 +56,7 @@ import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.DeleteActivity;
 
+import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.PixelsData;
 
@@ -233,6 +237,27 @@ public class MeasurementAgent
     }
     
     /**
+     * Updates the view when the channels have been updated.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleChannelSavedEvent(ChannelSavedEvent evt)
+    {
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	List<ChannelData> channels = evt.getChannels();
+    	Iterator<Long> i = evt.getImageIds().iterator();
+    	SecurityContext ctx = evt.getSecurityContext();
+    	MeasurementViewer viewer;
+    	while (i.hasNext()) {
+    		viewer = MeasurementViewerFactory.getViewerFromImage(ctx, i.next());
+			if (viewer != null) {
+				viewer.onUpdatedChannels(channels);
+			}
+		}
+    }
+    
+    /**
      * Handles the {@link ActivityProcessEvent} event.
      * 
      * @param evt The event to handle.
@@ -317,6 +342,7 @@ public class MeasurementAgent
 		bus.register(this, UserGroupSwitched.class);
 		bus.register(this, ActivityProcessEvent.class);
 		bus.register(this, ReconnectedEvent.class);
+		bus.register(this, ChannelSavedEvent.class);
 	}
 
     /**
@@ -376,6 +402,8 @@ public class MeasurementAgent
 			handleActivityFinished((ActivityProcessEvent) e);
 		else if (e instanceof ReconnectedEvent)
 			handleReconnectedEvent((ReconnectedEvent) e);
+		else if (e instanceof ChannelSavedEvent)
+			handleChannelSavedEvent((ChannelSavedEvent) e);
 	}
 	
 }

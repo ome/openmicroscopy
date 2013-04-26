@@ -41,7 +41,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageNode;
@@ -590,11 +589,15 @@ public class TreeViewerTranslator
                 display.setExpanded(Boolean.valueOf(true));
                 while (j.hasNext()) {
                 	ho = (DataObject) j.next();
+                	
                 	if (EditorUtil.isReadable(ho, userID, groupID)) {
                 		if (ho instanceof TagAnnotationData) {
                 			display.addChildDisplay( 
                 			transformTag((TagAnnotationData) ho, userID,
                 					groupID));
+                		} else if (ho instanceof ImageData) {
+                			display.addChildDisplay(
+                					transformImage((ImageData) ho));
                 		}
                 	}
     			}

@@ -52,10 +52,8 @@ def getprefs(args, dir):
     cmd = ["prefs"]+list(args)
     return omero.java.run(cmd, chdir=dir)
 
-def with_config(func):
-    """
-    opens a config and passes it as the second argument.
-    """
+
+def _make_open_and_close_config(func, allow_readonly):
     def open_and_close_config(*args, **kwargs):
         args = list(args)
         self = args[0]
@@ -63,13 +61,30 @@ def with_config(func):
         config = None
         if len(args) == 2:
             config = self.open_config(argp)
+            if not allow_readonly:
+                self.die_on_ro(config)
             args.append(config)
         try:
             return func(*args, **kwargs)
         finally:
             if config:
                 config.close()
-    return wraps(func)(open_and_close_config)
+    return open_and_close_config
+
+
+def with_config(func):
+    """
+    opens a config and passes it as the second argument.
+    """
+    return wraps(func)(_make_open_and_close_config(func, True))
+
+
+def with_rw_config(func):
+    """
+    opens a config and passes it as the second argument.
+    Requires that the returned config be writeable
+    """
+    return wraps(func)(_make_open_and_close_config(func, False))
 
 
 class PrefsControl(BaseControl):
@@ -84,10 +99,10 @@ class PrefsControl(BaseControl):
 
         sub = parser.sub()
 
-        all = sub.add_parser("all", help="""List all properties in the current config.xml file.""")
+        all = sub.add_parser("all", help="""List all profiles in the current config.xml file.""")
         all.set_defaults(func=self.all)
 
-        default = sub.add_parser("def", help="""List (or set) the current properties. See 'all' for a list of available properties.""")
+        default = sub.add_parser("def", help="""List (or set) the current active profile.""")
         default.set_defaults(func=self.default)
         default.add_argument("NAME", nargs="?", help="""Name of the profile which should be made the new active profile.""")
 
@@ -110,7 +125,7 @@ class PrefsControl(BaseControl):
         load = sub.add_parser("load", help="""Read into current profile from a file or standard in""")
         load.set_defaults(func=self.load)
         load.add_argument("-q", action="store_true", help="No error on conflict")
-        load.add_argument("file", nargs="+", type=ExistingFile('r'), default=sys.stdin, help="Read from files or standard in")
+        load.add_argument("file", nargs="*", type=ExistingFile('r'), default="-", help="Files to read from. Default to standard in if not specified")
 
         edit = parser.add(sub, self.edit, "Presents the properties for the current profile in your editor. Saving them will update your profile.")
         version = parser.add(sub, self.version, "Prints the configuration version for the current profile.")
@@ -119,6 +134,10 @@ class PrefsControl(BaseControl):
         upgrade = parser.add(sub, self.upgrade, "Creates a 4.2 config.xml file based on your current Java Preferences")
         old = parser.add(sub, self.old, "Delegates to the old configuration system using Java preferences")
         old.add_argument("target", nargs="*")
+
+    def die_on_ro(self, config):
+        if not config.save_on_close:
+            self.ctx.die(333, "Cannot modify %s" % config.filename)
 
     def open_config(self, args):
         if args.source:
@@ -138,6 +157,8 @@ class PrefsControl(BaseControl):
             return ConfigXml(str(cfg_xml))
         except portalocker.LockException:
             self.ctx.die(112, "Could not acquire lock on %s" % cfg_xml)
+        except Exception, e:
+            self.ctx.die(113, str(e))
 
     @with_config
     def all(self, args, config):
@@ -146,10 +167,9 @@ class PrefsControl(BaseControl):
 
     @with_config
     def default(self, args, config):
-        if args.NAME:
-            config.default(args.NAME)
-        else:
-            self.ctx.out(config.default(args.NAME))
+        if args.NAME is not None:
+            self.die_on_ro(config)
+        self.ctx.out(config.default(args.NAME))
 
     @with_config
     def drop(self, args, config):
@@ -175,7 +195,7 @@ class PrefsControl(BaseControl):
             else:
                 self.ctx.out("%s=%s" % (k, config[k]))
 
-    @with_config
+    @with_rw_config
     def set(self, args, config):
         if "=" in args.KEY and args.VALUE is None:
             k, v = args.KEY.split("=", 1)
@@ -191,7 +211,7 @@ class PrefsControl(BaseControl):
             if k not in config.IGNORE:
                 self.ctx.out(k)
 
-    @with_config
+    @with_rw_config
     def load(self, args, config):
         keys = None
         if not args.q:
@@ -199,6 +219,11 @@ class PrefsControl(BaseControl):
 
         try:
             for f in args.file:
+                if f == "-":
+                    # Read from standard input
+                    import fileinput
+                    f = fileinput.input(f)
+
                 try:
                     previous = None
                     for line in f:
@@ -206,13 +231,14 @@ class PrefsControl(BaseControl):
                             line = previous + line
                         previous = self.handle_line(line, config, keys)
                 finally:
-                    f.close()
+                    if f != "-":
+                        f.close()
         except NonZeroReturnCode, nzrc:
             raise
         except Exception, e:
             self.ctx.die(968, "Cannot read %s: %s" % (args.file, e))
 
-    @with_config
+    @with_rw_config
     def edit(self, args, config, edit_path = edit_path):
         from omero.util.temp_files import create_path, remove_path
         start_text = "# Edit your preferences below. Comments are ignored\n"
@@ -238,11 +264,11 @@ class PrefsControl(BaseControl):
     def path(self, args, config):
         self.ctx.out(config.filename)
 
-    @with_config
+    @with_rw_config
     def lock(self, args, config):
         self.ctx.input("Press enter to unlock")
 
-    @with_config
+    @with_rw_config
     def upgrade(self, args, config):
         self.ctx.out("Importing pre-4.2 preferences")
         txt = getprefs(["get"], str(self.ctx.dir / "lib"))

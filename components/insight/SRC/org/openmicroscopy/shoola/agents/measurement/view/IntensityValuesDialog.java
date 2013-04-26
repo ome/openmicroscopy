@@ -30,6 +30,8 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -47,6 +49,7 @@ import javax.swing.table.JTableHeader;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the intensity values of ROI.
@@ -81,13 +84,21 @@ public class IntensityValuesDialog
 	private JList 			intensityTableRowHeader;
 	
 	/** Builds and lays out the UI. */
-	private void buildUI()
+	private void buildUI(JComboBox channels)
 	{
 		JPanel infoPanel = new TitlePanel("Intensity Values", 
 				"This table shows the Intensity values for the " +
 				"selected channel of the selected ROI.",
 				IconManager.getInstance().getIcon(IconManager.WIZARD_48));
-		getContentPane().add(infoPanel, BorderLayout.NORTH);
+		JPanel row = UIUtilities.buildComponentPanel(
+				new JLabel("Selet the channel:"));
+		row.add(channels);
+		
+		JPanel top = new JPanel();
+		top.setLayout(new BoxLayout(top, BoxLayout.Y_AXIS));
+		top.add(infoPanel);
+		top.add(row);
+		getContentPane().add(top, BorderLayout.NORTH);
 
 		intensityTableRowHeader = new JList(new HeaderListModel(
 				table.getRowCount()));
@@ -110,11 +121,12 @@ public class IntensityValuesDialog
 	 * @param owner The owner of the dialog.
 	 * @param model The table model of the first dialog.
 	 */
-	IntensityValuesDialog(JFrame owner, IntensityModel model)
+	IntensityValuesDialog(JFrame owner, IntensityModel model, 
+			JComboBox channels)
 	{
 		super(owner);
 		table = new IntensityTable(model);
-		buildUI();
+		buildUI(channels);
 	}
 
 	/**

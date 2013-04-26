@@ -554,13 +554,15 @@ public class IconManager
     /** The <code>KNIME Viewer</code> icon. */
     public static final int          VIEWER_KNIME = 166;
     
+    /** The <code>Delete</code> icon. */
+    public static final int           REMOVE = 167;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 166;
+    private static final int          MAX_ID = 167;
 
-    
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
     
@@ -569,7 +571,7 @@ public class IconManager
         relPaths[CATEGORY_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[IMAGES_EXPLORER] = "eclipse_outline_co16.png";
         relPaths[MANAGER] = "nuvola_file-manager16.png";
-        relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";//"nuvola_document16.png";
+        relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
@@ -612,9 +614,9 @@ public class IconManager
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CANCEL] = "nuvola_cancel16.png";
         relPaths[DATA_MANAGER] = "eclipse_external_tools16.png";
-        relPaths[CLASSIFIER] = "tag_folder_open16.png";//"eclipse_sroot_obj16.png";
+        relPaths[CLASSIFIER] = "tag_folder_open16.png";
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
-        relPaths[ADD_EXISTING] = "nuvola_window_new16.png";//"eclipse_newdatapool_wiz16.png";
+        relPaths[ADD_EXISTING] = "nuvola_window_new16.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[DECLASSIFY] = "delete_knotes16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
@@ -679,16 +681,16 @@ public class IconManager
         relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
-        relPaths[APPLICATION_48] = "nuvola_applixware48.png";//"nuvola_download_manager48.png";
+        relPaths[APPLICATION_48] = "nuvola_applixware48.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
         relPaths[PERSONAL_48] = "nuvola_personal48.png";
         relPaths[PLATE_ACQUISITION] = "plateAcquisition16.png";
-        relPaths[DATA_BROWSER] = "nuvola_kwrite16.png";//"plateAcquisition16.png";
+        relPaths[DATA_BROWSER] = "nuvola_kwrite16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_rotated16.png";
         relPaths[UPLOAD_48] = "nuvola_download_manager_rotated48.png";
         relPaths[ADMIN] = "nuvola_personal16.png";
-        relPaths[DIRECTORY_REGISTERED] = "nuvola_folder_grey_annotated16.png";;//"nuvola_folder_grey16.png";
-        relPaths[FILE_REGISTERED] = "nuvola_txt_annotated16.png";//"nuvola_folder_grey16.png";
+        relPaths[DIRECTORY_REGISTERED] = "nuvola_folder_grey_annotated16.png";
+        relPaths[FILE_REGISTERED] = "nuvola_txt_annotated16.png";
         relPaths[IMAGE_UNREGISTERED] = "nuvola_image_grey16.png";
         relPaths[PASSWORD] = "nuvola_download_manager_rotated16.png";
         relPaths[PASSWORD_48] = "nuvola_download_manager_rotated48.png";
@@ -698,15 +700,15 @@ public class IconManager
         relPaths[IMAGE_DIRECTORY_UNREGISTERED] = "nuvola_folder_image16.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
-        relPaths[PRIVATE_GROUP] = "private16.png";//"nuvola_ledred16.png";
-        relPaths[READ_GROUP] = "group_read16.png";//"nuvola_ledorange_readOnly16.png";
-        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";//"nuvola_ledorange16.png";
-        relPaths[PUBLIC_GROUP] = "public_read16.png";//"nuvola_ledgreen16.png";
-        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";//"nuvola_ledorange16.png";
+        relPaths[PRIVATE_GROUP] = "private16.png";
+        relPaths[READ_GROUP] = "group_read16.png";
+        relPaths[READ_LINK_GROUP] = "group_read_annotate16.png";
+        relPaths[PUBLIC_GROUP] = "public_read16.png";
+        relPaths[READ_WRITE_GROUP] = "group_read_write16.png";
         
         relPaths[PRIVATE_GROUP_DD_12] = "nuvola_permission_private_dd12.png";
         relPaths[READ_GROUP_DD_12] = "nuvola_permission_readOnly_dd12.png";
-        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";//"nuvola_permission_readLink_dd12.png";
+        relPaths[READ_LINK_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[READ_WRITE_GROUP_DD_12] = "nuvola_permission_read_dd12.png";
         relPaths[PUBLIC_GROUP_DD_12] = "nuvola_permission_public_dd12.png";
         relPaths[RND_UNDO] = "nuvola_undo16.png";
@@ -716,22 +718,19 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
         relPaths[ADD_EXISTING_48] = "nuvola_window_new48.png";
-        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open_reload16.png";
-        	//"nuvola_folder_darkblue_open_ledgreen16.png";
-        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_reload16.png";//"nuvola_folder_image_ledgreen16.png";
+        relPaths[PROJECT_TO_REFRESH] =
+        		"nuvola_folder_darkblue_open_reload16.png";
+        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_reload16.png";
         relPaths[SCREEN_TO_REFRESH] = 
         	"nuvola_folder_blue_open_modified_screen_reload16.png";
-        	//"nuvola_folder_blue_open_modified_screen_ledgreen16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH] =
         	"nuvola_folder_blue_open_modified_screen_annotated_reload16.png";
-        	//"nuvola_folder_blue_open_modified_screen_annotated_ledgreen16.png";
         relPaths[PROJECT_ANNOTATED_TO_REFRESH] = 
         	"tagged_project_darkblue_reload16.png";
-        	//"tagged_project_darkblue_ledgreen16.png";
-        relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset_reload16.png";//"tagged_dataset_ledgreen16.png";
-        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_reload16.png";//"nuvola_kdmconfig_modified_ledgreen16.png";
-        relPaths[OWNER_GROUP] = "group_generic16.png";//"nuvola_kdmconfig16.png";
-        relPaths[OWNER_GROUP_48] = "group_generic48.png";//"nuvola_kdmconfig48.png";
+        relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset_reload16.png";
+        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_reload16.png";
+        relPaths[OWNER_GROUP] = "group_generic16.png";
+        relPaths[OWNER_GROUP_48] = "group_generic48.png";
         relPaths[PLATE_ACQUISITION_ANNOTATED] = "plateAcquisition_annotated16.png";
         relPaths[TAG_OTHER_OWNER] = "nuvola_knotes_group16.png";
         relPaths[LOGIN] = "nuvola_login16.png";
@@ -743,6 +742,7 @@ public class IconManager
         relPaths[MOVE_FAILED_22] = "nuvola_cancel22.png";
         relPaths[MOVE_48] = "nuvola_folder_image48.png";
         relPaths[VIEWER_KNIME] = "knimeIcon16.png";
+        relPaths[REMOVE] = "nuvola_edit_remove_grey16.png";;
     }
     
     /** The sole instance. */

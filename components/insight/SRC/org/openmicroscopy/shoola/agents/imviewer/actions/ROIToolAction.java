@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -39,6 +40,7 @@ import javax.swing.event.ChangeEvent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.saver.ImgSaver;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -61,13 +63,16 @@ public class ROIToolAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Measurement...";
+    private static final String NAME = "ROI Tool...";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the Measurement tool.";
+    private static final String DESCRIPTION = "Bring up the ROI tool.";
 
     /** The location of the mouse pressed. */
     private Point point;
+    
+    /** Flag indicating the component has been pressed.*/
+    private boolean pressed;
     
     /** 
      * Sets the enabled flag depending on the selected tab.
@@ -75,12 +80,6 @@ public class ROIToolAction
      */
     protected void onTabSelection()
     {
-    	/*
-    	if (model.isBigImage()) {
-    		setEnabled(false);
-    		return;
-    	}
-    	*/
     	setEnabled(model.getSelectedIndex() != ImViewer.PROJECTION_INDEX);
     }
     
@@ -112,11 +111,24 @@ public class ROIToolAction
     }
    
     /** 
+     * Brings up on screen the {@link ImgSaver} window.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+    	if (isEnabled() && !pressed) model.showMeasurementTool(point);
+    }
+    
+    /** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occurred. 
      * @see MouseListener#mousePressed(MouseEvent)
      */
-    public void mousePressed(MouseEvent me) { point = me.getPoint(); }
+    public void mousePressed(MouseEvent me)
+    {
+    	pressed = true;
+    	point = me.getPoint();
+    }
     
     /** 
      * Brings up the menu. 
@@ -124,11 +136,12 @@ public class ROIToolAction
      */
     public void mouseReleased(MouseEvent me)
     {
+    	pressed = false;
         Object source = me.getSource();
         if (point == null) point = me.getPoint();
         if (source instanceof Component && isEnabled()) {
-        	 SwingUtilities.convertPointToScreen(point, (Component) source);
-        	 model.showMeasurementTool(point);
+        	SwingUtilities.convertPointToScreen(point, (Component) source);
+        	model.showMeasurementTool(point);
         }
     }
     

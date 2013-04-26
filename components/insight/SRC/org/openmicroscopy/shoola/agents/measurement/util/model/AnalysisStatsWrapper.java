@@ -111,7 +111,7 @@ public class AnalysisStatsWrapper
 			}
 			
 			channelData.put(channel, pixelData);
-			pixels.clear();
+			//pixels.clear();
 		}
 		Map<StatsType, Map> 
 			statsMap = new HashMap<StatsType, Map>(StatsType.values().length);

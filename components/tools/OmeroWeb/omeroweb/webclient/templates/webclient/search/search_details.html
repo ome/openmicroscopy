@@ -36,7 +36,7 @@
 
             // single click handler on image (container). Selection then update toolbar & metadata pane
             $("table#dataTable tbody tr").click(function(event) {
-                handleTableClickSelection(event);
+                OME.handleTableClickSelection(event);
             });
             
             // plugin to handle drag-select of images
@@ -45,7 +45,7 @@
                 distance: 2,
                 stop: function(){  
                     var selected = $('tr.ui-selected', this);
-                    table_selection_changed(selected);
+                    OME.table_selection_changed(selected);
                 },
                 start: function(){
                 }
@@ -77,6 +77,7 @@
                 </tr> 
             </thead>
             <tbody>
+            <!-- NB: E.g. "#project-123 td.desc a" etc is used to update names if edited in right-panel 'editinplace.js' -->
             {% for c in manager.containers.projects %}
                 <tr id="project-{{ c.id }}" class="{{ c.getPermsCss }}">
                     <td class="image">

@@ -72,15 +72,16 @@ public class ImagesLoader
      * Creates a {@link BatchCall} to retrieve the user images.
      * 
      * @param userID	The ID of the user.
+     * @param
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final long userID)
+    private BatchCall makeBatchCall(final long userID, final boolean orphan)
     {
         return new BatchCall("Loading user's images: ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                results = os.getExperimenterImages(ctx, userID);
+                results = os.getExperimenterImages(ctx, userID, orphan);
             }
         };
     }
@@ -174,14 +175,16 @@ public class ImagesLoader
      * Creates a new instance. 
      * 
      * @param ctx The security context.
-     * @param rootLevelID The ID of the user.
+     * @param userID The ID of the user.
+     * @param orphan Indicates to load all the images or
+     * only the orphaned images.
      */
-    public ImagesLoader(SecurityContext ctx, long rootLevelID)
+    public ImagesLoader(SecurityContext ctx, long userID, boolean orphan)
     {
     	this.ctx = ctx;
-        loadCall = makeBatchCall(rootLevelID);
+        loadCall = makeBatchCall(userID, orphan);
     }
-
+    
     /**
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.

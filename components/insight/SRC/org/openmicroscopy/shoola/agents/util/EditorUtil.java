@@ -814,7 +814,11 @@ public class EditorUtil
 			return exp.getUserName();
 		if (s1.length() == 0) return s2;
 		if (s2.length() == 0) return s1;
-		return s1+" "+s2;
+		StringBuffer buf = new StringBuffer();
+		buf.append(s1);
+		buf.append(" ");
+		buf.append(s2);
+		return buf.toString();
 	}
     
 	/**
@@ -2021,19 +2025,8 @@ public class EditorUtil
      */
     public static String formatTimeInSeconds(Double value)
     {
-    	int v = value.intValue();
-    	int hours = v/3600;
-    	int remainder = v%3600;
-    	int minutes = remainder/60;
-    	int seconds = remainder%60;
-    	String text = "";
-    	if (hours > 0) text += hours+"h";
-    	if (minutes > 0) {
-    		text += minutes+"min";
-    		if (seconds > 0) text += seconds+"s";
-    	} else text +=  seconds+"s";
-	
-		return text;
+    	if (value == null) return "";
+    	return UIUtilities.formatTimeInSeconds(value.intValue());
     }
     
     /**

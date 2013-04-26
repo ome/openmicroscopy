@@ -22,8 +22,9 @@
 var aop_handler = function (meth) {
   return function () {
     if (this.get(0) && typeof this.get(0)[meth] == 'function') {
-      this.get(0)[meth]();
+        return this.get(0)[meth]();
     }
+      return this;
   };
 };
 
@@ -37,9 +38,11 @@ $.fn.postit = function(cfg) {
     var self = jQuery(this);
     this.postit_open_handler = function () {
       self.trigger('opening');
+        return this;
     };
     this.postit_close_handler = function () {
       self.trigger('closed');
+        return this;
     };
     /* Some extra details on the dragbar */
     var dragbar = self.find('h1:first');

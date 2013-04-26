@@ -275,6 +275,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.webstart_title": ["WEBSTART_TITLE", "OMERO.insight", str],
     "omero.web.webstart_vendor": ["WEBSTART_VENDOR", "The Open Microscopy Environment", str],
     "omero.web.webstart_homepage": ["WEBSTART_HOMEPAGE", "http://www.openmicroscopy.org", str],
+    "omero.web.nanoxml_jar": ["NANOXML_JAR", "nanoxml.jar", str],
 }
 
 

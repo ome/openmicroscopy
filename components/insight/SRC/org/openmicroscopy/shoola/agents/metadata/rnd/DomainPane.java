@@ -1037,6 +1037,23 @@ public class DomainPane
     }
     
     /**
+     * Updates the component displaying the channels' details after update.
+     */
+    void onChannelUpdated()
+    {
+    	populateChannels();
+    	Iterator<ChannelButton> i = channelList.iterator();
+    	ChannelButton cb;
+    	List<ChannelData> channels = model.getChannelData();
+    	ChannelData data;
+    	while (i.hasNext()) {
+			cb = i.next();
+			data = channels.get(cb.getChannelIndex());
+			cb.setText(data.getChannelLabeling());
+		}
+    }
+    
+    /**
      * Depending on the source of the event. Sets the gamma value or
      * the bit resolution.
      * @see ChangeListener#stateChanged(ChangeEvent)

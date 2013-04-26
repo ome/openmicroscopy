@@ -98,6 +98,12 @@ public class FigureParam
 	/** Identify the <code>PNG</code> format. */
 	public static final int		PNG = 1;
 
+	/** Identify the <code>TIFF</code> format. */
+	public static final int TIFF = 2;
+	
+	/** Identify the default format. */
+	public static final int DEFAULT_FORMAT = JPEG;
+	
 	/** Identify the <code>Seconds</code> format. */
 	public static final int		TIME_SECS = 0; 
 	
@@ -120,9 +126,10 @@ public class FigureParam
 	public static final Map<Integer, String>	TIMES;
 	
 	static {
-		FORMATS = new LinkedHashMap<Integer, String>(2);
+		FORMATS = new LinkedHashMap<Integer, String>(3);
 		FORMATS.put(JPEG, "JPEG");
 		FORMATS.put(PNG, "PNG");
+		FORMATS.put(TIFF, "TIFF");
 		TIMES = new LinkedHashMap<Integer, String>(6);
 		TIMES.put(TIME_SECS, "Seconds (e.g. 2)");
 		TIMES.put(TIME_MINS, "Minutes");
@@ -219,12 +226,15 @@ public class FigureParam
 	/** The data object the figure is attached to. */
 	private pojos.DataObject 		anchor;
 	
+	/** The maximum number of images per columns.*/
+	private int maxPerColumn;
+	
 	/** Sets the default value. */
 	private void setDefault()
 	{
 		time = TIME_SECS;
 		label = IMAGE_NAME;
-		format = PNG;
+		format = DEFAULT_FORMAT;
 		projectionType = ProjectionParam.MAXIMUM_INTENSITY;
 		stepping = 1;
 		scaleBar = 1;
@@ -248,10 +258,11 @@ public class FigureParam
 		switch (format) {
 			case JPEG:
 			case PNG:
+			case TIFF:
 				this.format = format;
 				break;
 			default:
-				this.format = PNG;
+				this.format = JPEG;
 		}
 	}
 	
@@ -322,21 +333,19 @@ public class FigureParam
 		checkFormat(format);
 		checkLabel(label);
 		this.name = name;
-		//Iterator<Integer> i = channels.keySet().iterator();
 		Color c;
-		Integer index;
 		mergeChannels = new LinkedHashMap<Integer, Integer>(channels.size());
 		int value;
-		Entry entry;
-		Iterator i = channels.entrySet().iterator();
+		Entry<Integer, Color> entry;
+		Iterator<Entry<Integer, Color>> i = channels.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			c = (Color) entry.getValue();
+			entry = i.next();
+			c = entry.getValue();
 			value = ((c.getAlpha() & 0xFF) << 24) |
             	((c.getRed() & 0xFF) << 16) |
-            ((c.getGreen() & 0xFF) << 8)  |
+            ((c.getGreen() & 0xFF) << 8) |
             ((c.getBlue() & 0xFF) << 0);
-			mergeChannels.put((Integer) entry.getKey(), value);
+			mergeChannels.put(entry.getKey(), value);
 		}
 	}
 	
@@ -599,7 +608,7 @@ public class FigureParam
 	public void setColor(String c)
 	{ 
 		if (c == null || c.trim().length() == 0) return;
-		this.color = c;//c.getRGB() & 0x00ffffff;
+		this.color = c;
 	}
 	
 	/**
@@ -643,14 +652,7 @@ public class FigureParam
 	 * 
 	 * @return See above.
 	 */
-	public String getFormatAsString()
-	{
-		switch (format) {
-			default:
-			case JPEG: return "JPEG";//"image/jpeg";
-			case PNG: return "PNG";//"image/png";
-		}
-	}
+	public String getFormatAsString() { return FORMATS.get(format); }
 	
 	/**
 	 * Returns the projection type as a string.
@@ -788,6 +790,22 @@ public class FigureParam
 				return SPLIT_VIEW_SCRIPT;
 		}
 	}
-	
-	
+
+	/**
+	 * Returns the maximum number of items per column.
+	 * 
+	 * @return See above.
+	 */
+	public int getMaxPerColumn() { return maxPerColumn; }
+
+	/**
+	 * Sets the maximum of items per columns.
+	 * 
+	 * @param maxPerColumn The value to set.
+	 */
+	public void setMaxPerColumn(int maxPerColumn)
+	{
+		this.maxPerColumn = maxPerColumn;
+	}
+
 }

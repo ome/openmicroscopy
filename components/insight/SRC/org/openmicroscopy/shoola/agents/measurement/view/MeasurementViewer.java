@@ -34,6 +34,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
 
+import pojos.ChannelData;
 //Application-internal dependencies
 import pojos.WorkflowData;
 
@@ -392,5 +393,13 @@ public interface MeasurementViewer
 	 * @return See above.
 	 */
 	public boolean isMember();
+
+	/**
+	 * Invokes when the channels have been modified. Updates the values
+	 * displayed in the measurement tool.
+	 * 
+	 * @param channels The channels to handle.
+	 */
+	public void onUpdatedChannels(List<ChannelData> channels);
 
 }

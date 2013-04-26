@@ -10,10 +10,10 @@ export OMERO_ALT=${OMERO_ALT:-ome/alt}
 export BREW_DIR=${BREW_DIR:-/tmp/homebrew}
 export PSQL_DIR=${PSQL_DIR:-/tmp/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
+export JOB_WS=`pwd`
 
 # Remove existing formulas and ome/alt tap
-if ($BREW_DIR/bin/brew --version)
-then
+if [ -d "$BREW_DIR" ]; then
     cd $BREW_DIR
     if (bin/pip --version)
     then
@@ -33,23 +33,32 @@ then
     fi
 
     echo "Removing Homebrew installation"
+    cd $JOB_WS
     rm -rf $BREW_DIR
 fi
 
+# Install Homebrew in BREW_DIR
 mkdir $BREW_DIR && curl -L https://github.com/mxcl/homebrew/tarball/master | tar xz --strip 1 -C $BREW_DIR
 cd $BREW_DIR
+
+# Clean cache before any operation to test full installation
+rm -rf $(bin/brew --cache)
 
 # Re-install git and update homebrew
 bin/brew install git
 bin/brew update
 
-
 export PATH=$(bin/brew --prefix)/bin:$PATH
 
+# Merge hombrew-alt PRs
+bin/brew tap $OMERO_ALT || echo "Already tapped"
+bin/brew install scc
+cd Library/Taps/${OMERO_ALT/\//-}
+scc merge master
+cd $BREW_DIR
+
 # Install homebrew dependencies
-curl -fsSLk 'https://raw.github.com/openmicroscopy/openmicroscopy/develop/docs/install/homebrew/omero_homebrew.sh' > /tmp/omero_homebrew.sh
-chmod +x /tmp/omero_homebrew.sh
-. /tmp/omero_homebrew.sh
+source "$JOB_WS/docs/install/homebrew/omero_homebrew.sh"
 
 # Install omero
 bin/brew install omero

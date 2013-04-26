@@ -97,11 +97,11 @@
     <script type="text/javascript">
 
         $(document).ready(function() {
-            setupAjaxError("{% url fsend %}");      // just in case!
+            OME.setupAjaxError("{% url fsend %}");      // just in case!
 
             $('#script_form').ajaxForm({
                 success: function(data) {
-                    window.opener.showActivities();
+                    window.opener.OME.showActivities();
                     self.close();
                 }
             });
@@ -206,7 +206,7 @@
                 <a href="#" onClick="self.close()">Cancel</a>
                 <input id="submit" type="submit" value="Run Script" />
             </div>
-            <a href="#" onClick="return openPopup('{% url get_original_file scriptId %}');">View Script</a>
+            <a href="#" onClick="return OME.openPopup('{% url get_original_file scriptId %}');">View Script</a>
         </div>
     </form>
 {% endblock %}

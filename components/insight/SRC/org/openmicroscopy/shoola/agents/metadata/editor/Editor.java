@@ -470,11 +470,14 @@ public interface Editor
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
 
 	/**
-	 * Saves the selected images as <code>JPEG</code>.
+	 * Saves the selected images as <code>JPEG</code>, <code>PNG</code>
+	 * or <code>TIFF</code>.
 	 * 
 	 * @param folder The folder to save.
+	 * @param format The format to use.
+	 * @see org.openmicroscopy.shoola.env.data.model.FigureParam
 	 */
-	public void saveAs(File folder);
+	public void saveAs(File folder, int format);
 
 	/** 
 	 * Invokes when the user has switched group.
@@ -490,4 +493,20 @@ public interface Editor
      * @return See above.
      */
     SecurityContext getSecurityContext();
+
+    /**
+     * Indicates if the image is a large image or not.
+     * 
+     * @param result The value to set.
+     */
+	void setLargeImage(Boolean result);
+	
+	/**
+	 * Invokes when the channels have been modified. Updates the values
+	 * displayed in the measurement tool.
+	 * 
+	 * @param channels The channels to handle.
+	 */
+	void onUpdatedChannels(List<ChannelData> channels);
+
 }

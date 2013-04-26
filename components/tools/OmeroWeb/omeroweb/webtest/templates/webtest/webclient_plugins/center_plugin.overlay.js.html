@@ -60,9 +60,9 @@ $(document).ready(function() {
 
         // update enabled state
         if((orel!="image") || (selected.length > 1)) {
-            set_center_plugin_enabled(overlay_plugin_index, false);
+            OME.set_center_plugin_enabled(overlay_plugin_index, false);
         } else {
-            set_center_plugin_enabled(overlay_plugin_index, true);
+            OME.set_center_plugin_enabled(overlay_plugin_index, true);
         }
 
         // update tab content

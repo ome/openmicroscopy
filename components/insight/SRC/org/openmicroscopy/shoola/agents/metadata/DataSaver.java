@@ -83,13 +83,15 @@ public class DataSaver
 	 *             Mustn't be <code>null</code>.
 	 * @param toAdd The collection of annotations to add.
 	 * @param toRemove The collection of annotations to remove.
-	 * @param acquisitionMetadata 
+	 * @param acquisitionMetadata The acquisition data to save.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public DataSaver(MetadataViewer viewer, SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
-		List<Object> toRemove, List<Object> acquisitionMetadata)
+		List<Object> toRemove, List<Object> acquisitionMetadata, 
+		int loaderID)
 	{
-		super(viewer, ctx, null);
+		super(viewer, ctx, null, loaderID);
 		if (data == null)
 			throw new IllegalArgumentException("No object specified.");
 		this.data = data;

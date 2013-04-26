@@ -37,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -190,7 +191,9 @@ public class SelectionWizard
 	{
 		Map<Class, Collection<Object>> 
 			r = new HashMap<Class, Collection<Object>>();
-		r.put(type, uiDelegate.getSelection());
+		Collection<Object> l = uiDelegate.getSelection();
+		l.addAll(uiDelegate.getImmutableElements());
+		r.put(type, l);
 		firePropertyChange(SELECTED_ITEMS_PROPERTY, null, r);
 		close();
 	}

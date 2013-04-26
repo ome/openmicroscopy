@@ -93,6 +93,7 @@ class ScriptControl(BaseControl):
         def _who(parser):
             return parser.add_argument("who", nargs="*", help="Who to execute for: user, group, user=1, group=5 (default=official)")
 
+        parser.add_login_arguments()
         sub = parser.sub()
 
         ## Disabling for 4.2 release. help = parser.add(sub, self.help, "Extended help")
@@ -141,6 +142,8 @@ class ScriptControl(BaseControl):
         run.add_argument("input", nargs="*", help="Inputs for the script of the form 'param=value'")
 
         # log = parser.add(sub, self.log, help = "TBD", tbd="TRUE")
+        for x in (demo, cat, edit, params, launch, disable, enable, jobs, serve, upload, replace, delete, run):
+            x.add_login_arguments()
 
     def help(self, args):
         self.ctx.out("""

@@ -20,8 +20,9 @@
 
 <script type="text/javascript">
 
+    if (typeof OME === "undefined") {OME = {}}
     // set the enabled status of the option to select a plugin. Set by index (0-based)
-    var set_center_plugin_enabled = function (index, enabled) {
+    OME.set_center_plugin_enabled = function (index, enabled) {
         // the first 'plugin' is actually the second option (first is thumbnails)
         var $plugin_option = $('#center_panel_chooser select option:nth-child('+ (index+1) +')');
         if (enabled) {

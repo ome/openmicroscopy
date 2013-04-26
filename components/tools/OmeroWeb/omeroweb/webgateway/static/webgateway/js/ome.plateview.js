@@ -151,6 +151,7 @@ jQuery._WeblitzPlateview = function (container, options) {
         }
       }
     }
+    _this.self.trigger('_resetLoaded');
   };
 
   this.load = function (pid,field) {

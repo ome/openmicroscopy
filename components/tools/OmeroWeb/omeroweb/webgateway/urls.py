@@ -18,6 +18,23 @@ webgateway = url( r'^$', 'webgateway.views.test', name="webgateway" )
 Returns a main prefix
 """
 
+annotations = url(r'^annotations/(?P<objtype>[\w.]+)/(?P<objid>\d+)/$', 'webgateway.views.annotations', name="webgateway_annotations")
+"""
+Retrieve annotations for object specified by object type and identifier,
+optionally traversing object model graph.
+"""
+
+table_query = url(r'^table/(?P<fileid>\d+)/query/$', 'webgateway.views.table_query', name="webgateway_table_query")
+"""
+Query a table specified by fileid
+"""
+
+object_table_query = url(r'^table/(?P<objtype>[\w.]+)/(?P<objid>\d+)/query/$', 'webgateway.views.object_table_query', name="webgateway_object_table_query")
+"""
+Query bulk annotations table attached to an object specified by
+object type and identifier, optionally traversing object model graph.
+"""
+
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?:(?P<z>[^/]+)/)?(?:(?P<t>[^/]+)/)?$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
@@ -196,7 +213,7 @@ json method: returns details of specified Image. See L{views.imageData_json}. Re
     - key:  Optional key of selected attributes to return. E.g. meta, pixel_range, rdefs, split_channel, size etc
 """
 
-wellData_json = (r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json')
+wellData_json = url(r'^wellData/(?P<wid>[^/]+)/$', 'webgateway.views.wellData_json', name='webgateway_wellData_json')
 """
 json method: returns details of specified Well. See L{views.wellData_json}.
     - webgateway/wellData/<wid>/ params are:
@@ -267,6 +284,13 @@ Admin method to switch to the specified user, identified by username: <user>
 Returns 'true' if switch went OK.
 """
 
+archived_files = url( r'^archived_files/download/(?P<iid>[0-9]+)/$', 'webgateway.views.archived_files', name="archived_files" )
+"""
+This url will download the Original Image File(s) archived at import time. If it's a single file, this will be
+downloaded directly. For multiple files, they are assembled into a zip file on the fly, and this is downloaded.
+"""
+
+
 urlpatterns = patterns('',
     webgateway,
     render_image,
@@ -302,9 +326,15 @@ urlpatterns = patterns('',
     reset_image_rdef_json,
     list_compatible_imgs_json,
     copy_image_rdef_json,
+    # download archived_files
+    archived_files,
     # switch user
     webgateway_su,
-    
+    # bulk annotations
+    annotations,
+    table_query,
+    object_table_query,
+
     # Debug stuff
 
 )

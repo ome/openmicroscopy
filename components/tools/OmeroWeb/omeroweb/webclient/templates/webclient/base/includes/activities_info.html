@@ -24,32 +24,15 @@
 
 <script>
 
-    var showActivities = function() {
+    if (typeof OME === "undefined"){ OME = {}}
+    OME.showActivities = function() {
         $("#activities_panel").show();
-        displayStatus(-1);  // reset new_results
-        refreshActivities();
-    }
-    
-    var setupResultOptions = function() {
-        $("#activities_content a").click(function() {
-            var href = $(this).attr('href');
-            if (href) {
-                window.location.href = href;
-            }
-        });
-        // show chgrp errors in new window
-        $(".chgrp_error a").click(function(event) {
-            var error_msg = $(this).next().html();
-            var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
-            newWindow.document.write(error_msg);
-            newWindow.document.close();
-            return false;
-        });
-
+        OME.displayStatus(-1);  // reset new_results
+        OME.refreshActivities();
     }
 
     // this is called by the setInterval loop below
-    var activitiesUpdate = function(i) {
+    OME.activitiesUpdate = function(i) {
         $.get("{% url activities %}", function(data) {
             $('#activities_spinner').hide();
             var inprogress = $("#inprogress", data).text();
@@ -68,11 +51,27 @@
             }
             
             // display what we recieved, bind events etc
-            displayStatus(new_results, inprogress);
+            OME.displayStatus(new_results, inprogress);
             $("#activities_content").empty();
             $("#activities_content").append( $("table", $(data)) );
             $("#jobsTable").alternateRowColors();
-            setupResultOptions();
+            
+            // bind events
+            $("#activities_content a").click(function() {
+                var href = $(this).attr('href');
+                if (href) {
+                    window.location.href = href;
+                }
+            });
+            // show chgrp errors in new window
+            $(".chgrp_error a").click(function(event) {
+                var error_msg = $(this).next().html();
+                var newWindow=window.open('','','height=500,width=500,scrollbars=yes, top=50, left=100');
+                newWindow.document.write(error_msg);
+                newWindow.document.close();
+                return false;
+            });
+
         }).error(function() {
             // this requires jQuery 1.5 or later
             clearInterval(i);
@@ -80,7 +79,7 @@
     }
 
     // Add new results to the count, unless we have the Activities panel open
-    var displayStatus = function(newresults, inprogress) {
+    OME.displayStatus = function(newresults, inprogress) {
         // update inprogress 'spinner'
         if (typeof inprogress != 'undefined') {
             if ((inprogress == '0') || (inprogress == 0)) {
@@ -114,15 +113,15 @@
         }
     }
 
-    var refreshActivities = function() {
+    OME.refreshActivities = function() {
         var i = setInterval(function (){
-                activitiesUpdate(i);
+                OME.activitiesUpdate(i);
         }, 5000);
-        activitiesUpdate(i);
+        OME.activitiesUpdate(i);
     }
     $(document).ready(function() {
-        displayStatus(-1);  // reset new_results
-        refreshActivities();
+        OME.displayStatus(-1);  // reset new_results
+        OME.refreshActivities();
         $("#activities_panel").hide();
         
         // add click handler to entire body, to close the activities panel 
@@ -130,7 +129,7 @@
             var id = event.target.id;
             //$(".info_panel").hide();
             if ((id == 'launch_activities') || (id == 'jobstatus') || (id == 'runningStatus')) {
-                showActivities();
+                OME.showActivities();
             } else {
                 $("#activities_panel .new_result").removeClass('new_result');
                 $("#activities_panel").hide();

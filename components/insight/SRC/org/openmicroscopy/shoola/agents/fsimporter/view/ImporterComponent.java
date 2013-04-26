@@ -35,14 +35,12 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -54,6 +52,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -193,12 +192,30 @@ class ImporterComponent
 			return;
 		view.reset();
 		model.setGroupId(group.getId());
-		chooser.onReconnected(view.buildToolBar());
+		
+		Collection<GroupData> availableGroups = loadGroups();
+		//chooser.onReconnected(view.buildToolBar(availableGroups,model.getGroupId() ));
+		
 		refreshContainers(chooser.getType());
 		firePropertyChange(CHANGED_GROUP_PROPERTY, oldGroup, 
 				model.getGroupId());
 	}
 	
+	/**
+	 * Returns the sorted list of groups the current user has access to
+	 * @return see above.
+	 */
+	private Collection<GroupData> loadGroups() {
+		Collection set = ImporterAgent.getAvailableUserGroups();
+		
+        if (set == null || set.size() <= 1) return null;
+        
+        ViewerSorter sorter = new ViewerSorter();
+        List<GroupData> sortedGroups = sorter.sort(set);
+        
+        return sortedGroups;
+	}
+
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, TreeImageDisplay, Collection)
@@ -209,13 +226,13 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					selectedContainer, objects, type);
+					selectedContainer, objects, type, ImporterAgent.getAvailableUserGroups());
 			chooser.addPropertyChangeListener(controller);
 			//chooser.pack();
 			view.addComponent(chooser);
 		} else {
 			boolean remove = selectedContainer == null;
-			chooser.reset(selectedContainer, objects, type, remove, false);
+			chooser.reset(selectedContainer, objects, type, remove, model.getGroupId());
 			chooser.requestFocusInWindow();
 			view.selectChooser();
 		}
@@ -226,8 +243,6 @@ class ImporterComponent
 		model.fireDiskSpaceLoading();
 		view.setOnScreen();
 		view.toFront();
-		//view.setVisible(false);
-		//UIUtilities.centerAndShow(chooser);
 	}
 
 	/** 
@@ -242,9 +257,10 @@ class ImporterComponent
 	 */
 	public void discard()
 	{
-		if (model.getState() == READY) {
+		if (model.getState() != IMPORTING && model.getState() != DISCARDED) {
 			view.close();
 			model.discard();
+			fireStateChange();
 		}
 	}
 
@@ -563,7 +579,7 @@ class ImporterComponent
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		Set nodes = TreeViewerTranslator.transformHierarchy(result, exp.getId(),
 				model.getGroupId());
-		chooser.reset(nodes, type, changeGroup);
+		chooser.reset(nodes, type, model.getGroupId());
 		if (refreshImport) {
 			Collection<ImporterUIElement> l = view.getImportElements();
 			Iterator<ImporterUIElement> i = l.iterator();
@@ -656,19 +672,18 @@ class ImporterComponent
 	 */
 	public GroupData getSelectedGroup()
 	{
-		Collection m = ImporterAgent.getAvailableUserGroups();
+		Collection<GroupData> m = loadGroups();
+		
 		if (m == null) {
 			ExperimenterData exp = ImporterAgent.getUserDetails();
 			return exp.getDefaultGroup();
 		}
-		Iterator i = m.iterator();
+		
 		long id = model.getGroupId();
-		GroupData group = null;
-		while (i.hasNext()) {
-			group = (GroupData) i.next();
-			if (group.getId() == id) {
+		
+		for (GroupData group : m) {
+			if (group.getId() == id)
 				return group;
-			}
 		}
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		return exp.getDefaultGroup();

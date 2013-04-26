@@ -11,7 +11,6 @@
 
 TEST( PermsTest, Perm1 )
 {
-  Fixture f;
   omero::model::PermissionsIPtr p = new omero::model::PermissionsI();
 
   // The default
@@ -30,7 +29,7 @@ TEST( PermsTest, Perm1 )
   ASSERT_TRUE( ! p->isGroupWrite() );
   ASSERT_TRUE( ! p->isWorldRead() );
   ASSERT_TRUE( ! p->isWorldWrite() );
-  
+
   // All on
   p->setPerm1( -1L );
   ASSERT_TRUE( p->isUserRead() );
@@ -39,7 +38,7 @@ TEST( PermsTest, Perm1 )
   ASSERT_TRUE( p->isGroupWrite() );
   ASSERT_TRUE( p->isWorldRead() );
   ASSERT_TRUE( p->isWorldWrite() );
-  
+
   // Various swaps
   p->setUserRead(false);
   ASSERT_TRUE( !p->isUserRead() );

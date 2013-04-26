@@ -79,6 +79,10 @@ public class NotificationDialog
 	public static final String CLOSE_NOTIFICATION_PROPERTY = 
 		"closeNotification";
 	
+	/** Bound property indication to close the notification dialog.*/
+	public static final String CANCEL_NOTIFICATION_PROPERTY = 
+		"cancelNotification";
+	
 	/** 
 	 * The preferred size of the widget that displays the notification message.
 	 * Only the part of text that fits into this display area will be displayed.
@@ -112,11 +116,23 @@ public class NotificationDialog
 	
 	/** Hides and disposes of the dialog. */
 	protected JButton	okButton;
+	
+	/** Cancel any action. */
+	protected JButton	cancelButton;
 		
 	/** Component hosting the UI components. */
 	private JPanel mainPanel;
+
+	/** The original message displayed.*/
+	protected String message;
 	
-	/** Creates the various UI components that make up the dialog.*/
+	/** 
+	 * Listener invoking the <code>close</code> method when the dialog
+	 * shuts down.
+	 */
+	protected WindowAdapter windowAdapter;
+	
+	/** Creates the various UI components that make up the dialog. */
 	private void createComponents()
 	{
 		mainPanel = new JPanel();
@@ -127,6 +143,9 @@ public class NotificationDialog
         messagePanel.setOpaque(true);
 		controlsPanel = new JPanel();
 		okButton = new JButton("OK");
+		cancelButton = new JButton("Cancel");
+		cancelButton.setVisible(false);
+		//okButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 		getRootPane().setDefaultButton(okButton);
 	}
 	
@@ -136,21 +155,34 @@ public class NotificationDialog
 	 */
 	private void attachListeners()
 	{
-		addWindowListener(new WindowAdapter() {
+		windowAdapter = new WindowAdapter() {
 			public void windowClosing(WindowEvent we) { close(); }
-		});
+		};
+		addWindowListener(windowAdapter);
 		okButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { close(); }
 		});
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) { cancel(); }
+		});
+	}
+	
+	/** Cancels any action. */
+	protected void cancel()
+	{
+		setVisible(false);
+		dispose();
+		firePropertyChange(CANCEL_NOTIFICATION_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/** Hides and disposes of the dialog. */
-	private void close()
+	protected void close()
 	{
-		firePropertyChange(CLOSE_NOTIFICATION_PROPERTY,
-				Boolean.valueOf(false), Boolean.valueOf(true));
 		setVisible(false);
 		dispose();
+		firePropertyChange(CLOSE_NOTIFICATION_PROPERTY,
+				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
@@ -182,6 +214,8 @@ public class NotificationDialog
 	private JPanel buildControlPanel()
 	{
 		controlsPanel.setBorder(null);
+		controlsPanel.add(cancelButton);
+		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		controlsPanel.add(okButton);
 		controlsPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		return UIUtilities.buildComponentPanelRight(controlsPanel);
@@ -246,6 +280,7 @@ public class NotificationDialog
 	 */
 	private void initiliaze(String message, Icon messageIcon, boolean html)
 	{
+		this.message = message;
 		createComponents();
 		attachListeners();
 		setAlwaysOnTop(true);

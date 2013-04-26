@@ -47,6 +47,7 @@ class SearchControl(HqlControl):
         parser.add_argument("search_string", nargs="?",
                 help="Lucene search string")
         parser.set_defaults(func=self.search)
+        parser.add_login_arguments()
 
     def search(self, args):
         c = self.ctx.conn(args)

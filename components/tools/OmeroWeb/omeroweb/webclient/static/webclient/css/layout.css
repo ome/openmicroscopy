@@ -697,16 +697,6 @@
                 margin-right:5px;
             }
     
-            .description input[type=button] {
-                border:none;
-                background: transparent;
-                color:#999;
-                cursor:pointer;
-                font-size:.8em;
-                border-bottom:solid 1px rgba(0,0,0,0.2);
-                display:inline-block;
-                padding: 0 0 2px 0;
-            }
     
     
     
@@ -717,8 +707,34 @@
     .metadata_details {
         text-shadow: 0 1px 0 rgba(255,255,255,.8);
     }
-    
-            
+
+    /* Table of 'core metadata' */
+    .core_metadata td>div {
+        position: relative;
+        padding-right:22px;
+    }
+    .core_metadata .btn {
+        position: absolute;
+        right: 0px;
+        top: -3px;
+    }
+    .core_metadata .btn span {
+        height: 13px;
+        width: 16px;
+    }
+    .core_metadata input[type="text"] {
+        border: 1px solid #DDDDDD;
+        border-radius: 3px 3px 3px 3px;
+        font-size: 0.9em;
+        margin: 1px;
+        padding-left: 2px;
+    }
+    .core_metadata form button {
+        border: 1px solid #CCCCCC;
+        border-radius: 2px;
+        font-size: 0.95em;
+        margin: 2px 1px;
+    }
     
     
     

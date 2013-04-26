@@ -70,11 +70,12 @@ public class ContainersLoader
 	 * @param refNode The node of reference. Mustn't be <code>null</code>.
 	 * @param type The type of the parent of the {@link #refNode}.
 	 * @param id The ID of the parent of the reference node.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
-			TreeBrowserSet refNode, Class type, long id)
+			TreeBrowserSet refNode, Class type, long id, int loaderID)
 	{
-		super(viewer, ctx, refNode);
+		super(viewer, ctx, refNode, loaderID);
 		this.type = type;
 		this.id = id;
 	}
@@ -87,11 +88,12 @@ public class ContainersLoader
 	 * @param ctx The security context.
 	 * @param type   The data type of the edited object.
 	 * @param id     The id of the currently edited object.
+	 * @param loaderID The identifier of the loader.
 	 */
 	public ContainersLoader(MetadataViewer viewer, SecurityContext ctx,
-			Class type, long id)
+			Class type, long id, int loaderID)
 	{
-		super(viewer, ctx);
+		super(viewer, ctx, loaderID);
 		this.type = type;
 		this.id = id;
 	}

@@ -131,7 +131,7 @@ public class ScreenLoginDialog
      * 
      * @param b Pass <code>true</code> to show, <code>false</code> to hide.
      */
-    public void setStatusVisible(boolean b) { view.setStatusVisible(b); }
+    public void setStatusVisible(boolean b) { view.setStatusVisible(b, !b); }
     
 	/** 
 	 * Modifies the text and the tool tip of the <code>Quit</code> button.

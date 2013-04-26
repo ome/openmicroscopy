@@ -176,11 +176,15 @@ class BrowserUI
     /** The component displayed at the bottom of the UI. */
     private JComponent				bottomComponent;
 
-    /** 
-     * The selection event. The sequence is as follow: selection event sent, 
-     * then mouse event.
-     */
+    /* The tree selection event. */
     private TreeSelectionEvent event;
+
+    /* The time when the latest tree selection event was handled. */
+    private long eventHandledTime = Long.MIN_VALUE;
+    
+    /* If a mouse event delayed handling tree selection, because
+     * a corresponding tree selection event has not yet been seen. */
+    private boolean delayedHandlingTreeSelection = false;
     
     /** Flag indicating if it is a right-click.*/
     private boolean rightClickButton;
@@ -351,7 +355,11 @@ class BrowserUI
         if (row != -1) {
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
-                handleTreeSelection();
+                if (me.getWhen() > eventHandledTime)
+                	/* have not yet seen the tree selection event */
+                	delayedHandlingTreeSelection = true;
+                else
+                	handleTreeSelection();
                //if (released) {
                 if ((me.isPopupTrigger() && !released) || 
                 		(me.isPopupTrigger() && released && 
@@ -639,6 +647,7 @@ class BrowserUI
     /** Handles the selection of the nodes in the tree.*/
     private void handleTreeSelection()
     {
+    	delayedHandlingTreeSelection = false;
     	TreeImageDisplay[] nodes = model.getSelectedDisplays();
     	if (((rightClickButton && !ctrl) || rightClickPad)
     		&& model.isMultiSelection()) {
@@ -684,7 +693,7 @@ class BrowserUI
     }
 
     /** 
-     * Handles multi-selection using <codeCtrl-A</code> or <code>Meta-A</code>.
+     * Handles multi-selection using <code>Ctrl-A</code> or <code>Meta-A</code>.
      */
     private void handleMultiSelection()
     {
@@ -948,6 +957,12 @@ class BrowserUI
             public void valueChanged(TreeSelectionEvent e)
             {
             	event = e;
+            	eventHandledTime = System.currentTimeMillis();
+            	
+            	if (delayedHandlingTreeSelection)
+            		/* mouse click delayed handling until this event occurred */
+            		handleTreeSelection();
+            	
             	switch (keyEvent) {
 					case KeyEvent.VK_DOWN:
 					case KeyEvent.VK_UP:
@@ -1139,6 +1154,21 @@ class BrowserUI
         DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
         tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), node,
                             node.getChildCount());
+    }
+    
+    /**
+     * Creates the smart folders added to the passed node.
+     * 
+     * @param parent The parent of the smart folder.
+     */
+    private void buildOrphanImagesNode(TreeImageDisplay parent)
+    {
+    	DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	TreeFileSet node = new TreeFileSet(TreeFileSet.ORPHANED_IMAGES);
+    	buildEmptyNode(node);
+		node.setNumberItems(-1);
+		parent.addChildDisplay(node);
+		tm.insertNodeInto(node, parent, parent.getChildCount());
     }
 
     /**
@@ -1744,16 +1774,21 @@ class BrowserUI
         dtm.reload();
         Iterator i;
         if (nodes.size() > 0) {
+        	boolean createFolder = true;
             i = nodes.iterator();
             TreeImageDisplay node;
             TreeFileSet n = null;
             Set toKeep = new HashSet();
+            int type;
             while (i.hasNext()) {
             	node = (TreeImageDisplay) i.next();
             	if (node instanceof TreeFileSet) {
-            		if (((TreeFileSet) node).getType() == TreeFileSet.TAG) {
+            		type = ((TreeFileSet) node).getType();
+            		if (type == TreeFileSet.TAG || 
+            			type == TreeFileSet.ORPHANED_IMAGES) {
             			List l = node.getChildrenDisplay();
                 		if (l.size() > 0) {
+                			createFolder = false;
                 			n = (TreeFileSet) node.copy();
                 			n.setExpanded(Boolean.valueOf(true));
                 			n.setChildrenLoaded(Boolean.valueOf(true));
@@ -1772,15 +1807,30 @@ class BrowserUI
             if (n != null) sorted.add(n);
             buildTreeNode(expNode, sorted,
             		(DefaultTreeModel) treeDisplay.getModel());
-            if (model.getBrowserType() == Browser.TAGS_EXPLORER && n == null) {
-            	createTagsElements(expNode);
-            }	
+            if (createFolder) {
+            	switch (model.getBrowserType()) {
+					case Browser.TAGS_EXPLORER:
+						if (n == null)
+							createTagsElements(expNode);
+						break;
+					case Browser.PROJECTS_EXPLORER:
+						buildOrphanImagesNode(expNode);
+            	}
+            }
         } else {
         	expNode.setExpanded(false);
-        	if (model.getBrowserType() == Browser.TAGS_EXPLORER)
-        		createTagsElements(expNode);
-        	else buildEmptyNode(expNode);
-        }
+        	switch (model.getBrowserType()) {
+				case Browser.TAGS_EXPLORER:
+					createTagsElements(expNode);
+					break;
+				case Browser.PROJECTS_EXPLORER:
+					buildOrphanImagesNode(expNode);
+					break;
+				default:
+					buildEmptyNode(expNode);
+        	}
+		}
+        //
         i = nodesToReset.iterator();
         while (i.hasNext()) 
 			setExpandedParent((TreeImageDisplay) i.next(), true);

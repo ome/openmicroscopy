@@ -384,6 +384,12 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </scons_py>
     </target>
 
+    <target name="release-all" description="Produce all release artifacts"
+        depends="release-clients,release-webstart,release-zip,release-src,release-docs">
+        <!-- Clients must come first to produce the zips needed by webstart,
+        followed by webstart in order to add jars to dist/, followed by zip -->
+    </target>
+
     <target name="release-zip" description="Zip the dist directory into ${product.name}-${omero.version}.zip">
         <zip destfile="${omero.home}/target/${product.name}-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
@@ -392,6 +398,20 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                 includes="bin/omero"
                 filemode="755"/>
         </zip>
+    </target>
+
+    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
+        <git command="archive" output="release-src-command" failonerror="true">
+            <args>
+                <arg value="--format=zip"/>
+                <arg value="HEAD"/>
+                <arg value="-o"/>
+                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
+            </args>
+        </git>
+    </target>
+
+    <target name="release-clients">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
                 includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**" excludes="bin/omero"/>
@@ -409,12 +429,20 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
+
+        <iterate buildpathref="OmeroMatlab.buildpath" target="release-zip"/>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
+
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
             <fileset dir="components/tools/OmeroFS/dist" includes="*.egg"/>
         </copy>
+
         <!-- These should eventually be removed in favor of an ivy-based approach -->
+
+        <!-- Moving zip targets out of main build for `./build.py` performance -->
+        <iterate buildpathref="insight.buildpath" target="zips"/>
+
         <copy todir="target">
             <fileset dir="components/insight/target" includes="insight*.zip" excludes="*-ij*.zip"/>
             <mapper type="regexp" from="insight(.*).zip"  to="OMERO.insight-${omero.version}\1.zip"/>
@@ -428,20 +456,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer -${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
-    </target>
 
-    <target name="release-src" description="Zip the git source into OMERO.source-${omero.version}.zip">
-        <git command="archive" output="release-src-command" failonerror="true">
-            <args>
-                <arg value="--format=zip"/>
-                <arg value="HEAD"/>
-                <arg value="-o"/>
-                <arg value="${target.dir}/OMERO.source-${omero.version}.zip"/>
-            </args>
-        </git>
-    </target>
-
-    <target name="release-clients">
         <!-- This replaces the previous OMERO-trunk-clients build -->
         <mkdir dir="target/pkg"/>
         <delete includeemptydirs="true">
@@ -814,6 +829,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <macrodef name="jar_update_if">
         <attribute name="destfile"/>
+        <attribute name="sign" default="true"/>
         <element name="filesets" implicit="yes"/>
         <sequential>
             <if>
@@ -822,11 +838,15 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
                     <jar update="true" destfile="@{destfile}">
                         <filesets/>
                     </jar>
-                    <signjar alias="${jarsign.alias}"
-                        keystore="${jarsign.keystore}"
-                        storepass="${jarsign.storepass}"
-                        preservelastmodified="true"
-                        jar="@{destfile}"/>
+                    <if><equals arg1="@{sign}" arg2="true"/>
+                        <then>
+                            <signjar alias="${jarsign.alias}"
+                                keystore="${jarsign.keystore}"
+                                storepass="${jarsign.storepass}"
+                                preservelastmodified="true"
+                                jar="@{destfile}"/>
+                        </then>
+                    </if>
                 </then>
             </if>
         </sequential>
@@ -851,13 +871,16 @@ omero.version=${omero.version}
             </echo>
 
             <!-- Must update the jars with the modified omero.properties file in order for the version to be updated -->
-            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar">
+            <jar_update_if destfile="${dist.dir}/lib/server/blitz.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar">
+            <jar_update_if destfile="${dist.dir}/lib/client/omero_client.jar" sign="false">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
-            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar">
+            <jar_update_if destfile="${dist.dir}/lib/client/OmeroImporter.jar" sign="false">
+                <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
+            </jar_update_if>
+            <jar_update_if destfile="${dist.dir}/lib/insight/blitz.jar" sign="true">
                 <fileset dir="${dist.dir}/etc" includes="omero.properties"/>
             </jar_update_if>
         </then>
@@ -901,15 +924,82 @@ omero.version=${omero.version}
     </target>
 
     <target name="release-webstart" depends="init" description="Generates webstart jars under dist/lib/insight">
-        <unzip src="components/insight/OUT/dist/OMERO.insight-${omero.version}.zip" dest="${dist.dir}/lib/insight">
-            <patternset>
-                <include name="**/*.jar"/>
-            </patternset>
-            <flattenmapper/>
-        </unzip>
-        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
+        <mkdir dir="${dist.dir}/lib/insight"/>
+        <copy todir="${dist.dir}/lib/insight">
+            <fileset dir="components/insight/OUT/app/libs/" includes="*.jar"/>
+        </copy>
+        <copy file="components/insight/OUT/dist/omero.insight.jar" tofile="${dist.dir}/lib/insight/omero.insight.jar"/>
         <copy file="components/insight/SRC/org/openmicroscopy/shoola/env/ui/graphx/omeabout-bk.png" tofile="${dist.dir}/lib/insight/ome.png"/>
+        <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
+
+    <target name="hot-blitz" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${blitz.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-common" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${common.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-model" depends="init">
+        <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
+        <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
+        <property name="targets" value="install"/>
+        <hotdeploy component="${model.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-romio" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${romio.comp}" targets="${targets}"/>
+    </target>
+
+    <target name="hot-server" depends="init">
+        <property name="targets" value="install"/>
+        <hotdeploy component="${server.comp}" targets="${targets}"/>
+    </target>
+
+    <macrodef name="hotdeploy">
+        <attribute name="targets"/>
+        <attribute name="component"/>
+        <sequential>
+            <for list="@{targets}" param="target">
+                <sequential>
+                    <ant antfile="@{component}/build.xml" dir="@{component}" target="@{target}" inheritAll="false"/>
+                </sequential>
+            </for>
+            <antcall target="copy-client" inheritRefs="true" inheritAll="true"/>
+            <antcall target="copy-server" inheritRefs="true" inheritAll="true"/>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Blitz-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="Indexer-0"/>
+            </ice-admin>
+            <ice-admin>
+                <arg value="server"/>
+                <arg value="stop"/>
+                <arg value="PixelData-0"/>
+            </ice-admin>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="ice-admin">
+        <element name="args" implicit="yes"/>
+        <sequential>
+            <exec executable="python" dir="${dist.dir}" failonerror="true">
+                <arg value="bin/omero"/>
+                <arg value="admin"/>
+                <arg value="ice"/>
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
 
     <macrodef name="gitdescribe">
 

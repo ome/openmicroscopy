@@ -47,7 +47,7 @@ import javax.swing.ImageIcon;
  * part of a <i>jar</i> file.</p>
  * <p>So after application start-up, the container's registry will contain an
  * <code>IconFactory</code> object which is configured to read any image file
- * (file type must be one supported by <i>Swing</i>) within the specifed
+ * (file type must be one supported by <i>Swing</i>) within the specified
  * directory: <br>
  * <code>
  * IconFactory factory = (IconFactory)<br>
@@ -131,5 +131,21 @@ public class IconFactory
 		} catch (Exception e) {} 
 		return icon;
 	}
-    
+	
+	/** 
+	 * Creates an {@link URL} from the specified file.
+	 * 
+	 * @param name	The file name.  Must be a valid name within the location
+	 * 				specified in the configuration file.
+	 * @return	    See above.
+	 */
+	public URL getImageURL(String name)
+	{
+		try {
+			String path = getResourcePathname(name);
+			return IconFactory.class.getResource(path);
+		} catch (Exception e) {} 
+		return null;
+	}
+
 }

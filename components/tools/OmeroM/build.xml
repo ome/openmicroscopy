@@ -30,7 +30,11 @@
 
     <target name="tools-init"/>
 
-    <target name="tools-build" depends="tools-init,package,release-zip,install" description="Creates all artifacts for tools/target"/>
+    <target name="install" depends="package">
+        <publishArtifact haltonmissing="false"/>
+    </target>
+
+    <target name="tools-build" depends="tools-init,package,install" description="Creates all artifacts for tools/target"/>
 
     <target name="release-zip" depends="package"
             description="Zip the OMERO.importer releases up">

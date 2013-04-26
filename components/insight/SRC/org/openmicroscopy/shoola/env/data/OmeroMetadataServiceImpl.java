@@ -58,6 +58,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
 import omero.model.OriginalFile;
+import omero.model.Pixels;
 import omero.model.ProjectAnnotationLink;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
@@ -117,7 +118,30 @@ class OmeroMetadataServiceImpl
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway gateway;
 	
-
+	/**
+	 * Updates the loaded channels.
+	 * 
+	 * @param ref The modified channels.
+	 * @param list The channels to update.
+	 */
+	private void updateChannels(List<ChannelData> ref,
+			List<Channel> list)
+	{
+		Iterator<Channel> i = list.iterator();
+		Channel channel;
+		ChannelData data;
+		int index = 0;
+		int n = ref.size();
+		while (i.hasNext()) {
+			channel = i.next();
+			if (index == n) break;
+			data = ref.get(index);
+			channel.getLogicalChannel().setName(omero.rtypes.rstring(
+					data.getName()));
+			index++;
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the value contains the terms specified,
 	 * <code>false</code> otherwise.
@@ -793,22 +817,22 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredData(SecurityContext, List, long, boolean)
 	 */
-	public Map loadStructuredData(SecurityContext ctx, List<DataObject> data,
+	public Map<DataObject, StructuredDataResults>
+		loadStructuredData(SecurityContext ctx, List<DataObject> data,
 			long userID, boolean viewed) 
 	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (data == null)
 			throw new IllegalArgumentException("Object not valid.");
 		
-		Map<Long, StructuredDataResults> 
-			results = new HashMap<Long, StructuredDataResults>();
+		Map<DataObject, StructuredDataResults> 
+			results = new HashMap<DataObject, StructuredDataResults>();
 		Iterator<DataObject> i = data.iterator();
-		DataObject node;
+		DataObject n;
 		while (i.hasNext()) {
-			node = i.next();
-			if (node != null) {
-				results.put(node.getId(), 
-						loadStructuredData(ctx, node, userID, viewed));
+			n = i.next();
+			if (n != null) {
+				results.put(n, loadStructuredData(ctx, n, userID, viewed));
 			}
 		}
 		return results;
@@ -947,8 +971,13 @@ class OmeroMetadataServiceImpl
 			l = gateway.findAnnotationLinks(ctx, klass, id, ids);
 		if (l != null) {
 			i = l.iterator();
-			while (i.hasNext()) 
-				gateway.deleteObject(ctx, (IObject) i.next());
+			IObject o;
+			while (i.hasNext()) {
+				o = (IObject) i.next();
+				if (gateway.canDelete(o))
+					gateway.deleteObject(ctx, o);
+			}
+				
 
 			//Need to check if the object is not linked to other object.
 			
@@ -959,8 +988,11 @@ class OmeroMetadataServiceImpl
 				ids = new ArrayList<Long>(); 
 				ids.add(obj.getId().getValue());
 				l = gateway.findAnnotationLinks(ctx, klass, -1, ids);
-				if (l == null || l.size() == 0)
-					gateway.deleteObject(ctx, obj);
+				if (l == null || l.size() == 0) {
+					if (gateway.canDelete(obj))
+						gateway.deleteObject(ctx, obj);
+				}
+					
 			}
 		}
 	}
@@ -1123,6 +1155,7 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
+		System.err.println(data);
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;
@@ -1168,8 +1201,7 @@ class OmeroMetadataServiceImpl
 				}
 			} else if (object instanceof PlateData) {
 				//Load all the wells
-				images = gateway.loadPlateWells(ctx, object.getId(), -1,
-						userID);
+				images = gateway.loadPlateWells(ctx, object.getId(), -1);
 				if (images != null) {
 					k = images.iterator();
 					while (k.hasNext()) {
@@ -2000,5 +2032,61 @@ class OmeroMetadataServiceImpl
 		}
 		return nodes;
 	}
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#saveChannelData(SecurityContext, List, List)
+	 */
+	public List<Long> saveChannelData(SecurityContext ctx,
+			List<ChannelData> channels, List<DataObject> objects)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> images = new ArrayList<Long>();
+		if (channels == null || channels.size() == 0) return images;
+		//Update the channels only
+		if (objects == null || objects.size() == 0) return images;
+		List<IObject> pixels = gateway.getPixels(ctx, objects);
+		if (pixels == null) return images;
+		Iterator<IObject> i = pixels.iterator();
+		Pixels p;
+		int sizeC;
+		int n = channels.size();
+		List<IObject> toUpdate = new ArrayList<IObject>();
+		List<Channel> l;
+		while (i.hasNext()) {
+			p = (Pixels) i.next();
+			sizeC = p.getSizeC().getValue();
+			if (sizeC == n) {
+				l = p.copyChannels();
+				updateChannels(channels, l);
+				toUpdate.addAll(l);
+				images.add(p.getImage().getId().getValue());
+			}
+		}
+		//Update the channels now
+		gateway.updateObjects(ctx, toUpdate, new Parameters());
+		return images;
+	}
 	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getChannelsMetadata(SecurityContext, long)
+	 */
+	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
+			long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Pixels pixels = gateway.getPixels(ctx, pixelsID);
+		if (pixels == null) return new ArrayList<ChannelData>();
+		Collection l = pixels.copyChannels();
+		if (l == null) return new ArrayList<ChannelData>();
+		Iterator i = l.iterator();
+		List<ChannelData> m = new ArrayList<ChannelData>(l.size());
+		int index = 0;
+		while (i.hasNext()) {
+			m.add(new ChannelData(index, (Channel) i.next()));
+			index++;
+		}
+		return m;
+	}
 }

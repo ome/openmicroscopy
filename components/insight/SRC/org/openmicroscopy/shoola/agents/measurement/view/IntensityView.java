@@ -36,7 +36,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -396,7 +395,8 @@ class IntensityView
 		
 		this.setLayout(new BorderLayout());
 		this.add(scrollPanel, BorderLayout.CENTER);
-		intensityDialog = new IntensityValuesDialog(view, tableModel);	
+		intensityDialog = new IntensityValuesDialog(view, tableModel,
+				channelSelection);
 	}
 	
 	/**
@@ -408,8 +408,8 @@ class IntensityView
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
-		JPanel channelPanel = 
-			UIUtilities.buildComponentPanel(channelSelection);
+		//JPanel channelPanel = 
+			//UIUtilities.buildComponentPanel(channelSelection);
 		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
 		//panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
@@ -528,6 +528,62 @@ class IntensityView
 		populateChannelSummaryTable(coord);
 	}
 
+	/**
+	 * Populates the pixels value per channel.
+	 * 
+	 * @param channel The selected channel.
+	 */
+	private void populateChannel()
+	{
+		Object[] nameColour = (Object[]) channelSelection.getSelectedItem();
+		String string = (String) nameColour[1];
+		if (!nameMap.containsKey(string))
+			return;
+		selectedChannelName = string;
+		int channel = nameMap.get(string);
+		if (channel < 0) return;
+		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
+		if (pixels == null) return;
+		Iterator<Point> pixelIterator = pixels.keySet().iterator();
+		double minX, maxX, minY, maxY;
+		if (!pixelIterator.hasNext()) return;
+		Point point = pixelIterator.next();
+		minX = (point.getX());
+		maxX = (point.getX());
+		minY = (point.getY());
+		maxY = (point.getY());
+		while (pixelIterator.hasNext())
+		{
+			point = pixelIterator.next();
+			minX = Math.min(minX, point.getX());
+			maxX = Math.max(maxX, point.getX());
+			minY = Math.min(minY, point.getY());
+			maxY = Math.max(maxY, point.getY());
+		}
+		int sizeX, sizeY;
+		sizeX = (int) (maxX-minX)+1;
+		sizeY = (int) ((maxY-minY)+1);
+		Double[][] data = new Double[sizeX][sizeY];
+		Iterator<Entry<Point, Double>> i = pixels.entrySet().iterator();
+		int x, y;
+		Double value;
+		Entry<Point, Double> entry;
+		while (i.hasNext())
+		{
+			entry = i.next();
+			point = entry.getKey();
+			x = (int) (point.getX()-minX);
+			y = (int) (point.getY()-minY);
+			if (x >= sizeX || y >= sizeY) continue;
+			
+			if (pixels.containsKey(point)) value = entry.getValue();
+			else value = new Double(0);
+			data[x][y] = value;
+		}
+		tableModel = new IntensityModel(data);
+		intensityDialog.setModel(tableModel);
+	}
+	
 	/**
 	 * Populate the summary table with the list of values for the ROI at 
 	 * coord.
@@ -704,6 +760,7 @@ class IntensityView
 		channelSum = sumStats.get(coord);
 		shape = shapeMap.get(coord);
 		
+		/*
 		Map<Point, Double> pixels = pixelStats.get(coord).get(channel);
 		if (pixels == null) return;
 		Iterator<Point> pixelIterator = pixels.keySet().iterator();
@@ -744,6 +801,7 @@ class IntensityView
 		}
 		tableModel = new IntensityModel(data);
 		intensityDialog.setModel(tableModel);
+		*/
 	}
 		
 	/**
@@ -1056,12 +1114,13 @@ class IntensityView
 		writer.writeTableToSheet(rowIndex, 0, tableModel);
 	}
 
-	 /** Shows the intensity results dialog. */
-	 private void showIntensityResults()
-	 {
-		 UIUtilities.setLocationRelativeToAndSizeToWindow(this, intensityDialog, 
-				 intensityTableSize);
-	 }
+	/** Shows the intensity results dialog. */
+	private void showIntensityResults()
+	{
+		populateChannel();
+		UIUtilities.setLocationRelativeToAndSizeToWindow(this, intensityDialog,
+				intensityTableSize);
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -1290,22 +1349,8 @@ class IntensityView
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case CHANNEL_SELECTION:
-				JComboBox cb = (JComboBox)e.getSource();
-				Object[] nameColour = (Object[]) cb.getSelectedItem();
-				String string = (String) nameColour[1];
-				if (!nameMap.containsKey(string))
-					return;
-				selectedChannelName = string;
-				int channel = nameMap.get(string);
-				if (channel != -1)
-				{
-					Coord3D newCoord = new Coord3D(zSlider.getValue()-1, 
-							tSlider.getValue()-1);
-					populateData(newCoord, channel);
-					repaint();
-				}
+				populateChannel();
 				break;
-	
 			case SAVE_ACTION:
 				saveResults();
 				break;

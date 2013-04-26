@@ -30,6 +30,7 @@ class HqlControl(BaseControl):
         parser.add_argument("--limit", help="Maximum number of return values", type=int, default=25)
         parser.add_argument("--offset", help="Number of entries to skip", type=int, default=0)
         parser.add_argument("--admin", help="Run an admin query", default=False, action="store_true")
+        parser.add_login_arguments()
 
     def __call__(self, args):
         if args.query:

@@ -37,6 +37,7 @@ class ExportControl(BaseControl):
             help="Iterate over an object and write individual objects to the directory named by --file (EXPERIMENTAL)")
 
         parser.set_defaults(func=self.export)
+        parser.add_login_arguments()
 
     def export(self, args):
 

@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -328,6 +329,20 @@ public class FileImportComponent
 	
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
+	
+	/**
+	 * Logs the exception.
+	 * 
+	 * @param e The error to log.
+	 */
+	private void logException(Exception e)
+	{
+		String s = "Error during import: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(e);
+		ImporterAgent.getRegistry().getLogger().warn(this, msg);
+	}
 	
 	/** Displays the error box at the specified location.
 	 * 
@@ -808,7 +823,7 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-
+	
 	/**
 	 * Sets the result of the import.
 	 * 
@@ -829,6 +844,7 @@ public class FileImportComponent
 			try {
 				img.getDefaultPixels();
 			} catch (Exception e) {
+				logException(e);
 				error = e;
 				toReImport = true;
 			}
@@ -908,6 +924,7 @@ public class FileImportComponent
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
 				groupLabel.setVisible(!singleGroup);
+				logException(thumbnail.getError());
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
@@ -984,42 +1001,51 @@ public class FileImportComponent
 				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
-				} else if (image instanceof ImportException) {
-					ImportException ie = (ImportException) image;
+				} else if (image instanceof Exception) {
+					Exception e = (Exception) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
 					resultLabel.setVisible(false);
-					toReImport = true;
+					toReImport = false;
 					errorButton.setToolTipText(
-							UIUtilities.formatExceptionForToolTip(ie));
-					exception = ie;
+							UIUtilities.formatExceptionForToolTip(e));
+					exception = e;
+					logException(e);
 					errorButton.setVisible(false);
-					int s = ie.getStatus();
-					if (s == ImportException.COMPRESSION) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(COMPRESSION_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.MISSING_LIBRARY) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(MISSING_LIB_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.FILE_ON_TAPE) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
-					} else if (s == ImportException.NO_SPACE) {
-						resultLabel.setVisible(true);
-						resultLabel.setText(NO_SPACE_ERROR_TEXT);
-						resultLabel.setToolTipText(
-								UIUtilities.formatExceptionForToolTip(ie));
+					cancelButton.setVisible(false);
+					if (e instanceof ImportException) {
+						toReImport = true;
+						ImportException ie = (ImportException) image;
+						int s = ie.getStatus();
+						if (s == ImportException.COMPRESSION) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(COMPRESSION_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.MISSING_LIBRARY) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(MISSING_LIB_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.FILE_ON_TAPE) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else if (s == ImportException.NO_SPACE) {
+							resultLabel.setVisible(true);
+							resultLabel.setText(NO_SPACE_ERROR_TEXT);
+							resultLabel.setToolTipText(
+									UIUtilities.formatExceptionForToolTip(ie));
+						} else {
+							errorButton.setVisible(true);
+							errorBox.setVisible(true);
+							errorBox.addChangeListener(this);
+						}
 					} else {
 						errorButton.setVisible(true);
 						errorBox.setVisible(true);
 						errorBox.addChangeListener(this);
 					}
-					cancelButton.setVisible(false);
 				}
 			}
 		}
@@ -1069,8 +1095,8 @@ public class FileImportComponent
 	{
 		if (errorBox == null || !errorBox.isVisible()) return null;
 		if (!errorBox.isEnabled()) return null;
-		ImportErrorObject object = new ImportErrorObject(file, 
-				(ImportException) image);
+		ImportErrorObject object = new ImportErrorObject(file,
+				(Exception) image);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		return object;

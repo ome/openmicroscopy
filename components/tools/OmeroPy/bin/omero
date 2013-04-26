@@ -10,6 +10,7 @@ See LICENSE for details.
 
 """
 
+import logging
 import os
 import stat
 import sys
@@ -120,6 +121,7 @@ try:
         """ % (os.getcwd(), sys.version.replace("\n"," "), omero_home, sys.path)
         sys.exit(2)
 
+    logging.basicConfig(level=logging.WARN)
     rv = omero.cli.argv()
     sys.exit(rv)
 except KeyboardInterrupt, ki:

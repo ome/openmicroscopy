@@ -44,7 +44,7 @@
         <element name="args" implicit="yes"/>
         <sequential>
             <mkdir dir="${basedir}/target/reports"/>
-            <exec dir="${basedir}" executable="${basedir}/test/@{file}" failonerror="${test.with.fail}">
+            <exec dir="${basedir}" executable="${basedir}/test/@{file}/@{file}" failonerror="${test.with.fail}">
                 <env key="ICE_HOME" value="${ice.home}"/>
                 <env key="LD_LIBRARY_PATH" value="${env.LD_LIBRARY_PATH}:${basedir}"/>
                 <env key="DYLD_LIBRARY_PATH" value="${env.DYLD_LIBRARY_PATH}:${basedir}"/>
@@ -58,12 +58,12 @@
         <if>
             <isset property="TEST"/>
             <then>
-                <gtest_run file="unit.exe">
+                <gtest_run file="unit">
                     <arg value="--gtest_filter=${TEST}"/>
                 </gtest_run>
             </then>
             <else>
-                <gtest_run file="unit.exe">
+                <gtest_run file="unit">
                     <arg value="--gtest_color=auto"/>
                 </gtest_run>
             </else>

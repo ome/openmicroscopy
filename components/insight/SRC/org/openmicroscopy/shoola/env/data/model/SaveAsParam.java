@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.io.File;
 import java.util.List;
-
 import javax.swing.Icon;
 
 
@@ -36,7 +35,8 @@ import javax.swing.Icon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Holds the information required to save the images as JPEG.
+ * Holds the information required to save the images as JPEG, PNG.
+ * 
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,15 +51,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class SaveAsParam
 {
 
-	/** Identifies the <code>Save As JPEG</code> script. */
+	/** Identifies the <code>Batch Image Export</code> script. */
 	public static final String SAVE_AS_SCRIPT = 
 		ScriptObject.EXPORT_PATH+"Batch_Image_Export.py";
-	
-	/** Indicates to the save the images as <code>JPEG</code>. */
-	public static final int JPEG = 0;
-	
-	/** Indicates to the save the images as <code>PNG</code>. */
-	public static final int PNG = 1;
 	
 	/** The folder where to save the data. */
 	private File folder;
@@ -86,7 +80,20 @@ public class SaveAsParam
 		this.objects = objects;
 		if (folder == null) folder = UIUtilities.getDefaultFolder();
 		this.folder = folder;
-		index = JPEG;
+		index = FigureParam.DEFAULT_FORMAT;
+	}
+	
+	/**
+	 * Sets the index. If the value is not supported, the default value
+	 * is used. 
+	 * 
+	 * @param index The value to set.
+	 */
+	public void setIndex(int index)
+	{
+		if (!FigureParam.FORMATS.containsKey(index))
+			index = FigureParam.DEFAULT_FORMAT;
+		this.index = index;
 	}
 	
 	/**
@@ -117,12 +124,7 @@ public class SaveAsParam
 	 */
 	public String getIndexAsString()
 	{
-		switch (index) {
-			case PNG: return "PNG";
-			case JPEG:
-			default:
-				return "JPEG";
-		}
+		return FigureParam.FORMATS.get(index);
 	}
 	
 	/**

@@ -85,6 +85,7 @@
                             "ajax" : {
                                 // the URL to fetch the data
                                 "url" : function(n) {
+                                    var url;
                                     if (n.attr) {
                                         var parent = this._get_parent(n);
                                         if ($.inArray($(parent).attr("rel").replace("-locked", ""), ["project", "screen"]) > -1) {
@@ -271,6 +272,20 @@
                                     "start_drag" : false,
                                     "move_node" : false,
                                     "remove" : false
+                                },
+                                "acquisition" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% static "webclient/image/image16.png" %}'
+                                    },
+                                    "create_node" : false
+                                },
+                                "acquisition-locked" : {
+                                    "valid_children" : "none",
+                                    "icon" : {
+                                        "image" : '{% static "webclient/image/image16.png" %}'
+                                    },
+                                    "create_node" : false
                                 }
                             }
                         },
@@ -309,18 +324,18 @@
                 })
                 .delegate("a", "dblclick", function(e, data) {
                     if ($(this).parent().attr('rel')=='image') {
-                        openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
+                        OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).parent().attr('id').split("-")[1]));
                     }
                     $("#dataTree").jstree("open_node", this);
                 })
                 .bind("select_node.jstree deselect_node.jstree", function (e, data) {
                     var selected = data.inst.get_selected();
                     buttonsShowHide(selected);
-                    tree_selection_changed(data);
+                    OME.tree_selection_changed(data);
                 })
                 .bind("remove.jstree", function (e, data) {
                     data.args[0].each(function (i) {
-                        url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        var url = '{% url manage_action_containers "delete" %}'+$(this).attr("rel").replace("-locked","")+'/'+$(this).attr("id").split("-")[1]+'/'
 
                         $.ajax({
                             async : false,
@@ -333,7 +348,7 @@
                                       alert(r.errs);
                                   } else {
                                       // change in tree selection will update panels etc.
-                                      refreshActivities();
+                                      OME.refreshActivities();
                                   }
                             },
                             error: function(response) {
@@ -352,7 +367,7 @@
         $(".toolbar input").click(function () {
             switch(this.id) {
                 case "deleteButton":
-                    var confirm_delete = confirm_dialog('Delete selected Tags?',
+                    var confirm_delete = OME.confirm_dialog('Delete selected Tags?',
                         function() {
                             if(confirm_delete.data("clicked_button") == "OK") {
                                 $("#dataTree").jstree('remove', $.jstree._focused().get_selected());

@@ -158,6 +158,11 @@
             <option>-Xdebug</option>
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
         </target>
+        <target name="blitz-gc">
+            <option>-verbose:gc</option>
+            <option>-XX:+PrintGCTimeStamps</option>
+            <option>-XX:+PrintGCDetails</option>
+        </target>
         <target name="jprofiler">
             <!-- In order to successfully startup with the "jprofiler" target,
             you will need to have set DYLD_LIBRARY_PATH, LD_LIBRARY_PATH, or PATH

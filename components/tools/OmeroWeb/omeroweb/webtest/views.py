@@ -584,3 +584,47 @@ def stack_preview (request, imageId, conn=None, **kwargs):
     sizeZ = image.getSizeZ()
     z_indexes = [0, int(sizeZ*0.25), int(sizeZ*0.5), int(sizeZ*0.75), sizeZ-1]
     return render_to_response('webtest/stack_preview.html', {'imageId':imageId, 'image_name':image_name, 'z_indexes':z_indexes})
+
+@login_required()
+def render_performance (request, obj_type, id, conn=None, **kwargs):
+    """ Test rendering performance for all planes in an image """
+    context = {}
+    if obj_type == 'image':
+        image = conn.getObject("Image", id)
+        image._prepareRenderingEngine()
+
+        # If a 'BIG Image'
+        if image._re.requiresPixelsPyramid():
+            MAX_TILES = 50
+            tileList = []
+            tile_w, tile_h = image._re.getTileSize()
+            cols = image.getSizeX() / tile_w
+            rows = image.getSizeY() / tile_h
+            tileList = [ {'col':c, 'row':r} for r in range(rows) for c in range(cols)]
+            if (len(tileList) > 2*MAX_TILES):
+                tileList = tileList[ (len(tileList)/2):]    # start in middle of list (looks nicer!)
+            tileList = tileList[:MAX_TILES]
+            context = {'tileList': tileList, 'imageId':id}
+        # A regular Image
+        else:
+            zctList = []
+            for z in range(image.getSizeZ()):
+                for c in range(image.getSizeC()):
+                    for t in range(image.getSizeT()):
+                        zctList.append({'z':z, 'c':c+1, 't':t})
+            context = {'zctList':zctList, 'imageId':id}
+    # A Plate
+    elif obj_type == 'plate':
+        imageIds = []
+        plate = conn.getObject("Plate", id)
+        for well in plate._listChildren():
+            for ws in well.copyWellSamples():
+                imageIds.append(ws.image.id.val)
+        context = {'plate':plate, 'imageIds':imageIds}
+
+    elif obj_type == "dataset":
+        dataset = conn.getObject("Dataset", id)
+        imageIds = [i.getId() for i in dataset.listChildren()]
+        context = {'imageIds':imageIds}
+
+    return render_to_response('webtest/demo_viewers/render_performance.html', context)

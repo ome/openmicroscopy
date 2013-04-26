@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -43,7 +45,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +66,7 @@ import javax.swing.text.Document;
 
 //Third-party libraries
 
+import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -133,13 +135,25 @@ class PropertiesUI
     /** Action ID indicating to edit the description.*/
     private static final int	EDIT_DESC = 1;
     
+    /** Action ID indicating to edit the channels.*/
+    private static final int	EDIT_CHANNEL = 2;
+    
+    /** Text indicating to edit the name.*/
+    private static final String EDIT_NAME_TEXT = "Edit the name";
+    
+    /** Text indicating to edit the description.*/
+    private static final String EDIT_DESC_TEXT = "Edit the description.";
+    
+    /**Text indicating to edit the channels.*/
+    private static final String EDIT_CHANNEL_TEXT = "Edit the channels.";
+    
     /** The default height of the description.*/
     private static final int HEIGHT = 60;
     
     /** Button to edit the name. */
 	private JButton				editName;
 	
-	/** Button to add documents. */
+	/** Button to edit the description. */
 	private JButton				editDescription;
 	
     /** The name before possible modification.*/
@@ -214,13 +228,77 @@ class PropertiesUI
 	/** Flag indicating that the name is editable mode or not.*/
 	private boolean editableName;
 	
+	/** Button to edit the channels. */
+	private JButton editChannel;
+	
+	/** Component displayed when editing the channels.*/
+	private ChannelEditUI channelEditPane;
+	
+	/** Components hosting the channels' details.*/
+	private JComponent channelsPane;
+
+	/** Builds and lays out the components displaying the channel information.*/
+	private void buildChannelsPane()
+	{
+		editChannel.setVisible(true);
+		channelsPane = channelsArea;
+	}
+	
+	/**
+	 * Returns the <code>JXTaskPane</code> hosting the component.
+	 * 
+	 * @param parent The value to check.
+	 * @return See above.
+	 */
+	private Container getComponent(Container parent)
+	{
+		if (parent == null) return null;
+		if (parent instanceof JXTaskPane) return parent;
+		return getComponent(parent.getParent());
+	}
+	
+	/** Resets the size of the components hosting this component.*/
+	private void resetComponentSize()
+	{
+		Container pane = getComponent(getParent());
+		pane.setSize(getPreferredSize());
+		pane.validate();
+		pane.repaint();
+	}
+	
+	/** Modifies the UI so the user can edit the channels.*/
+	private void editChannels()
+	{
+		if (channelEditPane == null) {
+			Object ho = model.getParentRootObject();
+			if (model.getParentRootObject() instanceof WellData)
+				ho = model.getGrandParentRootObject();
+			channelEditPane = new ChannelEditUI(model.getChannelData(), ho);
+			channelEditPane.addPropertyChangeListener(this);
+		}
+		channelsPane = channelEditPane;
+		editChannel.setVisible(false);
+		removeAll();
+		buildGUI();
+		resetComponentSize();
+	}
+	
+	/** Modifies the UI to display the initial channels details.*/
+	private void cancelChannelsEdit()
+	{
+		buildChannelsPane();
+		removeAll();
+		buildGUI();
+		resetComponentSize();
+	}
+	
 	/** Initializes the components composing this display. */
     private void initComponents()
     {
     	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(UIUtilities.BACKGROUND_COLOR);
         Font f;
-       	
+    	
        	parentLabel = new JLabel();
        	f = parentLabel.getFont(); 
        	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
@@ -305,23 +383,34 @@ class PropertiesUI
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
     	channelsArea = UIUtilities.createComponent(null);
     	
+    	channelsPane = channelsArea;
     	IconManager icons = IconManager.getInstance();
 		editName = new JButton(icons.getIcon(IconManager.EDIT_12));
-		editName.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(editName);
-		editName.setBackground(UIUtilities.BACKGROUND_COLOR);
-		editName.setToolTipText("Edit the name.");
-		editName.addActionListener(this);
-		editName.setActionCommand(""+EDIT_NAME);
+		formatButton(editName, EDIT_NAME_TEXT, EDIT_NAME);
 		editDescription = new JButton(icons.getIcon(IconManager.EDIT_12));
-		editDescription.setOpaque(false);
-		UIUtilities.unifiedButtonLookAndFeel(editDescription);
-		editDescription.setBackground(UIUtilities.BACKGROUND_COLOR);
-		editDescription.setToolTipText("Edit the description.");
-		editDescription.addActionListener(this);
-		editDescription.setActionCommand(""+EDIT_DESC);
+		formatButton(editDescription, EDIT_DESC_TEXT, EDIT_DESC);
+		editChannel = new JButton(icons.getIcon(IconManager.EDIT_12));
+		formatButton(editChannel, EDIT_CHANNEL_TEXT, EDIT_CHANNEL);
+		editChannel.setEnabled(false);
 		descriptionPane.setEnabled(false);
-    }   
+    }
+    
+    /**
+     * Formats the specified button.
+     * 
+     * @param button The button to handle.
+     * @param text The tool tip text.
+     * @param actionID The action command id.
+     */
+    private void formatButton(JButton button, String text, int actionID)
+    {
+    	button.setOpaque(false);
+		UIUtilities.unifiedButtonLookAndFeel(button);
+		button.setBackground(UIUtilities.BACKGROUND_COLOR);
+		button.setToolTipText(text);
+		button.addActionListener(this);
+		button.setActionCommand(""+actionID);
+    }
     
     /**
      * Lays out the plate fields.
@@ -492,26 +581,26 @@ class PropertiesUI
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 2, 2, 0);
-        Set set = components.entrySet();
-        Entry entry;
+        Entry<JLabel, JComponent> entry;
         
-		Iterator i = set.iterator();
+		Iterator<Entry<JLabel, JComponent>> 
+		i = components.entrySet().iterator();
 		c.gridy = 0;
         while (i.hasNext()) {
             c.gridx = 0;
-            entry = (Entry) i.next();
+            entry = i.next();
             ++c.gridy;
        	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;      //reset to default
             c.weightx = 0.0;  
-            pane.add((JLabel) entry.getKey(), c);
+            pane.add(entry.getKey(), c);
             c.gridx++;
             pane.add(Box.createHorizontalStrut(5), c); 
             c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.gridwidth = GridBagConstraints.REMAINDER;//end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            pane.add((JComponent) entry.getValue(), c);  
+            pane.add(entry.getValue(), c);  
         }
     }
     
@@ -683,15 +772,19 @@ class PropertiesUI
     		label = UIUtilities.setTextFont(EditorUtil.CHANNELS,
     				Font.BOLD, size);
     		c.gridx = 0;
+    		c.anchor = GridBagConstraints.NORTHEAST;
         	content.add(label, c);
-        	c.gridx = c.gridx+2;
-        	content.add(channelsArea, c);
+        	c.anchor = GridBagConstraints.CENTER;
+        	c.gridx++;
+        	content.add(editChannel, c);
+        	c.gridx++;
+        	content.add(channelsPane, c);
     	}
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
         return p;
     }
-  
+    
     /** 
      * Initializes a <code>TextPane</code>.
      * 
@@ -996,9 +1089,6 @@ class PropertiesUI
 	/** Sets the text of the parent label. */
 	private void setParentLabel()
 	{
-		parentLabel.setText("");
-		wellLabel.setText("");
-		gpLabel.setText("");
 		Object parent = model.getParentRootObject();
 		if (parent instanceof WellData) {
 			WellData well = (WellData) parent;
@@ -1042,59 +1132,32 @@ class PropertiesUI
     }
 
     /**
-	 * Overridden to lay out the tags.
+	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()
 	 */
 	protected void buildUI()
 	{
-		//removeAll();
 		if (!init) {
-			buildGUI();
-			init = true;
+			//buildGUI();
+			//init = true;
 		}
 		removeAll();
+		Object refObject = model.getRefObject();
+		text = model.getObjectTypeAsString(refObject);
 		if (model.isMultiSelection()) return;
 		namePane.getDocument().removeDocumentListener(this);
-		//descriptionPane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		modifiedName = model.getRefObjectName();
 		originalDisplayedName = UIUtilities.formatPartialName(originalName);
 		namePane.setText(originalDisplayedName);
 		namePane.setToolTipText(originalName);
-		Object refObject = model.getRefObject();
-		text = "";
 		
 		boolean b = model.canEdit();
-        if (refObject instanceof ImageData) text = "Image";
-        else if (refObject instanceof DatasetData) text = "Dataset";
-        else if (refObject instanceof ProjectData) text = "Project";
-        else if (refObject instanceof ScreenData) text = "Screen";
-        else if (refObject instanceof PlateData) text = "Plate";
-        else if (refObject instanceof PlateAcquisitionData)
-        	text = "Plate Run";
-        else if (refObject instanceof FileAnnotationData) {
-        	FileAnnotationData fa = (FileAnnotationData) refObject;
-        	String ns = fa.getNameSpace();
-        	if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns))
-        		text = "Experiment";
-        	else if (FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns))
-        		text = "Protocol";
-        	else text = "File";
-        } else if (refObject instanceof WellSampleData) text = "Field";
-        else if (refObject instanceof TagAnnotationData) {
-        	TagAnnotationData tag = (TagAnnotationData) refObject;
-        	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		text = "Tag Set";
-        	else text = "Tag";
-        } else if (refObject instanceof FileData) {
+		
+        if (refObject instanceof FileData || 
+        	refObject instanceof MultiImageData) {
         	editName.setEnabled(false);
-        	FileData f = (FileData) refObject;
-        	if (f.isDirectory()) text = "Folder";
-        	else text = "File";
-        } else if (refObject instanceof MultiImageData) {
-        	editName.setEnabled(false);
-        	text = "File";
         }
         String t = text;
         if (model.getRefObjectID() > 0)
@@ -1120,7 +1183,6 @@ class PropertiesUI
         if (refObject instanceof WellSampleData) b = false;
         
         namePane.setEnabled(b);
-        //descriptionPane.setEnabled(b);
         if (!(refObject instanceof FileData)) editName.setEnabled(b);
         
         if (b) {
@@ -1128,7 +1190,10 @@ class PropertiesUI
         	descriptionPane.addDocumentListener(this);
         }
         editDescription.setEnabled(b);
+        editChannel.setEnabled(b);
+        
         setParentLabel();
+        buildChannelsPane();
         buildGUI();
 	}
 	
@@ -1148,10 +1213,8 @@ class PropertiesUI
         boolean b = model.canEdit();
         editDescription.setEnabled(b);
         if (b) {
-        	//descriptionPane.getDocument().addDocumentListener(this);
         	descriptionPane.addDocumentListener(this);
         }
-        //buildGUI();
 	}
 
 	/** Updates the data object. */
@@ -1234,6 +1297,7 @@ class PropertiesUI
 	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
+		editChannel.setEnabled(model.canEdit());
 		int n = channels.size()-1;
 		Iterator k = channels.keySet().iterator();
 		int j = 0;
@@ -1343,31 +1407,39 @@ class PropertiesUI
 	
 	/**
 	 * Clears the data to save.
-	 * @see AnnotationUI#clearData()
+	 * @see AnnotationUI#clearData(Object)
 	 */
-	protected void clearData()
+	protected void clearData(Object oldObject)
 	{
 		originalName = model.getRefObjectName();
 		originalDisplayedName = originalName;
 		originalDescription = model.getRefObjectDescription();
 		namePane.getDocument().removeDocumentListener(this);
 		descriptionPane.removeDocumentListener(this);
-		idLabel.setText("");
-		ownerLabel.setText("");
 		namePane.setText(originalName);
 		if (originalDescription == null || originalDescription.length() == 0)
 			originalDescription = DEFAULT_DESCRIPTION_TEXT;
 		descriptionPane.setText(originalDescription);
 		namePane.getDocument().addDocumentListener(this);
 		descriptionPane.addDocumentListener(this);
-		channelsArea.setText("");
+		channelEditPane = null;
+		if (oldObject == null) return;
+		if (!model.isSameObject(oldObject)) {
+			editChannel.setEnabled(false);
+			channelsArea.setText("");
+			idLabel.setText("");
+			ownerLabel.setText("");
+			parentLabel.setText("");
+			wellLabel.setText("");
+			gpLabel.setText("");
+		}
 	}
 	
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { clearData(); }
+	protected void clearDisplay() {}
 
 	/**
 	 * Sets the title of the component.
@@ -1411,6 +1483,9 @@ class PropertiesUI
 			case EDIT_DESC:
 				editField(descriptionPanel, descriptionPane, editDescription,
 						!descriptionPane.isEnabled());
+				break;
+			case EDIT_CHANNEL:
+				editChannels();
 		}
 	}
 	
@@ -1500,23 +1575,6 @@ class PropertiesUI
 	{
 		String name = evt.getPropertyName();
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		/*
-		if (RegexTextPane.REGEX_DBL_CLICKED_PROPERTY.equals(name)) {
-			WikiDataObject object = (WikiDataObject) evt.getNewValue();
-			long id = object.getId();
-			switch (object.getIndex()) {
-				case WikiDataObject.IMAGE:
-					if (id > 0) {
-						bus.post(new ViewImage(id, null));
-					}
-					break;
-				case WikiDataObject.PROTOCOL:
-					bus.post(new EditFileEvent(id));
-					break;
-			}
-		} 
-		*/
-		
 		if (OMEWikiComponent.WIKI_DATA_OBJECT_PROPERTY.equals(name)) {
 			WikiDataObject object = (WikiDataObject) evt.getNewValue();
 			long id = object.getId();
@@ -1555,8 +1613,17 @@ class PropertiesUI
 				case WikiDataObject.PROTOCOL:
 					bus.post(new DataObjectSelectionEvent(
 							FileData.class, id));
-					break;
 			}
+		} else if (ChannelEditUI.CANCEL_PROPERTY.equals(name)) {
+			cancelChannelsEdit();
+		} else if (ChannelEditUI.SAVE_PROPERTY.equals(name)) {
+			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
+			model.fireChannelSaving(channels, false);
+			cancelChannelsEdit();
+		} else if (ChannelEditUI.APPLY_TO_ALL_PROPERTY.equals(name)) {
+			List<ChannelData> channels = (List<ChannelData>) evt.getNewValue();
+			model.fireChannelSaving(channels, true);
+			cancelChannelsEdit();
 		}
 	}
 	

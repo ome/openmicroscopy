@@ -42,7 +42,6 @@ import traceback
 
 import shutil
 import zipfile
-import glob
 
 from time import time
 from thread import start_new_thread
@@ -108,6 +107,14 @@ from omeroweb.decorators import ConnCleaningHttpResponse
 logger = logging.getLogger(__name__)
 
 logger.info("INIT '%s'" % os.getpid())
+
+# helper method
+def getIntOrDefault(request, name, default):
+    try:
+        index = int(request.REQUEST.get(name, default))
+    except ValueError:
+        index = 0
+    return index
 
 ################################################################################
 # views controll
@@ -330,7 +337,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'well'):
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -345,7 +352,17 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                 first_sel = conn.getObject("TagAnnotation", long(first_id))
             else:
                 first_sel = conn.getObject(first_obj, long(first_id))
-        except ValueError:
+                # Wells aren't in the tree, so we need parent...
+                if first_obj == "well":
+                    parentNode = first_sel.getWellSample().getPlateAcquisition()
+                    ptype = "acquisition"
+                    if parentNode is None:      # No Acquisition for this well...
+                        parentNode = first_sel.getParent()  #...use Plate instead
+                        ptype = "plate"
+                    first_sel = parentNode
+                    init['initially_open'] = ["%s-%s" % (ptype, parentNode.getId())]
+                    init['initially_select'] = init['initially_open'][:]
+        except:
             pass    # invalid id
         if first_obj not in ("project", "screen"):
             # need to see if first item has parents
@@ -436,13 +453,13 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     """
     
     # get page 
-    page = int(request.REQUEST.get('page', 1))
+    page = getIntOrDefault(request, 'page', 1)
     
     # get view 
     view = str(request.REQUEST.get('view', None))
 
     # get index of the plate
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
 
     # prepare data. E.g. kw = {}  or  {'dataset': 301L}  or  {'project': 151L, 'dataset': 301L}
     kw = dict()
@@ -483,12 +500,16 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
                 template = "webclient/data/containers_icon.html"
             else:
                 template = "webclient/data/container_subtree.html"
-        elif kw.has_key('plate'):
-            fields = manager.plate.getNumberOfFields(kw.get('acquisition', None))
+        elif kw.has_key('plate') or kw.has_key('acquisition'):
+            fields = manager.getNumberOfFields()
             if fields is not None:
                 form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
                 if index == 0:
                     index = fields[0]
+            show = request.REQUEST.get('show', None)
+            if show is not None:
+                select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
+                context['select_wells'] = ",".join(select_wells)
             context['baseurl'] = reverse('webgateway').rstrip('/')
             context['form_well_index'] = form_well_index
             template = "webclient/data/plate.html"
@@ -603,7 +624,8 @@ def load_data_by_tag(request, o_type=None, o_id=None, conn=None, **kwargs):
     view = request.REQUEST.get("view")
     
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
+
     
     # prepare forms
     filter_user_id = request.session.get('user_id')
@@ -746,7 +768,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     """
 
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
 
     # we only expect a single object, but forms can take multiple objects
     images = c_type == "image" and list(conn.getObjects("Image", [c_id])) or list()
@@ -811,10 +833,7 @@ def load_metadata_preview(request, c_type, c_id, conn=None, share_id=None, **kwa
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     
@@ -835,7 +854,7 @@ def load_metadata_hierarchy(request, c_type, c_id, conn=None, **kwargs):
     """
 
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
     
     manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
     
@@ -853,10 +872,7 @@ def load_metadata_acquisition(request, c_type, c_id, conn=None, share_id=None, *
     """
 
     # the index of a field within a well
-    try:
-        index = int(request.REQUEST.get('index', 0))
-    except:
-        index = 0
+    index = getIntOrDefault(request, 'index', 0)
 
     try:
         if c_type in ("share", "discussion"):
@@ -1034,7 +1050,7 @@ def getObjects(request, conn=None):
     shares = len(request.REQUEST.getlist('share')) > 0 and [conn.getShare(request.REQUEST.getlist('share')[0])] or list()
     wells = list()
     if len(request.REQUEST.getlist('well')) > 0:
-        index = int(request.REQUEST.get('index', 0))
+        index = getIntOrDefault(request, 'index', 0)
         for w in conn.getObjects("Well", request.REQUEST.getlist('well')):
             w.index=index
             wells.append(w)
@@ -1063,7 +1079,7 @@ def batch_annotate(request, conn=None, **kwargs):
     initial = {'selected':selected, 'images':objs['image'], 'datasets': objs['dataset'], 'projects':objs['project'], 
             'screens':objs['screen'], 'plates':objs['plate'], 'acquisitions':objs['acquisition'], 'wells':objs['well']}
     form_comment = CommentAnnotationForm(initial=initial)
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
@@ -1091,7 +1107,7 @@ def annotate_file(request, conn=None, **kwargs):
     On 'POST', This handles attaching an existing file-annotation(s) and/or upload of a new file to one or more objects 
     Otherwise it generates the form for choosing file-annotations & local files.
     """
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
@@ -1116,10 +1132,17 @@ def annotate_file(request, conn=None, **kwargs):
                 manager = BaseContainer(conn, **kw)
             except AttributeError, x:
                 return handlerInternalError(request, x)
-    if manager is None:
+
+    if manager is not None:
+        files = manager.getFilesByObject()
+    else:
         manager = BaseContainer(conn)
+        for dtype, objs in oids.items():
+            if len(objs) > 0:
+                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
+                files = manager.getFilesByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+                break
     
-    files = manager.getFilesByObject()
     initial['files'] = files
 
     if request.method == 'POST':
@@ -1174,7 +1197,7 @@ def annotate_comment(request, conn=None, **kwargs):
     if request.method != 'POST':
         raise Http404("Unbound instance of form not available.")
     
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
@@ -1205,7 +1228,7 @@ def annotate_comment(request, conn=None, **kwargs):
 def annotate_tags(request, conn=None, **kwargs):
     """ This handles creation AND submission of Tags form, adding new AND/OR existing tags to one or more objects """
 
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
     oids = getObjects(request, conn)
     selected = getIds(request)
     obj_count = sum( [len(selected[types]) for types in selected] )
@@ -1230,10 +1253,16 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-    if manager is None:
+    if manager is not None:
+        tags = manager.getTagsByObject()
+    else:
         manager = BaseContainer(conn)
+        for dtype, objs in oids.items():
+            if len(objs) > 0:
+                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
+                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+                break
 
-    tags = manager.getTagsByObject()
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'], 
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
@@ -1279,6 +1308,39 @@ def annotate_tags(request, conn=None, **kwargs):
     context['template'] = template
     return context
 
+
+@login_required()
+@render_response()
+def edit_channel_names(request, imageId, conn=None, **kwargs):
+    """
+    Edit and save channel names
+    """
+    image = conn.getObject("Image", imageId)
+    channelNames = {}
+    nameDict = {}
+    for i in range(image.getSizeC()):
+        cname = request.REQUEST.get("channel%d" % i, None)
+        if cname is not None:
+            channelNames["channel%d" % i] = smart_str(cname)
+            nameDict[i+1] = smart_str(cname)
+    # If the 'Apply to Dataset' button was used to submit...
+    if request.REQUEST.get('confirm_apply', None) is not None:
+        parentId = request.REQUEST.get('parentId', None)    # plate-123 OR dataset-234
+        if parentId is not None:
+            ptype = parentId.split("-")[0].title()
+            pid = long(parentId.split("-")[1])
+            counts = conn.setChannelNames(ptype, [pid], nameDict)
+    else:
+        counts = conn.setChannelNames("Image", [image.getId()], nameDict)
+    rv = {"channelNames": channelNames}
+    if counts:
+        rv['imageCount'] = counts['imageCount']
+        rv['updateCount'] = counts['updateCount']
+        return rv
+    else:
+        return {"error": "No parent found to apply Channel Names"}
+
+
 @login_required(setGroupContext=True)
 @render_response()
 def manage_action_containers(request, action, o_type=None, o_id=None, conn=None, **kwargs):
@@ -1294,7 +1356,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
     template = None
     
     # the index of a field within a well
-    index = int(request.REQUEST.get('index', 0))
+    index = getIntOrDefault(request, 'index', 0)
     
     manager = None
     if o_type in ("dataset", "project", "image", "screen", "plate", "acquisition", "well","comment", "file", "tag", "tagset"):
@@ -1404,7 +1466,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             if (o_type == "well"):
                 obj = obj.getWellSample(index).image()
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': ((o_type != ("tag")) and obj.getName() or obj.textValue)})
+            if o_type == "tag":
+                txtValue = obj.textValue
+            else:
+                txtValue = obj.getName()
+            form = ContainerNameForm(initial={'name': txtValue})
             context = {'manager':manager, 'form':form}
         else:
             return HttpResponseServerError("Object does not exist")
@@ -1506,7 +1572,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         # Handles 'remove' of Images from jsTree, removal of comment, tag from Object etc.
         parents = request.REQUEST['parent']     # E.g. image-123  or image-1|image-2
         try:
-            manager.remove(parents.split('|'))
+            manager.remove(parents.split('|'), index)
         except Exception, x:
             logger.error(traceback.format_exc())
             rdict = {'bad':'true','errs': str(x) }
@@ -1670,73 +1736,6 @@ def image_as_map(request, imageId, conn=None, **kwargs):
         return handlerInternalError(request, "Cannot generate map (id:%s)." % (imageId))
     return rsp
 
-
-@login_required(doConnectionCleanup=False)
-def archived_files(request, iid, conn=None, **kwargs):
-    """
-    Downloads the archived file(s) as a single file or as a zip (if more than one file)
-    """
-    image = conn.getObject("Image", iid)
-    if image is None:
-        logger.debug("Cannot download archived file becuase Image does not exist.")
-        return handlerInternalError(request, "Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
-    
-    files = list(image.getArchivedFiles())
-
-    if len(files) == 0:
-        logger.debug("Tried downloading archived files from image with no files archived.")
-        return handlerInternalError(request, "This image has no Archived Files.")
-
-    if len(files) == 1:
-        orig_file = files[0]
-        rsp = ConnCleaningHttpResponse(orig_file.getFileInChunks())
-        rsp.conn = conn
-        rsp['Content-Length'] = orig_file.getSize()
-        rsp['Content-Disposition'] = 'attachment; filename=%s' % (orig_file.getName().replace(" ","_"))
-    else:
-        import tempfile
-        temp = tempfile.NamedTemporaryFile(suffix='.archive')
-        try:
-            temp_zip_dir = tempfile.mkdtemp()
-            logger.debug("download dir: %s" % temp_zip_dir)
-            try:
-                for a in files:
-                    temp_f = os.path.join(temp_zip_dir, a.name)
-                    f = open(str(temp_f),"wb")
-                    try:
-                        for chunk in a.getFileInChunks():
-                            f.write(chunk)
-                    finally:
-                        f.close()
-
-                # create zip
-                zip_file = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
-                try:
-                    a_files = os.path.join(temp_zip_dir, "*")
-                    for name in glob.glob(a_files):
-                        zip_file.write(name, os.path.basename(name))
-                finally:
-                    zip_file.close()
-                    # delete temp dir
-            finally:
-                shutil.rmtree(temp_zip_dir, ignore_errors=True)
-            
-            file_name = "%s.zip" % image.getName().replace(" ","_")
-
-            # return the zip or single file
-            archivedFile_data = FileWrapper(temp)
-            rsp = ConnCleaningHttpResponse(archivedFile_data)
-            rsp.conn = conn
-            rsp['Content-Length'] = temp.tell()
-            rsp['Content-Disposition'] = 'attachment; filename=%s' % file_name
-            temp.seek(0)
-        except Exception, x:
-            temp.close()
-            logger.error(traceback.format_exc())
-            return handlerInternalError(request, "Cannot download file (id:%s)." % (iid))
-
-    rsp['Content-Type'] = 'application/force-download'
-    return rsp
 
 @login_required(doConnectionCleanup=False)
 def download_annotation(request, annId, conn=None, **kwargs):

@@ -1819,6 +1819,34 @@ class ControlPane
     }
     
     /**
+     * Updates the component displaying the channels' details after update.
+     */
+    void onChannelUpdated()
+    {
+    	Iterator<ChannelButton> i = channelButtons.iterator();
+    	ChannelData data;
+    	ChannelButton cb;
+    	while (i.hasNext()) {
+			cb = i.next();
+			data = model.getChannelData(cb.getChannelIndex());
+			cb.setText(data.getChannelLabeling());
+		}
+        i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+			cb = i.next();
+			data = model.getChannelData(cb.getChannelIndex());
+			cb.setText(data.getChannelLabeling());
+		}
+        i = channelButtonsProjection.iterator();
+        while (i.hasNext()) {
+			cb = i.next();
+			data = model.getChannelData(cb.getChannelIndex());
+			cb.setText(data.getChannelLabeling());
+		}
+        repaint();
+    }
+    
+    /**
      * Reacts to the selection of an item in the projection box
      * @see ActionListener#actionPerformed(ActionEvent)
      */

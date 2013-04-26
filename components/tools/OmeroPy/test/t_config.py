@@ -214,6 +214,30 @@ class TestConfig(unittest.TestCase):
         finally:
             config.close()
 
+    def testReadOnlyConfigSimple(self):
+        p = create_path()
+        p.chmod(0444)  # r--r--r--
+        config = ConfigXml(filename=str(p), env_config=None)  # Must be None
+        config.close()  # Shouldn't save
+
+    def testReadOnlyConfigFailsOnEnv1(self):
+        p = create_path()
+        p.chmod(0444)  # r--r--r--
+        self.assertRaises(Exception, ConfigXml, filename=str(p), env_config="default")
+
+    def testReadOnlyConfigFailsOnEnv2(self):
+        old = os.environ.get("OMERO_CONFIG")
+        os.environ["OMERO_CONFIG"] = "default"
+        try:
+            p = create_path()
+            p.chmod(0444)  # r--r--r--
+            self.assertRaises(Exception, ConfigXml, filename=str(p))
+        finally:
+            if old is None:
+                del os.environ["OMERO_CONFIG"]
+            else:
+                os.environ["OMERO_CONFIG"] = old
+
 if __name__ == '__main__':
     logging.basicConfig()
     unittest.main()

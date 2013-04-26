@@ -127,10 +127,8 @@ public class ScriptRunner
     {
         Object o = fe.getPartialResult();
         if (o != null) {
-        	if (o instanceof Boolean) {
-        		Boolean b = (Boolean) o;
-        		if (!b.booleanValue())
-        			onException(MESSAGE_RUN, null); 
+        	if (Boolean.valueOf(false).equals(o)) {
+        		onException(MESSAGE_RUN, null);
         	} else if (o instanceof ProcessCallback) {
         		callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
@@ -145,16 +143,12 @@ public class ScriptRunner
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
-    { 
-    	//if (result == null) return;
-    	System.err.println(result);
-    	if (result instanceof Boolean) {
-    		Boolean b = (Boolean) result;
-    		if (!b.booleanValue())
-    			onException(MESSAGE_RUN, null); 
+    {
+    	if (Boolean.valueOf(false).equals(result)) {
+    		onException(MESSAGE_RUN, null);
     	} else if (!(result instanceof Boolean)) {
     		activity.endActivity(result);
-    	} 
+    	}
     }
 	
 }

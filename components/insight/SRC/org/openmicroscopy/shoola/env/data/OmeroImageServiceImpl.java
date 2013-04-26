@@ -157,6 +157,7 @@ class OmeroImageServiceImpl
 		Map<File, StatusLabel> files, StatusLabel status,
 		ImportableObject object, boolean archived, IObject ioContainer,
 		List<Annotation> list, long userID, boolean close, boolean hcs)
+	throws DSAccessException, DSOutOfServiceException
 	{
 		if (status.isMarkedAsCancel()) {
 			if (close) gateway.closeImport(ctx);
@@ -1031,7 +1032,7 @@ class OmeroImageServiceImpl
 	 */
 	public Object importFile(ImportableObject object,
 		ImportableFile importable, long userID, boolean close) 
-		throws ImportException
+		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
@@ -1270,20 +1271,23 @@ class OmeroImageServiceImpl
 		} //file import ends.
 		//Checks folder import.
 		ic = gateway.getImportCandidates(ctx, object, file, status);
-		candidates = ic.getPaths();
-		if (candidates.size() == 0) return Boolean.valueOf(false);
+		List<ImportContainer> lic = ic.getContainers();
+		if (lic.size() == 0) return Boolean.valueOf(false);
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
-		Iterator<String> i = candidates.iterator();
+		
 		File f;
 		StatusLabel sl;
-		int n = candidates.size();
-		hcs = isHCS(ic.getContainers());
-		while (i.hasNext()) {
-			f = new File(i.next());
+		int n = lic.size();
+		
+		Iterator<ImportContainer> j = lic.iterator();
+		ImportContainer c;
+		while (j.hasNext()) {
+			c = j.next();
+			hcs = c.getIsSPW();
+			f = c.getFile();
 			sl = new StatusLabel();
-			//if (ImportableObject.isHCSFile(f) || hcs) {
 			if (hcs) {
 				if (n == 1 && file.list().length > 1)
 					hcsFiles.put(f, sl);
@@ -1323,7 +1327,7 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 			importCandidates(ctx, hcsFiles, status, object, archived,
-					ioContainer, list, userID, close, hcs);
+					ioContainer, list, userID, close, true);
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);

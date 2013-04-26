@@ -51,7 +51,7 @@
             
             // double-click handler on image - launches image viewer
             $("#dataIcons li").dblclick(function(event) {
-                openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
+                OME.openPopup("{% url web_image_viewer 0 %}".replace('0', $(this).attr('id').split("-")[1] ));
             });
             
             // single click handler on image (container). Selection then update toolbar & metadata pane
@@ -102,7 +102,7 @@
                     var $row = $('#image_icon-'+ img_id);
                     primaryIndex = $rows.index($row);
                 }
-                var multiSelectKey = multi_key() + "Key";
+                var multiSelectKey = OME.multi_key() + "Key";
                 if (event.shiftKey) {
                     // user tried to select a range, but we don't have a first selection yet...
                     if ( primaryIndex == -1 ) {
@@ -154,7 +154,7 @@
 
                 if (toSelect.length == 0) {
                     datatree.deselect_all();
-                    tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
+                    OME.tree_selection_changed();   // hack since deselect_all() doesn't trigger https://github.com/vakata/jstree/issues/252
                     return;
                 }
                 // we want to manually select a bunch of nodes, firing only a single selection event (when we're done)
@@ -343,9 +343,10 @@
         </li>
         {% for c in manager.containers.images %}
             <li class='row' id="image_icon-{{ c.id }}">
-                <div class="image" title="{{ c.name }}">
+                <div class="image">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
+                <!-- NB: '#image_icon-123 div.desc' etc is used to update name when changed in right panel via "editinplace" -->
                 <div class="desc" valign="middle">
                     {{ c.name|truncatebefor:"65" }}
                     <span class="hidden_sort_text">{{ c.name }}</span>

@@ -288,12 +288,29 @@ class TestSessions(unittest.TestCase):
         cli.invoke("-s testhost -u testuser -p 4444 s login".split())
         cli.assertReqSize(self, 0)
 
+    def testReuseFromDifferentPortDoesntWork_4072(self):
+        cli = MyCLI()
+        cli.STORE.add("testhost","testuser","testsessid", {})
+        cli.requests_pass()
+        cli.assertReqSize(self, 1)
+        cli.creates_client(port="4444")
+        cli.invoke("s login testuser@testhost:4444".split())
+        cli.assertReqSize(self, 0)
+
     def testReuseFromSamePortDoesWork(self):
         cli = MyCLI()
         cli.STORE.add("testhost","testuser","testsessid", {"omero.port":"4444"})
         cli.assertReqSize(self, 0)
         cli.creates_client(port="4444", new=False)
         cli.invoke("-s testhost -u testuser -p 4444 s login".split())
+        cli.assertReqSize(self, 0)
+
+    def testReuseFromSamePortDoesWork_4072(self):
+        cli = MyCLI()
+        cli.STORE.add("testhost","testuser","testsessid", {"omero.port":"4444"})
+        cli.assertReqSize(self, 0)
+        cli.creates_client(port="4444", new=False)
+        cli.invoke("s login testuser@testhost:4444".split())
         cli.assertReqSize(self, 0)
 
     def testLogicOfConflictsOnNoLocalhostRequested(self):

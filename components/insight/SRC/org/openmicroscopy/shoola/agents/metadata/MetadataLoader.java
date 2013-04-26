@@ -89,16 +89,21 @@ public abstract class MetadataLoader
     /** The security context.*/
     protected final SecurityContext ctx;
     
+    /** The identifier of the loader.*/
+    protected int loaderID;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
+     * @param loaderID The identifier of the loader.
      */
-    public MetadataLoader(MetadataViewer viewer, SecurityContext ctx)
+    public MetadataLoader(MetadataViewer viewer, SecurityContext ctx, int
+    		loaderID)
     {
-    	this(viewer, ctx, null);
+    	this(viewer, ctx, null, loaderID);
     }
     
     /**
@@ -108,9 +113,10 @@ public abstract class MetadataLoader
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param refNode The node of reference. Mustn't be <code>null</code>.
+     * @param loaderID The identifier of the loader.
      */
     public MetadataLoader(MetadataViewer viewer, SecurityContext ctx,
-    		TreeBrowserDisplay refNode)
+    		TreeBrowserDisplay refNode, int loaderID)
     {
     	if (viewer == null) throw new NullPointerException("No viewer.");
     	if (ctx == null)
@@ -118,6 +124,7 @@ public abstract class MetadataLoader
     	this.ctx = ctx;
     	this.viewer = viewer;
     	this.refNode = refNode;
+    	this.loaderID = loaderID;
     	registry = MetadataViewerAgent.getRegistry();
     	mhView = (MetadataHandlerView) 
     	registry.getDataServicesView(MetadataHandlerView.class);
@@ -142,8 +149,6 @@ public abstract class MetadataLoader
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
-        //registry.getUserNotifier().notifyInfo("Data Retrieval Cancellation", 
-        //info);
     }
     
     /**
@@ -163,7 +168,7 @@ public abstract class MetadataLoader
         if (state != MetadataViewer.DISCARDED)
         	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        viewer.cancel(refNode);
+        viewer.cancel(loaderID);
     }
     
     /** Fires an asynchronous data loading. */

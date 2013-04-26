@@ -30,6 +30,8 @@ Notes:
 
  * Added parpath (2009/09/21)
 
+ * Improved listdir to handle unreadable directories. See #9156. (2013/03/06)
+
 """
 
 
@@ -363,8 +365,14 @@ class path(_base):
 
         With the optional 'pattern' argument, this only lists
         items whose names match the given pattern.
+
+        try/except added to handle unreadable directories. See #9156.
         """
-        names = os.listdir(self)
+        try:
+            names = os.listdir(self)
+        except OSError:
+            # ignore unreadable directories
+            names = []
         if pattern is not None:
             names = fnmatch.filter(names, pattern)
         return [self / child for child in names]

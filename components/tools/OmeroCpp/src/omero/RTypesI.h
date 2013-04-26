@@ -12,6 +12,12 @@
 #include <omero/Scripts.h>
 #include <omero/RTypes.h>
 #include <Ice/Ice.h>
+#include <IceUtil/Config.h>
+#if ICE_INT_VERSION / 100 >= 304
+#   include <Ice/Handle.h>
+#else
+#   include <IceUtil/Handle.h>
+#endif
 #include <string>
 #include <map>
 
@@ -32,6 +38,18 @@
  * This module is meant to be kept in sync with the abstract Java class
  * omero.rtypes as well as the omero/rtypes.py module.
  */
+
+namespace omero {
+    namespace rtypes {
+	class ObjectFactory;
+    }
+}
+
+#if ICE_INT_VERSION / 100 >= 304
+namespace IceInternal {
+  OMERO_API ::Ice::LocalObject* upCast(::omero::rtypes::ObjectFactory*);
+}
+#endif
 
 namespace omero {
 
@@ -237,6 +255,11 @@ namespace omero {
 	// ========================================================================
 
 	// Conversion classes are for omero.model <--> ome.model only (no python)
+#if ICE_INT_VERSION / 100 >= 304
+	typedef IceInternal::Handle<ObjectFactory> ObjectFactoryPtr;
+#else
+	typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
+#endif
 
 	class ObjectFactory : virtual public Ice::ObjectFactory {
 	protected:
@@ -247,8 +270,6 @@ namespace omero {
 	    virtual Ice::ObjectPtr create(const std::string& id) = 0;
 	    virtual void destroy() { } // No-op
 	};
-
-	typedef IceUtil::Handle<ObjectFactory> ObjectFactoryPtr;
 
 	// Shared state (flyweight)
 	// =========================================================================

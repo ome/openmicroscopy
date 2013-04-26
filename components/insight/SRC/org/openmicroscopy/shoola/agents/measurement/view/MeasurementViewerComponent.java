@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
+import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -1090,5 +1091,16 @@ class MeasurementViewerComponent
      * @see MeasurementViewer#isMember()
      */
 	public boolean isMember() { return model.isMember(); }
-	
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#isMember()
+     */
+	public void onUpdatedChannels(List<ChannelData> channels)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setChannelData(channels);
+		view.displayAnalysisResults();
+	}
+
 }

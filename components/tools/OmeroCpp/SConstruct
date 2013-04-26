@@ -10,19 +10,35 @@ blitz = os.path.abspath( os.path.join(os.path.curdir, os.path.pardir, os.path.pa
 sys.path.append( blitz )
 from blitz_tools import *
 
+
 #
 # At the moment, execution of this script requires,
 # ant tools-init to have been run
 #
 
 env = OmeroEnvironment(CPPPATH=["src","target"])
-
 if not env.GetOption('clean'):
+
     conf = Configure(env)
     if not conf.CheckCXXHeader(os.path.join("Ice","Ice.h")):
         print 'Ice/Ice.h not found'
         env.Exit(1)
     conf.Finish()
+
+    import sys, traceback as tb
+    def tracefunc(frame, event, arg):
+        tb.print_exc()
+        return tracefunc
+    #sys.settrace(tracefunc)
+    value = env.SConscript("PThread", exports={"flag":"START"})
+    if value:
+        PTHREAD_CFLAGS, PTHREAD_LIBFLAGS = value
+        if PTHREAD_CFLAGS:
+            print "PTHREAD_CFLAGS: ", PTHREAD_CFLAGS
+            env.AppendUnique(CXXFLAGS=PTHREAD_CFLAGS)
+        if PTHREAD_LIBFLAGS:
+            print "PTHREAD_LIBFLAGS: ", PTHREAD_LIBFLAGS
+            env.AppendUnique(LINKFLAGS=PTHREAD_LIBFLAGS)
 
 f = open("scons.log", "w")
 f.write(env.Dump())
@@ -35,7 +51,7 @@ compiler_env["PLATFORM"] = env.get("PLATFORM", "unknown")
 compiler_env["RELEASE"] = (env.isdebug() and "dbg" or "rel")
 compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
 compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
-compiler_env["CPPFLAGS"] = env.get("CPPFLAGS","unknown")
+compiler_env["CXXFLAGS"] = env.get("CXXFLAGS","unknown")
 try:
     compiler_env["CXX"] = env["CC"] # Windows
 except KeyError:
@@ -53,7 +69,7 @@ f.write("""
 #
 # Scons Compile Log : %(timestamp)s
 #
-CPPFLAGS=%(CPPFLAGS)s
+CXXFLAGS=%(CXXFLAGS)s
 CPPPATH=%(CPPPATH)s
 CXX=%(CXX)s
 CXXVERSION=%(CXXVERSION)s
@@ -126,7 +142,9 @@ main = tenv.Object("test/gtest/gtest_main.cc")
 fixture = tenv.Object("test/omero/fixture.cpp")
 
 def define_test(dir):
-    test =  tenv.Program("test/%s.exe" % dir,
+    exe = uenv.iswin32() and ".exe" or ""
+    bin = "test/%s/%s%s" % (dir,dir,exe)
+    test =  tenv.Program(bin,
         [gtest, main, fixture] + tenv.Glob("test/%s/*.cpp" % dir),
         LIBS = ["omero_client"]+env.icelibs())
     return test

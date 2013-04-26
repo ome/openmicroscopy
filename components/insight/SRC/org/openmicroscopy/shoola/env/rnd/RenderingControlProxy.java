@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -154,6 +155,9 @@ class RenderingControlProxy
     /** The security context associated to that control.*/
     private SecurityContext ctx;
     
+    /** Check if the network is up or not.*/
+    private NetworkChecker checker;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -171,6 +175,22 @@ class RenderingControlProxy
     }
     
     /**
+     * Handles only connection error. Returns <code>true</code> if it is not a
+     * connection error, <code>false</code> otherwise.
+     * 
+     * @param e The exception to handle.
+     * @return See above.
+     */
+    private boolean handleConnectionException(Throwable e)
+    {
+    	ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
+    	int index = handler.handleConnectionException(e);
+    	if (index < 0) return true;
+    	context.getTaskBar().sessionExpired(index);
+    	return false;
+    }
+    
+    /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
      * message.
@@ -183,14 +203,9 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
-    	int index = handler.handleConnectionException(e);
-		if (index >= 0) {
-			context.getTaskBar().sessionExpired(index);
-		} else {
+    	if (!handleConnectionException(e))
 			throw new RenderingServiceException(message+"\n\n"+ 
 					printErrorText(e), e);
-		}
     }
 
     /**
@@ -717,6 +732,33 @@ class RenderingControlProxy
         
         return img;
 	}
+
+	private boolean networkUp = true;
+	
+	/** Checks if the proxy is still active.*/
+	private void isSessionAlive()
+		throws RenderingServiceException
+	{
+		if (!networkUp) {
+			RenderingServiceException ex = new RenderingServiceException();
+			ex.setIndex(RenderingServiceException.CONNECTION);
+			//throw ex;
+		}
+		try {
+			networkUp = checker.isNetworkup();
+			servant.ice_ping();
+		} catch (Throwable e) {
+			boolean b = handleConnectionException(e);
+			int index = 0;
+			if (!b) {
+				networkUp = false;
+				index = RenderingServiceException.CONNECTION;
+			}
+			RenderingServiceException ex = new RenderingServiceException(e);
+			ex.setIndex(index);
+			throw ex;
+		}
+	}
 	
     /**
      * Creates a new instance.
@@ -745,6 +787,7 @@ class RenderingControlProxy
             throw new NullPointerException("No registry.");
         if (ctx == null)
             throw new NullPointerException("No security context.");
+        checker = new NetworkChecker();
         this.ctx = ctx;
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
@@ -834,7 +877,6 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (servant == null) return;
-    	//DataServicesFactory.isSessionAlive(context);
     	this.servant = servant;
     	
     	// reset default of the rendering engine.
@@ -885,9 +927,8 @@ class RenderingControlProxy
     void shutDown()
     { 
     	try {
-    		servant.close();
-    		//remove the cache.
     		context.getCacheService().removeCache(cacheID);
+    		if (checker.isNetworkup()) servant.close();
 		} catch (Exception e) {} 
     }
     
@@ -908,7 +949,8 @@ class RenderingControlProxy
      */
     public void setModel(String value)
     	throws RenderingServiceException, DSOutOfServiceException
-    { 
+    {
+    	isSessionAlive();
     	try {
     		Iterator i = models.iterator();
             RenderingModel model;
@@ -921,7 +963,6 @@ class RenderingControlProxy
                 }
             }
 		} catch (Exception e) {
-			rndDef.setColorModel(value);
 			handleException(e, ERROR+"model.");
 		}
      }
@@ -950,7 +991,8 @@ class RenderingControlProxy
      */
     public void setDefaultZ(int z)
     	throws RenderingServiceException, DSOutOfServiceException
-    { 
+    {
+    	isSessionAlive();
     	try {
     		int maxZ = getPixelsDimensionsZ();
     		if (z < 0) z = 0;
@@ -958,7 +1000,6 @@ class RenderingControlProxy
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
 		} catch (Exception e) {
-			rndDef.setDefaultZ(z);
 			handleException(e, ERROR+"default Z.");
 		}
     }
@@ -969,7 +1010,8 @@ class RenderingControlProxy
      */
     public void setDefaultT(int t)
     	throws RenderingServiceException, DSOutOfServiceException
-    { 
+    {
+    	isSessionAlive();
     	try {
     		int maxT = getPixelsDimensionsT();
     		if (t < 0) t = 0;
@@ -977,7 +1019,6 @@ class RenderingControlProxy
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
 		} catch (Exception e) {
-			rndDef.setDefaultT(t);
 			handleException(e, ERROR+"default T.");
 		}
     }
@@ -989,13 +1030,13 @@ class RenderingControlProxy
     public void setQuantumStrategy(int bitResolution)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
             rndDef.setBitResolution(bitResolution);
             invalidateCache();
 		} catch (Exception e) {
-			rndDef.setBitResolution(bitResolution);
 			handleException(e, ERROR+"bit resolution.");
 		}
     }
@@ -1007,6 +1048,7 @@ class RenderingControlProxy
     public void setCodomainInterval(int start, int end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
@@ -1024,6 +1066,7 @@ class RenderingControlProxy
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	try {
     		List list = servant.getAvailableFamilies();
             Iterator i = list.iterator();
@@ -1039,8 +1082,6 @@ class RenderingControlProxy
                 }
             }
 		} catch (Exception e) {
-			rndDef.getChannel(w).setQuantization(value, coefficient, 
-                    noiseReduction);
 			handleException(e, ERROR+"quantization map.");
 		}
     }
@@ -1085,6 +1126,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
@@ -1123,6 +1165,7 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	isSessionAlive();
     	try {
     		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
     						c.getAlpha());
@@ -1153,6 +1196,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	isSessionAlive();
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
@@ -1228,7 +1272,8 @@ class RenderingControlProxy
      */
     public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
-    { 
+    {
+    	isSessionAlive();
     	try {
     		servant.saveCurrentSettings();
 			return rndDef.copy();
@@ -1245,7 +1290,8 @@ class RenderingControlProxy
      */
     public void resetDefaults()
     	throws RenderingServiceException, DSOutOfServiceException
-    { 
+    {
+    	isSessionAlive();
     	try {
     		servant.resetDefaultsNoSave();
     		invalidateCache();
@@ -1472,7 +1518,7 @@ class RenderingControlProxy
 	public boolean isPixelsTypeSigned() { return rndDef.isTypeSigned(); }
 	
 	/** 
-	 * Implemented as specified by {@link RenderingControl}. 
+	 * Implemented as specified by {@link RenderingControl}.
 	 * @see RenderingControl#validatePixels(PixelsData)
 	 */
 	public boolean validatePixels(PixelsData pixels)
@@ -1508,6 +1554,16 @@ class RenderingControlProxy
     {
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
+    	try {
+    		networkUp = checker.isNetworkup();
+			servant.ice_ping();
+		} catch (Exception e) {
+			return null;
+		}
+    	
+    	//since this method is always invoked after another change in
+    	//the settings and due to the fact that the proxy is usually invoked
+    	//in the swing thread.
     	if (value != compression) setCompression(value);
     	BufferedImage img;
         if (isCompressed()) img = renderCompressedBI(pDef);
@@ -1523,6 +1579,7 @@ class RenderingControlProxy
 	public void setCompression(int compression)
 	{
 		try {
+			isSessionAlive();
 			float f = PixelsServicesFactory.getCompressionQuality(compression);
 			rndDef.setCompression(f);
 			servant.setCompressionLevel(f);
@@ -1555,6 +1612,7 @@ class RenderingControlProxy
 	public void setOriginalRndSettings() 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		isSessionAlive();
 		try {
     		servant.resetDefaultsNoSave();
     		if (getPixelsDimensionsC() > 1) setModel(RGB);
@@ -1649,11 +1707,9 @@ class RenderingControlProxy
 							List<Integer> indexes) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		//DataServicesFactory.isSessionAlive(context);
 		if (rndDef == null)
 			throw new IllegalArgumentException("No rendering settings to " +
 					"set");
-		//DataServicesFactory.isSessionAlive(context);
 		setModel(rndToCopy.getColorModel());
 		setCodomainInterval(rndToCopy.getCdStart(), rndToCopy.getCdEnd());
 		setQuantumStrategy(rndToCopy.getBitResolution());
@@ -1769,9 +1825,13 @@ class RenderingControlProxy
 	{
 		if (pDef == null) 
 			throw new IllegalArgumentException("Plane def cannot be null.");
-		//DataServicesFactory.isSessionAlive(context);
-		if (isCompressed()) 
-			return renderCompressedAsTexture(pDef);
+		try {
+    		networkUp = checker.isNetworkup();
+			servant.ice_ping();
+		} catch (Exception e) {
+			return null;
+		}
+		if (isCompressed()) return renderCompressedAsTexture(pDef);
 	     return renderUncompressedAsTexture(pDef);
 	}
 
@@ -1895,6 +1955,7 @@ class RenderingControlProxy
 	{
 		if (level > getResolutionLevels())
 			level = getResolutionLevels();
+		isSessionAlive();
 		try {
 			servant.setResolutionLevel(level);
 			selectedResolutionLevel = level;

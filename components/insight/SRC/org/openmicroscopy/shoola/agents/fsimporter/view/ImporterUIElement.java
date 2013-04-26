@@ -265,7 +265,6 @@ class ImporterUIElement
 			buffer.append(" cancelled: "+countCancelled);
 		if (countFailure > 0)
 			buffer.append(" failed: "+countFailure);
-		//numberOfImportLabel.setText(countImported+" of "+totalToImport);
 		numberOfImportLabel.setText(buffer.toString());
 	}
 	
@@ -469,7 +468,7 @@ class ImporterUIElement
 		}
 		List<DataObject> objects = getExistingContainers();
 		int n = objects.size();
-		if (n == 1) { //only one.
+		if (n == 1) {
 			DataObject o = objects.get(0);
 			containerComponents.put(createNameLabel(o), o);
 			Iterator<FileImportComponent> j = components.values().iterator();
@@ -544,53 +543,6 @@ class ImporterUIElement
 			row.add(value);
 			header.add(row);
 		}
-		/*
-		header.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridx = 0;
-		JLabel label = UIUtilities.setTextFont(
-				"The number of files/folders imported:", Font.BOLD);
-		JLabel value;
-    	header.add(label, c);
-    	c.gridx = c.gridx+2;
-    	header.add(numberOfImportLabel, c);
-    	c.gridy++;
-    	c.gridx = 0;
-    	label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
-		startImport = System.currentTimeMillis();
-		timeLabel = UIUtilities.createComponent(null);
-		timeLabel.setText(UIUtilities.formatShortDateTime(null));
-    	header.add(label, c);
-    	c.gridx = c.gridx+2;
-    	header.add(timeLabel, c);
-    	c.gridy++; 	
-    	c.gridx = 0;
-    	int n;
-		Collection<TagAnnotationData> tags = object.getTags();
-		if (tags != null && tags.size() > 0) {
-			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
-			value = UIUtilities.createComponent(null);
-			StringBuffer buffer = new StringBuffer();
-			Iterator<TagAnnotationData> i = tags.iterator();
-			int index = 0;
-			n = tags.size()-1;
-			while (i.hasNext()) {
-				buffer.append((i.next()).getTagValue());
-				if (index < n) buffer.append(", ");
-				index++;
-			}
-			value.setText(buffer.toString());
-			header.add(label, c);
-	    	c.gridx = c.gridx+2;
-	    	header.add(value, c);
-	    	c.gridy++; 	
-	    	c.gridx = 0;
-		}
-		*/
 		topContainerToRefresh = topContainerToRefresh();
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -646,7 +598,6 @@ class ImporterUIElement
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else 
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-		//entries.add(c.getNameLabel(), "0, "+index);
 		entries.add(c, "0, "+index+"");
 	}
 	
@@ -682,8 +633,6 @@ class ImporterUIElement
 		if (l == null || l.size() == 0) return false;
 		DataObject object = l.get(0);
 		if (!(object instanceof ProjectData)) return false;
-		//DatasetData d = getData().getDefaultDataset();
-		//if (d != null && d.getId() <= 0) return true;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {

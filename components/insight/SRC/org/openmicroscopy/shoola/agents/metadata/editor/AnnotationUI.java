@@ -163,8 +163,12 @@ abstract class AnnotationUI
 	/** Lays out components and clears the display. */
 	protected abstract void clearDisplay();
 	
-	/** Clears the data to save. */
-	protected abstract void clearData();
+	/** 
+	 * Clears the data to save.
+	 * 
+	 * @param oldObject The previously selected object
+	 */
+	protected abstract void clearData(Object oldObject);
 	
 	/** Sets the title of the component. */
 	protected abstract void setComponentTitle();
