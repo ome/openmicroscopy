@@ -144,8 +144,8 @@ public class FilePathRestrictions {
 
             product = new FilePathRestrictions(newTransformationMatrix,
                     Sets.union(product.unsafePrefixes, toCombine.unsafePrefixes),
-                    Sets.union(product.unsafePrefixes, toCombine.unsafePrefixes),
-                    Sets.union(product.unsafePrefixes, toCombine.unsafePrefixes),
+                    Sets.union(product.unsafeSuffixes, toCombine.unsafeSuffixes),
+                    Sets.union(product.unsafeNames, toCombine.unsafeNames),
                     safeCharacters);
         }
         return product;
