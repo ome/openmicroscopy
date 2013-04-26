@@ -4108,7 +4108,7 @@ class OMEROGateway
 				handleException(e, "Cannot set the file's id.");
 			}
 			if (folderPath != null) {
-				f = new File(folderPath+ of.getName().getValue());
+				f = new File(folderPath, of.getName().getValue());
 			} else f = file;
 			results.add(f);
 			try {
