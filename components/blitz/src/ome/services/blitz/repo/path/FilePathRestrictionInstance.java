@@ -33,9 +33,14 @@ import com.google.common.collect.SetMultimap;
  */
 public enum FilePathRestrictionInstance {
     /* these names are listed in etc/omero.properties */
+
+    /** proscribe naming that probably causes system problems on Microsoft Windows */
     WINDOWS_REQUIRED("Windows required"),
+    /** proscribe naming that probably causes sysadmin inconvenience on Microsoft Windows */
     WINDOWS_OPTIONAL("Windows optional"),
+    /** proscribe naming that probably causes system problems on UNIX-like platforms */
     UNIX_REQUIRED("UNIX required"),
+    /** proscribe naming that probably causes sysadmin inconvenience on UNIX-like platforms */
     UNIX_OPTIONAL("UNIX optional");
 
     private static ImmutableMap<String, FilePathRestrictionInstance> nameLookup =
