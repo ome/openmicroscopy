@@ -32,9 +32,10 @@ import com.google.common.collect.SetMultimap;
  * @since 5.0
  */
 public enum FilePathRestrictionInstance {
-    WINDOWS_REQUIRED("Windows requirements"),
+    /* these names are listed in etc/omero.properties */
+    WINDOWS_REQUIRED("Windows required"),
     WINDOWS_OPTIONAL("Windows optional"),
-    UNIX_REQUIRED("UNIX requirements"),
+    UNIX_REQUIRED("UNIX required"),
     UNIX_OPTIONAL("UNIX optional");
 
     private static ImmutableMap<String, FilePathRestrictionInstance> nameLookup =
@@ -91,7 +92,8 @@ public enum FilePathRestrictionInstance {
         for (final String unsafeName : unsafeNames) {
             unsafePrefixes.add(unsafeName + ".");
         }
-        unsafePrefixes.add("$");  // NTFS metadata files
+        /* NTFS metadata files */
+        unsafePrefixes.add("$");
 
         WINDOWS_REQUIRED.rules = new FilePathRestrictions(transformationMatrix, unsafePrefixes, null, unsafeNames, safeCharacters);
 

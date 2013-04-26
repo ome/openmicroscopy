@@ -16,7 +16,6 @@ import ome.model.internal.Permissions;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.PublicRepositoryI;
-import ome.services.blitz.repo.RepositoryDao;
 import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.util.Executor;
 import ome.system.Principal;
@@ -73,7 +72,7 @@ public class LegacyRepositoryUnitTest extends AbstractRepoUnitTest {
     private LegacyRepositoryI mk() throws Exception {
         Principal p = new Principal("sessionUuid", "system", "Internal");
         return new LegacyRepositoryI(oa, reg, ex, p, tmpRepo.getAbsolutePath(),
-                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null));
+                new PublicRepositoryI(new RepositoryDaoImpl(p, ex), cpf, null, ""));
     }
 
     private OriginalFile file() {

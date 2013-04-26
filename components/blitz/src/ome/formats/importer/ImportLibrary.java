@@ -219,9 +219,10 @@ public class ImportLibrary implements IObservable
         }
 
         // TODO: allow looser sanitization according to server configuration
-        final FilePathRestrictions conservativeRules =
-                FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
-        final ClientFilePathTransformer sanitizer = new ClientFilePathTransformer(new MakePathComponentSafe(conservativeRules));
+        final FilePathRestrictions portableRequiredRules =
+                FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_REQUIRED,
+                                                                    FilePathRestrictionInstance.UNIX_REQUIRED);
+        final ClientFilePathTransformer sanitizer = new ClientFilePathTransformer(new MakePathComponentSafe(portableRequiredRules));
 
         final ImportSettings settings = new ImportSettings();
         // TODO: here or on container.fillData, we need to

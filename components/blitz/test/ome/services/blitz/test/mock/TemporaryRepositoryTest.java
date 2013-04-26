@@ -74,7 +74,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
         Principal p = new Principal("session");
         TemporaryRepositoryI tr = new TemporaryRepositoryI(oa, reg, fixture.ex,
                 p, new PublicRepositoryI(new RepositoryDaoImpl(p, fixture.ex),
-                        cpf, null));
+                        cpf, null, ""));
         fixture.mock("executorMock").expects(atLeastOnce()).method("execute")
                 .will(new Stub() {
 

@@ -115,14 +115,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                null);
+                null, "");
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
             ChecksumProviderFactory checksumProviderFactory,
-            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
-        super(dao, checksumProviderFactory, checksumAlgorithm);
+            omero.model.ChecksumAlgorithm checksumAlgorithm,
+            String pathRules) throws Exception {
+        super(dao, checksumProviderFactory, checksumAlgorithm, pathRules);
         this.template = template;
         this.processes = processes;
         log.info("Repository template: " + this.template);
