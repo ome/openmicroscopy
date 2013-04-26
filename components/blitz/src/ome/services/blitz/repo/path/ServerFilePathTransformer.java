@@ -22,6 +22,8 @@ package ome.services.blitz.repo.path;
 import java.io.File;
 import java.io.IOException;
 
+import com.google.common.base.Function;
+
 /**
  * Transform between repository {@link FsFile} path and server-local {@link File}.
  * @author m.t.b.carroll@dundee.ac.uk
@@ -33,7 +35,7 @@ public class ServerFilePathTransformer {
     /* the parent path components that should be omitted from repository paths */
     private FsFile baseDirFsFile;
     /* a function to make file-path components safe across platforms */
-    private StringTransformer pathSanitizer;
+    private Function<String, String> pathSanitizer;
     
     /**
      * Given a repository path, returns the corresponding server-local {@link File}.
@@ -73,7 +75,7 @@ public class ServerFilePathTransformer {
      * Get the string transformer that is used to make file-path components safe across platforms.
      * @return the file-path component string transformer
      */
-    public StringTransformer getPathSanitizer() {
+    public Function<String, String> getPathSanitizer() {
         return this.pathSanitizer;
     }
     
@@ -82,7 +84,7 @@ public class ServerFilePathTransformer {
      * This is not required to be an injective function; two different components may transform to the same.
      * @param pathSanitizer the file-path component string transformer
      */
-    public void setPathSanitizer(StringTransformer pathSanitizer) {
+    public void setPathSanitizer(Function<String, String> pathSanitizer) {
         this.pathSanitizer = pathSanitizer;
     }
     
