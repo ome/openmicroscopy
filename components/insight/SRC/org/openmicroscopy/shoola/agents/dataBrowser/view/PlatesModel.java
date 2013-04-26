@@ -72,9 +72,7 @@ class PlatesModel
 		if (plates  == null) 
 			throw new IllegalArgumentException("No plates.");
 		this.parent = parent;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(plates, 
-							userID, 0);
+		Set visTrees = DataBrowserTranslator.transformHierarchy(plates);
         browser = BrowserFactory.createBrowser(visTrees);
         //layoutBrowser();
 	}

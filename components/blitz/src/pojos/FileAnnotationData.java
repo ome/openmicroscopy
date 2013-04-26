@@ -222,6 +222,18 @@ public class FileAnnotationData extends AnnotationData {
     private String format;
 
     /**
+     * Returns the original file if loaded, <code>null</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private OriginalFile getFile()
+    {
+    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+    	if (f != null && f.isLoaded()) return f;
+    	return null;
+    }
+    
+    /**
      * Controls if the file format is supported.
      * 
      * @param path
@@ -292,7 +304,7 @@ public class FileAnnotationData extends AnnotationData {
      */
     public String getOriginalMimetype()
     {
-    	OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+    	OriginalFile f = getFile();
         String unknown = UNKNOWN;
         String format = f == null ? unknown : (f.getMimetype() == null ? unknown
                 : (f.getMimetype().getValue()));
@@ -363,7 +375,6 @@ public class FileAnnotationData extends AnnotationData {
             return SERVER_MS_POWERPOINT;
         }
         return SERVER_OCTET_STREAM;
-        //throw new IllegalArgumentException("Format not supported.");
     }
 
 
@@ -397,7 +408,6 @@ public class FileAnnotationData extends AnnotationData {
             return MS_POWER_POINT;
         }
         return UNKNOWN;
-        //throw new IllegalArgumentException("Format not supported.");
     }
 
     /**
@@ -450,8 +460,7 @@ public class FileAnnotationData extends AnnotationData {
         if (attachedFile != null) {
             return attachedFile.getName();
         }
-        FileAnnotation fa = (FileAnnotation) asAnnotation();
-        OriginalFile f = fa.getFile();
+        OriginalFile f = getFile();
         String name = "";
         if (f != null) {
             if (f.getName() != null) {
@@ -478,7 +487,7 @@ public class FileAnnotationData extends AnnotationData {
         if (attachedFile != null) {
             return attachedFile.getAbsolutePath();
         }
-        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        OriginalFile f = getFile();
         if (f != null) {
             if (f.getPath() != null) {
                 return f.getPath().getValue();
@@ -495,7 +504,7 @@ public class FileAnnotationData extends AnnotationData {
     public long getFileSize()
     {
         if (getId() < 0)  return -1;
-        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        OriginalFile f = getFile();
         if (f == null || f.getSize() == null)  return -1;
         return f.getSize().getValue();
     }
@@ -508,7 +517,7 @@ public class FileAnnotationData extends AnnotationData {
     public long getFileID()
     {
         if (getId() < 0)  return -1;
-        OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+        OriginalFile f = getFile();
         if (f == null || f.getId() == null)  return -1;
         return f.getId().getValue();
     }
@@ -546,7 +555,6 @@ public class FileAnnotationData extends AnnotationData {
     		return true;
     	String format = getOriginalMimetype();
     	return (format.contains("video"));
-    	//return (SERVER_MPEG.equals(format) || SERVER_QT.equals(format));
     }
     
     /**

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # webgateway/views.py - django application view handling functions
 # 
@@ -15,7 +17,7 @@ import re
 
 import omero
 import omero.clients
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
@@ -244,9 +246,7 @@ def render_birds_eye_view (request, iid, size=None,
                            conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
-    for image 'iid'. Rendering settings can be specified in the request
-    parameters as in L{render_image} and L{render_image_region}; see
-    L{getImgDetailsFromReq} for a complete list.
+    for image 'iid'. We now use a thumbnail for performance. #10626
 
     @param request:     http request
     @param iid:         Image ID
@@ -254,13 +254,9 @@ def render_birds_eye_view (request, iid, size=None,
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
     @return:            http response containing jpeg
     """
-    server_id = request.session['connector'].server_id
-    img = _get_prepared_image(request, iid, conn=conn, server_id=server_id)
-    if img is None:
-        logger.debug("(b)Image %s not found..." % (str(iid)))
-        raise Http404
-    img, compress_quality = img
-    return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
+    if size is None:
+        size = 96       # Use cached thumbnail
+    return render_thumbnail(request, iid, w=size)
 
 @login_required()
 def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
@@ -294,7 +290,7 @@ def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kw
             else:
                 raise Http404
         else:
-            jpeg_data = img.getThumbnail(size=size)
+            jpeg_data = img.getThumbnail(size=size, direct=False)
             if jpeg_data is None:
                 logger.debug("(c)Image %s not found..." % (str(iid)))
                 if _defcb:
@@ -1490,8 +1486,13 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 @jsonp
 def copy_image_rdef_json (request, conn=None, **kwargs):
     """
-    Copy the rendering settings from one image to a list of images.
-    Images are specified in request by 'fromid' and list of 'toids'
+    If 'fromid' is in request, copy the image ID to session, 
+    for applying later using this same method.
+    If list of 'toids' is in request, paste the image ID from the session
+    to the specified images.
+    If 'fromid' AND 'toids' are in the reqest, we simply 
+    apply settings and don't save anything to request.
+    If 'to_type' is in request, this can be 'dataset', 'plate', 'acquisition'
     Returns json dict of Boolean:[Image-IDs] for images that have successfully 
     had the rendering settings applied, or not. 
     
@@ -1504,26 +1505,32 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
+    fromid = r.get('fromid', None)
+    toids = r.getlist('toids')
+    to_type = str(r.get('to_type', 'image'))
+    if to_type not in ('dataset', 'plate', 'acquisition'):
+        to_type = "Image"  # default is image
+    # Only 'fromid' is given, simply save to session
+    if fromid is not None and len(toids) == 0:
+        request.session.modified = True
+        request.session['fromid'] = fromid
+        return True
+    # Check session for 'fromid'
+    if fromid is None:
+        fromid = request.session.get('fromid', None)
+    # If we have both, apply settings...
     try:
-        fromid = long(r.get('fromid', None))
-        toids = map(lambda x: long(x), r.getlist('toids'))
+        fromid = long(fromid)
+        toids = map(lambda x: long(x), toids)
     except TypeError:
         fromid = None
     except ValueError:
         fromid = None
     if fromid is not None and len(toids) > 0:
-        
         fromimg = conn.getObject("Image", fromid)
-        frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if fromimg.canWrite():
-            ctx = conn.SERVICE_OPTS.copy()
-            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
-            ctx.setOmeroUser(userid)
-            rsettings = conn.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
-            if fromid in json_data[True]:
-                del json_data[True][json_data[True].index(fromid)]
+        json_data = conn.applySettingsToSet(fromid, to_type, toids)
+        if json_data and True in json_data:
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)
@@ -1609,7 +1616,7 @@ def archived_files(request, iid, conn=None, **kwargs):
         logger.debug("Cannot download archived file becuase Image does not exist.")
         return HttpResponseServerError("Cannot download archived file becuase Image does not exist (id:%s)." % (iid))
     
-    files = list(image.getArchivedFiles())
+    files = list(image.getImportedImageFiles())
 
     if len(files) == 0:
         logger.debug("Tried downloading archived files from image with no files archived.")
@@ -1666,6 +1673,25 @@ def archived_files(request, iid, conn=None, **kwargs):
 
     rsp['Content-Type'] = 'application/force-download'
     return rsp
+
+
+@login_required()
+@jsonp
+def original_file_paths(request, iid, conn=None, **kwargs):
+    """ Get a list of path/name strings for original files associated with the imgae """
+
+    image = conn.getObject("Image", iid)
+    if image is None:
+        logger.debug("Cannot get original file paths becuase Image does not exist.")
+        return HttpResponseServerError("Cannot get original file paths becuase Image does not exist (id:%s)." % (iid))
+
+    files = list(image.getImportedImageFiles())
+
+    if len(files) == 0:
+        return HttpResponseServerError("This image has no Original Files.")
+
+    fileNames = [ f.getPath() + f.getName() for f in files]
+    return fileNames
 
 
 @login_required()
@@ -1766,6 +1792,9 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
     Example:  /annotations/Plate.wells/1/
               retrieves annotations for plate that contains well with
               identifier 1
+    Example:  /annotations/Screen.plateLinks.child.wells/22/
+              retrieves annotations for screen that contains plate with
+              well with identifier 22
 
     @param request:     http request.
     @param objtype:     Type of target object, or type of target object followed
@@ -1797,10 +1826,11 @@ def _annotations(request, objtype, objid, conn=None, **kwargs):
         obj = q.findByQuery(query, omero.sys.ParametersI().addId(objid),
                             conn.createServiceOptsDict())
     except omero.QueryException, ex:
-        return HttpResponseNotFound('%s cannot be queried' % objtype)
+        return dict(error='%s cannot be queried' % objtype,
+                    query=query)
 
     if not obj:
-        return HttpResponseNotFound('%s with id %s not found' % (objtype, objid))
+        return dict(error='%s with id %s not found' % (objtype, objid))
 
     return dict(data=[
         dict(id=annotation.id.val,
@@ -1881,6 +1911,9 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     Example:  /table/Plate.wells/1/query/?query=*
               queries bulk annotations table for plate that contains well with
               identifier 1
+    Example:  /table/Screen.plateLinks.child.wells/22/query/?query=Well-22
+              queries bulk annotations table for screen that contains plate with
+              well with identifier 22
 
     @param request:     http request.
     @param objtype:     Type of target object, or type of target object followed
@@ -1895,11 +1928,11 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
                         (an array of rows, each an array of values)
     """
     a = _annotations(request, objtype, objid, conn, **kwargs)
-    if isinstance(a, HttpResponse) or a.has_key('error'):
+    if (a.has_key('error')):
         return a
 
-    if len(a['data']) != 1:
-        return dict(error='Could not retrieve single bulk annotations table')
+    if len(a['data']) < 1:
+        return dict(error='Could not retrieve bulk annotations table')
 
     # multiple bulk annotations files could be attached, use the most recent
     # one (= the one with the highest identifier)

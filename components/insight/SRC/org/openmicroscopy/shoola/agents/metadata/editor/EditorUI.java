@@ -63,18 +63,23 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -175,6 +180,9 @@ class EditorUI
     /** The menu showing the option to remove attachments.*/
     private PermissionMenu docMenu;
     
+    /** The menu showing the option to remove the other annotation.*/
+    private PermissionMenu otherAnnotationMenu;
+    
     /**
      * Adds the renderer to the tab pane. 
      * 
@@ -272,7 +280,6 @@ class EditorUI
     		component = defaultPane;
     	} else {
         	toolBar.buildUI();
-        	toolBar.setControls();
         	generalPane.layoutUI();
         	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
@@ -304,7 +311,6 @@ class EditorUI
 		Object uo = model.getRefObject();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		setDataToSave(false);
-		toolBar.setRootObject();
 		toolBar.buildUI();
 		tabPane.setToolTipTextAt(RND_INDEX, "");
 		boolean preview = false;
@@ -550,7 +556,12 @@ class EditorUI
 	{
 		if (data == null) return;
 		if (data instanceof TagAnnotationData || 
-			data instanceof TextualAnnotationData) {
+			data instanceof TextualAnnotationData ||
+			data instanceof TermAnnotationData ||
+			data instanceof XMLAnnotationData ||
+			data instanceof DoubleAnnotationData ||
+			data instanceof LongAnnotationData ||
+			data instanceof BooleanAnnotationData) {
 			generalPane.removeObject(data);
 			if (data.getId() >= 0)
 				saveData(true);
@@ -619,6 +630,45 @@ class EditorUI
 		}
 	}
 	
+	/**
+	 * Removes the other annotations.
+	 * 
+	 * @param src The mouse clicked location.
+	 * @param location The location of the mouse pressed.
+	 */
+	void removeOtherAnnotations(JComponent src, Point location)
+	{
+		if (!generalPane.hasOtherAnnotationsToUnlink()) return;
+		if (model.isGroupLeader() || model.isAdministrator()) {
+			if (otherAnnotationMenu == null) {
+				otherAnnotationMenu = new PermissionMenu(PermissionMenu.UNLINK, 
+						"Other annotations");
+				otherAnnotationMenu.addPropertyChangeListener(
+						new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String n = evt.getPropertyName();
+						if (PermissionMenu.SELECTED_LEVEL_PROPERTY.equals(n)) {
+							removeLinks((Integer) evt.getNewValue(), 
+								model.getAllOtherAnnotations());
+						}
+					}
+				});
+			}
+			otherAnnotationMenu.show(src, location.x, location.y);
+			return;
+		}
+		SwingUtilities.convertPointToScreen(location, src);
+		MessageBox box = new MessageBox(model.getRefFrame(),
+				"Remove All Your Other Annotations", 
+		"Are you sure you want to remove all your other annotations?");
+		Dimension d = box.getPreferredSize();
+		Point p = new Point(location.x-d.width/2, location.y);
+		if (box.showMsgBox(p) == MessageBox.YES_OPTION) {
+			List<AnnotationData> list = generalPane.removeOtherAnnotations();
+			if (list.size() > 0) saveData(true);
+		}
+	}
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
@@ -1001,6 +1051,26 @@ class EditorUI
 	}
 	
 	/**
+	 * Returns the image or <code>null</code> if the primary select
+	 * node is an image or a well.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return model.getImage(); }
+	
+	/**
+	 * Returns the companion file generated while importing the file
+	 * and containing the metadata found in the file, or <code>null</code>
+	 * if no file was generated.
+	 * 
+	 * @return See above
+	 */
+	FileAnnotationData getOriginalMetadata()
+	{
+		return model.getOriginalMetadata();
+	}
+
+	/**
 	 * Overridden to wrap the description.
 	 * @see JComponent#setSize(Dimension)
 	 */
@@ -1010,5 +1080,5 @@ class EditorUI
 		if (generalPane != null) 
 			generalPane.setExtentWidth(getVisibleRect().width);
 	}
-	
+
 }

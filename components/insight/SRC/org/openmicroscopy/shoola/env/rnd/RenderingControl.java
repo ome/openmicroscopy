@@ -37,6 +37,8 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -837,4 +839,27 @@ public interface RenderingControl
 	 */
 	public boolean isBigImage();
 	
+	/**
+	 * Returns the collection of rendering controls linked to the master.
+	 * 
+	 * @return See above.
+	 */
+	public List<RenderingControl> getSlaves();
+	
+	/**
+	 * Returns <code>true</code> if no longer active, <code>false</code>
+	 * otherwise. This is used when the reference is still kept but the user
+	 * no longer interacts with the rendering proxy.
+	 * 
+	 * @return See above.
+	 */
+	boolean isShutDown();
+	
+	/**
+	 * Returns the list of the levels.
+	 * 
+	 * @return See above.
+	 */
+	List<ResolutionLevel> getResolutionDescriptions()
+		throws RenderingServiceException, DSOutOfServiceException;
 }

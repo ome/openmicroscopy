@@ -60,6 +60,18 @@ public class FileBuffer extends AbstractBuffer {
             channel.close();
         }
     }
+    
+    /**
+     * Flush the buffer, writing any pending content to the underlying storage device,
+     * optionally also the file's metadata.
+     * @param includeMetadata flushes also the file metadata, not just the content
+     * @throws IOException an I/O error that occurred
+     */
+    public void flush(boolean includeMetadata) throws IOException {
+        if (channel != null) {
+            channel.force(includeMetadata);
+        }
+    }
 
     /**
      * Retrieve the NIO channel that corresponds to this file.

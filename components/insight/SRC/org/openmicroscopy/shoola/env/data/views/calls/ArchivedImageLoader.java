@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ArchivedImageLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
@@ -58,23 +59,21 @@ public class ArchivedImageLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the channels metadata.
+     * Creates a {@link BatchCall} to load the image.
      * 
      * @param ctx The security context.
-     * @param pixelsID The ID of the pixels set.
-     * @param userID   If the id is specified i.e. not <code>-1</code>, 
-     * 				   load the color associated to the channel, 
-     * 				   <code>false</code> otherwise.
+     * @param imageID The ID of the image.
+     * @param folder The path to the folder where to save the image.
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final SecurityContext ctx,
-    		final long pixelsID, final String folder) 
+    		final long imageID, final File folder) 
     {
-        return new BatchCall("Download the archived files. ") {
+        return new BatchCall("Download the files. ") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.getArchivedImage(ctx, folder, pixelsID);
+                result = os.getArchivedImage(ctx, folder, imageID);
             }
         };
     }
@@ -97,14 +96,14 @@ public class ArchivedImageLoader
 	 * exception so to fail early and in the caller's thread.
 	 * 
 	 * @param ctx The security context.
-     * @param pixelsID The Id of the pixels set.
+     * @param imageID The Id of the image.
      * @param folderPath The location where to download the archived image.
      */
-    public ArchivedImageLoader(SecurityContext ctx, long pixelsID,
-    		String folderPath)
+    public ArchivedImageLoader(SecurityContext ctx, long imageID,
+    		File folderPath)
     {
-    	if (pixelsID < 0)
-    		 throw new IllegalArgumentException("Pixels ID not valid.");
-        loadCall = makeBatchCall(ctx, pixelsID, folderPath);
+    	if (imageID < 0)
+    		 throw new IllegalArgumentException("Image's ID not valid.");
+        loadCall = makeBatchCall(ctx, imageID, folderPath);
     }
 }

@@ -390,7 +390,7 @@ jQuery.fn.viewportImage = function(options) {
         return viewerBean;
     };
     
-    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy) {
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize, ytilesize, init_zoom, levels, href, thref, init_cx, init_cy, zoomLevelScaling) {
         InfoControl.prototype.viewerZoomed = function(e) {
             if (this.dom_info) {
                 var scale = e.scale * 100;
@@ -430,7 +430,7 @@ jQuery.fn.viewportImage = function(options) {
                 staticBaseURL   : mediaroot+'3rdparty/panojs/images/',
                 blankTile       : mediaroot+'3rdparty/panojs/images/blank.gif',
                 loadingTile     : mediaroot+'3rdparty/panojs/images/blank.gif',
-
+                zoomLevelScaling : zoomLevelScaling
             });
             
             viewerBean.mouseReleasedHandler = function(e) {

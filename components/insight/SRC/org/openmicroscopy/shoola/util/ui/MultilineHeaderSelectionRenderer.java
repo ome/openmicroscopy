@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.Vector;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -42,7 +44,6 @@ import javax.swing.UIManager;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
-//Third-party libraries
 
 //Application-internal dependencies
 

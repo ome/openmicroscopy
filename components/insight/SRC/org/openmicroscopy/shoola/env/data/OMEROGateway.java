@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -77,6 +78,10 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
 import omero.ConcurrencyException;
@@ -144,6 +149,7 @@ import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -186,12 +192,14 @@ import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -218,6 +226,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -314,6 +323,9 @@ class OMEROGateway
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
 
+	/* checksum provider factory for verifying file integrity in upload */
+	private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
@@ -348,7 +360,7 @@ class OMEROGateway
 		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
-				ScriptObject.REGION_PATH+"Populate_ROI.py");
+				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.ANALYSIS_PATH+"FLIM.py");
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
@@ -435,7 +447,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			isNetworkUp();
-			connected = true;
 			c.ping();
 		} catch (Exception e) {
 			handleConnectionException(e);
@@ -906,7 +917,7 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		if (networkup) return true;
+		//if (networkup) return true;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
@@ -1330,7 +1341,8 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx)
+	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx, 
+			String userName)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		Connector c = null;
@@ -1340,6 +1352,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -1428,6 +1441,7 @@ class OMEROGateway
 		//We are going to create a connector and activate a session.
 		try {
 			UserCredentials uc = dsFactory.getCredentials();
+			ctx.setServerInformation(uc.getHostName(), port);
 			client client = new client(uc.getHostName(), port);
 			ServiceFactoryPrx prx = client.createSession(uc.getUserName(), 
 					uc.getPassword());
@@ -1515,6 +1529,22 @@ class OMEROGateway
 	private IUpdatePrx getUpdateService(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		return getUpdateService(ctx, null);
+	}
+
+	/**
+	 * Returns the {@link IUpdatePrx} service.
+	 * 
+	 * @param ctx The security context.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
+		throws DSAccessException, DSOutOfServiceException
+	{
 		Connector c = null;
 		IUpdatePrx prx = null;
 		try {
@@ -1522,6 +1552,7 @@ class OMEROGateway
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
+			c = c.getConnector(userName);
 			prx = c.getUpdateService();
 		} catch (Throwable e) {
 			//method throws exception
@@ -1532,7 +1563,6 @@ class OMEROGateway
 					"Cannot access the Update service.");
 		return prx;
 	}
-
 	/**
 	 * Returns the {@link IMetadataPrx} service.
 	 * 
@@ -1914,7 +1944,7 @@ class OMEROGateway
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
-				if (!(re.lookupRenderingDef(pixelsID))) {
+				if (!re.lookupRenderingDef(pixelsID)) {
 					re.resetDefaults();
 					re.lookupRenderingDef(pixelsID);
 				}
@@ -2102,8 +2132,14 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
-		networkChecker = new NetworkChecker();
 	}
+	
+	/**
+	 * Returns the port used.
+	 * 
+	 * @return See above.
+	 */
+	int getPort() { return port; }
 	
 	/**
 	 * Sets the port value.
@@ -2149,18 +2185,18 @@ class OMEROGateway
 	 */
 	Class convertPojos(Class nodeType)
 	{
-		if (ProjectData.class.equals(nodeType)) 
+		if (ProjectData.class.equals(nodeType))
 			return Project.class;
-		else if (DatasetData.class.equals(nodeType)) 
+		else if (DatasetData.class.equals(nodeType))
 			return Dataset.class;
-		else if (ImageData.class.equals(nodeType)) 
+		else if (ImageData.class.equals(nodeType))
 			return Image.class;
 		else if (BooleanAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
 		else if (RatingAnnotationData.class.equals(nodeType) ||
-				LongAnnotationData.class.equals(nodeType)) 
+				LongAnnotationData.class.equals(nodeType))
 			return LongAnnotation.class;
-		else if (TagAnnotationData.class.equals(nodeType)) 
+		else if (TagAnnotationData.class.equals(nodeType))
 			return TagAnnotation.class;
 		else if (TextualAnnotationData.class.equals(nodeType)) 
 			return CommentAnnotation.class;
@@ -2168,23 +2204,27 @@ class OMEROGateway
 			return FileAnnotation.class;
 		else if (TermAnnotationData.class.equals(nodeType))
 			return TermAnnotation.class;
-		else if (ScreenData.class.equals(nodeType)) 
+		else if (ScreenData.class.equals(nodeType))
 			return Screen.class;
-		else if (PlateData.class.equals(nodeType)) 
+		else if (PlateData.class.equals(nodeType))
 			return Plate.class;
-		else if (WellData.class.equals(nodeType)) 
+		else if (WellData.class.equals(nodeType))
 			return Well.class;
-		else if (WellSampleData.class.equals(nodeType)) 
+		else if (WellSampleData.class.equals(nodeType))
 			return WellSample.class;
 		else if (PlateAcquisitionData.class.equals(nodeType))
 			return PlateAcquisition.class;
-		else if (FileData.class.equals(nodeType) || 
+		else if (FileData.class.equals(nodeType) ||
 				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;
 		else if (ExperimenterData.class.equals(nodeType))
 			return Experimenter.class;
+		else if (DoubleAnnotationData.class.equals(nodeType))
+			return DoubleAnnotation.class;
+		else if (XMLAnnotationData.class.equals(nodeType))
+			return XmlAnnotation.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -2249,12 +2289,15 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @param name  The user's name.
+	 * @param connectionError Pass <code>true</code> to handle the connection 
+	 * error, <code>false</code> otherwise.
 	 * @return The {@link ExperimenterData} of the current user.
 	 * @throws DSOutOfServiceException If the connection is broken, or
 	 * logged in.
 	 * @see IPojosPrx#getUserDetails(Set, Map)
 	 */
-	ExperimenterData getUserDetails(SecurityContext ctx, String name)
+	ExperimenterData getUserDetails(SecurityContext ctx, String name,
+			boolean connectionError)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
@@ -2263,7 +2306,7 @@ class OMEROGateway
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
-			handleConnectionException(e);
+			if (connectionError) handleConnectionException(e);
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
 		}
@@ -2315,6 +2358,14 @@ class OMEROGateway
 			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			serverVersion = getConfigService().getVersion();
+			String ip = null;
+	        try {
+				ip = InetAddress.getByName(hostName).getHostAddress();
+			} catch (Exception e) {
+				//ignore
+			}
+
+			networkChecker = new NetworkChecker(ip);
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
@@ -2375,7 +2426,7 @@ class OMEROGateway
 					connector = new Connector(ctx, secureClient, entryEncrypted,
 							encrypted);
 					connectors.add(connector);
-					exp = getUserDetails(ctx, userName);
+					exp = getUserDetails(ctx, userName, true);
 				} catch (Exception e) {
 				}
 			}
@@ -2563,16 +2614,13 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		connected = false;
-		clear();
-		
-		Iterator<Connector> i;
-		try {
-			i = connectors.iterator();
-			while (i.hasNext()) {
+		Iterator<Connector> i = connectors.iterator();
+		while (i.hasNext()) {
+			try {
 				i.next().close(networkup);
+			} catch (Throwable t) {
+				//no need to handle exception.
 			}
-		} catch (Throwable t) {
-			connected = false;
 		}
 		if (!networkup) return false;
 		if (connected) return connected;
@@ -2860,7 +2908,7 @@ class OMEROGateway
 		try {
 			if (!orphan) {
 				ParametersI po = new ParametersI();
-				po.exp(omero.rtypes.rlong(userID));
+				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 				return PojoMapper.asDataObjects(service.getUserImages(po));
 			}
 			IQueryPrx svc = getQueryService(ctx);
@@ -2874,9 +2922,11 @@ class OMEROGateway
             		"DatasetImageLink as obl where obl.child = img.id)");
             sb.append(" and not exists (select ws from WellSample as " +
             		"ws where ws.image = img.id)");
-            sb.append(" and img.details.owner.id = :userID");
             ParametersI param = new ParametersI();
-        	param.addLong("userID", userID);
+            if (userID >= 0) {
+            	sb.append(" and img.details.owner.id = :userID");
+            	param.addLong("userID", userID);
+            }
         	return PojoMapper.asDataObjects(
         			svc.findAllByQuery(sb.toString(), param));
 		} catch (Throwable t) {
@@ -2928,8 +2978,8 @@ class OMEROGateway
 	 * Creates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to create.
-	 * @param options   Options to create the data.  
+	 * @param object The object to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -2939,20 +2989,39 @@ class OMEROGateway
 	IObject createObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObject(ctx, object, null);
+	}
+
+	/**
+	 * Creates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param object The object to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user to create data for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObject(IObject, Map)
+	 */
+	IObject createObject(SecurityContext ctx, IObject object, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, object, null);
+			return saveAndReturnObject(ctx, object, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Creates the specified objects.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to create.
-	 * @param options   Options to create the data.  
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -2962,14 +3031,34 @@ class OMEROGateway
 	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		return createObjects(ctx, objects, null);
+	}
+
+	/**
+	 * Creates the specified objects.
+	 * 
+	 * @param ctx The security context.
+	 * @param objects The objects to create.
+	 * @param options Options to create the data.
+	 * @param userName The name of the user.s
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#createDataObjects(IObject[], Map)
+	 */
+	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects,
+			String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
 		try {
-			return saveAndReturnObject(ctx, objects, null);
+			return saveAndReturnObject(ctx, objects, null, userName);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
 		return new ArrayList<IObject>();
 	}
-
+	
 	/**
 	 * Deletes the specified object.
 	 * 
@@ -3022,9 +3111,9 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param object    The object to update.
-	 * @param options   Options to update the data.   
-	 * @return          The updated object.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
@@ -3049,20 +3138,48 @@ class OMEROGateway
 	 * Updates the specified object.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects   The objects to update.
-	 * @param options   Options to update the data.
-	 * @return          The updated object.
+	 * @param object The object to update.
+	 * @param options Options to update the data.
+	 * @param userName The name of the user to create the data for.
+	 * @return The updated object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#updateDataObject(IObject, Map)
+	 */
+	IObject saveAndReturnObject(SecurityContext ctx, IObject object,
+			Map options, String userName)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
+		try {
+			if (options == null) return service.saveAndReturnObject(object);
+			return service.saveAndReturnObject(object, options);
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the object.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Updates the specified object.
+	 * 
+	 * @param ctx The security context.
+	 * @param objects The objects to update.
+	 * @param options Options to update the data.
+	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	List<IObject> saveAndReturnObject(SecurityContext ctx,
-			List<IObject> objects, Map options)
+			List<IObject> objects, Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		IUpdatePrx service = getUpdateService(ctx);
+		IUpdatePrx service = getUpdateService(ctx, userName);
 		try {
 			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {
@@ -3860,42 +3977,45 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param file The location where to save the files.
+	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, long pixelsID) 
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		return retrieveArchivedFiles(ctx, folderPath, pixelsID);
+		if (image.isArchived())
+			return retrieveArchivedFiles(ctx, file, image);
+		return null;
 	}
 	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param file The location where to save the files.
+	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, long pixelsID) 
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
-		List files = null;
+		List<?> files = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("id", omero.rtypes.rlong(pixelsID));
+			param.map.put("id", omero.rtypes.rlong(
+					image.getDefaultPixels().getId()));
 			files = service.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
@@ -3908,7 +4028,7 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
-		Iterator i = files.iterator();
+		Iterator<?> i = files.iterator();
 		OriginalFile of;
 		long size;	
 		FileOutputStream stream = null;
@@ -3916,7 +4036,11 @@ class OMEROGateway
 		File f;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
-		String fullPath;
+		String folderPath = null;
+		if (files.size() > 1) {
+			if (file.isDirectory()) folderPath = file.getAbsolutePath();
+			else folderPath = file.getParent();
+		}
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
@@ -3925,8 +4049,9 @@ class OMEROGateway
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = folderPath+of.getName().getValue();
-			f = new File(fullPath);
+			if (folderPath != null) {
+				f = new File(folderPath+of.getName().getValue());
+			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
@@ -3938,7 +4063,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int) (size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -3958,8 +4083,8 @@ class OMEROGateway
 				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
-				throw new DSAccessException("Cannot create file with path " +
-											fullPath, e);
+				throw new DSAccessException("Cannot create file in folderPath",
+						e);
 			}
 			closeService(ctx, store);
 		}
@@ -3974,44 +4099,39 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.	
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
-		return download(ctx, file, fileID, size);
+		return download(ctx, file, fileID);
 	}
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized File download(SecurityContext ctx, File file,
-			long fileID, long size)
+			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		//
 		if (of == null) return null;
-		
-		if (size <= 0) {
-			if (of != null) size = of.getSize().getValue();
-		}
+		long size = of.getSize().getValue();
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
@@ -4244,6 +4364,7 @@ class OMEROGateway
 		}
 		byte[] buf = new byte[INC]; 
 		FileInputStream stream = null;
+		final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
 		try {
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4254,11 +4375,18 @@ class OMEROGateway
 				pos += rlen;
 				bbuf = ByteBuffer.wrap(buf);
 				bbuf.limit(rlen);
+				hasher.putBytes(bbuf);
 			}
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
 			if (f != null) save = f;
+			final String clientHash = hasher.checksumAsString();
+			final String serverHash = save.getSha1().getValue();
+			if (!clientHash.equals(serverHash)) {
+			    throw new ImportException("file checksum mismatch on upload: " + file +
+			            " (client has " + clientHash + ", server has " + serverHash + ")");
+			}
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
@@ -5214,7 +5342,7 @@ class OMEROGateway
 			Details d;
 			//owner
 			List<Details> owners = new ArrayList<Details>();
-			//if (users != null && users.size() > 0) {
+			if (users != null && users.size() > 0) {
 				i = users.iterator();
 				while (i.hasNext()) {
 					exp = (ExperimenterData) i.next();
@@ -5222,7 +5350,7 @@ class OMEROGateway
 					d.setOwner(exp.asExperimenter());
 			        owners.add(d);
 				}
-			//}
+			}
 			
 			
 			List<String> some = prepareTextSearch(context.getSome(), service);
@@ -5774,6 +5902,7 @@ class OMEROGateway
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
+			sb.append("left outer join fetch img.details.updateEvent as evt ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
@@ -5817,6 +5946,7 @@ class OMEROGateway
 				sb.append("left outer join fetch well.wellSamples as ws ");
 				sb.append("left outer join fetch ws.plateAcquisition as pa ");
 				sb.append("left outer join fetch ws.image as img ");
+				sb.append("left outer join fetch img.details.updateEvent as evt ");
 				sb.append("left outer join fetch img.pixels as pix ");
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
 	            sb.append("where well.plate.id in (:plateIDs)");
@@ -6255,8 +6385,8 @@ class OMEROGateway
 				of = j.next();
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
-				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)) { 
-					//&&!SCRIPTS_UI_AVAILABLE.contains(v)) {
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)
+					&& !SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
@@ -6572,28 +6702,29 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
-	 * @param name		The name to give to the imported image.
-	 * @param archived  Pass <code>true</code> if the image has to be archived,
+	 * @param name The name to give to the imported image.
+	 * @param archived Pass <code>true</code> if the image has to be archived,
 	 * 					<code>false</code> otherwise.
      * @param Pass <code>true</code> to close the import,
-     * 		<code>false</code> otherwise.
+     * <code>false</code> otherwise.
+     * @param userName The user's name.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
 	Object importImage(SecurityContext ctx, ImportableObject object,
 			IObject container, File file, StatusLabel status, boolean archived,
-			boolean close)
+			boolean close, String userName)
 		throws ImportException, DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
-		OMEROMetadataStoreClient omsc = getImportStore(ctx);
+		OMEROMetadataStoreClient omsc = getImportStore(ctx, userName);
 		OMEROWrapper reader = null;
 		try {
 			ImportConfig config = new ImportConfig();
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
-			ImportContainer ic = new ImportContainer(file, -1L, container, 
+			ImportContainer ic = new ImportContainer(file, -1L, container,
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
@@ -6706,7 +6837,6 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		
 		Iterator<Connector> i = connectors.iterator();
 		Connector c;
 		while (i.hasNext()) {
@@ -8435,7 +8565,7 @@ class OMEROGateway
 	 * Removes the security context.
 	 * 
 	 * @param ctx The security context.
-	 * @throws Throwable Thrown if the connector cannot be closed.
+	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
 	void removeGroup(SecurityContext ctx) 
 	throws Exception
@@ -8451,4 +8581,24 @@ class OMEROGateway
 		}
 	}
 
+	/** 
+	 * Shuts down the connectors created while creating/importing data for 
+	 * other users.
+	 * 
+	 * @param ctx
+	 * @throws Exception Thrown if the connector cannot be closed.
+	 */
+	void shutDownDerivedConnector(SecurityContext ctx)
+		throws Exception
+	{
+		Connector c = getConnector(ctx);
+		if (c == null) return;
+		isNetworkUp();
+		try {
+			c.closeDerived(networkup);
+		} catch (Throwable e) {
+			new Exception("Cannot close the derived connectors", e);
+		}
+	}
+	
 }

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import omero.util.script_utils as scriptUtil
 from numpy import arange, uint8
 

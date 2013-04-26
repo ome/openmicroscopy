@@ -16,9 +16,12 @@ export ROUTERPREFIX=$OMERO_PREFIX
 export ROUTER="$ROUTERPREFIX"4064
 export ICE_CONFIG=`pwd`/$OMERO_BRANCH.config
 export OMERO_DATA=`pwd`/target/datadir
+GROUP=hudson_group
+USER=hudson
+USERPASSWORD=ome
 
-echo omero.user=hudson >> $ICE_CONFIG
-echo omero.pass=ome >> $ICE_CONFIG
+echo omero.user=$USER >> $ICE_CONFIG
+echo omero.pass=$USERPASSWORD >> $ICE_CONFIG
 echo omero.host=$OMERO_HOST >> $ICE_CONFIG
 echo omero.port=$ROUTER >> $ICE_CONFIG
 echo omero.rootpass=ome >> $ICE_CONFIG
@@ -60,8 +63,8 @@ python bin/omero admin waitup
 # Create a user
 #
 python bin/omero login -s localhost -p $ROUTER -u root -w ome
-python bin/omero group add hudson_group --perms=rwrw--
-python bin/omero user add --admin hudson Test User hudson_group
+python bin/omero group add $GROUP --perms=rwrw--
+python bin/omero user add --admin $USER Test User $GROUP -P $USERPASSWORD
 python bin/omero logout
 
 #
@@ -70,7 +73,7 @@ python bin/omero logout
 FILE=very_small.d3d.dv
 rm -f $FILE
 wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
-python bin/omero login -s localhost -p $ROUTER -u hudson -w ome
+python bin/omero login -s localhost -p $ROUTER -u $USER -w $USERPASSWORD
 python bin/omero import "$FILE"
 
 #

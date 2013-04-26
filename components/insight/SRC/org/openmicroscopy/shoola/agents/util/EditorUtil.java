@@ -198,11 +198,16 @@ public class EditorUtil
     /** String to represent the micron symbol. */
     public static final String 	MICRONS = "("+UnitsObject.MICRONS+")";
     
-    /** String to represent the celcius symbol. */
-    public static final String 	CELCIUS = "(\u2103)";
+    /** String to represent the celsius symbol. */
+    public static final String 	CELSIUS = "(℃)";
+    
+    /** String to represent the celsius symbol.
+     * @deprecated use {@link #CELSIUS} instead
+     */
+    public static final String  CELCIUS = CELSIUS;
     
     /** String to represent the percent symbol. */
-    public static final String 	PERCENT = "(\u0025)";
+    public static final String 	PERCENT = "(%)";
     
     /** String to represent the millibars symbol. */
     public static final String 	MILLIBARS = "(mb)";
@@ -242,6 +247,9 @@ public class EditorUtil
     
     /** Identifies the <code>Imported date</code> field. */
     public static final String  IMPORTED_DATE = "Imported";
+    
+    /** Identifies the <code>Archived</code> field. */
+    public static final String ARCHIVED = "Archived";
     
     /** Identifies the <code>XY Dimension</code> field. */
     public static final String  XY_DIMENSION = "Dimensions (XY)";
@@ -307,13 +315,13 @@ public class EditorUtil
 	public static final String	REFRACTIVE_INDEX = "Refractive index";
 
 	/** Identifies the Environment <code>temperature</code> field. */
-	public static final String	TEMPERATURE = "Temperature "+CELCIUS;
+	public static final String	TEMPERATURE = "Temperature "+CELSIUS;
 	
 	/** Identifies the Environment <code>Air pressure</code> field. */
 	public static final String	AIR_PRESSURE = "Air Pressure "+MILLIBARS;
 	
 	/** Identifies the Environment <code>Humidity</code> field. */
-	public static final String	HUMIDITY = "Humidy "+PERCENT;
+	public static final String	HUMIDITY = "Humidity "+PERCENT;
 	
 	/** Identifies the Environment <code>CO2 Percent</code> field. */
 	public static final String	CO2_PERCENT = "CO2 Percent "+PERCENT;
@@ -821,6 +829,33 @@ public class EditorUtil
 		return buf.toString();
 	}
     
+    /**
+     * Formats the specified experimenter. Use the initial of the user
+     * for the first name.
+     * 
+     * @param exp The experimenter to format.
+     * @param capitalize Pass <code>true</code> to capitalize the first letter
+     * <code>false</code> otherwise.
+     * @return See above.
+     */
+	public static String formatExperimenterInitial(ExperimenterData exp, 
+			boolean capitalize)
+	{
+		if (exp == null) return "";
+		String s1 = exp.getFirstName();
+		String s2 = exp.getLastName();
+		if (s1.trim().length() == 0 && s2.trim().length() == 0)
+			return exp.getUserName();
+		if (s1.length() == 0) return s2;
+		if (s2.length() == 0) return s1;
+		StringBuffer buf = new StringBuffer();
+		if (capitalize) buf.append(Character.toUpperCase(s1.charAt(0)));
+		else buf.append(Character.toLowerCase(s1.charAt(0)));
+		buf.append(". ");
+		buf.append(s2);
+		return buf.toString();
+	}
+	
 	/**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -1059,13 +1094,10 @@ public class EditorUtil
      * Returns <code>true</code> if the specified data object is readable,
      * <code>false</code> otherwise, depending on the permission.
      * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.
+     * @param ho The data object to check.
      * @return See above.
      */
-    public static boolean isReadable(Object ho, long userID, long groupID)
+    public static boolean isReadable(Object ho)
     {
     	if (ho == null || ho instanceof ExperimenterData || 
     		ho instanceof String)

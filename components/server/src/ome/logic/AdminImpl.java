@@ -86,6 +86,8 @@ import ome.tools.hibernate.SecureMerge;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
 /**
  * Provides methods for administering user accounts, passwords, as well as
@@ -127,6 +129,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected final ChmodStrategy chmod;
 
+    protected final ChecksumProviderFactory cpf;
+
     protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -138,7 +142,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
             RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil,
-            ChmodStrategy chmod) {
+            ChmodStrategy chmod, ChecksumProviderFactory cpf) {
         this.sql = sql;
         this.osf = osf;
         this.mailSender = mailSender;
@@ -149,6 +153,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.ldapUtil = ldapUtil;
         this.passwordUtil = passwordUtil;
         this.chmod = chmod;
+        this.cpf = cpf;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -465,7 +470,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             file.setName(filename);
             file.setPath(filename); // FIXME this should be something like /users/<name>/photo
             file.setSize((long) data.length);
-            file.setSha1(Utils.bufferToSha1(data));
+            file.setSha1(cpf.getProvider(ChecksumType.SHA1).putBytes(data)
+                    .checksumAsString());
             file.setMimetype(mimetype);
             FileAnnotation fa = new FileAnnotation();
             fa.setNs(NSEXPERIMENTERPHOTO);

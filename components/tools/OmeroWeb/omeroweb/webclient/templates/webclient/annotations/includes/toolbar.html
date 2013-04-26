@@ -1,0 +1,70 @@
+{% comment %}
+<!--
+  Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+  All rights reserved.
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+{% endcomment %}
+
+
+<div style="position:relative">
+
+
+    <!-- open-image link -->
+    <button id="show_link_btn" class="btn silver btn_link" title="Link to this {{ manager.obj_type }}">
+        <span></span>
+    </button>
+    <div id="link_info_popup" class="info_popup" style="right:0px; top:30px; padding:4px; display:none">
+        <input type="text" size="30">
+        <img title="Close" src="{% static 'webgateway/img/close.gif' %}" />
+    </div>
+
+    {% if manager.image %}
+    <!-- download options -->
+    <div class="toolbar_dropdown">
+        <button class="btn silver btn_download" title="Download Image as...">
+            <span></span>
+        </button>
+        <ul class="dropdown">
+            {% if manager.image.countArchivedFiles %}
+            <li>
+                <a id="download-origfile" href="{% url archived_files manager.image.id %}"
+                title="Download {{ manager.image.countArchivedFiles }} Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}">
+                Archived file{{ manager.image.countArchivedFiles|pluralize:'s (zip)' }}</a>
+            </li>
+            {% endif %}
+            <li>
+                <a id="create-ometiff" href="{% url ome_tiff_script manager.image.id %}" 
+                title="Create OME-TIFF File for Download">OME-TIFF</a>
+            </li>
+            <li id="download-jpeg"><a href="{% url web_render_image_download manager.image.id %}" title="Download as JPEG">JPEG</a></li>
+        </ul>
+    </div>
+
+    {% if manager.image.showOriginalFilePaths %}
+      <!-- show original file paths -->
+      <button id="show_fs_files_btn" class="btn silver btn_fspath" title="Show file paths on server">
+        <span></span>
+      </button>
+    {% endif %}
+
+    {% endif %}
+
+
+    <!-- Publishing Options (Figure Scripts) -->
+    {% include "webclient/annotations/includes/figure_scripts_menu.html" %}
+
+</div>
+<div style="clear:both"></div>

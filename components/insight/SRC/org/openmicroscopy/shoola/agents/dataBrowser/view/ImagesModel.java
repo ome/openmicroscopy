@@ -32,15 +32,17 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.DecoratorVisitor;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
+import pojos.DataObject;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -79,9 +81,9 @@ class ImagesModel
 		this.images = images;
 		this.parent = parent;
 		numberOfImages = images.size();
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformImages(images, userID, 0);
+		Set visTrees = DataBrowserTranslator.transformImages(images);
         browser = BrowserFactory.createBrowser(visTrees);
+        browser.accept(new DecoratorVisitor(getCurrentUser().getId()));
         //layoutBrowser();
 	}
 	

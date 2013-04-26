@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,7 +109,7 @@ import com.sun.opengl.util.texture.TextureData;
 * The {@link ImViewerComponent} intercepts the results of data loadings, feeds
 * them back to this class and fires state transitions as appropriate.
 * 
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+* @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
 * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
 * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
@@ -123,175 +124,179 @@ import com.sun.opengl.util.texture.TextureData;
 class ImViewerModel
 {
 
+	
+	/** The maximum size for the bird eye view for standard screen size.*/
+	private static final int BIRD_EYE_SIZE_LOWER = 128;
+	
+	/** The maximum size for the bird eye view for a.*/
+	private static final int BIRD_EYE_SIZE_MEDIUM = 196;
+	
+	/** The maximum size for the bird eye view.*/
+	private static final int BIRD_EYE_SIZE_HEIGH = 256;
+	
 	/** The maximum number of items in the history. */
-	private static final int	MAX_HISTORY = 10;
+	private static final int MAX_HISTORY = 10;
 	
 	/** The maximum width of the thumbnail. */
-	private static final int    THUMB_MAX_WIDTH = 24; 
+	private static final int THUMB_MAX_WIDTH = 24; 
 
 	/** The maximum height of the thumbnail. */
-	private static final int    THUMB_MAX_HEIGHT = 24;
+	private static final int THUMB_MAX_HEIGHT = 24;
 	
 	/** Index of the <code>RenderingSettings</code> loader. */
-	private static final int	SETTINGS = 0;
+	private static final int SETTINGS = 0;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	IMAGE = 1;
+	private static final int IMAGE = 1;
 	
 	/** Index of the <code>ImageLoader</code> loader. */
-	private static final int	BIRD_EYE_BVIEW = 2;
+	private static final int BIRD_EYE_VIEW = 2;
 	
 	/** The image to view. */
-	private DataObject 					image; 
+	private DataObject image; 
 
 	/** Holds one of the state flags defined by {@link ImViewer}. */
-	private int                 		state;
+	private int state;
 
 	/** Reference to the component that embeds this model. */
-	private ImViewer            		component;
+	private ImViewer component;
 
 	/** Map hosting the various loaders. */
-	private Map<Integer, DataLoader>	loaders;
+	private Map<Integer, DataLoader> loaders;
 	
 	/** The sub-component that hosts the display. */
-	private Browser             		browser;
+	private Browser browser;
 
 	/** Reference to the current player. */
-	private ChannelPlayer       		player;
+	private ChannelPlayer player;
 
 	/** The width of the thumbnail if the window is iconified. */
-	private int                 		sizeX;
+	private int sizeX;
 
 	/** The height of the thumbnail if the window is iconified. */
-	private int                 		sizeY;
+	private int sizeY;
 
 	/** The magnification factor for the thumbnail. */
-	private double              		factor;
+	private double factor;
 
 	/** The image icon. */
-	private BufferedImage       		imageIcon;
+	private BufferedImage imageIcon;
 
 	/** The bounds of the component requesting the viewer. */
-	private Rectangle           		requesterBounds;
+	private Rectangle requesterBounds;
 
 	/** The index of the selected tab. */
-	private int							tabbedIndex;
+	private int tabbedIndex;
 
 	/** 
 	 * Flag indicating to paint or not some textual information on top
 	 * of the grid image.
 	 */
-	private boolean						textVisible;
+	private boolean textVisible;
 
 	/** Flag indicating that a movie is played. */
-	private boolean						playingMovie;
+	private boolean playingMovie;
 	
 	/** Flag indicating that a movie is played. */
-	private boolean						playingChannelMovie;
+	private boolean playingChannelMovie;
 
 	/** Collection of history item. */
-	private List<HistoryItem>			historyItems;
+	private List<HistoryItem> historyItems;
 
 	/** 
 	 * The index of the movie, not that we set to <code>-1</code>
 	 * when the movie player is launched.
 	 */
-	private int 						movieIndex;
+	private int movieIndex;
 	
 	/** The rendering setting related to a given set of pixels. */
-	private Map							renderingSettings;
+	private Map renderingSettings;
 	
 	/** The metadata viewer. */
-	private MetadataViewer				metadataViewer;
+	private MetadataViewer metadataViewer;
 	
 	/** Flag indicating if the metadata are loaded. */
-	private boolean						metadataLoaded;
+	private boolean metadataLoaded;
 	
 	/** The ID of the last selected pixels set. */
-	private long						currentPixelsID;
+	private long currentPixelsID;
 
 	/** The rendering settings set by another user. */
-	private RndProxyDef					alternativeSettings;
+	private RndProxyDef alternativeSettings;
 	
 	/** The id of the selected user. */
-	private long						selectedUserID;
+	private long selectedUserID;
 	
 	/** 
 	 * Flag to compute the magnification factor when the image
 	 * is set for the first time.
 	 */
-	private boolean						initMagnificationFactor;
+	private boolean initMagnificationFactor;
 	
     /** The parent of the image or <code>null</code> if no context specified. */
-    private DataObject					parent;
+    private DataObject parent;
     
     /** 
      * The grandparent of the image or <code>null</code> if no 
      * context specified. 
      */
-    private DataObject					grandParent;
+    private DataObject grandParent;
     
     /** The plane information. */
-    private Map<Integer, PlaneInfo>		planeInfos;
+    private Map<Integer, PlaneInfo> planeInfos;
     
     /** The id of the image. */
-    private long						imageID;
+    private long imageID;
     
     /** Copy of the original rendering settings.  */
-    private RndProxyDef					originalDef;
+    private RndProxyDef originalDef;
     
     /** Copy of the last rendering settings for the main image.  */
-    private RndProxyDef					lastMainDef;
+    private RndProxyDef lastMainDef;
     
     /** Copy of the last rendering settings of the projection preview.  */
-    private RndProxyDef					lastProjDef;
+    private RndProxyDef lastProjDef;
     
     /** The projection's preview parameters. */
-    private ProjectionParam				lastProjRef;
+    private ProjectionParam lastProjRef;
     
     /** The last projection timepoint. */
-    private int							lastProjTime;
+    private int lastProjTime;
     
     /** The collection of containers hosting the image. */
-    private Collection 					containers;
+    private Collection containers;
     
     /** 
      * The collection of measurements linked to either the image or the plate.
      */
-    private Collection 					measurements;
+    private Collection measurements;
     
     /**  
      * Flag indicating if the viewer should be opened as a separate window
      * or not. The default value is <code>true</code>.
      */
-    private boolean						separateWindow;
+    private boolean separateWindow;
     
     /** The id of the table containing the overlay. */
-    private long						overlayTableID;
+    private long overlayTableID;
 
     /** 
      * The value indicating the reduction factor used for big images. 
      * The default value is <code>1</code>.
      */
-    private double						originalRatio;
-    
-    /** The size of the object if it is a big image. */
-    private Dimension					computedSize;
+    private double originalRatio;
     
     /** The tiles to display. */
-    private Map<Integer, Tile>			tiles;
+    private Map<Integer, Tile> tiles;
     
     /** The number of rows, default is <code>1</code>.*/
     private int numberOfRows;
     
     /** The number of columns, default is <code>1</code>.*/
     private int numberOfColumns;
-    
-	/** The size of the tile.*/
-	private Dimension tileSize;
-	
-	/** The power of 2 used to determine the tile size.*/
-	private Map<Integer, ResolutionLevel> resolutionMap;
+
+	/** The collection of resolutions levels.*/
+	private List<ResolutionLevel> resolutions;
 	
 	/** The size of the tiled image along the X-axis.*/
 	private int tiledImageSizeX;
@@ -311,6 +316,38 @@ class ImViewerModel
     /** The channels.*/
     private List<ChannelData> channels;
     
+    /** The display mode.*/
+    private int displayMode;
+    
+    /** The number of tiles to load.*/
+    private int tileTotalCount;
+    
+    /** The number of tiles already loaded.*/
+    private int tileLoadedCount;
+  
+    /**
+     * Returns the default resolution level.
+     * 
+     * @return See above.
+     */
+    private int getDefaultResolutionLevel()
+    {
+    	//Determine the level according to the window size.
+    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int w = 9*(screenSize.width/10);
+        int h = 8*(screenSize.height/10);
+        Iterator<ResolutionLevel> i = resolutions.iterator();
+        ResolutionLevel level;
+        Dimension d;
+        while (i.hasNext()) {
+			level = i.next();
+			d = level.getImageSize();
+			if (d.width < w || d.height < h)
+				return level.getLevel();
+		}
+    	return 0;
+    }
+    
 	/**
 	 * Creates the plane to retrieve.
 	 * 
@@ -328,18 +365,13 @@ class ImViewerModel
 	/** Initializes the tiles objects.*/
 	private void initializeTiles()
 	{
-		Dimension d = getTileSize();
+		ResolutionLevel level = getResolutionDescription();
+		Dimension d = level.getTileSize();
 		int w = d.width;
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(getSelectedResolutionLevel());
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int size = level.getImageSize().width;
 		edgeWidth = w;
 		int n = size/w;
 		tiledImageSizeX = n*w;
@@ -349,7 +381,7 @@ class ImViewerModel
 			n++;
 		}
 		numberOfColumns = n;
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = level.getImageSize().height;
 		edgeHeight = h;
 		n = size/h;
 		tiledImageSizeY = n*h;
@@ -358,6 +390,7 @@ class ImViewerModel
 			tiledImageSizeY += edgeHeight;
 			n++;
 		}
+		
 		numberOfRows = n;
 		int index = 0;
 		Tile tile;
@@ -474,7 +507,7 @@ class ImViewerModel
 	 * 
 	 * @param bounds The bounds of the component invoking the {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise.  
+	 * 						 separate window, <code>false</code> otherwise.
 	 */
 	private void initialize(Rectangle bounds, boolean separateWindow)
 	{
@@ -497,12 +530,24 @@ class ImViewerModel
 		selectedUserID = -1;
 		lastProjTime = -1;
 		lastProjRef = null;
+		checkDefaultDisplayMode();
+	}
+	
+	/**
+	 * Invokes the value is not set.
+	 */
+	private void checkDefaultDisplayMode()
+	{
+		Integer value = (Integer) ImViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
 	}
 	
 	/** Initializes the {@link #metadataViewer}. */
 	private void initializeMetadataViewer()
 	{
-		metadataViewer = MetadataViewerFactory.getViewer("", 
+		metadataViewer = MetadataViewerFactory.getViewer("",
 				MetadataViewer.RND_SPECIFIC);
 		metadataViewer.setRootObject(image, metadataViewer.getUserID(),
 				getSecurityContext());
@@ -516,7 +561,7 @@ class ImViewerModel
 	 * @param bounds	The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param separateWindow Pass <code>true</code> to open the viewer in a 
-	 * 						 separate window, <code>false</code> otherwise.  
+	 * 						 separate window, <code>false</code> otherwise.
 	 */
 	ImViewerModel(SecurityContext ctx, long imageID, Rectangle bounds,
 			boolean separateWindow)
@@ -556,7 +601,6 @@ class ImViewerModel
 		initialize(bounds, separateWindow);
 		numberOfRows = 1;
 		numberOfColumns = 1;
-		//initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
 		}
@@ -571,8 +615,8 @@ class ImViewerModel
 	void initialize(ImViewer component)
 	{ 
 		this.component = component;
-		browser = BrowserFactory.createBrowser(component, 
-										ImViewerFactory.getPreferences());
+		browser = BrowserFactory.createBrowser(component,
+				ImViewerFactory.getPreferences());
 	}
 	
 	/**
@@ -617,7 +661,7 @@ class ImViewerModel
 	boolean isSameDisplay(ImViewerModel other)
 	{
 		if (other == null) return false;
-		return true;//;((other.pixelsID == pixelsID) && (other.imageID == imageID));
+		return true;
 	}
 
 	/**
@@ -641,7 +685,6 @@ class ImViewerModel
 						parent.getClass().getName()))
 					return data.getId() == parent.getId();
 			}
-			
 		}
 		return false;
 	}
@@ -678,7 +721,7 @@ class ImViewerModel
 	/**
 	 * Returns the current state.
 	 * 
-	 * @return One of the flags defined by the {@link ImViewer} interface.  
+	 * @return One of the flags defined by the {@link ImViewer} interface.
 	 */
 	int getState() { return state; }
 
@@ -686,10 +729,10 @@ class ImViewerModel
 	void cancelBirdEyeView()
 	{
 		state = ImViewer.CANCELLED;
-		DataLoader loader = loaders.get(BIRD_EYE_BVIEW);
+		DataLoader loader = loaders.get(BIRD_EYE_VIEW);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(BIRD_EYE_BVIEW);
+			loaders.remove(BIRD_EYE_VIEW);
 		}
 		discard();
 	}
@@ -704,23 +747,14 @@ class ImViewerModel
 		if (imageIcon != null) imageIcon.flush();
 		browser.discard();
 		if (image == null) return;
-		Iterator i = loaders.keySet().iterator();
-		Integer index;
+		Iterator<Integer> i = loaders.keySet().iterator();
 		while (i.hasNext()) {
-			index =  (Integer) i.next();
-			(loaders.get(index)).cancel();
+			loaders.get(i.next()).cancel();
 		}
 		browser.discard();
 		if (metadataViewer != null && metadataViewer.getRenderer() != null) {
 			metadataViewer.getRenderer().discard();
 		}
-			
-		//if (image == null) return;
-		//Shut down the service
-		//OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
-		//long pixelsID = getImage().getDefaultPixels().getId();
-		//svr.shutDown(pixelsID);
-		
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
 		player = null;
@@ -732,7 +766,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMaxX()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getPixelsDimensionsX();
@@ -744,7 +778,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMaxY()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getPixelsDimensionsY(); 
@@ -756,7 +790,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMaxZ()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getPixelsDimensionsZ()-1; 
@@ -768,7 +802,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMaxT()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getPixelsDimensionsT()-1;
@@ -780,7 +814,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getDefaultZ()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getDefaultZ();
@@ -792,7 +826,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getDefaultT()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return 0;
 		return rnd.getDefaultT(); 
@@ -804,7 +838,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	String getColorModel()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return Renderer.GREY_SCALE_MODEL;
 		return rnd.getColorModel();
@@ -816,7 +850,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	List<ChannelData> getChannelData()
-	{ 
+	{
 		if (channels != null) return channels;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return new ArrayList<ChannelData>();
@@ -842,7 +876,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	ChannelData getChannelData(int index)
-	{ 
+	{
 		List<ChannelData> list = getChannelData();
 		Iterator<ChannelData> i = list.iterator();
 		ChannelData channel;
@@ -860,7 +894,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	Color getChannelColor(int w)
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return null;
 		return rnd.getChannelColor(w);
@@ -870,11 +904,11 @@ class ImViewerModel
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
 	 * otherwise.
 	 * 
-	 * @param w	The channel's index.
+	 * @param w The index of the channel.
 	 * @return See above.
 	 */
 	boolean isChannelActive(int w)
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
 		return rnd.isChannelActive(w);
@@ -956,32 +990,18 @@ class ImViewerModel
 		pDef.slice = omero.romio.XY.value;
 		return rnd.renderPlaneAsTexture(pDef);
 	}
-	
+
 	/** Notifies that the rendering control has been loaded. */
 	void onRndLoaded()
 	{
 		state = ImViewer.READY;
 		Renderer rnd = metadataViewer.getRenderer();
-		resolutionMap = new HashMap<Integer, ResolutionLevel>();
-		if (rnd != null) {
-			tileSize = rnd.getTileSize();
-			if (tileSize != null) {
-				int levels = getResolutionLevels();
-				int powerX = (int) (Math.log(tileSize.width)/Math.log(2));
-				int powerY = (int) (Math.log(tileSize.height)/Math.log(2));
-				int index = 0;
-				int vx = 0, vy = 0;
-				for (int i = levels-1; i >= 0; i--) {
-					vx = powerX-index;
-					vy = powerY-index;
-					resolutionMap.put(i, new ResolutionLevel(i, vx, vy));
-					index++;
-				}
-			}
+		
+		if (rnd != null && isBigImage()) {
+			resolutions = rnd.getResolutionDescriptions();
+			setSelectedResolutionLevel(getDefaultResolutionLevel());
 		}
-		if (isBigImage())
-			initializeTiles();
-		//
+
 		double f = initZoomFactor();
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
@@ -1015,7 +1035,7 @@ class ImViewerModel
      * 				 <code>false</code> to set it.
 	 */
 	void setZoomFactor(double factor, boolean reset)
-	{ 
+	{
 		browser.setZoomFactor(factor, reset);
 	}
 
@@ -1030,7 +1050,7 @@ class ImViewerModel
 	 * This method determines if the browser image should be resized to fit 
 	 * the window size if the window is resized.
 	 *  
-	 * @return <code>true</code> if image should resize on window resize. 
+	 * @return <code>true</code> if image should resize on window resize.
 	 */ 
 	boolean isZoomFitToWindow()
 	{ 
@@ -1139,7 +1159,7 @@ class ImViewerModel
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		rnd.setActive(index, active);
-	}  
+	}
 
 	/**
 	 * Returns the number of bins per time interval
@@ -1159,7 +1179,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	boolean isNumerousChannel()
-	{ 
+	{
 		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
 		return getImage().isLifetime(); 
 	}
@@ -1175,13 +1195,11 @@ class ImViewerModel
 		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
 		if (isNumerousChannel()) return false;
-		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
-		//if (getMaxY() >= 2*IMAGE_MAX_HEIGHT) return false;
 		return true;
 	}
 	
 	/**
-	 * Returns <code>true</code> if it is a large image, 
+	 * Returns <code>true</code> if it is a large image,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -1199,7 +1217,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	int getMaxC()
-	{ 
+	{
 		return getImage().getDefaultPixels().getSizeC();
 	}
 
@@ -1226,11 +1244,8 @@ class ImViewerModel
 	 * Starts the channels movie player, invokes in the event-dispatcher 
 	 * thread for safety reason.
 	 * 
-	 * @param play  Pass <code>true</code> to play the movie, <code>false</code>
-	 *              to stop it.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-	 * 										the value.
-	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 * @param play Pass <code>true</code> to play the movie, <code>false</code>
+	 *             to stop it.
 	 */
 	void playMovie(boolean play)
 	{
@@ -1314,8 +1329,8 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	TextureData getProjectedImageAsTexture()
-	{ 
-		return browser.getProjectedImageAsTexture(); 
+	{
+		return browser.getProjectedImageAsTexture();
 	}
 	
 	/**
@@ -1324,7 +1339,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	double getPixelsSizeX()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return -1;
 		return rnd.getPixelsSizeX(); 
@@ -1339,7 +1354,7 @@ class ImViewerModel
 	{ 
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return -1;
-		return rnd.getPixelsSizeY();  
+		return rnd.getPixelsSizeY();
 	}
 
 	/**
@@ -1351,7 +1366,7 @@ class ImViewerModel
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return -1;
-		return rnd.getPixelsSizeZ(); 
+		return rnd.getPixelsSizeZ();
 	}
 
 	/**
@@ -1480,7 +1495,7 @@ class ImViewerModel
 	 */
 	void setPlayingMovie(boolean play, int index)
 	{ 
-		playingMovie = play; 
+		playingMovie = play;
 		movieIndex = index;
 	}
 
@@ -1518,12 +1533,12 @@ class ImViewerModel
 	 */
 	Map<Integer, Color> getActiveChannelsColorMap()
 	{
-		List l = getActiveChannels();
+		List<Integer> l = getActiveChannels();
 		Map<Integer, Color> m = new HashMap<Integer, Color>(l.size());
-		Iterator i = l.iterator();
+		Iterator<Integer>  i = l.iterator();
 		Integer index;
 		while (i.hasNext()) {
-			index = (Integer) i.next();
+			index = i.next();
 			m.put(index, getChannelColor(index.intValue()));
 		}
 		return m;
@@ -1557,7 +1572,7 @@ class ImViewerModel
 				lastMainDef = rnd.getRndSettingsCopy();
 				break;
 			case ImViewer.VIEW_INDEX:
-				//lastProjDef = rnd.getRndSettingsCopy();	
+				//lastProjDef = rnd.getRndSettingsCopy();
 		}
 	}
 	
@@ -1665,7 +1680,7 @@ class ImViewerModel
 	 * 
 	 * @param settings  The value to set.
 	 */
-	void resetMappingSettings(RndProxyDef settings) 
+	void resetMappingSettings(RndProxyDef settings)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
@@ -1717,7 +1732,7 @@ class ImViewerModel
 
 	/** Resets the default settings. */
 	void resetDefaultRndSettings()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		rnd.resetSettings(); 
@@ -1725,7 +1740,7 @@ class ImViewerModel
 	
 	/** Sets the original default settings. */
 	void setOriginalRndSettings()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
 		rnd.setOriginalRndSettings(); 
@@ -1737,7 +1752,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean hasRndToPaste() 
+	boolean hasRndToPaste()
 	{ 
 		if (metadataViewer == null) return false;
 		Renderer rnd = metadataViewer.getRenderer();
@@ -1771,7 +1786,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	boolean isImageCompressed()
-	{ 
+	{
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return false;
 		return rnd.isCompressed(); 
@@ -1780,8 +1795,8 @@ class ImViewerModel
 	/**
 	 * Sets the compression level.
 	 * 
-	 * @param compressionLevel 	One of the compression level defined by 
-	 * 							{@link RenderingControl} I/F.
+	 * @param compressionLevel One of the compression level defined by 
+	 * {@link RenderingControl} I/F.
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
@@ -1808,7 +1823,7 @@ class ImViewerModel
 	 */
 	void fireRenderingSettingsRetrieval()
 	{
-		DataLoader loader = new RenderingSettingsLoader(component, ctx, 
+		DataLoader loader = new RenderingSettingsLoader(component, ctx,
 						getImage().getDefaultPixels().getId());
 		loader.load();
 		if (loaders.get(SETTINGS) != null)
@@ -1822,7 +1837,7 @@ class ImViewerModel
 	 */
 	void fireOwnerSettingsRetrieval()
 	{
-		RenderingSettingsLoader loader = new RenderingSettingsLoader(component, 
+		RenderingSettingsLoader loader = new RenderingSettingsLoader(component,
 				ctx, getImage().getDefaultPixels().getId());
 		loader.setOwner(getOwnerID());
 		loader.load();
@@ -1878,14 +1893,14 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	boolean hasMetadataToSave()
-	{ 
+	{
 		if (metadataViewer == null) return false;
 		return metadataViewer.hasDataToSave();
 	}
 
 	/** Saves the data. */
 	void saveMetadata()
-	{ 
+	{
 		if (metadataViewer != null)
 			metadataViewer.saveData();
 	}
@@ -1921,13 +1936,13 @@ class ImViewerModel
 	void fireRenderProjected(int startZ, int endZ, int stepping, int type)
 	{
 		state = ImViewer.PROJECTION_PREVIEW;
-		ProjectionParam param = new ProjectionParam(getPixelsID(), 
+		ProjectionParam param = new ProjectionParam(getPixelsID(),
 				startZ, endZ, stepping, type);
 		param.setChannels(getActiveChannels());
 		lastProjRef = param;
 		lastProjDef = metadataViewer.getRenderer().getRndSettingsCopy();
-		ProjectionSaver loader = new ProjectionSaver(component, ctx, param, 
-				                  ProjectionSaver.PREVIEW);
+		ProjectionSaver loader = new ProjectionSaver(component, ctx, param,
+				ProjectionSaver.PREVIEW);
 		loader.load();
 	}
 	
@@ -1941,7 +1956,7 @@ class ImViewerModel
 	 * @param typeName	A textual representation of the projection's type.
 	 * @param ref Object with the projection's parameters.
 	 */
-	void fireImageProjection(int startZ, int endZ, int stepping, int type, 
+	void fireImageProjection(int startZ, int endZ, int stepping, int type,
 							String typeName, ProjectionRef ref)
 	{
 		if (startZ < 0) startZ = ref.getStartZ();
@@ -1957,7 +1972,7 @@ class ImViewerModel
 		buf.append("z-sections: "+(startZ+1)+"-"+(endZ+1));
 		buf.append("\n");
 		
-		String imageNameWithRange = combineFilenameWith(ref.getImageName(), 
+		String imageNameWithRange = combineFilenameWith(ref.getImageName(),
 				getImageName(), startZ, endZ);
 		
 		int startT = ref.getStartT();
@@ -1966,34 +1981,37 @@ class ImViewerModel
 		else buf.append("timepoints: "+(startT+1)+"-"+(endT+1));
 		List<Integer> channels = ref.getChannels();
 		
-		ProjectionParam param = new ProjectionParam(getPixelsID(), 
-				startZ, endZ, stepping, type, startT, endT, channels, 
+		ProjectionParam param = new ProjectionParam(getPixelsID(),
+				startZ, endZ, stepping, type, startT, endT, channels,
 				imageNameWithRange);
 		
 		param.setDescription(buf.toString());
 		param.setDatasets(ref.getDatasets());
 		param.setDatasetParent(ref.getProject());
 		param.setChannels(getActiveChannels());
-		ProjectionSaver loader = new ProjectionSaver(component, ctx, param, 
-							ProjectionSaver.PROJECTION, ref.isApplySettings());
+		ProjectionSaver loader = new ProjectionSaver(component, ctx, param,
+				ProjectionSaver.PROJECTION, ref.isApplySettings());
 		loader.load();
 	}
 	
 	/**
 	 * Adds the ZRange to end of the the image name preserving the original 
-	 * file extension
+	 * file extension.
+	 * 
 	 * @param imageName The name of the projection
 	 * @param imageName The original name of the image
 	 * @param startZ The starting Z value used to create the projection
 	 * @param endZ The ending Z value used to create the projection
-	 * @return
+	 * @return See above.
 	 */
-	private String combineFilenameWith(String projectName, String imageName, int startZ, int endZ) {
+	private String combineFilenameWith(String projectName, String imageName,
+			int startZ, int endZ) {
 		String extension = FilenameUtils.getExtension(imageName);
 		
 		StringBuilder nameBuilder = new StringBuilder();
 		nameBuilder.append(projectName);
-		nameBuilder.append(String.format("_ZRange_%s_%s", (startZ + 1), (endZ + 1)));
+		nameBuilder.append(String.format("_ZRange_%s_%s", (startZ + 1),
+				(endZ + 1)));
 		nameBuilder.append(".");
 		nameBuilder.append(extension);
 		
@@ -2001,7 +2019,7 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Starts an asynchronous retrieval of the containers containing the 
+	 * Starts an asynchronous retrieval of the containers containing the
 	 * image.
 	 */
 	void fireContainersLoading()
@@ -2026,10 +2044,10 @@ class ImViewerModel
 	 * Starts an asynchronous creation of the rendering settings
 	 * for the pixels set.
 	 * 
-	 * @param indexes	The indexes of the projected channels.
-	 * @param image 	The projected image.
+	 * @param indexes The indexes of the projected channels.
+	 * @param image The projected image.
 	 */
-	void fireProjectedRndSettingsCreation(List<Integer> indexes, 
+	void fireProjectedRndSettingsCreation(List<Integer> indexes,
 			ImageData image)
 	{
 		Renderer rnd = metadataViewer.getRenderer();
@@ -2043,10 +2061,10 @@ class ImViewerModel
 	/**
 	 * Sets the context of the node.
 	 * 
-	 * @param parent		The parent of the image or <code>null</code> 
-	 * 						if no context specified.
-	 * @param grandParent   The grandparent of the image or <code>null</code> 
-	 * 						if no context specified.
+	 * @param parent The parent of the image or <code>null</code>
+	 * if no context specified.
+	 * @param grandParent The grandparent of the image or <code>null</code>
+	 * if no context specified.
 	 */
 	void setContext(DataObject parent, DataObject grandParent)
 	{
@@ -2066,7 +2084,7 @@ class ImViewerModel
     DataObject getParent() { return parent; }
     
     /**
-     * Returns the grandparent of the image or <code>null</code> 
+     * Returns the grandparent of the image or <code>null</code>
      * if no context specified.
      * 
      * @return See above.
@@ -2139,7 +2157,7 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the rendering settings are original, 
+	 * Returns <code>true</code> if the rendering settings are original,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -2154,7 +2172,7 @@ class ImViewerModel
 	}
 
 	/**
-	 * Returns <code>true</code> if it is the original plane, 
+	 * Returns <code>true</code> if it is the original plane,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -2171,7 +2189,7 @@ class ImViewerModel
 	 * that the current one, <code>false</code> otherwise.
 	 * 
 	 * @param def The settings to check.
-	 * @param checkPlane Pass <code>true</code> to check the plane, 
+	 * @param checkPlane Pass <code>true</code> to check the plane,
 	 * 					 <code>false</code> otherwise.
 	 * @return See above.
 	 */
@@ -2217,7 +2235,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	PixelsData getPixelsData()
-	{ 
+	{
 		if (image == null) return null;
 		return getImage().getDefaultPixels();
 	}
@@ -2270,10 +2288,9 @@ class ImViewerModel
 	void makeMovie()
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.makeMovie((int) getUnitInRefUnits(), 
+		metadataViewer.makeMovie((int) getUnitInRefUnits(),
 				getBrowser().getUnitBarColor());
 	}
-	
 	
 	/**
 	 * Sets the selected lifetime bin.
@@ -2362,9 +2379,8 @@ class ImViewerModel
     void fireMeasurementsLoading()
     {
     	if (parent instanceof WellData) {
-    		//PlateData p = ((WellData) parent).getPlate();
     		ImageData p = getImage();
-    		MeasurementsLoader loader = new MeasurementsLoader(component, ctx, 
+    		MeasurementsLoader loader = new MeasurementsLoader(component, ctx,
     				p);
     		loader.load();
     	}
@@ -2379,7 +2395,7 @@ class ImViewerModel
 	{
 		measurements = result;
 	}
-    
+
 	/**
 	 * Returns the measurements if any.
 	 * 
@@ -2421,7 +2437,7 @@ class ImViewerModel
 	void activityOptions(Component source, Point location)
 	{
 		if (metadataViewer == null) return;
-		metadataViewer.activityOptions(source, location, 
+		metadataViewer.activityOptions(source, location,
 				MetadataViewer.PUBLISHING_OPTION);
 	}
 
@@ -2492,7 +2508,7 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		OverlaysRenderer loader = new OverlaysRenderer(component, ctx, 
+		OverlaysRenderer loader = new OverlaysRenderer(component, ctx,
 				getPixelsID(), pDef, overlayTableID, overlays);
 		loader.load();
 	}
@@ -2503,33 +2519,7 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	double getOriginalRatio() { return originalRatio; }
-	
-	/**
-	 * Determines the size of the image if it is a big image.
-	 * 
-	 * @return See above.
-	 */
-	Dimension computeSize()
-	{
-		computedSize = new Dimension(getMaxX(), getMaxY());
-		return computedSize;
-		/*
-		if (!isBigImage()) {
-			computedSize = new Dimension(getMaxX(), getMaxY());
-			return computedSize;
-		}
-		originalRatio = Math.min((double) RenderingControl.MAX_SIZE/getMaxX(), 
-				(double) RenderingControl.MAX_SIZE/getMaxY());
-		computedSize = Factory.computeThumbnailSize(
-				RenderingControl.MAX_SIZE, RenderingControl.MAX_SIZE, 
-				getMaxX(), getMaxY());
-		if (computedSize == null) 
-			computedSize = new Dimension(RenderingControl.MAX_SIZE,
-					RenderingControl.MAX_SIZE);
-		return computedSize;
-		*/
-	}
-	
+
 	/** Refreshes the renderer. */
 	void refresh()
 	{
@@ -2598,20 +2588,14 @@ class ImViewerModel
 		// use the lowest resolution
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		int level = getSelectedResolutionLevel();
 		PlaneDef pDef = createPlaneDef();
-		Dimension d = getTileSize();
+		ResolutionLevel level = getResolutionDescription();
+		Dimension d = level.getTileSize();
 		int w = d.width;
 		int h = d.height;
 		int edgeWidth = w;
 		int edgeHeight = h;
-		ResolutionLevel rl = resolutionMap.get(0);
-		int px = rl.getPowerAlongX();
-		int py = rl.getPowerAlongY();
-		rl = resolutionMap.get(getResolutionLevels()-1);
-		int mx = rl.getPowerAlongX();
-		int my = rl.getPowerAlongY();
-		int size = (int) (getMaxX()/Math.pow(2, mx-px));
+		int size = level.getImageSize().width;
 		edgeWidth = w;
 		int n = size/w;
 		int tiledImageSizeX = n*w;
@@ -2620,7 +2604,7 @@ class ImViewerModel
 			tiledImageSizeX += edgeWidth;
 			n++;
 		}
-		size = (int) (getMaxY()/Math.pow(2, my-py));
+		size = level.getImageSize().height;
 		edgeHeight = h;
 		n = size/h;
 		int tiledImageSizeY = n*h;
@@ -2630,23 +2614,26 @@ class ImViewerModel
 			n++;
 		}
 		pDef.region = new RegionDef(0, 0, tiledImageSizeX, tiledImageSizeY);
-		//rnd.setSelectedResolutionLevel(0);
-		//BufferedImage image = rnd.renderPlane(pDef);
 		double ratio = 1;
 		w = tiledImageSizeX;
 		h = tiledImageSizeY;
-		if (w < BirdEyeLoader.BIRD_EYE_SIZE || h < BirdEyeLoader.BIRD_EYE_SIZE)
-			ratio = 1;
+		int ref = BIRD_EYE_SIZE_LOWER;
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		if (screen.height > 1200 && screen.height <= 1600)
+			ref = BIRD_EYE_SIZE_MEDIUM;
+		else if (screen.height > 1600)
+			ref = BIRD_EYE_SIZE_HEIGH;
+		if (w < ref || h < ref) ratio = 1;
 		else {
-			if (w >= h) ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/w;
-			else ratio = (double) BirdEyeLoader.BIRD_EYE_SIZE/h;
+			if (w >= h) ratio = (double) ref/w;
+			else ratio = (double) ref/h;
 		}
-		if (ratio < BirdEyeLoader.MIN_RATIO) ratio = BirdEyeLoader.MIN_RATIO;
+		ratio = (double) ref/Factory.THUMB_DEFAULT_WIDTH;
 		state = ImViewer.LOADING_BIRD_EYE_VIEW;
 		BirdEyeLoader loader = new BirdEyeLoader(component, ctx, getImage(),
 				pDef, ratio);
 		loader.load();
-		loaders.put(BIRD_EYE_BVIEW, loader);
+		loaders.put(BIRD_EYE_VIEW, loader);
 	}
 
 	/**
@@ -2656,19 +2643,42 @@ class ImViewerModel
 	 */
 	Dimension getTileSize()
 	{
-		if (tileSize != null) return tileSize;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return null;
-		ResolutionLevel r = resolutionMap.get(getSelectedResolutionLevel());
-		if (r == null) {
-			tileSize = rnd.getTileSize();
-			return tileSize; 
-		}
-		tileSize = new Dimension((int) Math.pow(2, r.getPowerAlongX()), 
-				(int) Math.pow(2, r.getPowerAlongY()));
-		return tileSize; 
+		ResolutionLevel r = getResolutionDescription();
+		if (r == null) return rnd.getTileSize();
+		return r.getTileSize();
 	}
 
+	/**
+	 * Returns the resolution level corresponding to the selected level.
+	 * 
+	 * @return See above.
+	 */
+	ResolutionLevel getResolutionDescription()
+	{
+		return getResolutionDescription(getSelectedResolutionLevel());
+	}
+	
+	/**
+	 * Returns the resolution level corresponding to the selected level.
+	 * 
+	 * @param index The selected index.
+	 * @return See above.
+	 */
+	ResolutionLevel getResolutionDescription(int index)
+	{
+		if (resolutions == null) return null;
+		Iterator<ResolutionLevel> i = resolutions.iterator();
+		ResolutionLevel level;
+		while (i.hasNext()) {
+			level = i.next();
+			if (index == level.getLevel())
+				return level;
+		}
+		return null;
+	}
+	
     /**
      * Returns the number of rows, default is <code>1</code>.
      * 
@@ -2707,9 +2717,34 @@ class ImViewerModel
 		list = selection;
 		sortTilesByIndex(list);
 		state = ImViewer.LOADING_TILES;
-		TileLoader loader = new TileLoader(component, ctx, currentPixelsID,
-				pDef, list);
-		loader.load();
+		List<RenderingControl> proxies = rnd.getRenderingControls();
+		int m = proxies.size();
+		//Create n sublist
+		int n = selection.size();
+		int diff = n/m;
+		List<Tile> l;
+		int j;
+		int step = 0;
+		if (n < m) diff = 1;
+		tileTotalCount = n;
+		tileLoadedCount = 0;
+		RenderingControl proxy;
+		TileLoader loader;
+		for (int i = 0; i < m; i++) {
+			l = new ArrayList<Tile>();
+			j = step+diff;
+			if (i == (m-1)) j += (n-j);
+			if (j <= n) {
+				l =  list.subList(step, j);
+				step += l.size();
+			}
+			if (l.size() > 0) {
+				proxy = proxies.get(i);
+				loader = new TileLoader(component, ctx, currentPixelsID,
+						pDef, proxy, l);
+				loader.load();
+			}
+		}
     }
     
     /** Resets the tiles.*/
@@ -2762,7 +2797,6 @@ class ImViewerModel
 		clearTileImages(tiles.values());
 		tiles.clear();
 		rnd.setSelectedResolutionLevel(level);
-		//tileSize = null;
 		initializeTiles();
 	}
 	
@@ -2772,7 +2806,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getTiledImageSizeX() { return tiledImageSizeX; }
+	int getTiledImageSizeX()
+	{
+		if (!isBigImage()) return getMaxX();
+		return tiledImageSizeX;
+	}
 	
 	/**
 	 * Returns the size of the tiled image along the Y-axis i.e.
@@ -2780,7 +2818,11 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getTiledImageSizeY() { return tiledImageSizeY; }
+	int getTiledImageSizeY()
+	{
+		if (!isBigImage()) return getMaxY();
+		return tiledImageSizeY;
+	}
 
 	/**
 	 * Clears the images hosted by the tile if not <code>null</code>.
@@ -2829,7 +2871,7 @@ class ImViewerModel
 	 */
 	void setBirdEyeView(BufferedImage image)
 	{
-		loaders.remove(BIRD_EYE_BVIEW);
+		loaders.remove(BIRD_EYE_VIEW);
 		getBrowser().setBirdEyeView(image);
 	}
 
@@ -2901,8 +2943,54 @@ class ImViewerModel
 		if (refUnits != null) return refUnits.getUnits();
 		double size = getPixelsSizeX();
 		if (size < 0) return UnitsObject.MICRONS;
-		refUnits = EditorUtil.transformSize(size); 
+		refUnits = EditorUtil.transformSize(size);
 		return refUnits.getUnits();
 	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
     
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+		if (containers != null) {
+			containers.clear();
+			containers = null;
+		}
+	}
+
+	/** 
+	 * Returns <code>true</code> if all the tiles are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param count The number of loaded tiles.
+	 * @return See above.
+	 */
+	boolean isTileLoaded(int count)
+	{
+		tileLoadedCount += count;
+		return tileLoadedCount == tileTotalCount;
+	}
+
 }

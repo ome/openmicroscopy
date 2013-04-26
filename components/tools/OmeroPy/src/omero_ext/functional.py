@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # From: http://code.djangoproject.com/browser/django/trunk/django/utils/functional.py
 # License for code in this file that was taken from Python 2.5.
 

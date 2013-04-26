@@ -7,10 +7,14 @@
 package integration;
 
 
+import static omero.rtypes.rstring;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.testng.annotations.BeforeClass;
@@ -30,7 +34,9 @@ import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.ContrastMethod;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetI;
 import omero.model.Detector;
 import omero.model.Dichroic;
 import omero.model.DoubleAnnotation;
@@ -47,6 +53,7 @@ import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Illumination;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.Laser;
@@ -59,10 +66,33 @@ import omero.model.Objective;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.PixelsAnnotationLink;
+import omero.model.PixelsAnnotationLinkI;
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
+import omero.model.PlateAcquisitionAnnotationLink;
+import omero.model.PlateAcquisitionAnnotationLinkI;
+import omero.model.PlateAcquisitionI;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectAnnotationLinkI;
+import omero.model.ProjectI;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
+import omero.model.Well;
+import omero.model.WellAnnotationLink;
+import omero.model.WellAnnotationLinkI;
+import omero.model.XmlAnnotation;
+import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import pojos.BooleanAnnotationData;
@@ -74,6 +104,7 @@ import pojos.LightSourceData;
 import pojos.LongAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Collections of tests for the <code>IMetadata</code> service.
@@ -143,7 +174,7 @@ public class MetadataServiceTest
 			if (annotation instanceof FileAnnotation) { //test creation of pojos
 				faData = new FileAnnotationData((FileAnnotation) annotation);
 				assertNotNull(faData);
-				assertTrue(faData.getFileID() == of.getId().getValue());
+				assertEquals(faData.getFileID(), of.getId().getValue());
 			}
 		}
     }
@@ -175,14 +206,13 @@ public class MetadataServiceTest
         link.setChild(data);
         iUpdate.saveAndReturnObject(link);
         
-        List<String> types = new ArrayList<String>();
-        types.add(FILE_ANNOTATION);
         List<Long> ids = new ArrayList<Long>();
         Parameters param = new Parameters();
         List<Long> nodes = new ArrayList<Long>();
         nodes.add(image.getId().getValue());
         Map<Long, List<IObject>> result = 
-        	iMetadata.loadAnnotations(Image.class.getName(), nodes, types, ids, 
+        	iMetadata.loadAnnotations(Image.class.getName(), nodes,
+        			Arrays.asList(FILE_ANNOTATION), ids, 
         		param);
         assertNotNull(result);
         List<IObject> l = result.get(image.getId().getValue());
@@ -195,7 +225,7 @@ public class MetadataServiceTest
 			if (o instanceof FileAnnotation) {
 				faData = new FileAnnotationData((FileAnnotation) o);
 				assertNotNull(faData);
-				assertTrue(faData.getFileID() == of.getId().getValue());
+				assertEquals(faData.getFileID(), of.getId().getValue());
 			}
 		}
     }
@@ -233,16 +263,45 @@ public class MetadataServiceTest
         int count = 0;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				count++;
 				if (r.getId().getValue() == data.getId().getValue()) {
-					assertTrue(r.getFile().getId().getValue() 
-							== of.getId().getValue());
+					assertEquals(r.getFile().getId().getValue(),
+							of.getId().getValue());
+					assertEquals(r.getFile().getName().getValue(),
+							of.getName().getValue());
+					assertEquals(r.getFile().getPath().getValue(),
+							of.getPath().getValue());
 				}
 			}
 		}
-        assertTrue(count == result.size());
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
+        //Same thing but this time passing ome.model.annotations.FileAnnotation
+        result = iMetadata.loadSpecifiedAnnotations(FILE_ANNOTATION,
+        		include, exclude, param);
+        assertNotNull(result);
+
+        i = result.iterator();
+        count = 0;
+        while (i.hasNext()) {
+        	o = i.next();
+        	if (o != null && o instanceof FileAnnotation) {
+        		r = (FileAnnotation) o;
+        		count++;
+        		if (r.getId().getValue() == data.getId().getValue()) {
+        			assertEquals(r.getFile().getId().getValue(),
+        					of.getId().getValue());
+        			assertEquals(r.getFile().getName().getValue(),
+        					of.getName().getValue());
+        			assertEquals(r.getFile().getPath().getValue(),
+        					of.getPath().getValue());
+        		}
+        	}
+        }
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
     }
     
     /**
@@ -280,15 +339,16 @@ public class MetadataServiceTest
         FileAnnotation r;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				assertNotNull(r.getNs());
-				assertTrue(ns.equals(r.getNs().getValue()));
+				assertEquals(ns, r.getNs().getValue());
 			}
 		}
         
         //now test the exclude condition
         include.clear();
+        //List of name 
         exclude.add(ns);
         result = iMetadata.loadSpecifiedAnnotations(
         		FileAnnotation.class.getName(), 
@@ -299,14 +359,14 @@ public class MetadataServiceTest
         int count = 0;
         while (i.hasNext()) {
 			o = i.next();
-			if (o != null && o instanceof FileAnnotation) {
+			if (o instanceof FileAnnotation) {
 				r = (FileAnnotation) o;
 				if (r.getNs() != null) {
 					if (ns.equals(r.getNs().getValue())) count++;
 				}
 			}
 		}
-        assertTrue(count == 0);
+        assertEquals(count, 0);
     }
    
     /**
@@ -343,7 +403,7 @@ public class MetadataServiceTest
     			tagData = new TagAnnotationData(tagReturned);
     		
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(tagData);
     	//comment
     	CommentAnnotation comment = new CommentAnnotationI();
@@ -363,7 +423,7 @@ public class MetadataServiceTest
     			commentReturned.getId().getValue())
     			commentData = new TextualAnnotationData(commentReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(commentData);
     	
     	//boolean
@@ -384,7 +444,7 @@ public class MetadataServiceTest
     			boolReturned.getId().getValue())
     			boolData = new BooleanAnnotationData(boolReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(boolData);
     	
     	//long
@@ -405,7 +465,7 @@ public class MetadataServiceTest
     			lReturned.getId().getValue())
     			lData = new LongAnnotationData(lReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(lData);
     	//double
     	DoubleAnnotation d = new DoubleAnnotationI();
@@ -425,7 +485,7 @@ public class MetadataServiceTest
     			dReturned.getId().getValue())
     			dData = new DoubleAnnotationData(dReturned);
     	}
-    	assertTrue(result.size() == count);
+    	assertEquals(result.size(), count);
     	assertNotNull(dData);
     }
     
@@ -434,7 +494,7 @@ public class MetadataServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testLoadTagSetsNoOrphan() 
+    public void testLoadTagSetsNoOrphan()
     	throws Exception
     {
     	long self = iAdmin.getEventContext().userId;
@@ -473,7 +533,7 @@ public class MetadataServiceTest
 				count++;
 			}
 		}
-    	assertTrue(count == result.size());
+    	assertEquals(result.size(), count);
     }
     
     /**
@@ -634,7 +694,7 @@ public class MetadataServiceTest
         IObject tagData = f.getUpdateService().saveAndReturnObject(tag);
         assertNotNull(tagData);
         //make sure we are not the owner of the tag.
-        assertTrue(tagData.getDetails().getOwner().getId().getValue() == id2);
+        assertEquals(tagData.getDetails().getOwner().getId().getValue(), id2);
     	client.closeSession();
     	
         f = client.createSession(uuid, uuid);
@@ -664,7 +724,7 @@ public class MetadataServiceTest
         	}
         }
         assertTrue(found);
-        assertTrue(result.size() == count);
+        assertEquals(result.size(), count);
         client.closeSession();
     }
     
@@ -683,7 +743,7 @@ public class MetadataServiceTest
         		mmFactory.simpleImage(0));
         //Link the tag and the image.
         ImageAnnotationLinkI link = new ImageAnnotationLinkI();
-        link.setChild(tagData);
+        link.setChild((Annotation) tagData.proxy());
         link.setParent(img);
         iUpdate.saveAndReturnObject(link);
         
@@ -704,9 +764,8 @@ public class MetadataServiceTest
         long self = iAdmin.getEventContext().userId;
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
-    	List<Long> ids = new ArrayList<Long>();
-    	ids.add(tagData.getId().getValue());
-    	Map result = iMetadata.loadTagContent(ids, param);
+    	Map result = iMetadata.loadTagContent(
+    			Arrays.asList(tagData.getId().getValue()), param);
     	assertNotNull(result);
     	List nodes = (List) result.get(tagData.getId().getValue());
     	assertNotNull(nodes);
@@ -723,7 +782,7 @@ public class MetadataServiceTest
 				if (o.getId().getValue() == pData.getId().getValue()) count++;
 			}
 		}
-    	assertNotNull(count == result.size());
+    	assertEquals(nodes.size(), count);
     }
     
     /**
@@ -762,23 +821,23 @@ public class MetadataServiceTest
     		assertTrue(instrument.sizeOfDichroic() > 0);
     		assertTrue(instrument.sizeOfFilter() > 0);
     		assertTrue(instrument.sizeOfFilterSet() > 0);
-    		assertTrue(instrument.sizeOfLightSource() == 1);
+    		assertEquals(instrument.sizeOfLightSource(), 1);
     		assertTrue(instrument.sizeOfObjective() > 0);
     		assertTrue(instrument.sizeOfOtf() > 0);
     		
-    		assertTrue(instrument.sizeOfDetector() == 
+    		assertEquals(instrument.sizeOfDetector(),
     			data.getDetectors().size());
-    		assertTrue(instrument.sizeOfDichroic() == 
+    		assertEquals(instrument.sizeOfDichroic(),
     			data.getDichroics().size());
-    		assertTrue(instrument.sizeOfFilter() == 
+    		assertEquals(instrument.sizeOfFilter(),
     			data.getFilters().size());
-    		assertTrue(instrument.sizeOfFilterSet() == 
+    		assertEquals(instrument.sizeOfFilterSet(),
     			data.getFilterSets().size());
-    		assertTrue(instrument.sizeOfLightSource() == 
+    		assertEquals(instrument.sizeOfLightSource(),
     			data.getLightSources().size());
-    		assertTrue(instrument.sizeOfObjective() == 
+    		assertEquals(instrument.sizeOfObjective(),
     			data.getObjectives().size());
-    		assertTrue(instrument.sizeOfOtf() == 
+    		assertEquals(instrument.sizeOfOtf(),
     			data.getOTF().size());
     		
     		
@@ -955,7 +1014,7 @@ public class MetadataServiceTest
     		}
         	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
         			ids);
-        	assertTrue(channels.size() == pixels.getSizeC().getValue());
+        	assertEquals(channels.size(), pixels.getSizeC().getValue());
         	LogicalChannel loaded;
         	Iterator<LogicalChannel> j = channels.iterator();
         	LightSourceData l;
@@ -963,12 +1022,12 @@ public class MetadataServiceTest
         		loaded = j.next();
         		assertNotNull(loaded);
             	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
-            	assertTrue(data.getDetector().getId() == 
+            	assertEquals(data.getDetector().getId(),
             		detector.getId().getValue());
-            	assertTrue(data.getFilterSet().getId() == 
+            	assertEquals(data.getFilterSet().getId(),
             		filterSet.getId().getValue());
             	l = (LightSourceData) data.getLightSource();
-            	assertTrue(l.getId() == laser.getId().getValue());
+            	assertEquals(l.getId(),laser.getId().getValue());
             	assertNotNull(l.getLaserMedium());
             	assertNotNull(l.getType());
             	if (values[k]) {
@@ -980,22 +1039,22 @@ public class MetadataServiceTest
             	assertNotNull(loaded.getDetectorSettings().getDetector());
             	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
             	assertNotNull(loaded.getLightPath());
-            	assertNotNull(data.getLightPath().getDichroic().getId() 
-            			== dichroic.getId().getValue());
+            	assertEquals(data.getLightPath().getDichroic().getId(),
+            			dichroic.getId().getValue());
             	assertNotNull(data.getContrastMethod());
             	assertNotNull(data.getIllumination());
             	assertNotNull(data.getMode());
             	//OTF support
             	
-            	assertTrue(data.getOTF().getId() == otf.getId().getValue());
+            	assertEquals(data.getOTF().getId(), otf.getId().getValue());
             	assertNotNull(loaded.getOtf());
-            	assertTrue(loaded.getOtf().getId().getValue() 
-            			== otf.getId().getValue());
+            	assertEquals(loaded.getOtf().getId().getValue(),
+            			otf.getId().getValue());
             	assertNotNull(loaded.getOtf().getFilterSet());
             	assertNotNull(loaded.getOtf().getObjective());
-            	assertTrue(loaded.getOtf().getFilterSet().getId().getValue() ==
+            	assertEquals(loaded.getOtf().getFilterSet().getId().getValue(),
             		filterSet.getId().getValue());
-            	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
+            	assertEquals(loaded.getOtf().getObjective().getId().getValue(),
             		objective.getId().getValue());
             	assertNotNull(loaded.getOtf().getPixelsType());
     		}
@@ -1127,4 +1186,710 @@ public class MetadataServiceTest
     	assertEquals(orphan, tagsIds.size());
     	assertEquals(count, 1);
     }
+    
+    /**
+     * Tests the creation of file annotation with an original file
+     * and load it. Loads the annotation using the 
+     * <code>loadSpecifiedAnnotations</code> method. Converts the file
+     * annotation into its corresponding Pojo Object
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsFileAnnotationConvertToPojo() 
+    		throws Exception
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+    	assertNotNull(of);
+
+    	FileAnnotationI fa = new FileAnnotationI();
+    	fa.setFile(of);
+    	FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+    	assertNotNull(data);
+
+    	Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		include, exclude, param);
+        assertNotNull(result);
+       
+        Iterator<Annotation> i = result.iterator();
+        Annotation o;
+        int count = 0;
+        FileAnnotationData pojo;
+        while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof FileAnnotation) {
+				pojo = new FileAnnotationData( (FileAnnotation) o);
+				count++;
+				if (pojo.getId() == data.getId().getValue()) {
+					assertEquals(pojo.getFileID(), of.getId().getValue());
+					assertEquals(pojo.getFileName(), of.getName().getValue());
+					assertEquals(pojo.getFilePath(), of.getPath().getValue());
+				}
+			}
+		}
+        assertTrue(count > 0);
+        assertEquals(count, result.size());
+    }
+    
+    /**
+     * Tests the retrieval of annotations with and without namespaces.
+     * Exclude the annotation with a given name space.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationsFileAnnotationNS() 
+    	throws Exception
+    {
+		OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+				mmFactory.createOriginalFile());
+		assertNotNull(of);
+
+		String ns = "include";
+		FileAnnotationI fa = new FileAnnotationI();
+		fa.setFile(of);
+		fa.setNs(omero.rtypes.rstring(ns));
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+		
+		fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data2 = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data2);
+		
+        Parameters param = new Parameters();
+        
+        //First test the include condition
+        List<Annotation> result = iMetadata.loadSpecifiedAnnotations(
+        		FileAnnotation.class.getName(), 
+        		new ArrayList<String>(), Arrays.asList(ns), param);
+        assertNotNull(result);
+       
+        Iterator<Annotation> i = result.iterator();
+        Annotation o;
+        FileAnnotation r;
+        FileAnnotationData pojo;
+        while (i.hasNext()) {
+			o = i.next();
+			pojo = new FileAnnotationData((FileAnnotation) o);
+			if (data2.getId().getValue() == pojo.getId()) {
+				assertEquals(pojo.getFileName(), of.getName().getValue());
+				assertEquals(pojo.getFilePath(), of.getPath().getValue());
+			}
+		}
+    }
+
+	/**
+	 * Tests the retrieval of a specified long annotation linked to images.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToImages()
+    	throws Exception
+    {
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	Image img2 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	
+    	LongAnnotation data1 = new LongAnnotationI();
+    	data1.setLongValue(omero.rtypes.rlong(1L));
+    	data1 = (LongAnnotation) iUpdate.saveAndReturnObject(data1);
+    	ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) img1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        
+        LongAnnotation data2 = new LongAnnotationI();
+        data2.setLongValue(omero.rtypes.rlong(1L));
+        data2 = (LongAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) img2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        //Add a comment annotation
+        CommentAnnotation comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("comment"));
+        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) img2.proxy());
+        l.setChild((Annotation) comment.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		LongAnnotation.class.getName(), include, exclude,
+        		Image.class.getName(), Arrays.asList(img1.getId().getValue(),
+        				img2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(img1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(img2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified comment annotation
+     * linked to datasets. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToDatasets()
+    	throws Exception
+    {
+    	String name = " 2&1 " + System.currentTimeMillis();
+    	Dataset d1 = new DatasetI();
+        d1.setName(rstring(name));
+        d1 = (Dataset) iUpdate.saveAndReturnObject(d1);
+    	
+        Dataset d2 = new DatasetI();
+        d2.setName(rstring(name));
+        d2 = (Dataset) iUpdate.saveAndReturnObject(d2);
+        
+    	CommentAnnotation data1 = new CommentAnnotationI();
+    	data1.setTextValue(omero.rtypes.rstring("1"));
+    	data1 = (CommentAnnotation) iUpdate.saveAndReturnObject(data1);
+    	DatasetAnnotationLink l = new DatasetAnnotationLinkI();
+        l.setParent((Dataset) d1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        CommentAnnotation data2 = new CommentAnnotationI();
+    	data2.setTextValue(omero.rtypes.rstring("1"));
+    	data2 = (CommentAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new DatasetAnnotationLinkI();
+        l.setParent((Dataset) d2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new DatasetAnnotationLinkI();
+        l.setParent((Dataset) d2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		CommentAnnotation.class.getName(), include, exclude,
+        		Dataset.class.getName(), Arrays.asList(d1.getId().getValue(),
+        				d2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(d1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(d2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified term annotation
+     * linked to projects. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToProjects()
+    	throws Exception
+    {
+    	String name = " 2&1 " + System.currentTimeMillis();
+    	Project d1 = new ProjectI();
+        d1.setName(rstring(name));
+        d1 = (Project) iUpdate.saveAndReturnObject(d1);
+    	
+        Project d2 = new ProjectI();
+        d2.setName(rstring(name));
+        d2 = (Project) iUpdate.saveAndReturnObject(d2);
+        
+    	TermAnnotation data1 = new TermAnnotationI();
+    	data1.setTermValue(omero.rtypes.rstring("Term 1"));
+    	data1 = (TermAnnotation) iUpdate.saveAndReturnObject(data1);
+    	ProjectAnnotationLink l = new ProjectAnnotationLinkI();
+        l.setParent((Project) d1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        TermAnnotation data2 = new TermAnnotationI();
+    	data2.setTermValue(omero.rtypes.rstring("Term 1"));
+    	data2 = (TermAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new ProjectAnnotationLinkI();
+        l.setParent((Project) d2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new ProjectAnnotationLinkI();
+    	l.setParent((Project) d2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		TermAnnotation.class.getName(), include, exclude,
+        		Project.class.getName(), Arrays.asList(d1.getId().getValue(),
+        				d2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(d1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(d2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified tag annotation
+     * linked to screen. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToScreens()
+    	throws Exception
+    {
+    	String name = " 2&1 " + System.currentTimeMillis();
+    	Screen d1 = new ScreenI();
+        d1.setName(rstring(name));
+        d1 = (Screen) iUpdate.saveAndReturnObject(d1);
+    	
+        Screen d2 = new ScreenI();
+        d2.setName(rstring(name));
+        d2 = (Screen) iUpdate.saveAndReturnObject(d2);
+        
+    	TagAnnotation data1 = new TagAnnotationI();
+    	data1.setTextValue(omero.rtypes.rstring("Tag 1"));
+    	data1 = (TagAnnotation) iUpdate.saveAndReturnObject(data1);
+    	ScreenAnnotationLink l = new ScreenAnnotationLinkI();
+        l.setParent((Screen) d1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        TagAnnotation data2 = new TagAnnotationI();
+    	data2.setTextValue(omero.rtypes.rstring("Tag 1"));
+    	data2 = (TagAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new ScreenAnnotationLinkI();
+        l.setParent((Screen) d2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new ScreenAnnotationLinkI();
+    	l.setParent((Screen) d2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		TagAnnotation.class.getName(), include, exclude,
+        		Screen.class.getName(), Arrays.asList(d1.getId().getValue(),
+        				d2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(d1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(d2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+
+    /**
+     * Tests the retrieval of a specified boolean annotation
+     * linked to plates. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToPlates()
+    	throws Exception
+    {
+    	String name = " 2&1 " + System.currentTimeMillis();
+    	Plate d1 = new PlateI();
+        d1.setName(rstring(name));
+        d1 = (Plate) iUpdate.saveAndReturnObject(d1);
+    	
+        Plate d2 = new PlateI();
+        d2.setName(rstring(name));
+        d2 = (Plate) iUpdate.saveAndReturnObject(d2);
+        
+    	BooleanAnnotation data1 = new BooleanAnnotationI();
+    	data1.setBoolValue(omero.rtypes.rbool(true));
+    	data1 = (BooleanAnnotation) iUpdate.saveAndReturnObject(data1);
+    	PlateAnnotationLink l = new PlateAnnotationLinkI();
+        l.setParent((Plate) d1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        BooleanAnnotation data2 = new BooleanAnnotationI();
+        data1.setBoolValue(omero.rtypes.rbool(true));
+    	data2 = (BooleanAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new PlateAnnotationLinkI();
+        l.setParent((Plate) d2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new PlateAnnotationLinkI();
+    	l.setParent((Plate) d2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		BooleanAnnotation.class.getName(), include, exclude,
+        		Plate.class.getName(), Arrays.asList(d1.getId().getValue(),
+        				d2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(d1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(d2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified xml annotation
+     * linked to plates. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToPlateAcquisitions()
+    	throws Exception
+    {
+    	String name = " 2&1 " + System.currentTimeMillis();
+    	PlateAcquisition d1 = new PlateAcquisitionI();
+        d1.setName(rstring(name));
+        Plate p1 = new PlateI();
+        p1.setName(rstring(name));
+        d1.setPlate(p1);
+        d1 = (PlateAcquisition) iUpdate.saveAndReturnObject(d1);
+    	
+        PlateAcquisition d2 = new PlateAcquisitionI();
+        d2.setName(rstring(name));
+        d2.setPlate(p1);
+        d2 = (PlateAcquisition) iUpdate.saveAndReturnObject(d2);
+        
+    	XmlAnnotation data1 = new XmlAnnotationI();
+    	data1.setTextValue(omero.rtypes.rstring("xml annotation"));
+    	data1 = (XmlAnnotation) iUpdate.saveAndReturnObject(data1);
+    	PlateAcquisitionAnnotationLink l = new PlateAcquisitionAnnotationLinkI();
+        l.setParent((PlateAcquisition) d1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        XmlAnnotation data2 = new XmlAnnotationI();
+        data1.setTextValue(omero.rtypes.rstring("xml annotation"));
+    	data2 = (XmlAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new PlateAcquisitionAnnotationLinkI();
+        l.setParent((PlateAcquisition) d2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new PlateAcquisitionAnnotationLinkI();
+    	l.setParent((PlateAcquisition) d2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		XmlAnnotation.class.getName(), include, exclude,
+        		PlateAcquisition.class.getName(),
+        		Arrays.asList(d1.getId().getValue(), d2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(d1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(d2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified file annotation
+     * linked to wells. All Types covered by other tests.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToWells()
+    	throws Exception
+    {
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+        		mmFactory.createPlate(2, 1, 1, 1, false));
+    	
+    	ParametersI options = new ParametersI();
+    	options.addLong("plateID", p.getId().getValue());
+        StringBuilder sb = new StringBuilder();
+        sb.append("select well from Well as well ");
+        sb.append("left outer join fetch well.plate as pt ");
+        sb.append("left outer join fetch well.wellSamples as ws ");
+        sb.append("left outer join fetch ws.image as img ");
+        sb.append("where pt.id = :plateID");
+        List results = iQuery.findAllByQuery(sb.toString(), options);
+        
+        Well w1 = (Well) results.get(0);
+        Well w2 = (Well) results.get(1);
+        
+        
+        
+    	FileAnnotation data1 = new FileAnnotationI();
+    	data1 = (FileAnnotation) iUpdate.saveAndReturnObject(data1);
+    	WellAnnotationLink l = new WellAnnotationLinkI();
+        l.setParent((Well) w1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        FileAnnotation data2 = new FileAnnotationI();
+    	data2 = (FileAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new WellAnnotationLinkI();
+        l.setParent((Well) w2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        LongAnnotation c = new LongAnnotationI();
+    	c.setLongValue(omero.rtypes.rlong(1L));
+    	c = (LongAnnotation) iUpdate.saveAndReturnObject(c);
+    	l = new WellAnnotationLinkI();
+    	l.setParent((Well) w2.proxy());
+        l.setChild((Annotation) c.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		FileAnnotation.class.getName(), include, exclude,
+        		Well.class.getName(),
+        		Arrays.asList(w1.getId().getValue(), w2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(w1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(w2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of specified xml annotations linked to an image.
+     * The one annotation has its ns set to <code>modulo</code> ns
+     * the other one does not.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToImageWithModuloNS()
+    	throws Exception
+    {
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+    	
+    	XmlAnnotation data1 = new XmlAnnotationI();
+    	data1.setTextValue(omero.rtypes.rstring("with modulo ns"));
+    	data1.setNs(omero.rtypes.rstring(XMLAnnotationData.MODULO_NS));
+    	data1 = (XmlAnnotation) iUpdate.saveAndReturnObject(data1);
+    	ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) img1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        
+        XmlAnnotation data2 = new XmlAnnotationI();
+        data2.setTextValue(omero.rtypes.rstring("w/o modulo ns"));
+        data2 = (XmlAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new ImageAnnotationLinkI();
+        l.setParent((Image) img1.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        Parameters param = new Parameters();
+        List<String> include = Arrays.asList(XMLAnnotationData.MODULO_NS);
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		XmlAnnotation.class.getName(), include, exclude,
+        		Image.class.getName(), Arrays.asList(img1.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 1);
+        List<Annotation> result = map.get(img1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        
+        //now exclude ns
+        include = new ArrayList<String>();
+        exclude = Arrays.asList(XMLAnnotationData.MODULO_NS);
+        
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		XmlAnnotation.class.getName(), include, exclude,
+        		Image.class.getName(), Arrays.asList(img1.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 1);
+        result = map.get(img1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of a specified long annotation linked to pixels.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadSpecifiedAnnotationLinkedToPixels()
+    	throws Exception
+    {
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.createImage());
+    	Image img2 = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.createImage());
+    	Pixels px1 = img1.getPrimaryPixels();
+    	Pixels px2 = img2.getPrimaryPixels();
+    	
+    	LongAnnotation data1 = new LongAnnotationI();
+    	data1.setLongValue(omero.rtypes.rlong(1L));
+    	data1 = (LongAnnotation) iUpdate.saveAndReturnObject(data1);
+    	PixelsAnnotationLink l = new PixelsAnnotationLinkI();
+        l.setParent((Pixels) px1.proxy());
+        l.setChild((Annotation) data1.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        
+        LongAnnotation data2 = new LongAnnotationI();
+        data2.setLongValue(omero.rtypes.rlong(1L));
+        data2 = (LongAnnotation) iUpdate.saveAndReturnObject(data2);
+        l = new PixelsAnnotationLinkI();
+        l.setParent((Pixels) px2.proxy());
+        l.setChild((Annotation) data2.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        //Add a comment annotation
+        CommentAnnotation comment = new CommentAnnotationI();
+        comment.setTextValue(omero.rtypes.rstring("comment"));
+        comment = (CommentAnnotation) iUpdate.saveAndReturnObject(comment);
+        l = new PixelsAnnotationLinkI();
+        l.setParent((Pixels) px2.proxy());
+        l.setChild((Annotation) comment.proxy());
+        iUpdate.saveAndReturnObject(l);
+        
+        Parameters param = new Parameters();
+        List<String> include = new ArrayList<String>();
+        List<String> exclude = new ArrayList<String>();
+        
+        
+        Map<Long, List<Annotation>> 
+        map = iMetadata.loadSpecifiedAnnotationsLinkedTo(
+        		LongAnnotation.class.getName(), include, exclude,
+        		Pixels.class.getName(), Arrays.asList(px1.getId().getValue(),
+        				px2.getId().getValue()),
+        		param);
+        
+        assertNotNull(map);
+
+        assertEquals(map.size(), 2);
+        List<Annotation> result = map.get(px1.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data1.getId().getValue());
+        result = map.get(px2.getId().getValue());
+        assertEquals(result.size(), 1);
+        assertEquals(result.get(0).getId().getValue(),
+        		data2.getId().getValue());
+    }
+
 }

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 
+import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
@@ -42,9 +43,10 @@ class ScreenImportLocationSettings extends ImportLocationSettings {
 	 * @param group The permission group to import data in to
 	 * @param screen The screen to import data in to
 	 */
-	ScreenImportLocationSettings(GroupData group, DataNode screen)
+	ScreenImportLocationSettings(GroupData group, ExperimenterData user, 
+			DataNode screen)
 	{
-		super(Importer.SCREEN_TYPE, group);
+		super(Importer.SCREEN_TYPE, group, user);
 		
 		this.importToScreen = screen;
 	}

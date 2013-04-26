@@ -503,7 +503,7 @@ public class MoveGroupSelectionDialog
 		treeDisplay.setVisible(true);
         treeDisplay.setRootVisible(false);
         ToolTipManager.sharedInstance().registerComponent(treeDisplay);
-        treeDisplay.setCellRenderer(new TreeCellRenderer());
+        treeDisplay.setCellRenderer(new TreeCellRenderer(userID));
         treeDisplay.setShowsRootHandles(true);
         TreeImageSet root = new TreeImageSet("");
         treeDisplay.setModel(new DefaultTreeModel(root));
@@ -513,7 +513,7 @@ public class MoveGroupSelectionDialog
 			return;
 		}
 		Set<TreeImageDisplay> 
-		nodes = TreeViewerTranslator.transformHierarchy(targets, userID, -1);
+		nodes = TreeViewerTranslator.transformHierarchy(targets);
 		List<TreeImageDisplay> transformedNodes = 
 			prepareSortedList(sorter.sort(nodes));
 		if (transformedNodes.size() == 0) {

@@ -122,17 +122,19 @@ def imageMarshal (image, key=None):
     #big images
     tiles = image._re.requiresPixelsPyramid()
     width, height = image._re.getTileSize()
-    levels = image._re.getResolutionLevels()-1
-    init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
-    if init_zoom < 0:
-        init_zoom = levels + init_zoom
+    levels = image._re.getResolutionLevels()
+    zoomLevelScaling = image.getZoomLevelScaling()
+    init_zoom = None
+    if hasattr(settings, 'VIEWER_INITIAL_ZOOM_LEVEL'):
+        init_zoom = settings.VIEWER_INITIAL_ZOOM_LEVEL
+        if init_zoom < 0:
+            init_zoom = levels + init_zoom
 
     try:
         rv.update({
             'tiles': tiles,
             'tile_size': {'width': width,
                           'height': height},
-            'init_zoom': init_zoom,
             'levels': levels,
             'size': {'width': image.getSizeX(),
                      'height': image.getSizeY(),
@@ -143,6 +145,10 @@ def imageMarshal (image, key=None):
                            'y': image.getPixelSizeY(),
                            'z': image.getPixelSizeZ(),},
             })
+        if init_zoom is not None:
+            rv['init_zoom'] = init_zoom
+        if zoomLevelScaling is not None:
+            rv.update({'zoomLevelScaling': zoomLevelScaling})
         try:
             rv['pixel_range'] = image.getPixelRange()
             rv['channels'] = map(lambda x: channelMarshal(x), image.getChannels())

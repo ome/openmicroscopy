@@ -56,6 +56,7 @@ import javax.swing.JToolBar;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
+import org.jdesktop.swingx.JXLoginPane.SaveMode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -158,6 +159,11 @@ class ToolBar
 	/** View the image.*/
 	private JButton viewButton;
 	
+	/** 
+	 * Component used to download the original metadata associated to the
+	 * image.*/
+	private JMenuItem downloadOriginalMetadataItem;
+
     /** Turns off some controls if the binary data are not available. */
     private void checkBinaryAvailability()
     {
@@ -180,8 +186,24 @@ class ToolBar
     		downloadItem.addActionListener(controller);
     		downloadItem.setActionCommand(""+EditorControl.DOWNLOAD);
     		downloadItem.setBackground(UIUtilities.BACKGROUND_COLOR);
-    		//downloadItem.setEnabled(false);
+    		downloadItem.setEnabled(!model.isArchived());
     		saveAsMenu.add(downloadItem);
+    		
+    		downloadOriginalMetadataItem = new JMenuItem(
+    				icons.getIcon(IconManager.DOWNLOAD));
+    		downloadOriginalMetadataItem.setToolTipText("Download the " +
+    				"metadata read from the image files.");
+    		downloadOriginalMetadataItem.setText(
+    				"Download Original metadata...");
+    		downloadOriginalMetadataItem.addActionListener(controller);
+    		downloadOriginalMetadataItem.setActionCommand(
+    				""+EditorControl.DOWNLOAD_METADATA);
+    		downloadOriginalMetadataItem.setBackground(
+    				UIUtilities.BACKGROUND_COLOR);
+    		downloadOriginalMetadataItem.setEnabled(
+    				model.hasOriginalMetadata());
+    		saveAsMenu.add(downloadOriginalMetadataItem);
+    		
     		exportAsOmeTiffItem = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
     		exportAsOmeTiffItem.setText("Export as OME-TIFF...");
@@ -189,7 +211,9 @@ class ToolBar
     		exportAsOmeTiffItem.addActionListener(controller);
     		exportAsOmeTiffItem.setActionCommand(
     				""+EditorControl.EXPORT_AS_OMETIFF);
-    		exportAsOmeTiffItem.setEnabled(!model.isLargeImage());
+    		boolean b = model.getRefObject() instanceof ImageData && 
+    			!model.isLargeImage();
+    		exportAsOmeTiffItem.setEnabled(b);
     		saveAsMenu.add(exportAsOmeTiffItem);
     		JMenu menu = new JMenu();
     		menu.setIcon(icons.getIcon(IconManager.SAVE_AS));
@@ -577,17 +601,7 @@ class ToolBar
     	initComponents();
     	buildGUI();
     }
-    
-    /** Enables the various controls. */
-    void setControls()
-    { 
-    	if (model.getRefObject() instanceof FileAnnotationData) {
-    		downloadButton.setEnabled(true); 
-    	} else 
-    		downloadButton.setEnabled(model.isArchived()); 
-    	checkBinaryAvailability();
-    }
-    
+
     /**
      * Enables the {@link #saveButton} depending on the passed value.
      * 
@@ -612,68 +626,57 @@ class ToolBar
     /** Updates the UI when a new object is selected. */
     void buildUI()
     {
+    	saveAsMenu = null;
     	Object refObject = model.getRefObject();
     	rndButton.setEnabled(false);
 		downloadButton.setEnabled(false);
-    	if ((refObject instanceof ImageData) || 
-    			(refObject instanceof WellSampleData)) {
+    	if (refObject instanceof ImageData ||
+    			refObject instanceof WellSampleData) {
     		rndButton.setEnabled(!model.isRendererLoaded());
     		if (model.isNumerousChannel())
     			rndButton.setEnabled(false);
-    		if (refObject instanceof ImageData) {
-    			downloadButton.setEnabled(model.isArchived());
-    		}
-    			
+    		downloadButton.setEnabled(model.isArchived());
     	} else if (refObject instanceof FileAnnotationData) {
     		downloadButton.setEnabled(true);
     	}
+    	setRootObject();
     	checkBinaryAvailability();
     	revalidate();
     	repaint();
     }
 
     /** Sets the root object. */
-	void setRootObject()
+	private void setRootObject()
 	{ 
 		Object ref = model.getRefObject();
-		if ((ref instanceof ExperimenterData) || 
-			(ref instanceof GroupData)) {
+		if (ref instanceof ExperimenterData || ref instanceof GroupData) {
 			publishingButton.setEnabled(false);
 			analysisButton.setEnabled(false);
 			scriptsButton.setEnabled(false);
 			return;
 		}
 		viewButton.setEnabled(false);
-    	exportAsOmeTiffButton.setEnabled(false);
+		if (exportAsOmeTiffButton != null)
+			exportAsOmeTiffButton.setEnabled(false);
+    	if (downloadOriginalMetadataItem != null)
+    		downloadOriginalMetadataItem.setEnabled(false);
     	if (downloadItem != null)
 			downloadItem.setEnabled(false);
-    	if (model.isSingleMode()) {
-    		ImageData img = null;
-        	if (ref instanceof ImageData) {
-        		img = (ImageData) ref;
-        	} else if (ref instanceof WellSampleData) {
-        		img = ((WellSampleData) ref).getImage();
-        	}
-        	if (img != null) {
-        		try {
-        			img.getDefaultPixels();
-        			boolean b = !model.isLargeImage();
-        			exportAsOmeTiffButton.setEnabled(b);
-        			if (exportAsOmeTiffItem != null) {
-        				exportAsOmeTiffButton.setEnabled(b);
-        			}
-        			if (downloadItem != null && model.isArchived())
-        				downloadItem.setEnabled(true);
-        			viewButton.setEnabled(true);
-    			} catch (Exception e) {}
-        	}
+    	if (model.isSingleMode() && model.getImage() != null) {
+    		if (exportAsOmeTiffItem != null)
+				exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
+			if (downloadItem != null)
+				downloadItem.setEnabled(model.isArchived());
+			viewButton.setEnabled(true);
+			if (downloadOriginalMetadataItem != null)
+				downloadOriginalMetadataItem.setEnabled(
+					model.hasOriginalMetadata());
     	}
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
 		scriptsButton.setEnabled(true);
 		if (publishingDialog != null) publishingDialog.setRootObject();
 		if (analysisDialog != null) analysisDialog.setRootObject();
-		checkBinaryAvailability();
 	}
 
 	/**
@@ -719,7 +722,9 @@ class ToolBar
 	void onSizeLoaded()
 	{
 		if (exportAsOmeTiffItem != null) {
-			exportAsOmeTiffButton.setEnabled(!model.isLargeImage());
+			boolean b = model.getRefObject() instanceof ImageData && 
+					!model.isLargeImage();
+			exportAsOmeTiffButton.setEnabled(b);
 		}
 	}
 }

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +76,6 @@ public interface OmeroDataService
 	 * @param withLeaves Passed <code>true</code> to retrieve the images,
 	 *                   <code>false</code> otherwise.
 	 * @param userID The identifier of the selected user.
-	 * @param groupID The identifier of the selected user.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
@@ -83,7 +83,7 @@ public interface OmeroDataService
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
-			long userID, long groupID)
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -287,14 +287,14 @@ public interface OmeroDataService
 	 * 
 	 * @param ctx The security context.
 	 * @param location The location where to save the files.
-	 * @param pixelsID The ID of the pixels set.
+	 * @param imageID The ID of the image.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String location, long pixelsID)
+			File location, long imageID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

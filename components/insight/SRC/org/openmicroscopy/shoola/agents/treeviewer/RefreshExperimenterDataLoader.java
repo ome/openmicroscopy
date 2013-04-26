@@ -213,7 +213,7 @@ public class RefreshExperimenterDataLoader
     {
         super(viewer, ctx);
         if (expNodes == null || expNodes.size() == 0)
-        	throw new IllegalArgumentException("Experimenter nodes not valid.");
+        	throw new IllegalArgumentException("Nodes not valid.");
         checkClass(rootNodeType);
         this.rootNodeType = rootNodeType;
         this.expNodes = expNodes;
@@ -229,8 +229,9 @@ public class RefreshExperimenterDataLoader
      */
     public void load()
     {
-    	Entry entry;
-    	Iterator i = expNodes.entrySet().iterator();
+    	Entry<SecurityContext, RefreshExperimenterDef> entry;
+    	Iterator<Entry<SecurityContext, RefreshExperimenterDef>> 
+    	i = expNodes.entrySet().iterator();
     	RefreshExperimenterDef def;
     	long userID;
     	TimeRefObject ref = null;
@@ -246,9 +247,8 @@ public class RefreshExperimenterDataLoader
     		TreeImageTimeSet time;
     		TreeFileSet file;
     		while (i.hasNext()) {
-    			entry = (Entry) i.next();
-    			ctx = (SecurityContext) entry.getKey();
-        		//userID = (Long) entry.getKey();
+    			entry = i.next();
+    			ctx = entry.getKey();
     			userID = ctx.getExperimenter();
         		def = (RefreshExperimenterDef) entry.getValue();
         		nodes = def.getExpandedNodes();
@@ -277,8 +277,8 @@ public class RefreshExperimenterDataLoader
     		Iterator k;
     		Object ob;
         	while (i.hasNext()) {
-        		entry = (Entry) i.next();
-        		ctx = (SecurityContext) entry.getKey();
+        		entry = i.next();
+        		ctx = entry.getKey();
         		userID = ctx.getExperimenter();
         		def = (RefreshExperimenterDef) entry.getValue();
         		if (GroupData.class.equals(rootNodeType)) {
@@ -323,7 +323,6 @@ public class RefreshExperimenterDataLoader
 							} else nl.add(ob);
 						}
         				m.put(ctx, nl);
-        				//m.put(ctx, def.getExpandedNodes());
         			}
         		}
     		}

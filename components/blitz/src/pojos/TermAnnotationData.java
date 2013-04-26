@@ -100,27 +100,18 @@ public class TermAnnotationData extends AnnotationData {
     }
     
     /**
-     * Returns the namespace of the term.
+     * Sets the description of the tag.
      * 
-     * @return See above.
+     * @param value The value to set.
      */
-    public String getNameSpace()
-    {
-    	RString value = asAnnotation().getNs();
-    	if (value == null) return "";
-        return value.getValue();
+    public void setTermDescription(String value) {
+        if (value == null || value.trim().length() == 0) {
+            return;
+        }
+        setDirty(true);
+        asAnnotation().setDescription(rstring(value));
     }
     
-    /**
-     * Returns the namespace of the term.
-     * 
-     * @param The value to set. 
-     */
-    public void setNameSpace(String name)
-    {
-    	asAnnotation().setNs(rstring(name));
-    }
-      
     /**
      * Returns the textual content of the annotation.
      *

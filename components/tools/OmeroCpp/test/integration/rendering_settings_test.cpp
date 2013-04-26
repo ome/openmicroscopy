@@ -33,35 +33,37 @@ public:
 
 class RndFixture {
     Fixture f;
-    omero::client_ptr client;
     ServiceFactoryPrx sf;
     string _name;
 public:
     RndFixture() {
     }
     RndFixture(string name) {
-	_name = name;
+        _name = name;
     }
     void init() {
-	if (!sf) {
-	    if (_name.empty()) {
-		client = f.login();
-	    } else if (_name == "root") {
-		client = f.root_login();
-	    } else {
-		client = f.login(_name);
-	    }
-	    sf = (*client).getSession();
-	}
+        if (!sf) {
+            omero::client_ptr client;
+            if (_name.empty()) {
+                f.login();
+                client = f.client;
+            } else if (_name == "root") {
+                client = f.root;
+            } else {
+                f.login(_name);
+                client = f.client;
+            }
+            sf = client->getSession();
+        }
     }
 
     IUpdatePrx update() {
-	init();
-	return sf->getUpdateService();
+        init();
+        return sf->getUpdateService();
     }
     IRenderingSettingsPrx rndService() {
-	init();
-	return sf->getRenderingSettingsService();
+        init();
+        return sf->getRenderingSettingsService();
     }
 
     /**
@@ -91,7 +93,7 @@ public:
     ImagePtr createBinaryImage(ImagePtr _image) {
 
         PixelsPtr pixels = _image->getPixels(0);
-        RPSTileLoopPtr loop = new RPSTileLoop(client->getSession(), pixels);
+        RPSTileLoopPtr loop = new RPSTileLoop(f.client->getSession(), pixels);
         loop->forEachTile(256, 256, new MyIteration());
         // This block will change the updateEvent on the pixels
         // therefore we're going to reload the pixels.

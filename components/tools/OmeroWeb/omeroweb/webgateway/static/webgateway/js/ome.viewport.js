@@ -300,7 +300,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       if (_this.loadedImg.tiles) {
         href = server + '/render_image_region/' + _this.getRelUrl();
         // temporary solution for sharing. ShareId must me passed in a different way.
-        thref = server + '/render_birds_eye_view/' + _this.loadedImg.id + '/?' + _this.getQuery();
+        thref = server + '/render_birds_eye_view/' + _this.loadedImg.id + "/";
       } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
       } else {
@@ -318,13 +318,34 @@ jQuery._WeblitzViewport = function (container, server, options) {
           showLoading();
           rcb();
           // if the url query had x and y, pass these to setUpTiles() so we can recenter
-          var cx = _this.loadedImg.current.query.x;
-          var cy = _this.loadedImg.current.query.y;
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.size.width, _this.loadedImg.size.height, _this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.init_zoom, _this.loadedImg.levels, href, thref, cx, cy);
+          var cx = _this.loadedImg.current.query.x,
+            cy = _this.loadedImg.current.query.y,
+            img_w = _this.loadedImg.size.width,
+            img_h = _this.loadedImg.size.height,
+            tile_w = _this.loadedImg.tile_size.width,
+            tile_h = _this.loadedImg.tile_size.height,
+            init_zoom = _this.loadedImg.init_zoom,
+            zoom_levels = _this.loadedImg.levels,
+            zoomLevelScaling = _this.loadedImg.zoomLevelScaling;  // may be 'undefined'
+            // If init_zoom not defined, Zoom out until we fit in the viewport (window)
+            if (typeof init_zoom === "undefined") {
+              init_zoom = zoom_levels-1   // fully zoomed in
+              while (init_zoom > 0) {
+                var omero_zm_index = (zoom_levels-1)-init_zoom,   // convert PanoJs to OMERO
+                  scale = zoomLevelScaling[omero_zm_index],
+                  scaled_w = img_w * scale,
+                  scaled_h = img_h * scale;
+                if (scaled_w < (window.innerWidth-200) || scaled_h < (window.innerHeight-50)) {
+                  break;
+                }
+                init_zoom--;
+              }
+            }
+          _this.viewportimg.get(0).setUpTiles(img_w, img_h, tile_w, tile_h, init_zoom, zoom_levels, href, thref, cx, cy, zoomLevelScaling);
       } else {
-	  if (href != _this.viewportimg.attr('src')) {
+    if (href != _this.viewportimg.attr('src')) {
           showLoading();
-	  }
+    }
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);
       }

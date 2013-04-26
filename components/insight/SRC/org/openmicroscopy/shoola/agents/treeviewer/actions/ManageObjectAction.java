@@ -308,7 +308,7 @@ public class ManageObjectAction
 						if (model.canLink(selected[i].getUserObject())) 
 							count++;
 					}
-		    		if (index == CUT) {
+		    		if (index == COPY) {
 		    			if (ho instanceof DatasetData) {
 		    				if (!(parent instanceof ProjectData)) {
 		    					setEnabled(false);

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import omero
 c = omero.client("localhost")
 s = c.createSession("root","ome")

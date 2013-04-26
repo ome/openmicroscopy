@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # blitz_gateway - python bindings and wrappers to access an OMERO blitz server
@@ -478,12 +479,10 @@ class BlitzObjectWrapper (object):
         """
         Determines whether user can create 'hard' links (Not annotation links).
         E.g. Between Project/Dataset/Image etc.
-        We have decided to restrict the clients to only allow the OWNER of data
-        to create these links.
-        The server is more permissive. To see what the server will allow,
-        use self.getDetails().getPermissions().canLink()
+        Previously (4.4.6 and earlier) we only allowed this for object owners, but now we delegate
+        to what the server will allow.
         """
-        return self.isOwned()
+        return self.getDetails().getPermissions().canLink()
 
     def canAnnotate(self):
         """
@@ -2373,7 +2372,7 @@ class _BlitzGateway (object):
         colleagues = []
         leaders = []
         default = self.getObject("ExperimenterGroup", gid)
-        if not default.isPrivate() or self.isLeader() or self.isAdmin():
+        if not default.isPrivate() or self.isLeader(gid) or self.isAdmin():
             for d in default.copyGroupExperimenterMap():
                 if d is None or d.child.id.val == userId:
                     continue
@@ -2837,7 +2836,35 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
-    def setChannelNames(self, data_type, ids, nameDict):
+    def applySettingsToSet(self, fromid, to_type, toids):
+        """
+        Applies the rendering settings from one image to others.
+        Returns a dict of success { True:[ids], False:[ids] }
+
+        @param fromid:      ID of Image to copy settings from.
+        @param toids:       List of Image IDs to apply setting to.
+        @param to_type:     toids refers to Images by default, but can refer to 
+                                Project, Dataset, Image, Plate, Screen, Pixels
+        """
+        json_data = False
+        fromimg = self.getObject("Image", fromid)
+        frompid = fromimg.getPixelsId()
+        userid = fromimg.getOwner().getId()
+        if to_type is None:
+            to_type="Image"
+        if to_type.lower() == "acquisition":
+            to_type = "Plate"
+        to_type = to_type.title()
+        if fromimg.canAnnotate():
+            ctx = self.SERVICE_OPTS.copy()
+            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
+            rsettings = self.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToSet(frompid, to_type, list(toids),  ctx)
+            if fromid in json_data[True]:
+                del json_data[True][json_data[True].index(fromid)]
+        return json_data
+
+    def setChannelNames(self, data_type, ids, nameDict, channelCount=None):
         """
         Sets and saves new names for channels of specified Images.
         If an image has fewer channels than the max channel index in nameDict, then
@@ -2846,6 +2873,7 @@ class _BlitzGateway (object):
         @param data_type:   'Image', 'Dataset', 'Plate'
         @param ids:         Image, Dataset or Plate IDs
         @param nameDict:    A dict of index:'name' ** 1-based ** E.g. {1:"DAPI", 2:"GFP"}
+        @param channelCount:    If specified, only rename images with this number of channels
         @return:            {'imageCount':totalImages, 'updateCount':updateCount}
         """
 
@@ -2877,7 +2905,10 @@ class _BlitzGateway (object):
         updateCount = 0
         ctx = self.SERVICE_OPTS.copy()
         for p in pix:
-            if p.getSizeC().getValue() < maxIdx:
+            sizeC = p.getSizeC().getValue()
+            if sizeC < maxIdx:
+                continue
+            if channelCount is not None and channelCount != sizeC:  # Filter by channel count
                 continue
             updateCount += 1
             group_id = p.details.group.id.val
@@ -4793,7 +4824,7 @@ _
         Returns a query string for constructing custom queries, loading the screen for each plate.
         """
         query = "select obj from Plate as obj " \
-              "join fetch obj.details.owner join fetch obj.details.group "\
+              "join fetch obj.details.owner as owner join fetch obj.details.group "\
               "join fetch obj.details.creationEvent "\
               "left outer join fetch obj.screenLinks spl " \
               "left outer join fetch spl.parent sc"
@@ -4812,7 +4843,7 @@ class _PlateAcquisitionWrapper (BlitzObjectWrapper):
             if self.startTime is not None and self.endTime is not None:
                 name = "%s - %s" % (datetime.fromtimestamp(self.startTime/1000), datetime.fromtimestamp(self.endTime/1000))
             else:
-                name = "Plate %i" % self.id
+                name = "Run %i" % self.id
         return name
     name = property(getName)
 
@@ -5226,6 +5257,20 @@ class ColorHolder (object):
         """
         
         return (self._color['red'], self._color['green'], self._color['blue'])
+
+    def getInt (self):
+        """
+        Returns the color as an Integer
+
+        @return:    Integer
+        @rtyp:      int
+        """
+
+        a = self.getAlpha() << 24
+        r = self.getRed() << 16
+        g = self.getGreen() << 8
+        b = self.getBlue() << 0
+        return r+g+b+a
 
 class _LogicalChannelWrapper (BlitzObjectWrapper):
     """
@@ -5862,7 +5907,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
-        if self.canWrite():
+        if self.canAnnotate():
             self._deleteSettings()
             rdefns = self._conn.CONFIG.IMG_RDEFNS
             logger.debug(rdefns)
@@ -6186,7 +6231,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv.getvalue()
 
     #@setsessiongroup
-    def getThumbnail (self, size=(64,64), z=None, t=None):
+    def getThumbnail (self, size=(64,64), z=None, t=None, direct=True):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -6200,6 +6245,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param z: the Z position to use for rendering the thumbnail. If not provided default is used.
         @type t: number
         @param t: the T position to use for rendering the thumbnail. If not provided default is used.
+        @param direct:      If true, force creation of new thumbnail (don't use cached)
         @rtype: string or None
         @return: the rendered JPEG, or None if there was an error.
         """
@@ -6233,12 +6279,18 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
                 if pos is None:
-                    thumb = tb.getThumbnailByLongestSideDirect
+                    if direct:
+                        thumb = tb.getThumbnailByLongestSideDirect
+                    else:
+                        thumb = tb.getThumbnailByLongestSide
                 else:
                     thumb = tb.getThumbnailForSectionByLongestSideDirect
             else:
                 if pos is None:
-                    thumb = tb.getThumbnailDirect
+                    if direct:
+                        thumb = tb.getThumbnailDirect
+                    else:
+                        thumb = tb.getThumbnail
                 else:
                     thumb = tb.getThumbnailForSectionDirect
             args = map(lambda x: rint(x), size)
@@ -6306,6 +6358,21 @@ class _ImageWrapper (BlitzObjectWrapper):
             query = "select p from Pixels p join fetch p.channels as c join fetch c.logicalChannel as lc where p.id=:pid"
             pixels = self._conn.getQueryService().findByQuery(query, params, self._conn.SERVICE_OPTS)
             return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(pixels.iterateChannels())]
+
+    @assert_re()
+    def getZoomLevelScaling(self):
+        """
+        Returns a dict of zoomLevels:scale (fraction) for tiled 'Big' images.
+        E.g. {0: 1.0, 1: 0.25, 2: 0.062489446727078291, 3: 0.031237687848258006}
+        Returns None if this image doesn't support tiles.
+        """
+        if not self._re.requiresPixelsPyramid():
+            return None
+        rv = {}
+        levelCount = self._re.getResolutionLevels()-1
+        for i in range(levelCount):
+            rv[i] = 1.0 / 2 ** i
+        return rv
 
     def setActiveChannels(self, channels, windows=None, colors=None):
         """

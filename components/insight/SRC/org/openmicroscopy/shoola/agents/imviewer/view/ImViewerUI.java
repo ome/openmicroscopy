@@ -91,6 +91,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -803,9 +804,8 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		Dimension d = model.computeSize();
-		int sizeX = d.width;
-		int sizeY = d.height;
+		int sizeX = model.getTiledImageSizeX();
+		int sizeY = model.getTiledImageSizeY();
 		/*
 		
 		double f = model.getZoomFactor();
@@ -1214,29 +1214,14 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != ZoomAction.ZOOM_FIT_FACTOR)
-			statusBar.setRigthStatus("x"+
-					Math.round(factor*model.getOriginalRatio()*100)/100.0);
+			statusBar.setRigthStatus(
+					Math.round(factor*model.getOriginalRatio()*100)+"%");
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 		if (model.isBigImage()) {
-			int levels = model.getResolutionLevels();
-			double f = (double) (100/levels);
-			int value = levels;
-			factor = 100;
-			if (zoomIndex != (levels-1)) {
-				while (value >= 0) {
-					if (value == zoomIndex) {
-						factor = (value+1)*f;
-						value = -1;
-					}
-					value--;
-				}
-			}
-			f = Math.round(factor)/100.0;
-			bigImageMagnification = 
-				(double) model.getTiledImageSizeX()/model.getMaxX();
-			//bigImageMagnification = f;
-			//model.setZoomFactor(f, false);
-			statusBar.setRigthStatus("x: "+f);
+			ResolutionLevel level = model.getResolutionDescription();
+			double f = UIUtilities.roundTwoDecimals(level.getRatio()*100);
+			bigImageMagnification = level.getRatio();
+			statusBar.setRigthStatus(f+"%");
 		}
 	}
 	
@@ -2668,6 +2653,16 @@ class ImViewerUI
     	controlPane.onChannelUpdated();
     }
     
+    /**
+    * Sets the compression index.
+    * 
+    * @param index
+    */
+   void resetCompressionLevel(int index)
+    {
+    	toolBar.setCompressionLevel(index);
+    }
+   
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

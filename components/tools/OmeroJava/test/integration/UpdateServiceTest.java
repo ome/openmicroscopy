@@ -85,6 +85,8 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
+import omero.model.XmlAnnotation;
+import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.testng.annotations.Test;
@@ -109,6 +111,7 @@ import pojos.ShapeData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Collections of tests for the <code>IUpdate</code> service.
@@ -494,8 +497,8 @@ public class UpdateServiceTest
         IObject o1 = iUpdate.saveAndReturnObject(l);
         assertNotNull(o1);
         l  = (ImageAnnotationLink) o1;
-        assertTrue(l.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(l.getParent().getId().getValue() == i.getId().getValue());
+        assertEquals(l.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(l.getParent().getId().getValue(), i.getId().getValue());
         
         //Project
         Project p = (Project) iUpdate.saveAndReturnObject(
@@ -506,8 +509,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(pl);
         assertNotNull(o1);
         pl  = (ProjectAnnotationLink) o1;
-        assertTrue(pl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(pl.getParent().getId().getValue() == p.getId().getValue());
+        assertEquals(pl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(pl.getParent().getId().getValue(), p.getId().getValue());
         
         //Dataset
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(
@@ -518,8 +521,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(dl);
         assertNotNull(o1);
         dl  = (DatasetAnnotationLink) o1;
-        assertTrue(dl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(dl.getParent().getId().getValue() == d.getId().getValue());
+        assertEquals(dl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(dl.getParent().getId().getValue(), d.getId().getValue());
         
         //Screen
         Screen s = (Screen) iUpdate.saveAndReturnObject(
@@ -530,8 +533,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(sl);
         assertNotNull(o1);
         sl  = (ScreenAnnotationLink) o1;
-        assertTrue(sl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(sl.getParent().getId().getValue() == s.getId().getValue());
+        assertEquals(sl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(sl.getParent().getId().getValue(), s.getId().getValue());
         
         //Plate
         Plate pp = (Plate) iUpdate.saveAndReturnObject(
@@ -542,8 +545,8 @@ public class UpdateServiceTest
         o1 = iUpdate.saveAndReturnObject(ppl);
         assertNotNull(o1);
         ppl  = (PlateAnnotationLink) o1;
-        assertTrue(ppl.getChild().getId().getValue() == data.getId().getValue());
-        assertTrue(ppl.getParent().getId().getValue() == pp.getId().getValue());
+        assertEquals(ppl.getChild().getId().getValue(), data.getId().getValue());
+        assertEquals(ppl.getParent().getId().getValue(), pp.getId().getValue());
     }
     
     /**
@@ -562,7 +565,8 @@ public class UpdateServiceTest
     	linkAnnotationAndObjects(annotation);
     	TextualAnnotationData data = new TextualAnnotationData(annotation);
     	assertNotNull(data);
-    	assertTrue(data.getText().equals(annotation.getTextValue().getValue()));
+    	assertEquals(data.getText(), annotation.getTextValue().getValue());
+    	assertNull(data.getNameSpace());
     }
     
     /**
@@ -581,8 +585,8 @@ public class UpdateServiceTest
     	linkAnnotationAndObjects(annotation);
     	TagAnnotationData data = new TagAnnotationData(annotation);
     	assertNotNull(data);
-    	assertTrue(data.getTagValue().equals(
-    			annotation.getTextValue().getValue()));
+    	assertNull(data.getNameSpace());
+    	assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
     }
     
     /**
@@ -601,6 +605,7 @@ public class UpdateServiceTest
     	linkAnnotationAndObjects(annotation);
     	BooleanAnnotationData data = new BooleanAnnotationData(annotation);
     	assertNotNull(data);
+    	assertNull(data.getNameSpace());
     }
     
     /**
@@ -619,7 +624,8 @@ public class UpdateServiceTest
     	linkAnnotationAndObjects(annotation);
     	LongAnnotationData data = new LongAnnotationData(annotation);
     	assertNotNull(data);
-    	assertTrue(data.getDataValue() == annotation.getLongValue().getValue());
+    	assertNull(data.getNameSpace());
+    	assertEquals(data.getDataValue(), annotation.getLongValue().getValue());
     }
     
     /**
@@ -637,7 +643,7 @@ public class UpdateServiceTest
 		fa.setFile(of);
 		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
 		assertNotNull(data);
-    	linkAnnotationAndObjects(data);
+		linkAnnotationAndObjects(data);
     }
     
     /**
@@ -655,7 +661,8 @@ public class UpdateServiceTest
     	linkAnnotationAndObjects(term);
     	TermAnnotationData data = new TermAnnotationData(term);
     	assertNotNull(data);
-    	assertTrue(data.getTerm().equals(term.getTermValue().getValue()));
+    	assertEquals(data.getTerm(), term.getTermValue().getValue());
+		assertNull(data.getNameSpace());
     }
     
     /**
@@ -1946,5 +1953,86 @@ public class UpdateServiceTest
         	assertTrue(shape.getPoints1().size() == 2);
         	assertTrue(shape.getPoints2().size() == 2);
 		}
+    }
+    
+    /**
+     * Tests to create a XML annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateXmlAnnotation()
+    	throws Exception 
+    {
+		XmlAnnotation term = new XmlAnnotationI();
+		term.setTextValue(omero.rtypes.rstring("xml"));
+		term = (XmlAnnotation) iUpdate.saveAndReturnObject(term);
+		assertNotNull(term);
+    	linkAnnotationAndObjects(term);
+    	XMLAnnotationData data = new XMLAnnotationData(term);
+    	assertNotNull(data);
+    	assertNull(data.getNameSpace());
+    	assertEquals(data.getText(), term.getTextValue().getValue());
+    }
+    
+    /**
+     * Tests to create a tag set annotation i.e. a tag with a name space.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTagSetAnnotation()
+    	throws Exception 
+    {
+    	TagAnnotation annotation = new TagAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("tag set"));
+    	annotation = (TagAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	TagAnnotationData data = new TagAnnotationData(annotation);
+    	data.setNameSpace(TagAnnotationData.INSIGHT_TAGSET_NS);
+    	annotation = (TagAnnotation) iUpdate.saveAndReturnObject(data.asIObject());
+    	data = new TagAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertEquals(data.getTagValue(), annotation.getTextValue().getValue());
+    	assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
+    }
+
+    /**
+     * Tests to create a tag annotation i.e. a tag with a name space.
+     * using the pojo class.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTagAnnotationUsingPojo()
+    	throws Exception 
+    {
+    	String name = "tag";
+    	TagAnnotationData data = new TagAnnotationData(name);
+    	TagAnnotation annotation = (TagAnnotation) iUpdate.saveAndReturnObject(
+    			data.asIObject());
+    	data = new TagAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertEquals(data.getTagValue(), name);
+    	assertNull(data.getNameSpace());
+    }
+    
+    /**
+     * Tests to create a tag set annotation i.e. a tag with a name space.
+     * using the pojo class.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTagSetAnnotationUsingPojo()
+    	throws Exception 
+    {
+    	String name = "tag set";
+    	TagAnnotationData data = new TagAnnotationData(name, true);
+    	TagAnnotation annotation = (TagAnnotation) iUpdate.saveAndReturnObject(
+    			data.asIObject());
+    	data = new TagAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertEquals(data.getTagValue(), name);
+    	assertNotNull(data.getNameSpace());
+    	assertEquals(data.getNameSpace(), TagAnnotationData.INSIGHT_TAGSET_NS);
     }
 }

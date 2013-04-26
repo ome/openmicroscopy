@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +35,12 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+
 import pojos.DataObject;
 
 /** 
@@ -108,4 +113,22 @@ public class StructuredDataLoader
     			loaderID);
     }
     
+    /**
+     * Notifies the user that an error has occurred and discards the 
+     * {@link #viewer}.
+     * @see DSCallAdapter#handleException(Throwable)
+     */
+    public void handleException(Throwable exc)
+    {
+    	handleException(exc, false);
+    	Map<DataObject, StructuredDataResults> m = 
+    		new HashMap<DataObject, StructuredDataResults>();
+    	Iterator<DataObject> i = dataObjects.iterator();
+    	DataObject data;
+    	while (i.hasNext()) {
+    		data = i.next();
+			m.put(data, new StructuredDataResults(data, false));
+		}
+    	viewer.setMetadata(m, loaderID);
+    }
 }

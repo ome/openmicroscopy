@@ -212,7 +212,6 @@ public class ImViewerFactory
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
 			if (comp.getModel().isSame(pixelsID, ctx)) return comp;
-			//if (comp.getModel().getPixelsID() == pixelsID)return comp;
 		}
 		return null;
 	}
@@ -350,6 +349,20 @@ public class ImViewerFactory
 		}
 	}
 	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDisplayMode(int displayMode)
+	{
+		Iterator<ImViewer> i = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (ImViewerComponent) i.next();
+			comp.setDisplayMode(displayMode);
+		}
+	}
 	/** 
 	 * Returns the id of the pixels set to copy the rendering settings.
 	 * 
@@ -473,18 +486,31 @@ public class ImViewerFactory
 			comp = (ImViewerComponent) i.next();
 			comp.removeChangeListener(this);
 			comp.discard();
-			
 		}
 		singleton.viewers.clear();
 		singleton.recentViewers.clear();
+		handleViewerDiscarded();
 	}
 	
+	/**
+	 * Checks the list of opened viewers before removing the entry from the
+	 * menu.
+	 */
+	private void handleViewerDiscarded()
+	{
+		if (!singleton.isAttached) return;
+		if (singleton.viewers.size() != 0) return;
+		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
+		tb.removeFromMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		singleton.isAttached = false;
+	}
+
 	/**
 	 * Creates or recycles a viewer component for the specified 
 	 * <code>model</code>.
 	 * 
 	 * @param model The component's Model.
-	 * @return A {@link ImViewer} for the specified <code>model</code>.  
+	 * @return A {@link ImViewer} for the specified <code>model</code>.
 	 */
 	private ImViewer getViewer(ImViewerModel model)
 	{
@@ -492,10 +518,8 @@ public class ImViewerFactory
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			//if (comp.getModel().getPixelsID() == model.getPixelsID())
 			if (comp.getModel().getImageID() == model.getImageID())
 				return comp;
-			//if (model.isSameDisplay(comp.getModel())) return comp;
 		}
 		comp = new ImViewerComponent(model);
 		comp.initialize();
@@ -530,10 +554,9 @@ public class ImViewerFactory
 				viewers.remove(comp);
 				removeRecentViewers(
 						Arrays.asList(comp.getModel().getImageID()));
+				handleViewerDiscarded();
 				break;
-	
 			default:
-				break;
 		}
 	}
 
@@ -551,13 +574,16 @@ public class ImViewerFactory
 			ImViewerRecentObject exist = null;
 			while (i.hasNext()) {
 				old = i.next();
-				if (old.getImageID() == v.getImageID())
+				if (old.getImageID() == v.getImageID()) {
 					exist = old;
+					break;
+				}
 			}
 			if (exist != null) recentViewers.remove(exist);
 			if (recentViewers.size() >= MAX_RECENT)
 				recentViewers.remove(0);
 			recentViewers.add(v);
+			handleViewerDiscarded();
 		}
 	}
 	

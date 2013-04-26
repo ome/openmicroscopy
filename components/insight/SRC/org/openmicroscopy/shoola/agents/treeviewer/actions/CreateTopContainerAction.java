@@ -244,7 +244,8 @@ public class CreateTopContainerAction
 					return;
 				}
         		if (ho instanceof GroupData) {
-        			setEnabled(false);
+        			setEnabled(model.getDisplayMode() ==
+        					TreeViewer.GROUP_DISPLAY);
         			return;
         		}
         		switch (nodeType) {

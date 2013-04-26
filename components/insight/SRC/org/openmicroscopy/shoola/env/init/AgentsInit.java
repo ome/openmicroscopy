@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 
@@ -94,17 +93,20 @@ public final class AgentsInit
 			Agent agent = (Agent) agentInstance;
 			info.setAgent(agent);
 			info.setRegistry(reg);
+			Registry containerRegistry = container.getRegistry();
 			//Register the master
 			if (info.isActive()) {
 				if (info.getNumber() == value && 
 					value == LookupNames.IMPORTER_ENTRY) {
-					container.getRegistry().bind(LookupNames.MASTER,
+					containerRegistry.bind(LookupNames.MASTER,
 							LookupNames.MASTER_IMPORTER);
 				} else if (info.getNumber() == value  && 
 						value == LookupNames.EDITOR_ENTRY)
-					container.getRegistry().bind(LookupNames.MASTER,
+					containerRegistry.bind(LookupNames.MASTER,
 						LookupNames.MASTER_EDITOR);
 			}
+			reg.bind(LookupNames.DATA_DISPLAY,
+					containerRegistry.lookup(LookupNames.DATA_DISPLAY));
 		} catch (Exception e) {
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);
@@ -176,10 +178,11 @@ public final class AgentsInit
 			}
 		}
 		
-		List agents = (List) reg.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
+		List<AgentInfo> agents =
+				(List<AgentInfo>) reg.lookup(LookupNames.AGENTS);
+		Iterator<AgentInfo> i = agents.iterator();
 		while (i.hasNext()) 
-			createAgent((AgentInfo) i.next(), value);
+			createAgent(i.next(), value);
 		String name = (String) container.getRegistry().lookup(
 				LookupNames.MASTER);
 		if (name == null)

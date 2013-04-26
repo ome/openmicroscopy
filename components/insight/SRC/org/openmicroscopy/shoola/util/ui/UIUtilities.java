@@ -84,6 +84,7 @@ import javax.swing.text.TabStop;
 
 //Third-party libraries
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
@@ -107,7 +108,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
  */
 public class UIUtilities
 {
-
+	
 	/** Bound property indicating that the font changes.*/
 	public static final String HINTS_PROPERTY = "awt.font.desktophints";
 	
@@ -231,10 +232,10 @@ public class UIUtilities
 	public static final long				DAY = 86400000;
 
 	/** Unicode for the squared symbol. */
-	public final static String  			SQUARED_SYMBOL =  "\u00B2";
+	public final static String  			SQUARED_SYMBOL =  "²";
 	
 	/** Unicode for the squared symbol. */
-	public final static String  			DELTA_SYMBOL =  "\u0394";
+	public final static String  			DELTA_SYMBOL =  "Δ";
 	
 	/** Pixels string. */
 	public final static String  			PIXELS_SYMBOL = "px";
@@ -1921,45 +1922,7 @@ public class UIUtilities
      */
     public static String removeFileExtension(String originalName)
     {
-    	String name = originalName;
-    	String[] l = UIUtilities.splitString(originalName);
-    	StringBuffer buffer;
-    	if (l != null) {
-    		 int n = l.length;
-             if (n >= 1) name = l[n-1]; 
-    	} else {
-    		if (Pattern.compile("\\.").matcher(name).find()) {
-        		l = name.split("\\.");
-        		if (l.length >= 1) {
-        			name = "";
-        			int n = l.length-1;
-        			buffer = new StringBuffer();
-            		for (int i = 0; i < n; i++) {
-            			buffer.append(l[i]);
-        				if (i < (n-1)) buffer.append(".");
-        			}
-            		name = buffer.toString();
-        		}
-        	}
-    		if (name.length() == 0) name = originalName;
-    		return name;
-    	}
-    	   	
-    	if (Pattern.compile("\\.").matcher(name).find()) {
-    		l = name.split("\\.");
-    		if (l.length >= 1) {
-    			name = "";
-    			int n = l.length-1;
-    			buffer = new StringBuffer();
-        		for (int i = 0; i < n; i++) {
-        			buffer.append(l[i]);
-    				if (i < (n-1)) buffer.append(".");
-    			}
-        		name = buffer.toString();
-    		}
-    	}
-    	if (name.length() == 0) name = originalName;
-        return name;
+    	return FilenameUtils.removeExtension(originalName);
     }
     
 	/**

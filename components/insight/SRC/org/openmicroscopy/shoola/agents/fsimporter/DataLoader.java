@@ -31,6 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ProjectData;
@@ -67,6 +68,11 @@ public class DataLoader
 	private boolean changeGroup;
 	
 	/**
+	 * The id of the user to load the data for or <code>-1</code> for all users.
+	 */
+	private long userID;
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer The Importer this data loader is for.
@@ -76,9 +82,11 @@ public class DataLoader
 	 * @param refreshImport Flag indicating to refresh the on-going import.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
+	 * @param userID The id of the user to load the data for or <code>-1</code>
+	 * for all users.
 	 */
-	public DataLoader(Importer viewer, SecurityContext ctx, Class rootType,
-			boolean refreshImport, boolean changeGroup)
+	public DataLoader(Importer viewer, SecurityContext ctx, Class<?> rootType,
+			boolean refreshImport, boolean changeGroup, long userID)
 	{
 		super(viewer, ctx);
 		if (!(ProjectData.class.equals(rootType) || 
@@ -87,6 +95,7 @@ public class DataLoader
 		this.rootType = rootType;
 		this.refreshImport = refreshImport;
 		this.changeGroup = changeGroup;
+		this.userID = userID;
 	}
 	
 	/** 
@@ -95,8 +104,10 @@ public class DataLoader
 	 */
 	public void load()
 	{
+		long id = userID;
+		if (viewer.getDisplayMode() == LookupNames.GROUP_DISPLAY) id = -1;
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				getCurrentUserID(), groupID, this);	
+				id, this);
 	}
 	
 	/** 
@@ -117,7 +128,7 @@ public class DataLoader
     	if (ScreenData.class.equals(rootType))
     		type = Importer.SCREEN_TYPE;
     	viewer.setContainers((Collection) result, refreshImport, changeGroup,
-    			type);
+    			type, userID);
     }
     
 }

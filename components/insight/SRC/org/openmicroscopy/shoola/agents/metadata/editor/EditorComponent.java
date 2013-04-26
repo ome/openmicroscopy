@@ -635,9 +635,10 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#download(File)
 	 */
-	public void download(File folder)
+	public void download(File file)
 	{
-		model.download(folder);
+		if (file == null) return;
+		model.download(file);
 	}
 
 	/** 
@@ -1173,7 +1174,7 @@ class EditorComponent
 	public void setLargeImage(Boolean value)
 	{
 		model.setLargeImage(value);
-		
+		view.onSizeLoaded();
 	}
 	
     /** 

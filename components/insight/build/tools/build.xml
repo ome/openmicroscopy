@@ -80,7 +80,8 @@
            destdir="${deploy.dir}"
            target="1.2"
            source="1.2"
-           includeantruntime="no"  
+           includeantruntime="no"
+           encoding="UTF-8"
            deprecation="yes"
            debug="yes"
            debuglevel="lines,vars,source" />

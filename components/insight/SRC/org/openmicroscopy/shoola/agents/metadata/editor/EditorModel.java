@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -102,6 +104,7 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
@@ -109,6 +112,7 @@ import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
 import pojos.InstrumentData;
+import pojos.LongAnnotationData;
 import pojos.MultiImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -318,9 +322,9 @@ class EditorModel
 	/** 
 	 * Downloads the archived images. 
 	 * 
-	 * @param folder The folder to save the file into.
+	 * @param file The file where to download the content.
 	 */
-	private void downloadImages(File folder)
+	private void downloadImages(File file)
 	{
 		List<ImageData> images = new ArrayList<ImageData>();
 		Collection l = parent.getRelatedNodes();
@@ -345,13 +349,13 @@ class EditorModel
 			UserNotifier un =
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			IconManager icons = IconManager.getInstance();
-			String path = folder.getAbsolutePath();
-			if (!path.endsWith(File.separator)) path += File.separator;
+			if (images.size() > 1)
+				file = file.getParentFile();
+			Icon icon = icons.getIcon(IconManager.DOWNLOAD_22);
+			SecurityContext ctx = getSecurityContext();
 			while (i.hasNext()) {
-				img = i.next();
-				p = new DownloadArchivedActivityParam(path, img, 
-						icons.getIcon(IconManager.DOWNLOAD_22));
-				un.notifyActivity(getSecurityContext(), p);
+				p = new DownloadArchivedActivityParam(file, i.next(), icon);
+				un.notifyActivity(ctx, p);
 			}
 		}
 	}
@@ -511,7 +515,7 @@ class EditorModel
 	 * @return See above.
 	 */
 	private boolean canDeleteLink(Object data, StructuredDataResults result)
-	{ 
+	{
 		if (!(data instanceof DataObject)) return false;
 		DataObject d = (DataObject) data;
 		if (result == null) return false;
@@ -655,8 +659,9 @@ class EditorModel
 			name = ((DatasetData) ref).getName();
 		else if (ref instanceof ProjectData)
 			name = ((ProjectData) ref).getName();
-		else if (ref instanceof TagAnnotationData)
-			name = ((TagAnnotationData) ref).getTagValue();
+		else if (ref instanceof TagAnnotationData ||
+				ref instanceof TermAnnotationData)
+			name = ((AnnotationData) ref).getContentAsString();
 		else if (ref instanceof ScreenData)
 			name = ((ScreenData) ref).getName();
 		else if (ref instanceof PlateData)
@@ -710,6 +715,13 @@ class EditorModel
         	FileData f = (FileData) refObject;
         	if (f.isDirectory()) return "Folder";
         	return "File";
+        } else if (refObject instanceof TermAnnotationData) {
+        	return "Term";
+        } else if (refObject instanceof XMLAnnotationData) {
+        	return "XML file";
+        } else if (refObject instanceof LongAnnotationData ||
+        		refObject instanceof DoubleAnnotationData) {
+        	return "Numerical value";
         }
 		return "";
 	}
@@ -733,6 +745,8 @@ class EditorModel
 			description = ((ScreenData) ref).getDescription();
 		else if (ref instanceof PlateData)
 			description = ((PlateData) ref).getDescription();
+		else if (ref instanceof PlateAcquisitionData)
+			description = ((PlateAcquisitionData) ref).getDescription();
 		else if (ref instanceof TagAnnotationData) {
 			description = ((TagAnnotationData) ref).getTagDescription();
 		} else if (ref instanceof WellSampleData) {
@@ -850,8 +864,16 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean canLink(Object data)
-	{ 
-		return EditorUtil.isUserOwner(data, getUserID());
+	{
+		switch (getDisplayMode()) {
+			case LookupNames.GROUP_DISPLAY:
+				if (data instanceof DataObject)
+					return ((DataObject) data).canLink();
+				return false;
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			default:
+				return EditorUtil.isUserOwner(data, getUserID());
+		}
 	}
 
 	/**
@@ -1533,7 +1555,7 @@ class EditorModel
 	 * @param refFile The file of reference.
 	 * @return See above.
 	 */
-	Map<DataObject, Boolean> getObjectsWithAttachments(AnnotationData refFile)
+	Map<DataObject, Boolean> getObjectsWith(AnnotationData refFile)
 	{
 		Map<DataObject, StructuredDataResults> 
 		r = parent.getAllStructuredData();
@@ -1542,23 +1564,69 @@ class EditorModel
 		Entry<DataObject, StructuredDataResults> e;
 		Iterator<Entry<DataObject, StructuredDataResults>>
 		i = r.entrySet().iterator();
-		Collection<FileAnnotationData> files;
-		Iterator<FileAnnotationData> j;
-		FileAnnotationData file;
-		DataObject o;
-		StructuredDataResults result;
-		while (i.hasNext()) {
-			e = i.next();
-			result = e.getValue();
-			files = result.getAttachments();
-			if (files != null) {
-				j = files.iterator();
-				while (j.hasNext()) {
-					file = j.next();
-					if (file.getId() == refFile.getId()) {
-						o = (DataObject) result.getRelatedObject();
-						m.put(o, canDeleteLink(file, result));
-						break;
+		if (refFile instanceof TermAnnotationData) {
+			Collection<TermAnnotationData> files;
+			Iterator<TermAnnotationData> j;
+			TermAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getTerms();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
+					}
+				}
+			}
+		} else if (refFile instanceof FileAnnotationData) {
+			Collection<FileAnnotationData> files;
+			Iterator<FileAnnotationData> j;
+			FileAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getAttachments();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
+					}
+				}
+			}
+		} else if (refFile instanceof XMLAnnotationData) {
+			Collection<XMLAnnotationData> files;
+			Iterator<XMLAnnotationData> j;
+			XMLAnnotationData file;
+			DataObject o;
+			StructuredDataResults result;
+			while (i.hasNext()) {
+				e = i.next();
+				result = e.getValue();
+				files = result.getXMLAnnotations();
+				if (files != null) {
+					j = files.iterator();
+					while (j.hasNext()) {
+						file = j.next();
+						if (file.getId() == refFile.getId()) {
+							o = (DataObject) result.getRelatedObject();
+							m.put(o, canDeleteLink(file, result));
+							break;
+						}
 					}
 				}
 			}
@@ -1690,8 +1758,7 @@ class EditorModel
 				while (j.hasNext()) {
 					file = j.next();
 					ns = file.getNameSpace();
-					if (!FileAnnotationData.FLIM_NS.equals(ns) &&
-						!FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+					if (!isNameSpaceExcluded(ns)) {
 						if (!ids.contains(file.getId())) {
 							results.add(file);
 							ids.add(file.getId());
@@ -1773,15 +1840,164 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the collection of XML annotations.
+	 * Returns the collection of others annotations like Term, XML
 	 * 
 	 * @return See above.
 	 */
-	Collection<XMLAnnotationData> getXMLAnnotations()
+	Collection<AnnotationData> getOtherAnnotations()
 	{
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return null;
-		return data.getXMLAnnotations(); 
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		if (data == null) return l;
+		Collection<XMLAnnotationData> xml = data.getXMLAnnotations();
+		if (xml != null && !xml.isEmpty())
+			l.addAll(xml);
+		Collection<AnnotationData> others = data.getOtherAnnotations();
+		if (others != null && !others.isEmpty())
+			l.addAll(others);
+		return l;
+	}
+	
+	/**
+	 * Returns the collection of the other annotations linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	Collection<AnnotationData> getAllOtherAnnotations()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<AnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+
+		Collection<XMLAnnotationData> files;
+		Collection<AnnotationData> others;
+		List<AnnotationData> results = new ArrayList<AnnotationData>();
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<XMLAnnotationData> j;
+		Iterator<AnnotationData> k;
+		XMLAnnotationData file;
+		AnnotationData other;
+		while (i.hasNext()) {
+			e = i.next();
+			files = e.getValue().getXMLAnnotations();
+			if (files != null) {
+				j = files.iterator();
+				while (j.hasNext()) {
+					file = j.next();
+					if (!ids.contains(file.getId())) {
+						results.add(file);
+						ids.add(file.getId());
+					}
+				}
+			}
+			others = e.getValue().getOtherAnnotations();
+			if (others != null) {
+				k = others.iterator();
+				while (k.hasNext()) {
+					other = k.next();
+					if (!ids.contains(other.getId())) {
+						results.add(other);
+						ids.add(other.getId());
+					}
+				}
+			}
+		}
+		return (Collection<AnnotationData>) sorter.sort(results);
+	}
+	
+	/**
+	 * Returns the collection of the other annotations that are linked to all
+	 * the selected objects.
+	 * 
+	 * @return See above.
+	 */
+	Collection<AnnotationData> getCommonOtherAnnotations()
+	{
+		Map<DataObject, StructuredDataResults> 
+		r = parent.getAllStructuredData();
+		if (r == null) return new ArrayList<AnnotationData>();
+		Entry<DataObject, StructuredDataResults> e;
+		Iterator<Entry<DataObject, StructuredDataResults>>
+		i = r.entrySet().iterator();
+		Collection<XMLAnnotationData> tags;
+		Collection<AnnotationData> others;
+		Map<Long, Integer> 
+			ids = new HashMap<Long, Integer>();
+		Iterator<XMLAnnotationData> j;
+		XMLAnnotationData tag;
+		Iterator<AnnotationData> k;
+		AnnotationData other;
+		Integer value;
+		String ns;
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getXMLAnnotations();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null) {
+						value++;
+					} else value = 1;
+					ids.put(tag.getId(), value);
+				}
+			}
+			others = e.getValue().getOtherAnnotations();
+			if (others != null) {
+				k = others.iterator();
+				while (k.hasNext()) {
+					other = k.next();
+					value = ids.get(other.getId());
+					if (value != null) {
+						value++;
+					} else value = 1;
+					ids.put(other.getId(), value);
+				}
+			}
+		}
+		
+		//The number of selected objects.
+		List<AnnotationData> results = new ArrayList<AnnotationData>();
+		List<Long> count = new ArrayList<Long>();
+		
+		int max = r.size();
+		i = r.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			tags = e.getValue().getXMLAnnotations();
+			if (tags != null) {
+				j = tags.iterator();
+				while (j.hasNext()) {
+					tag = j.next();
+					value = ids.get(tag.getId());
+					if (value != null && 
+							value == max && !count.contains(tag.getId())) {
+						results.add(tag);
+						count.add(tag.getId());
+					}
+				}
+			}
+			others = e.getValue().getOtherAnnotations();
+			if (others != null) {
+				k = others.iterator();
+				while (k.hasNext()) {
+					other = k.next();
+					value = ids.get(other.getId());
+					if (value != null && 
+							value == max && !count.contains(other.getId())) {
+						results.add(other);
+						count.add(other.getId());
+					}
+				}
+			}
+		}
+		
+		return (Collection<AnnotationData>) sorter.sort(results);
 	}
 	
 	/** 
@@ -2633,21 +2849,24 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean isArchived()
-	{ 
-		return getRefObject() instanceof ImageData;
+	{
+		ImageData img = getImage();
+		if (img == null) return false;
+		return img.isArchived();
 	}
 
 	/** 
 	 * Starts an asynchronous loading. 
 	 * 
-	 * @param folder The folder to save the file into.
+	 * @param file The file where to download the content.
+	 * If it is a multi-images file a zip will be created.
 	 */
-	void download(File folder)
+	void download(File file)
 	{
 		if (refObject instanceof ImageData) {
-			downloadImages(folder);
+			downloadImages(file);
 		} else if (refObject instanceof FileAnnotationData) {
-			downloadFiles(folder);
+			downloadFiles(file);
 		}
 	}
 
@@ -2997,28 +3216,21 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the description of the passed tag.
+	 * Returns the description of the passed annotation.
 	 * 
-	 * @param tag The tag to handle.
+	 * @param annotation The annotation to handle.
 	 * @return See above.
 	 */
-	String getTagDescription(TagAnnotationData tag)
+	String getAnnotationDescription(AnnotationData annotation)
 	{
-		if (tag == null) return "";
-		/*
-		List l = tag.getTagDescriptions();
-		if (l != null && l.size() > 0) {
-			long userID = MetadataViewerAgent.getUserDetails().getId();
-			Iterator i = l.iterator();
-			TextualAnnotationData desc;
-			while (i.hasNext()) {
-				desc = (TextualAnnotationData) i.next();
-				if (desc != null && desc.getOwner().getId() == userID) 
-					return desc.getText();
-			}
-		}
-		*/
-		return tag.getTagDescription();
+		if (annotation == null) return "";
+		if (annotation instanceof TagAnnotationData)
+			return ((TagAnnotationData) annotation).getTagDescription();
+		else if (annotation instanceof TermAnnotationData)
+			return ((TermAnnotationData) annotation).getTermDescription();
+		else if (annotation instanceof XMLAnnotationData)
+			return ((XMLAnnotationData) annotation).getDescription();
+		return "";
 	}
 	
 	/**
@@ -3472,6 +3684,27 @@ class EditorModel
 		return MetadataViewerAgent.getUserDetails();
 	}
 	
+	/**
+	 * Returns the experimenter corresponding to the specified identifier.
+	 * or <code>null</code>.
+	 * 
+	 * @param expID The identifier of the experimenter.
+	 * @return see above.
+	 */
+	ExperimenterData getExperimenter(long expID)
+	{
+		List l = (List) MetadataViewerAgent.getRegistry().lookup(
+				LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == expID) return exp;
+		}
+		return null;
+	}
+	
 	/** 
 	 * Returns the name of the owner or <code>null</code> if the current owner
 	 * is the user currently logged in.
@@ -3484,15 +3717,22 @@ class EditorModel
 		if (o instanceof ExperimenterData || o instanceof GroupData)
 			return null;
 		if (o instanceof DataObject) {
+			ExperimenterData user = getCurrentUser();
 			DataObject data = (DataObject) o;
-			long id = MetadataViewerAgent.getUserDetails().getId();
+			long id = user.getId();
 			if (data.getId() < 0) return null;
 			if (!((DataObject) o).isLoaded()) return null;
 			try {
 				ExperimenterData owner = data.getOwner();
-				if (owner.getId() == id) return null;
-				return owner.getFirstName()+" "+owner.getLastName();
-			} catch (Exception e) {}
+				if (owner.getId() == id)
+					return EditorUtil.formatExperimenter(user);
+				if (owner.isLoaded())
+					return EditorUtil.formatExperimenter(owner);
+				owner = getExperimenter(owner.getId());
+				if (owner != null)
+					return EditorUtil.formatExperimenter(owner);
+			} catch (Exception e) {
+			}
 		}
 		return null;
 	}
@@ -3867,6 +4107,49 @@ class EditorModel
 			channel = i.next();
 			emissionsWavelengths.put(channel,emissionsWavelengths.get(channel));
 		}
+	}
+
+	/*** Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode()
+	{
+		Integer value = (Integer) MetadataViewerAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) return LookupNames.EXPERIMENTER_DISPLAY;
+		switch (value.intValue()) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+			return value.intValue();
+		}
+		return LookupNames.EXPERIMENTER_DISPLAY;
+	}
+
+	/**
+	 * Returns <code>true</code> if the annotations are loaded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isAnnotationLoaded()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return false;
+		return data.isLoaded();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the image has an original metadata file
+	 * linked to it, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOriginalMetadata()
+	{
+		FileAnnotationData fa = getOriginalMetadata();
+		return fa != null;
 	}
 
 }

@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
@@ -699,5 +700,28 @@ public interface Renderer
 	 * @param channels The channels to handle.
 	 */
 	void onUpdatedChannels(List<ChannelData> channels);
+	
+	/**
+	 * Returns <code>true</code> if the object can be annotated,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @return See above.
+	 */
+	boolean canAnnotate();
 
+	/**
+	 * Returns the collection of rendering controls. This method should only 
+	 * be invoked when loading tiles.
+	 * 
+	 * @return See above.
+	 */
+	List<RenderingControl> getRenderingControls();
+	
+	/**
+	 * Returns the list of the levels.
+	 * 
+	 * @return See above.
+	 */
+	List<ResolutionLevel> getResolutionDescriptions();
+	
 }

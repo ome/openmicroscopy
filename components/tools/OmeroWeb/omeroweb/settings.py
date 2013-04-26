@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # #                Django settings for OMERO.web project.               # # 
@@ -204,6 +205,11 @@ def leave_none_unset(s):
         raise LeaveUnset()
     return s
 
+def leave_none_unset_int(s):
+    s = leave_none_unset(s)
+    if s is not None:
+        return int(s)
+
 CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.apps": ["ADDITIONAL_APPS", '[]', json.loads],
     "omero.web.public.enabled": ["PUBLIC_ENABLED", "false", parse_boolean],
@@ -239,13 +245,16 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
     "omero.web.server_email": ["SERVER_EMAIL", None, identity],
     "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
-    # Configuration options for the viewer
-    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", -1, int],
+    # Configuration options for the viewer. -1: zoom in fully, 0: zoom out fully, unset: zoom to fit window
+    "omero.web.viewer.initial_zoom_level": ["VIEWER_INITIAL_ZOOM_LEVEL", None, leave_none_unset_int],
     # the following parameters configure when to show/hide the 'Volume viewer' icon in the Image metadata panel
     "omero.web.open_astex_max_side": ["OPEN_ASTEX_MAX_SIDE", 400, int],
     "omero.web.open_astex_min_side": ["OPEN_ASTEX_MIN_SIDE", 20, int],
     "omero.web.open_astex_max_voxels": ["OPEN_ASTEX_MAX_VOXELS", 27000000, int],  # 300 x 300 x 300
-    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", "/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", "/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py"]', parse_paths],
+    "omero.web.scripts_to_ignore": ["SCRIPTS_TO_IGNORE", '["/omero/figure_scripts/Movie_Figure.py", '\
+            '"/omero/figure_scripts/Split_View_Figure.py", "/omero/figure_scripts/Thumbnail_Figure.py", '\
+            '"/omero/figure_scripts/ROI_Split_Figure.py", "/omero/export_scripts/Make_Movie.py",'\
+            '"/omero/setup_scripts/FLIM_initialise.py", "/omero/import_scripts/Populate_ROI.py"]', parse_paths],
     
     # Add links to the top header: links are ['Link Text', 'link'], where the url is reverse("link") OR simply 'link' (for external urls)
     "omero.web.ui.top_links": ["TOP_LINKS", '[]', json.loads],  # E.g. '[["Webtest", "webtest_index"]]'

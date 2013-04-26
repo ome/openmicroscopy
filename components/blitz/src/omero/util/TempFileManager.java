@@ -363,7 +363,6 @@ public class TempFileManager {
      * Attempts to delete all directories under self.userdir other than the one
      * owned by this process. If a directory is locked, it is skipped.
      */
-    @SuppressWarnings("unchecked")
     protected void cleanUserDir() throws IOException {
         log.debug("Cleaning user dir: " + userDir.getAbsolutePath());
         List<File> files = Arrays.asList(userDir.listFiles());
@@ -385,6 +384,8 @@ public class TempFileManager {
             } catch (Exception e) {
                 System.out.println("Locked: " + f);
                 continue;
+            } finally {
+                raf.close();
             }
             FileUtils.deleteDirectory(file);
             System.out.println("Deleted: " + f);

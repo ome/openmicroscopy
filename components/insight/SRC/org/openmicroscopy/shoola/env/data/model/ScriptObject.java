@@ -85,6 +85,9 @@ public class ScriptObject
 	/** Path to the <code>Region</code> script. */
 	public static final String REGION_PATH = "/omero/region_scripts/";
 	
+	/** Path to the <code>Import</code> script. */
+	public static final String IMPORT_PATH = "/omero/import_scripts/";
+	
 	/** Path to the <code>Util</code> script. */
 	public static final String UTIL_PATH = "/omero/util_scripts/";
 	
@@ -106,8 +109,11 @@ public class ScriptObject
 	/** Indicates that the script is a <code>Util</code> script. */
 	public static final int UTIL = 3;
 	
+	/** Indicates that the script is a <code>Import</code> script. */
+	public static final int IMPORT = 4;
+	
 	/** Indicates that the script is a <code>Region</code> script. */
-	public static final int OTHER = 4;
+	public static final int OTHER = 5;
 	
 	/** The default version. */
 	private static final String VERSION = "1.0";

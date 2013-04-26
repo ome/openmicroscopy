@@ -1,3 +1,21 @@
+//
+// Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
+// All rights reserved.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of the
+// License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 /*global OME:true */
 if (typeof OME === "undefined") {
     OME = {};
@@ -282,6 +300,66 @@ OME.deleteItem = function(event, domClass, url) {
     event.preventDefault();
     return false;
 };
+
+// More code that is shared between metadata_general and batch_annotate panels
+// Called when panel loaded. Does exactly what it says on the tin.
+OME.initToolbarDropdowns = function() {
+    // -- Toolbar buttons - show/hide dropdown options --
+    $(".toolbar_dropdown ul").css('visibility', 'hidden');
+    // show on click
+    var $toolbar_dropdownlists = $(".toolbar_dropdown ul");
+    $(".toolbar_dropdown button").click(function(e) {
+        // hide any other lists that might be showing...
+        $toolbar_dropdownlists.css('visibility', 'hidden');
+        // then show this one...
+        $("ul", $(this).parent()).css('visibility', 'visible');
+        e.preventDefault();
+        return false;
+    });
+    // on hover-out, hide drop-down menus
+    $toolbar_dropdownlists.hover(function(){}, function(){
+        $(this).css('visibility', 'hidden');
+    });
+
+    // For Figure scripts, we need a popup:
+    $("#figScriptList li a").click(function(event){
+        if (!$(this).parent().hasClass("disabled")) {
+            OME.openScriptWindow(event, 800, 600);
+        }
+        event.preventDefault();
+        return false;
+    });
+};
+
+// Simply add query to thumbnail src to force refresh.
+// By default we do ALL thumbnails, but can also specify ID
+OME.refreshThumbnails = function(imageId) {
+    var rdm = Math.random(),
+        thumbs_selector = "#dataIcons img",
+        spw_selector = "#spw img";
+    // handle Dataset thumbs
+    if (typeof imageId != "undefined") {
+        thumbs_selector += "#"+imageId;
+        spw_selector += "#image-"+imageId;
+    }
+    $(thumbs_selector).each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+    // handle SPW thumbs
+    $(spw_selector).each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+    // Preview viewport
+    $("#viewport-img").each(function(){
+        var $this = $(this),
+            base_src = $this.attr('src').split('?')[0];
+        $this.attr('src', base_src + "?_="+rdm);
+    });
+}
 
 jQuery.fn.tooltip_init = function() {
     $(this).tooltip({

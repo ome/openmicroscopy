@@ -108,8 +108,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         }
 
         if (!Project.class.equals(rootNodeType)
-                && !Dataset.class.equals(rootNodeType) 
-                && !Screen.class.equals(rootNodeType)) {
+                && !Dataset.class.equals(rootNodeType)
+                && !Screen.class.equals(rootNodeType) &&
+                !Plate.class.equals(rootNodeType)) {
             throw new ApiUsageException(
                     "Class parameter for loadContainerIHierarchy() must be in "
                             + "{Project,Dataset, Screen, Plate}, not "

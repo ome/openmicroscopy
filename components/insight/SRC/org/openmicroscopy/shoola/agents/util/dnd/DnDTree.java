@@ -213,8 +213,8 @@ public class DnDTree
 			Object droppedObject = transferable.getTransferData(localFlavor);
 			List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>();
 			if (droppedObject instanceof List) {
-				List l = (List) droppedObject;
-				Iterator i = l.iterator();
+				List<Object> l = (List) droppedObject;
+				Iterator<Object> i = l.iterator();
 				Object o;
 				while (i.hasNext()) {
 					o = i.next();
@@ -399,8 +399,7 @@ public class DnDTree
 		super();
 		defaultCursor = getCursor();
 		dropLocation = -1;
-		this.userID = userID;
-		this.administrator = administrator;
+		reset(userID, administrator);
 		setDragEnabled(true);
 		dropTargetNode = null;
 		dragSource = new DragSource();
@@ -416,6 +415,20 @@ public class DnDTree
 		});
 	}
 
+	/** 
+	 * Resets the values.
+	 * 
+	 * @param userID The identifier of the user currently logged in.
+	 * @param administrator Pass <code>true</code> to indicate that the user
+	 *                      currently logged in an administrator,
+	 *                      <code>false</code> otherwise.
+	 */
+	public void reset(long userID, boolean administrator)
+	{
+		this.userID = userID;
+		this.administrator = administrator;
+	}
+	
     /** Resets.*/
     public void reset() { dropTargetNode = null; }
     
@@ -547,21 +560,20 @@ public class DnDTree
 		if (path == null) return;
 		TreeNode draggedNode = (TreeNode) path.getLastPathComponent();
 		if (draggedNode == null) return;
-		
-		//setSelectionPath(path);
-		//pathSource = path;
 		TreePath[] paths = getSelectionPaths();
 		List<TreeNode> nodes = new ArrayList<TreeNode>();
 		TreeNode n;
-		for (int i = 0; i < paths.length; i++) {
-			n = (TreeNode) paths[i].getLastPathComponent();
-			if (n instanceof TreeImageDisplay)
-				nodes.add(n);
+		if (paths != null) {
+			for (int i = 0; i < paths.length; i++) {
+				n = (TreeNode) paths[i].getLastPathComponent();
+				if (n instanceof TreeImageDisplay)
+					nodes.add(n);
+			}
 		}
+		
 		if (nodes.size() == 0) return;
 		createGhostImage(p);
 		Transferable trans = new TransferableNode(nodes);
-		//dragSource.startDrag(e, getCursor(e.getDragAction()), trans, this);
 		try {
 			setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 			if (DragSource.isDragImageSupported()) {
@@ -605,7 +617,6 @@ public class DnDTree
 	public void dragEnter(DragSourceDragEvent dsde)
 	{
 		setCursor(defaultCursor);
-		//dsde.getDragSourceContext().setCursor(getCursor(dsde.getDropAction()));
 	}
 
 	/**

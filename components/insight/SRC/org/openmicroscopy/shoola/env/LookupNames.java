@@ -47,17 +47,36 @@ public class LookupNames
 {
 
 	/** 
+	 * Field indicating how to display the data i.e. 
+	 * <code>group</code> display, <code>experimenter</code>.
+	 */
+	public static final String DATA_DISPLAY = "DataDisplay";
+	
+	/** 
+	 * Field associated to the <code>DATA_DISPLAY</code> field.
+	 */
+	public static final int GROUP_DISPLAY = 0;
+	
+	/** 
+	 * Field associated to the <code>EXPERIMENTER_DISPLAY</code> field.
+	 */
+	public static final int EXPERIMENTER_DISPLAY = 1;
+	
+	/** 
 	 * Field associated to the <code>ImageJ</code> plugin.
 	 */
-	public static final int IMAGE_J = 100;
+	public static final int IMAGE_J = 1;
 	
 	/** 
 	 * Field associated to the <code>Knime</code> plugin.
 	 */
-	public static final int KNIME = 101;
+	public static final int KNIME = 2;
 	
 	/** Field to access the plugin.*/
 	public static final String PLUGIN = "Plugin";
+	
+	/** Field to access the plugin dependencies and information.*/
+	public static final String PLUGINS = "/plugins";
 	
 	/** 
 	 * Field indicating the value associated to the
@@ -216,6 +235,17 @@ public class LookupNames
 	
     /** Field to access the <code>Size</code> of the cache. */
     public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
+    
+    /** 
+     * Field to access the number of rendering engine to start for big images.
+     */
+    public static final String RE_WORKER = "/services/RE/worker";
+    
+    /** 
+     * Field to access the time after which an inactive rendering engine
+     * is shut down. The value is in milliseconds.
+     */
+    public static final String RE_TIMEOUT = "/services/RE/timeout";
     
 	public static final String RE_STACK_BUF_SZ = "/services/RE/stackBufSz";
 	public static final String RE_STACK_BLOCK_SZ = "/services/RE/stackBlockSz";

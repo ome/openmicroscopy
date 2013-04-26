@@ -93,6 +93,28 @@ public abstract class MetadataLoader
     protected int loaderID;
     
     /**
+     * Logs the error and notifies the user depending on the specified flag.
+     * 
+     * @param exc The exception to handle.
+     * @param notify Pass <code>true</code> to notify the user,
+     * <code>false</code> otherwise.
+     */
+    protected void handleException(Throwable exc, boolean notify)
+    {
+    	int state = viewer.getState();
+    	String s = "Data Retrieval Failure: ";
+    	LogMessage msg = new LogMessage();
+        msg.print("State: "+state);
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        if (notify && state != MetadataViewer.DISCARDED)
+        	registry.getUserNotifier().notifyError("Data Retrieval Failure",
+                                               s, exc);
+        viewer.cancel(loaderID);
+    }
+    
+    /**
      * Creates a new instance.
      * 
      * @param viewer The viewer this data loader is for.
@@ -156,19 +178,9 @@ public abstract class MetadataLoader
      * {@link #viewer}.
      * @see DSCallAdapter#handleException(Throwable)
      */
-    public void handleException(Throwable exc) 
+    public void handleException(Throwable exc)
     {
-    	int state = viewer.getState();
-    	String s = "Data Retrieval Failure: ";
-    	LogMessage msg = new LogMessage();
-        msg.print("State: "+state);
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
-        if (state != MetadataViewer.DISCARDED)
-        	registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-                                               s, exc);
-        viewer.cancel(loaderID);
+    	handleException(exc, true);
     }
     
     /** Fires an asynchronous data loading. */

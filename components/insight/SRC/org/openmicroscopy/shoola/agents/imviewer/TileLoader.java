@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.data.Tile;
 
 /** 
@@ -56,19 +57,22 @@ public class TileLoader
 {
 
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle handle;
     
     /** The collection of tiles to load.*/
     private Collection<Tile> tiles;
     
     /** The ID of the pixels set. */
-    private long		pixelsID;
+    private long pixelsID;
     
     /** The plane to render.*/
     private PlaneDef pDef;
     
     /** Count the number of tiles loaded.*/
     private int count;
+    
+    /** The proxy to use.*/
+    private RenderingControl proxy;
     
     /**
      * Creates a new instance.
@@ -77,21 +81,25 @@ public class TileLoader
      * @param ctx The security context.
      * @param pixelsID The id of the pixels set.
      * @param pDef The plane to render.
+     * @param proxy The rendering control to use.
      * @param tiles The tiles to handle.
      */
 	public TileLoader(ImViewer viewer, SecurityContext ctx, long pixelsID,
-			PlaneDef pDef, Collection<Tile> tiles)
+			PlaneDef pDef, RenderingControl proxy, Collection<Tile> tiles)
 	{
 		super(viewer, ctx);
 		if (tiles == null || tiles.size() == 0)
 			throw new IllegalArgumentException("No tiles to load.");
 		if (pDef == null)
 			throw new IllegalArgumentException("No plane to render.");
-		if (pixelsID < 0)
+		if (proxy == null)
+			throw new IllegalArgumentException("No rendering control.");
+		if (pixelsID != proxy.getPixelsID())
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		this.tiles = tiles;
 		this.pixelsID = pixelsID;
 		this.pDef = pDef;
+		this.proxy = proxy;
 	}
 	
 	/**
@@ -101,7 +109,8 @@ public class TileLoader
     public void load()
     {
     	boolean asTexture = ImViewerAgent.hasOpenGLSupport();
-    	handle = ivView.loadTiles(ctx, pixelsID, pDef, tiles, asTexture, this);
+    	handle = ivView.loadTiles(ctx, pixelsID, pDef, proxy, tiles,
+    			asTexture, this);
     }
     
     /**
@@ -140,12 +149,13 @@ public class TileLoader
         int percDone = fe.getPercentDone();
         if (status == null) 
             status = (percDone == 100) ? "" :  //Else
-                                     ""; //Description wasn't available.   
+                                     ""; //Description wasn't available.
         viewer.setStatus(status, percDone);
         Tile tile = (Tile) fe.getPartialResult();
         if (tile != null) {
         	count++;
-        	viewer.setTile(tile, count == tiles.size());
+        	if (count == tiles.size()) viewer.setTileCount(count);
+        	else viewer.setTileCount(0);
         } 
     }
 

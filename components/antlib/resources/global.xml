@@ -52,7 +52,7 @@
 	<property name="lib.dir"       value="${root.dir}/lib" />
 	<property name="tools.dir"     value="${root.dir}/lib/tools" />
 	<property name="dist.dir"      value="${root.dir}/dist" />
-	<property name="sphinx.dir"    value="${root.dir}/docs/sphinx" />
+	<property name="sphinx.dir"    value="${root.dir}/docs/sphinx/omero" />
 
 	<!-- Components -->
 	<property name="dsl.comp"       value="${components.dir}/dsl"/>
@@ -513,9 +513,6 @@ with OMERO.
             <attribute name="failonerror" default="true"/>
             <element name="args" implicit="true"/>
             <sequential>
-                <copy todir="${basedir}">
-                   <fileset dir="${omero.home}/lib/repository" includes="setuptools*"/>
-                </copy>
                 <exec executable="python" failonerror="@{failonerror}">
                     <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
                     <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
@@ -535,7 +532,7 @@ with OMERO.
         </macrodef>
 
         <!--
-          The hard-wiring macro is used to allowcertain method interceptors to
+          The hard-wiring macro is used to allow certain method interceptors to
           be hard-wired around method exception *before* any of the "soft"
           spring-wired interceptors (see resources/ome/services/services.xml)
 

@@ -143,13 +143,28 @@ public class MetadataViewerFactory
 	{
 		if (singleton.viewers.size() == 0) return null;
 		List<Object> instances = new ArrayList<Object>();
-		Iterator i = singleton.viewers.iterator();
+		Iterator<MetadataViewer> i = singleton.viewers.iterator();
 		MetadataViewerComponent comp;
 		while (i.hasNext()) {
 			comp = (MetadataViewerComponent) i.next();
 			if (comp.hasDataToSave()) instances.add(comp);
 		}
 		return instances;
+	}
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDiplayMode(int displayMode)
+	{
+		Iterator<MetadataViewer> i = singleton.viewers.iterator();
+		MetadataViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MetadataViewerComponent) i.next();
+			comp.setDisplayMode(displayMode);
+		}
 	}
 	
 	/** 

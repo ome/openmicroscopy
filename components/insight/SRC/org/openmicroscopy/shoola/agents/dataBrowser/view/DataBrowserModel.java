@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisito
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -187,6 +188,19 @@ abstract class DataBrowserModel
     /** The security context.*/
     protected SecurityContext ctx;
     
+	/** The display mode.*/
+    protected int displayMode;
+    
+    /**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
+		Integer value = (Integer) DataBrowserAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
+	}
 	/**
 	 * Indicates to load all annotations available if the user can annotate
 	 * and is an administrator/group owner or to only load the user's
@@ -243,6 +257,7 @@ abstract class DataBrowserModel
     	sorter = new ViewerSorter();
     	state = DataBrowser.NEW;
     	this.ctx = ctx;
+    	checkDefaultDisplayMode();
     }
     
 	/**
@@ -747,16 +762,24 @@ abstract class DataBrowserModel
 	boolean canLinkParent()
 	{
 		if (DataBrowserAgent.isAdministrator()) return true;
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		if (parent == null) {
-			if (experimenter == null) return false;
-			return experimenter.getId() == userID;
+		switch (getDisplayMode()) {
+			case LookupNames.GROUP_DISPLAY:
+				if (parent == null || !(parent instanceof DataObject))
+					return false;
+				return ((DataObject) parent).canLink();
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			default:
+				long userID = DataBrowserAgent.getUserDetails().getId();
+				if (parent == null) {
+					if (experimenter == null) return false;
+					return experimenter.getId() == userID;
+				}
+				if (!(parent instanceof DataObject)) {
+					if (experimenter == null) return false;
+					return experimenter.getId() == userID;
+				}
+				return EditorUtil.isUserOwner(parent, userID);
 		}
-		if (!(parent instanceof DataObject)) {
-			if (experimenter == null) return false;
-			return experimenter.getId() == userID;
-		}
-		return EditorUtil.isUserOwner(parent, userID);
 	}
 	
 	/**
@@ -898,6 +921,44 @@ abstract class DataBrowserModel
 		}
 		return null;
 	}
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+		if (existingDatasets != null) {
+			existingDatasets.clear();
+			setExistingDatasets(null);
+		}
+		if (existingTags != null) {
+			existingTags.clear();
+			setTags(null);
+		}
+	}
+
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.

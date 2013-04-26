@@ -235,11 +235,14 @@ public class IconManager
     /** The <code>KNIME Viewer</code> icon. */
     public static final int          VIEWER_KNIME = 59;
     
+    /** The 8x8 <code>Owner</code> icon. */
+    public static final int			NOT_OWNER_8 = 60;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 59;
+    private static final int          MAX_ID = 60;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -252,7 +255,6 @@ public class IconManager
         relPaths[FILTERING_48] = "nuvola_view_text16.png";
         relPaths[FILTERING] = "eclipse_filter_ps16.png";
         relPaths[SLIDE_SHOW_VIEW] = "nuvola_background16.png";
-        					//"openOffice_stock_insert-video-plugin-16.png";
         relPaths[METADATA] = "eclipse_filter_ps16.png";
         relPaths[PIN] = "nuvola_attach16.png";
         relPaths[PAUSE] = "nuvola_player_pause16.png";
@@ -306,6 +308,7 @@ public class IconManager
         relPaths[PERSONAL] = "nuvola_personal16.png";
         relPaths[VIEWER_IJ] = "imageJ16.png";
         relPaths[VIEWER_KNIME] = "knimeIcon16.png";
+        relPaths[NOT_OWNER_8] = "red_dot8.png";
     }
     
     /** The sole instance. */

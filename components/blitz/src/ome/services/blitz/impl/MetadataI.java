@@ -37,6 +37,7 @@ import omero.api.AMD_IMetadata_loadAnnotationsUsedNotOwned;
 import omero.api.AMD_IMetadata_loadChannelAcquisitionData;
 import omero.api.AMD_IMetadata_loadInstrument;
 import omero.api.AMD_IMetadata_loadSpecifiedAnnotations;
+import omero.api.AMD_IMetadata_loadSpecifiedAnnotationsLinkedTo;
 import omero.api.AMD_IMetadata_loadTagContent;
 import omero.api.AMD_IMetadata_loadTagSets;
 import omero.api._IMetadataOperations;
@@ -188,6 +189,21 @@ public class MetadataI
 	 }
 
 
+	 public void loadSpecifiedAnnotationsLinkedTo_async(AMD_IMetadata_loadSpecifiedAnnotationsLinkedTo __cb,
+			 String annotationType, List<String> include, List<String> exclude,
+			String rootNodeType, List<Long> nodeIds, Parameters options, Current __current) 
+	 throws ServerError {
+		 try
+		 {
+			 annotationType = map(annotationType);
+		 } catch (ServerError sr) {
+			 __cb.ice_exception(sr);
+			 return;
+		 }
+		 callInvokerOnRawArgs(__cb, __current, annotationType, include, exclude, 
+				 rootNodeType, nodeIds, options);
+	 }
+	 
 	protected void map(List<String> annotationTypes) throws ServerError
 	{
 		if (annotationTypes == null)

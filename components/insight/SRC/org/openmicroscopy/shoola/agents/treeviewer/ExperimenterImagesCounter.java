@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Counts the number of images imported during various periods of time
@@ -90,9 +91,11 @@ public class ExperimenterImagesCounter
 			TreeImageSet expNode, List<TreeImageSet> nodes)
 	{
 		super(viewer, ctx);
-		if (expNode == null ||
-				!(expNode.getUserObject() instanceof ExperimenterData))
-			throw new IllegalArgumentException("Experimenter node not valid.");
+		if (expNode == null)
+			throw new IllegalArgumentException("Node not valid.");
+		Object ho = expNode.getUserObject();
+		if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+			throw new IllegalArgumentException("Node not valid.");
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No time node specified node.");
 		this.expNode = expNode;
@@ -113,7 +116,9 @@ public class ExperimenterImagesCounter
 	{
 		Iterator i = nodes.iterator();
 		TimeRefObject ref;
-		long userID = expNode.getUserObjectId();
+		long userID = -1;
+		if (expNode.getUserObject() instanceof ExperimenterData)
+			userID = expNode.getUserObjectId();
 		Map<Integer, TimeRefObject> m;
 		m = new LinkedHashMap<Integer, TimeRefObject>(nodes.size());
 		TreeImageSet node;

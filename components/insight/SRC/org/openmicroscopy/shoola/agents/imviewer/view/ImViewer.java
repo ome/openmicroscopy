@@ -274,7 +274,7 @@ public interface ImViewer
 	 * @param userID   The id of the user who set the settings.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(RndProxyDef settings, long userID);
+	public void activate(RndProxyDef settings, long userID, int displayMode);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -1221,13 +1221,11 @@ public interface ImViewer
     Map<Integer, Tile> getTiles();
 
     /**
-     * Indicates that all the tiles have been loaded.
+     * Indicates that the number of tiles loaded.
      * 
-     * @param tile The tile.
-     * @param done Passed <code>true</code> if the tile is loaded,
-     * 				<code>false</code>
+     * @param count The number of tiles loaded.
      */
-	public void setTile(Tile tile, boolean done);
+	public void setTileCount(int count);
     
 	/**
 	 * Loads the tiles corresponding to the specified region.
@@ -1277,5 +1275,35 @@ public interface ImViewer
 	 * @param channels The channels to handle.
 	 */
 	void onUpdatedChannels(List<ChannelData> channels);
+
+	/** 
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
+	
+	/**
+	 * Returns the id of the pixels set this viewer is for.
+	 * 
+	 * @return See above.
+	 */
+	long getPixelsID();
+	
+	/**
+	 * Returns the selected resolution level.
+	 * 
+	 * @return See above.
+	 */
+	int getSelectedResolutionLevel();
+	
+	/**
+	 * Returns the possible resolution levels. This method should only be used
+	 * when dealing with large images.
+	 * 
+	 * @return See above.
+	 */
+	int getResolutionLevels();
 
 }

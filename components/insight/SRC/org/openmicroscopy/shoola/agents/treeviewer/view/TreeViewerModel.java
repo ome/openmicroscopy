@@ -187,6 +187,9 @@ class TreeViewerModel
     /** The id of the group the currently selected node is in.*/
     private long selectedGroupId;
     
+    /** The display mode.*/
+    private int displayMode;
+    
     /**
      * Returns the collection of scripts with a UI, mainly the figure scripts.
      * 
@@ -336,6 +339,10 @@ class TreeViewerModel
 		refImage = null;
 		importing = false;
 		sorter = new ViewerSorter();
+		Integer value = (Integer) TreeViewerAgent.getRegistry().lookup(
+				LookupNames.DATA_DISPLAY);
+		if (value == null) value = LookupNames.EXPERIMENTER_DISPLAY;
+		setDisplayMode(value);
 	}
 
 	/**
@@ -825,10 +832,12 @@ class TreeViewerModel
 	 */
 	AdvancedFinder getAdvancedFinder()
 	{ 
-		if (advancedFinder == null)
+		if (advancedFinder == null) {
 			advancedFinder = FinderFactory.getAdvancedFinder(
-							TreeViewerAgent.getRegistry(),
-							TreeViewerAgent.getAvailableUserGroups());
+					TreeViewerAgent.getRegistry(),
+					TreeViewerAgent.getAvailableUserGroups());
+			advancedFinder.setDisplayMode(getDisplayMode());
+		}
 		return advancedFinder; 
 	}
 
@@ -1423,6 +1432,31 @@ class TreeViewerModel
 	Collection getGroups()
 	{
 		return TreeViewerAgent.getAvailableUserGroups();
+	}
+
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link TreeViewer}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
+	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
 	}
 
 }

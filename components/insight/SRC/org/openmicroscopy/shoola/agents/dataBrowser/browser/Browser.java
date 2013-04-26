@@ -241,7 +241,7 @@ public interface Browser
 	 * 
 	 * @return See above.
 	 */
-	public Collection getSelectedDisplays();
+	public Collection<ImageDisplay> getSelectedDisplays();
 	
 	/**
 	 * Returns the collection of the <code>DataObject</code>s hosted by
@@ -249,7 +249,7 @@ public interface Browser
 	 * 
 	 * @return See above.
 	 */
-	public Collection getSelectedDataObjects();
+	public Collection<DataObject> getSelectedDataObjects();
 	
 	/**
 	 * Returns <code>true</code> if the image's title bar is visible,

@@ -57,6 +57,7 @@
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
                 <include name="ome/system/OmeroContext.class"/>
+                <include name="ome/util/checksum/*.class"/>
             </fileset>
             <fileset dir="${model.comp}/target/classes">
                 <include name="ome/model/**/*.class"/>
@@ -104,6 +105,7 @@
                 <include name="tiny*dv"/>
                 <include name="test.bmp"/>
                 <include name="test.jpg"/>
+                <include name="test.txt"/>
             </patternset>
         </unjar>
     </target>

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -190,7 +191,7 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
-	public Map getArchivedImage(SecurityContext ctx, String location,
+	public Map getArchivedImage(SecurityContext ctx, File location,
 			long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -286,11 +287,10 @@ public class NullOmeroPojoService
 
 	/**
      * No-operation implementation
-     * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long,
-     * long)
+     * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long)
      */
 	public Set loadContainerHierarchy(SecurityContext ctx, Class rootNodeType,
-		List rootNodeIDs, boolean withLeaves, long userID, long groupID)
+		List rootNodeIDs, boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

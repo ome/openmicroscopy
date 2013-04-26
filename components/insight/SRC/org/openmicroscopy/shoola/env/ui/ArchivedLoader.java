@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * Loads archived image.
+ * Loads the image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,13 +57,13 @@ public class ArchivedLoader
 {
 
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle  			handle;
+    private CallHandle handle;
     
     /** The archived image to load. */
-    private ImageData 				image;
+    private ImageData image;
 
-    /** The file where to export the image. */
-    private String					folderPath;
+    /** The file where to download the content of the image. */
+    private File file;
     
     /** Flag indicating that the export has been marked to be cancel.*/
     private boolean cancelled;
@@ -73,7 +74,7 @@ public class ArchivedLoader
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to download the archived image", 
+    	activity.notifyError("Unable to download the image", 
 				message, ex);
     }
     
@@ -85,18 +86,18 @@ public class ArchivedLoader
      * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
      * @param image The image to export.
-     * @param folderPat The location where to export the image.
+     * @param file The location where to download the image.
      * @param activity The activity associated to this loader.
      */
 	public ArchivedLoader(UserNotifier viewer,  Registry registry,
-			SecurityContext ctx, ImageData image, String folderPath,
+			SecurityContext ctx, ImageData image, File file,
 			ActivityComponent activity)
 	{
 		super(viewer, registry, ctx, activity);
 		if (image == null)
 			throw new IllegalArgumentException("Image not valid.");
 		this.image = image;
-		this.folderPath = folderPath;
+		this.file = file;
 	}
 	
 	/**
@@ -105,8 +106,7 @@ public class ArchivedLoader
      */
     public void load()
     {
-    	long id = image.getDefaultPixels().getId();
-    	handle = mhView.loadArchivedImage(ctx, id, folderPath, this);
+    	handle = mhView.loadArchivedImage(ctx, image.getId(), file, this);
     }
     
     /**
@@ -119,13 +119,23 @@ public class ArchivedLoader
     	if (handle != null) handle.cancel();
     }
  
+	
+    /**
+     * Notifies the user that no archived images were found.
+     * @see UserNotifierLoader#handleNullResult()
+     */
+    public void handleNullResult()
+    {
+    	activity.endActivity(new ArrayList<File>());
+    }
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-    	if (result == null && !cancelled) onException(MESSAGE_RESULT, null);
+    	if (result == null && !cancelled) handleNullResult();
     	else {
     		Map m = (Map) result;
     		List l = (List) m.get(Boolean.valueOf(false));
@@ -141,10 +151,9 @@ public class ArchivedLoader
 						((File) i.next()).delete();
 					}
     			} else {
-    				activity.endActivity(files.size());
+    				activity.endActivity(files);
     			}
     		}
-    			
     	}
     }
     

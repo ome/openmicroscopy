@@ -2,7 +2,6 @@
 
 export VMNAME=${VMNAME:-"$1"}
 export VMNAME=${VMNAME:-"omerovm"}
-export TARGET=${2:-"QA"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
@@ -10,7 +9,7 @@ export OMERO_PORT=${OMERO_PORT:-"4063"}
 export OMERO_PF=${OMERO_PF:-"4063"}
 export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
-export RELEASE_VERSION="4.3.4"
+export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 
 set -e
 set -u
@@ -55,7 +54,7 @@ function installvm ()
   $SCP virtualbox_fix.sh omero@localhost:~/
   $SCP nginx-control.sh omero@localhost:~/
 	echo "ssh : exec driver.sh"
-	$SSH omero@localhost "bash /home/omero/driver.sh ${TARGET}"
+	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; bash /home/omero/driver.sh"
 	sleep 10
 	
 	echo "ALL DONE!"
@@ -184,9 +183,5 @@ fi
 echo "Network up after $ATTEMPTS tries"
 installvm
 
-if [ "$TARGET" == "QA" ]; then
-  EXPORTVMNAME="${VMNAME}-latest-build"
-else
-  EXPORTVMNAME="${VMNAME}-${RELEASE_VERSION}"
-fi
+EXPORTVMNAME="${VMNAME}-latest-build"
 bash export_ova.sh ${VMNAME} ${EXPORTVMNAME}

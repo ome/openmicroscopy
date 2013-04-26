@@ -46,7 +46,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -74,8 +73,11 @@ import ome.formats.model.ReferenceProcessor;
 import ome.formats.model.ShapeProcessor;
 import ome.formats.model.TargetProcessor;
 import ome.formats.model.WellProcessor;
-import ome.system.UpgradeCheck;
 import ome.util.LSID;
+import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumProviderFactoryImpl;
+import ome.util.checksum.ChecksumType;
 import ome.xml.model.AffineTransform;
 import ome.xml.model.enums.FillRule;
 import ome.xml.model.enums.FontFamily;
@@ -205,6 +207,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -222,6 +225,9 @@ import Glacier2.PermissionDeniedException;
 public class OMEROMetadataStoreClient
     implements MetadataStore, IMinMaxStore, IObjectContainerStore
 {
+    /* checksum provider factory for verifying file integrity in upload */
+    private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
+    
     /** Logger for this class */
     private Log log = LogFactory.getLog(OMEROMetadataStoreClient.class);
 
@@ -1540,9 +1546,10 @@ public class OMEROMetadataStoreClient
 	int originalFileIndex = 0;
 	for (String usedFilename : usedFiles)
 	{
+		if (!companionFiles.contains(usedFilename)) {
+		    continue;
+		}
 		File usedFile = new File(usedFilename);
-		boolean isCompanionFile = companionFiles == null? false :
-			    companionFiles.contains(usedFilename);
 		LinkedHashMap<Index, Integer> indexes =
 				new LinkedHashMap<Index, Integer>();
 		indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
@@ -1630,7 +1637,7 @@ public class OMEROMetadataStoreClient
 		}
 
 		// Create all original file objects for later population based on
-		// the existence or abscence of companion files and the archive
+		// the existence or absence of companion files and the archive
 		// flag. This increments the original file count by the number of
 		// files to actually be created.
 		for (int i = 0; i < usedFiles.length; i++)
@@ -1702,12 +1709,10 @@ public class OMEROMetadataStoreClient
      * @param files An array of the files to filter.
      * @return A collection of the filtered files.
      */
-    private List<String> filterFilenames(String[] files)
-    {
-	if (files == null)
-	{
-		return null;
-	}
+    private List<String> filterFilenames(String[] files) {
+        if (ArrayUtils.isEmpty(files)) {
+            return Collections.emptyList();
+        }
 	List<String> filteredFiles = new ArrayList<String>();
 	for (String file : files)
 	{
@@ -1781,28 +1786,30 @@ public class OMEROMetadataStoreClient
      * @return An original file if one can be looked up by UUID and
      * <code>null</code> otherwise.
      */
-    private OriginalFile byUUID(
-		String path, Map<String, OriginalFile> originalFileMap)
-    {
-	for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
-	{
-		try {
-			if (path.contains(ORIGINAL_METADATA_KEY))
-			{
-				String[] tokens = entry.getKey().split("/");
-				if (tokens.length > 1 && path.endsWith(tokens[tokens.length - 2]))
-				{
-					return entry.getValue();
-				}
-			}
-		} catch (ArrayIndexOutOfBoundsException e)
-		{
-			log.error("byUUID error, path: " + path + ", entry.key: " + entry.getKey(), e);
-			throw e;
-		}
-	}
+    private OriginalFile byUUID(final String path, Map<String, OriginalFile> originalFileMap) {
+        if (path.contains(ORIGINAL_METADATA_KEY)) {
+            for (final Entry<String, OriginalFile> entry : originalFileMap.entrySet()) {
+                final String[] tokens = entry.getKey().split("/");
+                final String tokenUUID;
+                if (tokens.length < 2) {
+                    /* token path is too short */
+                    continue;
+                } else {
+                    tokenUUID = tokens[tokens.length - 2];
+                }
+                try {
+                    UUID.fromString(tokenUUID);
+                } catch (IllegalArgumentException e) {
+                    /* tokenUUID is not actually a UUID */
+                    continue;
+                }
+                if (path.endsWith(tokenUUID)) {
+                    return entry.getValue();
+                }
+            }
+        }
 
-	return null;
+        return null;
     }
 
     /**
@@ -1810,10 +1817,11 @@ public class OMEROMetadataStoreClient
      * @param files Files to populate against an original file list.
      * @param originalFileMap Map of absolute path against original file
      * objects that we are to populate.
+     * @throws IOException in the event of an IO error during upload
+     * @throws ServerError propagated up from the raw file store proxy to which upload occurs
      */
-    public void writeFilesToFileStore(
-		List<File> files, Map<String, OriginalFile> originalFileMap)
-    {
+    public void writeFilesToFileStore(List<File> files, Map<String, OriginalFile> originalFileMap)
+            throws IOException, ServerError {
         // Lookup each source file in our hash map and write it to the
         // correct original file object server side.
         byte[] buf = new byte[1048576];  // 1 MB buffer
@@ -1833,36 +1841,31 @@ public class OMEROMetadataStoreClient
             }
 
             FileInputStream stream = null;
-            try
-            {
+            try {
+                final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
                 stream = new FileInputStream(file);
                 rawFileStore.setFileId(originalFile.getId().getValue());
                 int rlen = 0;
                 long offset = 0;
-                while (stream.available() != 0)
-                {
+                while (true) {
                     rlen = stream.read(buf);
+                    if (rlen == -1) {
+                        break;
+                    }
                     rawFileStore.write(buf, offset, rlen);
                     offset += rlen;
+                    hasher.putBytes(buf, 0, rlen);
                 }
-            }
-            catch (Exception e)
-            {
-                log.error("I/O or server error populating file store.", e);
-                break;
-            }
-            finally
-            {
-                if (stream != null)
-                {
-                    try
-                    {
+                originalFile = rawFileStore.save();
+                final String clientHash = hasher.checksumAsString();
+                final String serverHash = originalFile.getSha1().getValue();
+                if (!clientHash.equals(serverHash)) {
+                    throw new IOException("file checksum mismatch on upload: " + path +
+                            " (client has " + clientHash + ", server has " + serverHash + ")");
+                }
+            } finally {
+                if (stream != null) {
                         stream.close();
-                    }
-                    catch (Exception e)
-                    {
-                        log.error("I/O error closing stream.", e);
-                    }
                 }
             }
         }
@@ -2004,7 +2007,7 @@ public class OMEROMetadataStoreClient
 	}
 
 	/**
-	 * Retrieve teh default groups permission 'level'.
+	 * Retrieve the default group's permission 'level'.
 	 *
 	 * @return ImportEvent's group level
 	 * @throws ServerError

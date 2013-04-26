@@ -320,11 +320,11 @@ public class BrowserManageAction
     	 switch (model.getState()) {
 	    	 case Browser.LOADING_DATA:
 	         case Browser.LOADING_LEAVES:
-	         case Browser.COUNTING_ITEMS:  
+	         case Browser.COUNTING_ITEMS:
 	             setEnabled(false);
 	             break;
-	         default: 
-	        	 onDisplayChange(model.getLastSelectedDisplay());
+	         default:
+	        	onDisplayChange(model.getLastSelectedDisplay());
          }
     }
     
@@ -334,6 +334,13 @@ public class BrowserManageAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	switch (index) {
+			case NEW_ADMIN:
+			case NEW_CONTAINERS:
+			case NEW_TAGS:
+				setEnabled(true);
+				return;
+		}
     	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
     		setEnabled(TreeViewerAgent.isAdministrator());
     		return;

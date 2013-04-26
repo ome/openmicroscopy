@@ -33,12 +33,13 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.metadata.AnnotatedEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.ChangeUserGroupEvent;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -74,6 +75,9 @@ public class DataBrowserAgent
 	/** Reference to the registry. */
     private static Registry         registry; 
     
+    /** The display mode.*/
+	private int displayMode = -1;
+	
     /**
      * Helper method. 
      * 
@@ -288,6 +292,19 @@ public class DataBrowserAgent
     	DataBrowserFactory.onAnnotated(evt.getData(), evt.getCount());
     }
     
+    /**
+     * Updates the view when the mode is changed.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDisplayModeEvent(DisplayModeEvent evt)
+    {
+    	displayMode = evt.getDisplayMode();
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	DataBrowserFactory.setDisplayMode(displayMode);
+    }
+    
 	/** Creates a new instance. */
 	public DataBrowserAgent() {}
 	
@@ -322,6 +339,7 @@ public class DataBrowserAgent
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ReconnectedEvent.class);
         bus.register(this, AnnotatedEvent.class);
+        bus.register(this, DisplayModeEvent.class);
     }
     
     /**
@@ -360,6 +378,8 @@ public class DataBrowserAgent
 			handleReconnectedEvent((ReconnectedEvent) e);
     	else if (e instanceof AnnotatedEvent)
 			handleAnnotatedEvent((AnnotatedEvent) e);
+    	else if (e instanceof DisplayModeEvent)
+			handleDisplayModeEvent((DisplayModeEvent) e);
     }
     
 }

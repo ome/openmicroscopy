@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # OMERO Tables Interface
 # Copyright 2009 Glencoe Software, Inc.  All Rights Reserved.
@@ -361,9 +362,10 @@ class HdfStorage(object):
 
     @locked
     def append(self, cols):
+        self.__initcheck()
         # Optimize!
         arrays = []
-        names = []
+        dtypes = []
         sz = None
         for col in cols:
             if sz is None:
@@ -371,10 +373,13 @@ class HdfStorage(object):
             else:
                 if sz != col.getsize():
                     raise omero.ValidationException("Columns are of differing length")
-            names.extend(col.names())
             arrays.extend(col.arrays())
+            dtypes.extend(col.dtypes())
             col.append(self.__mea) # Potential corruption !!!
-        records = numpy.rec.fromarrays(arrays, names=names)
+
+        # Convert column-wise data to row-wise records
+        records = numpy.array(zip(*arrays), dtype=dtypes)
+
         self.__mea.append(records)
         self.__mea.flush()
 
@@ -384,6 +389,7 @@ class HdfStorage(object):
 
     @stamped
     def update(self, stamp, data):
+        self.__initcheck()
         if data:
             for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
@@ -505,6 +511,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.stamp = time.time()
         self.storage.incr(self)
 
+        self._closed = False
+
     def assert_write(self):
         """
         Checks that the current user can write to the given object
@@ -522,7 +530,21 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         False if this resource can be cleaned up. (Resources API)
         """
         self.logger.debug("Checking %s" % self)
-        return True
+        if self._closed:
+            return False
+
+        idname = 'UNKNOWN'
+        try:
+            idname = self.factory.ice_getIdentity().name
+            clientSession = self.ctx.getSession().getSessionService() \
+                .getSession(idname)
+            if clientSession.getClosed():
+                self.logger.debug("Client session closed: %s" % idname)
+                return False
+            return True
+        except Exception:
+            self.logger.debug("Client session not found: %s" % idname)
+            return False
 
     def cleanup(self):
         """
@@ -551,6 +573,8 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
+
+        self._closed = True
 
         if self.file_obj is not None and self.can_write:
             fid = self.file_obj.id.val

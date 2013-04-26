@@ -24,6 +24,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -124,14 +129,25 @@ class PlateGridUI
 	/** Invokes when a well is selected. */
 	void onSelectedWell()
 	{
-		WellImageSet node = model.getSelectedWell();
-		if (node != null) {
-			selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
-			grid.selectCell(node.getRow(), node.getColumn());
-			if (node.getText() != null) {
-				selectedText.setText(
-						UIUtilities.formatToolTipText(node.getText()));
+		List<WellImageSet> nodes = model.getSelectedWells();
+		if (nodes != null && nodes.size() > 0) {
+			WellImageSet node = nodes.get(0);
+			if (nodes.size() == 1) {
+				selectedNode.setText(DEFAULT_WELL_TEXT+node.getWellLocation());
+				if (node.getText() != null)
+					selectedText.setText(
+							UIUtilities.formatToolTipText(node.getText()));
+			} else {
+				selectedText.setText("");
+				selectedNode.setText("");
 			}
+			List<Point> cells = new ArrayList<Point>(nodes.size());
+			Iterator<WellImageSet> i = nodes.iterator();
+			while (i.hasNext()) {
+				node = i.next();
+				cells.add(new Point(node.getRow(), node.getColumn()));
+			}
+			grid.selectCells(cells);
 		}
 	}
 	

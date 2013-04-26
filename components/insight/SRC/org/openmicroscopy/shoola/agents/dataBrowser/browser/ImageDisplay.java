@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 
@@ -40,8 +42,11 @@ import javax.swing.JLayeredPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -56,7 +61,7 @@ import pojos.ProjectData;
  * <p>So we have a general purpose, set-based structure we can use to visualize 
  * any image hierarchy: Project/Dataset/Image, Screen/Plate/Well/Image, etc.
  * The original data hierarchy translates into a visualization tree as follows.
- * Each image object corresponds to an {@link ImageNode} and an image container, 
+ * Each image object corresponds to an {@link ImageNode} and an image container,
  * such as Dataset, corresponds to an {@link ImageSet}. 
  * All {@link ImageNode} objects that are
  * created for the images in a given image container are added to the 
@@ -104,6 +109,17 @@ public abstract class ImageDisplay
     /** Bound property indicating an annotation visualization. */
     public final static String     ANNOTATE_NODE_PROPERTY = "annotateNode";
     
+    /** The icon for data not owned.*/
+    private final static Icon NOT_OWNED_ICON;
+    
+    /** The icon for annotation.*/
+    private final static Icon ANNOTATION_ICON;
+    
+    static {
+    	IconManager icons = IconManager.getInstance();
+    	NOT_OWNED_ICON = icons.getIcon(IconManager.NOT_OWNER_8);
+    	ANNOTATION_ICON = icons.getIcon(IconManager.ANNOTATION_8);
+    }
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
@@ -125,6 +141,21 @@ public abstract class ImageDisplay
     private int count;
     
     /**
+     * Returns the owner of the data object or <code>null</code>.
+     * 
+     * @return See above.
+     */
+    protected ExperimenterData getNodeOwner()
+    {
+    	if (hierarchyObject instanceof ExperimenterData ||
+    			hierarchyObject instanceof GroupData)
+    		return null;
+    	if (hierarchyObject instanceof DataObject)
+    		return ((DataObject) hierarchyObject).getOwner();
+    	return null;
+    }
+    
+    /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link ImageDisplayVisitor}.
      * 
@@ -136,7 +167,7 @@ public abstract class ImageDisplay
     {
         switch (type) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
-            case ImageDisplayVisitor.IMAGE_SET_ONLY:    
+            case ImageDisplayVisitor.IMAGE_SET_ONLY:
             case ImageDisplayVisitor.ALL_NODES:
                 return true;
             default:
@@ -161,8 +192,8 @@ public abstract class ImageDisplay
      * @param title The frame's title. 
      * @param note	The note added to the frame's title.
      * @param hierarchyObject The original object in the image hierarchy which
-     *                        is visualized by this node.  
-     *                        Never pass <code>null</code>. 
+     *                        is visualized by this node.
+     *                        Never pass <code>null</code>.
      */
     protected ImageDisplay(String title, String note, Object hierarchyObject)
     {
@@ -179,7 +210,7 @@ public abstract class ImageDisplay
      * Returns the parent node to this node in the visualization tree.
      * 
      * @return The parent node or <code>null</code> if this node has no parent.
-     *          This can happen if this node hasn't been linked yet or if it's
+     *          This can happen if this node hasn't been linked yet or if it is
      *          the root node.
      */
     public ImageDisplay getParentDisplay() { return parentDisplay; }
@@ -192,7 +223,7 @@ public abstract class ImageDisplay
      * 
      * @return A <i>read-only</i> set containing all the child nodes.
      */
-    public Set getChildrenDisplay() 
+    public Set<ImageDisplay> getChildrenDisplay() 
     { 
         return Collections.unmodifiableSet(childrenDisplay);
     }
@@ -203,7 +234,7 @@ public abstract class ImageDisplay
      * will have to set its bounds for it to show up &#151; this is a
      * consequence of the fact that a desktop has no layout manager.
      * The <code>child</code>'s parent is set to be this node.  If <code>
-     * child</code> is currently a child to another node <code>n</code>, 
+     * child</code> is currently a child to another node <code>n</code>,
      * then <code>child</code> is first 
      * {@link #removeChildDisplay(ImageDisplay) removed} from <code>n</code>
      * and then added to this node. 
@@ -247,8 +278,9 @@ public abstract class ImageDisplay
     /** Removes all <code>children</code> nodes from the children set. */
     public void removeAllChildrenDisplay()
     {
-    	Iterator i = childrenDisplay.iterator();
-        Set toRemove = new HashSet(childrenDisplay.size());
+    	Iterator<ImageDisplay> i = childrenDisplay.iterator();
+        Set<ImageDisplay> toRemove = 
+        		new HashSet<ImageDisplay>(childrenDisplay.size());
         while (i.hasNext())
             toRemove.add(i.next());
         i = toRemove.iterator();
@@ -281,36 +313,33 @@ public abstract class ImageDisplay
      * Adds an <code>Annotated</code> icon if the object 
      * has annotation linked to it. Adds an <code>Owner</code> icon if
      * the owner is not the user currently logged in.
+     * 
+     * @param userID The id of the user currently logged in.
      */
-    public void setNodeDecoration()
+    public void setNodeDecoration(long userID)
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
-    	IconManager icons = IconManager.getInstance();
-    	/*
-    	if (hierarchyObject instanceof DataObject) {
-    		try {
-    			ExperimenterData owner = 
-    				((DataObject) hierarchyObject).getOwner();
-        		if (owner != null) {
-        			ExperimenterData exp = DataBrowserAgent.getUserDetails();
-        			if (exp.getId() != owner.getId()) {
-        				JLabel l = new JLabel(
-        						icons.getIcon(IconManager.OWNER_8));
-        				l.setToolTipText("Owner: "+
-        						EditorUtil.formatExperimenter(
-        						DataBrowserAgent.getExperimenter(
-        								owner.getId())));
-        				nodes.add(l);
-        			}
-        		}
-			} catch (Exception e) {}
-    	}
-    	*/
-    	if (EditorUtil.isAnnotated(hierarchyObject, count)) 
-    		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
+    	
+    	if (hierarchyObject instanceof DataObject && userID >= 0) {
+    		ExperimenterData owner = getNodeOwner();
+			if (owner != null && userID != owner.getId())
+				nodes.add(new JLabel(NOT_OWNED_ICON));
+        }
+    	
+    	if (EditorUtil.isAnnotated(hierarchyObject, count))
+    		nodes.add(new JLabel(ANNOTATION_ICON));
     	
     	if (nodes.size() > 0) setDecoration(nodes);
+    	validate();
+    	repaint();
     }
+    
+    /**
+     * Adds an <code>Annotated</code> icon if the object 
+     * has annotation linked to it. Adds an <code>Owner</code> icon if
+     * the owner is not the user currently logged in.
+     */
+    public void setNodeDecoration() { setNodeDecoration(-1); }
     
     /** 
      * Sets the annotation count.
@@ -332,7 +361,7 @@ public abstract class ImageDisplay
      * For each node, the <code>visit</code> method is called passing in the
      * node being visited.
      * 
-     * @param visitor The visitor.  Mustn't be <code>null</code>.
+     * @param visitor The visitor Mustn't be <code>null</code>.
      * @see ImageDisplayVisitor
      */
     public void accept(ImageDisplayVisitor visitor)
@@ -346,7 +375,7 @@ public abstract class ImageDisplay
      * in the visualization tree.
      * According to the specified <code>algoType</code>,
      * the <code>visit</code> method is called passing in the
-     * node being visited. 
+     * node being visited.
      * 
      * @param visitor   The visitor.  Mustn't be <code>null</code>.
      * @param algoType  The algorithm selected. Must be one of the constants
@@ -359,29 +388,26 @@ public abstract class ImageDisplay
         if (!checkAlgoType(algoType))
             throw new IllegalArgumentException("Algorithm not supported.");
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        Iterator i = childrenDisplay.iterator();
+        Iterator<ImageDisplay> i = childrenDisplay.iterator();
         ImageDisplay child;
         switch (algoType) {
             case ImageDisplayVisitor.IMAGE_NODE_ONLY:
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
-                    child.accept(visitor, algoType);
+                    i.next().accept(visitor, algoType);
                 }
                 if (this instanceof ImageNode) doAccept(visitor);
                 break;
             case ImageDisplayVisitor.IMAGE_SET_ONLY:
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
+                    child = i.next();
                     if (child instanceof ImageSet)
                         child.accept(visitor, algoType);
                 }
                 if (this instanceof ImageSet) doAccept(visitor);
                 break;
             case ImageDisplayVisitor.ALL_NODES:
-            	//doAccept(visitor);
                 while (i.hasNext()) {
-                    child = (ImageDisplay) i.next();
-                    child.accept(visitor, algoType);
+                   i.next().accept(visitor, algoType);
                 }
                 doAccept(visitor);
                 break;
@@ -396,32 +422,32 @@ public abstract class ImageDisplay
      */
     public String getNodeName()
     { 
-        if (hierarchyObject instanceof ProjectData) 
+        if (hierarchyObject instanceof ProjectData)
         	return ((ProjectData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof DatasetData) 
+        else if (hierarchyObject instanceof DatasetData)
             return ((DatasetData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ImageData) 
+        else if (hierarchyObject instanceof ImageData)
             return ((ImageData) hierarchyObject).getName();
         else if (hierarchyObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) hierarchyObject;
         	return exp.getFirstName()+" "+exp.getLastName();
-        } else if (hierarchyObject instanceof String) 
+        } else if (hierarchyObject instanceof String)
         	return (String) hierarchyObject;
         return "";
     }
     
     /** 
-     * Overridden to return the name of the hierarchy object. 
+     * Overridden to return the name of the hierarchy object.
      * @see Object#toString()
      */
     public String toString()
     {
         String s = "";
-        if (hierarchyObject instanceof ProjectData) 
+        if (hierarchyObject instanceof ProjectData)
             s = ((ProjectData) hierarchyObject).getName();
         else if (hierarchyObject instanceof DatasetData)
             s = ((DatasetData) hierarchyObject).getName();
-        else if (hierarchyObject instanceof ImageData) 
+        else if (hierarchyObject instanceof ImageData)
             s = getPartialName(((ImageData) hierarchyObject).getName());
         else if (hierarchyObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) hierarchyObject;
@@ -453,7 +479,7 @@ public abstract class ImageDisplay
     /**
      * Tells if the children of this node are {@link ImageNode}s.
      * 
-     * @return <code>true</code> if there's at least one {@link ImageNode} 
+     * @return <code>true</code> if there's at least one {@link ImageNode}
      *          child, <code>false</code> otherwise.
      */
     public abstract boolean containsImages();
@@ -465,5 +491,5 @@ public abstract class ImageDisplay
      * @param listener
      */
     public abstract void addListenerToComponents(Object listener);
-    
+
 }

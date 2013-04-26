@@ -29,8 +29,8 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     ExperimenterPtr user = f.newUser(g1);
     f.addExperimenter(g2, user);
 
-    client_ptr c = f.login(user->getOmeName()->getValue());
-    ServiceFactoryPrx sf = c->getSession();
+    f.login(user->getOmeName()->getValue());
+    ServiceFactoryPrx sf = f.client->getSession();
     IAdminPrx admin = sf->getAdminService();
     ASSERT_EQ(g1->getId()->getValue(), admin->getEventContext()->groupId);
 
@@ -50,7 +50,7 @@ TEST(ChgrpTest, testSimpleChgrp ) {
     chgrp->options = options;
 
     HandlePrx handle = sf->submit( chgrp );
-    CmdCallbackIPtr cb = new CmdCallbackI(c, handle);
+    CmdCallbackIPtr cb = new CmdCallbackI(f.client, handle);
     ResponsePtr rsp = cb->loop(10, 500);
     ERRPtr err = ERRPtr::dynamicCast(rsp);
     if (err) {

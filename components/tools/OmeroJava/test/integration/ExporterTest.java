@@ -310,7 +310,7 @@ public class ExporterTest
 		StreamSource[] schemas = new StreamSource[1];
 
 		schemas[0] = new StreamSource(this.getClass().getResourceAsStream(
-				"/Released-Schema/2010-06/V1/ome.xsd"));
+				"/Released-Schema/2010-06/ome.xsd"));
 
 		InputStream sheet = this.getClass().getResourceAsStream(
 				"/Xslt/2011-06-to-2010-06.xsl");

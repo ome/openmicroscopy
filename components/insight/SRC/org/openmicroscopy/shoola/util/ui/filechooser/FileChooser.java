@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.filechooser.FileSaver 
  *
   *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,12 +37,16 @@ import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 /** 
  * Default Dialog used to display a file chooser.
@@ -73,52 +77,52 @@ public class FileChooser
 	public static final String	LOCATION_PROPERTY = "location";
 	
 	/** Identifies the <code>Load</code> dialog. */
-	public static final int 	LOAD = 0;
+	public static final int LOAD = 0;
 	
 	/** Identifies the <code>Save</code> dialog. */
-	public static final int 	SAVE = 1;
+	public static final int SAVE = 1;
 	
 	/** Identifies the <code>Folder Chooser</code> dialog. */
-	public static final int 	FOLDER_CHOOSER = 2;
+	public static final int FOLDER_CHOOSER = 2;
 	
 	/** Identifies the <code>Import</code> dialog. */
-	public static final int 	IMPORT = 3;
+	public static final int IMPORT = 3;
 	
 	/** Indicates to add the button to the left of the controls. */
-	public static final int 	LEFT = 100;
+	public static final int LEFT = 100;
 	
 	/** Indicates to add the button to the center of the controls. */
-	public static final int 	CENTER = 101;
+	public static final int CENTER = 101;
 	
 	/** Indicates to add the button to the right of the controls. */
-	public static final int 	RIGHT = 102;
+	public static final int RIGHT = 102;
 	
 	/** The approval option the user chose. */
-	private int 				option;
+	private int option;
 	
     /** The UI delegate. */
-    private FileSaverUI      	uiDelegate;
+    private FileSaverUI uiDelegate;
        
     /** One of the constants defined by this class. */
-    private int					dialogType;
+    private int dialogType;
     
     /** Title for the save dialog. */
-    private String 				title;
+    private String title;
     
     /** Message at top of dialog window. */
-    private String 				message;
+    private String message;
     
     /** Collection of supported filters. */
-    private List<FileFilter>	filters;
+    private List<FileFilter> filters;
     
     /** 
-     * Path to the folder. 
-     * Only used when the type is {@link #FOLDER_CHOOSER}. 
+     * Path to the folder.
+     * Only used when the type is {@link #FOLDER_CHOOSER}.
      */
-    private String 				folderPath;
+    private String folderPath;
     
     /** Ask if a file should be overridden. */
-    private boolean 			checkOverride;
+    private boolean checkOverride;
     
     /** Sets the properties of the dialog. */
     private void setProperties()
@@ -176,7 +180,7 @@ public class FileChooser
     	String[] l = UIUtilities.splitString(originalName);
     	if (l != null) {
     		 int n = l.length;
-             if (n >= 1) name = l[n-1]; 
+             if (n >= 1) name = l[n-1];
     	}
     	if (Pattern.compile(".").matcher(name).find()) {
     		l = name.split("\\.");
@@ -197,18 +201,17 @@ public class FileChooser
     /**
      * Creates a new instance.
      * 
-     * @param owner 			The owner of this dialog.
-     * @param dialogType		One of the constants defined by this class.
-     * @param title 			Title of the dialog.
-     * @param message 			Message of the dialog.
-     * @param filters 			The list of filters.
-     * @param accept			Determines whether the all files filter is 
-     * 							turned on or off. Default value is 
-     * 							<code>false</code>.
-     * @param checkOverride	Ask for confirmation if the user selects a file 
-     * 							That already exists.
+     * @param owner The owner of this dialog.
+     * @param dialogType One of the constants defined by this class.
+     * @param title Title of the dialog.
+     * @param message Message of the dialog.
+     * @param filters The list of filters.
+     * @param accept Determines whether the all files filter is
+     * turned on or off. Default value is <code>false</code>.
+     * @param checkOverride Ask for confirmation if the user selects a file
+     * that already exists.
      */
-    public FileChooser(JFrame owner, int dialogType, String title, 
+    public FileChooser(JFrame owner, int dialogType, String title,
     					String message, List<FileFilter> filters, boolean
     					accept, boolean checkOverride)
     {
@@ -228,15 +231,15 @@ public class FileChooser
     /**
      * Creates a new instance.
      * 
-     * @param owner 		The owner of this dialog.
-     * @param dialogType	One of the constants defined by this class.
-     * @param title 		Title of the dialog.
-     * @param message 		Message of the dialog.
-     * @param filters 		The list of filters.
-     * @param accept		Determines whether the all files filter is turned
+     * @param owner The owner of this dialog.
+     * @param dialogType One of the constants defined by this class.
+     * @param title Title of the dialog.
+     * @param message Message of the dialog.
+     * @param filters The list of filters.
+     * @param accept Determines whether the all files filter is turned.
      */
-    public FileChooser(JFrame owner, int dialogType, String title, 
-    					String message, List<FileFilter> filters, 
+    public FileChooser(JFrame owner, int dialogType, String title,
+    					String message, List<FileFilter> filters,
     					boolean accept)
     {
     	this(owner, dialogType, title, message, filters, accept, false);
@@ -245,13 +248,13 @@ public class FileChooser
     /**
      * Creates a new instance.
      * 
-     * @param owner 		The owner of this dialog.
-     * @param dialogType	One of the constants defined by this class.
-     * @param title 		Title of the dialog.
-     * @param message 		Message of the dialog.
-     * @param filters 		The list of filters.
+     * @param owner The owner of this dialog.
+     * @param dialogType One of the constants defined by this class.
+     * @param title Title of the dialog.
+     * @param message Message of the dialog.
+     * @param filters The list of filters.
      */
-    public FileChooser(JFrame owner, int dialogType, String title, 
+    public FileChooser(JFrame owner, int dialogType, String title,
     					String message, List<FileFilter> filters)
     {
     	this(owner, dialogType, title, message, filters, false, false);
@@ -260,18 +263,18 @@ public class FileChooser
     /**
      * Creates a new instance.
      * 
-     * @param owner 		The owner of this dialog.
-     * @param dialogType	One of the constants defined by this class.
-     * @param title 		Title of the dialog.
-     * @param message 		Message of the dialog.
+     * @param owner The owner of this dialog.
+     * @param dialogType One of the constants defined by this class.
+     * @param title Title of the dialog.
+     * @param message Message of the dialog.
      */
-    public FileChooser(JFrame owner, int dialogType, String title, 
+    public FileChooser(JFrame owner, int dialogType, String title,
     					String message)
     {
         this(owner, dialogType, title, message, null, false);
     }
     
-    /** 
+    /**
      * Returns the message to the dialog.
      * 
      * @return See above.
@@ -288,8 +291,8 @@ public class FileChooser
     /**
      * Adds the extension to the passed name if necessary.
      * 
-     * @param name		The name to handle.
-     * @param format	The selected file format.
+     * @param name The name to handle.
+     * @param format The selected file format.
      * @return See above.
      */
     String getExtendedName(String name, String format)
@@ -310,7 +313,7 @@ public class FileChooser
     /** Closes the window and disposes. */
     void cancelSelection()
     {
-    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
+    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false),
     						Boolean.valueOf(true));
     	option = JFileChooser.CANCEL_OPTION;
     	setVisible(false);
@@ -321,6 +324,7 @@ public class FileChooser
     void acceptSelection()
     {
     	option = JFileChooser.APPROVE_OPTION;
+    	File[] files;
     	if (getChooserType() == FOLDER_CHOOSER) {
     		File f = uiDelegate.getCurrentDirectory();
     		if (f != null) {
@@ -329,33 +333,46 @@ public class FileChooser
     				path += File.separator;
     			firePropertyChange(APPROVE_SELECTION_PROPERTY, null, path);
     		}
+    		return;
     	} else {
-    		File[] files;
     		if (uiDelegate.isMultisSelectionEnabled()) {
     			files = getSelectedFiles();
     		} else {
     			files = new File[1];
     			files[0] = getSelectedFile();
     		}
-    		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
-    				Boolean.valueOf(false), files);
     	}
     	
-        if (uiDelegate.isSetDefaultFolder() 
+        if (uiDelegate.isSetDefaultFolder()
         	&& getChooserType() != FileChooser.FOLDER_CHOOSER)
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
+        File f = getSelectedFile();
+        String extension = FilenameUtils.getExtension(f.getName());
+        if (StringUtils.isBlank(extension)) {
+        	FileFilter filter = getSelectedFilter();
+        	if (filter instanceof CustomizedFileFilter) {
+        		extension = ((CustomizedFileFilter) filter).getExtension();
+        		f = new File(f.getAbsolutePath()+"."+extension);
+        		files[0] = f;
+        	}
+        }
         if (getChooserType() != FileChooser.FOLDER_CHOOSER) {
-        	if (getSelectedFile().exists() && checkOverride)
+        	if (f.exists() && checkOverride)
             {
-            	MessageBox msg = new MessageBox(this, 
+            	MessageBox msg = new MessageBox(this,
             			"Overwrite existing file.",
             	"Do you wish to overwrite the existing file?");
             	int option = msg.centerMsgBox();
             	if (option == MessageBox.NO_OPTION) 
             		return;
+            	String path = f.getAbsolutePath();
+            	f.delete();
+            	files[0] = new File(path);
     		}
         }
+        firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.valueOf(false),
+        		files);
     	setVisible(false);
     	dispose();
     }
@@ -363,24 +380,13 @@ public class FileChooser
     /**
 	 * Fires a property indicating where to save the archived files.
 	 * 
-	 * @param path	The path to the directory.
+	 * @param path The path to the directory.
 	 */
 	void setFolderPath(String path)
 	{
 		if (path == null) return;
-		char separator = File.separatorChar;
-    	File[] l = uiDelegate.getCurrentDirectory().listFiles();
-        boolean exist = false;
-        for (int i = 0; i < l.length; i++) {
-            if ((l[i].getAbsolutePath()).equals(path)) {
-                exist = true;
-                break;
-            }
-        }
     	folderPath = path;
-		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
-		//if (uiDelegate.isSetDefaultFolder()) 
-		//	UIUtilities.setDefaultFolder(path);
+		firePropertyChange(LOCATION_PROPERTY, null, path+File.separatorChar);
 		setVisible(false);
     	dispose();	
 	}
@@ -389,7 +395,7 @@ public class FileChooser
     void setSelection()
     {
     	IconManager im = IconManager.getInstance();
-        FileSaverDialog d = new FileSaverDialog(this, 
+        FileSaverDialog d = new FileSaverDialog(this,
                 					im.getIcon(IconManager.QUESTION_32));
         UIUtilities.centerAndShow(d);
     }
@@ -417,12 +423,12 @@ public class FileChooser
      * 
      * @param name The name to set.
      */
-    public void setSelectedFile(String name) 
+    public void setSelectedFile(String name)
     { 
-    	if (name == null || name.trim().length() == 0)
+    	if (StringUtils.isBlank(name))
     		throw new IllegalArgumentException("File name not valid.");
     	String s = getPartialName(name);
-    	if (s == null || s.trim().length() == 0) s = name;
+    	if (StringUtils.isBlank(s)) s = name;
     	uiDelegate.setSelectedFile(new File(s));
     }
     
@@ -431,9 +437,9 @@ public class FileChooser
      * 
      * @param name The name to set.
      */
-    public void setSelectedFileFull(String name) 
+    public void setSelectedFileFull(String name)
     { 
-    	if (name == null || name.trim().length() == 0)
+    	if (StringUtils.isBlank(name))
     		return;
     	uiDelegate.setSelectedFile(new File(name));
     }
@@ -443,7 +449,7 @@ public class FileChooser
      * 
      * @param name The name to set.
      */
-    public void setSelectedFile(File name) 
+    public void setSelectedFile(File name)
     { 
     	if (name == null)
     		return;
@@ -455,9 +461,9 @@ public class FileChooser
      * 
      * @param dir The name to set.
      */
-    public void setCurrentDirectory(String dir) 
+    public void setCurrentDirectory(String dir)
     { 
-    	if (dir == null || dir.trim().length() == 0)
+    	if (StringUtils.isBlank(dir))
     		throw new IllegalArgumentException("Folder name not valid.");
     	uiDelegate.setCurrentDirectory(new File(dir));
     }
@@ -467,7 +473,7 @@ public class FileChooser
      * 
      * @param dir The name to set.
      */
-    public void setCurrentDirectory(File dir) 
+    public void setCurrentDirectory(File dir)
     { 
     	if (dir == null)
     		throw new IllegalArgumentException("Folder cannot be null.");
@@ -518,7 +524,7 @@ public class FileChooser
     }
     
     /**
-     * Shows the chooser dialog. 
+     * Shows the chooser dialog.
      * 
      * @return The option selected.
      */
@@ -529,7 +535,7 @@ public class FileChooser
     }
 
     /**
-     * Shows the chooser dialog. 
+     * Shows the chooser dialog.
      * 
      * @return The option selected.
      */
@@ -546,7 +552,7 @@ public class FileChooser
      */
     public void setApproveButtonText(String text)
     {
-    	if (text == null || text.trim().length() == 0) return;
+    	if (StringUtils.isBlank(text)) return;
     	uiDelegate.setApproveButtonText(text);
     }
 
@@ -558,15 +564,15 @@ public class FileChooser
      */
     public void setApproveButtonToolTipText(String text)
     {
-    	if (text == null || text.trim().length() == 0) return;
+    	if (StringUtils.isBlank(text)) return;
     	uiDelegate.setApproveButtonToolTipText(text);
     }
     
     /**
      * Adds the passed button to add to the control.
      * 
-     * @param button	The button to add.
-     * @param location	The location of the button.
+     * @param button The button to add.
+     * @param location he location of the button.
      */
     public void addControlButton(JButton button, int location)
     {
@@ -607,7 +613,7 @@ public class FileChooser
     }
     
     /**
-     * Sets the value indicating to allow for multiple selection if 
+     * Sets the value indicating to allow for multiple selection if
      * <code>true</code>.
      * 
      * @param enabled Pass <code>true</code> to allow multiple selections,

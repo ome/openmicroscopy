@@ -125,12 +125,13 @@ public class FileLoader
 		handle.cancel();
 		if (file != null) file.delete();
 		if (filesMap != null) {
-			Entry entry;
-    		Iterator i = filesMap.entrySet().iterator();
+			Entry<FileAnnotationData, File> entry;
+    		Iterator<Entry<FileAnnotationData, File>>
+    		i = filesMap.entrySet().iterator();
     		File f;
     		while (i.hasNext()) {
-				entry = (Entry) i.next();
-				f = (File) entry.getValue();
+				entry = i.next();
+				f = entry.getValue();
 				f.delete();
 			}
 		}
@@ -145,20 +146,20 @@ public class FileLoader
 		if (data != null) {
 			OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
 			if (f.isLoaded()) {
-				handle = mhView.loadFile(ctx, file, f.getId().getValue(), 
-						f.getSize().getValue(), this);
+				handle = mhView.loadFile(ctx, file, f.getId().getValue(), this);
 			}
 		} else {
-			Entry entry;
-    		Iterator i = files.entrySet().iterator();
+			Entry<FileAnnotationData, Object> entry;
+			Iterator<Entry<FileAnnotationData, Object>>
+			i = files.entrySet().iterator();
     		FileAnnotationData fa;
     		filesMap = new HashMap<FileAnnotationData, File>(files.size());
     		File f;
     		//int index = 0;
     		String dir = MetadataViewerAgent.getTmpDir();
     		while (i.hasNext()) {
-				entry = (Entry) i.next();
-				fa = (FileAnnotationData) entry.getKey();
+				entry = i.next();
+				fa = entry.getKey();
 				f = new File(dir+File.separator+fa.getFileID()+"_"+
 						fa.getFileName());
 				f.deleteOnExit();
@@ -174,20 +175,21 @@ public class FileLoader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-       if (data == null) {
-    	   Map m = (Map) fe.getPartialResult();
-    	   if (m != null) {
-    		   Entry entry;
-        	   Iterator i = m.entrySet().iterator();
-        	   FileAnnotationData fa;
-        	   while (i.hasNext()) {
-        		   entry = (Entry) i.next();
-        		   fa = (FileAnnotationData) entry.getKey();
-        		   viewer.setLoadedFile(fa, (File) entry.getValue(), 
-        				   files.get(fa));
-        	   }
-    	   }
-       }
+    	if (data == null) {
+    		Map<FileAnnotationData, File> m = (Map<FileAnnotationData, File>)
+    				fe.getPartialResult();
+    		if (m != null) {
+    			Entry<FileAnnotationData, File> entry;
+    			Iterator<Entry<FileAnnotationData, File>>
+    			i = m.entrySet().iterator();
+    			FileAnnotationData fa;
+    			while (i.hasNext()) {
+    				entry = i.next();
+    				fa = entry.getKey();
+    				viewer.setLoadedFile(fa, entry.getValue(), files.get(fa));
+    			}
+    		}
+    	}
     }
     
     /**

@@ -110,6 +110,9 @@ class DataBrowserComponent
 
 	/** The maximum number of entries before switching to the table view. */
 	private static final String MAX_ENTRIES = "/views/MAX_ENTRIES";
+
+	/* The filtering message to display in modal dialogs. */
+	private static final String FILTERING_MSG = "Currently filtering data. Please wait.";
 	
 	/** The Model sub-component. */
 	private DataBrowserModel     model;
@@ -286,27 +289,60 @@ class DataBrowserComponent
 	 */
 	public void setSelectedDisplays(List<ImageDisplay> nodes)
 	{
-		if (nodes == null) return;
+		if (nodes == null || nodes.size() == 0) {
+			if (model instanceof WellsModel) {
+				((WellsModel) model).setSelectedWells(null);
+				view.onSelectedWell();
+			}
+			return;
+		}
 		if (nodes.size() == 1) {
 			setSelectedDisplay(nodes.get(0));
 			return;
 		}
+		
+		final List<ImageNode> visibleNodes =
+				model.getBrowser().getVisibleImageNodes();
+		final List<Long> visibleObjectIds =
+				new ArrayList<Long>(visibleNodes.size());
+		for (final ImageNode visibleNode : visibleNodes) {
+			final Object hierarchyObject = visibleNode.getHierarchyObject();
+			if (hierarchyObject instanceof ImageData)
+				visibleObjectIds.add(((ImageData) hierarchyObject).getId());
+		}
+		
 		List<Object> others = new ArrayList<Object>();
 		List<Object> objects = new ArrayList<Object>();
+		objects.add(others);
+		
+		for (final ImageDisplay node : nodes) {
+			final Object hierarchyObject = node.getHierarchyObject();
+			if (!(hierarchyObject instanceof ImageData) ||
+				visibleObjectIds.contains(
+						((ImageData) hierarchyObject).getId()))
+				others.add(hierarchyObject);
+		}
 		
 		ImageDisplay node = nodes.get(0);
 		Object object = node.getHierarchyObject();
-		Iterator<ImageDisplay> i = nodes.iterator();
-		while (i.hasNext()) {
-			others.add(i.next().getHierarchyObject());
-		}
-		objects.add(others);
+		
 		if (object instanceof DataObject) {
 			Object parent = null;
 			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
-				((WellsModel) model).setSelectedWell(wsn.getParentWell());
+				List<WellImageSet> wells = new ArrayList<WellImageSet>();
+				wells.add(wsn.getParentWell());
+				Iterator<ImageDisplay> i = nodes.iterator();
+				ImageDisplay n;
+				while (i.hasNext()) {
+					n = i.next();
+					if (n instanceof WellSampleNode) {
+						wsn = (WellSampleNode) n;
+						wells.add(wsn.getParentWell());
+					}
+				}
+				((WellsModel) model).setSelectedWells(wells);
 				view.onSelectedWell();
 			} else {
 				ImageDisplay p = node.getParentDisplay();
@@ -329,17 +365,24 @@ class DataBrowserComponent
 	 */
 	public void setSelectedDisplay(ImageDisplay node)
 	{
-		if (node == null) return;
+		if (node == null) {
+			if (model instanceof WellsModel) {
+				((WellsModel) model).setSelectedWells(null);
+				view.onSelectedWell();
+			}
+			return;
+		}
 		model.getBrowser().scrollToNode(node);
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		List<Object> others = new ArrayList<Object>(); 
 		
-		Collection selected = model.getBrowser().getSelectedDisplays();
-		Iterator i = selected.iterator();
+		Collection<ImageDisplay>
+		selected = model.getBrowser().getSelectedDisplays();
+		Iterator<ImageDisplay> i = selected.iterator();
 		ImageDisplay n;
 		while (i.hasNext()) {
-			n = (ImageDisplay) i.next();
+			n = i.next();
 			if (n != node) others.add(n.getHierarchyObject());
 		}
 		objects.add(others);
@@ -352,7 +395,21 @@ class DataBrowserComponent
 			if (object instanceof WellSampleData) {
 				WellSampleNode wsn = (WellSampleNode) node;
 				parent = wsn.getParentObject();
-				((WellsModel) model).setSelectedWell(wsn.getParentWell());
+				List<WellImageSet> wells = new ArrayList<WellImageSet>();
+				boolean in = false;
+				WellImageSet well;
+				i = selected.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (n instanceof WellSampleNode) {
+						wsn = (WellSampleNode) n;
+						well = wsn.getParentWell();
+						if (well.equals(wsn.getParentWell())) in = true;
+						wells.add(well);
+					}
+				}
+				if (!in) wells.add(wsn.getParentWell());
+				((WellsModel) model).setSelectedWells(wells);
 				view.onSelectedWell();
 			} else {
 				ImageDisplay p = node.getParentDisplay();
@@ -422,7 +479,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -456,7 +513,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -507,7 +564,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filtering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}		
 		Browser browser = model.getBrowser();
@@ -573,7 +630,7 @@ class DataBrowserComponent
 		}
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		if (context.isNameOnly()) {
@@ -718,6 +775,11 @@ class DataBrowserComponent
 	{
 		if (node == null) return;
 		Object object = node.getHierarchyObject();
+		if (object instanceof WellSampleData) {
+			setSelectedDisplays(
+					(List<ImageDisplay>) model.getBrowser().getSelectedDisplays());
+			return;
+		}
 		List<Object> objects = new ArrayList<Object>();
 		objects.add(model.getBrowser().isMultiSelection());
 		objects.add(object);
@@ -1051,7 +1113,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -1071,7 +1133,7 @@ class DataBrowserComponent
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			un.notifyInfo("Filtering", FILTERING_MSG);
 			return;
 		}
 		Browser browser = model.getBrowser();
@@ -1525,9 +1587,10 @@ class DataBrowserComponent
 			}
 		} else if (index == DataBrowserUI.THUMB_VIEW) {
 			WellImageSet well = wm.getWell(row, column);
-			if (well != null) {
+			
+			if (well != null && well.isSampleValid()) {
 				model.getBrowser().setSelectedDisplay(
-						well.getSelectedWellSample(), multiSelection, false);
+					well.getSelectedWellSample(), multiSelection, false);
 				setSelectedDisplay(well.getSelectedWellSample());
 			}
 		}
@@ -1689,6 +1752,21 @@ class DataBrowserComponent
 	public SecurityContext getSecurityContext()
 	{
 		return model.getSecurityContext();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see DataBrowser#getDisplayMode()
+	 */
+	public int getDisplayMode() { return model.getDisplayMode(); }
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see DataBrowser#setDisplayMode(int)
+	 */
+	public void setDisplayMode(int displayMode)
+	{
+		model.setDisplayMode(displayMode);
 	}
 	
 	/** 

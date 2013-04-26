@@ -25,12 +25,14 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -51,6 +53,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRoiPrx;
 import omero.api.IScriptPrx;
+import omero.api.ISessionPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -63,6 +66,9 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.DoAll;
 import omero.cmd.Request;
 import omero.grid.SharedResourcesPrx;
+import omero.model.ExperimenterGroup;
+import omero.model.Session;
+import omero.sys.Principal;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -162,7 +168,7 @@ class Connector
 	private Set<ServiceInterfacePrx> services;
 	
 	/** Collection of services to keep alive. */
-	private Map<Long, StatefulServiceInterfacePrx> reServices;
+	private Map<Long, List<StatefulServiceInterfacePrx>> reServices;
 	
 	/**
 	 * The number of thumbnails already retrieved. Resets to <code>0</code>
@@ -173,6 +179,15 @@ class Connector
 	/** The security context for that connector.*/
 	private SecurityContext context;
 	
+	/**
+	 * The map of derived connector. This will be only used when
+	 * performing action for other users e.g. import as.
+	 */
+	private Map<String, Connector> derived;
+	
+	/** The name of the group. To be removed when we can use groupId.*/
+	private String groupName;
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -201,7 +216,8 @@ class Connector
 		this.context = context;
 		thumbRetrieval = 0;
 		services = new HashSet<ServiceInterfacePrx>();
-		reServices = new HashMap<Long, StatefulServiceInterfacePrx>();
+		reServices = new HashMap<Long, List<StatefulServiceInterfacePrx>>();
+		derived = new HashMap<String, Connector>();
 	}
 
 	/**
@@ -499,7 +515,12 @@ class Connector
 			prx = entryUnencrypted.createRenderingEngine();
 		else prx = entryEncrypted.createRenderingEngine();
 		prx.setCompressionLevel(context.getCompression());
-		reServices.put(pixelsID, prx);
+		List<StatefulServiceInterfacePrx> list = reServices.get(pixelsID);
+		if (list == null) {
+			list = new ArrayList<StatefulServiceInterfacePrx>();
+			reServices.put(pixelsID, list);
+		}
+		list.add(prx);
 		return prx;
 	}
 
@@ -616,7 +637,8 @@ class Connector
 		importStore = null;
 	}
 	
-	/** Closes the session.
+	/**
+	 * Closes the session.
 	 * 
 	 * @param networkup Pass <code>true</code> if the network is up,
 	 * <code>false</code> otherwise.
@@ -628,17 +650,12 @@ class Connector
 		if (unsecureClient != null) unsecureClient.setFastShutdown(!networkup);
 		if (networkup) {
 			shutDownServices(true);
-		} else {
-			thumbnailService = null;
-			pixelsStore = null;
-			fileStore = null;
-			searchService = null;
-			importStore = null;
-			reServices.clear();
 		}
+		clear();
 		secureClient.closeSession();
 		//to be on the safe side
 		if (unsecureClient != null) unsecureClient.__del__();
+		closeDerived(networkup);
 	}
 	
 	/** 
@@ -667,6 +684,32 @@ class Connector
 			importStore.closeServices();
 			importStore = null;
 		}
+		try {
+			closeDerived(false);
+		} catch (Throwable e) {
+			//Todo
+		}
+		
+	}
+	
+	/**
+	 * Closes the connectors associated to the master connector.
+	 * 
+	 * @param networkup Pass <code>true</code> if the network is up,
+	 * <code>false</code> otherwise.
+	 */
+	void closeDerived(boolean networkup)
+		throws Throwable
+	{
+		Collection<Connector> list = derived.values();
+		Iterator<Connector> i = list.iterator();
+		while (i.hasNext()) {
+			try {
+				i.next().close(networkup);
+			} catch (Throwable e) { //to be decided.
+			}
+		}
+		derived.clear();
 	}
 	
 	/** 
@@ -685,15 +728,20 @@ class Connector
 			importStore.closeServices();
 			importStore = null;
 		}
-		
-		Collection<StatefulServiceInterfacePrx> l = reServices.values();
-		if (l != null && rendering) {
-			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
-			while (i.hasNext()) {
-				close(i.next());
-			}
-			reServices.clear();
+		if (!rendering) return;
+		Entry<Long, List<StatefulServiceInterfacePrx>> e;
+		Iterator<Entry<Long, List<StatefulServiceInterfacePrx>>> i = 
+				reServices.entrySet().iterator();
+		List<StatefulServiceInterfacePrx> l;
+		Iterator<StatefulServiceInterfacePrx> j;
+		while (i.hasNext()) {
+			e = i.next();
+			l = e.getValue();
+			j = l.iterator();
+			while (j.hasNext())
+				close(j.next());
 		}
+		reServices.clear();
 	}
 	
 	/** Keeps services alive.*/
@@ -755,8 +803,12 @@ class Connector
 	void shutDownRenderingEngine(long pixelsId)
 	{
 		try {
-			StatefulServiceInterfacePrx proxy = reServices.get(pixelsId);
-			if (proxy != null) proxy.close();
+			List<StatefulServiceInterfacePrx> l = reServices.get(pixelsId);
+			if (l != null) {
+				Iterator<StatefulServiceInterfacePrx> i = l.iterator();
+				while (i.hasNext())
+					i.next().close();
+			}
 			reServices.remove(pixelsId);
 		} catch (Exception e) {
 		}
@@ -829,7 +881,43 @@ class Connector
 			list.add(i.next());
 
 		map.put(context, list);
-		return map; 
+		return map;
+	}
+
+	/**
+	 * Returns the connector associated to the specified user.
+	 * If none exists, creates a connector.
+	 * 
+	 * @param userName The name of the user. To be replaced by user's id.
+	 * @return See above.
+	 */
+	Connector getConnector(String userName)
+		throws Throwable
+	{
+		if (userName == null || userName.length() == 0) return this;
+		Connector c = derived.get(userName);
+		if (c != null) return c;
+		if (groupName == null) {
+			ExperimenterGroup g = getAdminService().getGroup(
+					context.getGroupID());
+			groupName = g.getName().getValue();
+		}
+		//Create a connector.
+		Principal p = new Principal();
+		p.group = groupName;
+		p.name = userName;
+		p.eventType = "Sessions";
+		ISessionPrx prx = entryEncrypted.getSessionService();
+		Session session = prx.createSessionWithTimeout(p, 0L);
+		//Create the userSession
+		omero.client client = new omero.client(context.getHostName(),
+				context.getPort());
+		ServiceFactoryPrx userSession = client.createSession(
+				session.getUuid().getValue(), session.getUuid().getValue());
+		c = new Connector(context.copy(), client, userSession,
+				unsecureClient == null);
+		derived.put(userName, c);
+		return c;
 	}
 	
 }

@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.env.rnd.data;
 
+import java.awt.Dimension;
+
 //Java imports
 
 //Third-party libraries
@@ -44,28 +46,65 @@ package org.openmicroscopy.shoola.env.rnd.data;
 public class ResolutionLevel
 {
 
-	/** The power of 2 along the X-axis.*/
-	private int powerAlongX;
-	
-	/** The power of 2 along the Y-axis.*/
-	private int powerAlongY;
-	
 	/** The resolution level.*/
 	private int level;
+	
+	/** The tile size.*/
+	private Dimension tileSize;
+	
+	/** The image size.*/
+	private Dimension imageSize;
+	
+	/** The ratio along the X-axis.*/
+	private double ratioX;
+	
+	/** The ratio along the Y-axis.*/
+	private double ratioY;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param level The resolution level.
-	 * @param powerAlongX The power of 2 along the X-axis.
-	 * @param powerAlongY The power of 2 along the Y-axis.
+	 * @param tileSize The dimension of the tile.
+	 * @param imageSize The size of the image.
 	 */
-	public ResolutionLevel(int level, int powerAlongX, int powerAlongY)
+	public ResolutionLevel(int level, Dimension tileSize, Dimension imageSize)
 	{
 		this.level = level;
-		this.powerAlongX = powerAlongX;
-		this.powerAlongY = powerAlongY;
+		this.tileSize = tileSize;
+		this.imageSize = imageSize;
+		setRatio(1, 1);
 	}
+	
+	/**
+	 * Sets the ratio along the X and Y-axis.
+	 * 
+	 * @param ratioX The ratio along the X-axis.
+	 * @param ratioY The ratio along the Y-axis.
+	 */
+	public void setRatio(double ratioX, double ratioY)
+	{
+		this.ratioX = ratioX;
+		this.ratioY = ratioY;
+	}
+	
+	/**
+	 * Returns the lowest of the ratio.
+	 * 
+	 * @return See above.
+	 */
+	public double getRatio()
+	{
+		if (ratioX < ratioY) return ratioX;
+		return ratioY;
+	}
+	
+	/**
+	 * Returns the image's size.
+	 * 
+	 * @return See above.
+	 */
+	public Dimension getImageSize() { return imageSize; }
 	
 	/**
 	 * Returns the resolution level.
@@ -73,19 +112,12 @@ public class ResolutionLevel
 	 * @return See above.
 	 */
 	public int getLevel() { return level; }
-	
+
 	/**
-	 * Returns power of 2 along the X-axis.
+	 * Returns the tile size.
 	 * 
 	 * @return See above.
 	 */
-	public int getPowerAlongX() { return powerAlongX; }
-	
-	/**
-	 * Returns power of 2 along the Y-axis.
-	 * 
-	 * @return See above.
-	 */
-	public int getPowerAlongY() { return powerAlongY; }
-	
+	public Dimension getTileSize() { return tileSize; }
+
 }

@@ -41,7 +41,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -692,8 +691,8 @@ public interface DataBrowser
 	/** 
 	 * Loads all the fields for the specified well.
 	 * 
-	 * @param row		The row identifying the well.
-	 * @param column	The column identifying the well.
+	 * @param row The row identifying the well.
+	 * @param column The column identifying the well.
 	 * @param multiSelection Pass <code>true</code> for multiple selection,
 	 * 		                 <code>false</code> otherwise.
 	 */
@@ -771,5 +770,20 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	boolean areSettingsCompatible(long groupID);
+	
+	/**
+	 * Returns the display mode. One of the constants defined by 
+	 * {@link LookupNames}.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode();
 
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	void setDisplayMode(int displayMode);
+	
 }

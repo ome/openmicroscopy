@@ -29,7 +29,7 @@ import org.springframework.util.ResourceUtils;
  * <li>full - Index full database</li>
  * <li>events - Index all events</li>
  * </ul>
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -78,7 +78,7 @@ public class Main {
         System.exit(-2);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Throwable {
 
         // Copied from blitz Entry
         try {
@@ -93,6 +93,7 @@ public class Main {
             throw new RuntimeException(msg, e);
         }
 
+        int rc = 0;
         try {
             if (args == null || args.length == 0) {
                 usage();
@@ -114,10 +115,14 @@ public class Main {
             } else {
                 usage();
             }
+        } catch (Throwable t) {
+            rc = 1;
+            t.printStackTrace();
         } finally {
             if (context != null) {
                 context.close();
             }
+            System.exit(rc);
         }
     }
 

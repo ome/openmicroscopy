@@ -117,7 +117,7 @@ public interface IContainer extends ServiceInterface {
      * 
      * @param rootNodeType
      *            The type of the root node. Can be {@link Project},
-     *            {@link Dataset} or {@link Screen}.
+     *            {@link Dataset}, {@link Screen} or {@link Plate}.
      *            Cannot be null.
      * @param rootNodeIds
      *            The ids of the root nodes. Can be null if an Experimenter is

@@ -72,7 +72,7 @@ public class RefreshVisitor
     private List<Object>		foundNodes;
     
     /** Contains the expanded top container nodes ID. */
-    private Map<Class, List>     expandedTopNodes;
+    private Map<Class<?>, List<Long>>  expandedTopNodes;
     
     /**
      * Creates a new instance.
@@ -84,7 +84,7 @@ public class RefreshVisitor
     {
         super(model);
         foundNodes = new ArrayList<Object>();
-        expandedTopNodes = new HashMap<Class, List>();
+        expandedTopNodes = new HashMap<Class<?>, List<Long>>();
     }
 
     /**
@@ -92,14 +92,17 @@ public class RefreshVisitor
      * 
      * @return See above.
      */
-    public List getFoundNodes() { return foundNodes; }
+    public List<Object> getFoundNodes() { return foundNodes; }
 
     /**
      * Returns the list of expanded top nodes IDs.
      * 
      * @return See above.
      */
-    public Map getExpandedTopNodes() { return expandedTopNodes; }
+    public Map<Class<?>, List<Long>> getExpandedTopNodes()
+    {
+    	return expandedTopNodes;
+    }
     
     /**
      * Retrieves the expanded nodes. Only the nodes containing images
@@ -111,14 +114,14 @@ public class RefreshVisitor
         Object userObject = node.getUserObject();
         TreeImageDisplay parent;
         node.setToRefresh(false);
-        if ((userObject instanceof DatasetData) && node.isChildrenLoaded() 
+        if (userObject instanceof DatasetData && node.isChildrenLoaded() 
         	&& node.isExpanded()) {
         	parent = node.getParentDisplay();
     		if (parent.isExpanded()) 
     			foundNodes.add(userObject);
     		if (!(parent.getUserObject() instanceof ProjectData)) {
     			long id = ((DataObject) userObject).getId();
-                List l = expandedTopNodes.get(DatasetData.class);
+                List<Long> l = expandedTopNodes.get(DatasetData.class);
                 if (l == null) {
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(DatasetData.class, l);
@@ -135,7 +138,7 @@ public class RefreshVisitor
     			foundNodes.add(userObject);
     		if (!(parent.getUserObject() instanceof TagAnnotationData)) {
     			long id = ((DataObject) userObject).getId();
-                List l = expandedTopNodes.get(TagAnnotationData.class);
+                List<Long> l = expandedTopNodes.get(TagAnnotationData.class);
                 if (l == null) {
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(TagAnnotationData.class, l);
@@ -145,7 +148,7 @@ public class RefreshVisitor
         } else if ((userObject instanceof ProjectData) 
         		&& node.isExpanded()) {
         	long id = ((DataObject) userObject).getId();
-            List l = expandedTopNodes.get(ProjectData.class);
+            List<Long> l = expandedTopNodes.get(ProjectData.class);
             if (l == null) {
             	l = new ArrayList<Long>();
             	expandedTopNodes.put(ProjectData.class, l);
@@ -154,7 +157,7 @@ public class RefreshVisitor
         } else if ((userObject instanceof ScreenData) 
         		&& node.isExpanded()) {
         	long id = ((DataObject) userObject).getId();
-        	List l = expandedTopNodes.get(ScreenData.class);
+        	List<Long> l = expandedTopNodes.get(ScreenData.class);
         	if (l == null) {
         		l = new ArrayList<Long>();
         		expandedTopNodes.put(ScreenData.class, l);
@@ -163,38 +166,17 @@ public class RefreshVisitor
         } else if (userObject instanceof PlateData) {
         	if (node.hasChildrenDisplay() && node.isExpanded()) {
         		long id = ((DataObject) userObject).getId();
-                List l = expandedTopNodes.get(PlateData.class);
+                List<Long> l = expandedTopNodes.get(PlateData.class);
                 if (l == null) {
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(PlateData.class, l);
                 }
                 l.add(id);
         	}
-        	/*
-        	parent = node.getParentDisplay();
-    		if (!(parent.getUserObject() instanceof ScreenData)) {
-    			long id = ((DataObject) userObject).getId();
-                List l = expandedTopNodes.get(PlateData.class);
-                if (l == null) {
-                	l = new ArrayList<Long>();
-                	expandedTopNodes.put(PlateData.class, l);
-                }
-                l.add(id);
-    		} else {
-    			if (node.isChildrenLoaded() && node.isExpanded()) {
-    				long id = ((DataObject) userObject).getId();
-                    List l = expandedTopNodes.get(PlateData.class);
-                    if (l == null) {
-                    	l = new ArrayList<Long>();
-                    	expandedTopNodes.put(PlateData.class, l);
-                    }
-                    l.add(id);
-    			}
-    		}*/
         } else if (userObject instanceof GroupData) {
         	if (node.isExpanded()) {
         		long id = ((DataObject) userObject).getId();
-            	List l = expandedTopNodes.get(GroupData.class);
+            	List<Long> l = expandedTopNodes.get(GroupData.class);
             	if (l == null) {
             		l = new ArrayList<Long>();
             		expandedTopNodes.put(GroupData.class, l);

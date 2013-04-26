@@ -62,3 +62,18 @@ TEST(ConcurrencyTest, testEvent )
             ASSERT_TRUE( (*r).passed );
         }
 }
+
+TEST(ConcurrencyTest, testEventFlag)
+{
+    Event event;
+    ASSERT_FALSE(event.isSet());
+    
+    event.set();
+    ASSERT_TRUE(event.isSet());
+    
+    event.clear();
+    ASSERT_FALSE(event.isSet());
+    
+    event.set();
+    ASSERT_TRUE(event.wait(IceUtil::Time::milliSeconds(100)));
+}

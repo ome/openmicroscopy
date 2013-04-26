@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Retrieves images before or after a given day, or during a period of time.
@@ -91,7 +92,7 @@ public class ExperimenterImageLoader
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param expNode The node hosting the experimenter the data are for.
+     * @param expNode The node hosting the experimenter/group the data are for.
      *                Mustn't be <code>null</code>.
      * @param smartFolderNode The node hosting the information about
      *                        the smart folder. Mustn't be <code>null</code>.
@@ -100,9 +101,11 @@ public class ExperimenterImageLoader
     		TreeImageSet expNode, TreeImageSet smartFolderNode)
     {
     	super(viewer, ctx);
-        if (expNode == null ||
-        		!(expNode.getUserObject() instanceof ExperimenterData))
-        	throw new IllegalArgumentException("Experimenter node not valid.");
+        if (expNode == null)
+        	throw new IllegalArgumentException("Node not valid.");
+        Object ho = expNode.getUserObject();
+        if (!(ho instanceof ExperimenterData || ho instanceof GroupData))
+        	throw new IllegalArgumentException("Node not valid.");
         if (smartFolderNode == null)
         	throw new IllegalArgumentException("No smart folder specified.");
         this.expNode = expNode;
@@ -115,18 +118,21 @@ public class ExperimenterImageLoader
      */
     public void load()
     {
-    	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
+    	long expID = -1;
+    	if (expNode.getUserObject() instanceof ExperimenterData)
+    		expID = ((ExperimenterData) expNode.getUserObject()).getId();
+    	
     	if (smartFolderNode instanceof TreeImageTimeSet) {
     		TreeImageTimeSet time = (TreeImageTimeSet) smartFolderNode;
     		handle = dhView.loadImages(ctx, time.getStartTime(),
-					time.getEndTime(), exp.getId(), this);
+					time.getEndTime(), expID, this);
     	} else if (smartFolderNode instanceof TreeFileSet) {
     		TreeFileSet set = (TreeFileSet) smartFolderNode;
     		if (set.getType() == TreeFileSet.ORPHANED_IMAGES) {
-    			handle = dmView.loadImages(ctx, exp.getId(), true, this);
+    			handle = dmView.loadImages(ctx, expID, true, this);
     		} else
     			handle = dhView.loadFiles(ctx, convertType(set.getType()),
-    				exp.getId(), this);
+    					expID, this);
     	}
     }
 

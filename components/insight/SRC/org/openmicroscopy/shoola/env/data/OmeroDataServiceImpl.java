@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +43,6 @@ import java.util.Map.Entry;
 import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
-import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetImageLink;
@@ -55,7 +53,6 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.Project;
@@ -68,7 +65,6 @@ import omero.model.TagAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
-import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -78,10 +74,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -177,6 +170,21 @@ class OmeroDataServiceImpl
 	}
 
 	/**
+	 * Returns the user name or <code>null</code> if the passed user is
+	 * the user currently logged in.
+	 * 
+	 * @param user The user to handle.
+	 * @return See above.
+	 */
+	private String getUserName(ExperimenterData user)
+	{
+		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
+		if (user != null && user.getId() != loggedIn.getId())
+			return user.getUserName();
+		return null;
+	}
+
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param gateway   Reference to the OMERO entry point.
@@ -195,21 +203,16 @@ class OmeroDataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroDataService}. 
-	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long,
-	 * long)
+	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long)
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
-			long userID, long groupID)
+			long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		ParametersI param = new ParametersI();
 		if (rootNodeIDs == null) {
-			ExperimenterData exp = 
-				(ExperimenterData) context.lookup(
-						LookupNames.CURRENT_USER_DETAILS);
-			if (userID < 0) userID = exp.getId();
-			param.exp(omero.rtypes.rlong(userID));
+			if (userID >= 0) param.exp(omero.rtypes.rlong(userID));
 		}
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
@@ -304,29 +307,18 @@ class OmeroDataServiceImpl
 		if (child == null) 
 			throw new IllegalArgumentException("The child cannot be null.");
 		//Make sure parent is current
-
+		
+		String userName = getUserName(ctx.getExperimenterData());
 		IObject obj = ModelMapper.createIObject(child, parent);
 		if (obj == null) 
 			throw new NullPointerException("Cannot convert the object.");
 
-		IObject created = gateway.createObject(ctx, obj);
+		IObject created = gateway.createObject(ctx, obj, userName);
 		IObject link;
-		/*
-		if (child instanceof TagAnnotationData) {
-			//add description.
-			TagAnnotationData tag = (TagAnnotationData) child;
-			TextualAnnotationData desc = tag.getTagDescription();
-			if (desc != null) {
-				OmeroMetadataService service = context.getMetadataService(); 
-				service.annotate(TagAnnotationData.class, 
-						created.getId().getValue(), desc);
-			}
-		}
-		*/
 		if (parent != null) {
 			link = ModelMapper.linkParentToChild(created, parent.asIObject());
 			if ((child instanceof TagAnnotationData) && link != null) {
-				gateway.createObject(ctx, link);
+				gateway.createObject(ctx, link, userName);
 			}
 		}
 			
@@ -343,6 +335,12 @@ class OmeroDataServiceImpl
 			if (links.size() > 0)
 				gateway.createObjects(ctx, links);
 		}
+		try {
+			gateway.shutDownDerivedConnector(ctx);
+		} catch (Exception e) {
+			context.getLogger().info(this, "Cannot shut down the connectors.");
+		}
+		
 		return PojoMapper.asDataObject(created);
 	}
 
@@ -492,29 +490,16 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getArchivedFiles(SecurityContext, String, long)
+	 * @see OmeroDataService#getArchivedFiles(SecurityContext, File, long)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String folderPath, long pixelsID) 
+			File file, long imageID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		context.getLogger().debug(this, folderPath);
+		context.getLogger().debug(this, file.getAbsolutePath());
 		//Check the image is archived.
-		Pixels pixels = gateway.getPixels(ctx, pixelsID);
-		long imageID = pixels.getImage().getId().getValue();
 		ImageData image = gateway.getImage(ctx, imageID, null);
-		String name = UIUtilities.removeFileExtension(
-				image.getName())+"."+OMETIFFFilter.OME_TIF;
-		Map<Boolean, Object> result = 
-			gateway.getArchivedFiles(ctx, folderPath, pixelsID);
-		if (result != null) return result;
-		//Returns the file.
-		Object file = context.getImageService().exportImageAsOMEFormat(ctx, 
-				OmeroImageService.EXPORT_AS_OMETIFF, imageID, 
-				new File(FilenameUtils.concat(folderPath, name)), null);
-		Map<Boolean, Object> files = new HashMap<Boolean, Object>();
-		files.put(Boolean.valueOf(true), Arrays.asList(file));
-		return files;
+		return gateway.getArchivedFiles(ctx, file, image);
 	}
 
 	/**
@@ -537,7 +522,7 @@ class OmeroDataServiceImpl
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) 
 			gateway.changeCurrentGroup(ctx, exp, group.getId());
-		data = gateway.getUserDetails(ctx, uc.getUserName());
+		data = gateway.getUserDetails(ctx, uc.getUserName(), true);
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
@@ -565,7 +550,7 @@ class OmeroDataServiceImpl
 		
 		ParametersI po = new ParametersI();
 		po.leaves();
-		po.exp(omero.rtypes.rlong(userID));
+		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 		if (startTime != null) 
 			po.startTime(omero.rtypes.rtime(startTime.getTime()));
 		if (endTime != null) 
@@ -607,7 +592,7 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
-			throw new IllegalArgumentException("No scontext defined.");
+			throw new IllegalArgumentException("No security context defined.");
 		if (context == null)
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
@@ -619,7 +604,7 @@ class OmeroDataServiceImpl
 					gateway.searchByTime(ctx, context));
 			return results;
 		}
-		Object result = gateway.performSearch(ctx, context); 
+		Object result = gateway.performSearch(ctx, context);
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
@@ -631,11 +616,14 @@ class OmeroDataServiceImpl
 		Set images;
 		DataObject img;
 		List owners = context.getOwners();
-		Set<Long> ownerIDs = new HashSet<Long>(owners.size());
-		k = owners.iterator();
-		while (k.hasNext()) {
-			ownerIDs.add(((DataObject) k.next()).getId());
+		Set<Long> ownerIDs = new HashSet<Long>();
+		if (owners != null) {
+			k = owners.iterator();
+			while (k.hasNext()) {
+				ownerIDs.add(((DataObject) k.next()).getId());
+			}
 		}
+		if (m == null) return results;
 		
 		Set<DataObject> nodes;
 		Object v;
@@ -913,8 +901,8 @@ class OmeroDataServiceImpl
 		Iterator<DataObject> j;
 		DataObject object;
 		IObject link;
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
+		String userName = getUserName(ctx.getExperimenterData());
+		ExperimenterData exp = context.getAdminService().getUserDetails();
 		ExperimenterData owner;
 		Experimenter o = null;
 		IObject newObject;
@@ -949,7 +937,7 @@ class OmeroDataServiceImpl
 			}
 			if (toCreate.size() > 0) {
 				toCreate = gateway.saveAndReturnObject(target, toCreate,
-						new HashMap());
+						new HashMap(), userName);
 				targets.addAll(toCreate);
 			}
 			

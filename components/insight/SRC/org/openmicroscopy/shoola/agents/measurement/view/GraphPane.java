@@ -80,35 +80,34 @@ class GraphPane
 {
 	
 	/** Ready state. */
-	final static int 						READY = 1;
+	final static int READY = 1;
 	
 	/** Analyzing state. */
-	final static int 						ANALYSING = 0;
+	final static int ANALYSING = 0;
 	
 	/** Index to identify tab */
-	public final static int					INDEX = 
-										MeasurementViewerUI.GRAPH_INDEX;
+	public final static int INDEX = MeasurementViewerUI.GRAPH_INDEX;
 	
 	/** The name of the panel. */
-	private static final String				NAME = "Graph Pane";
+	private static final String NAME = "Graph Pane";
 	
 	/** The default color for a line.*/
-	private static final Color				DEFAULT_COLOR = Color.LIGHT_GRAY;
+	private static final Color DEFAULT_COLOR = Color.LIGHT_GRAY;
 	
 	/** Reference to the model. */
-	private MeasurementViewerModel			model;
+	private MeasurementViewerModel model;
 
 	/** The map of <ROIShape, ROIStats> .*/
-	private Map								ROIStats;
+	private Map ROIStats;
 
 	/** The slider controlling the movement of the analysis through Z. */
-	private OneKnobSlider 					zSlider;
+	private OneKnobSlider zSlider;
 
 	/** The slider controlling the movement of the analysis through T. */
-	private OneKnobSlider 					tSlider;
+	private OneKnobSlider tSlider;
 	
 	/** The main panel holding the graphs. */
-	private JPanel 							mainPanel;
+	private JPanel mainPanel;
 			
 	/** The map of the shape statistics to coordinates. */
 	private Map<Coord3D, Map<StatsType, Map>> shapeStatsList;
@@ -117,31 +116,31 @@ class GraphPane
 	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
 	
 	/** Map of the coordinates to a shape. */
-	private Map<Coord3D, ROIShape> 				shapeMap;
+	private Map<Coord3D, ROIShape> shapeMap;
 	
 	/** List of channel Names. */
-	private List<String>	channelName ;
+	private List<String> channelName;
 	
 	/** List of channel colors. */
-	private List<Color>		channelColour;
+	private List<Color> channelColour;
 	
 	/** The current coordinates of the ROI being depicted in the slider. */
-	private Coord3D			coord;
+	private Coord3D coord;
 		
 	/** The line profile charts. */
-	private LinePlot		lineProfileChart;
+	private LinePlot lineProfileChart;
 	
 	/** The histogram chart. */
-	private HistogramPlot	histogramChart;
+	private HistogramPlot histogramChart;
 	
 	/** The state of the Graph pane. */
-	private int				state = READY;
+	private int state = READY;
 	
 	/** Reference to the view.*/
-	private MeasurementViewerUI 					view;
+	private MeasurementViewerUI view;
 	
 	/** Current shape. */
-	private ROIShape 								shape;
+	private ROIShape shape;
 	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
@@ -261,6 +260,7 @@ class GraphPane
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		buildHistogramNoSelection();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		JPanel centrePanel = new JPanel();
 		centrePanel.setLayout(new BoxLayout(centrePanel, BoxLayout.X_AXIS));
@@ -272,6 +272,18 @@ class GraphPane
 		add(tSlider);
 	}
 	
+	/** 
+	 * Builds the default histogram when no channels are selected.
+	 * 
+	 */
+	private void buildHistogramNoSelection()
+	{
+		mainPanel.removeAll();
+		histogramChart = drawHistogram("Histogram", new ArrayList<String>(),
+				new ArrayList<double[]>(), new ArrayList<Color>(), 1001);
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+	}
 	
 	/**
 	 * Draws the current data as a line plot in the graph.
@@ -301,22 +313,16 @@ class GraphPane
 	/**
 	 * Draws the current data as a histogram in the graph.
 	 * 
-	 * @param title 			The graph title.
-	 * @param data 				The data to render.
-	 * @param channelNames 		The channel names.
-	 * @param channelColours	The channel colours.
-	 * @param bins 				The number of bins in the histogram.
+	 * @param title The graph title.
+	 * @param data The data to render.
+	 * @param channelNames The channel names.
+	 * @param channelColours The channel colours.
+	 * @param bins The number of bins in the histogram.
 	 * @return See above.
 	 */
-	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
+	private HistogramPlot drawHistogram(String title,  List<String> channelNames,
 			List<double[]> data, List<Color> channelColours, int bins)
 	{
-		if (channelNames.size() == 0 || data.size() == 0 || 
-				channelColours.size() == 0)
-				return null;
-			if (channelNames.size() != channelColours.size() || 
-					channelNames.size() != data.size())
-				return null;
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
 		plot.setXAxisName("Intensity");
@@ -378,8 +384,10 @@ class GraphPane
 			}
 		}
 		mainPanel.removeAll();
-		if (channelData.size() == 0)
+		if (channelData.size() == 0) {
+			buildHistogramNoSelection();
 			return;
+		}
 		lineProfileChart = null;
 		histogramChart = null;
 		if (lineProfileFigure(shape))
@@ -422,11 +430,11 @@ class GraphPane
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view 		 Reference to the View. Mustn't be <code>null</code>.
+	 * @param view Reference to the View. Mustn't be <code>null</code>.
 	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
-	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller, 
+	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller,
 		MeasurementViewerModel model)
 	{
 		if (view == null)
@@ -475,7 +483,10 @@ class GraphPane
 	void displayAnalysisResults()
 	{
 		this.ROIStats = model.getAnalysisResults();
-		if (ROIStats == null) return;
+		if (ROIStats == null || ROIStats.size() == 0) {
+			buildHistogramNoSelection();
+			return;
+		}
 		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
 		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
@@ -491,16 +502,25 @@ class GraphPane
 		Coord3D c3D;
 		Map<StatsType, Map> shapeStats;
 		Map<Integer, double[]> data;
+		int t = model.getDefaultT();
+		int z = model.getDefaultZ();
+		boolean hasData = false;
+		int cT, cZ;
 		while (i.hasNext())
 		{
 			entry = (Entry) i.next();
 			shape = (ROIShape) entry.getKey();
-			c3D = shape.getCoord3D();
-			minT = Math.min(minT, c3D.getTimePoint());
-			maxT = Math.max(maxT, c3D.getTimePoint());
-			minZ = Math.min(minZ, c3D.getZSection());
-			maxZ = Math.max(maxZ, c3D.getZSection());
 			
+			c3D = shape.getCoord3D();
+			cT = c3D.getTimePoint();
+			cZ = c3D.getZSection();
+			
+			minT = Math.min(minT, cT);
+			maxT = Math.max(maxT, cT);
+			minZ = Math.min(minZ, cZ);
+			maxZ = Math.max(maxZ, cZ);
+			
+			if (cT == t && cZ == z) hasData = true;
 			
 			shapeMap.put(c3D, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
@@ -512,6 +532,10 @@ class GraphPane
 				data = shapeStats.get(StatsType.PIXELDATA);
 				pixelStats.put(c3D, data);
 			}
+		}
+		if (!hasData) {
+			buildHistogramNoSelection();
+			return;
 		}
 		maxZ = maxZ+1;
 		minZ = minZ+1;

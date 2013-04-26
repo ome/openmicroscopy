@@ -49,6 +49,10 @@ public class XMLAnnotationData
 	extends AnnotationData
 {
 
+	/**  The name space used to identify modulo concept. */
+    public static final String MODULO_NS = 
+    	omero.constants.namespaces.NSMODULO.value;
+    
     /** Creates a new instance. */
     public XMLAnnotationData()
     {
@@ -155,10 +159,6 @@ public class XMLAnnotationData
             throw new IllegalArgumentException("Object must be of type String");
         }
         String value = (String) content;
-        if (value.trim().length() == 0) {
-            throw new IllegalArgumentException(
-                    "Annotation value cannot be null.");
-        }
         setDirty(true);
         ((XmlAnnotation) asAnnotation()).setTextValue(rstring(value));
 	}

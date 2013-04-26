@@ -196,20 +196,15 @@ public class DataBrowserTranslator
      * @param images    Collection of {@link ImageData}s.
      * @param parent    The {@link ImageSet} corresponding to the
      *                  {@link DataObject} containing the images.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.             
      */
-    private static void linkImagesTo(Set images, ImageSet parent, long userID,
-                                    long groupID)
+    private static void linkImagesTo(Set images, ImageSet parent)
     {
         if (images == null || parent == null) return;
         Iterator i = images.iterator();
         ImageData child;
         while (i.hasNext()) {
             child = (ImageData) i.next();
-            if (isReadable(child, userID, groupID))
-                linkImageTo(child, parent);
+            linkImageTo(child, parent);
         }  
     }
     
@@ -219,13 +214,9 @@ public class DataBrowserTranslator
      * 
      * @param uo        Parent object. Either an instance of 
      * 					{@link DatasetData}.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.        
      * @return  The corresponding {@link ImageDisplay} or <code>null</code>.
      */
-    private static ImageDisplay linkImages(DataObject uo, long userID,
-                                        long groupID)
+    private static ImageDisplay linkImages(DataObject uo)
     {
         ImageSet node = null;
         Set images;
@@ -236,7 +227,7 @@ public class DataBrowserTranslator
             if (images != null) note = LEFT+images.size()+RIGHT;
             node = new ImageSet(ds.getName(), note, ds);
             formatToolTipFor(node);
-            linkImagesTo(images, node, userID, groupID);
+            linkImagesTo(images, node);
         }
         return node;
     }
@@ -247,13 +238,9 @@ public class DataBrowserTranslator
      * 
      * @param projects  Collection of {@link ProjectData}s to transform.
      *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.                   
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformProjects(Set projects, long userID,
-                                        long groupID)
+    private static Set transformProjects(Set projects)
     {
         if (projects == null) 
             throw new IllegalArgumentException("No projects.");
@@ -270,27 +257,22 @@ public class DataBrowserTranslator
         while (i.hasNext()) {
             ps = (ProjectData) i.next();
             buffer = new StringBuffer();
-            if (isReadable(ps, userID, groupID)) {
-                datasets = ps.getDatasets();
-                if (datasets != null) {
-                	buffer.append(LEFT);
-                	buffer.append(datasets.size());
-                	buffer.append(RIGHT);
-                }
-                project = new ImageSet(ps.getName(), buffer.toString(), ps);
-                formatToolTipFor(project);
-                if (datasets != null) {
-                    j = datasets.iterator();
-                    while (j.hasNext()) {
-                        child = (DataObject) j.next();
-                        if (isReadable(child, userID, groupID)) 
-                            project.addChildDisplay(linkImages(child, userID, 
-                                                                groupID));
-                    }     
-                }
-                results.add(project);
+            datasets = ps.getDatasets();
+            if (datasets != null) {
+            	buffer.append(LEFT);
+            	buffer.append(datasets.size());
+            	buffer.append(RIGHT);
             }
-            
+            project = new ImageSet(ps.getName(), buffer.toString(), ps);
+            formatToolTipFor(project);
+            if (datasets != null) {
+                j = datasets.iterator();
+                while (j.hasNext()) {
+                    child = (DataObject) j.next();
+                    project.addChildDisplay(linkImages(child));
+                }     
+            }
+            results.add(project);
         }
         return results;
     }
@@ -299,18 +281,13 @@ public class DataBrowserTranslator
      * Transforms the specified <code>Well</code> object into its corresponding
      * visualization object.
      *  
-     * @param data		The <code>Well</code> to transform
-     * @param userID	The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.  
+     * @param data The <code>Well</code> to transform
      * @return See above.
      */
-    private static ImageDisplay transformWell(WellData data, long userID,  
-    		                                long groupID)
+    private static ImageDisplay transformWell(WellData data)
     {
     	if (data == null) 
             throw new IllegalArgumentException("No well.");
-        if (!isReadable(data, userID, groupID)) return null;
         WellSampleData wsd;
         ImageData img;
         WellImageSet node = new WellImageSet(data);
@@ -365,17 +342,12 @@ public class DataBrowserTranslator
      * 
      * @param tag     The {@link TagAnnotationData}s to transform.
      *                Mustn't be <code>null</code>.
-     * @param userID  The id of the current user.
-     * @param groupID The id of the group the current user selects when 
-     *                retrieving the data.                
      * @return The corresponding {@link ImageDisplay}s.
      */
-    private static ImageDisplay transformTag(TagAnnotationData tag, long userID,
-                                        long groupID)
+    private static ImageDisplay transformTag(TagAnnotationData tag)
     {
         if (tag == null) 
             throw new IllegalArgumentException("No tag.");
-        if (!isReadable(tag, userID, groupID)) return null;
         ImageSet data = null;
         Set tags = tag.getTags();
         Set dataObjects = tag.getDataObjects();
@@ -388,7 +360,7 @@ public class DataBrowserTranslator
         	TagAnnotationData child;
         	while (i.hasNext()) {
         		child = (TagAnnotationData) i.next();
-				data.addChildDisplay(transformTag(child, userID, groupID));
+				data.addChildDisplay(transformTag(child));
 			}
         } if (dataObjects != null && dataObjects.size() > 0) {
         	note += LEFT+dataObjects.size()+RIGHT;
@@ -403,8 +375,7 @@ public class DataBrowserTranslator
         		if (child instanceof ImageData)
         			linkImageTo((ImageData) child, data);
         		else if (child instanceof DatasetData) {
-        			 data.addChildDisplay(linkImages(child, userID, 
-                             groupID));
+        			 data.addChildDisplay(linkImages(child));
         		} else if (child instanceof ProjectData) {
         			p = (ProjectData) child;
         			datasets = p.getDatasets();
@@ -412,9 +383,7 @@ public class DataBrowserTranslator
         				k = datasets.iterator();
         				while (k.hasNext()) {
 							dataset = (DataObject) k.next();
-							if (isReadable(dataset, userID, groupID)) 
-	                            data.addChildDisplay(linkImages(dataset, userID, 
-	                                                             groupID));
+							data.addChildDisplay(linkImages(dataset));
 						}
         			}
         		}
@@ -431,17 +400,13 @@ public class DataBrowserTranslator
      * 
      * @param project   The {@link DataObject} to transform. 
      *                  Must be an instance of {@link ProjectData}.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.                  
      * @return See below.
      */
-    private static Set transformProject(DataObject project, long userID,
-                                        long groupID)
+    private static Set transformProject(DataObject project)
     {
         Set set = new HashSet(1);
         set.add(project);
-        return transformProjects(set, userID, groupID);
+        return transformProjects(set);
     }
     
     /**
@@ -450,13 +415,9 @@ public class DataBrowserTranslator
      * 
      * @param datasets  Collection of {@link DatasetData}s to transform.
      *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.                
      * @return Collection of corresponding {@link ImageDisplay}s.
      */
-    private static Set transformDatasets(Set datasets, long userID,
-                                        long groupID)
+    private static Set transformDatasets(Set datasets)
     {
         if (datasets == null) 
             throw new IllegalArgumentException("No datasets.");
@@ -466,8 +427,7 @@ public class DataBrowserTranslator
         while (i.hasNext()) {
             //create datasetNode.
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupID))
-                results.add(linkImages(ho, userID, groupID));
+             results.add(linkImages(ho));
         }  
         return results;
     }
@@ -479,17 +439,13 @@ public class DataBrowserTranslator
      * 
      * @param dataset   The {@link DataObject} to transform.
      *                  Must be an instance of {@link DatasetData}.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.               
      * @return See below.
      */
-    private static Set transformDataset(DataObject dataset, long userID,
-                                        long groupID)
+    private static Set transformDataset(DataObject dataset)
     {
         Set set = new HashSet(1);
         set.add(dataset);
-        return transformDatasets(set, userID, groupID);
+        return transformDatasets(set);
     }
     
     /**
@@ -521,13 +477,9 @@ public class DataBrowserTranslator
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
      *                      Mustn't be <code>null</code>.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data.                      
      * @return See above.
      */
-    public static Set transformHierarchy(Collection dataObjects, long userID, 
-                                        long groupID)
+    public static Set transformHierarchy(Collection dataObjects)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
@@ -538,28 +490,16 @@ public class DataBrowserTranslator
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (ho instanceof ProjectData)
-                results.add(getFirstElement(transformProject(ho, userID, 
-                                        groupID)));
+                results.add(getFirstElement(transformProject(ho)));
             else if (ho instanceof DatasetData)
-                results.add(getFirstElement(transformDataset(ho, userID, 
-                                            groupID)));
+                results.add(getFirstElement(transformDataset(ho)));
             else if (ho instanceof ImageData) {
-                if (isReadable(ho, userID, groupID)) {
-                	/*
-                    if (unclassified == null) {
-                        unclassified = new ImageSet(UNCLASSIFIED, new Object());
-                        formatToolTipFor(unclassified);
-                    }
-                    linkImageTo((ImageData) ho, unclassified);
-                    */
-                	results.add(linkImageTo((ImageData) ho, null));
-                }
+            	results.add(linkImageTo((ImageData) ho, null));
             } else if (ho instanceof TagAnnotationData) {
-            	child = transformTag((TagAnnotationData) ho, userID, 
-			            groupID);
+            	child = transformTag((TagAnnotationData) ho);
             	if (child != null) results.add(child);
             } else if (ho instanceof WellData) {
-            	child = transformWell((WellData) ho, userID, groupID);
+            	child = transformWell((WellData) ho);
             	if (child != null) results.add(child);
             }
         }
@@ -573,12 +513,11 @@ public class DataBrowserTranslator
      * 
      * @param dataObjects The {@link DataObject}s to transform.
      *                    Mustn't be <code>null</code>.
-     * @param userID The id of the current user.
      * @param group The the group the current user selects when 
      * retrieving the data.
      * @return See above.
      */
-    public static ImageSet transformObjects(Collection dataObjects, long userID,
+    public static ImageSet transformObjects(Collection dataObjects,
                                     GroupData group)
     {
         if (dataObjects == null)
@@ -586,11 +525,10 @@ public class DataBrowserTranslator
         Set results = new HashSet();
         DataObject ho;
         Iterator i = dataObjects.iterator();
-        long groupId = group.getId();
         ImageSet groupNode = new ImageSet(group.getName(), group);
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupId) && ho instanceof ImageData)
+            if (ho instanceof ImageData)
                 linkImageTo((ImageData) ho, groupNode);
         }
         return groupNode;
@@ -603,13 +541,9 @@ public class DataBrowserTranslator
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
      *                      Mustn't be <code>null</code>.
-     * @param userID        The id of the current user.
-     * @param groupId       The id of the group the current user selects when 
-     *                      retrieving the data.
      * @return See above.
      */
-    public static Set<ImageDisplay> transformObjects(Collection dataObjects,
-    		long userID, long groupId)
+    public static Set<ImageDisplay> transformObjects(Collection dataObjects)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
@@ -618,7 +552,7 @@ public class DataBrowserTranslator
         Iterator i = dataObjects.iterator();
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupId) && ho instanceof ImageData)
+            if (ho instanceof ImageData)
                 results.add(linkImageTo((ImageData) ho, null));
         }
         return results;
@@ -630,13 +564,9 @@ public class DataBrowserTranslator
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
      *                      Mustn't be <code>null</code>.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data.                   
      * @return See above.
      */
-    public static Set transformImages(Collection dataObjects, long userID,
-                                    long groupID)
+    public static Set transformImages(Collection dataObjects)
     {
         if (dataObjects == null)
             throw new IllegalArgumentException("No objects.");
@@ -645,7 +575,7 @@ public class DataBrowserTranslator
         Iterator i = dataObjects.iterator();
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupID) && ho instanceof ImageData)
+            if (ho instanceof ImageData)
                 results.add(linkImageTo((ImageData) ho, null));
         }
         return results;
@@ -682,7 +612,7 @@ public class DataBrowserTranslator
      * The {@link FileData}s are added to a {@link ImageSet}.
      * 
      * @param dataObjects   The {@link DataObject}s to transform.
-     *                      Mustn't be <code>null</code>.        
+     *                      Mustn't be <code>null</code>.
      * @return See above.
      */
     public static Set transformFSFolder(Collection dataObjects)
@@ -713,53 +643,14 @@ public class DataBrowserTranslator
      * 
      * @param ho        The {@link DataObject} to transform.
      *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.              
      * @return See above.
      */
-    public static Set transform(DataObject ho, long userID, long groupID)
+    public static Set transform(DataObject ho)
     {
         if (ho == null) throw new IllegalArgumentException("No objects.");
         Set s = new HashSet(1);
         s.add(ho);
-        return transformHierarchy(s, userID, groupID);
-    }
-    
-    /**
-     * Returns <code>true</code> if the specified data object is readable,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.
-     * @return See above.
-     */
-    public static boolean isReadable(DataObject ho, long userID, long groupID)
-    {
-        //PermissionData permissions = ho.getPermissions();
-        //long objectOwnerID = ho.getOwner().getId();
-       // TODO: fix when perimssions are back.
-        return true;
-       // if (userID == objectOwnerID) return permissions.isUserRead();
-        
-        /*
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) 
-        */
-       // return permissions.isGroupRead();
-       // return permissions.isWorldRead();
+        return transformHierarchy(s);
     }
     
     /**

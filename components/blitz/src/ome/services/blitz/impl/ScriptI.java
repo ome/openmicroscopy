@@ -37,6 +37,8 @@ import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
 import omero.ApiUsageException;
 import omero.RInt;
@@ -94,9 +96,13 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
     protected final ScriptRepoHelper scripts;
 
-    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts) {
+    protected final ChecksumProviderFactory cpf;
+
+    public ScriptI(BlitzExecutor be, ScriptRepoHelper scripts,
+            ChecksumProviderFactory cpf) {
         super(null, be);
         this.scripts = scripts;
+        this.cpf = cpf;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -581,7 +587,8 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         file.setPath(FilenameUtils.getFullPath(path));
         file.setMimetype(ParamsHelper.PYTHONSCRIPT);
         file.setSize((long) script.getBytes().length);
-        file.setSha1(Utils.bufferToSha1(script.getBytes()));
+        file.setSha1(cpf.getProvider(ChecksumType.SHA1)
+                .putBytes(script.getBytes()).checksumAsString());
         return updateFile(file, current);
     }
 

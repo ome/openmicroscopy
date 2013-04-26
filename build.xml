@@ -21,14 +21,34 @@ build-* targets.
 -->
     <description>
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Top-level OMERO build. The default build with a target ("./build.py" will suffice
-for most builds. If you need OmeroCpp (the C++ bindings for OMERO) use "build-all"
+Top-level OMERO build. "./build.py" alone will suffice for most builds.
+If you need OmeroCpp (the C++ bindings for OMERO) use "build-all"
 or "build-cpp" targets:
 
   ./build.py build-all
 
+Relative paths
+--------------
+./build.py can be executed from any directory. All builds are proceeded by
+changing the current working directory to the top of the source code.
+
+If a "build.xml" is present in the current working directory, then
+"-f `pwd`/build.xml" will be added to the command-line. Otherwise, the top-level
+build.xml will be used. If you would like to force use of the top-level
+build.xml add "-top" as your first argument. Similarly, you can use "-py", "-java"
+"-web", "-cpp", or "-fs" to choose specific components.
+
+Examples:
+  cd components/server &amp;&amp; ../../build.py install
+  cd components/server &amp;&amp; ../../build.py -top hot-server
+  cd components/tools/OmeroPy &amp;&amp; ../../../build.py -cpp tools-dist
+  ./build.py -py tools-dist
+
+Eclipse
+-------
 To get started using Eclipse, execute "./build.py build-dev" and import the top-level
 .project file. Eclipse projects also exist for each individual java component.
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     </description>
 
@@ -411,7 +431,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </git>
     </target>
 
-    <target name="release-clients">
+    <target name="release-clients" description="Zip the Python, Java, and Matlab zips">
         <zip destfile="${omero.home}/target/OMERO.py-${omero.version}.zip">
             <zipfileset dir="${dist.dir}" prefix="OMERO.py-${omero.version}"
                 includes="bin/**,etc/**,lib/python/**,lib/fallback/**,sql/**" excludes="bin/omero"/>
@@ -933,29 +953,29 @@ omero.version=${omero.version}
         <antcall target="webstart-sign" inheritAll="true" inheritRefs="true"/>
     </target>
 
-    <target name="hot-blitz" depends="init">
+    <target name="hot-blitz" depends="init" description="Re-launch running server with new blitz.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${blitz.comp}" targets="${targets}"/>
     </target>
 
-    <target name="hot-common" depends="init">
+    <target name="hot-common" depends="init" description="Re-launch running server with new common.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${common.comp}" targets="${targets}"/>
     </target>
 
-    <target name="hot-model" depends="init">
+    <target name="hot-model" depends="init" description="Re-launch running server with new model.jar">
         <ant antfile="${dsl.comp}/build.xml" dir="${dsl.comp}" target="install" inheritAll="false"/>
         <ant antfile="${model.comp}/build.xml" dir="${model.comp}" target="clean" inheritAll="false"/>
         <property name="targets" value="install"/>
         <hotdeploy component="${model.comp}" targets="${targets}"/>
     </target>
 
-    <target name="hot-romio" depends="init">
+    <target name="hot-romio" depends="init" description="Re-launch running server with new romio.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${romio.comp}" targets="${targets}"/>
     </target>
 
-    <target name="hot-server" depends="init">
+    <target name="hot-server" depends="init" description="Re-launch running server with new server.jar">
         <property name="targets" value="install"/>
         <hotdeploy component="${server.comp}" targets="${targets}"/>
     </target>

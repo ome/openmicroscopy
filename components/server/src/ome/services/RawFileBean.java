@@ -26,6 +26,8 @@ import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
 import ome.util.ShallowCopy;
 import ome.util.Utils;
+import ome.util.checksum.ChecksumProviderFactory;
+import ome.util.checksum.ChecksumType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +73,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     /** the disk space checking service */
     private transient IRepositoryInfo iRepositoryInfo;
 
+    /** the checksum provider factory singleton **/
+    private transient ChecksumProviderFactory checksumProviderFactory;
+
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
     
@@ -80,7 +85,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     public RawFileBean() {}
     
     /**
-     * overriden to allow Spring to set boolean
+     * overridden to allow Spring to set boolean
      * @param checking
      */
     public RawFileBean(boolean checking) {
@@ -111,6 +116,16 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         this.iRepositoryInfo = iRepositoryInfo;
     }
 
+    /**
+     * ChecksumProviderFactory Bean injector
+     * @param cpf a <code>ChecksumProviderFactory</code>
+     */
+    public final void setChecksumProviderFactory(
+            ChecksumProviderFactory checksumProviderFactory) {
+        getBeanHelper().throwIfAlreadySet(this.checksumProviderFactory,
+                checksumProviderFactory);
+        this.checksumProviderFactory = checksumProviderFactory;
+    }
 
     // See documentation on JobBean#passivate
     @RolesAllowed("user")
@@ -132,7 +147,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public synchronized OriginalFile save() {
-        if (isModified()) {
+        if (isModified() || buffer != null && size() == 0) {
             Long id = (file == null) ? null : file.getId();
             if (id == null) {
                 return null;
@@ -141,8 +156,17 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             String path = ioService.getFilesPath(id);
             try {
 
-                byte[] hash = Utils.pathToSha1(path);
-                file.setSha1(Utils.bytesToHex(hash));
+                try {
+                    buffer.flush(true);
+                } catch (IOException ie) {
+                    final String msg = "cannot flush " + buffer.getPath() + ": " + ie;
+                    log.warn(msg);
+                    clean();
+                    throw new ResourceError(msg);
+                }
+
+                file.setSha1(this.checksumProviderFactory
+                        .getProvider(ChecksumType.SHA1).putFile(path).checksumAsString());
 
                 long size = new File(path).length();
                 file.setSize(size);
@@ -332,7 +356,9 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
         }
         
         try {
-            buffer.write(nioBuffer, position);
+            do {
+                position += buffer.write(nioBuffer, position);
+            } while (nioBuffer.hasRemaining());
             modified();
         } catch (IOException e) {
             if (log.isDebugEnabled()) {

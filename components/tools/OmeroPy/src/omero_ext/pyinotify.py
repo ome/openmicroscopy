@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # pyinotify.py - python interface to inotify
 # Copyright (c) 2010 Sebastien Martini <seb@dbzteam.org>
@@ -780,7 +781,7 @@ class _SysProcessEvent(_ProcessEvent):
 class ProcessEvent(_ProcessEvent):
     """
     Process events objects, can be specialized via subclassing, thus its
-    behavior can be overriden:
+    behavior can be overridden:
 
     Note: you should not override __init__ in your subclass instead define
     a my_init() method, this method will be called automatically from the

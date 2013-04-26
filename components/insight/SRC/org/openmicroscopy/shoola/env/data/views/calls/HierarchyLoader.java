@@ -69,9 +69,6 @@ public class HierarchyLoader
     /** The Id of the user. */
     private long        userID;
     
-    /** The Id of the user. */
-    private long        groupID;
-    
     /** The root nodes of the found trees. */
     private Set         rootNodes;
     
@@ -121,7 +118,7 @@ public class HierarchyLoader
             {
                 OmeroDataService os = context.getDataService();
                 rootNodes = os.loadContainerHierarchy(ctx, rootNodeType,
-                              rootNodeIDs, true, userID, groupID);
+                              rootNodeIDs, true, userID);
             }
         };
     }
@@ -151,14 +148,12 @@ public class HierarchyLoader
      *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   The identifiers of the root nodes.
      * @param userID   		The identifier of the user.
-     * @param groupID   	The identifier of the group.
      */
     public HierarchyLoader(SecurityContext ctx,
-    	Class rootNodeType, List<Long> rootNodeIDs, long userID, long groupID)
+    	Class rootNodeType, List<Long> rootNodeIDs, long userID)
     {
     	this.ctx = ctx;
     	this.userID = userID;
-    	this.groupID = groupID;
         validate(rootNodeType, rootNodeIDs);
     }
     

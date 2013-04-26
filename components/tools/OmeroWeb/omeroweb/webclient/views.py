@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # 
 # 
 # 
@@ -283,6 +284,7 @@ def switch_active_group(request, active_group=None):
     """
     if active_group is None:
         active_group = request.REQUEST.get('active_group')
+    active_group = int(active_group)
     if 'active_group' not in request.session or active_group != request.session['active_group']:
         request.session.modified = True
         request.session['active_group'] = active_group
@@ -329,6 +331,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     #tree support
     init = {'initially_open':None, 'initially_select': []}
     first_sel = None
+    initially_open_owner = None
     # E.g. backwards compatible support for path=project=51|dataset=502|image=607 (select the image)
     path = request.REQUEST.get('path', '')
     i = path.split("|")[-1]
@@ -337,7 +340,8 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     # Now we support show=image-607|image-123  (multi-objects selected)
     show = request.REQUEST.get('show', '')
     for i in show.split("|"):
-        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'well'):
+        if i.split("-")[0] in ('project', 'dataset', 'image', 'screen', 'plate', 'tag', 'acquisition', 'run', 'well'):
+            i = i.replace('run', 'acquisition')   # alternatives for 'acquisition'
             init['initially_select'].append(str(i))
     if len(init['initially_select']) > 0:
         # tree hierarchy open to first selected object
@@ -352,6 +356,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                 first_sel = conn.getObject("TagAnnotation", long(first_id))
             else:
                 first_sel = conn.getObject(first_obj, long(first_id))
+                initially_open_owner = first_sel.details.owner.id.val
                 # Wells aren't in the tree, so we need parent...
                 if first_obj == "well":
                     parentNode = first_sel.getWellSample().getPlateAcquisition()
@@ -372,6 +377,7 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
                         init['initially_open'].insert(0, "tag-%s" % p.getId())
                     else:
                         init['initially_open'].insert(0, "%s-%s" % (p.OMERO_CLASS.lower(), p.getId()))
+                        initially_open_owner = p.details.owner.id.val
                 if init['initially_open'][0].split("-")[0] == 'image':
                     init['initially_open'].insert(0, "orphaned-0")
     # need to be sure that tree will be correct omero.group
@@ -404,8 +410,9 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
 
     # check any change in experimenter...
     user_id = request.REQUEST.get('experimenter')
-    if first_sel is not None:
-        user_id = first_sel.details.owner.id.val
+    if initially_open_owner is not None:
+        if (request.session.get('user_id', None) != -1): # if we're not already showing 'All Members'...
+            user_id = initially_open_owner
     try:
         user_id = long(user_id)
     except:
@@ -413,17 +420,19 @@ def load_template(request, menu, conn=None, url=None, **kwargs):
     if user_id is not None:
         form_users = UsersForm(initial={'users': users, 'empty_label':None, 'menu':menu}, data=request.REQUEST.copy())
         if not form_users.is_valid():
-            user_id = None
+            if user_id != -1:           # All users in group is allowed
+                user_id = None
     if user_id is None:
         # ... or check that current user is valid in active group
-        user_id = request.session.get('user_id', -1)
-        if int(user_id) not in userIds:
-            user_id = conn.getEventContext().userId
+        user_id = request.session.get('user_id', None)
+        if user_id is None or int(user_id) not in userIds:
+            if user_id != -1:           # All users in group is allowed
+                user_id = conn.getEventContext().userId
 
     request.session['user_id'] = user_id
 
     if conn.isAdmin():  # Admin can see all groups
-        myGroups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("system", "user", "guest")]
+        myGroups = [g for g in conn.getObjects("ExperimenterGroup") if g.getName() not in ("user", "guest")]
     else:
         myGroups = list(conn.getGroupsMemberOf())
     myGroups.sort(key=lambda x: x.getName().lower())
@@ -495,24 +504,28 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     elif len(kw.keys()) > 0 :
         if kw.has_key('dataset'):
             load_pixels = (view == 'icon')  # we need the sizeX and sizeY for these
+            filter_user_id = None           # Show images belonging to all users
             manager.listImagesInDataset(kw.get('dataset'), filter_user_id, page, load_pixels=load_pixels)
             if view =='icon':
                 template = "webclient/data/containers_icon.html"
             else:
                 template = "webclient/data/container_subtree.html"
         elif kw.has_key('plate') or kw.has_key('acquisition'):
-            fields = manager.getNumberOfFields()
-            if fields is not None:
-                form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
-                if index == 0:
-                    index = fields[0]
-            show = request.REQUEST.get('show', None)
-            if show is not None:
-                select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
-                context['select_wells'] = ",".join(select_wells)
-            context['baseurl'] = reverse('webgateway').rstrip('/')
-            context['form_well_index'] = form_well_index
-            template = "webclient/data/plate.html"
+            if view == 'tree':  # Only used when pasting Plate into Screen - load Acquisition in tree
+                template = "webclient/data/container_subtree.html"
+            else:
+                fields = manager.getNumberOfFields()
+                if fields is not None:
+                    form_well_index = WellIndexForm(initial={'index':index, 'range':fields})
+                    if index == 0:
+                        index = fields[0]
+                show = request.REQUEST.get('show', None)
+                if show is not None:
+                    select_wells = [w.split("-")[1] for w in show.split("|") if w.startswith("well-")]
+                    context['select_wells'] = ",".join(select_wells)
+                context['baseurl'] = reverse('webgateway').rstrip('/')
+                context['form_well_index'] = form_well_index
+                template = "webclient/data/plate.html"
     else:
         manager.listContainerHierarchy(filter_user_id)
         if view =='tree':
@@ -797,6 +810,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
+    figScripts = None
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -811,6 +825,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         if share_id is None:
             template = "webclient/annotations/metadata_general.html"
             manager.annotationList()
+            figScripts = manager.listFigureScripts()
             form_comment = CommentAnnotationForm(initial=initial)
         else:
             template = "webclient/annotations/annotations_share.html"
@@ -818,7 +833,9 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     if c_type in ("tag"):
         context = {'manager':manager}
     else:
-        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 'share_id':share_id}
+        context = {'manager':manager, 'form_comment':form_comment, 'index':index, 
+            'share_id':share_id}
+    context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1083,6 +1100,7 @@ def batch_annotate(request, conn=None, **kwargs):
 
     manager = BaseContainer(conn)
     batchAnns = manager.loadBatchAnnotations(objs)
+    figScripts = manager.listFigureScripts(objs)
 
     obj_ids = []
     obj_labels = []
@@ -1094,7 +1112,8 @@ def batch_annotate(request, conn=None, **kwargs):
     link_string = "|".join(obj_ids).replace("=", "-")
     
     context = {'form_comment':form_comment, 'obj_string':obj_string, 'link_string': link_string,
-            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index}
+            'obj_labels': obj_labels, 'batchAnns': batchAnns, 'batch_ann':True, 'index': index,
+            'figScripts':figScripts}
     context['template'] = "webclient/annotations/batch_annotate.html"
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1316,9 +1335,10 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
     Edit and save channel names
     """
     image = conn.getObject("Image", imageId)
+    sizeC = image.getSizeC()
     channelNames = {}
     nameDict = {}
-    for i in range(image.getSizeC()):
+    for i in range(sizeC):
         cname = request.REQUEST.get("channel%d" % i, None)
         if cname is not None:
             channelNames["channel%d" % i] = smart_str(cname)
@@ -1329,7 +1349,7 @@ def edit_channel_names(request, imageId, conn=None, **kwargs):
         if parentId is not None:
             ptype = parentId.split("-")[0].title()
             pid = long(parentId.split("-")[1])
-            counts = conn.setChannelNames(ptype, [pid], nameDict)
+            counts = conn.setChannelNames(ptype, [pid], nameDict, channelCount=sizeC)
     else:
         counts = conn.setChannelNames("Image", [image.getId()], nameDict)
     rv = {"channelNames": channelNames}
@@ -2269,7 +2289,7 @@ def list_scripts (request, conn=None, **kwargs):
         if fullpath in settings.SCRIPTS_TO_IGNORE:
             logger.info('Ignoring script %r' % fullpath)
             continue
-        displayName = name.replace("_", " ")
+        displayName = name.replace("_", " ").replace(".py", "")
 
         if path not in scriptMenu:
             folder, name = os.path.split(path)
@@ -2286,6 +2306,7 @@ def list_scripts (request, conn=None, **kwargs):
     scriptList = []
     for path, sData in scriptMenu.items():
         sData['path'] = path    # sData map has 'name', 'path', 'scripts'
+        sData['scripts'].sort(key=lambda x:x[1].lower())    # sort each script submenu by displayName
         scriptList.append(sData)
     scriptList.sort(key=lambda x:x['name'])
     return {'template':"webclient/scripts/list_scripts.html", 'scriptMenu': scriptList}
@@ -2299,7 +2320,12 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     """
     scriptService = conn.getScriptService()
 
-    params = scriptService.getParams(long(scriptId))
+    try:
+        params = scriptService.getParams(long(scriptId))
+    except Exception, ex:
+        if ex.message.lower().startswith("no processor available"):
+            return {'template':'webclient/scripts/no_processor.html', 'scriptId': scriptId}
+        raise ex
     if params == None:
         return HttpResponse()
 
@@ -2386,6 +2412,120 @@ def script_ui(request, scriptId, conn=None, **kwargs):
 
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
+
+@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
+@render_response()
+def figure_script(request, scriptName, conn=None, **kwargs):
+    """
+    Show a UI for running figure scripts
+    """
+
+    imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
+    datasetIds = request.REQUEST.get('Dataset', None)
+    if imageIds is None and datasetIds is None:
+        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
+
+    def validateIds(dtype, ids):
+        ints = [int(oid) for oid in ids.split(",")]
+        validObjs = {}
+        for obj in conn.getObjects(dtype, ints):
+            validObjs[obj.id] = obj
+        filteredIds = [iid for iid in ints if iid in validObjs.keys()]
+        if len(filteredIds) == 0:
+            raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        return filteredIds, validObjs
+
+    context = {}
+
+    if imageIds is not None:
+        imageIds, validImages = validateIds("Image", imageIds)
+        context['idString'] = ",".join( [str(i) for i in imageIds] )
+        context['dtype'] = "Image"
+    if datasetIds is not None:
+        datasetIds, validDatasets = validateIds("Dataset", datasetIds)
+        context['idString'] = ",".join( [str(i) for i in datasetIds] )
+        context['dtype'] = "Dataset"
+
+    if scriptName == "SplitView":
+        scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
+        template = "webclient/scripts/split_view_figure.html"
+        # Lookup Tags & Datasets (for row labels)
+        imgDict = []    # A list of data about each image.
+        for iId in imageIds:
+            data = {'id':iId}
+            img = validImages[iId]
+            data['name'] = img.getName()
+            tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+            data['tags'] = tags
+            data['datasets'] = [d.getName() for d in img.listParents()]
+            imgDict.append(data)
+
+        # Use the first image as a reference
+        image = validImages[imageIds[0]]
+        context['imgDict'] = imgDict
+        context['image'] = image
+        context['channels'] = image.getChannels()
+
+    elif scriptName == "Thumbnail":
+        scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
+        template = "webclient/scripts/thumbnail_figure.html"
+        #context['tags'] = BaseContainer(conn).getTagsByObject()    # ALL tags
+
+        def loadImageTags(imageIds):
+            tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
+            linkMap = {}    # group tags. {imageId: [tags]}
+            tagMap = {}
+            for iId in imageIds:
+                linkMap[iId] = []
+            for l in tagLinks:
+                c = l.getChild()
+                if c._obj.__class__ == omero.model.TagAnnotationI:
+                    tagMap[c.id] = c
+                    linkMap[l.getParent().id].append(c)
+            imageTags = []
+            for iId in imageIds:
+                imageTags.append({'id':iId, 'tags':linkMap[iId]})
+            tags = []
+            for tId, t in tagMap.items():
+                tags.append(t)
+            return imageTags, tags
+
+        thumbSets = []  # multiple collections of images
+        tags = []
+        figureName = "Thumbnail_Figure"
+        if datasetIds is not None:
+            for d in conn.getObjects("Dataset", datasetIds):
+                figureName = d.getName()
+                imgIds = [i.id for i in d.listChildren()]
+                imageTags, ts = loadImageTags(imgIds)
+                thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
+                tags.extend(ts)
+        else:
+            imageTags, ts = loadImageTags(imageIds)
+            thumbSets.append({'name':'images', 'imageTags': imageTags})
+            tags.extend(ts)
+            figureName = conn.getObject("Image", imageIds[0]).getParent().getName()
+        uniqueTagIds = set()      # remove duplicates
+        uniqueTags = []
+        for t in tags:
+            if t.id not in uniqueTagIds:
+                uniqueTags.append(t)
+                uniqueTagIds.add(t.id)
+        uniqueTags.sort(key=lambda x: x.getTextValue().lower())
+        context['thumbSets'] = thumbSets
+        context['tags'] = uniqueTags
+        context['figureName'] = figureName.replace(" ", "_")
+
+    scriptService = conn.getScriptService()
+    scriptId = scriptService.getScriptID(scriptPath);
+    if (scriptId < 0):
+        raise AttributeError("No script found for path '%s'" % scriptPath)
+
+    context['template'] = template
+    context['scriptId'] = scriptId
+    return context
+
+
 @login_required()
 def chgrp(request, conn=None, **kwargs):
     """
@@ -2450,8 +2590,8 @@ def script_run(request, scriptId, conn=None, **kwargs):
             continue
         
         if pclass.__name__ == 'RMapI':
-            keyName = "%s_key" % key
-            valueName = "%s_value" % key
+            keyName = "%s_key0" % key
+            valueName = "%s_value0" % key
             row = 0
             paramMap = {}
             while keyName in request.POST:

@@ -328,6 +328,47 @@ public class OMEXMLMetadataImpl extends AbstractOMEXMLMetadata
 		return root.getImage(imageIndex).getPixels().sizeOfBinDataList();
 	}
 
+  public int getBooleanAnnotationAnnotationCount(int booleanAnnotationIndex) {
+    return root.getStructuredAnnotations().getBooleanAnnotation(booleanAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getCommentAnnotationAnnotationCount(int commentAnnotationIndex) {
+    return root.getStructuredAnnotations().getCommentAnnotation(commentAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getDoubleAnnotationAnnotationCount(int doubleAnnotationIndex) {
+    return root.getStructuredAnnotations().getDoubleAnnotation(doubleAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getFileAnnotationAnnotationCount(int fileAnnotationIndex) {
+    return root.getStructuredAnnotations().getFileAnnotation(fileAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getListAnnotationAnnotationCount(int listAnnotationIndex) {
+    return root.getStructuredAnnotations().getListAnnotation(listAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getLongAnnotationAnnotationCount(int longAnnotationIndex) {
+    return root.getStructuredAnnotations().getLongAnnotation(longAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getTagAnnotationAnnotationCount(int tagAnnotationIndex) {
+    return root.getStructuredAnnotations().getTagAnnotation(tagAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getTermAnnotationAnnotationCount(int termAnnotationIndex) {
+    return root.getStructuredAnnotations().getTermAnnotation(termAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getTimestampAnnotationAnnotationCount(int timestampAnnotationIndex)
+  {
+    return root.getStructuredAnnotations().getTimestampAnnotation(timestampAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
+  public int getXMLAnnotationAnnotationCount(int xmlAnnotationIndex) {
+    return root.getStructuredAnnotations().getXMLAnnotation(xmlAnnotationIndex).sizeOfLinkedAnnotationList();
+  }
+
 	public String getLightSourceType(int instrumentIndex, int lightSourceIndex)
 	{
 		LightSource o = root.getInstrument(instrumentIndex).getLightSource(lightSourceIndex);
@@ -335,6 +376,14 @@ public class OMEXMLMetadataImpl extends AbstractOMEXMLMetadata
 		return className.substring(
 			className.lastIndexOf('.') + 1, className.length());
 	}
+
+  public String getShapeType(int roiIndex, int shapeIndex)
+  {
+    Shape o = root.getROI(roiIndex).getUnion().getShape(shapeIndex);
+    String className = o.getClass().getName();
+    return className.substring(
+      className.lastIndexOf('.') + 1, className.length());
+  }
 
 	// -- Entity counting (code generated definitions) --
 
@@ -428,14 +477,16 @@ ${counter(k, o, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${getter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\
@@ -527,14 +578,16 @@ ${getter(k, o, prop, v)}\
 {% if is_abstract(k) %}\
 {% for prop in sorted_properties(model.getObjectByName(k)) %}\
 {% choose %}\
-{% when not prop.isPrimitive %}\
+{% when not prop.isPrimitive and prop.isChoice %}\
 	// Ignoring ${prop.name} of parent abstract type
 {% end %}\
 {% otherwise %}\
 {% for parent_k, parent_v in indexes[k].items() %}\
+{% if not prop.isBackReference %}\
 	// ${prop.name} accessor from parent ${k}
 ${setter(k, o, prop, v)}\
 
+{% end %}\
 {% end %}\
 {% end %}\
 {% end %}\

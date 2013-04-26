@@ -530,11 +530,14 @@ public class IconManager
     /** The <code>Read Link Group</code> icon. */
     public static final int READ_WRITE_GROUP = 154;
     
+    /** The <code>Read Link Group</code> icon. */
+    public static final int NOT_OWNED_8 = 155;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 154;
+    private static int      MAX_ID = 155;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -697,6 +700,7 @@ public class IconManager
         relPaths[UPLOAD_SCRIPT_48] = "nuvola_script_add48.png";
         relPaths[UPLOAD_SCRIPT] = "nuvola_script_add16.png";
         relPaths[NO_ENTRY] = "crystal_agt_action_fail16.png";
+        relPaths[NOT_OWNED_8] = "red_dot8.png";
     }
 	
 	/**

@@ -19,12 +19,14 @@ using namespace omero::callbacks;
 using namespace omero::model;
 using namespace omero::rtypes;
 using namespace omero::sys;
+using namespace omero::cmd;
+
 
 
 TEST(DeleteTest, testSimpleDelete ) {
     Fixture f;
-    client_ptr c = f.login();
-    ServiceFactoryPrx sf = c->getSession();
+    f.login();
+    ServiceFactoryPrx sf = f.client->getSession();
 
     IQueryPrx iquery = sf->getQueryService();
     IUpdatePrx iupdate = sf->getUpdateService();
@@ -35,16 +37,15 @@ TEST(DeleteTest, testSimpleDelete ) {
     image->setAcquisitionDate( rtime(0) );
     image = ImagePtr::dynamicCast( iupdate->saveAndReturnObject( image ) );
 
-    std::map<string, string> options;
-    DeleteCommands dcs;
-    DeleteCommand dc;
-    dc.type = "/Image";
-    dc.id = image->getId()->getValue();
-    dc.options = options;
-    dcs.push_back(dc);
-
-    DeleteHandlePrx handle = idelete->queueDelete( dcs );
-    DeleteCallbackIPtr cb = new DeleteCallbackI(c->getObjectAdapter(), handle);
-    cb->loop(10, 500);
-
+    DeletePtr deleteCmd = new Delete("/Image", image->getId()->getValue(), StringMap());
+    
+    // Submit and wait for completion
+    HandlePrx handle = sf->submit(deleteCmd);
+    CmdCallbackIPtr cb = new CmdCallbackI(f.client, handle);
+    ResponsePtr resp = cb->loop(10, 500);
+    
+    ERRPtr err = ERRPtr::dynamicCast(resp);
+    if (err) {
+        FAIL() << "Failed to delete image: " << err->category << ", " << err->name << endl;
+    }
 }

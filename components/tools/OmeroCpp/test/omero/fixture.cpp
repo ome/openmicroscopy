@@ -30,14 +30,18 @@ omero::model::ImagePtr new_ImageI()
 
 Fixture::Fixture()
 {
-    root = root_login();
+    login();
+    std::string rootpass = client->getProperty("omero.rootpass");
+    logout();
+    login("root", rootpass);
+    root = client;
+    client = omero::client_ptr();
 }
 
-Fixture::~Fixture()
+void Fixture::logout()
 {
-    //    results_reporter::detailed_report();
-    //    printUnexpected();
-    //    show_stackframe();
+    root = NULL;
+    client = NULL;
 }
 
 
@@ -51,7 +55,7 @@ void Fixture::show_stackframe() {
   messages = backtrace_symbols(trace, trace_size);
   printf("[bt] Execution path:\n");
   for (i=0; i<trace_size; ++i)
-	printf("[bt] %s\n", messages[i]);
+    printf("[bt] %s\n", messages[i]);
 #endif
 }
 
@@ -72,39 +76,37 @@ void Fixture::printUnexpected()
   */
 }
 
-omero::client_ptr Fixture::login(const std::string& username, const std::string& password) {
-    omero::client_ptr client = new omero::client();
+void Fixture::login(const std::string& username, const std::string& password) {
+    client = new omero::client();
     client->createSession(username, password);
     client->getSession()->closeOnDestroy();
-    return client;
 }
 
-omero::client_ptr Fixture::root_login() {
-    const omero::client_ptr tmp = login();
-    std::string rootpass = tmp->getProperty("omero.rootpass");
-    return login("root", rootpass);
+void Fixture::login(const omero::model::ExperimenterPtr& user, const std::string& password) {
+    this->login(user->getOmeName()->getValue(), password);
 }
 
 omero::model::ExperimenterPtr Fixture::newUser(const omero::model::ExperimenterGroupPtr& _g) {
-        IAdminPrx admin = root->getSession()->getAdminService();
-	omero::model::ExperimenterGroupPtr g(_g);
-	omero::RStringPtr name = omero::rtypes::rstring(uuid());
-	omero::RStringPtr groupName = name;
-	long gid = -1;
-	if (!g) {
-		g = new omero::model::ExperimenterGroupI();
-		g->setName( name );
-		gid = admin->createGroup(g);
-	} else {
-		gid = g->getId()->getValue();
-                groupName = admin->getGroup(gid)->getName();
-	}
-	omero::model::ExperimenterPtr e = new omero::model::ExperimenterI();
-	e->setOmeName( name );
-	e->setFirstName( name );
-	e->setLastName( name );
-	long id = admin->createUser(e, groupName->getValue());
-	return admin->getExperimenter(id);
+
+    IAdminPrx admin = root->getSession()->getAdminService();
+    omero::model::ExperimenterGroupPtr g(_g);
+    omero::RStringPtr name = omero::rtypes::rstring(uuid());
+    omero::RStringPtr groupName = name;
+    long gid = -1;
+    if (!g) {
+        g = new omero::model::ExperimenterGroupI();
+        g->setName( name );
+        gid = admin->createGroup(g);
+    } else {
+        gid = g->getId()->getValue();
+        groupName = admin->getGroup(gid)->getName();
+    }
+    omero::model::ExperimenterPtr e = new omero::model::ExperimenterI();
+    e->setOmeName( name );
+    e->setFirstName( name );
+    e->setLastName( name );
+    long id = admin->createUser(e, groupName->getValue());
+    return admin->getExperimenter(id);
 }
 
 omero::model::ExperimenterGroupPtr Fixture::newGroup(const std::string& perms) {

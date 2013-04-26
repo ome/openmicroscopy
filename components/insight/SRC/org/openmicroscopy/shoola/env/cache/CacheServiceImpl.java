@@ -246,6 +246,7 @@ class CacheServiceImpl
 			for (int i = 0; i < names.length; i++) {
 				cache = manager.getCache(names[i]);
 				if (cache != null) cache.removeAll();
+				manager.removeCache(names[i]);
 			}
 		} catch (Exception e) {
 			//the cache is not alive.

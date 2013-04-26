@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.ExperimenterData;
@@ -95,6 +96,9 @@ class ImporterModel
 	/** Returns <code>true</code> if it is opened as a standalone app.*/
 	private boolean master;
 	
+	/** The display mode.*/
+    private int displayMode;
+    
 	/** Initializes the model.*/
 	private void initialize()
 	{
@@ -102,8 +106,20 @@ class ImporterModel
 		experimenterId = -1;
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
+		checkDefaultDisplayMode();
 	}
 
+	/**
+	 * Invokes the value is not set. 
+	 */
+	private void checkDefaultDisplayMode()
+	{
+		Integer value = (Integer) ImporterAgent.getRegistry().lookup(
+    			LookupNames.DATA_DISPLAY);
+		if (value == null) setDisplayMode(LookupNames.EXPERIMENTER_DISPLAY);
+		else setDisplayMode(value.intValue());
+	}
+	
 	/**
 	 * Indicates to load all annotations available if the user can annotate
 	 * and is an administrator/group owner or to only load the user's
@@ -155,10 +171,11 @@ class ImporterModel
 	 * Creates a new instance.
 	 *
 	 * @param groupID The id to the group selected for the current user.
+	 * @param displayMode Group/Experimenter view.
 	 */
-	ImporterModel(long groupId)
+	ImporterModel(long groupId, int displayMode)
 	{
-		this(groupId, false);
+		this(groupId, false, displayMode);
 	}
 	
 	/** 
@@ -167,12 +184,14 @@ class ImporterModel
 	 * @param groupID The id to the group selected for the current user.
 	 * @param master Pass <code>true</code> if the importer is used a stand-alone
 	 * application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 */
-	ImporterModel(long groupId, boolean master)
+	ImporterModel(long groupId, boolean master, int displayMode)
 	{
 		this.master = master;
 		initialize();
 		setGroupId(groupId);
+		setDisplayMode(displayMode);
 	}
 	
 	/**
@@ -352,14 +371,16 @@ class ImporterModel
 	 * @param refreshImport Flag indicating to refresh the on-going import.
 	 * @param changeGroup Flag indicating that the group has been modified
 	 * if <code>true</code>, <code>false</code> otherwise.
+	 * @param userID The id of the user to load the data for.
 	 */
 	void fireContainerLoading(Class rootType, boolean refreshImport, boolean 
-			changeGroup)
+			changeGroup, long userID)
 	{
 		if (!(ProjectData.class.equals(rootType) ||
 			ScreenData.class.equals(rootType))) return;
+		if (userID < 0) userID = getExperimenterId();
 		DataLoader loader = new DataLoader(component, ctx, rootType,
-				refreshImport, changeGroup);
+				refreshImport, changeGroup, userID);
 		loader.load();
 	}
 
@@ -371,7 +392,9 @@ class ImporterModel
 	void fireDataCreation(ObjectToCreate data)
 	{
 		SecurityContext ctx = new SecurityContext(data.getGroup().getId());
-		DataObjectCreator loader = new DataObjectCreator(component, ctx, 
+		ctx.setServerInformation(this.ctx.getHostName(), this.ctx.getPort());
+		ctx.setExperimenter(data.getExperimenter());
+		DataObjectCreator loader = new DataObjectCreator(component, ctx,
 				data.getChild(), data.getParent());
 		loader.load();
 	}
@@ -387,5 +410,37 @@ class ImporterModel
     	Collection l = ImporterAgent.getAvailableUserGroups();
     	return (l.size() <= 1);
     }
+
+    /**
+	 * Returns the display mode.
+	 * 
+	 * @return See above.
+	 */
+	int getDisplayMode() { return displayMode; }
+
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setDisplayMode(int value)
+	{
+		if (value < 0) {
+			checkDefaultDisplayMode();
+			return;
+		}
+		switch (value) {
+			case LookupNames.EXPERIMENTER_DISPLAY:
+			case LookupNames.GROUP_DISPLAY:
+				displayMode = value;
+				break;
+			default:
+				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
+		}
+		if (tags != null) {
+			tags.clear();
+			tags = null;
+		}
+	}
 
 }

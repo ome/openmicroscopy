@@ -82,14 +82,14 @@ class DataManagerViewImpl
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataManagerView#loadContainerHierarchy(SecurityContext, Class, List,
-	 * boolean, long, long, AgentEventListener)
+	 * boolean, long, AgentEventListener)
 	 */
 	public CallHandle loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List<Long> rootNodeIDs, boolean withLeaves,
-			long userID, long groupID, AgentEventListener observer)
+			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DMLoader(ctx, rootNodeType, rootNodeIDs,
-				withLeaves, userID, groupID);
+				withLeaves, userID);
 		return cmd.exec(observer);
 	}
 

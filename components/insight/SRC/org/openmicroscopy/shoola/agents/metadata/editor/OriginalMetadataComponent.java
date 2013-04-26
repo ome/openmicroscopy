@@ -61,7 +61,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -108,7 +107,7 @@ class OriginalMetadataComponent
 	 */
 	private void download()
 	{
-		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
 				"Download", "Select where to download the file.", null, true);
 		chooser.setSelectedFileFull(FileAnnotationData.ORIGINAL_METADATA_NAME);
@@ -400,7 +399,7 @@ class OriginalMetadataComponent
 			File folder = files[0];
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 			FileAnnotationData fa = model.getOriginalMetadata();
 			if (fa == null) return;
 			OriginalFile f = (OriginalFile) fa.getContent();
@@ -409,8 +408,6 @@ class OriginalMetadataComponent
 			DownloadActivityParam activity = new DownloadActivityParam(f,
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			un.notifyActivity(model.getSecurityContext(), activity);
-			
-			//un.notifyDownload(model.getOriginalMetadata(), folder);
 		}
 	}
 	

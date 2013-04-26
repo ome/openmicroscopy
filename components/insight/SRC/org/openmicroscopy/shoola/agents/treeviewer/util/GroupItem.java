@@ -56,7 +56,7 @@ public class GroupItem
 	private GroupData group;
 
 	/** The List of components hosting the user.*/
-	private List<UserMenuItem> usersItem;
+	private List<DataMenuItem> usersItem;
 	
 	/** The menu displaying the users.*/
 	private JComponent usersMenu;
@@ -113,7 +113,7 @@ public class GroupItem
 	 * 
 	 * @param usersItem The value to set.
 	 */
-	public void setUsersItem(List<UserMenuItem> usersItem)
+	public void setUsersItem(List<DataMenuItem> usersItem)
 	{
 		this.usersItem = usersItem;
 	}
@@ -150,11 +150,12 @@ public class GroupItem
 	public List<ExperimenterData> getSeletectedUsers()
 	{
 		List<ExperimenterData> users = new ArrayList<ExperimenterData>();
-		Iterator<UserMenuItem> i = usersItem.iterator();
-		UserMenuItem item;
+		Iterator<DataMenuItem> i = usersItem.iterator();
+		DataMenuItem item;
 		while (i.hasNext()) {
 			item = i.next();
-			if (item.isSelected()) users.add(item.getExperimenter());
+			if (item.isSelected())
+				users.add((ExperimenterData) item.getDataObject());
 		}
 		return users;
 	}

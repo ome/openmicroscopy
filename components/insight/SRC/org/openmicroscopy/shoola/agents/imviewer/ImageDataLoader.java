@@ -82,7 +82,7 @@ public class ImageDataLoader
      */
     public void load()
     {
-    	handle = ivView.loadImage(ctx, imageID, getCurrentUserID(), this);
+    	handle = ivView.loadImage(ctx, imageID, this);
     }
 
     /**
@@ -104,8 +104,6 @@ public class ImageDataLoader
         msg.print(exc);
         registry.getLogger().error(this, msg);
         viewer.discard();
-        //registry.getUserNotifier().notifyInfo("Data Retrieval Failure", 
-         //       "The image with ID:"+imageID+" cannot be viewed.");
     }
     
     /** 

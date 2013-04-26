@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 
 /** 
- * Holds the configration information for the <i>OMERO</i> entry in the
+ * Holds the configuration information for the <i>OMERO</i> entry in the
  * container's configuration file.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

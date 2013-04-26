@@ -25,8 +25,8 @@ TEST(Beta3Test, SavingPixels )
 {
     Fixture f;
 
-    const omero::client_ptr client = f.login();
-    ServiceFactoryPrx sf = client->getSession();
+    f.login();
+    ServiceFactoryPrx sf = f.client->getSession();
 
     PixelsIPtr pix = f.pixels();
 

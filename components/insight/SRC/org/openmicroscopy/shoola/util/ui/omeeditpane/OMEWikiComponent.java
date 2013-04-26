@@ -27,16 +27,17 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -46,11 +47,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentListener;
 
-//Third-party libraries
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.WordUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -241,6 +239,7 @@ public class OMEWikiComponent
 		wrapWord = true;
 		defaultText = "";
 		pane = new OMEEditPane(this, formatters);
+		pane.setMaximumSize(new Dimension(100,100));
 		
 		if (toolbar) {
 			installDefaultAction();

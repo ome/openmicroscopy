@@ -29,7 +29,6 @@ import javax.swing.JMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -79,11 +78,15 @@ public class ImporterFactory
 	 * Returns a {@link Importer}.
 	 * 
 	 * @param groupId The identifier of the current group.
+	 * @param master Pass <code>true</code> if the importer is used a 
+	 *               stand-alone application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 * @return See above.
 	 */
-	public static Importer getImporter(long groupId, boolean master)
+	public static Importer getImporter(long groupId, boolean master, int
+			displayMode)
 	{
-		ImporterModel model = new ImporterModel(groupId, master);
+		ImporterModel model = new ImporterModel(groupId, master, displayMode);
 		return singleton.getImporter(model);
 	}
 	
@@ -91,13 +94,12 @@ public class ImporterFactory
 	 * Returns a {@link Importer}.
 	 * 
 	 * @param groupId The identifier of the current group.
-	 * @param master Pass <code>true</code> if the importer is used a 
-	 * stand-alone application, <code>false</code> otherwise.
+	 * @param displayMode Group/Experimenter view.
 	 * @return See above.
 	 */
-	public static Importer getImporter(long groupId)
+	public static Importer getImporter(long groupId, int displayMode)
 	{
-		return getImporter(groupId, false);
+		return getImporter(groupId, false, displayMode);
 	}
 
 	/**
@@ -132,6 +134,16 @@ public class ImporterFactory
 		}
 	}
 	
+	/**
+	 * Sets the display mode.
+	 * 
+	 * @param displayMode The value to set.
+	 */
+	public static void setDiplayMode(int displayMode)
+	{
+		if (singleton.importer == null) return;
+		((ImporterComponent) singleton.importer).setDisplayMode(displayMode);
+	}
 	
 	/** 
 	 * Returns the <code>window</code> menu. 
@@ -167,10 +179,10 @@ public class ImporterFactory
 	 * Indicates if the {@link #windowMenu} is attached to the 
 	 * <code>TaskBar</code>.
 	 */
-	private boolean		isAttached;
+	private boolean isAttached;
 
 	/** The windows menu. */
-	private JMenu   	windowMenu;
+	private JMenu windowMenu;
 	
 	/** Creates a new instance. */
 	private ImporterFactory()
@@ -206,6 +218,20 @@ public class ImporterFactory
 		importer.removeChangeListener(this);
 		importer.discard();
 		importer = null;
+		handleViewerDiscarded();
+	}
+	
+	/**
+	 * Checks the list of opened viewers before removing the entry from the
+	 * menu.
+	 */
+	private void handleViewerDiscarded()
+	{
+		if (!singleton.isAttached) return;
+		if (singleton.importer != null) return;
+		TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
+		tb.removeFromMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		singleton.isAttached = false;
 	}
 	
 	/**
@@ -216,7 +242,10 @@ public class ImporterFactory
 	public void stateChanged(ChangeEvent ce)
 	{
 		ImporterComponent comp = (ImporterComponent) ce.getSource();
-		if (comp.getState() == Importer.DISCARDED) importer = null;
+		if (comp.getState() == Importer.DISCARDED) {
+			importer = null;
+			handleViewerDiscarded();
+		}
 	}
 	
 }
