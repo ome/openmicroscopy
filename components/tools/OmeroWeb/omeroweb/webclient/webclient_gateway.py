@@ -71,6 +71,13 @@ from django.core.mail import EmailMultiAlternatives
 from omeroweb.connector import Server
 
 try:
+    import hashlib
+    hash_sha1 = hashlib.sha1
+except:
+    import sha
+    hash_sha1 = sha.new
+
+try:
     PAGE = settings.PAGE
 except:
     PAGE = 200
@@ -1311,6 +1318,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def saveAndReturnFile(self, binary, oFile_id):
         """
         Provide method for directly updating a file object and return binary.
+        Assumes that the checksum algorithm used for file integrity verification is SHA-1.
 
         @param binary       Binary. Not null.
         @type binary        String
@@ -1323,13 +1331,26 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         store.setFileId(oFile_id, self.SERVICE_OPTS);
         pos = 0
         rlen = 0
-        
+        hash = hash_sha1()
+
         for chunk in binary.chunks():
             rlen = len(chunk)
             store.write(chunk, pos, rlen)
+            hash.update(chunk)
             pos = pos + rlen
-        return store.save(self.SERVICE_OPTS)
-    
+        ofile = store.save(self.SERVICE_OPTS)
+        store.close()
+
+        serverhash = ofile.hash.val
+        clienthash = hash.hexdigest()
+
+        if serverhash != clienthash:
+            msg = "SHA-1 checksums do not match in file upload: client has %s but server has %s" % (clienthash, serverhash)
+            logger.error(msg)
+            raise Exception(msg)
+
+        return ofile
+
     ##############################################
     ##   IShare
     
