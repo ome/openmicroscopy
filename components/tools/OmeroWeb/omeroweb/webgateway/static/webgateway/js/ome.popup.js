@@ -115,7 +115,26 @@ OME.openScriptWindow = function(event, width, height) {
     var script_url = $(event.target).attr('href');
     if (script_url == "#") return false;
 
-    script_url += "?"+ OME.get_tree_selection();
+    // selected is list of {'id':'image-123'} etc.
+    var selected = $("body").data("selected_objects.ome"),
+        sel_types = {};
+    if (typeof selected !== "undefined") {
+        for (var i=0; i<selected.length; i++) {
+            var type = selected[i].id.split("-")[0],
+                oid = selected[i].id.split("-")[1];
+            if (typeof sel_types[type] === "undefined") {
+                sel_types[type] = [];
+            }
+            sel_types[type].push(oid);
+        }
+        var args = [];
+        for (key in sel_types) {
+            if (sel_types.hasOwnProperty(key)){
+                args.push(key.capitalize() + "=" + sel_types[key].join(","));
+            }
+        }
+        script_url += "?" + args.join("&");
+    }
     OME.openCenteredWindow(script_url, width, height);
     return false;
 };
