@@ -4,12 +4,16 @@
 
 import unittest, time, os, datetime
 import tempfile
+import zlib
+from StringIO import StringIO
 
 #from models import StoredConnection
 from webgateway.webgateway_cache import FileCache, WebGatewayCache, WebGatewayTempFile
 from webgateway import views
 import omero
 from omero.gateway.scripts.testdb_create import *
+from omero.gateway import OriginalFileWrapper
+from omero.rtypes import unwrap
 
 from decorators import login_required
 
@@ -17,6 +21,7 @@ from django.test.client import Client
 from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
 from django.http import QueryDict
+from django.utils import simplejson
 
 #omero.gateway.BlitzGateway = omero.gateway._BlitzGateway
 #omero.gateway.ProjectWrapper = omero.gateway._ProjectWrapper
@@ -26,7 +31,7 @@ from django.http import QueryDict
 
 CLIENT_BASE='test'
 
-def fakeRequest (**kwargs):
+def fakeRequest (body=None, session_key=None, **kwargs):
     def bogus_request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -55,9 +60,11 @@ def fakeRequest (**kwargs):
         environ.update(self.defaults)
         environ.update(request)
         r = WSGIRequest(environ)
+        if body is not None:
+            r._stream = StringIO(body)
         if 'django.contrib.sessions' in settings.INSTALLED_APPS:
             engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        r.session = engine.SessionStore()
+        r.session = engine.SessionStore(session_key)
         qlen = len(r.REQUEST.dicts)
         def setQuery (**query):
             r.REQUEST.dicts = r.REQUEST.dicts[:qlen]
@@ -68,7 +75,7 @@ def fakeRequest (**kwargs):
         return r
     Client.bogus_request = bogus_request
     c = Client()
-    return c.bogus_request(**kwargs)
+    return c.bogus_request(body=None, **kwargs)
 
 class WGTest (GTest):
     def doLogin (self, user=None):
@@ -133,7 +140,7 @@ def _testCacheFSBlockSize (cache):
 class FileCacheTest(unittest.TestCase):
     def setUp (self):
         self.cache = FileCache('test_cache')
-    
+
     def tearDown (self):
         os.system('rm -fr test_cache')
 
@@ -264,7 +271,7 @@ class WebGatewayCacheTempFileTest(unittest.TestCase):
             self.assertEqual(fpath[-5:], 'aaaaa')
         except:
             self.fail('WebGatewayTempFile.new not handling long file names properly')
-        
+
 
 class WebGatewayCacheTest(unittest.TestCase):
     def setUp (self):
@@ -398,8 +405,8 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertNotEqual(self.wcache._json_cache._num_entries, 0)
         self.wcache.clear()
         self.assertEqual(self.wcache._json_cache._num_entries, 0)
-        
-        
+
+
 
 class JsonTest (WGTest):
     def testImageData (self):
@@ -443,3 +450,710 @@ class ZZ_TDTest(WGTest):
 
     def runTest (self):
         pass
+
+
+
+class WGTestUsersOnly(WGTest):
+    def setUp(self):
+        super(WGTestUsersOnly, self).setUp(skipTestDB=True)
+
+
+class RepositoryApiBaseTest(WGTestUsersOnly):
+
+    def setUp(self):
+        super(RepositoryApiBaseTest, self).setUp()
+        self.toDelete = []
+        self.repoclass = "Repository"
+        # set up reponame to be retrieved dynamically later on, unless
+        # it gets overridden in the meantime
+        self._reponame = "*"
+        self.loginmethod = self.loginAsAdmin
+
+    def _setRepoName(self, val):
+        self._reponame = val
+
+    def _getRepoName(self):
+        if self._reponame == "*":
+            if not self.gateway:
+                self.loginAsAdmin()
+            self._reponame = os.path.split(self.gateway.getConfigService().getConfigValue("omero.data.dir"))[1]
+        return self._reponame
+
+    reponame = property(_getRepoName, _setRepoName)
+
+    def _getrepo(self):
+        return views.get_repository(self.gateway, self.repoclass)
+
+    def _getDirectory(self, dirpath):
+        if self.repoclass == "ManagedRepository":
+            user = self.gateway.getUser()
+            return os.path.join('%s_%s' % (user.getName(), user.getId()), dirpath)
+        else:
+            return dirpath
+
+
+    def _delete(self, repository, filepath, timeout=30):
+        handle = repository.deletePaths([filepath], True, True)
+        try:
+            self.gateway._waitOnCmd(handle, loops=timeout * 2)  # loops are 500ms
+        finally:
+            handle.close()
+
+    def tearDown(self):
+        if self.toDelete:
+            if hasattr(self, 'gateway'):
+                lastloginmethod = None
+                for loginmethod, repoclass, reponame, name, expect in self.toDelete:
+                    if loginmethod != lastloginmethod:
+                        loginmethod()
+                        lastloginmethod = loginmethod
+                    repository, description = views.get_repository(self.gateway, repoclass, reponame)
+                    if repository.fileExists(name):
+                        if not expect:
+                            print "Unexpectedly found %s in repository %s" % (name, repository)
+                        try:
+                            self._delete(repository, name)
+                            if repository.fileExists(name):
+                                print "Could not delete %s in repository %s" % (name, repository)
+                        except Exception, ex:
+                            print "\nCould not clean up %s in repository %s (Reason: %s)" % (name, repository, ex)
+                self.toDelete = []
+            else:
+                print "\nNeed to cleanup files, but don't have gateway"
+        super(RepositoryApiBaseTest, self).tearDown()
+
+    def deleteLater(self, filename, repoclass=None, reponame=None, expect=True):
+        self.toDelete.append((self.loginmethod, repoclass or self.repoclass, reponame or self.reponame, filename, expect))
+
+
+class AsyncDeleteTest(RepositoryApiBaseTest):
+
+    def setUp(self):
+        super(AsyncDeleteTest, self).setUp()
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
+        self.loginmethod = self.loginAsAuthor
+
+    def _createOriginalFiles(self, directory, count, subdirs=0):
+        repository, description = self._getrepo()
+        userdir = self._getDirectory(directory)
+        repository.makeDir(userdir, True)
+        for i in range(count):
+            name = os.path.join(userdir, 'file%s.txt' % i)
+            targetfile = repository.file(name, 'rw')
+            targetfile.truncate(0)
+            targetfile.write('ABC123', 0, 6)
+            targetfile.close()
+            self.deleteLater(name, expect=False)
+        for i in range(subdirs):
+            self._createOriginalFiles(os.path.join(directory, 'subdir%d' % i), count)
+        self.deleteLater(userdir, expect=False)
+        l = repository.listFiles(userdir)
+        return [unwrap(x.id) for x in l]
+
+    def _testAbc(self):
+        self.loginmethod()
+        name = 'delete_test_%s' % time.time()
+        ids = self._createOriginalFiles(name, 3, 2)
+
+        repository, description = self._getrepo()
+        ctx = self.gateway.SERVICE_OPTS.copy()
+
+        explore = [self._getDirectory(name)]
+        files = []
+        directories = []
+
+        while explore or files or directories:
+            result = views._gather_files_for_deletion(repository, ctx, 5, explore, files, directories)
+            print '*' * 50
+            print result
+            print explore
+            print files
+            print directories
+
+    def testDeleteCallback(self, count=10):
+        self.loginmethod()
+        name = 'delete_test_%s' % time.time()
+        ids = self._createOriginalFiles(name, count)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=false')
+        starttime = datetime.datetime.now()
+        response = views.repository_delete(r, klass=self.repoclass,
+            name=self.reponame, filepath=self._getDirectory(name), conn=self.gateway,
+            server_id=1, _internal=True)
+        endtime = datetime.datetime.now()
+        response = simplejson.loads(response)
+        self.assertEqual(False, response['async'])
+        #print "\nDeleted %s OriginalFile objects in %s" % (
+        #        count, endtime - starttime
+        #     )
+
+    def testAsyncDeleteCallback(self, count=10, checkinterval=1, batchsize=100, subdirs=0):
+        self.loginmethod()
+        name = 'delete_test_%s' % time.time()
+        ids = self._createOriginalFiles(name, count, subdirs)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='', QUERY_STRING='async=true&batchsize=%s&progress=true' % batchsize)
+        response = views.repository_delete(r, klass=self.repoclass,
+            name=self.reponame, filepath=self._getDirectory(name), conn=self.gateway,
+            server_id=1, _internal=True)
+        session_key = r.session.session_key
+        response = simplejson.loads(response)
+        #self.assertEqual(count + 1, response['total'], msg=response) # files plus containing dir
+        self.assertEqual(True, response['async'])
+        self.assertTrue(response.has_key('handle'))
+        strhandle = response['handle']
+
+        starttime = datetime.datetime.now()
+        while True:
+            r = fakeRequest(session_key=session_key, QUERY_STRING='handle=' + strhandle)
+            response = views.repository_delete_status(r, klass=self.repoclass,
+                name=self.reponame, conn=self.gateway, server_id=1, _internal=True)
+            response = simplejson.loads(response)
+            #print response
+            self.assertFalse(response.has_key('error'), msg=response)
+            self.assertTrue(response.has_key('complete'))
+            if response['complete']:
+                break
+            time.sleep(checkinterval)
+        endtime = datetime.datetime.now()
+        #print "\nDeleted %s OriginalFiles in %s (batch size %s, check interval %ss)" % (
+        #        count + count * subdirs + subdirs, endtime - starttime, batchsize, checkinterval
+        #     )
+        self.assertTrue(response['complete'])
+
+    def testLargeDeleteCallback(self):
+        #self.testAsyncDeleteCallback(count=100)
+        #self.testAsyncDeleteCallback(count=200)
+        self.testAsyncDeleteCallback(count=30, batchsize=20, subdirs=2)
+        #self.testAsyncDeleteCallback(count=500)
+        #self.testAsyncDeleteCallback(count=1000)
+        pass
+
+class RepositoryApiTest(RepositoryApiBaseTest):
+    """
+    Admin can upload and read file in regular repository, and can create
+    subdirectory, all using webgateway API
+    """
+
+    def testRepositories(self):
+        self.loginmethod()
+        r = fakeRequest()
+        v = views.repositories(r, server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"name": "ManagedRepository"' in v)
+
+    def testRepository(self):
+        self.loginmethod()
+        r = fakeRequest()
+        v = views.repository(r, klass=self.repoclass, name=self.reponame, server_id=1, conn=self.gateway, _internal=True)
+        check = '"name": "%s"' % self.reponame if self.reponame else self.repoclass
+        self.assertTrue(check in v, "Did not find %s in %s" % (check, v))
+        self.assertTrue('"type": "OriginalFile"' in v)
+
+    def testRepositoryUploadDownload(self):
+        NAME = 'test%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
+
+        self.loginmethod()
+        view = views.repository_upload()
+        viewargs = dict(klass=self.repoclass, name=self.reponame,
+                        filepath=NAME, server_id=1,
+                        conn=self.gateway, _internal=True)
+
+        r = fakeRequest(QUERY_STRING='uploads')
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        self.assertTrue('"uploadId": "' in v)
+        uploadid = simplejson.loads(v)['uploadId']
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=1' % uploadid)
+        r._stream = StringIO('ABC')
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=2' % uploadid)
+        r._stream = StringIO('123')
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.get(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        parts = simplejson.loads(v)['parts']
+        self.assertEqual(2, len(parts))
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v, msg=v)
+
+        r = fakeRequest()
+        v = views.repository_download(r, **viewargs)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('ABC123', v.content)
+
+        r = fakeRequest()
+        viewargs['filepath'] = None
+        v = views.repository_listfiles(r, **viewargs)
+        self.assertTrue('"name": "%s"' % NAME in v, msg=v)
+        self.assertTrue('"size": 6' in v)
+        self.assertTrue('"mtime": ' in v)
+
+        mtime = None
+        for metadata in simplejson.loads(v)['result']:
+            if metadata['name'] == NAME:
+                mtime = metadata['mtime']
+                break
+        self.assertTrue(mtime, msg="mtime not set in '%s'" % metadata)
+        self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
+
+    def testRepositoryCompressedUpload(self):
+        NAME = 'compressedtest%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
+
+        self.loginmethod()
+        view = views.repository_upload()
+        viewargs = dict(klass=self.repoclass, name=self.reponame,
+                        filepath=NAME, server_id=1,
+                        conn=self.gateway, _internal=True)
+
+        r = fakeRequest(QUERY_STRING='uploads')
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        self.assertTrue('"uploadId": "' in v)
+        uploadid = simplejson.loads(v)['uploadId']
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=1&compressed=gzip'
+                        % uploadid)
+        r._stream = StringIO(zlib.compress('ABC'))
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v, msg=v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s&partNumber=2&compressed=gzip'
+                        % uploadid)
+        r._stream = StringIO(zlib.compress('123'))
+        v = view.put(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.get(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v)
+        parts = simplejson.loads(v)['parts']
+        self.assertEqual(2, len(parts))
+
+        r = fakeRequest(QUERY_STRING='uploadId=%s' % uploadid)
+        v = view.post(r, **viewargs)
+        self.assertTrue('"bad": "false"' in v, msg=v)
+
+        r = fakeRequest()
+        v = views.repository_download(r, **viewargs)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('ABC123', v.content)
+
+        r = fakeRequest()
+        viewargs['filepath'] = None
+        v = views.repository_listfiles(r, **viewargs)
+        self.assertTrue('"name": "%s"' % NAME in v, msg=v)
+        self.assertTrue('"size": 6' in v)
+        self.assertTrue('"mtime": ' in v)
+
+        mtime = None
+        for metadata in simplejson.loads(v)['result']:
+            if metadata['name'] == NAME:
+                mtime = metadata['mtime']
+                break
+        self.assertTrue(mtime, msg="mtime not set in '%s'" % metadata)
+        self.assertAlmostEqual(time.time() * 1000, mtime, delta=5000)
+
+    def testRepositoryMkdir(self):
+        NAME = 'testdir%d' % int(time.time() * 1000)
+        self.deleteLater(NAME)
+
+        self.loginmethod()
+        dirpath = self._getDirectory(NAME)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='')
+        v = views.repository_makedir(r, dirpath=dirpath, klass=self.repoclass,
+                                     server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"bad": "false"' in v, msg='Returned: %s' % v)
+
+        if self.repoclass == 'Repository':
+            # TODO: the following file listing tests fail for Repository
+            return
+
+        r = fakeRequest()
+        v = views.repository_list(r, klass=self.repoclass, name=self.reponame,
+                                  filepath=self._getDirectory(''),
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        self.assertTrue(dirpath in result, msg="/%s not in '%s'" % (NAME, result))
+
+        r = fakeRequest()
+        v = views.repository_listfiles(r, klass=self.repoclass, name=self.reponame,
+                                  filepath=self._getDirectory(''),
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        self.assertTrue(any(entry['name'] == NAME for entry in result), msg=result)
+
+class ManagedRepositoryApiTest(RepositoryApiTest):
+    """
+    Admin can upload and read file in ManagedRepository, and can create
+    subdirectory, all using webgateway API
+    """
+
+    def setUp(self):
+        super(ManagedRepositoryApiTest, self).setUp()
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
+
+
+class RepositoryApiAsAuthorTest(RepositoryApiTest):
+    """
+    Author can upload and read file in regular repository, and can create
+    subdirectory, all using webgateway API
+    """
+
+    def setUp(self):
+        super(RepositoryApiAsAuthorTest, self).setUp()
+        # pre-fetch reponame, otherwise a security exception
+        # occurs when reponame is fetched with author login
+        reponame = self.reponame
+        self.loginmethod = self.loginAsAuthor
+
+
+class ManagedRepositoryApiAsAuthorTest(RepositoryApiTest):
+    """
+    Author can upload and read file in ManagedRepository, and can create
+    subdirectory, all using webgateway API
+    """
+
+    def setUp(self):
+        super(ManagedRepositoryApiAsAuthorTest, self).setUp()
+        self.repoclass = "ManagedRepository"
+        self.reponame = None
+        self.loginmethod = self.loginAsAuthor
+
+
+class RepositoryApiPermissionsTest(RepositoryApiBaseTest):
+    """
+    If admin creates a file in regular repository, user can read it
+    """
+
+    def setUp(self, repoclass=None, reponame=''):
+        super(RepositoryApiPermissionsTest, self).setUp()
+        if repoclass is not None:
+            self.repoclass = repoclass
+        if reponame != '':
+            self.reponame = reponame
+        self.loginAsAdmin()
+        self.FILENAME = self._getDirectory('RepositoryApiPermissionsTest')
+        repository, repodesc = self._getrepo()
+        if self._getDirectory('') != '':  # don't try to recreate root
+            repository.makeDir(self._getDirectory(''), True)
+        targetfile = repository.file(self.FILENAME, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('ABC123', 0, 6)
+        targetfile.close()
+
+    def tearDown(self):
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
+        repository.deletePaths([self.FILENAME], True, True)
+        super(RepositoryApiPermissionsTest, self).tearDown()
+
+    def testFileAccessAsAdmin(self):
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
+        targetfile = repository.file(self.FILENAME, 'r')
+        filesize = targetfile.size()
+        self.assertEqual(6, filesize)
+
+    def testFileAccessAsUser(self):
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+
+    def _test(self):
+        print "\nUser"
+        self.loginAsUser()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+        print "\nAuthor"
+        self.loginAsAuthor()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+        print "\nAdmin"
+        self.loginAsAdmin()
+        group = self.gateway.getGroupFromContext()
+        print "\nCurrent group: ", group.getName()
+        print "Member of:"
+        for g in self.gateway.getGroupsMemberOf():
+            print "   ID:", g.getName(), " Name:", g.getId()
+
+
+class ManagedRepositoryApiPermissionsTest(RepositoryApiPermissionsTest):
+    """
+    If admin creates a file in ManagedRepository, admin should be able to
+    read the file, but user should get an exception
+    """
+
+    def setUp(self):
+        super(ManagedRepositoryApiPermissionsTest, self).setUp(repoclass="ManagedRepository", reponame=None)
+
+    def testFileAccess(self):
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        self.assertRaises(Exception, repository.file, self.FILENAME, 'r')
+
+    def testAdminFileAccess(self):
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
+        targetfile = repository.file(self.FILENAME, 'r')
+        filesize = targetfile.size()
+        self.assertEqual(6, filesize)
+
+
+class ManagedRepositoryApiCrossGroupTest(RepositoryApiPermissionsTest):
+    """
+    If admin and user create a file each in ManagedRepository, admin should
+    see both but user should only see own file. Also, repository.list()
+    returns list of file names relative to repository root
+    """
+
+    def setUp(self):
+        super(ManagedRepositoryApiCrossGroupTest, self).setUp(repoclass="ManagedRepository", reponame=None)
+        self.loginAsAdmin()
+        self.admindir = self._getDirectory('')
+        self.loginAsUser()
+        self.FILENAME_USER = self._getDirectory('ManagedRepositoryApiCrossGroupTest_User')
+        self.FILENAME_USER_DELTEST = self._getDirectory('ManagedRepositoryApiCrossGroupTest_User2')
+        self.dir = self._getDirectory('')
+        repository, repodesc = self._getrepo()
+        repository.makeDir(self.dir, True)
+        targetfile = repository.file(self.FILENAME_USER, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('DEF456', 0, 6)
+        targetfile.close()
+        targetfile = repository.file(self.FILENAME_USER_DELTEST, 'rw')
+        targetfile.truncate(0)
+        targetfile.write('GHI789', 0, 6)
+        targetfile.close()
+
+    def tearDown(self):
+        timeout = 1
+        self.loginAsUser()
+        repository, repodesc = self._getrepo()
+        repository.deletePaths([self.FILENAME_USER], True, True)
+        if repository.fileExists(self.FILENAME_USER_DELTEST):
+            self._delete(repository, self.FILENAME_USER_DELTEST)
+        super(ManagedRepositoryApiCrossGroupTest, self).tearDown()
+
+    def testListAsAdmin(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertTrue(self.FILENAME_USER in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER, files))
+
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.admindir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertTrue(self.FILENAME in files, msg="%s not in '%s'" %
+                        (self.FILENAME, files))
+
+    def testListAsUser(self):
+        self.loginAsUser()
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertTrue(self.FILENAME_USER in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER, files))
+
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.admindir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertFalse(self.FILENAME in files, msg="%s in '%s'" %
+                        (self.FILENAME, files))
+
+    def testListFilesAsAdmin(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_listfiles(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
+        self.assertTrue(os.path.split(self.FILENAME_USER)[-1] in files, msg="%s not in '%s'" %
+                        (os.path.split(self.FILENAME_USER)[-1], files))
+
+        r = fakeRequest()
+        v = views.repository_listfiles(r, filepath=self.admindir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
+        self.assertTrue(os.path.split(self.FILENAME)[-1] in files, msg="%s not in '%s'" %
+                        (os.path.split(self.FILENAME)[-1], files))
+
+    def testListFilesAsUser(self):
+        self.loginAsUser()
+        r = fakeRequest()
+        v = views.repository_listfiles(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
+        self.assertTrue(os.path.split(self.FILENAME_USER)[-1] in files, msg="%s not in '%s'" %
+                        (os.path.split(self.FILENAME_USER)[-1], files))
+
+        r = fakeRequest()
+        v = views.repository_listfiles(r, filepath=self.admindir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.get('name') for f in result]
+        self.assertFalse(os.path.split(self.FILENAME)[-1] in files, msg="%s in '%s'" %
+                        (os.path.split(self.FILENAME)[-1], files))
+
+
+
+    def testSha(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_sha(r, self.repoclass, filepath=self.FILENAME_USER,
+                                 server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('{"sha": "25577cfc23d0e779241727f063b0648ad451360c"}', v)
+
+    def testDelete(self):
+        self.loginAsUser()
+
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertTrue(self.FILENAME_USER_DELTEST in files, msg="%s not in '%s'" %
+                        (self.FILENAME_USER_DELTEST, files))
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='')
+        v = views.repository_delete(r, filepath=self.FILENAME_USER_DELTEST,
+                                    klass=self.repoclass,
+                                    server_id=1, conn=self.gateway, _internal=True)
+        #self.assertTrue('"total": 1' in v, msg='Returned: %s' % v)
+
+
+        r = fakeRequest()
+        v = views.repository_list(r, filepath=self.dir, klass=self.repoclass,
+                                  server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('"result": [' in v, msg='Returned: %s' % v)
+        result = simplejson.loads(v)['result']
+        files = [f.strip('/') for f in result]
+        self.assertFalse(self.FILENAME_USER_DELTEST in files, msg="%s in '%s'" %
+                        (self.FILENAME_USER_DELTEST, files))
+
+    def testDownload(self):
+        self.loginAsAdmin()
+        r = fakeRequest()
+        v = views.repository_download(r, filepath=self.FILENAME_USER,
+                                    klass=self.repoclass,
+                                    server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual(200, v.status_code)
+        self.assertEqual('DEF456', v.content)
+
+
+class AnnotationTest(RepositoryApiBaseTest):
+
+    TEST_NS = 'omero.webgateway.annotate_test'
+
+    def setUp(self):
+        super(AnnotationTest, self).setUp()
+        self.loginAsAdmin()
+        repository, repodesc = self._getrepo()
+
+        # clean up from previous failed runs
+        self.obj = self.gateway.getObject('OriginalFile', attributes=dict(name='annotationTest', path='/'))
+        if self.obj:
+            self.obj.removeAnnotations(self.TEST_NS)
+        else:
+            targetfile = repository.file('annotationTest', 'rw')
+            targetfile.truncate(0)
+            targetfile.write('DEF456', 0, 6)
+            targetfile.close()
+            self.obj = self.gateway.getObject('OriginalFile', attributes=dict(name='annotationTest', path='/'))
+
+    def tearDown(self):
+        self.obj.removeAnnotations(self.TEST_NS)
+        repository, repodesc = self._getrepo()
+        repository.deletePaths(['annotationTest'], True, True)
+        super(AnnotationTest, self).tearDown()
+
+    def testAnnotation(self):
+        query = dict(QUERY_STRING='ns=%s' % self.TEST_NS)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('[]', v)
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='{"name": "test"}', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        result = simplejson.loads(v)
+        self.assertEqual(1, len(result))
+        self.assertTrue(result[0].has_key('type'))
+        self.assertTrue(result[0].has_key('id'))
+        self.assertTrue(result[0].has_key('value'))
+        self.assertEqual('{"name": "test"}', result[0]['value'])
+
+        r = fakeRequest(REQUEST_METHOD='POST', body='{"testkey": "testvalue"}', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        result = simplejson.loads(v)
+        self.assertEqual(1, len(result), msg=result)
+        self.assertTrue(result[0].has_key('type'))
+        self.assertTrue(result[0].has_key('id'))
+        self.assertTrue(result[0].has_key('value'))
+        self.assertEqual('{"testkey": "testvalue"}', result[0]['value'])
+
+        r = fakeRequest(REQUEST_METHOD='DELETE', **query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertTrue('ok' in v)
+
+        r = fakeRequest(**query)
+        v = views.annotate(r, 'OriginalFile', self.obj.id,
+                           server_id=1, conn=self.gateway, _internal=True)
+        self.assertEqual('[]', v)

@@ -43,9 +43,19 @@ logger = logging.getLogger(__name__)
 class ConnCleaningHttpResponse(HttpResponse):
     """Extension of L{HttpResponse} which closes the OMERO connection."""
 
+    def __init__(self, *args, **kwargs):
+        self._close_files = kwargs.pop('close_files', None)
+        super(ConnCleaningHttpResponse, self).__init__(*args, **kwargs)
+
     def close(self):
         super(ConnCleaningHttpResponse, self).close()
         try:
+            if self._close_files:
+                for f in self._close_files:
+                    try:
+                        f.close()
+                    except:
+                        logger.error('Failed to close file.', exc_info=True)
             logger.debug('Closing OMERO connection in %r' % self)
             if self.conn is not None and self.conn.c is not None:
                 for v in self.conn._proxies.values():

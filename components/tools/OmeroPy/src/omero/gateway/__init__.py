@@ -3959,6 +3959,8 @@ class _OriginalFileWrapper (BlitzObjectWrapper):
     omero_model_OriginalFileI class wrapper extends BlitzObjectWrapper.
     """
 
+    _attrs = ('()size', '()mtime')
+
     def __bstrap__ (self):
         self.OMERO_CLASS = 'OriginalFile'
     
