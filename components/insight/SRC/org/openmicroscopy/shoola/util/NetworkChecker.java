@@ -24,12 +24,12 @@
 package org.openmicroscopy.shoola.util;
 
 //Java imports
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.Socket;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-
 
 //Third-party libraries
 
@@ -80,8 +80,12 @@ public class NetworkChecker {
 		boolean networkup = false;
 		if (UIUtilities.isLinuxOS()) {
 			try {
-				Socket s = new Socket("www.openmicroscopy.org.uk", 80);
-				s.close();
+				// use HTTP URL instead of plain socket connection to avoid
+				// network checks timeouts for clients behind a web proxy
+				// (requires adequate system property in startup script)
+				URL url = new URL("http://www.openmicroscopy.org.uk");
+				InputStream is = url.openStream();
+				is.close();
 				networkup = true;
 			} catch (Exception e) {}
 		} else {
