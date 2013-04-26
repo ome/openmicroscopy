@@ -87,7 +87,7 @@ public class ExportActivity
 					extension = "."+OMETIFFFilter.OME_TIFF;
 				break;
 		}
-		if (StringUtils.isBlank(extension)) return path+extension;
+		if (!StringUtils.isBlank(extension)) return path+extension;
 		return path;
     }
     
