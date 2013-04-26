@@ -14,6 +14,7 @@ import static omero.rtypes.rlong;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -49,8 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.context.ApplicationListener;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 /**
  * Strategy for handling the conversion between {@link Shape shapes} and
