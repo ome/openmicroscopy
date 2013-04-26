@@ -5283,6 +5283,20 @@ class ColorHolder (object):
         
         return (self._color['red'], self._color['green'], self._color['blue'])
 
+    def getInt (self):
+        """
+        Returns the color as an Integer
+
+        @return:    Integer
+        @rtyp:      int
+        """
+
+        a = self.getAlpha() << 24
+        r = self.getRed() << 16
+        g = self.getGreen() << 8
+        b = self.getBlue() << 0
+        return r+g+b+a
+
 class _LogicalChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
