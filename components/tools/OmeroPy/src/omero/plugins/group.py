@@ -147,7 +147,7 @@ More information is available at:
 
         try:
             id = admin.createGroup(g)
-            self.ctx.out("Added group %s (id=%s) with permissions %s" % (id, args.name, perms))
+            self.ctx.out("Added group %s (id=%s) with permissions %s" % (args.name, id, perms))
         except omero.ValidationException, ve:
             # Possible, though unlikely after previous check
             if self.exc.is_constraint_violation(ve):
