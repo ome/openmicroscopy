@@ -810,6 +810,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
+    figScripts = None
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
