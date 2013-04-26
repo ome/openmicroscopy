@@ -36,11 +36,9 @@ import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.repo.path.StringTransformer;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-import ome.util.checksum.ChecksumType;
 import omero.ResourceError;
 import omero.ServerError;
 import omero.grid.ImportLocation;
@@ -63,13 +61,14 @@ import omero.model.PixelDataJobI;
 import omero.model.ThumbnailGenerationJob;
 import omero.model.ThumbnailGenerationJobI;
 import omero.model.UploadJob;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Function;
 
 import Ice.Current;
 
@@ -94,25 +93,19 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * From the server side, we cannot imitate ImportLibrary.createImport
      * in applying client-side specifics to clean up the path. */
     private static final ClientFilePathTransformer nopClientTransformer =
-            new ClientFilePathTransformer(new StringTransformer() {
+            new ClientFilePathTransformer(new Function<String, String>() {
                 // @Override  since JDK6
                 public String apply(String from) {
                     return from;
                 }
     });
 
+    /* used for generating %monthname% for path templates */
+    private static final DateFormatSymbols DATE_FORMAT = new DateFormatSymbols();
+
     private final String template;
 
     private final ProcessContainer processes;
-
-    /**
-     * Fields used in date-time calculations.
-     */
-    private static final DateFormatSymbols DATE_FORMAT;
-
-    static {
-        DATE_FORMAT = new DateFormatSymbols();
-    }
 
     /**
      * Creates a {@link ProcessContainer} internally that will not be managed
@@ -121,13 +114,15 @@ public class ManagedRepositoryI extends PublicRepositoryI
      * @param dao
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
-        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl());
+        this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
+                null);
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,
             ProcessContainer processes,
-            ChecksumProviderFactory checksumProviderFactory) throws Exception {
-        super(dao, checksumProviderFactory);
+            ChecksumProviderFactory checksumProviderFactory,
+            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
+        super(dao, checksumProviderFactory, checksumAlgorithm);
         this.template = template;
         this.processes = processes;
         log.info("Repository template: " + this.template);
@@ -155,7 +150,9 @@ public class ManagedRepositoryI extends PublicRepositoryI
 
         if (settings == null) {
             settings = new ImportSettings(); // All defaults.
-            settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
+        }
+        if (settings.checksumAlgorithm == null) {
+            settings.checksumAlgorithm = this.checksumAlgorithm;
         }
 
         final List<FsFile> paths = new ArrayList<FsFile>();
@@ -297,10 +294,10 @@ public class ManagedRepositoryI extends PublicRepositoryI
         final List<CheckedPath> checked = new ArrayList<CheckedPath>();
         for (int i = 0; i < size; i++) {
             final String path = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            checked.add(checkPath(path, __current));
+            checked.add(checkPath(path, settings.checksumAlgorithm, __current));
         }
 
-        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, checked, __current);
+        final Fileset managedFs = repositoryDao.saveFileset(getRepoUuid(), fs, settings.checksumAlgorithm, checked, __current);
         // Since the fileset saved validly, we create a session for the user
         // and return the process.
 
@@ -334,7 +331,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         }
         return null;
     }
-    
+
     /**
      * From a list of paths, calculate the common root path that all share. In
      * the worst case, that may be "/". May not include the last element, the filename.
@@ -527,7 +524,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         paths = trimmedPaths.fullPaths;
         
         // sanitize paths (should already be sanitary; could introduce conflicts)
-        final StringTransformer sanitizer = serverPaths.getPathSanitizer();
+        final Function<String, String> sanitizer = serverPaths.getPathSanitizer();
         relPath = relPath.transform(sanitizer);
         basePath = basePath.transform(sanitizer);
         int index = paths.size();
@@ -546,9 +543,8 @@ public class ManagedRepositoryI extends PublicRepositoryI
             final String relativeToEnd = path.getPathFrom(basePath).toString();
             data.usedFiles.add(relativeToEnd);
             final String fullRepoPath = data.sharedPath + FsFile.separatorChar + relativeToEnd;
-            final ChecksumType checksumType = ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
             data.checkedPaths.add(new CheckedPath(this.serverPaths, fullRepoPath,
-                    this.checksumProviderFactory.getProvider(checksumType)));
+                    this.checksumProviderFactory, checksumAlgorithm));
         }
 
         makeDir(data.sharedPath, true, __current);

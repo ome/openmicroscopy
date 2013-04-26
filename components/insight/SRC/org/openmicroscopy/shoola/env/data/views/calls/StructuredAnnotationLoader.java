@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -77,13 +77,39 @@ public class StructuredAnnotationLoader
     private SecurityContext ctx;
     
     /**
+     * Creates a {@link BatchCall} to load the specified annotation.
+     * 
+     * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadSpeficiedAnnotationLinkedTo(final Class<?> rootType,
+    		final List<Long> rootIDs, final Class<?> annotationType,
+    		final List<String> nsInclude, final List<String> nsExlcude)
+    {
+        return new BatchCall("Loading Specified annotation") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadAnnotations(ctx, rootType, rootIDs,
+                		annotationType, nsInclude, nsExlcude);
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to load the existing annotations of the 
      * specified type related to the passed type of object.
      * 
-     * @param annotationType 	The type of annotation to load.
-     * @param objectType		The type of object or <code>null</code>.
-     * @param userID			The id of the user or <code>-1</code> if the id 
-     * 							is not specified.
+     * @param annotationType The type of annotation to load.
+     * @param objectType The type of object or <code>null</code>.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     * is not specified.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadAnnotations(final Class annotationType,
@@ -102,9 +128,9 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the existing annotations of the 
      * specified type related to the passed type of object.
      * 
-     * @param annotationType 	The type of annotation to load.
-     * @param userID			The id of the user or <code>-1</code> if the id 
-     * 							is not specified.
+     * @param annotationType The type of annotation to load.
+     * @param userID The id of the user or <code>-1</code> if the id 
+     * is not specified.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadAnnotations(final List<SecurityContext> ctx,
@@ -129,13 +155,13 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
-     * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param type The type of the object.
+     * @param id The id of the object.
+     * @param userID The id of the user who tagged the object or
+     * <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadRatings(final Class type, final long id, 
+    private BatchCall loadRatings(final Class type, final long id,
     							final long userID)
     {
         return new BatchCall("Loading Ratings") {
@@ -151,13 +177,13 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the measurement related to the object
      * identified by the class and the id.
      * 
-     * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param type The type of the object.
+     * @param id The id of the object.
+     * @param userID The id of the user who tagged the object or
+     * <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadROIMeasurements(final Class type, final long id, 
+    private BatchCall loadROIMeasurements(final Class type, final long id,
     							final long userID)
     {
         return new BatchCall("Loading Measurements") {
@@ -173,13 +199,12 @@ public class StructuredAnnotationLoader
      * Creates a {@link BatchCall} to load the ratings related to the object
      * identified by the class and the id.
      * 
-     * @param object	The type of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param object The type of the object.
+     * @param userID The id of the user who tagged the object or 
+     * <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadStructuredData(final Object object, 
-    									final long userID)
+    private BatchCall loadStructuredData(final Object object, final long userID)
     {
         return new BatchCall("Loading Ratings") {
             public void doCall() throws Exception
@@ -195,9 +220,9 @@ public class StructuredAnnotationLoader
      * identified by the class and the id.
      * 
      * @param data The objects.
-     * @param userID The id of the user who tagged the object or 
+     * @param userID The id of the user who tagged the object or
      *               <code>-1</code> if the user is not specified.
-     * @param viewed Pass <code>true</code> to load the rendering settings 
+     * @param viewed Pass <code>true</code> to load the rendering settings
 	 *               related to the objects, <code>false<code> otherwise.
      * @return The {@link BatchCall}.
      */
@@ -216,7 +241,7 @@ public class StructuredAnnotationLoader
     /**
      * Creates a {@link BatchCall} to load the specified annotation.
      * 
-     * @param annotationID	The id of the annotation to load.
+     * @param annotationID The id of the annotation to load.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadAnnotation(final long annotationID)
@@ -236,7 +261,7 @@ public class StructuredAnnotationLoader
      * 
      * @param type The type of the object.
      * @param ids The collection of id of the object.
-     * @param userID The id of the user who tagged the object or 
+     * @param userID The id of the user who tagged the object or
      *            <code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
@@ -295,10 +320,10 @@ public class StructuredAnnotationLoader
      * 
      * @param ctx The security context.
      * @param index The index identifying the call. One of the constants
-     * 					defined by this class.
-     * @param userID	The id of the user or <code>-1</code> if the id 
-     * 					is not specified.
-     * @param data		The collection of data objects to handle.
+     * defined by this class.
+     * @param userID The id of the user or <code>-1</code> if the id
+     * is not specified.
+     * @param data The collection of data objects to handle.
      * @param viewed
     
      */
@@ -337,13 +362,13 @@ public class StructuredAnnotationLoader
 			case RATING:
 				if (object instanceof DataObject) {
 					DataObject ho = (DataObject) object;
-					loadCall = loadRatings(object.getClass(), ho.getId(), 
+					loadCall = loadRatings(object.getClass(), ho.getId(),
 							userID);
 				}
 				break;
 			case ROI_MEASUREMENT:
 				DataObject ho = (DataObject) object;
-				loadCall = loadROIMeasurements(object.getClass(), ho.getId(), 
+				loadCall = loadROIMeasurements(object.getClass(), ho.getId(),
 						userID);
 				break;
 			default:
@@ -397,9 +422,30 @@ public class StructuredAnnotationLoader
      *               is not specified.
      * @param groupID The id of the group or <code>-1</code>.
      */
-    public StructuredAnnotationLoader(List<SecurityContext> ctx, 
+    public StructuredAnnotationLoader(List<SecurityContext> ctx,
     		Class annotationType, long userID)
     {
     	loadCall = loadAnnotations(ctx, annotationType, userID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+     */
+    public StructuredAnnotationLoader(SecurityContext ctx, Class<?> rootType,
+    		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+    		List<String> nsExlcude)
+    {
+    	this.ctx = ctx;
+    	loadCall = loadSpeficiedAnnotationLinkedTo(rootType, rootIDs,
+    			annotationType, nsInclude, nsExlcude);
     }
 }

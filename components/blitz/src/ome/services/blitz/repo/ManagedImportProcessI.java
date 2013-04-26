@@ -43,6 +43,7 @@ import omero.grid.ImportRequest;
 import omero.grid.ImportSettings;
 import omero.grid._ImportProcessOperations;
 import omero.grid._ImportProcessTie;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 
@@ -183,6 +184,10 @@ public class ManagedImportProcessI extends AbstractAmdServant
         return this.fs;
     }
 
+    public ImportSettings getImportSettings(Current __current) {
+        return this.settings;
+    }
+
     //
     // ProcessContainer INTERFACE METHODS
     //
@@ -252,9 +257,9 @@ public class ManagedImportProcessI extends AbstractAmdServant
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
         for (int i = 0; i < size; i++) {
             String usedFile = location.sharedPath + FsFile.separatorChar + location.usedFiles.get(i);
-            CheckedPath cp = repo.checkPath(usedFile, this.current);
+            CheckedPath cp = repo.checkPath(usedFile, settings.checksumAlgorithm, this.current);
             final String clientHash = hashes.get(i);
-            final String serverHash = cp.sha1();
+            final String serverHash = cp.hash();
             if (!clientHash.equals(serverHash)) {
                 failingChecksums.put(i, serverHash);
             }

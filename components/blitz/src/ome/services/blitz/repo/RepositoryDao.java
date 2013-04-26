@@ -1,6 +1,5 @@
 package ome.services.blitz.repo;
 
-import java.io.File;
 import java.util.List;
 
 import Ice.Current;
@@ -14,6 +13,7 @@ import ome.util.SqlAction.DeleteLog;
 import omero.RMap;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.IObject;
 import omero.model.Job;
@@ -121,8 +121,8 @@ public interface RepositoryDao {
      *    one per {@link FilesetEntry}.
      * @param currentUser
      */
-    Fileset saveFileset(String repoUuid, Fileset fs, List<CheckedPath> paths,
-            Ice.Current current) throws ServerError;
+    Fileset saveFileset(String repoUuid, Fileset fs, ChecksumAlgorithm checksumAlgorithm,
+            List<CheckedPath> paths, Ice.Current current) throws ServerError;
 
     /**
      * Load filesets by id.

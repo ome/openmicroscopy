@@ -1,6 +1,6 @@
 /*
 /*
- *   Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -49,6 +49,7 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.fs.Fileset;
 import ome.model.screen.Plate;
 import ome.model.screen.PlateAcquisition;
 import ome.model.screen.Screen;
@@ -78,7 +79,7 @@ public class MetadataImpl
 
 	/** Query to load the original file related to a file annotation. */
 	private final String LOAD_ORIGINAL_FILE = 
-		"select p from OriginalFile as p where p.id = :id";
+		"select p from OriginalFile as p join fetch p.hasher where p.id = :id";
 	
 	/** Identifies the file annotation class. */
 	private final String FILE_TYPE = "ome.model.annotations.FileAnnotation";
@@ -161,6 +162,8 @@ public class MetadataImpl
 			sb.append("select l from WellAnnotationLink as l ");
 		else if (Pixels.class.getName().equals(rootType.getName()))
 				sb.append("select l from PixelsAnnotationLink as l ");
+		else if (Fileset.class.getName().equals(rootType.getName()))
+		        sb.append("select l from FilesetAnnotationLink as l ");
 
 		if (rootType != null) {
 			sb.append("left outer join fetch l.parent ");

@@ -788,7 +788,8 @@
     for (var i=0; i<viewport.getCCount(); i++) {
       viewport.setChannelActive(i, $('#rd-wblitz-ch'+i).get(0).checked, true);
       viewport.setChannelColor(i, $('#wblitz-ch'+i+'-color').css('background-color'), true);
-      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value);
+      var noreload = ((i+1) < viewport.getCCount());    // prevent reload, except on the last loop
+      viewport.setChannelWindow(i, $('#wblitz-ch'+i+'-cw-start').get(0).value, $('#wblitz-ch'+i+'-cw-end').get(0).value, noreload);
     }
 
     if (final) {
@@ -866,9 +867,11 @@
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
-                    
                     if (!(success && rv)) {
                         alert('Setting image defaults failed.');
+                    }
+                    if (window.opener && window.opener.OME.refreshThumbnails) {
+                        window.opener.OME.refreshThumbnails({{ image.id }});
                     }
                   });
     return false;
@@ -887,6 +890,9 @@
           alert('Reset image defaults failed.');
         } else {
           viewport.load(viewport.loadedImg.id, viewport.loadedImg.current.dataset_id);
+        }
+        if (window.opener && window.opener.OME.refreshThumbnails) {
+            window.opener.OME.refreshThumbnails({{ image.id }});
         }
       },
       {css: {width: '50%', left: '25%'}}

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.ExportActivity
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ import java.io.File;
 
 //Third-party libraries
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
@@ -80,22 +82,13 @@ public class ExportActivity
 		String path = folder.getAbsolutePath();
 		switch (parameters.getIndex()) {
 			case ExportActivityParam.EXPORT_AS_OME_TIFF:
-				if (!path.endsWith(OMETIFFFilter.OME_TIF) ||
+				if (!path.endsWith(OMETIFFFilter.OME_TIF) &&
 					!path.endsWith(OMETIFFFilter.OME_TIFF))
 					extension = "."+OMETIFFFilter.OME_TIFF;
 				break;
 		}
-		//
-		File parent = folder.getParentFile();
-		String name = folder.getAbsolutePath();
-		if (parent != null) {
-			name = getFileName(parent.listFiles(), folder.getName()+extension, 
-					folder.getName()+extension, 
-					parent.getAbsolutePath()+File.separator, 1, extension);
-			return parent+File.separator+name;
-		}
-		
-    	return name+extension;
+		if (!StringUtils.isBlank(extension)) return path+extension;
+		return path;
     }
     
     /**

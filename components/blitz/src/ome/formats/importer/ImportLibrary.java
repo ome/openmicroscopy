@@ -33,7 +33,6 @@ import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-import ome.util.checksum.ChecksumType;
 import omero.ChecksumValidationException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -56,8 +55,9 @@ import omero.model.FilesetI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,7 +221,9 @@ public class ImportLibrary implements IObservable
         }
 
         final ImportSettings settings = new ImportSettings();
-        settings.checksumAlgorithm = ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value);
+        // TODO: here or on container.fillData, we need to
+        // check if the container object has ChecksumAlgorithm
+        // present and pass it into the settings object
         final Fileset fs = new FilesetI();
         container.fillData(new ImportConfig(), settings, fs, sanitizer);
         return repo.importFileset(fs, settings);
@@ -275,7 +277,9 @@ public class ImportLibrary implements IObservable
             final ChecksumProviderFactory cpf, final byte[] buf)
             throws ServerError, IOException {
 
-        ChecksumProvider cp = cpf.getProvider(ChecksumType.SHA1);
+        ChecksumProvider cp = cpf.getProvider(
+                ChecksumAlgorithmMapper.getChecksumType(
+                        proc.getImportSettings().checksumAlgorithm));
         String digestString = null;
         File file = new File(srcFiles[index]);
         long length = file.length();
@@ -287,6 +291,12 @@ public class ImportLibrary implements IObservable
             int rlen = 0;
             long offset = 0;
 
+            // Fields used for timing measurements
+            long start, timeLeft = 0L;
+            float alpha, chunkTime;
+            int sampleSize = 5;
+            Buffer samples = new CircularFifoBuffer(sampleSize);
+
             notifyObservers(new ImportEvent.FILE_UPLOAD_STARTED(
                     file.getAbsolutePath(), index, srcFiles.length,
                     null, length, null));
@@ -295,9 +305,13 @@ public class ImportLibrary implements IObservable
             rawFileStore.write(new byte[0], offset, 0);
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, null));
+                    offset, length, timeLeft, null));
 
             while (true) {
+                // Due to weirdness with System.nanoTime() on multi-core
+                // CPUs, falling back to currentTimeMillis()
+                chunkTime = 0;
+                start = System.currentTimeMillis();
                 rlen = stream.read(buf);
                 if (rlen == -1) {
                     break;
@@ -305,9 +319,16 @@ public class ImportLibrary implements IObservable
                 cp.putBytes(buf, 0, rlen);
                 rawFileStore.write(buf, offset, rlen);
                 offset += rlen;
+                samples.add(System.currentTimeMillis() - start);
+                alpha = 2f / (samples.size() + 1);
+                for (int i = 0; i < samples.size(); i++) {
+                    chunkTime = alpha * (Long) samples.get()
+                            + (1 - alpha) * chunkTime;
+                }
+                timeLeft = rlen == 0 ? 0 : (long) chunkTime * ((length-offset)/rlen);
                 notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
-                        file.getAbsolutePath(), index, srcFiles.length,
-                        offset, length, null));
+                        file.getAbsolutePath(), index, srcFiles.length, offset,
+                        length, timeLeft, null));
             }
 
             digestString = cp.checksumAsString();

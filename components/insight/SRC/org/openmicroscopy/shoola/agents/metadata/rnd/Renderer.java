@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.ResolutionLevel;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.ImageData;
@@ -715,5 +716,12 @@ public interface Renderer
 	 * @return See above.
 	 */
 	List<RenderingControl> getRenderingControls();
+	
+	/**
+	 * Returns the list of the levels.
+	 * 
+	 * @return See above.
+	 */
+	List<ResolutionLevel> getResolutionDescriptions();
 	
 }

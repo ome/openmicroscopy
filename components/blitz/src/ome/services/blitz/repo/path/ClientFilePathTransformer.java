@@ -22,10 +22,12 @@ package ome.services.blitz.repo.path;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+
+import com.google.common.base.Function;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Transform client-local {@link File} to repository {@link FsFile} path. Wholly thread-safe.
@@ -34,14 +36,14 @@ import java.util.Set;
  */
 public class ClientFilePathTransformer {
     /* a function to make file-path components safe across platforms */
-    private final StringTransformer pathSanitizer;
+    private final Function<String, String> pathSanitizer;
     
     /**
      * Construct a new client-side file path transformer.
      * @param pathSanitizer a file-path component string transformer
      * whose behavior corresponds to that passed to {@link ServerFilePathTransformer#setPathSanitizer} server-side.
      */
-    public ClientFilePathTransformer(StringTransformer pathSanitizer) {
+    public ClientFilePathTransformer(Function<String, String> pathSanitizer) {
         this.pathSanitizer = pathSanitizer;
     }
     
@@ -100,21 +102,18 @@ public class ClientFilePathTransformer {
      * or <code>null</code> if all the files are named sufficiently distinctly
      * @throws IOException if the absolute path of any of the {@link File}s could not be found
      */
-    public Set<Set<File>> getTooSimilarFiles(Set<File> files) throws IOException {
-        final Map<String, Set<File>> filesByFsFile = new HashMap<String, Set<File>>();
+    public Set<Collection<File>> getTooSimilarFiles(Set<File> files) throws IOException {
+        final SetMultimap<String, File> filesByFsFile = HashMultimap.create();
         for (final File file : files) {
             final String path = getFsFileFromClientFile(file, Integer.MAX_VALUE).toString().toLowerCase();
-            Set<File> similarFiles = filesByFsFile.get(path);
-            if (similarFiles == null) {
-                similarFiles = new HashSet<File>();
-                filesByFsFile.put(path, similarFiles);
-            }
-            similarFiles.add(file);
+            filesByFsFile.put(path, file);
         }
-        final Set<Set<File>> tooSimilarFiles = new HashSet<Set<File>>();
-        for (final Set<File> similarFiles : filesByFsFile.values())
-            if (similarFiles.size() > 1)
+        final Set<Collection<File>> tooSimilarFiles = new HashSet<Collection<File>>();
+        for (final Collection<File> similarFiles : filesByFsFile.asMap().values()) {
+            if (similarFiles.size() > 1) {
                 tooSimilarFiles.add(similarFiles);
+            }
+        }
         return tooSimilarFiles.isEmpty() ? null : tooSimilarFiles;
     }
 }

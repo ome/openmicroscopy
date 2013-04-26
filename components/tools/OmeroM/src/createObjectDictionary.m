@@ -1,19 +1,11 @@
-function plates = getPlateAcquisitions(session, varargin)
-% GETPLATEACQUISITIONS Retrieve plate acquisition objects from the OMERO server
+function d = createObjectDictionary(names, classnames)
+% CREATEOBJECTDICTIONARY Return a dictionary of OMERO object types
 %
-%   plates = getPlateAcquisitions(session) returns all the plateruns owned
-%   by the session user in the context of the session group.
+%   d = createObjectDictionary(names, classnames) returns a dictionary of
+%   OMERO objects organized as an array of structures with four fields:
+%   name, class, Iobject and delete.
 %
-%   plates = getPlateAcquisitions(session, ids) returns all the plate runs
-%   identified by the input ids owned by the session user in the context of
-%   the session group.
-%
-%   Examples:
-%
-%      plates = getPlateAcquisitions(session);
-%      plates = getPlateAcquisitions(session, ids);
-%
-% See also: GETOBJECTS, GETPLATES
+% See also: GETOBJECTTYPES, GETANNOTATIONTYPES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -34,7 +26,16 @@ function plates = getPlateAcquisitions(session, varargin)
 
 % Input check
 ip = inputParser;
-ip.addOptional('ids', [], @isvector);
-ip.parse(varargin{:});
+ip.addRequired('names', @iscellstr);
+nObjects = numel(names);
+ip.addRequired('classnames', @(x) iscellstr(x) && numel(x) == nObjects);
+ip.parse(names, classnames);
 
-plates = getObjects(session, ip.Results.ids, 'plateacquisition');
+% Initialize structure array
+d(1 : nObjects) = struct('name', '', 'class', '', 'Iobject', '', 'delete', '');
+for  i = 1 : nObjects
+    d(i).name = names{i};
+    d(i).class = ['omero.model.' classnames{i}];
+    d(i).Iobject = str2func([d(i).class 'I']);
+    d(i).delete = ['/' classnames{i}];
+end

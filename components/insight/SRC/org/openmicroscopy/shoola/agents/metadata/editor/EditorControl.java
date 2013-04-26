@@ -52,6 +52,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
+import org.apache.commons.io.FilenameUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
@@ -75,6 +76,7 @@ import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.events.ViewInPluginEvent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.Target;
@@ -100,13 +102,19 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
+import pojos.BooleanAnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.DoubleAnnotationData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * The Editor's controller.
@@ -203,9 +211,16 @@ class EditorControl
 	
 	/** Action ID to view the image.*/
 	static final int	VIEW_IMAGE_IN_IJ = 23;
-	
+
 	/** Action ID to load the file path.*/
 	static final int FILE_PATH = 24;
+
+	/** Action id indicating to remove other annotations. */
+	static final int REMOVE_OTHER_ANNOTATIONS = 25;
+
+	/** Action ID to download the metadata files. */
+	static final int DOWNLOAD_METADATA = 26;
+
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -221,6 +236,53 @@ class EditorControl
 	
 	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
+
+	/** Download the original metadata.*/
+	private void downloadMetadata()
+	{
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download Metadata", "Download the metadata file.", null, true);
+		chooser.setSelectedFileFull(FileAnnotationData.ORIGINAL_METADATA_NAME);
+		chooser.setCheckOverride(true);
+		FileAnnotationData data = view.getOriginalMetadata();
+		String name = "";
+		if (data != null) name = data.getFileName();
+		else {
+			ImageData img = view.getImage();
+			name = FilenameUtils.removeExtension(img.getName());
+		}
+		chooser.setSelectedFileFull(name);
+		chooser.setApproveButtonText("Download");
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			/** 
+			 * Handles the download of the original files
+			 */
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
+					if (folder == null)
+						folder = UIUtilities.getDefaultFolder();
+					UserNotifier un =
+							MetadataViewerAgent.getRegistry().getUserNotifier();
+					ImageData img = view.getImage();
+					if (img == null) return;
+					IconManager icons = IconManager.getInstance();
+					DownloadActivityParam activity =
+							new DownloadActivityParam(img.getId(),
+						DownloadActivityParam.METADATA_FROM_IMAGE,
+								folder, icons.getIcon(IconManager.DOWNLOAD_22));
+					un.notifyActivity(model.getSecurityContext(), activity);
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
 	
 	/** Launches RAPID. */
 	private void openFLIM()
@@ -308,27 +370,30 @@ class EditorControl
 	private void download()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(f, FileChooser.FOLDER_CHOOSER, 
-				"Download", "Select where to download the file.", null, true);
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE,
+				"Download", "Select where to download the file(s).", null, true);
 		try {
 			File file = UIUtilities.getDefaultFolder();
 			if (file != null) chooser.setCurrentDirectory(file);
 		} catch (Exception ex) {}
+		ImageData image = view.getImage();
+		if (image != null) chooser.setSelectedFileFull(image.getName());
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.setApproveButtonText("Download");
+		chooser.setCheckOverride(true);
 		chooser.addPropertyChangeListener(new PropertyChangeListener() {
 		
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					String path = (String) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					if (files == null || files.length == 0) return;
+					File path = files[0];
 					if (path == null) {
-						path = UIUtilities.getDefaultFolderAsString();
+						path = UIUtilities.getDefaultFolder();
 					}
-					if (!path.endsWith(File.separator))
-						path += File.separator;
-					model.download(new File(path));
+					model.download(path);
 				}
 			}
 		});
@@ -397,16 +462,17 @@ class EditorControl
 				"Select where to export the image as OME-TIFF.", exportFilters);
 		try {
 			String path = 
-				MetadataViewerAgent.getRegistry().getTaskBar().
-				getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
+					MetadataViewerAgent.getRegistry().getTaskBar().
+					getLibFileRelative(TransformsParser.SPECIFICATION+".jar");
 			chooser.parseData(path);
 		} catch (Exception e) {
 			LogMessage msg = new LogMessage();
-	        msg.print(e);
-	        MetadataViewerAgent.getRegistry().getLogger().debug(this, msg);
+			msg.print(e);
+			MetadataViewerAgent.getRegistry().getLogger().debug(this, msg);
 		}
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
-		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
+		chooser.setSelectedFileFull(s);
+		chooser.setCheckOverride(true);
 		chooser.setApproveButtonText("Export");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.EXPORT_AS_OMETIFF_48));
@@ -570,7 +636,12 @@ class EditorControl
 				if (data instanceof File) view.removeAttachedFile(data);
 				else if (data instanceof FileAnnotationData)
 					view.removeAttachedFile(data);
-				else if (data instanceof TagAnnotationData)
+				else if (data instanceof TagAnnotationData ||
+						data instanceof TermAnnotationData ||
+						data instanceof XMLAnnotationData ||
+						data instanceof LongAnnotationData ||
+						data instanceof DoubleAnnotationData ||
+						data instanceof BooleanAnnotationData)
 					view.removeObject((DataObject) data);
 			} 
 		} else if (AnnotationUI.DELETE_ANNOTATION_PROPERTY.equals(name)) {
@@ -824,6 +895,9 @@ class EditorControl
 			case FILE_PATH:
 				if (view.getFileset() != null) view.displayFileset();
 				else loadFileset();
+				break;
+			case DOWNLOAD_METADATA:
+				downloadMetadata();
 		}
 	}
 
@@ -843,6 +917,9 @@ class EditorControl
 				break;
 			case REMOVE_DOCS:
 				view.removeAttachedFiles(src, p);
+				break;
+			case REMOVE_OTHER_ANNOTATIONS:
+				view.removeOtherAnnotations(src, p);
 		}
 	}
 	

@@ -246,9 +246,7 @@ def render_birds_eye_view (request, iid, size=None,
                            conn=None, **kwargs):
     """
     Returns an HttpResponse wrapped jpeg with the rendered bird's eye view
-    for image 'iid'. Rendering settings can be specified in the request
-    parameters as in L{render_image} and L{render_image_region}; see
-    L{getImgDetailsFromReq} for a complete list.
+    for image 'iid'. We now use a thumbnail for performance. #10626
 
     @param request:     http request
     @param iid:         Image ID
@@ -256,13 +254,9 @@ def render_birds_eye_view (request, iid, size=None,
     @param size:        Maximum size of the longest side of the resulting bird's eye view.
     @return:            http response containing jpeg
     """
-    server_id = request.session['connector'].server_id
-    img = _get_prepared_image(request, iid, conn=conn, server_id=server_id)
-    if img is None:
-        logger.debug("(b)Image %s not found..." % (str(iid)))
-        raise Http404
-    img, compress_quality = img
-    return HttpResponse(img.renderBirdsEyeView(size), mimetype='image/jpeg')
+    if size is None:
+        size = 96       # Use cached thumbnail
+    return render_thumbnail(request, iid, w=size)
 
 @login_required()
 def render_thumbnail (request, iid, w=None, h=None, conn=None, _defcb=None, **kwargs):
@@ -1492,8 +1486,13 @@ def list_compatible_imgs_json (request, iid, conn=None, **kwargs):
 @jsonp
 def copy_image_rdef_json (request, conn=None, **kwargs):
     """
-    Copy the rendering settings from one image to a list of images.
-    Images are specified in request by 'fromid' and list of 'toids'
+    If 'fromid' is in request, copy the image ID to session, 
+    for applying later using this same method.
+    If list of 'toids' is in request, paste the image ID from the session
+    to the specified images.
+    If 'fromid' AND 'toids' are in the reqest, we simply 
+    apply settings and don't save anything to request.
+    If 'to_type' is in request, this can be 'dataset', 'plate', 'acquisition'
     Returns json dict of Boolean:[Image-IDs] for images that have successfully 
     had the rendering settings applied, or not. 
     
@@ -1506,26 +1505,32 @@ def copy_image_rdef_json (request, conn=None, **kwargs):
     server_id = request.session['connector'].server_id
     json_data = False
     r = request.REQUEST
+    fromid = r.get('fromid', None)
+    toids = r.getlist('toids')
+    to_type = str(r.get('to_type', 'image'))
+    if to_type not in ('dataset', 'plate', 'acquisition'):
+        to_type = "Image"  # default is image
+    # Only 'fromid' is given, simply save to session
+    if fromid is not None and len(toids) == 0:
+        request.session.modified = True
+        request.session['fromid'] = fromid
+        return True
+    # Check session for 'fromid'
+    if fromid is None:
+        fromid = request.session.get('fromid', None)
+    # If we have both, apply settings...
     try:
-        fromid = long(r.get('fromid', None))
-        toids = map(lambda x: long(x), r.getlist('toids'))
+        fromid = long(fromid)
+        toids = map(lambda x: long(x), toids)
     except TypeError:
         fromid = None
     except ValueError:
         fromid = None
     if fromid is not None and len(toids) > 0:
-        
         fromimg = conn.getObject("Image", fromid)
-        frompid = fromimg.getPixelsId()
         userid = fromimg.getOwner().getId()
-        if fromimg.canWrite():
-            ctx = conn.SERVICE_OPTS.copy()
-            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
-            ctx.setOmeroUser(userid)
-            rsettings = conn.getRenderingSettingsService()
-            json_data = rsettings.applySettingsToImages(frompid, list(toids), ctx)
-            if fromid in json_data[True]:
-                del json_data[True][json_data[True].index(fromid)]
+        json_data = conn.applySettingsToSet(fromid, to_type, toids)
+        if json_data and True in json_data:
             for iid in json_data[True]:
                 img = conn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, userid, img)

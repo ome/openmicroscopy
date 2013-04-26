@@ -994,10 +994,11 @@
 
         {% if manager.tag %}
 
+        <div id="general_tab" class="right_tab_inner" >
+
             <!-- Toolbar at the top -->
             {% include "webclient/annotations/includes/toolbar.html" %}
 
-            <div id="general_tab" class="right_tab_inner" >
 
                 <!-- Tag TextValue -->
                 {% with obj=manager.tag nameText=manager.tag.getValue %}
@@ -1030,7 +1031,7 @@
                         {% endif %}
                     </tr>
                 </table>
-            </div>
+        </div>
         {% endif %}
     
     

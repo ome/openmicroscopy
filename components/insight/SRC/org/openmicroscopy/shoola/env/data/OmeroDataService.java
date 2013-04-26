@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -293,7 +294,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			String location, long imageID)
+			File location, long imageID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

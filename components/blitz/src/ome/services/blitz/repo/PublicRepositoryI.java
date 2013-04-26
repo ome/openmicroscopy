@@ -55,7 +55,6 @@ import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.system.OmeroContext;
 import ome.util.checksum.ChecksumProviderFactory;
-import ome.util.checksum.ChecksumType;
 import ome.util.messages.InternalMessage;
 
 import omero.InternalException;
@@ -79,6 +78,7 @@ import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
+import omero.model.ChecksumAlgorithm;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
 
@@ -126,14 +126,18 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final ChecksumProviderFactory checksumProviderFactory;
 
+    protected final omero.model.ChecksumAlgorithm checksumAlgorithm;
+
     protected OmeroContext context;
 
     private String repoUuid;
 
     public PublicRepositoryI(RepositoryDao repositoryDao,
-            ChecksumProviderFactory checksumProviderFactory) throws Exception {
+            ChecksumProviderFactory checksumProviderFactory,
+            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
+        this.checksumAlgorithm = checksumAlgorithm;
         this.repoUuid = null;
     }
 
@@ -181,7 +185,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     //
 
     public boolean fileExists(String path, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current);
+        final CheckedPath checked = checkPath(path, null, __current);
         final OriginalFile ofile =
                 repositoryDao.findRepoFile(repoUuid, checked, null, __current);
         return (ofile != null);
@@ -197,12 +201,12 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public List<OriginalFile> listFiles(String path, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current).mustExist();
+        final CheckedPath checked = checkPath(path, null, __current).mustExist();
         return repositoryDao.getOriginalFiles(repoUuid, checked, __current);
     }
 
     public RMap treeList(String path, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current);
+        final CheckedPath checked = checkPath(path, null, __current);
         return repositoryDao.treeList(repoUuid, checked, __current);
     }
 
@@ -221,7 +225,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     public OriginalFile register(String path, omero.RString mimetype,
             Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current);
+        final CheckedPath checked = checkPath(path, null, __current);
         return this.repositoryDao.register(repoUuid, checked,
                 mimetype == null ? null : mimetype.getValue(), __current);
     }
@@ -299,11 +303,11 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *
      */
     public String mimetype(String path, Current __current) throws ServerError {
-        return checkPath(path, __current).mustExist().getMimetype();
+        return checkPath(path, null, __current).mustExist().getMimetype();
     }
 
     public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current);
+        final CheckedPath checked = checkPath(path, null, __current);
 
         // See comment below in RawFileStorePrx
         Ice.Current adjustedCurr = makeAdjustedCurrent(__current);
@@ -340,7 +344,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     }
 
     public RawFileStorePrx file(String path, String mode, Current __current) throws ServerError {
-        CheckedPath check = checkPath(path, __current);
+        final CheckedPath check = checkPath(path, null, __current);
         findOrCreateInDb(check, mode, __current);
         return createRepoRFS(check, mode, __current);
     }
@@ -533,7 +537,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      *            ice context.
      */
     public void makeDir(String path, boolean parents, Current __current) throws ServerError {
-        CheckedPath checked = checkPath(path, __current);
+        CheckedPath checked = checkPath(path, null, __current);
 
         final LinkedList<CheckedPath> paths = new LinkedList<CheckedPath>();
         while (!checked.isRoot) {
@@ -625,17 +629,16 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     /**
      * Create a new {@link CheckedPath} object based on the given user input.
-     * This method is included to allow subclasses a change to introduce their
+     * This method is included to allow subclasses a chance to introduce their
      * own {@link CheckedPath} implementations.
      *
      * @param path
      *            A path on a repository.
      *
      */
-    protected CheckedPath checkPath(final String path, final Ice.Current curr)
+    protected CheckedPath checkPath(final String path, ChecksumAlgorithm checksumAlgorithm, final Ice.Current curr)
             throws ValidationException {
-        return new CheckedPath(this.serverPaths, path,
-                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
+        return new CheckedPath(this.serverPaths, path, this.checksumProviderFactory, checksumAlgorithm);
     }
 
     /**
@@ -649,12 +652,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
+        final ChecksumAlgorithm checksumAlgorithm = this.repositoryDao.getOriginalFile(id, curr).getHasher();
         final FsFile file = this.repositoryDao.getFile(id, curr, this.repoUuid);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
         final CheckedPath checked = new CheckedPath(this.serverPaths,file.toString(),
-                this.checksumProviderFactory.getProvider(ChecksumType.SHA1));
+                checksumProviderFactory, checksumAlgorithm);
         checked.setId(id);
         return checked;
     }

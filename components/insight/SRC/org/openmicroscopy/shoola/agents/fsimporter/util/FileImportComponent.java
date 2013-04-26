@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -38,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,23 +58,24 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-//Third-party libraries
-import info.clearthought.layout.TableLayout;
+import omero.model.OriginalFile;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.Environment;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -80,9 +84,13 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -152,6 +160,11 @@ public class FileImportComponent
 	 * failed or successful.
 	 */
 	public static final String IMPORT_STATUS_CHANGE_PROPERTY = "importStatusChange";
+	
+	/**
+	 * Bound property indicating to load the content of the log file.
+	 */
+	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
 	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
@@ -268,6 +281,9 @@ public class FileImportComponent
 	/** Button to delete the imported image. */
 	private JButton deleteButton;
 	
+	/** Button to download the import log file */
+	private JButton importLogButton;
+	
 	/** The data object corresponding to the folder. */
 	private DataObject containerFromFolder;
 	
@@ -340,6 +356,8 @@ public class FileImportComponent
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
+	/** The log file if any to load.*/
+	private FileAnnotationData logFile;
 	
 	/**
 	 * Logs the exception.
@@ -501,7 +519,13 @@ public class FileImportComponent
 			}
 		});
 		cancelButton.setVisible(true);
-		
+		importLogButton = new JButton("Import Log");
+		importLogButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+			}
+		});
+		importLogButton.setVisible(false);
 		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
 		if (browsable) {
 			browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
@@ -604,6 +628,7 @@ public class FileImportComponent
 		add(browseButton);
 		add(groupUserLabel);
 		add(reimportedLabel);
+		add(importLogButton);
 	}
 	
 	/**
@@ -786,6 +811,38 @@ public class FileImportComponent
 		}
 	}
 	
+	public void setImportLogFile(Collection<FileAnnotationData> data, long id) {
+		long fileSetID = getFileSetID(image);
+		if (id != fileSetID || data == null) return;
+		Iterator<FileAnnotationData> i = data.iterator();
+		FileAnnotationData fa;
+		while (i.hasNext()) {
+			fa = i.next();
+			//Check name space
+			if (FileAnnotationData.LOG_FILE_NS.equals(fa.getNameSpace())) {
+				logFile = fa;
+				break;
+			}
+		}
+		if (logFile == null) return;
+		importLogButton.setVisible(true);
+	}
+	
+	private long getFileSetID(Object data)
+	{
+		ImageData img = null;
+		if (data instanceof ImageData) {
+			img = (ImageData) data;
+		} else if (data instanceof ThumbnailData) {
+			ThumbnailData thumb = (ThumbnailData) data;
+			img = thumb.getImage();
+		} else if (data instanceof List) {
+			return getFileSetID(((List) data).get(0));
+		}
+		if (img == null) return -1;
+		return img.asImage().getFileset().getId().getValue();
+	}
+	
 	/**
 	 * Returns the dataset or <code>null</code>.
 	 * 
@@ -844,7 +901,7 @@ public class FileImportComponent
 	 * @param status Flag indicating the status of the import.
 	 * @param image  The image.
 	 */
-	public void setStatus(boolean status, Object image)
+	public long setStatus(boolean status, Object image)
 	{
 		this.image = image;	
 		busyLabel.setBusy(false);
@@ -1064,6 +1121,7 @@ public class FileImportComponent
 			}
 		}
 		repaint();
+		return getFileSetID(image);
 	}
 	
 	/**
@@ -1415,7 +1473,7 @@ public class FileImportComponent
 		reimportedLabel.setVisible(true);
 		repaint();
 	}
-	
+
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
@@ -1513,6 +1571,8 @@ public class FileImportComponent
 			} else {
 				statusLabel.setIcon(icons.getIcon(IconManager.APPLY_CANCEL));
 			}
+			// Add code to query for log file and create a download button
+			
 			statusLabel.setVisible(true);
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group

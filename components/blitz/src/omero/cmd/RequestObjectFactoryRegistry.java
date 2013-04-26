@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ome.io.nio.AbstractFileSystemService;
+import ome.io.nio.PixelsService;
 import ome.security.ChmodStrategy;
 import ome.services.chgrp.ChgrpStepFactory;
 import ome.services.chown.ChownStepFactory;
@@ -27,6 +28,7 @@ import ome.tools.hibernate.ExtendedMetadata;
 import omero.cmd.basic.DoAllI;
 import omero.cmd.basic.ListRequestsI;
 import omero.cmd.basic.TimingI;
+import omero.cmd.fs.OriginalMetadataRequestI;
 import omero.cmd.graphs.ChgrpI;
 import omero.cmd.graphs.ChmodI;
 import omero.cmd.graphs.ChownI;
@@ -47,11 +49,17 @@ public class RequestObjectFactoryRegistry extends
 
     private final Roles roles;
 
+    private final PixelsService pixelsService;
+
     private/* final */OmeroContext ctx;
 
-    public RequestObjectFactoryRegistry(ExtendedMetadata em, Roles roles) {
+    public RequestObjectFactoryRegistry(ExtendedMetadata em, Roles roles,
+            PixelsService pixelsService) {
+
         this.em = em;
         this.roles = roles;
+        this.pixelsService = pixelsService;
+
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -132,6 +140,13 @@ public class RequestObjectFactoryRegistry extends
                     public Ice.Object create(String name) {
                         Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
                         return new DeleteI(d);
+                    }
+                });
+        factories.put(OriginalMetadataRequestI.ice_staticId(),
+                new ObjectFactory(OriginalMetadataRequestI.ice_staticId()) {
+                    @Override
+                    public Ice.Object create(String name) {
+                        return new OriginalMetadataRequestI(pixelsService);
                     }
                 });
         return factories;

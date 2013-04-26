@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataServiceImpl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -43,8 +43,10 @@ import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
 import omero.model.Annotation;
+import omero.model.BooleanAnnotation;
 import omero.model.Channel;
 import omero.model.DatasetAnnotationLink;
+import omero.model.DoubleAnnotation;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -53,6 +55,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImagingEnvironment;
 import omero.model.ImagingEnvironmentI;
 import omero.model.LogicalChannel;
+import omero.model.LongAnnotation;
 import omero.model.Medium;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -64,6 +67,8 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -83,10 +88,12 @@ import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -443,7 +450,7 @@ class OmeroMetadataServiceImpl
 		List<Annotation> toCreate = new ArrayList<Annotation>();
 		//List<IObject> links = new ArrayList<IObject>();
 		//TextualAnnotationData desc;
-		TagAnnotationData tag;
+		AnnotationData tag;
 		//IObject link = null;
 		//DataObject data;
 		while (i.hasNext()) {
@@ -462,10 +469,12 @@ class OmeroMetadataServiceImpl
 				if (iobject != null)
 					toCreate.add(iobject);
 			} else {
-				if (ann instanceof TagAnnotationData) {
+				if (ann instanceof TagAnnotationData ||
+					ann instanceof TermAnnotationData ||
+					ann instanceof XMLAnnotationData) {
 					//update description
-					tag = (TagAnnotationData) ann;
-					ann = (TagAnnotationData) updateAnnotationData(ctx, tag);
+					tag = (AnnotationData) ann;
+					ann = (AnnotationData) updateAnnotationData(ctx, tag);
 				}
 				annotations.add(ann);
 			}
@@ -554,14 +563,61 @@ class OmeroMetadataServiceImpl
 	{
 		long id;
 		String ioType;
-		TagAnnotation ho;
 		if (ann instanceof TagAnnotationData && ann.isDirty()) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-			ho = (TagAnnotation) gateway.findIObject(ctx, ioType, id);
+			TagAnnotation ho = (TagAnnotation) gateway.findIObject(ctx, ioType,
+					id);
 			ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
 			ho.setDescription(omero.rtypes.rstring(tag.getTagDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof TermAnnotationData && ann.isDirty()) {
+			TermAnnotationData tag = (TermAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(TermAnnotationData.class).getName();
+			TermAnnotation ho = (TermAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setTermValue(omero.rtypes.rstring(tag.getTerm()));
+			ho.setDescription(omero.rtypes.rstring(tag.getTermDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof XMLAnnotationData && ann.isDirty()) {
+			XMLAnnotationData tag = (XMLAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(XMLAnnotationData.class).getName();
+			XmlAnnotation ho = (XmlAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setTextValue(omero.rtypes.rstring(tag.getText()));
+			ho.setDescription(omero.rtypes.rstring(tag.getDescription()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof LongAnnotationData && ann.isDirty()) {
+			LongAnnotationData tag = (LongAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(LongAnnotationData.class).getName();
+			LongAnnotation ho = (LongAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setLongValue(omero.rtypes.rlong(tag.getDataValue()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof DoubleAnnotationData && ann.isDirty()) {
+			DoubleAnnotationData tag = (DoubleAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(DoubleAnnotationData.class).getName();
+			DoubleAnnotation ho = (DoubleAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setDoubleValue(omero.rtypes.rdouble(tag.getDataValue()));
+			IObject object = gateway.updateObject(ctx, ho, new Parameters());
+			return PojoMapper.asDataObject(object);
+		} else if (ann instanceof BooleanAnnotationData && ann.isDirty()) {
+			BooleanAnnotationData tag = (BooleanAnnotationData) ann;
+			id = tag.getId();
+			ioType = gateway.convertPojos(BooleanAnnotationData.class).getName();
+			BooleanAnnotation ho = (BooleanAnnotation) gateway.findIObject(ctx,
+					ioType, id);
+			ho.setBoolValue(omero.rtypes.rbool(tag.getValue()));
 			IObject object = gateway.updateObject(ctx, ho, new Parameters());
 			return PojoMapper.asDataObject(object);
 		}
@@ -754,11 +810,12 @@ class OmeroMetadataServiceImpl
 			List<Long> annotationIds = new ArrayList<Long>();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
-				if (data instanceof TermAnnotationData)
+				if (data instanceof TermAnnotationData) {
+					annotationIds.add(data.getId());
 					terms.add((TermAnnotationData) data);
-				else if (data instanceof TextualAnnotationData)
+				} else if (data instanceof TextualAnnotationData)
 					texts.add((TextualAnnotationData) data);
-				else if ((data instanceof TagAnnotationData)) {
+				else if (data instanceof TagAnnotationData) {
 					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
 					tags.add((TagAnnotationData) data);
@@ -769,8 +826,12 @@ class OmeroMetadataServiceImpl
 					map.put(data.getId(), data);
 					attachments.add((FileAnnotationData) data);
 				} else if (data instanceof XMLAnnotationData) {
+					annotationIds.add(data.getId());
 					xml.add((XMLAnnotationData) data);
-				} else other.add(data);
+				} else {
+					annotationIds.add(data.getId());
+					other.add(data);
+				}
 			}
 			//load the links tags and attachments
 			if (annotationIds.size() > 0 && 
@@ -1283,17 +1344,16 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, long, int)
+	 * @see OmeroMetadataService#downloadFile(SecurityContext, String, int)
 	 */
-	public File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size) 
+	public File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (fileID < 0)
 			throw new IllegalArgumentException("File ID not valid");
 		if (file == null)
 			throw new IllegalArgumentException("File path not valid");
-		return gateway.downloadFile(ctx, file, fileID, size);
+		return gateway.downloadFile(ctx, file, fileID);
 	}
 	
 	/**
@@ -2088,5 +2148,55 @@ class OmeroMetadataServiceImpl
 			index++;
 		}
 		return m;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadAnnotations(SecurityContext, Class, List,
+	 * Class, List, List)
+	 */
+	public Map<Long, Collection<AnnotationData>>
+		loadAnnotations(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (rootType == null || rootIDs == null || rootIDs.size() == 0)
+			throw new IllegalArgumentException("No node specified");
+		if (annotationType == null)
+			throw new IllegalArgumentException("No annotation type specified");
+		return gateway.loadSpecifiedAnnotationsLinkedTo(ctx, rootType, rootIDs,
+				annotationType, nsInclude, nsExclude, new Parameters());
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
+	 */
+	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		//Get the file annotation
+		if (id < 0) return null;
+		List<Class> types = new ArrayList<Class>();
+		types.add(FileAnnotationData.class);
+		Map map = gateway.loadAnnotations(ctx, ImageData.class,
+				Arrays.asList(id), types, null, new Parameters());
+		if (map == null || map.size() == 0) return null;
+		Collection values = (Collection) map.get(id);
+		if (values == null || values.size() == 0) return null;
+		Iterator i = values.iterator();
+		FileAnnotationData fa;
+		long fileID = -1;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			if (FileAnnotationData.ORIGINAL_METADATA_NAME.equals(
+					fa.getFileName())) {
+				fileID = fa.getFileID();
+				break;
+			}
+		}
+		if (fileID < 0) return null;
+		return downloadFile(ctx, file, fileID);
 	}
 }

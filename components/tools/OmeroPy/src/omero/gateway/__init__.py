@@ -2837,6 +2837,34 @@ class _BlitzGateway (object):
         return ImageWrapper(self, image)
 
 
+    def applySettingsToSet(self, fromid, to_type, toids):
+        """
+        Applies the rendering settings from one image to others.
+        Returns a dict of success { True:[ids], False:[ids] }
+
+        @param fromid:      ID of Image to copy settings from.
+        @param toids:       List of Image IDs to apply setting to.
+        @param to_type:     toids refers to Images by default, but can refer to 
+                                Project, Dataset, Image, Plate, Screen, Pixels
+        """
+        json_data = False
+        fromimg = self.getObject("Image", fromid)
+        frompid = fromimg.getPixelsId()
+        userid = fromimg.getOwner().getId()
+        if to_type is None:
+            to_type="Image"
+        if to_type.lower() == "acquisition":
+            to_type = "Plate"
+        to_type = to_type.title()
+        if fromimg.canAnnotate():
+            ctx = self.SERVICE_OPTS.copy()
+            ctx.setOmeroGroup(fromimg.getDetails().getGroup().getId())
+            rsettings = self.getRenderingSettingsService()
+            json_data = rsettings.applySettingsToSet(frompid, to_type, list(toids),  ctx)
+            if fromid in json_data[True]:
+                del json_data[True][json_data[True].index(fromid)]
+        return json_data
+
     def setChannelNames(self, data_type, ids, nameDict, channelCount=None):
         """
         Sets and saves new names for channels of specified Images.
@@ -5255,6 +5283,20 @@ class ColorHolder (object):
         
         return (self._color['red'], self._color['green'], self._color['blue'])
 
+    def getInt (self):
+        """
+        Returns the color as an Integer
+
+        @return:    Integer
+        @rtyp:      int
+        """
+
+        a = self.getAlpha() << 24
+        r = self.getRed() << 16
+        g = self.getGreen() << 8
+        b = self.getBlue() << 0
+        return r+g+b+a
+
 class _LogicalChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
@@ -6144,41 +6186,35 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def loadOriginalMetadata(self):
         """
-        Gets original metadata from the file annotation. 
-        Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple. 
-        Metadata lists are lists of (key, value) tuples. 
-        
+        Gets original metadata from the file annotation.
+        Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple.
+        Metadata lists are lists of (key, value) tuples.
+
         @return:    Tuple of (file-annotation, global-metadata, series-metadata)
         @rtype:     Tuple (L{FileAnnotationWrapper}, [], [])
         """
-        
+
+        req = omero.cmd.OriginalMetadataRequest()
+        req.imageId = self.id
+
+        handle = self._conn.c.sf.submit(req)
+        try:
+            cb = self._conn._waitOnCmd(handle)
+            rsp = cb.getResponse()
+        finally:
+            handle.close()
+
         global_metadata = list()
         series_metadata = list()
-        if self is not None:
-            for a in self.listAnnotations():
-                if isinstance(a._obj, FileAnnotationI) and a.isOriginalMetadata():
-                    t_file = list()
-                    for piece in a.getFileInChunks():
-                        t_file.append(piece)
-                    temp_file = "".join(t_file).split('\n')
-                    flag = None
-                    for l in temp_file:
-                        if l.startswith("[GlobalMetadata]"):
-                            flag = 1
-                        elif l.startswith("[SeriesMetadata]"):
-                            flag = 2
-                        else:
-                            if len(l) < 1:
-                                l = None
-                            else:
-                                l = tuple(l.split("="))                            
-                            if l is not None:
-                                if flag == 1:
-                                    global_metadata.append(l)
-                                elif flag == 2:
-                                    series_metadata.append(l)
-                    return (a, (global_metadata), (series_metadata))
-        return None
+
+        for l, m in ((global_metadata, rsp.globalMetadata), \
+                     (series_metadata, rsp.seriesMetadata)):
+
+            for k, v in m.items():
+                l.append((k, unwrap(v))) # was RType!
+
+        # Either FileAnnotation OR Fileset may be returned!
+        return (None, (global_metadata), (series_metadata))
 
     @assert_re()
     def _getProjectedThumbnail (self, size, pos):

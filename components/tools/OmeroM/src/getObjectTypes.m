@@ -1,11 +1,9 @@
 function types = getObjectTypes()
 % GETOBJECTTYPES Return a dictionary of OMERO object types
 %
-%   types = getObjectTypes() returns a dictionary of OMERO object types
-%   organized as an array of structures with three fields: name, class and
-%   Iobject.
+%   types = getObjectTypes() returns a dictionary of OMERO object types.
 %
-% See also: GETOBJECTS
+% See also: GETOBJECTS, GETANNOTATIONTYPES
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
@@ -24,15 +22,6 @@ function types = getObjectTypes()
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-objects = ...
-    {
-    'project', 'omero.model.Project', @omero.model.ProjectI, '/Project';
-    'dataset', 'omero.model.Dataset', @omero.model.DatasetI, '/Dataset';
-    'image', 'omero.model.Image', @omero.model.ImageI, '/Image';
-    'screen', 'omero.model.Screen', @omero.model.ScreenI, '/Screen';
-    'plate', 'omero.model.Plate', @omero.model.PlateI, '/Plate';
-    'plateacquisition', 'omero.model.PlateAcquisition',...
-    @omero.model.PlateAcquisitionI, '/PlateAcquisition'
-    };
-fieldnames = {'name', 'class', 'Iobject', 'delete'};
-types = cell2struct(objects', fieldnames);
+names = {'project', 'dataset', 'image', 'screen', 'plate', 'plateacquisition'};
+classnames = {'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'PlateAcquisition'};
+types = createObjectDictionary(names, classnames);

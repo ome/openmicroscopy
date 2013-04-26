@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OMEROGateway
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -142,12 +142,15 @@ import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
+import omero.model.ChecksumAlgorithm;
+import omero.model.ChecksumAlgorithmI;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Details;
 import omero.model.DetailsI;
+import omero.model.DoubleAnnotation;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -192,15 +195,20 @@ import omero.model.TimestampAnnotation;
 import omero.model.TimestampAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
+import omero.model.XmlAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.DoubleAnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FileData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageAcquisitionData;
 import pojos.ImageData;
@@ -224,6 +232,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Unified access point to the various <i>OMERO</i> services.
@@ -431,7 +440,8 @@ class OMEROGateway
 		buffer.append("select fs from Fileset as fs ");
 		buffer.append("join fetch fs.images as image ");
 		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
-		buffer.append("join fetch usedFile.originalFile ");
+		buffer.append("join fetch usedFile.originalFile as f ");
+		buffer.append("join fetch f.hasher ");
 		buffer.append("where image.id in (:imageIds)");
 		return buffer.toString();
 	}
@@ -2200,18 +2210,18 @@ class OMEROGateway
 	 */
 	Class convertPojos(Class nodeType)
 	{
-		if (ProjectData.class.equals(nodeType)) 
+		if (ProjectData.class.equals(nodeType))
 			return Project.class;
-		else if (DatasetData.class.equals(nodeType)) 
+		else if (DatasetData.class.equals(nodeType))
 			return Dataset.class;
-		else if (ImageData.class.equals(nodeType)) 
+		else if (ImageData.class.equals(nodeType))
 			return Image.class;
 		else if (BooleanAnnotationData.class.equals(nodeType))
 			return BooleanAnnotation.class;
 		else if (RatingAnnotationData.class.equals(nodeType) ||
-				LongAnnotationData.class.equals(nodeType)) 
+				LongAnnotationData.class.equals(nodeType))
 			return LongAnnotation.class;
-		else if (TagAnnotationData.class.equals(nodeType)) 
+		else if (TagAnnotationData.class.equals(nodeType))
 			return TagAnnotation.class;
 		else if (TextualAnnotationData.class.equals(nodeType)) 
 			return CommentAnnotation.class;
@@ -2219,23 +2229,29 @@ class OMEROGateway
 			return FileAnnotation.class;
 		else if (TermAnnotationData.class.equals(nodeType))
 			return TermAnnotation.class;
-		else if (ScreenData.class.equals(nodeType)) 
+		else if (ScreenData.class.equals(nodeType))
 			return Screen.class;
-		else if (PlateData.class.equals(nodeType)) 
+		else if (PlateData.class.equals(nodeType))
 			return Plate.class;
-		else if (WellData.class.equals(nodeType)) 
+		else if (WellData.class.equals(nodeType))
 			return Well.class;
-		else if (WellSampleData.class.equals(nodeType)) 
+		else if (WellSampleData.class.equals(nodeType))
 			return WellSample.class;
 		else if (PlateAcquisitionData.class.equals(nodeType))
 			return PlateAcquisition.class;
-		else if (FileData.class.equals(nodeType) || 
+		else if (FileData.class.equals(nodeType) ||
 				MultiImageData.class.equals(nodeType))
 			return OriginalFile.class;
 		else if (GroupData.class.equals(nodeType))
 			return ExperimenterGroup.class;
 		else if (ExperimenterData.class.equals(nodeType))
 			return Experimenter.class;
+		else if (DoubleAnnotationData.class.equals(nodeType))
+			return DoubleAnnotation.class;
+		else if (XMLAnnotationData.class.equals(nodeType))
+			return XmlAnnotation.class;
+		else if (FilesetData.class.equals(nodeType))
+			return Fileset.class;
 		throw new IllegalArgumentException("NodeType not supported");
 	}
 
@@ -3980,27 +3996,27 @@ class OMEROGateway
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive(ctx);
 		if (!networkup) return null;
-		return retrieveArchivedFiles(ctx, folderPath, image);
+		return retrieveArchivedFiles(ctx, file, image);
 	}
 	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param ctx The security context.
-	 * @param folderPath The location where to save the files.
+	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -4008,7 +4024,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
-			SecurityContext ctx, String folderPath, ImageData image)
+			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		IQueryPrx service = getQueryService(ctx);
@@ -4021,6 +4037,7 @@ class OMEROGateway
 				StringBuffer buffer = new StringBuffer();
 				id = image.getDefaultPixels().getId();
 				buffer.append("select ofile from OriginalFile as ofile ");
+				buffer.append("join fetch ofile.hasher ");
 				buffer.append("left join ofile.pixelsFileMaps as pfm ");
 				buffer.append("left join pfm.child as child ");
 				buffer.append("where child.id = :id");
@@ -4060,25 +4077,29 @@ class OMEROGateway
 		
 		RawFileStorePrx store;
 		OriginalFile of;
-		long size;	
+		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
-		String fullPath;
-		Iterator<OriginalFile> k;
-		 k = values.iterator();
-		while (k.hasNext()) {
-			of = k.next();
+		String folderPath = null;
+		if (files.size() > 1) {
+			if (file.isDirectory()) folderPath = file.getAbsolutePath();
+			else folderPath = file.getParent();
+		}
+		i = values.iterator();
+		while (i.hasNext()) {
+			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
-			fullPath = folderPath+of.getName().getValue();
-			f = new File(fullPath);
+			if (folderPath != null) {
+				f = new File(folderPath+of.getName().getValue());
+			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
@@ -4090,7 +4111,7 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, (int) (size-offset))); 
+						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
 					}
 				} catch (Exception e) {
@@ -4110,8 +4131,8 @@ class OMEROGateway
 				}
 				notDownloaded.add(of.getName().getValue());
 				closeService(ctx, store);
-				throw new DSAccessException("Cannot create file with path " +
-											fullPath, e);
+				throw new DSAccessException("Cannot create file in folderPath",
+						e);
 			}
 			closeService(ctx, store);
 		}
@@ -4126,42 +4147,38 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.	
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	File downloadFile(SecurityContext ctx, File file, long fileID, long size)
+	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		isSessionAlive(ctx);
-		return download(ctx, file, fileID, size);
+		return download(ctx, file, fileID);
 	}
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
 	private synchronized File download(SecurityContext ctx, File file,
-			long fileID, long size)
+			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null) return null;
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		if (of == null) return null;
-		if (size <= 0) {
-			if (of != null) size = of.getSize().getValue();
-		}
+		long size = of.getSize().getValue();
 		RawFileStorePrx store = getRawFileService(ctx);
 		try {
 			store.setFileId(fileID);
@@ -4336,6 +4353,8 @@ class OMEROGateway
 		RawFileStorePrx store = getRawFileService(ctx);;
 		OriginalFile save = null;
 		boolean fileCreated = false;
+		final ChecksumAlgorithm checksumAlgorithm = new ChecksumAlgorithmI();
+		checksumAlgorithm.setValue(omero.rtypes.rstring(ChecksumAlgorithmSHA1160.value));
 		try {
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
@@ -4349,6 +4368,7 @@ class OMEROGateway
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
+				oFile.setHasher(checksumAlgorithm);
 				save = 
 					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
 							oFile);
@@ -4368,6 +4388,7 @@ class OMEROGateway
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
 					oFile.setMimetype(omero.rtypes.rstring(mimeType));
+					oFile.setHasher(checksumAlgorithm);
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(oFile);
 					store.setFileId(save.getId().getValue());
@@ -4379,7 +4400,12 @@ class OMEROGateway
 					newFile.setPath(omero.rtypes.rstring(
 							file.getAbsolutePath()));
 					newFile.setSize(omero.rtypes.rlong(file.length()));
-					oFile.setMimetype(oFile.getMimetype());
+					ChecksumAlgorithm oldHasher = oFile.getHasher();
+					if (oldHasher == null) {
+					    oldHasher = checksumAlgorithm;
+					}
+					newFile.setHasher(oldHasher);
+					newFile.setMimetype(oFile.getMimetype());
 					save = (OriginalFile) 
 						getUpdateService(ctx).saveAndReturnObject(newFile);
 					store.setFileId(save.getId().getValue());
@@ -4391,7 +4417,8 @@ class OMEROGateway
 		}
 		byte[] buf = new byte[INC]; 
 		FileInputStream stream = null;
-		final ChecksumProvider hasher = checksumProviderFactory.getProvider(ChecksumType.SHA1);
+		final ChecksumProvider hasher = checksumProviderFactory.getProvider(
+				ChecksumType.SHA1);
 		try {
 			stream = new FileInputStream(file);
 			long pos = 0;
@@ -4407,13 +4434,18 @@ class OMEROGateway
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
-			if (f != null) save = f;
-			final String clientHash = hasher.checksumAsString();
-			final String serverHash = save.getHash().getValue();
-			if (!clientHash.equals(serverHash)) {
-			    throw new ImportException("file checksum mismatch on upload: " + file +
-			            " (client has " + clientHash + ", server has " + serverHash + ")");
+			if (f != null) { //happens when the file is of size = 0
+				save = f;
+				final String clientHash = hasher.checksumAsString();
+				final String serverHash = save.getHash().getValue();
+				if (!clientHash.equals(serverHash)) {
+				    throw new ImportException("file checksum mismatch on" +
+				    		"upload: " + file +
+				            " (client has " + clientHash + "," +
+				            		"server has " + serverHash + ")");
+				}
 			}
+			
 		} catch (Exception e) {
 			try {
 				if (fileCreated) deleteObject(ctx, save);
@@ -8665,4 +8697,44 @@ class OMEROGateway
 			new Exception("Cannot close the derived connectors", e);
 		}
 	}
+	
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param options Options to retrieve the data.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Collection<AnnotationData>>
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude, Parameters options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		String type = convertAnnotation(annotationType);
+		IMetadataPrx service = getMetadataService(ctx);
+		try {
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
+							nsExclude, convertPojos(rootType).getName(),
+							rootIDs, options));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find annotation of "+annotationType+" " +
+					"for "+rootType+".");
+		}
+		return new HashMap<Long, Collection<AnnotationData>>();
+	}
+	
 }

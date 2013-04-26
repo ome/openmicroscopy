@@ -7,7 +7,6 @@
 package integration;
 
 import java.io.File;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +14,6 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import ome.formats.OMEROMetadataStoreClient;
@@ -40,9 +38,7 @@ import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Fileset;
-import omero.model.IObject;
 import omero.model.OriginalFile;
-import omero.sys.EventContext;
 
 /**
 * Collections of tests for the <code>ManagedRepository</code> service.

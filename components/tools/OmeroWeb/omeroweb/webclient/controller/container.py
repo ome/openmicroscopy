@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-# 
+# container
 # 
 # Copyright (c) 2008-2011 University of Dundee.
 # 
@@ -708,8 +708,8 @@ class BaseContainer(BaseController):
         oFile = omero.model.OriginalFileI()
         oFile.setName(rstring(smart_str(newFile.name)));
         oFile.setPath(rstring(smart_str(newFile.name)));
-        oFile.setSize(rlong(long(newFile.size)));
-        oFile.setHash(rstring("pending"));
+        oFile.hasher = omero.model.ChecksumAlgorithmI()
+        oFile.hasher.value = omero.rtypes.rstring("SHA1-160")
         oFile.setMimetype(rstring(str(format)));
         
         ofid = self.conn.saveAndReturnId(oFile);

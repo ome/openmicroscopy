@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -406,15 +406,13 @@ public interface OmeroMetadataService
 	 * @param ctx The security context.
 	 * @param file The file to write the data into.
 	 * @param fileID The id of the file to download.
-	 * @param size The size of the file to download
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public File downloadFile(SecurityContext ctx, File file, long fileID,
-			long size)
+	public File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -698,5 +696,44 @@ public interface OmeroMetadataService
 	public List<ChannelData> getChannelsMetadata(SecurityContext ctx,
 			long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param ctx The security context.
+	 * @param file The file to write the data into.
+	 * @param id The id of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @return 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public Map<Long, Collection<AnnotationData>>
+	loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+		List<String> nsExlcude)
+	throws DSOutOfServiceException, DSAccessException;
 
 }

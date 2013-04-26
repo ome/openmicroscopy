@@ -39,6 +39,7 @@ import omero.RString;
 import omero.RType;
 import omero.SecurityViolation;
 import omero.ServerError;
+import omero.model.ChecksumAlgorithm;
 import omero.model.Fileset;
 import omero.model.Job;
 import omero.model.OriginalFile;
@@ -71,6 +72,10 @@ public class RepositoryDaoImpl implements RepositoryDao {
             return bean;
         }
     }
+
+    /** Query to load the original file.*/
+    private static final String LOAD_ORIGINAL_FILE =
+    "select f from OriginalFile as f join fetch f.hasher where ";
 
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
@@ -298,7 +303,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 ome.model.core.OriginalFile f = null;
                 if (id == null) {
                     // Doesn't exist. Create directory
-                    f = _internalRegister(repoUuid, checked,
+                    f = _internalRegister(repoUuid, checked, null,
                             PublicRepositoryI.DIRECTORY_MIMETYPE,
                             parent, sf, getSqlAction());
                 } else {
@@ -357,12 +362,14 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile)  executor
+             ome.model.core.OriginalFile oFile = (ome.model.core.OriginalFile) executor
                  .execute(current.ctx, currentUser(current),
                          new Executor.SimpleWork(this, "getOriginalFile", repoId) {
                      @Transactional(readOnly = true)
                      public Object doWork(Session session, ServiceFactory sf) {
-                         return sf.getQueryService().find(ome.model.core.OriginalFile.class, repoId);
+                        return sf.getQueryService().findByQuery(
+                        LOAD_ORIGINAL_FILE+" f.id = :id",
+                        new Parameters().addId(repoId));
                      }
                  });
              return (OriginalFileI) new IceMapper().map(oFile);
@@ -376,7 +383,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final Ice.Current current) throws SecurityViolation {
 
          try {
-             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>)  executor
+             List<ome.model.core.OriginalFile> oFiles = (List<ome.model.core.OriginalFile>) executor
                 .execute(current.ctx, currentUser(current),
                         new Executor.SimpleWork(this,
                         "getOriginalFiles", repoUuid, checked) {
@@ -421,6 +428,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
             // Load parent directory to possibly cause
             // a read sec-vio.
+            //
             q.get(ome.model.core.OriginalFile.class, id);
 
             List<Long> ids = sql.findRepoFiles(repoUuid,
@@ -431,13 +439,12 @@ public class RepositoryDaoImpl implements RepositoryDao {
             }
             Parameters p = new Parameters();
             p.addIds(ids);
-            return q.findAllByQuery(
-                    "select o from OriginalFile o where o.id in (:ids)", p);
+            return q.findAllByQuery(LOAD_ORIGINAL_FILE+"f.id in (:ids)", p);
 
     }
 
     public Fileset saveFileset(final String repoUuid, final Fileset _fs,
-            final List<CheckedPath> paths,
+            final ChecksumAlgorithm checksumAlgorithm, final List<CheckedPath> paths,
             final Ice.Current current) throws ServerError {
 
         final IceMapper mapper = new IceMapper();
@@ -470,7 +477,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     for (int i = 0; i < size; i++) {
                         CheckedPath checked = paths.get(i);
                         ome.model.core.OriginalFile of =
-                                _internalRegister(repoUuid, checked, null,
+                                _internalRegister(repoUuid, checked, checksumAlgorithm, null,
                                         parents.get(i), sf, getSqlAction());
                         fs.getFilesetEntry(i).setOriginalFile(of);
                     }
@@ -525,7 +532,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                     this, "register", repoUuid, checked, mimetype) {
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
-                    return _internalRegister(repoUuid, checked, mimetype,
+                    return _internalRegister(repoUuid, checked, null, mimetype,
                             parent, sf, getSqlAction());
                 }
             });
@@ -600,6 +607,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      *
      * @param repoUuid
      * @param checked
+     * @param checksumAlgorithm 
      * @param mimetype
      * @param parent
      * @param sf non-null
@@ -607,7 +615,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @return
      */
     private ome.model.core.OriginalFile _internalRegister(final String repoUuid,
-            final CheckedPath checked, final String mimetype,
+            final CheckedPath checked, ChecksumAlgorithm checksumAlgorithm, final String mimetype,
             final CheckedPath parent, ServiceFactory sf, SqlAction sql) {
         Long fileId = sql.findRepoFile(
                 repoUuid, checked.getRelativePath(),
@@ -617,7 +625,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             canWriteParentDirectory(sf, sql,
                     repoUuid, parent);
             return createOriginalFile(sf, sql,
-                    repoUuid, checked, mimetype);
+                    repoUuid, checked, checksumAlgorithm, mimetype);
         } else {
             return sf.getQueryService().get(
                     ome.model.core.OriginalFile.class, fileId);
@@ -692,14 +700,19 @@ public class RepositoryDaoImpl implements RepositoryDao {
      * @param sql
      * @param repoUuid
      * @param checked
+     * @param checksumAlgorithm 
      * @param mimetype
      * @return
      */
     protected ome.model.core.OriginalFile createOriginalFile(
-            ServiceFactory sf, SqlAction sql,
-            String repoUuid, CheckedPath checked, String mimetype) {
+            ServiceFactory sf, SqlAction sql, String repoUuid,
+            CheckedPath checked, ChecksumAlgorithm checksumAlgorithm, String mimetype) {
 
         ome.model.core.OriginalFile ofile = checked.asOriginalFile(mimetype);
+
+        if (checksumAlgorithm != null) {
+            ofile.setHasher(new ome.model.enums.ChecksumAlgorithm(checksumAlgorithm.getValue().getValue()));
+        }
 
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
         sql.setFileRepo(ofile.getId(), repoUuid);

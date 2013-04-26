@@ -286,9 +286,10 @@ public interface Editor
 	/** 
 	 * Downloads the archived files 
 	 * 
-	 * @param folder The folder to save the file into.
+	 * @param file The file where to download the content.
+	 * If it is a multi-images file a zip will be created.
 	 */
-	public void download(File folder);
+	public void download(File file);
 
 	/**
 	 * Sets the parent of the root object. This will be taken into account

@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -34,12 +31,17 @@ import loci.formats.ReaderWrapper;
 
 import org.apache.commons.io.FileUtils;
 
+import com.google.common.collect.ImmutableSet;
+
 import ome.io.nio.FileBuffer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
+import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumType;
 import omero.ValidationException;
+import omero.model.ChecksumAlgorithm;
 
 /**
  * To prevent frequently re-calculating paths and re-creating File objects,
@@ -58,8 +60,8 @@ import omero.ValidationException;
 public class CheckedPath {
     private static final String SAME_DIR = ".";
     private static final String PARENT_DIR = "..";
-    private static final Set<String> SPECIAL_DIRS;
-    
+    private static final ImmutableSet<String> SPECIAL_DIRS = ImmutableSet.of(SAME_DIR, PARENT_DIR);
+
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
     private final File file;
@@ -71,16 +73,9 @@ public class CheckedPath {
     // HIGH-OVERHEAD FIELDS (non-final)
 
     protected Long id;
-    protected String sha1;
+    protected String hash;
     protected String mime;
 
-    static {
-        final Set<String> specialDirs = new HashSet<String>();
-        specialDirs.add(SAME_DIR);
-        specialDirs.add(PARENT_DIR);
-        SPECIAL_DIRS = Collections.unmodifiableSet(specialDirs);
-    }
-    
     /**
      * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
      * TODO: May not actually be necessary.
@@ -110,13 +105,25 @@ public class CheckedPath {
      * An empty path is the repository root.
      * @param serverPaths the server path handling service
      * @param path a repository path
+     * @param checksumProviderFactory a source of checksum providers,
+     * may be <code>null</code> if <code>checksumAlgorithm</code> is also <code>null</code>
+     * @param checksumAlgorithm the algorithm to use in {@link hash()}'s calculations
      * @throws ValidationException if the path is empty or contains illegal components
      */
     public CheckedPath(ServerFilePathTransformer serverPaths, String path,
-            ChecksumProvider checksumProvider)
+            ChecksumProviderFactory checksumProviderFactory, ChecksumAlgorithm checksumAlgorithm)
             throws ValidationException {
         this.original = path;
-        this.checksumProvider = checksumProvider;
+        if (checksumAlgorithm == null) {
+            this.checksumProvider = null;
+        } else {
+            final ChecksumType checksumType = ChecksumAlgorithmMapper.getChecksumType(checksumAlgorithm);
+            if (checksumType == null) {
+                throw new ValidationException(null, null,
+                        "unknown checksum algorithm: " + checksumAlgorithm.getValue().getValue());
+            }
+            this.checksumProvider = checksumProviderFactory.getProvider(checksumType);
+        }
         this.fsFile = processSpecialDirectories(new FsFile(path));
         if (!serverPaths.isLegalFsFile(fsFile)) // unsanitary
             throw new ValidationException(null, null, "Path contains illegal components");
@@ -124,12 +131,11 @@ public class CheckedPath {
         breakPath();
     }
 
-    private CheckedPath(File filePath, FsFile fsFilePath,
-            ChecksumProvider checksumProvider) throws ValidationException {
+    private CheckedPath(File filePath, FsFile fsFilePath) throws ValidationException {
         this.original = filePath.getPath();
         this.fsFile = fsFilePath;
         this.file = filePath;
-        this.checksumProvider = checksumProvider;
+        this.checksumProvider = null;
         breakPath();
     }
 
@@ -162,13 +168,13 @@ public class CheckedPath {
         this.id = id;
     }
 
-    public String sha1() {
-        if (sha1 == null) {
-            sha1 = this.checksumProvider
-                    .putFile(file.getPath())
-                    .checksumAsString();
+    public String hash() {
+        if (hash == null && this.checksumProvider != null) {
+            hash = this.checksumProvider
+                       .putFile(file.getPath())
+                       .checksumAsString();
         }
-        return sha1;
+        return hash;
     }
 
     /**
@@ -191,20 +197,23 @@ public class CheckedPath {
      * Returns a new {@link CheckedPath} using {@link File#getParent()} and
      * passing in all other values. Just as if calling the constructor,
      * bad paths will cause a {@link ValidationException} to be thrown.
+     * {@link CheckedPath}s generated with this method always return a
+     * <code>null</code> hash.
      */
     public CheckedPath parent() throws ValidationException {
         List<String> components = this.fsFile.getComponents();
         if (components.isEmpty())
             throw new ValidationException(null, null, "May not obtain parent of repository root");
         components = components.subList(0, components.size() - 1);
-        return new CheckedPath(this.file.getParentFile(), new FsFile(components),
-                this.checksumProvider);
+        return new CheckedPath(this.file.getParentFile(), new FsFile(components));
     }
 
     /**
      * Returns a new {@link CheckedPath} that has the given path appended
      * to the end of this instances path. A check is made that the name does
      * not contain "/" (i.e. subpaths) nor that it is ".." or ".".
+     * {@link CheckedPath}s generated with this method always return a
+     * <code>null</code> hash.
      *
      * @param name
      * @return
@@ -229,8 +238,7 @@ public class CheckedPath {
                     "No subpaths allowed. Path contains '" + FsFile.separatorChar + "'");
         }
         final FsFile fullChild = FsFile.concatenate(this.fsFile, new FsFile(name));
-        return new CheckedPath(new File(original, name), fullChild,
-            this.checksumProvider);
+        return new CheckedPath(new File(original, name), fullChild);
     }
 
     /**
@@ -381,7 +389,7 @@ public class CheckedPath {
     /**
      * Creates an {@link ome.model.core.OriginalFile} instance for the given
      * {@link CheckedPath} even if it doesn't exist. If it does exist, then
-     * the size and sha1 value will be properly set. Further, if it's a directory,
+     * the size and hash will be properly set. Further, if it's a directory,
      * the mimetype passed in by the user must either be null, in which case
      * "Directory" will be used, or must be that correct value.
      *
@@ -393,7 +401,7 @@ public class CheckedPath {
         ome.model.core.OriginalFile ofile =
                 new ome.model.core.OriginalFile();
 
-        // Only non conditional properties.
+        // only non-conditional properties
         ofile.setName(getName());
         ofile.setMimetype(mimetype); // null takes DB default
         ofile.setPath(getRelativePath());
@@ -415,7 +423,7 @@ public class CheckedPath {
                     }
                 }
             } else {
-                ofile.setHash(sha1());
+                ofile.setHash(hash());
                 ofile.setSize(file.length());
             }
         }

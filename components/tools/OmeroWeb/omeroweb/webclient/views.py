@@ -810,6 +810,7 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
     initial={'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'acquisitions':acquisitions, 'wells':wells, 'shares': shares}
     
     form_comment = None
+    figScripts = None
     if c_type in ("share", "discussion"):
         template = "webclient/annotations/annotations_share.html"
         manager = BaseShare(conn, c_id)
@@ -833,7 +834,8 @@ def load_metadata_details(request, c_type, c_id, conn=None, share_id=None, **kwa
         context = {'manager':manager}
     else:
         context = {'manager':manager, 'form_comment':form_comment, 'index':index, 
-            'share_id':share_id, 'figScripts':figScripts}
+            'share_id':share_id}
+    context['figScripts'] = figScripts
     context['template'] = template
     context['webclient_path'] = request.build_absolute_uri(reverse('webindex'))
     return context
@@ -1768,6 +1770,31 @@ def download_annotation(request, annId, conn=None, **kwargs):
     rsp['Content-Length'] = ann.getFileSize()
     rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
     return rsp
+
+
+@login_required()
+def download_orig_metadata(request, imageId, conn=None, **kwargs):
+    """ Downloads the 'Original Metadata' as a text file """
+
+    image = conn.getObject("Image", imageId)
+    if image is None:
+        raise Http404("No Image found with ID %s" % imageId)
+
+    om = image.loadOriginalMetadata()
+
+    txtLines = ["[Global Metadata]"]
+    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[1]] )
+
+    txtLines.append("[Series Metadata]")
+    txtLines.extend( ["%s=%s" % (kv[0], kv[1]) for kv in om[2]] )
+    rspText = "\n".join(txtLines)
+
+    rsp = HttpResponse(rspText)
+    rsp['Content-Type'] = 'application/force-download'
+    rsp['Content-Length'] = len(rspText)
+    rsp['Content-Disposition'] = 'attachment; filename=Original_Metadata.txt'
+    return rsp
+
 
 @login_required()
 @render_response()

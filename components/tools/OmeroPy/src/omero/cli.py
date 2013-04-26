@@ -1497,6 +1497,12 @@ class UserGroupControl(BaseControl):
         else:
             self.ctx.err(msg)
 
+    def error_ambiguous_group(self, id_or_name, msg="Ambiguous group identifier: %s", code = 505, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % id_or_name)
+        else:
+            self.ctx.err(msg % id_or_name)
+
     def error_no_input_user(self, msg="No input user is specified", code = 511, fatal = True):
         if fatal:
             self.ctx.die(code, msg)
@@ -1520,6 +1526,12 @@ class UserGroupControl(BaseControl):
             self.ctx.die(code, msg)
         else:
             self.ctx.err(msg)
+
+    def error_ambiguous_user(self, id_or_name, msg="Ambiguous user identifier: %s", code = 515, fatal = True):
+        if fatal:
+            self.ctx.die(code, msg % id_or_name)
+        else:
+            self.ctx.err(msg % id_or_name)
 
     def find_group_by_id(self, admin, group_id, fatal = False):
         import omero
@@ -1546,18 +1558,35 @@ class UserGroupControl(BaseControl):
 
     def find_group(self, admin, id_or_name, fatal = False):
         import omero
+
+        # Find by group by name
         try:
-            try:
-                gid = long(id_or_name)
-            except ValueError:
-                g = admin.lookupGroup(id_or_name)
-                gid = g.id.val
-            else:
-                g = admin.getGroup(gid)
+            g1 = admin.lookupGroup(id_or_name)
         except omero.ApiUsageException:
+            g1 = None
+
+        # Find by group by id
+        try:
+            g2 = admin.getGroup(long(id_or_name))
+        except (ValueError, omero.ApiUsageException):
+            g2 = None
+
+        # Test found groups
+        if g1 and g2:
+            if not g1.id.val == g2.id.val:
+                self.error_ambiguous_group(id_or_name, fatal = fatal)
+                return None, None
+            else:
+                 g = g1
+        elif g1:
+            g = g1
+        elif g2:
+            g = g2
+        else:
             self.error_invalid_group(id_or_name, fatal = fatal)
             return None, None
-        return gid, g
+
+        return g.id.val, g
 
     def find_user_by_id(self, admin, user_id, fatal = False):
         import omero
@@ -1584,18 +1613,35 @@ class UserGroupControl(BaseControl):
 
     def find_user(self, admin, id_or_name, fatal =  False):
         import omero
+
+        # Find user by name
         try:
-            try:
-                uid = long(id_or_name)
-            except ValueError:
-                u = admin.lookupExperimenter(id_or_name)
-                uid = u.id.val
-            else:
-                u = admin.getExperimenter(uid)
+            u1 = admin.lookupExperimenter(id_or_name)
         except omero.ApiUsageException:
+            u1 = None
+
+        # Find user by id
+        try:
+            u2 = admin.getExperimenter(long(id_or_name))
+        except (ValueError, omero.ApiUsageException):
+            u2 = None
+
+        # Test found users
+        if u1 and u2:
+            if not u1.id.val == u2.id.val:
+                self.error_ambiguous_user(id_or_name, fatal = fatal)
+                return None, None
+            else:
+                 u = u1
+        elif u1:
+            u = u1
+        elif u2:
+            u = u2
+        else:
             self.error_invalid_user(id_or_name, fatal = fatal)
             return None, None
-        return uid, u
+
+        return u.id.val, u
 
     def addusersbyid(self, admin, group, users):
         import omero

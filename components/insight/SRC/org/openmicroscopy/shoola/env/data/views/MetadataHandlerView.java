@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.MetadataHandlerView 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -70,34 +70,37 @@ public interface MetadataHandlerView
 	/** Indicates to load the file annotation if original file is not set. */
 	public static final int FILE_ANNOTATION = FilesLoader.FILE_ANNOTATION;
 	
+	/** Indicates to load the metadata file linked to the image. */
+	public static final int METADATA_FROM_IMAGE =
+			FilesLoader.METADATA_FROM_IMAGE;
+	
 	/** Identifies that the file is of type protocol. */
-	public static final int		EDITOR_PROTOCOL = 
+	public static final int EDITOR_PROTOCOL =
 			OmeroMetadataService.EDITOR_PROTOCOL;
 	
 	/** Identifies that the file is of type experiment. */
-	public static final int		EDITOR_EXPERIMENT = 
+	public static final int EDITOR_EXPERIMENT =
 		OmeroMetadataService.EDITOR_EXPERIMENT;
 	
 	/** Identifies that the file is of type movie. */
-	public static final int		MOVIE = OmeroMetadataService.MOVIE;
+	public static final int MOVIE = OmeroMetadataService.MOVIE;
 	
 	/** Identifies that the file is of type other. */
-	public static final int		OTHER = OmeroMetadataService.OTHER;
+	public static final int OTHER = OmeroMetadataService.OTHER;
 	
 	/** Identifies that the tag and tag sets used but not owned. */
-	public static final int		TAG_NOT_OWNED = 
-			OmeroMetadataService.TAG_NOT_OWNED;
+	public static final int TAG_NOT_OWNED = OmeroMetadataService.TAG_NOT_OWNED;
 	
 	/**
 	 * Loads all the containers containing the specified object.
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeID	The id of the node.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Call-back handler.
+	 * @param nodeType The class identifying the object.
+	 * Mustn't be <code>null</code>.
+	 * @param nodeID The id of the node.
+	 * @param userID Pass <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadContainers(SecurityContext ctx, Class nodeType,
@@ -108,26 +111,26 @@ public interface MetadataHandlerView
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param nodeType	The class identifying the object.
-	 * 					Mustn't be <code>null</code>.
-	 * @param nodeIDs	The collection of ids of the passed node type.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param observer  Call-back handler.
+	 * @param nodeType The class identifying the object.
+	 * Mustn't be <code>null</code>.
+	 * @param nodeIDs The collection of ids of the passed node type.
+	 * @param userID Pass <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadRatings(SecurityContext ctx, Class nodeType,
 		List<Long> nodeIDs, long userID, AgentEventListener observer);
 	
 	/**
-	 * Loads the thumbnails associated to the passed image i.e. 
+	 * Loads the thumbnails associated to the passed image i.e.
 	 * one thumbnail per specified user.
 	 * 
 	 * @param ctx The security context.
-	 * @param image			The image to handle.
-	 * @param userIDs		The collection of users.
-	 * @param thumbWidth	The width of the thumbnail.
-	 * @param thumbHeight	The height of the thumbnail.
-	 * @param observer		Call-back handler.
+	 * @param image The image to handle.
+	 * @param userIDs The collection of users.
+	 * @param thumbWidth The width of the thumbnail.
+	 * @param thumbHeight The height of the thumbnail.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
      */
 	public CallHandle loadThumbnails(SecurityContext ctx, ImageData image,
@@ -139,9 +142,9 @@ public interface MetadataHandlerView
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param dataObject	The object to handle. Mustn't be <code>null</code>.
-	 * @param userID		Pass <code>-1</code> if no user specified.
-	 * @param observer  	Call-back handler.
+	 * @param dataObject The object to handle. Mustn't be <code>null</code>.
+	 * @param userID Pass <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadStructuredData(SecurityContext ctx, Object dataObject,
@@ -152,12 +155,11 @@ public interface MetadataHandlerView
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param data		The objects to handle. Mustn't be <code>null</code>.
-	 * @param userID	Pass <code>-1</code> if no user specified.
-	 * @param viewed	Pass <code>true</code> to load the rendering settings 
-	 * 					related to the objects, <code>false<code>
-	 * 					otherwise.
-	 * @param observer  Call-back handler.
+	 * @param data The objects to handle. Mustn't be <code>null</code>.
+	 * @param userID Pass <code>-1</code> if no user specified.
+	 * @param viewed Pass <code>true</code> to load the rendering settings 
+	 * related to the objects, <code>false<code> otherwise.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadStructuredData(SecurityContext ctx,
@@ -170,14 +172,13 @@ public interface MetadataHandlerView
 	 * Loads all the annotations if the object's type is <code>null</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
-	 * @param userID		The id of the user the annotations are owned by,
-	 * 						or <code>-1</code> if no user specified.
-	 * @param groupID		The id of the group or <code>-1</code>.
-	 * @param observer  	Call-back handler.
+	 * @param annotation The annotation type. Mustn't be <code>null</code>.
+	 * @param userID The id of the user the annotations are owned by,
+	 * or <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExistingAnnotations(SecurityContext ctx, 
+	public CallHandle loadExistingAnnotations(SecurityContext ctx,
 			Class annotation, long userID, AgentEventListener observer);
 
 	/**
@@ -186,13 +187,13 @@ public interface MetadataHandlerView
 	 * Loads all the annotations if the object's type is <code>null</code>.
 	 * 
 	 * @param ctx The security contexts.
-	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
-	 * @param userID		The id of the user the annotations are owned by,
-	 * 						or <code>-1</code> if no user specified.
-	 * @param observer  	Call-back handler.
+	 * @param annotation The annotation type. Mustn't be <code>null</code>.
+	 * @param userID The id of the user the annotations are owned by,
+	 * or <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx, 
+	public CallHandle loadExistingAnnotations(List<SecurityContext> ctx,
 			Class annotation, long userID, AgentEventListener observer);
 	
 	/**
@@ -200,50 +201,50 @@ public interface MetadataHandlerView
 	 * the object if any.
 	 * 
 	 * @param ctx The security context.
-	 * @param data		The data objects to handle.
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
-	 * @param metadata	The acquisition metadata.
-	 * @param userID	The id of the user.
-	 * @param observer	Call-back handler.
+	 * @param data The data objects to handle.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param metadata The acquisition metadata.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveData(SecurityContext ctx, Collection<DataObject> data,
 		List<AnnotationData> toAdd, List<Object> toRemove,
-		List<Object> metadata,	long userID, AgentEventListener observer);
+		List<Object> metadata, long userID, AgentEventListener observer);
 	
 	/**
-	 * Saves the objects contained in the passed <code>DataObject</code>s, 
+	 * Saves the objects contained in the passed <code>DataObject</code>s,
 	 * adds (respectively removes) annotations to (respectively from)
 	 * the object if any.
 	 * 
 	 * @param ctx The security context.
-	 * @param data		The data objects to handle.
-	 * @param toAdd		Collection of annotations to add.
-	 * @param toRemove	Collection of annotations to remove.
-	 * @param userID	The id of the user.
-	 * @param observer	Call-back handler.
+	 * @param data The data objects to handle.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle saveBatchData(SecurityContext ctx, 
+	public CallHandle saveBatchData(SecurityContext ctx,
 		Collection<DataObject> data, List<AnnotationData> toAdd,
 		List<Object> toRemove, long userID,
 		AgentEventListener observer);
 	
 	/**
-	 * Saves the objects contained in the passed <code>DataObject</code>s, 
+	 * Saves the objects contained in the passed <code>DataObject</code>s,
 	 * adds (respectively removes) annotations to (respectively from)
 	 * the object if any.
 	 * 
 	 * @param ctx The security context.
 	 * @param timeRefObject The object hosting the time period.
-	 * @param toAdd			Collection of annotations to add.
-	 * @param toRemove		Collection of annotations to remove.
-	 * @param userID		The id of the user.
-	 * @param observer		Call-back handler.
+	 * @param toAdd Collection of annotations to add.
+	 * @param toRemove Collection of annotations to remove.
+	 * @param userID The id of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle saveBatchData(SecurityContext ctx, 
+	public CallHandle saveBatchData(SecurityContext ctx,
 		TimeRefObject timeRefObject, List<AnnotationData> toAdd,
 		List<Object> toRemove, long userID,
 		AgentEventListener observer);
@@ -252,23 +253,22 @@ public interface MetadataHandlerView
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file		The file to copy the date into.
-	 * @param fileID	The id of the original file.
-	 * @param size		The size of the file.
-	 * @param observer	Call-back handler.
+	 * @param file The file to copy the date into.
+	 * @param fileID The id of the original file.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFile(SecurityContext ctx, File file, long fileID,
-			long size, AgentEventListener observer);
+			AgentEventListener observer);
 	
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param file		The file to copy the date into.
-	 * @param fileID	The id of the original file.
-	 * @param index		The index of the files
-	 * @param observer	Call-back handler.
+	 * @param file The file to copy the date into.
+	 * @param fileID The id of the original file.
+	 * @param index The index of the files
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFile(SecurityContext ctx, File file, long fileID,
@@ -278,8 +278,8 @@ public interface MetadataHandlerView
 	 * Loads the annotation corresponding to the passed id.
 	 * 
 	 * @param ctx The security context.
-	 * @param annotationID	The id of the annotation file.
-	 * @param observer	Call-back handler.
+	 * @param annotationID The id of the annotation file.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadAnnotation(SecurityContext ctx, long annotationID,
@@ -290,7 +290,7 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param pixelsID The collection of the pixels sets.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadOriginalFiles(SecurityContext ctx,
@@ -302,22 +302,22 @@ public interface MetadataHandlerView
 	 * @param ctx The security context.
 	 * @param imageID The id of the pixels set related to the image.
 	 * @param location The location where to store the files.
-	 * @param observer	Call-back handler.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedImage(SecurityContext ctx, long imageID,
-		String location, AgentEventListener observer);
+		File location, AgentEventListener observer);
 	
 	/**
 	 * Filters by annotation.
 	 * 
 	 * @param ctx The security context.
-	 * @param nodeType			The type of node.
-	 * @param nodeIds			The collection of nodes to filter.
-	 * @param annotationType 	The type of annotation to filter by.
-	 * @param terms				The terms to filter by.
-	 * @param userID			The ID of the user.
-	 * @param observer			Call-back handler.
+	 * @param nodeType The type of node.
+	 * @param nodeIds The collection of nodes to filter.
+	 * @param annotationType The type of annotation to filter by.
+	 * @param terms The terms to filter by.
+	 * @param userID The ID of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle filterByAnnotation(SecurityContext ctx, Class nodeType,
@@ -328,13 +328,13 @@ public interface MetadataHandlerView
 	 * Filters by annotated nodes.
 	 * 
 	 * @param ctx The security context.
-	 * @param nodeType			The type of node.
-	 * @param nodeIds			The collection of nodes to filter.
-	 * @param annotationType 	The type of annotation to filter by.
-	 * @param annotated			Pass <code>true</code> to retrieve the 
-	 *                          annotated nodes, <code>false</code> otherwise.
-	 * @param userID			The ID of the user.
-	 * @param observer			Call-back handler.
+	 * @param nodeType The type of node.
+	 * @param nodeIds The collection of nodes to filter.
+	 * @param annotationType The type of annotation to filter by.
+	 * @param annotated Pass <code>true</code> to retrieve the annotated nodes,
+	 * <code>false</code> otherwise.
+	 * @param userID The ID of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle filterByAnnotated(SecurityContext ctx, Class nodeType,
@@ -345,11 +345,11 @@ public interface MetadataHandlerView
 	 * Filters the data.
 	 * 
 	 * @param ctx The security context.
-	 * @param nodeType	The type of node.
-	 * @param nodeIds	The collection of nodes to filter.
-	 * @param context	The filtering context.
-	 * @param userID	The ID of the user.
-	 * @param observer	Call-back handler.
+	 * @param nodeType The type of node.
+	 * @param nodeIds The collection of nodes to filter.
+	 * @param context The filtering context.
+	 * @param userID The ID of the user.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle filterData(SecurityContext ctx, Class nodeType,
@@ -361,12 +361,12 @@ public interface MetadataHandlerView
 	 * newly created node.
 	 * 
 	 * @param ctx The security context.
-	 * @param parent	The parent of the <code>DataObject</code> to create
-	 * 					or <code>null</code> if no parent specified.
-	 * @param data		The <code>DataObject</code> to create.
-	 * @param children	The nodes to add to the newly created 
-	 * 					<code>DataObject</code>.
-	 * @param observer	Call-back handler.
+	 * @param parent The parent of the <code>DataObject</code> to create
+	 * or <code>null</code> if no parent specified.
+	 * @param data The <code>DataObject</code> to create.
+	 * @param children The nodes to add to the newly created
+	 * <code>DataObject</code>.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle createDataObject(SecurityContext ctx, DataObject parent,
@@ -376,14 +376,14 @@ public interface MetadataHandlerView
 	 * Saves the file back to the server.
 	 * 
 	 * @param ctx The security context.
-	 * @param fileAnnotation	The file to save back to the server.
-	 * @param file				The id of the file if previously saved.
-	 * @param index				One of the constants defined by this class.
-	 * @param linkTo			The <code>DataObject</code> the
+	 * @param fileAnnotation The file to save back to the server.
+	 * @param file The id of the file if previously saved.
+	 * @param index One of the constants defined by this class.
+	 * @param linkTo The <code>DataObject</code> to link the annotation to.
 	 * @param observer	Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle saveFile(SecurityContext ctx, 
+	public CallHandle saveFile(SecurityContext ctx,
 		FileAnnotationData fileAnnotation, File file, int index,
 		DataObject linkTo, AgentEventListener observer);
 
@@ -392,22 +392,22 @@ public interface MetadataHandlerView
 	 * for the plate or wells.
 	 * 
 	 * @param ctx The security context.
-	 * @param objects	The objects to update. Mustn't be <code>null</code>.
-	 * @param observer	Call-back handler.
+	 * @param objects The objects to update. Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle updateDataObjects(SecurityContext ctx, 
+	public CallHandle updateDataObjects(SecurityContext ctx,
 		List<DataObject> objects, AgentEventListener observer);
 
 	/**
 	 * Submits the files to the QA system.
 	 * 
 	 * @param ctx The security context.
-	 * @param details  Object containing the information to send.
+	 * @param details Object containing the information to send.
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle submitFiles(SecurityContext ctx, MessengerDetails details, 
+	public CallHandle submitFiles(SecurityContext ctx, MessengerDetails details,
 			AgentEventListener observer);
 	
 	/**
@@ -415,9 +415,9 @@ public interface MetadataHandlerView
 	 * Retrieves the files if the userID is not <code>-1</code>.
 	 * 
 	 * @param ctx The security context.
-	 * @param dataObject	The object to handle. Mustn't be <code>null</code>.
-	 * @param userID		Pass <code>-1</code> if no user specified.
-	 * @param observer  	Call-back handler.
+	 * @param dataObject The object to handle. Mustn't be <code>null</code>.
+	 * @param userID Pass <code>-1</code> if no user specified.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadROIMeasurement(SecurityContext ctx, Object dataObject,
@@ -427,11 +427,11 @@ public interface MetadataHandlerView
 	 * Loads the original files hosted by the file annotation.
 	 * 
 	 * @param ctx The security context.
-	 * @param files	The files to handle. Mustn't be <code>null</code>.
-	 * @param observer  Call-back handler.
+	 * @param files The files to handle. Mustn't be <code>null</code>.
+	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadFiles(SecurityContext ctx, 
+	public CallHandle loadFiles(SecurityContext ctx,
 		Map<FileAnnotationData, File> files, AgentEventListener observer);
 	
 	/**
@@ -439,8 +439,8 @@ public interface MetadataHandlerView
 	 * 
 	 * @param ctx The security context.
 	 * @param userID The id of the experimenter or <code>-1</code>.
-	 * @param all 	Pass <code>true</code> to retrieve all the scripts uploaded
-	 * 				ones and the default ones, <code>false</code>.
+	 * @param all Pass <code>true</code> to retrieve all the scripts uploaded
+	 * ones and the default ones, <code>false</code>.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadScripts(SecurityContext ctx, long userID, boolean all,
@@ -464,7 +464,7 @@ public interface MetadataHandlerView
 	 * @param userID The id of the experimenter or <code>-1</code>.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadTabularData(SecurityContext ctx, 
+	public CallHandle loadTabularData(SecurityContext ctx,
 		TableParameters parameters, long userID, AgentEventListener observer);
 	
 	/**
@@ -477,4 +477,24 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle loadFileset(SecurityContext ctx,
 		long imageId, AgentEventListener observer);
+	
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param annotationType The type of annotation to load.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAnnotations(SecurityContext ctx, Class<?> rootType,
+		List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+		List<String> nsExlcude, AgentEventListener observer);
+
 }

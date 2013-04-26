@@ -143,7 +143,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
 
         if ("touch".equals(command)) {
             for (String arg : args) {
-                final CheckedPath checked = servant.checkPath(parse(arg), __current);
+                final CheckedPath checked = servant.checkPath(parse(arg), null, __current);
                 if (!checked.exists()) {
                     final CheckedPath parent = checked.parent();
                     if (!(parent.isDirectory() || checked.parent().mkdirs())) {
@@ -163,7 +163,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
                     parents = true;
                     continue;
                 }
-                CheckedPath checked = servant.checkPath(parse(arg), __current);
+                final CheckedPath checked = servant.checkPath(parse(arg), null, __current);
                 if (parents) {
                     checked.mkdirs();
                 } else {
@@ -172,7 +172,7 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
             }
         } else if ("rm".equals(command)) {
             if (args.size() == 1) {
-                CheckedPath checked = servant.checkPath(parse(args.get(0)), __current);
+                final CheckedPath checked = servant.checkPath(parse(args.get(0)), null, __current);
                 if (!checked.delete()) {
                     throw new omero.grid.FileDeleteException(null, null,
                             "Delete file failed: " + args.get(0));
