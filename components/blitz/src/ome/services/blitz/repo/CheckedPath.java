@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -33,7 +30,8 @@ import loci.formats.FormatException;
 import loci.formats.ReaderWrapper;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+
+import com.google.common.collect.ImmutableSet;
 
 import ome.io.nio.FileBuffer;
 import ome.services.blitz.repo.path.FsFile;
@@ -62,8 +60,8 @@ import omero.model.ChecksumAlgorithm;
 public class CheckedPath {
     private static final String SAME_DIR = ".";
     private static final String PARENT_DIR = "..";
-    private static final Set<String> SPECIAL_DIRS;
-    
+    private static final ImmutableSet<String> SPECIAL_DIRS = ImmutableSet.of(SAME_DIR, PARENT_DIR);
+
     public final FsFile fsFile;
     public /*final*/ boolean isRoot;
     private final File file;
@@ -78,13 +76,6 @@ public class CheckedPath {
     protected String hash;
     protected String mime;
 
-    static {
-        final Set<String> specialDirs = new HashSet<String>();
-        specialDirs.add(SAME_DIR);
-        specialDirs.add(PARENT_DIR);
-        SPECIAL_DIRS = Collections.unmodifiableSet(specialDirs);
-    }
-    
     /**
      * Adjust an FsFile to remove "." components and to remove ".." components with the previous component.
      * TODO: May not actually be necessary.
@@ -410,7 +401,7 @@ public class CheckedPath {
         ome.model.core.OriginalFile ofile =
                 new ome.model.core.OriginalFile();
 
-        // Only non conditional properties.
+        // only non-conditional properties
         ofile.setName(getName());
         ofile.setMimetype(mimetype); // null takes DB default
         ofile.setPath(getRelativePath());

@@ -33,7 +33,6 @@ import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-import ome.util.checksum.ChecksumType;
 import omero.ChecksumValidationException;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
@@ -56,7 +55,6 @@ import omero.model.FilesetI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;

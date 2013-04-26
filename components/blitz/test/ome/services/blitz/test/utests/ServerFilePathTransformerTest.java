@@ -30,13 +30,14 @@ import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
-import ome.services.blitz.repo.path.StringTransformer;
 import omero.util.TempFileManager;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.google.common.base.Function;
 
 /**
  * @author m.t.b.carroll@dundee.ac.uk
@@ -59,7 +60,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
     @BeforeClass
     public void setup() throws IOException {
         this.tempDir = tempFileManager.createPath("unit-test",  null,  true);
-        final StringTransformer transformer = new MakePathComponentSafe();
+        final Function<String, String> transformer = new MakePathComponentSafe();
         this.fpts = new ServerFilePathTransformer();
         this.fpts.setPathSanitizer(transformer);
         this.fpts.setBaseDirFile(this.tempDir);
