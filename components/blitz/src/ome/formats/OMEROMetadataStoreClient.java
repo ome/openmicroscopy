@@ -1138,8 +1138,7 @@ public class OMEROMetadataStoreClient
      */
     private Format getImageFormat()
     {
-        ImageReader imageReader = (ImageReader) reader;
-        String value = imageReader.getReader().getClass().toString();
+        String value = getReader().getClass().toString();
         value = value.replace("class loci.formats.in.", "");
         value = value.replace("Reader", "");
         return (Format) getEnumeration(Format.class, value);

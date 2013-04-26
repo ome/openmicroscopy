@@ -474,7 +474,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private void open(OMEROWrapper reader, OMEROMetadataStoreClient store,
             CheckedPath targetFile) throws FormatException, IOException
     {
-        reader.close();
+        // reader.close(); This instance is no longer re-used
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
         store.setReader(reader.getImageReader());

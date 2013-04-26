@@ -11,6 +11,8 @@ import java.text.RuleBasedCollator;
 import java.util.Comparator;
 import java.util.Locale;
 
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+
 import ome.util.LSID;
 import omero.model.DetectorSettings;
 import omero.model.IObject;
@@ -32,6 +34,7 @@ public class OMEXMLModelComparator implements Comparator<LSID>
      * The collator that we use to alphabetically sort by class name
      * within a given level of the OME-XML hierarchy.
      */
+    @FieldSerializer.Optional("OMEXmlModelComparator.stringComparator")
     private RuleBasedCollator stringComparator =
         (RuleBasedCollator) Collator.getInstance(Locale.ENGLISH);
 

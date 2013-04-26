@@ -20,6 +20,7 @@ import loci.formats.ChannelSeparator;
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
 import loci.formats.meta.IMinMaxStore;
 import ome.conditions.LockTimeout;
@@ -70,10 +71,15 @@ public class PixelsService extends AbstractFileSystemService
 	protected FilePathResolver resolver;
 
 	/** BackOff implementation for calculating MissingPyramidExceptions */
-	protected BackOff backOff;
+	protected final BackOff backOff;
 
 	/** TileSizes implementation for default values */
-	protected TileSizes sizes;
+	protected final TileSizes sizes;
+
+	/**
+	 * Location where cached data from the {@link Memoizer} should be stored.
+	 */
+	protected final File memoizerDirectory;
 
 	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
@@ -113,10 +119,26 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelsService(String path, FilePathResolver resolver, BackOff backOff, TileSizes sizes)
     {
+        this(path, new File(new File(path), "BioFormatsCache"), resolver,
+                backOff, sizes);
+    }
+
+    public PixelsService(String path, File memoizerDirectory,
+            FilePathResolver resolver, BackOff backOff, TileSizes sizes)
+    {
         super(path);
         this.resolver = resolver;
         this.backOff = backOff;
         this.sizes = sizes;
+        this.memoizerDirectory = memoizerDirectory;
+        if (!this.memoizerDirectory.exists())
+        {
+            log.info("Creating Bio-Formats Cache: {}", memoizerDirectory);
+            this.memoizerDirectory.mkdirs();
+        } else {
+            log.info("Using Bio-Formats Cache: {}", memoizerDirectory);
+        }
+
         if (log.isInfoEnabled())
         {
             log.info("PixelsService(path=" +
@@ -139,7 +161,7 @@ public class PixelsService extends AbstractFileSystemService
 
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
-	 * 
+	 *
 	 * @param pixels Pixels set to create a pixel buffer for.
 	 * @return Allocated pixel buffer ready to be used.
 	 * @throws IOException If there is an I/O error creating the pixel buffer
@@ -405,6 +427,13 @@ public class PixelsService extends AbstractFileSystemService
      */
     public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
     {
+        PixelBuffer pb = _getPixelBuffer(pixels, write);
+        log.warn(pb +" for " + pixels);
+        return pb;
+    }
+
+    public PixelBuffer _getPixelBuffer(Pixels pixels, boolean write)
+    {
         final String originalFilePath = getOriginalFilePath(pixels);
         final boolean requirePyramid = requiresPixelsPyramid(pixels);
         final String pixelsFilePath = getPixelsPath(pixels.getId());
@@ -545,7 +574,7 @@ public class PixelsService extends AbstractFileSystemService
 
 	/**
 	 * Initializes each plane of a PixelBuffer using a null plane byte array.
-	 * 
+	 *
 	 * @param pixbuf Pixel buffer to initialize.
 	 * @throws IOException If there is an I/O error during initialization.
 	 */
@@ -645,10 +674,7 @@ public class PixelsService extends AbstractFileSystemService
     {
         try
         {
-            IFormatReader reader = new ImageReader();
-            reader = new ChannelFiller(reader);
-            reader = new ChannelSeparator(reader);
-            reader.setFlattenedResolutions(false);
+            IFormatReader reader = createBfReader();
             MinMaxCalculator calculator = new MinMaxCalculator(reader);
             calculator.setMinMaxStore(store);
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, calculator);
@@ -677,7 +703,7 @@ public class PixelsService extends AbstractFileSystemService
         // from getPixelBuffer
         final String originalFilePath = getOriginalFilePath(pixels);
         final int series = getSeries(pixels);
-        final IFormatReader reader = createBfReader(originalFilePath);
+        final IFormatReader reader = createBfReader();
         reader.setId(originalFilePath); // Called by BfPixelsBuffer elsewhere.
         reader.setSeries(series);
         return reader;
@@ -687,10 +713,11 @@ public class PixelsService extends AbstractFileSystemService
      * Create an {@link IFormatReader} with the appropriate {@link loci.formats.ReaderWrapper}
      * instances and {@link IFormatReader#setFlattenedResolutions(boolean)} set to false.
      */
-    protected IFormatReader createBfReader(final String filePath) {
+    protected IFormatReader createBfReader() {
         IFormatReader reader = new ImageReader();
         reader = new ChannelFiller(reader);
         reader = new ChannelSeparator(reader);
+        reader = new Memoizer(reader, 100, memoizerDirectory);
         reader.setFlattenedResolutions(false);
         return reader;
     }
@@ -706,7 +733,7 @@ public class PixelsService extends AbstractFileSystemService
                                               final int series) {
         try
         {
-            IFormatReader reader = createBfReader(filePath);
+            IFormatReader reader = createBfReader();
             BfPixelBuffer pixelBuffer = new BfPixelBuffer(filePath, reader);
             pixelBuffer.setSeries(series);
             log.info(String.format("Creating BfPixelBuffer: %s Series: %d",
@@ -765,7 +792,7 @@ public class PixelsService extends AbstractFileSystemService
     /**
 	 * Removes files from data repository based on a parameterized List of Long
 	 * pixels ids
-	 * 
+	 *
 	 * @param pixelsIds Long file keys to be deleted
 	 * @throws ResourceError If deletion fails.
 	 */
