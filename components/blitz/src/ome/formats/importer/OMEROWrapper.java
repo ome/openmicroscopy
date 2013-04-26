@@ -40,18 +40,25 @@ import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
+import loci.formats.Memoizer;
 import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
 import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
 import loci.formats.in.ZipReader;
 import loci.formats.meta.MetadataStore;
-import ome.util.PixelData;
-import omero.model.Channel;
-import omero.model.Pixels;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+
+import ome.formats.OMEXMLModelComparator;
+import ome.util.PixelData;
+
+import omero.model.Channel;
+import omero.model.Pixels;
 
 /**
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
@@ -65,6 +72,7 @@ public class OMEROWrapper extends MinMaxCalculator {
 
     private ChannelSeparator separator;
     private ChannelFiller filler;
+    private Memoizer memoizer;
     public Boolean minMaxSet = null;
 
     /**
@@ -84,41 +92,21 @@ public class OMEROWrapper extends MinMaxCalculator {
      */
     public OMEROWrapper(ImportConfig config)
     {
-        if (config == null) {
-            throw new IllegalArgumentException(
-                    "An ImportConfig must be instantitated \n " +
-                    "in order to properly configure all readers.");
-        }
+        super(createReader(config));
 
         this.config = config;
-        try
-        {
-            String readersPath = config.readersPath.get();
-            // Since we now use all readers apart from the ZipReader, just
-            // initialize in this manner which helps us by not requiring
-            // us to keep up with all changes in readers.txt and removes
-            // the requirement for importer_readers.txt (See #2859).
-            // Chris Allan <callan@blackcat.ca> -- Fri 10 Sep 2010 17:24:49 BST
-            ClassList<IFormatReader> readers =
-                ImageReader.getDefaultReaderClasses();
-            readers.removeClass(ZipReader.class);
-            if (readersPath != null)
-            {
-                Class<?> k = getClass();
-                if (new File(readersPath).exists()) {
-                    k = null;
-                }
-                readers = new ClassList<IFormatReader>(
-                        readersPath, IFormatReader.class, k);
+        this.iReader = (ImageReader) reader; // Save old value
+        this.reader = null;
+        filler = new ChannelFiller(iReader);
+        separator  = new ChannelSeparator(filler);
+        memoizer = new Memoizer(separator) {
+            public Deser getDeser() {
+                KryoDeser k = new KryoDeser();
+                k.kryo.register(OMEXMLModelComparator.class);
+                return k;
             }
-            iReader = new ImageReader(readers);
-            filler = new ChannelFiller(iReader);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Unable to load readers.txt.");
-        }
-        reader = separator  = new ChannelSeparator(filler);
+        };
+        reader = memoizer;
 
         // Force unreadable characters to be removed from metadata key/value pairs
         iReader.setMetadataFiltered(true);
@@ -128,6 +116,40 @@ public class OMEROWrapper extends MinMaxCalculator {
         // series.
         iReader.setFlattenedResolutions(false);
     };
+
+    private static ImageReader createReader(ImportConfig config)
+    {
+        if (config == null) {
+            throw new IllegalArgumentException(
+                    "An ImportConfig must be instantitated \n " +
+                    "in order to properly configure all readers.");
+        }
+        String readersPath = config.readersPath.get();
+        // Since we now use all readers apart from the ZipReader, just
+        // initialize in this manner which helps us by not requiring
+        // us to keep up with all changes in readers.txt and removes
+        // the requirement for importer_readers.txt (See #2859).
+        // Chris Allan <callan@blackcat.ca> -- Fri 10 Sep 2010 17:24:49 BST
+        ClassList<IFormatReader> readers =
+            ImageReader.getDefaultReaderClasses();
+        readers.removeClass(ZipReader.class);
+        if (readersPath != null)
+        {
+            Class<?> k = OMEROWrapper.class;
+            if (new File(readersPath).exists()) {
+                k = null;
+            }
+            try
+            {
+                return new ImageReader(new ClassList<IFormatReader>(
+                    readersPath, IFormatReader.class, k));
+            } catch (IOException e)
+            {
+                throw new RuntimeException("Unable to load readers.txt.");
+            }
+        }
+        return new ImageReader();
+    }
 
     public ImportConfig getConfig() {
         return this.config;

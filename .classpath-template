@@ -24,6 +24,7 @@
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/bio-formats/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/mdbtools/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/forks/poi/src"/>
+	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/loci-legacy/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/metakit/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/ome-io/src"/>
