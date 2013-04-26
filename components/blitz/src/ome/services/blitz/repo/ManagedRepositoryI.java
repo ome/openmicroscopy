@@ -36,6 +36,7 @@ import ome.formats.importer.ImportContainer;
 import ome.services.blitz.gateway.services.util.ServiceUtilities;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathNamingValidator;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProviderFactory;
@@ -118,7 +119,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
      */
     public ManagedRepositoryI(String template, RepositoryDao dao) throws Exception {
         this(template, dao, new ProcessContainer(), new ChecksumProviderFactoryImpl(),
-                null, "");
+                null, FilePathRestrictionInstance.UNIX_REQUIRED.name);
     }
 
     public ManagedRepositoryI(String template, RepositoryDao dao,

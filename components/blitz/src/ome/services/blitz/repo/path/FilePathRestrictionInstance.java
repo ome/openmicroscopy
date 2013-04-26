@@ -121,7 +121,7 @@ public enum FilePathRestrictionInstance {
         UNIX_OPTIONAL.rules = new FilePathRestrictions(null, unsafePrefixes, null, null, safeCharacters);
     }
 
-    private final String name;
+    public final String name;
     private FilePathRestrictions rules;
 
     /**
