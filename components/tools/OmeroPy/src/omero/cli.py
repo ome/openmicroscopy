@@ -26,7 +26,6 @@ cmd = __import__("cmd")
 
 import string, re, os, subprocess, socket, traceback, glob, platform, time
 import shlex
-from exceptions import Exception as Exc
 from threading import Thread, Lock
 from path import path
 
@@ -99,10 +98,10 @@ LINEWSP = re.compile("^\s*\w+\s+")
 #
 # Exceptions
 #
-class NonZeroReturnCode(Exc):
+class NonZeroReturnCode(Exception):
     def __init__(self, rv, *args):
         self.rv = rv
-        Exc.__init__(self, *args)
+        Exception.__init__(self, *args)
 
 
 #####################################################
@@ -323,7 +322,7 @@ class Context:
 
     def safePrint(self, text, stream, newline = True):
         """
-        Prints text to a given string, caputring any exceptions.
+        Prints text to a given string, capturing any exceptions.
         """
         try:
             stream.write(str(text) % {"program_name": sys.argv[0]})
@@ -362,7 +361,7 @@ class Context:
         if not dir.exists():
             dir.mkdir()
         elif not dir.isdir():
-            raise Exc("%s is not a directory"%dir)
+            raise Exception("%s is not a directory"%dir)
         dir.chmod(0700)
         return dir
 
@@ -606,7 +605,7 @@ class BaseControl(object):
             for cfg in self._cfglist():
                 try:
                     self._props.load(str(cfg))
-                except Exc, exc:
+                except Exception, exc:
                     self.ctx.die(3, "Could not find file: "+cfg + "\nDid you specify the proper node?")
         return self._props.getPropertiesForPrefix(prefix)
 
