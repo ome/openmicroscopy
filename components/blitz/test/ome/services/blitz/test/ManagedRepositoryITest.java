@@ -52,9 +52,7 @@ import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.util.TempFileManager;
 
-/**
- */
-@Test(groups = { "integration", "repo", "fslite" })
+@Test(groups = { "integration", "repo", "fs" })
 public class ManagedRepositoryITest extends AbstractServantTest {
     private final FilePathRestrictions conservativeRules =
             FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());

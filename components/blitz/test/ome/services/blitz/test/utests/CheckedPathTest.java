@@ -15,7 +15,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@Test
+@Test(groups = { "fs" })
 public class CheckedPathTest {
     private final FilePathRestrictions conservativeRules =
             FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
