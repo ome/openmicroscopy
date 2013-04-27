@@ -225,7 +225,7 @@ class ITest(unittest.TestCase):
             pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
         if pixelsType == None:
             print "Unknown pixels type for: " % pType
-            raise "Unknown pixels type for: " % pType
+            raise Exception("Unknown pixels type for: " % pType)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
