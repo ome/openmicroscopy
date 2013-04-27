@@ -18,7 +18,6 @@ import logging
 import unittest
 import tempfile
 import traceback
-import exceptions
 import subprocess
 
 import omero
@@ -183,7 +182,7 @@ class ITest(unittest.TestCase):
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise exceptions.Exception("import failed: [%r] %s\n%s" % (args, rc, err))
+            raise Exception("import failed: [%r] %s\n%s" % (args, rc, err))
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
@@ -299,7 +298,7 @@ class ITest(unittest.TestCase):
         """
 
         if not self.root:
-            raise exceptions.Exception("No root client. Cannot create user")
+            raise Exception("No root client. Cannot create user")
 
         adminService = self.root.getSession().getAdminService()
         name = self.uuid()

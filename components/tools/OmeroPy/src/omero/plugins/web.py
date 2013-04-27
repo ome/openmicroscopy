@@ -8,7 +8,6 @@
 
 """
 
-from exceptions import Exception
 from datetime import datetime
 from omero.cli import BaseControl, CLI
 import omero.java

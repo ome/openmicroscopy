@@ -8,7 +8,7 @@
 #   Use is subject to license terms supplied in LICENSE.txt
 #
 
-import sys, os, glob, exceptions, subprocess
+import sys, os, glob, subprocess
 import optparse
 from SCons.Script.SConscript import *
 from SCons.Script import AddOption, GetOption
@@ -77,7 +77,7 @@ def make_slice(command):
         args = command+[str(source[0].get_abspath())]
         rv = subprocess.call(args)
         if rv != 0:
-            raise exceptions.Exception("%s returned %s" % (str(args), str(rv)) )
+            raise Exception("%s returned %s" % (str(args), str(rv)) )
     return slice
 
 def slice_cpp(env, where, dir):

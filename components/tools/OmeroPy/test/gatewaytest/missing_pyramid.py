@@ -6,7 +6,6 @@
 
 """
 
-import exceptions
 import unittest
 import omero
 import time
