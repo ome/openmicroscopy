@@ -2139,6 +2139,19 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         """
         return super(ImageWrapper, self).countFilesetFiles() > 0
 
+
+    def getFilesetImages(self):
+        """
+        Returns a list of the 'sibling' images (including this one) that belong
+        to this image's Fileset. Sorted by name.
+
+        @rtype:     List of {ImageWrapper}
+        """
+        fsImgs = [ImageWrapper(self._conn, i) for i in self.getFileset().copyImages()]
+        fsImgs.sort(key=lambda x: x.getName().lower())
+        return fsImgs
+
+
 omero.gateway.ImageWrapper = ImageWrapper
 
 class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):

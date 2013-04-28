@@ -495,13 +495,24 @@
             <div style="clear:both"></div>
                   
                   
-            {% with fileset=manager.image.getFileset %}
-                {% if fileset.copyImages|length > 1 %}
-                    {% for fsImg in manager.image.getFileset.copyImages %}
-                        <img class="fileset_image" src="{% url render_thumbnail_resize 96 fsImg.id.val %}" style="max-width:35px" />
+            {% with filesetImgs=manager.image.getFilesetImages %}
+                {% if filesetImgs|length > 1 %}
+                <h2 class="data_heading_id" style="float:left; margin-top: 6px">
+                    Fileset Images: 
+                </h2>
+                <div style="border: solid #87ABD2 1px; float:right">
+                    {% for fsImg in filesetImgs reversed %}
+                        <img class="fileset_image" src="{% url render_thumbnail_resize 96 fsImg.id %}"
+                            title="{{ fsImg.name }}"
+                            {% ifequal fsImg.id manager.obj_id %}style="border: solid 3px #87ABD2; margin:0px"{% endifequal %}
+                        />
                     {% endfor %}
+                    <div style="clear:both"></div>
+                </div>
                 {% endif %}
             {% endwith %}
+
+            <div style="clear:both"></div>
 
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
                   
