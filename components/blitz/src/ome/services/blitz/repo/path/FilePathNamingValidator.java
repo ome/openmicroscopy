@@ -20,7 +20,8 @@
 package ome.services.blitz.repo.path;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import omero.FilePathNamingException;
 
@@ -44,10 +45,10 @@ public class FilePathNamingValidator {
      * @throws FilePathNamingException if the FS file is invalidly named
      */
     public void validateFilePathNaming(FsFile fsFile) throws FilePathNamingException {
-        final List<Integer> illegalCodePoints = new ArrayList<Integer>();
-        final List<String> illegalPrefixes = new ArrayList<String>();
-        final List<String> illegalSuffixes = new ArrayList<String>();
-        final List<String> illegalNames = new ArrayList<String>();
+        final SortedSet<Integer> illegalCodePoints = new TreeSet<Integer>();
+        final SortedSet<String> illegalPrefixes = new TreeSet<String>();
+        final SortedSet<String> illegalSuffixes = new TreeSet<String>();
+        final SortedSet<String> illegalNames = new TreeSet<String>();
 
         for (final String string : fsFile.getComponents()) {
             final String ucString = string.toUpperCase();
@@ -73,8 +74,9 @@ public class FilePathNamingValidator {
         }
 
         if (!(illegalCodePoints.isEmpty() && illegalPrefixes.isEmpty() && illegalSuffixes.isEmpty() && illegalNames.isEmpty())) {
-            throw new FilePathNamingException(null, null, "illegal file path",
-                    fsFile.toString(), illegalCodePoints, illegalPrefixes, illegalSuffixes, illegalNames);
+            throw new FilePathNamingException(null, null, "illegal file path", fsFile.toString(),
+                    new ArrayList<Integer>(illegalCodePoints), new ArrayList<String>(illegalPrefixes),
+                    new ArrayList<String>(illegalSuffixes), new ArrayList<String>(illegalNames));
         }
     }
 
