@@ -54,6 +54,9 @@ ip.parse(annotationType, parentType, ids, varargin{:});
 metadataService = session.getMetadataService();
 
 % Convert input into java.util.ArrayList;
+if ~isnumeric(ids),
+    ids = arrayfun(@(x) x.getId().getValue(), ids);
+end
 ids = toJavaList(ids, 'java.lang.Long');
 include = toJavaList(ip.Results.include, 'java.lang.String');
 exclude = toJavaList(ip.Results.exclude, 'java.lang.String');
