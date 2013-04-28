@@ -144,6 +144,25 @@ public class FilePathRestrictions {
                 }
             }
 
+            final SetMultimap<Integer, Integer> entriesRemoved = HashMultimap.create();
+            boolean transitiveClosing;
+            do {
+                transitiveClosing = false;
+                for (final Entry<Integer, Integer> transformation : newTransformationMatrix.entries()) {
+                    final int to = transformation.getValue();
+                    if (newTransformationMatrix.containsKey(to)) {
+                        final int from = transformation.getKey();
+                        if (!entriesRemoved.put(from, to)) {
+                            throw new IllegalArgumentException("cyclic transformation involving Unicode code point " + from);
+                        }
+                        newTransformationMatrix.remove(from, to);
+                        newTransformationMatrix.putAll(from, newTransformationMatrix.get(to));
+                        transitiveClosing = true;
+                        break;
+                    }
+                }
+            } while (transitiveClosing);
+
             product = new FilePathRestrictions(newTransformationMatrix,
                     Sets.union(product.unsafePrefixes, toCombine.unsafePrefixes),
                     Sets.union(product.unsafeSuffixes, toCombine.unsafeSuffixes),

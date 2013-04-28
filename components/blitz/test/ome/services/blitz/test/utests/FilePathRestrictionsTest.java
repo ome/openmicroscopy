@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 
 /**
@@ -101,9 +102,9 @@ public class FilePathRestrictionsTest {
     public void testCombineUnsafeTransformation() {
         final SetMultimap<Integer, Integer> transformationMatrixX = HashMultimap.create();
         transformationMatrixX.put(0, 65);
-        transformationMatrixX.put(0, 0);
+        transformationMatrixX.put(0, 1);
         final SetMultimap<Integer, Integer> transformationMatrixY = HashMultimap.create();
-        transformationMatrixY.put(0, 0);
+        transformationMatrixY.put(0, 1);
         transformationMatrixY.put(0, 66);
         FilePathRestrictions.combineFilePathRestrictions(
                 new FilePathRestrictions(transformationMatrixX, null, null, null, ImmutableSet.of('A')),
@@ -124,6 +125,18 @@ public class FilePathRestrictionsTest {
         FilePathRestrictions.combineFilePathRestrictions(
                 new FilePathRestrictions(transformationMatrixX, null, null, null, ImmutableSet.of('A')),
                 new FilePathRestrictions(transformationMatrixY, null, null, null, ImmutableSet.of('A')));
+    }
+
+    /**
+     * Assert that an actual multimap is as expected regardless of order.
+     * @param actual the actual value
+     * @param expected the expected value
+     */
+    private void assertEqualMultimaps(Multimap<Integer, Integer> actual, Multimap<Integer, Integer> expected) {
+        Assert.assertTrue(CollectionUtils.isEqualCollection(actual.keySet(), expected.keySet()));
+        for (final Integer key : expected.keySet()) {
+            Assert.assertTrue(CollectionUtils.isEqualCollection(actual.get(key), expected.get(key)));
+        }
     }
 
     /**
@@ -287,14 +300,82 @@ public class FilePathRestrictionsTest {
         Assert.assertTrue(CollectionUtils.isEqualCollection(rulesXY.unsafePrefixes, unsafePrefixesXY));
         Assert.assertTrue(CollectionUtils.isEqualCollection(rulesXY.unsafeSuffixes, unsafeSuffixesXY));
         Assert.assertTrue(CollectionUtils.isEqualCollection(rulesXY.unsafeNames, unsafeNamesXY));
-        Assert.assertTrue(CollectionUtils.isEqualCollection(rulesXY.transformationMatrix.keySet(), transformationMatrixXY.keySet()));
-        for (final Integer key : rulesXY.transformationMatrix.keySet()) {
-            Assert.assertTrue(CollectionUtils.isEqualCollection(rulesXY.transformationMatrix.get(key), transformationMatrixXY.get(key)));
-        }
+        assertEqualMultimaps(rulesXY.transformationMatrix, transformationMatrixXY);
 
         /* given a mapping choice, prefer the safe character */
 
         Assert.assertEquals((int) rulesXY.transformationMap.get(controlCharacterP), 65);
         Assert.assertEquals((int) rulesXY.transformationMap.get(normalCharacterP), 65);
+    }
+
+    /**
+     * Test that transformation matrices are transitively closed upon combination.
+     */
+    @Test
+    public void testTransitiveTransformationClosure() {
+        final SetMultimap<Integer, Integer> transformationMatrixX = HashMultimap.create();
+        final SetMultimap<Integer, Integer> transformationMatrixY = HashMultimap.create();
+        final SetMultimap<Integer, Integer> transformationMatrixZ = HashMultimap.create();
+        final SetMultimap<Integer, Integer> transformationMatrixXYZ = HashMultimap.create();
+
+        for (int codePoint = 0; codePoint < 0x100; codePoint++) {
+            if (Character.getType(codePoint) == Character.CONTROL) {
+                transformationMatrixXYZ.put(codePoint, 90);
+            }
+        }
+
+        /*
+         * 65 → 66
+         *    ↘ ↓  ↘
+         *      67   68
+         *      ↓    ↓
+         *      70   69
+         */
+
+        transformationMatrixX.put(65, 66);
+        transformationMatrixX.put(65, 67);
+
+        transformationMatrixY.put(66, 67);
+        transformationMatrixY.put(66, 68);
+
+        transformationMatrixZ.put(67, 70);
+        transformationMatrixZ.put(68, 69);
+
+        transformationMatrixXYZ.put(65, 69);
+        transformationMatrixXYZ.put(65, 70);
+        transformationMatrixXYZ.put(66, 69);
+        transformationMatrixXYZ.put(66, 70);
+        transformationMatrixXYZ.put(67, 70);
+        transformationMatrixXYZ.put(68, 69);
+
+        final Set<Character> safeCharacters = ImmutableSet.of('Z');
+
+        final FilePathRestrictions rulesX =
+                new FilePathRestrictions(transformationMatrixX, null, null, null, safeCharacters);
+        final FilePathRestrictions rulesY =
+                new FilePathRestrictions(transformationMatrixY, null, null, null, safeCharacters);
+        final FilePathRestrictions rulesZ =
+                new FilePathRestrictions(transformationMatrixZ, null, null, null, safeCharacters);
+
+        final FilePathRestrictions rulesXYZ =
+                FilePathRestrictions.combineFilePathRestrictions(rulesX, rulesY, rulesZ);
+        assertEqualMultimaps(rulesXYZ.transformationMatrix, transformationMatrixXYZ);
+
+        final FilePathRestrictions rulesZYX =
+                FilePathRestrictions.combineFilePathRestrictions(rulesZ, rulesY, rulesX);
+        assertEqualMultimaps(rulesZYX.transformationMatrix, transformationMatrixXYZ);
+    }
+
+    /**
+     * Test that cyclic transformation matrices do not cause an infinite loop.
+     */
+    @Test(expectedExceptions=IllegalArgumentException.class)
+    public void testCyclicTransformationCombination() {
+        final SetMultimap<Integer, Integer> transformationMatrix = HashMultimap.create();
+        transformationMatrix.put(0, 0);
+
+        final FilePathRestrictions rules =
+                new FilePathRestrictions(transformationMatrix, null, null, null, ImmutableSet.of('A'));
+        FilePathRestrictions.combineFilePathRestrictions(rules); 
     }
 }
