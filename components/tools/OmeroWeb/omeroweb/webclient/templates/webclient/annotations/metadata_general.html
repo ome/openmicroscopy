@@ -502,10 +502,12 @@
                 </h2>
                 <div style="border: solid #87ABD2 1px; float:right">
                     {% for fsImg in filesetImgs reversed %}
+                    <a href="{% url webindex %}?show=image-{{ fsImg.id }}">
                         <img class="fileset_image" src="{% url render_thumbnail_resize 96 fsImg.id %}"
                             title="{{ fsImg.name }}"
                             {% ifequal fsImg.id manager.obj_id %}style="border: solid 3px #87ABD2; margin:0px"{% endifequal %}
                         />
+                    </a>
                     {% endfor %}
                     <div style="clear:both"></div>
                 </div>
