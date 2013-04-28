@@ -20,7 +20,6 @@
 package ome.services.blitz.repo.path;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -65,8 +64,8 @@ public class FilePathRestrictions {
         }
         controlCodePoints = controlCodePointsBuilder.build();
         isNotControlCodePoint = new Predicate<Integer>() {
-            public boolean apply(Integer input) {
-                return !controlCodePoints.contains(input);
+            public boolean apply(Integer codePoint) {
+                return !controlCodePoints.contains(codePoint);
             }};
     }
 
@@ -89,11 +88,14 @@ public class FilePathRestrictions {
                 HashMultimap.create(Multimaps.filterValues(rules.transformationMatrix, isNotControlCodePoint));
         for (final int controlCodePoint : controlCodePoints) {
             if (!newTransformationMatrix.containsKey(controlCodePoint)) {
+                if (rules.transformationMatrix.containsKey(controlCodePoint)) {
+                    throw new IllegalArgumentException(
+                            "only control character mappings available for Unicode code point " + controlCodePoint);
+                }
                 newTransformationMatrix.putAll(controlCodePoint, safeCodePoints);
             }
         }
-        return combineRules(rules, new FilePathRestrictions(newTransformationMatrix, Collections.<String>emptySet(),
-                Collections.<String>emptySet(), Collections.<String>emptySet(), safeCharacters));
+        return combineRules(rules, new FilePathRestrictions(newTransformationMatrix, null, null, null, safeCharacters));
     }
 
     /**
