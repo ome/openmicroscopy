@@ -5,6 +5,10 @@ function fas = getDatasetFileAnnotations(session, ids, varargin)
 %    annotations linked to the datasets specified by the input identifiers
 %    and owned by the session user.
 %
+%    fas = getDatasetFileAnnotations(session, datasets) returns all file
+%    annotations linked to the input datasets and owned by the session
+%    user.
+%
 %    fas = getDatasetFileAnnotations(session,  ids, 'include', include) only
 %    returns file annotations with the input namespace.
 %
@@ -14,6 +18,7 @@ function fas = getDatasetFileAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        fas = getDatasetFileAnnotations(session, ids)
+%        fas = getDatasetFileAnnotations(session, datasets)
 %        fas = getDatasetFileAnnotations(session, ids, 'include', include)
 %        fas = getDatasetFileAnnotations(session, ids, 'exclude', exclude)
 %

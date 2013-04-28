@@ -5,6 +5,9 @@ function tas = getPlateTagAnnotations(session, ids, varargin)
 %    linked to the plates specified by the input identifiers ids and owned 
 %    by the session user.
 %
+%    tas = getPlateTagAnnotations(session, plates) returns all tag
+%    annotations linked to the input plates and owned by the session user.
+%
 %    tas = getPlateTagAnnotations(session,  ids, 'include', include) only
 %    returns tag annotations with the input namespace.
 %
@@ -14,8 +17,9 @@ function tas = getPlateTagAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        tas = getPlateTagAnnotations(session, ids)
-%        fas = getPlateTagAnnotations(session, ids, 'include', include)
-%        fas = getPlateTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getPlateTagAnnotations(session, plates)
+%        tas = getPlateTagAnnotations(session, ids, 'include', include)
+%        tas = getPlateTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATECOMMENTANNOTATIONS,
 % GETPLATEFILEANNOTATIONS, GETPLATEXMLANNOTATIONS

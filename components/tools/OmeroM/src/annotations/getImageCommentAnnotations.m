@@ -5,6 +5,9 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 %    annotations linked to the image specified by the input identifiers ids
 %    and owned by the session user.
 %
+%    cas = getImageCommentAnnotations(session, images) returns all comment
+%    annotations linked to the input images and owned by the session user.
+%
 %    cas = getImageCommentAnnotations(session,  ids, 'include', include)
 %    only returns comment annotations with the input namespace.
 %
@@ -14,6 +17,7 @@ function cas = getImageCommentAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        cas = getImageCommentAnnotations(session, ids)
+%        cas = getImageCommentAnnotations(session, images)
 %        cas = getImageCommentAnnotations(session, ids, 'include', include)
 %        cas = getImageCommentAnnotations(session, ids, 'exclude', exclude)
 %
