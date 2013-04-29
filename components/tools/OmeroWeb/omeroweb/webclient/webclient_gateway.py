@@ -2144,12 +2144,16 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         """
         Returns a list of the 'sibling' images (including this one) that belong
         to this image's Fileset. Sorted by name.
+        If Image has no Fileset, return an empty list.
 
         @rtype:     List of {ImageWrapper}
         """
-        fsImgs = [ImageWrapper(self._conn, i) for i in self.getFileset().copyImages()]
-        fsImgs.sort(key=lambda x: x.getName().lower())
-        return fsImgs
+        fileset = self.getFileset()
+        if fileset is not None:
+            fsImgs = [ImageWrapper(self._conn, i) for i in self.getFileset().copyImages()]
+            fsImgs.sort(key=lambda x: x.getName().lower())
+            return fsImgs
+        return []
 
 
 omero.gateway.ImageWrapper = ImageWrapper
