@@ -424,6 +424,21 @@
                     $(".fileset_image.extra").toggle();
                     return false;
                 });
+                // Link to an image: IF it's in the jstree, select it.
+                $(".fileset_image_link").click(function(){
+                    var imgId = $(this).attr('data-iid');
+                    // if we're not on a jstree page (E.g. search)
+                    if (typeof $.jstree === "undefined") {
+                        return;
+                    }
+                    var datatree = $.jstree._focused();
+                    if (!datatree) return;
+                    // if selection was OK, we return false (don't follow link)
+                    var selected = datatree.select_node("#image-"+imgId, true);
+                    if (selected !== false) {
+                        return false;
+                    }
+                });
             {% endif %}
 
             });
@@ -512,7 +527,8 @@
                     </div>
                     <div style="border: solid #87ABD2 1px; float:right">
                         {% for fsImg in filesetImgs %}
-                        <a href="{% url webindex %}?show=image-{{ fsImg.id }}">
+                        <a href="{% url webindex %}?show=image-{{ fsImg.id }}"
+                            class="fileset_image_link" data-iid="{{ fsImg.id }}">
                             <img class="fileset_image{% if forloop.counter > MAX_SHOWN %} extra{% endif %}"
                                 src="{% url render_thumbnail_resize 96 fsImg.id %}"
                                 title="{{ fsImg.name }}"
