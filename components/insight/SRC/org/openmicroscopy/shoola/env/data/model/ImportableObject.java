@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,7 +46,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
