@@ -347,6 +347,15 @@ public class CheckedPath {
     }
 
     /**
+     * Return the size of thif file on the underlying filesystem.
+     * Analogous to {@link java.io.File.length()}.
+     * @return the file size
+     */
+    public long size() {
+        return this.file.length();
+    }
+
+    /**
      * Create this directory on the underlying filesystem.
      * Analogous to {@link java.io.File.mkdir()}.
      * @return <code>true</code> if the directory was created, <code>false</code> otherwise

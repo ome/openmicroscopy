@@ -514,6 +514,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
     }
+
     public OriginalFile register(final String repoUuid, final CheckedPath checked,
             final String mimetype, final Ice.Current current) throws ServerError {
 
@@ -541,6 +542,33 @@ public class RepositoryDaoImpl implements RepositoryDao {
         } catch (Exception e) {
             throw (ServerError) mapper.handleException(e, executor.getContext());
         }
+    }
+
+    /**
+     * Returned original file object is "live" within the Hibernate session.
+     *
+     * @param repoUuid
+     * @param checked
+     * @param mimetype
+     * @param sf
+     * @param sql
+     * @return
+     * @throws ServerError
+     */
+    public ome.model.core.OriginalFile register(final String repoUuid, final CheckedPath checked,
+            final String mimetype, final ServiceFactory sf, final SqlAction sql)
+                    throws ServerError {
+
+        if (checked.isRoot) {
+            throw new omero.SecurityViolation(null, null,
+                    "Can't re-register the repository");
+        }
+
+        final CheckedPath parent = checked.parent();
+
+        return _internalRegister(repoUuid, checked, null, mimetype,
+                parent, sf, sql);
+
     }
 
     public Job saveJob(final Job job, final Ice.Current current)
