@@ -98,7 +98,7 @@
  *       |   |_ ObjectNotExistException (Service timeout or similar?)
  *       |   \_ OperationNotExistException (Improper use of uncheckedCast?)
  *       |
- *       |_ Ice::UknownException (server threw an unexpected exception. Bug!)
+ *       |_ Ice::UnknownException (server threw an unexpected exception. Bug!)
  *       |
  *       \_ Ice::TimeoutException
  *           \_ Ice::ConnectTimeoutException (Couldn't establish a connection. Retry?)

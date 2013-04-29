@@ -42,7 +42,7 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
         Long id = util.userId(user);
 
         // If user doesn't exist, use the default settings for
-        // #ignoreUknown.
+        // #ignoreUnknown.
 
         Boolean b = null;
         if (id == null) {
