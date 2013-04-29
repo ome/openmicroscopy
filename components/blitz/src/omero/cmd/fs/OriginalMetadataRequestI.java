@@ -155,7 +155,10 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 		List<Object[]> ids = helper.getServiceFactory().getQueryService()
 				.projection(query, new Parameters().addId(imageId).page(0, 1));
 		if (ids != null && ids.size() > 0) {
-			return omero.rtypes.rlong((Long) ids.get(0)[0]);
+		    Object[] id = ids.get(0);
+		    if (id != null && id.length > 0) {
+		        return omero.rtypes.rlong((Long) id[0]);
+		    }
 		}
 		return null;
 	}
