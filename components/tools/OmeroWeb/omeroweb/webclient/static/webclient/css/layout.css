@@ -646,7 +646,10 @@
         .fileset_image {
             max-width:35px;
             margin:3px;
-            float:right
+            float:left;
+        }
+        .fileset_image.extra {
+            display:none;
         }
     
     
