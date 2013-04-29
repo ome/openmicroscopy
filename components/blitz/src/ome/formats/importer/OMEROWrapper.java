@@ -99,7 +99,7 @@ public class OMEROWrapper extends MinMaxCalculator {
         this.reader = null;
         filler = new ChannelFiller(iReader);
         separator  = new ChannelSeparator(filler);
-        memoizer = new Memoizer(separator) {
+        memoizer = new Memoizer(separator, 100, new java.io.File("/tmp/memo")) {
             public Deser getDeser() {
                 KryoDeser k = new KryoDeser();
                 k.kryo.register(OMEXMLModelComparator.class);

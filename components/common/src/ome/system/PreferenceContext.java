@@ -8,6 +8,7 @@
 package ome.system;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -15,7 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.util.PropertyPlaceholderHelper;
 import org.springframework.util.PropertyPlaceholderHelper.PlaceholderResolver;
@@ -64,6 +67,25 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
                 false); // Note, we want the IllegalArgumentThrown for catching.
     }
 
+    @Override
+    public void postProcessBeanFactory(ConfigurableListableBeanFactory bf) {
+        super.postProcessBeanFactory(bf);
+        // Publish all properties in System.properties
+        try {
+            log.info("Publishing system properties...");
+            Properties properties = mergeProperties();
+            Enumeration<?> names = properties.propertyNames();
+            while (names.hasMoreElements()) {
+                String key = names.nextElement().toString();
+                String value = properties.getProperty(key);
+                System.setProperty(key, value);
+                log.debug("Set property: {}={}", key, value);
+            }
+        } catch (IOException ioe) {
+            log.error("Error on mergeProperties()", ioe);
+            throw new FatalBeanException("Error on mergeProperties()", ioe);
+        }
+    }
     /**
      * Lookup method for getting access to the {@link #mergeProperties() merged
      * properties} for this instance.
