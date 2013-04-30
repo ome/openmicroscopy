@@ -1854,6 +1854,32 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, service_opts)
         #yield EventLogWrapper(self, e)
 
+
+    # def chgrpObjectsAndFilesets (self, dtype, obj_ids, group_id, container_id, fsIds):
+    #     """
+    #     If a chgrp failed because Filesets would have been split, we can use this
+    #     method to move ALL the images in the Fileset.
+    #     If dtype is 'Dataset', we move ALL images from each Fileset into the same
+    #     Dataset (removing them from other Dataasets).
+    #     If dtype is 'Image', we simply move ALL the Images within each Fileset.
+    #     Then we do the chgrp as usual.
+    #     """
+    #     if dtype == 'Dataset':
+    #         for fileset in conn.getObjects("Fileset", fsIds):
+    #             fsImgs = fileset.copyImages()   # all these need to be in same Datasaet
+    #             # find one of the Datasets (obj_ids) that contains one of these images...
+    #             target_ds = None
+    #             for i in fsImgs:
+    #                 for d in i.listParents():
+    #                     if d.id in obj_ids:
+    #                         target_ds = d.id
+    #                         break
+    #                 if target_ds is not None:
+    #                     break
+                # move ALL fs images into that Dataset
+                #for 
+        #conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
+
 omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover
