@@ -42,8 +42,8 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
-import spec.XMLMockObjects;
-import spec.XMLWriter;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 
 /**
  * 

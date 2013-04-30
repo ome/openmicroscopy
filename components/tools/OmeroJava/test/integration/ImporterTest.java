@@ -83,8 +83,8 @@ import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
-import spec.XMLMockObjects;
-import spec.XMLWriter;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 
 /** 
  * Collection of tests to import images.

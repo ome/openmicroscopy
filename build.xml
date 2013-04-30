@@ -92,7 +92,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             <fileset dir="${omero.home}/components/rendering/" includes="build.xml"/>
             <fileset dir="${omero.home}/components/romio/" includes="build.xml"/>
             <fileset dir="${omero.home}/components/server/" includes="build.xml"/>
-            <fileset dir="${omero.home}/components/specification/" includes="build.xml"/>
         </ivy:buildlist>
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
