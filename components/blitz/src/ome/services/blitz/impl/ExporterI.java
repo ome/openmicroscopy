@@ -16,14 +16,7 @@ import java.io.UnsupportedEncodingException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
@@ -49,6 +42,7 @@ import ome.services.formats.OmeroReader;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
+import ome.scifio.xml.XMLTools;
 import ome.xml.model.OME;
 import ome.xml.model.OMEModel;
 import ome.xml.model.OMEModelImpl;
@@ -314,11 +308,7 @@ public class ExporterI extends AbstractAmdServant implements
                                         file.deleteOnExit();
                                         FileOutputStream fos = new FileOutputStream(
                                                 file);
-                                        TransformerFactory transformFactory = TransformerFactory.newInstance();
-                                        Transformer idTransform = transformFactory.newTransformer();
-                                        Source input = new DOMSource(document);
-                                        Result output = new StreamResult(fos);
-                                        idTransform.transform(input, output);
+                                        XMLTools.writeXML(fos, document);
                                         fos.close();
                                         retrieve = null;
                                         __cb.ice_response(file.length());
