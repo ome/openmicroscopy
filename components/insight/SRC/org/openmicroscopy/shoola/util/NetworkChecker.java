@@ -140,7 +140,7 @@ public class NetworkChecker {
 			// our reflection code, since no checked exceptions are thrown from the 1.6 code.
 			System.err.println("Failed during reflection. Assuming network is up.");
 			e.printStackTrace();
-			return false;
+			return true;
 		}
 
 		// If we reach here and no exception has been thrown then we assume that
