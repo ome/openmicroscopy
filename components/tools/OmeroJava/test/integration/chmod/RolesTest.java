@@ -2,7 +2,7 @@
  * integration.chmod.RolesTest 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2012 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -958,7 +958,7 @@ public class RolesTest
     			mmFactory.createImage());
     	//Create link
 		DatasetImageLink l = new DatasetImageLinkI();
-    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	l.link(new DatasetI(id, false), img);
     	l = (DatasetImageLink) iUpdate.saveAndReturnObject(l);
     	
     	//Create annotation
@@ -996,10 +996,7 @@ public class RolesTest
     	
     	//Try to delete the annotation  i.e. canAnnotate
     	iUpdate.deleteObject(ann);
-    	
     	//Try to delete the dataset i.e. canDelete
-		delete(client, new Delete(
-    			DeleteServiceTest.REF_DATASET, id, null));
 		
     	//Try to link an image  i.e. canLink
     	img = (Image) iUpdate.saveAndReturnObject(
@@ -1019,6 +1016,7 @@ public class RolesTest
     	//Try to edit i.e. canEdit
     	d.setName(rstring("newNAme"));
 		iUpdate.saveAndReturnObject(d);
+		delete(client, new Delete(DeleteServiceTest.REF_DATASET, id, null));
     }
     
     /**
