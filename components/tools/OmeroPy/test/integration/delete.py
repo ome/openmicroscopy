@@ -406,7 +406,7 @@ class TestDelete(lib.ITest):
         """
         o = self.client.upload(__file__)
         fa = omero.model.FileAnnotationI()
-        fa.file = o
+        fa.file = o.proxy()
         fa = self.update.saveAndReturnObject(fa)
 
         command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
