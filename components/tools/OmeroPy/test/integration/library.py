@@ -193,6 +193,43 @@ class ITest(unittest.TestCase):
                 except: pass
         return pix_ids
 
+    """
+    Creates a fake file with a seriesCount of images, imports
+    the file and then return the list of images.
+    """
+    def importMIF(self, seriesCount, client=None):
+        if client is None:
+            client = self.client
+
+        query = client.sf.getQueryService()
+        fake = create_path("importMIF", "&series=%d.fake" % seriesCount)
+        pixelIds = self.import_image(filename=fake.abspath(), client=client)
+        self.assertEqual(seriesCount, len(pixelIds))
+
+        images = []
+        for pixIdStr in pixelIds:
+            pixels = query.get("Pixels", long(pixIdStr))
+            images.append(pixels.getImage())
+        return images
+
+    """
+    Creates a list of the given number of Dataset instances with
+    names of the form "name [1]", "name [2]", etc. and
+    returns them in a list.
+    """
+    def createDatasets(self, count, baseName, client=None):
+        if client is None:
+            client = self.client
+
+        update = client.sf.getUpdateService()
+        dsets = []
+        for i in range(count):
+            ds = omero.model.DatasetI()
+            suffix = " [" + str(i + 1) + "]"
+            ds.name = rstring(baseName + suffix)
+            dsets.append(ds)
+        return update.saveAndReturnArray(dsets)
+
     def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
         """
         Creates a test image of the required dimensions, where each pixel value is set 

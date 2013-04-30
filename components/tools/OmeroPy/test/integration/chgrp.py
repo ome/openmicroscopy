@@ -13,7 +13,6 @@ import unittest
 from omero.rtypes import *
 from omero.cmd import Chgrp, DoAll
 from omero.api import Save
-from omero.util.temp_files import create_path
 
 PRIVATE = 'rw----'
 READONLY = 'rwr---'
@@ -196,36 +195,6 @@ class TestChgrp(lib.ITest):
         self.waitOnCmd(owner_g.c, handle)
 
 
-    """
-    Creates a fake file with a seriesCount of images, imports
-    the file and then return the list of images.
-    """
-    def importMIF(self, seriesCount, client):
-        query = client.sf.getQueryService()
-        fake = create_path("importMIF", "&series=%d.fake" % seriesCount)
-        pixelIds = self.import_image(filename=fake.abspath(), client=client)
-        self.assertEqual(seriesCount, len(pixelIds))
-
-        images = []
-        for pixIdStr in pixelIds:
-            pixels = query.get("Pixels", long(pixIdStr))
-            images.append(pixels.getImage())
-        return images
-
-    """
-    Creates a list of the given number of Dataset instances with
-    names of the form "name [1]", "name [2]", etc. and
-    returns them in a list.
-    """
-    def createDatasets(self, count, baseName, client):
-        update = client.sf.getUpdateService()
-        dsets = []
-        for i in range(count):
-            ds = omero.model.DatasetI()
-            suffix = " [" + str(i + 1) + "]"
-            ds.name = rstring(baseName + suffix)
-            dsets.append(ds)
-        return update.saveAndReturnArray(dsets)
 
     """
     Simplest example of the MIF chgrp edge case: a single fileset containing
@@ -235,8 +204,8 @@ class TestChgrp(lib.ITest):
     def testBasicWorkflow(self):
         client = self.new_client()
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBasicWorkflow", client)
-        images = self.importMIF(2, client)
+        datasets = self.createDatasets(2, "testBasicWorkflow", client=client)
+        images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
             link.setParent(datasets[i])
