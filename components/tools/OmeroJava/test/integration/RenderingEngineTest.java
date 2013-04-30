@@ -42,8 +42,8 @@ import omero.romio.RegionDef;
 import omero.sys.EventContext;
 import sun.awt.image.IntegerInterleavedRaster;
 
-import spec.XMLMockObjects;
-import spec.XMLWriter;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.
