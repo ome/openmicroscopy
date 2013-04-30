@@ -110,7 +110,7 @@ class GTest(unittest.TestCase):
                 except:
                     print "Error closing:"+tmpfile
         if failure:
-           raise exceptions.Exception("Exception on client.closeSession")
+           raise Exception("Exception on client.closeSession")
 
     def getTestProject (self):
         return dbhelpers.getProject(self.gateway, 'testpr1')

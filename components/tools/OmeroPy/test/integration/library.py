@@ -18,7 +18,6 @@ import logging
 import unittest
 import tempfile
 import traceback
-import exceptions
 import subprocess
 
 import omero
@@ -183,7 +182,7 @@ class ITest(unittest.TestCase):
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise exceptions.Exception("import failed: [%r] %s\n%s" % (args, rc, err))
+            raise Exception("import failed: [%r] %s\n%s" % (args, rc, err))
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
@@ -225,7 +224,7 @@ class ITest(unittest.TestCase):
             pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
         if pixelsType == None:
             print "Unknown pixels type for: " % pType
-            raise "Unknown pixels type for: " % pType
+            raise Exception("Unknown pixels type for: " % pType)
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
@@ -299,7 +298,7 @@ class ITest(unittest.TestCase):
         """
 
         if not self.root:
-            raise exceptions.Exception("No root client. Cannot create user")
+            raise Exception("No root client. Cannot create user")
 
         adminService = self.root.getSession().getAdminService()
         name = self.uuid()

@@ -16,7 +16,6 @@
 import sys, os
 import portalocker
 
-from exceptions import Exception
 from path import path
 from omero.cli import CLI
 from omero.cli import BaseControl

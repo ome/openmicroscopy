@@ -1029,8 +1029,8 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
             rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!   
     
     if not renderingEngine.lookupRenderingDef(pixelsId):
-        raise "Still No Rendering Def"
-    
+        raise Exception("Still No Rendering Def")
+
     renderingEngine.load()
     renderingEngine.setChannelWindow(cIndex, float(minValue), float(maxValue))
     if rgba:

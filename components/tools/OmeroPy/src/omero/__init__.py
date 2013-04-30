@@ -48,8 +48,6 @@ finally:
     del Ice
     del os
 
-import exceptions
-
 __import_style__ = None
 
 def client_wrapper(*args, **kwargs):
@@ -65,7 +63,7 @@ def client(*args, **kwargs):
     import omero.clients
     return omero.clients.BaseClient(*args, **kwargs)
 
-class ClientError(exceptions.Exception):
+class ClientError(Exception):
     """
     Top of client exception hierarchy.
     """

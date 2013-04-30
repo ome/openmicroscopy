@@ -21,7 +21,6 @@
 import os
 import Ice
 import logging
-import exceptions
 
 import omero
 import omero.callbacks
@@ -296,13 +295,13 @@ class Map(Type):
         return self
 
 
-class ParseExit(exceptions.Exception):
+class ParseExit(Exception):
     """
     Raised when this script should just parse parameters and return.
     """
 
     def __init__(self, params):
-        exceptions.Exception.__init__(self)
+        Exception.__init__(self)
         self.params = params
 
 
@@ -414,7 +413,7 @@ def parse_text(scriptText):
         try:
             os.environ["ICE_CONFIG"] = cfg.abspath()
             exec(scriptText, {"__name__":"__main__"})
-            raise exceptions.Exception("Did not throw ParseExit: %s" % scriptText)
+            raise Exception("Did not throw ParseExit: %s" % scriptText)
         finally:
             if old:
                 os.environ["ICE_CONFIG"] = old
@@ -434,9 +433,9 @@ def parse_file(filename):
     return parse_text(scriptText)
 
 
-class MissingInputs(exceptions.Exception):
+class MissingInputs(Exception):
     def __init__(self):
-        exceptions.Exception.__init__(self)
+        Exception.__init__(self)
         self.keys = []
 
 
@@ -689,7 +688,7 @@ def set_input(svc, session, key, value):
     try:
         svc.setInput(session, key, value)
         return ""
-    except exceptions.Exception, e:
+    except Exception, e:
         return error_msg("Failed to set intput", key, "%s=%s. Error: %s", key, value, e)
 
 #

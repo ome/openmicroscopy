@@ -9,7 +9,6 @@
 
 """
 
-import exceptions
 import subprocess
 import logging
 
