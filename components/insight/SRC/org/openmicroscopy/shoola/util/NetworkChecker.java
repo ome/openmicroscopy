@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.util;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -110,7 +109,7 @@ public class NetworkChecker {
 	 *
 	 * @throws UnknownHostException
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes"})
 	public boolean reflectiveCheck() throws UnknownHostException {
 
 		if (getNetworkInterfacesMethod == null ||
