@@ -4434,14 +4434,14 @@ class OMEROGateway
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
-			if (f != null) { //happens when the file is of size = 0
+			if (f != null) {
 				save = f;
 				final String clientHash = hasher.checksumAsString();
 				final String serverHash = save.getHash().getValue();
 				if (!clientHash.equals(serverHash)) {
-				    throw new ImportException("file checksum mismatch on" +
+				    throw new ImportException("file checksum mismatch on " +
 				    		"upload: " + file +
-				            " (client has " + clientHash + "," +
+				            " (client has " + clientHash + ", " +
 				            		"server has " + serverHash + ")");
 				}
 			}
