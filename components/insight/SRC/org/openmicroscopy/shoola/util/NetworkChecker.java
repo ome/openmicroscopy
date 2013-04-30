@@ -54,6 +54,7 @@ public class NetworkChecker {
 	static private Method getNetworkInterfacesMethod = null;
 	static private Method isUpMethod = null;
 	static private Method isLoopbackMethod = null;
+	static private boolean useReflectiveCheck = false;
 
 	static {
 		//
@@ -65,8 +66,11 @@ public class NetworkChecker {
 			getNetworkInterfacesMethod = NetworkInterfaceClass.getMethod("getNetworkInterfaces");
 			isUpMethod = NetworkInterfaceClass.getMethod("isUp");
 			isLoopbackMethod = NetworkInterfaceClass.getMethod("isLoopback");
+			useReflectiveCheck = true;
 		} catch (ClassNotFoundException e) {
-			// Do nothing or log at debug since this is expected pre-Java 1.6.
+			// Knowingly using System.err since 1) this will be primarily used on
+			// Linux in the first instance and 2) we don't have access to a logger.
+			System.err.println("NetworkInterface class not found: assuming Java 1.5");
 		} catch (SecurityException e) {
 			// This should not happen. Logging (at ERROR)
 			e.printStackTrace();
@@ -75,7 +79,7 @@ public class NetworkChecker {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * The IP Address of the server the client is connected to
 	 * or <code>null</code>.
@@ -112,12 +116,7 @@ public class NetworkChecker {
 	@SuppressWarnings({ "rawtypes"})
 	public boolean reflectiveCheck() throws UnknownHostException {
 
-		if (getNetworkInterfacesMethod == null ||
-				isUpMethod == null ||
-				isLoopbackMethod == null) {
-			// Knowingly using System.err since 1) this will be primarily used on
-			// Linux in the first instance and 2) we don't have access to a logger.
-			System.err.println("NetworkInterface class not found: assuming Java 1.5");
+		if (!useReflectiveCheck) {
 			return true;
 		}
 
