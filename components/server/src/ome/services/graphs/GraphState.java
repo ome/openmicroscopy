@@ -37,7 +37,7 @@ import org.hibernate.exception.ConstraintViolationException;
  * Tree-structure containing all scheduled actions which closely resembles the
  * tree structure of the {@link GraphSpec} itself. All ids of the intended
  * actions will be collected in a preliminary phase. This is necessary since
- * intermediate actions, may disconnect the graph, causing later actions to fail
+ * intermediate actions may disconnect the graph, causing later actions to fail
  * if they were solely based on the id of the root element.
  *
  * The {@link GraphState} instance can only be initialized with a graph of
@@ -45,7 +45,7 @@ import org.hibernate.exception.ConstraintViolationException;
  *
  * To handle SOFT requirements, each new attempt to process either a node or a
  * leaf in the subgraph is surrounded by a savepoint. Ids added during a
- * savepoint (or a sub-savepoint) or only valid until release is called, at
+ * savepoint (or a sub-savepoint) are only valid until release is called, at
  * which time they are merged into the final view.
  *
  * @author Josh Moore, josh at glencoesoftware.com
@@ -69,7 +69,7 @@ public class GraphState implements GraphStep.Callback {
 
     /**
      * List of Maps of db table names to the ids actually processed from that
-     * table. The first entry of the list are the actual results. All later
+     * table. The first entry of the list is the actual results. All later
      * elements are temporary views from some savepoint.
      *
      * TODO : refactor into {@link GraphStep}
@@ -160,7 +160,7 @@ public class GraphState implements GraphStep.Callback {
     //
 
     /**
-     * Walk throw the sub-spec graph actually loading the ids which must be
+     * Walk through the sub-spec graph actually loading the ids which must be
      * scheduled for processing. Also responsible for adding the
      * {@link EventContext} to each {@link GraphSpec}.
      *
@@ -195,7 +195,7 @@ public class GraphState implements GraphStep.Callback {
     }
 
     /**
-     * Walk throw the sub-spec graph again, using the results provided to build
+     * Walk through the sub-spec graph again, using the results provided to build
      * up a graph of {@link GraphStep} instances.
      */
     private static void parse(GraphStepFactory factory, List<GraphStep> steps, GraphSpec spec, GraphTables tables,
@@ -279,7 +279,7 @@ public class GraphState implements GraphStep.Callback {
     public Set<Long> getProcessedIds(String table) {
         Set<Long> set = lookup(table);
         if (set == null) {
-            return new HashSet<Long>();
+            return Collections.emptySet();
         } else {
             return Collections.unmodifiableSet(set);
         }
@@ -359,7 +359,7 @@ public class GraphState implements GraphStep.Callback {
                 return handleException(step, cve, cause);
             } catch (GraphException ge) {
                 String cause = "GraphException: " + ge.message;
-                return handleException(step, ge,cause);
+                return handleException(step, ge, cause);
             }
 
         } finally {
@@ -425,7 +425,7 @@ public class GraphState implements GraphStep.Callback {
     /**
      * Finds all {@link GraphStep} instances in {@link #steps} which have the
      * given {@link GraphStep} argument in their {@link GraphStep#stack} which
-     * amounts to being a descedent. All such instances are set to null in
+     * amounts to being a descendant. All such instances are set to null in
      * {@link #steps} so that further processing cannot take place on them.
      */
     private void disableRelatedEntries(GraphStep parent) {

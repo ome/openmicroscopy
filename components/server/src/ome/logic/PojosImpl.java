@@ -91,7 +91,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             + "where p in (:list)";
     
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#loadContainerHierarchy(Class, Set, Parameters)
      */
     @RolesAllowed("user")
@@ -221,7 +221,7 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
-     * Implemented as speficied by the {@link IContainer} I/F
+     * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#findContainerHierarchies(Class, Set, Parameters)
      */
     @RolesAllowed("user")

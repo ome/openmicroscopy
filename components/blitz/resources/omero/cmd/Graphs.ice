@@ -116,7 +116,7 @@ module omero {
 
             /**
              * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
-             * a list of ids for any binary files which did not get dieleted.
+             * a list of ids for any binary files which did not get deleted.
              *
              * Some action may be desired by the user to guarantee that this
              * server-space is eventually

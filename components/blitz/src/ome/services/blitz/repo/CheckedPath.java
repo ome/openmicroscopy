@@ -347,7 +347,7 @@ public class CheckedPath {
     }
 
     /**
-     * Return the size of thif file on the underlying filesystem.
+     * Return the size of this file on the underlying filesystem.
      * Analogous to {@link java.io.File.length()}.
      * @return the file size
      */

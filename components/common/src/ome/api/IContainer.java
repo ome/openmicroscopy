@@ -66,7 +66,7 @@ import ome.parameters.Parameters;
  * rules:
  * <ol>
  * <li>IObject-valued fields for which <code>isLoaded()</code> returns false
- * are assumed filterd</li>
+ * are assumed filtered</li>
  * <li>Collection-valued fields that are null are assumed filtered</li>
  * <li>Collection-valued fields for which
  * <code>getDetails().isFiltered(String collectionName)</code> returns true

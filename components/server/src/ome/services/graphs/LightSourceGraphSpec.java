@@ -27,7 +27,6 @@ import ome.model.acquisition.Filament;
 import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightEmittingDiode;
 import ome.model.acquisition.LightSource;
-import ome.model.annotations.Annotation;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;

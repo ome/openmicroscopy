@@ -287,7 +287,7 @@ public class GraphEntry {
     /**
      * A KEEP setting is a way of putting a KEEP suggestion to vote. If there is
      * a subspec, however, that vote must be passed down. If the KEEP is vetoed,
-     * it is the responsiblity of the subspec to make sure that only the proper
+     * it is the responsibility of the subspec to make sure that only the proper
      * parts are kept or not kept.
      */
     public boolean skip() {

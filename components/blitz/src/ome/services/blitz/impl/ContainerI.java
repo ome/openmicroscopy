@@ -16,7 +16,6 @@ import java.util.Set;
 import ome.api.IContainer;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ApiUsageException;
-import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IContainer_createDataObject;
 import omero.api.AMD_IContainer_createDataObjects;
