@@ -18,7 +18,7 @@
 
 """
 
-import exceptions, subprocess, re, os, sys, signal, time, atexit
+import subprocess, re, os, sys, signal, time, atexit
 
 from omero.cli import CLI
 from omero.cli import BaseControl
@@ -257,7 +257,7 @@ class ScriptControl(BaseControl):
             if method:
                 try:
                     self.ctx.invoke(['script', method.__name__] + list(arguments))
-                except exceptions.Exception, e:
+                except Exception, e:
                     import traceback
                     self.ctx.out("\nEXECUTION FAILED: %s" % e)
                     self.ctx.dbg(traceback.format_exc())
@@ -288,7 +288,7 @@ class ScriptControl(BaseControl):
             for p in list(getattr(self, "_processors", [])):
                 p.cleanup()
                 self._processors.remove(p)
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.err("Failed to clean processors: %s" % e)
 
         self.ctx.out("\nDeleting script from server...")
@@ -299,7 +299,7 @@ class ScriptControl(BaseControl):
         script_id, ofile = self._file(args, client)
         try:
             self.ctx.out(client.sf.getScriptService().getScriptText(script_id))
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def edit(self, args):
@@ -319,7 +319,7 @@ class ScriptControl(BaseControl):
             p = create_path()
             edit_path(p, txt)
             scriptSvc.editScript(ofile, p.text())
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.err("Failed to find script: %s (%s)" % (script_id, e))
 
     def jobs(self, args):
@@ -495,7 +495,7 @@ class ScriptControl(BaseControl):
             try:
                 impl = usermode_processor(client, serverid = "omero.scripts.serve", accepts_list = who, omero_home=self.ctx.dir)
                 self._processors.append(impl)
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
 
             if background:
@@ -594,7 +594,7 @@ class ScriptControl(BaseControl):
         client = self.ctx.conn(args)
         try:
             client.sf.getScriptService().deleteScript(ofile)
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.err("Failed to delete script: %s (%s)" % (ofile, e))
 
     def disable(self, args):

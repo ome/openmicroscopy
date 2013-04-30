@@ -28,7 +28,6 @@ import sys
 import urllib
 import platform
 import subprocess
-import exceptions
 
 
 LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s.log"
@@ -39,7 +38,7 @@ JOB_NAME_REG = re.compile(JOB_NAME_STR)
 class ConfigOpener(urllib.FancyURLopener):
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         if errcode and errcode > 400:
-             raise exceptions.Exception("Error loading %s: %s" % (url, errcode))
+             raise Exception("Error loading %s: %s" % (url, errcode))
 
 
 if __name__ == "__main__":

@@ -17,7 +17,6 @@ import sys
 import Ice, IceImport
 import time
 import traceback
-import exceptions
 import subprocess
 import getpass
 import omero.java
@@ -220,7 +219,7 @@ class SessionsControl(BaseControl):
                                 rv = store.attach(*previous)
                                 return self.handle(rv, "Using")
                         self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
-                    except exceptions.Exception, e:
+                    except Exception, e:
                         self.ctx.out("Previous session expired for %s on %s:%s" % (previous[1], previous[0], previous_port))
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
                         try:
@@ -295,7 +294,7 @@ class SessionsControl(BaseControl):
                         self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
                 except Ice.DNSException:
                     self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
-                except exceptions.Exception, e:
+                except Exception, e:
                     exc = traceback.format_exc()
                     self.ctx.dbg(exc)
                     self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
@@ -327,7 +326,7 @@ class SessionsControl(BaseControl):
                 rv = store.attach(server, name, uuid, set_current = set_current)
             else:
                 rv = store.create(name, name, props, set_current = set_current)
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.dbg("Removing %s: %s" % (uuid, e))
             store.clear(server, name, uuid)
         return rv
@@ -365,7 +364,7 @@ class SessionsControl(BaseControl):
         try:
             rv = store.attach(*previous)
             rv[0].killSession()
-        except exceptions.Exception, e:
+        except Exception, e:
             self.ctx.dbg("Exception on logout: %s" % e)
         store.remove(*previous)
         # Last is still useful. Not resetting.
@@ -423,7 +422,7 @@ class SessionsControl(BaseControl):
                                 rv[0].closeSession()
                     except PermissionDeniedException, pde:
                         msg = pde.reason
-                    except exceptions.Exception, e:
+                    except Exception, e:
                         self.ctx.dbg("Exception on attach: %s" % e)
                         msg = "Unknown exception"
 
@@ -464,7 +463,7 @@ class SessionsControl(BaseControl):
                     try:
                         self.client.sf.keepAlive(None)
                         self.event.wait(args.frequency)
-                    except exceptions.Exception, e:
+                    except Exception, e:
                         self.err("Keep alive failed: %s" % str(e))
                         return
         t = T()
@@ -502,7 +501,7 @@ class SessionsControl(BaseControl):
             self._client.setAgent("OMERO.cli")
             self._client.createSession()
             return self._client
-        except exceptions.Exception, exc:
+        except Exception, exc:
             self._client = None
             raise
 

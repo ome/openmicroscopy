@@ -9,7 +9,6 @@
 
 """
 
-import exceptions
 import unittest
 import os
 
@@ -135,7 +134,7 @@ class TestAdmin(unittest.TestCase):
         control = self.cli.controls["a"]
         control._intcfg = lambda: ""
         def sm(*args):
-            raise exceptions.Exception("unknown")
+            raise Exception("unknown")
         control.session_manager = sm
 
         self.cli.mox.ReplayAll()

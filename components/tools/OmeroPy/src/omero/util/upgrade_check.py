@@ -7,7 +7,6 @@
 
 from omero_version import omero_version
 
-import exceptions
 import platform
 import logging
 import urllib2
@@ -122,7 +121,7 @@ class UpgradeCheck(object):
             finally:
                 socket.setdefaulttimeout(old_timeout)
 
-        except exceptions.Exception, e:
+        except Exception, e:
             self.log.error(str(e), exc_info = 0)
             self._set(None, e)
             return

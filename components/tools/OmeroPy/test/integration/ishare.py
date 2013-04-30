@@ -364,7 +364,7 @@ class TestIShare(lib.ITest):
         createTestImage(self.root.sf)
         rdefs = self.root.sf.getQueryService().findAll("RenderingDef", None)
         if len(rdefs) == 0:
-            raise "Must have at least one rendering def"
+            raise Exception("Must have at least one rendering def")
         share = self.root.sf.getShareService()
         sid = share.createShare("", None, [], [], [], True)
         share.activate(sid)

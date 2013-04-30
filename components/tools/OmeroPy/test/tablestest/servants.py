@@ -10,7 +10,6 @@
 """
 
 import Ice
-import exceptions
 import omero, omero.tables
 import omero_ext.uuid as uuid # see ticket:3774
 import unittest, sys, os, logging
@@ -63,7 +62,7 @@ class mocked_internal_service_factory(object):
         self.sf = sf
     def __call__(self, *args, **kwargs):
         if not self.sf:
-            raise exceptions.Exception("Mock error connecting to server")
+            raise Exception("Mock error connecting to server")
         return self.sf
 
 class mocked_service_factory(object):
@@ -208,11 +207,11 @@ class TestTables(lib.TestCase):
     def testTablesIGetDirGetsRepoThenNoSF(self):
         self.repodir()
         omero.util.internal_service_factory = mocked_internal_service_factory(None)
-        self.assertRaises(exceptions.Exception, omero.tables.TablesI, self.ctx)
+        self.assertRaises(Exception, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoFile(self):
         self.repodir()
-        self.assertRaises(exceptions.IOError, omero.tables.TablesI, self.ctx)
+        self.assertRaises(IOError, omero.tables.TablesI, self.ctx)
 
     def testTablesIGetDirGetsRepoGetsSFCantFindRepoObject(self):
         self.repofile(self.sf.db_uuid)
