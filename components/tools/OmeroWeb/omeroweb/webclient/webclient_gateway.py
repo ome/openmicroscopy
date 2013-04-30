@@ -2150,7 +2150,7 @@ class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
         """
         fileset = self.getFileset()
         if fileset is not None:
-            fsImgs = [ImageWrapper(self._conn, i) for i in self.getFileset().copyImages()]
+            fsImgs = fileset.copyImages()
             fsImgs.sort(key=lambda x: x.getName().lower())
             return fsImgs
         return []
