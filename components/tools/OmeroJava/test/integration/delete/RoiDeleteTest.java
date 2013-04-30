@@ -116,7 +116,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		IRoiPrx svc = factory.getRoiService();
 		List<Annotation> l = 
 			svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == 0);
+		assertEquals(l.size(), 0);
 		
 		//create measurements.
 		//First create a table
@@ -149,7 +149,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 				 null));
 		 assertDoesNotExist(roi);
 		 l = svc.getRoiMeasurements(image.getId().getValue(), options);
-		 assertTrue(l.size() == 0);
+		 assertEquals(l.size(), 0);
     }
     
     /**
@@ -189,7 +189,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		IRoiPrx svc = factory.getRoiService();
 		List<Annotation> l = 
 			svc.getRoiMeasurements(image.getId().getValue(), options);
-		assertTrue(l.size() == 0);
+		assertEquals(l.size(), 0);
 		
 		//create measurements.
 		//First create a table
@@ -224,7 +224,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 		 assertDoesNotExist(p);
 		 assertDoesNotExist(roi);
 		 l = svc.getRoiMeasurements(image.getId().getValue(), options);
-		 assertTrue(l.size() == 0);
+		 assertEquals(l.size(), 0);
     }
     
     

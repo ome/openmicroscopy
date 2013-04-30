@@ -140,10 +140,10 @@ public class RenderingSettingsMoveTest
 	//check if we have settings now.
 	ParametersI param = new ParametersI();
 	param.addLong("pid", pixels.getId().getValue());
-	String sql = "select rdef from RenderingDef as rdef " +
-			"where rdef.pixels.id = :pid";
-	List<IObject> settingsUser1 = iQuery.findAllByQuery(sql, param);
-	assertTrue(settingsUser1.size() > 0);
+	List<IObject> settingsUser1 =
+			factory.getPixelsService().retrieveAllRndSettings(
+			pixels.getId().getValue(), ctx.userId);
+	assertEquals(settingsUser1.size(), 1);
 
 	omero.client clientUser1 = disconnect();
 	//Add a user to that group
@@ -152,8 +152,10 @@ public class RenderingSettingsMoveTest
 	prx = factory.getRenderingSettingsService();
 	prx.setOriginalSettingsInSet(Pixels.class.getName(),
 			Arrays.asList(pixels.getId().getValue()));
-	List<IObject> settingsUser2 = iQuery.findAllByQuery(sql, param);
-	assertTrue(settingsUser2.size() > 0);
+	List<IObject> settingsUser2 =
+			factory.getPixelsService().retrieveAllRndSettings(
+			pixels.getId().getValue(), ctx2.userId);
+	assertEquals(settingsUser2.size(), 1);
 	disconnect();
 
 	List<Long> users = new ArrayList<Long>();
@@ -171,6 +173,7 @@ public class RenderingSettingsMoveTest
 			null, g.getId().getValue()));
 
 
+	String sql;
 	//check if the settings have been deleted.
 	Iterator<IObject> i = settingsUser1.iterator();
 	IObject o;
@@ -217,6 +220,7 @@ public class RenderingSettingsMoveTest
 			param.addId(o.getId().getValue());
 			sql = "select rdef from RenderingDef as rdef " +
 			"where rdef.id = :id";
+			IObject ho = iQuery.findByQuery(sql, param);
 			assertNull("#9496? rdefs", iQuery.findByQuery(sql, param));
 		}
     }
