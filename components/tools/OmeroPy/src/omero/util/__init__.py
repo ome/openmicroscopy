@@ -19,7 +19,6 @@ import logging
 import platform
 import Glacier2
 import threading
-import exceptions
 import logging.handlers
 import omero.util.concurrency
 import omero_ext.uuid as uuid # see ticket:3774
@@ -228,12 +227,12 @@ def long_to_path(id, root=""):
     dirno = 0
 
     if id is None or id == "":
-        raise exceptions.Exception("Expecting a not-null id.")
+        raise Exception("Expecting a not-null id.")
 
     id = long(id)
 
     if id < 0:
-        raise exceptions.Exception("Expecting a non-negative id.")
+        raise Exception("Expecting a non-negative id.")
 
     while (remaining > 999):
         remaining /= 1000
@@ -319,7 +318,7 @@ class ServerContext(object):
                 self.session.keepAlive(None)
             except Ice.CommunicatorDestroyedException:
                 self.session = None # Ignore
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.logger.warn("Connection failure: %s" % e)
                 self.session = None
 
@@ -327,7 +326,7 @@ class ServerContext(object):
             try:
                 self.newSession()
                 self.logger.info("Established connection: %s" % self.session)
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.logger.warn("Failed to establish connection: %s" % e)
 
         if self.session is None:
@@ -562,7 +561,7 @@ class Resources:
             self.stop_event = omero.util.concurrency.get_event(name="Resources")
 
         if sleeptime < 5:
-            raise exceptions.Exception("Sleep time should be greater than 5: %s" % sleeptime)
+            raise Exception("Sleep time should be greater than 5: %s" % sleeptime)
 
         self.sleeptime = sleeptime
 
@@ -760,7 +759,7 @@ def get_user_dir():
         homeprop = os.path.expanduser("~")
 
     if "~" == homeprop:
-        raise exceptions.Exception("Unexpanded '~' from expanduser: see ticket:5583") # ticket:5583
+        raise Exception("Unexpanded '~' from expanduser: see ticket:5583") # ticket:5583
 
     return homeprop
 

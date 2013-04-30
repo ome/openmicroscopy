@@ -10,7 +10,7 @@
 
 """
 
-import omero, omero.cli, unittest, exceptions
+import omero, omero.cli, unittest
 
 def call(*args):
     omero.cli.argv(["omero","script"]+list(args))

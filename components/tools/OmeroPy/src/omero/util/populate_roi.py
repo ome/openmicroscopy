@@ -23,7 +23,6 @@
 #
 
 
-import exceptions
 import tempfile
 import logging
 import time
@@ -206,7 +205,7 @@ class AbstractPlateAnalysisCtx(object):
             well = image.copyWellSamples()[0].well
             if well.column.val == col and well.row.val == row:
                 return image
-        raise exceptions.Exception("Could not find image for (col,row)==(%s,%s)" % (col,row))
+        raise Exception("Could not find image for (col,row)==(%s,%s)" % (col,row))
 
     ###
     ### Abstract methods
@@ -755,7 +754,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             well_num = int(match.group(1))
             return self.analysis_ctx.image_from_wellnumber(well_num)
         else:
-            raise exceptions.Exception("Not a detail file")
+            raise Exception("Not a detail file")
 
     ###
     ### Abstract method implementations
