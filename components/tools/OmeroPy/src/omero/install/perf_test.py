@@ -16,7 +16,6 @@ import omero
 import logging
 import optparse
 import fileinput
-import exceptions
 
 import omero.cli
 import omero.util
@@ -51,7 +50,7 @@ File format:
 # Main classes
 #
 
-class ItemException(exceptions.Exception): pass
+class ItemException(Exception): pass
 class BadCommand(ItemException): pass
 class BadLine(ItemException): pass
 class BadPath(ItemException): pass
@@ -117,7 +116,7 @@ class Item(object):
             if prop == "":
                 try:
                     id = int(id_path.lines()[0])
-                except exceptions.Exception, e:
+                except Exception, e:
                     log.debug("No %s.id: %s", name, e)
                     prop = str(uuid.uuid4())
             # Now, if there's still no id, create one
@@ -207,7 +206,7 @@ class Context(object):
     def setup_dir(self):
         self.dir = path.path(".") / ("perfdir-%s" % os.getpid())
         if self.dir.exists():
-            raise exceptions.Exception("%s exists!" % self.dir)
+            raise Exception("%s exists!" % self.dir)
         self.dir.makedirs()
 
         # Adding a file logger
@@ -276,7 +275,7 @@ class PerfHandler(object):
             except ItemException, ie:
                 log.exception("Error")
                 sys.exit(1)
-            except exceptions.Exception, e:
+            except Exception, e:
                 log.debug("Error during execution: %s" % item.line.strip(), exc_info = True)
                 rv = e
                 errs = values.get("errs",0)
@@ -302,7 +301,7 @@ class Reporter(object):
     """
 
     def report(self, command, start, stop, loops, rv):
-        raise exceptions.Exception("Not implemented")
+        raise Exception("Not implemented")
 
 
 class CsvReporter(Reporter):

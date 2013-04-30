@@ -166,7 +166,7 @@ class TestParse(unittest.TestCase):
         for script in SCRIPTS.walk("*.py"):
             try:
                 params = parse_file(str(script))
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.fail("%s\n%s" % (script, e))
 
     def testValidateRoiMovieCall(self):

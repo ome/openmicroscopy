@@ -11,7 +11,6 @@ import time
 import signal
 import logging
 import traceback
-import exceptions
 import killableprocess as subprocess
 
 from path import path
@@ -232,7 +231,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 if client:
                     client.__del__() # Safe closeSession
 
-        except exceptions.Exception:
+        except Exception:
             self.logger.error("FAILED TO CLEANUP pid=%s (%s)", self.pid, self.uuid, exc_info = True)
 
         d_stop = time.time()
@@ -580,7 +579,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 self.callbacks[key] = callback
                 self.logger.debug("Added callback: %s", key)
                 return
-        except exceptions.Exception, ex:
+        except Exception, ex:
             e = ex
         # Only reached on failure
         msg = "Failed to add callback: %s. Reason: %s" % (callback, e)
@@ -597,7 +596,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
                 raise omero.ApiUsageException(None, None, "No callback registered with id: %s" % key)
             del self.callbacks[key]
             self.logger.debug("Removed callback: %s", key)
-        except exceptions.Exception, e:
+        except Exception, e:
             msg = "Failed to remove callback: %s. Reason: %s" % (callback, e)
             self.logger.debug(msg)
             raise omero.ApiUsageException(None, None, msg)
@@ -774,7 +773,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             cb = cb.ice_oneway()
             cb = omero.grid.ProcessorCallbackPrx.uncheckedCast(cb)
             cb.isAccepted(valid, id, str(self.prx))
-        except exceptions.Exception, e:
+        except Exception, e:
             self.logger.warn("callback failed on willAccept: %s Exception:%s", cb, e)
 
         return valid
@@ -794,7 +793,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
                 except:
                     pass
             cb.responseRunning(rv)
-        except exceptions.Exception, e:
+        except Exception, e:
             self.logger.warn("callback failed on requestRunning: %s Exception:%s", cb, e)
 
 

@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, tempfile, exceptions, time
+import unittest, os, tempfile, time
 import omero.columns
 import omero.tables
 import portalocker
