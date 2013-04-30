@@ -148,10 +148,10 @@ public class ObjectiveData
 	 * 
 	 * @return See above.
 	 */
-	public int getNominalMagnification()
+	public double getNominalMagnification()
 	{
 		Objective obj = ((Objective) asIObject());
-		RInt value = obj.getNominalMagnification();
+		RDouble value = obj.getNominalMagnification();
 		if (value == null) return -1;
 		return value.getValue();
 	}

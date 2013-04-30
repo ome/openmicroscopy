@@ -3085,6 +3085,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsIntegration(ome.xml.model.primitives.PositiveInteger,int,int)
+     */
+    public void  setDetectorSettingsIntegration(PositiveInteger value, int value2, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsOffset(java.lang.Double, int, int)
      */
     public void setDetectorSettingsOffset(Double offset, int imageIndex,
@@ -3112,6 +3120,14 @@ public class OMEROMetadataStoreClient
     {
         DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
         o.setVoltage(toRType(voltage));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDetectorSettingsZoom(java.lang.Double,int,int)
+     */
+    public void  setDetectorSettingsZoom(Double value, int value2, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     ////////Dichroic/////////
@@ -5155,9 +5171,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Integer, int, int)
+     * @see loci.formats.meta.MetadataStore#setObjectiveNominalMagnification(java.lang.Double, int, int)
      */
-    public void setObjectiveNominalMagnification(PositiveInteger nominalMagnification,
+    public void setObjectiveNominalMagnification(Double nominalMagnification,
             int instrumentIndex, int objectiveIndex)
     {
         Objective o = getObjective(instrumentIndex, objectiveIndex);
@@ -5222,6 +5238,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean,int)
+     */
+    public void  setPixelsBigEndian(Boolean value,  int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsBinDataBigEndian(java.lang.Boolean, int, int)
      */
     public void setPixelsBinDataBigEndian(Boolean bigEndian, int imageIndex,
@@ -5242,6 +5266,15 @@ public class OMEROMetadataStoreClient
         o.setDimensionOrder((DimensionOrder) getEnumeration(
             DimensionOrder.class, "XYZCT"));
     }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsInterleaved(java.lang.Boolean,int)
+     */
+    public void  setPixelsInterleaved(Boolean value,  int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsPhysicalSizeX(ome.xml.model.primitives.PositiveFloat, int)
@@ -5268,6 +5301,14 @@ public class OMEROMetadataStoreClient
     {
         Pixels o = getPixels(imageIndex);
         o.setPhysicalSizeZ(toRType(physicalSizeZ));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSignificantBits(ome.xml.model.primitives.PositiveInteger,int)
+     */
+    public void  setPixelsSignificantBits(PositiveInteger value,  int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     /* (non-Javadoc)
@@ -6515,6 +6556,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setCommentAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setCommentAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setCommentAnnotationValue(java.lang.String, int)
      */
     public void setCommentAnnotationValue(String value, int commentAnnotationIndex)
@@ -7112,6 +7161,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setXMLAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setBooleanAnnotationAnnotationRef(java.lang.String, int, int)
      */
     public void setBooleanAnnotationAnnotationRef(String annotation,
@@ -7129,6 +7186,14 @@ public class OMEROMetadataStoreClient
     {
         // TODO Auto-generated method stub
 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setBooleanAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setBooleanAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     /* (non-Javadoc)
@@ -7172,6 +7237,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDoubleAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setDoubleAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setFileAnnotationAnnotationRef(java.lang.String, int, int)
      */
     public void setFileAnnotationAnnotationRef(String annotation,
@@ -7192,6 +7265,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setFileAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setFileAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setListAnnotationDescription(java.lang.String, int)
      */
     public void setListAnnotationDescription(String description,
@@ -7200,6 +7281,15 @@ public class OMEROMetadataStoreClient
         // TODO Auto-generated method stub
 
     }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setListAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setListAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
 
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setLongAnnotationAnnotationRef(java.lang.String, int, int)
@@ -7219,6 +7309,14 @@ public class OMEROMetadataStoreClient
     {
         // TODO Auto-generated method stub
 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLongAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setLongAnnotationAnnotator(String value, int XMLAnnotationIndex)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     /**
@@ -7276,6 +7374,14 @@ public class OMEROMetadataStoreClient
     {
         TagAnnotation o = getTagAnnotation(tagAnnotationIndex);
         o.setNs(toRType(namespace));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTagAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setTagAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     /* (non-Javadoc)
@@ -7345,6 +7451,14 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTermAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setTermAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setTermAnnotationValue(java.lang.String, int)
      */
     public void setTermAnnotationValue(String value, int termAnnotationIndex)
@@ -7371,6 +7485,14 @@ public class OMEROMetadataStoreClient
     {
         // TODO Auto-generated method stub
 
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setTimestampAnnotationAnnotator(java.lang.String,int)
+     */
+    public void  setTimestampAnnotationAnnotator(String value, int index)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
     /* (non-Javadoc)
@@ -8089,6 +8211,22 @@ public class OMEROMetadataStoreClient
     {
         Well o = getWell(plateIndex, wellIndex);
         o.setType(toRType(type));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRightsRightsHeld(java.lang.String)
+     */
+    public void  setRightsRightsHeld(String value)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRightsRightsHolder(java.lang.String)
+     */
+    public void  setRightsRightsHolder(String value)
+    {
+        throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
 }
