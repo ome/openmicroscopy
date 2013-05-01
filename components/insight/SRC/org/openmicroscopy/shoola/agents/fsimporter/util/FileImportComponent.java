@@ -837,7 +837,9 @@ public class FileImportComponent
 			ThumbnailData thumb = (ThumbnailData) data;
 			img = thumb.getImage();
 		} else if (data instanceof List) {
-			return getFileSetID(((List) data).get(0));
+			if (!((List) data).isEmpty()) {
+				return getFileSetID(((List) data).get(0));
+			}
 		}
 		if (img == null) return -1;
 		return img.asImage().getFileset().getId().getValue();
@@ -951,11 +953,9 @@ public class FileImportComponent
 					browseButton.setVisible(showContainerLabel);
 					containerLabel.setVisible(showContainerLabel);
 				}
-				//groupUserLabel.setVisible(!singleGroup);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
-			//groupUserLabel.setVisible(!singleGroup);
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				
@@ -1020,7 +1020,7 @@ public class FileImportComponent
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			groupUserLabel.setVisible(!singleGroup);
-			List list = (List) image;
+			List<ImageData> list = new ArrayList<ImageData>((List) image);
 			int m = list.size();
 			imageLabel.setData(list.get(0));
 			list.remove(0);
@@ -1052,7 +1052,6 @@ public class FileImportComponent
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			}
-			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
@@ -1121,7 +1120,7 @@ public class FileImportComponent
 			}
 		}
 		repaint();
-		return getFileSetID(image);
+		return getFileSetID(this.image);
 	}
 	
 	/**
