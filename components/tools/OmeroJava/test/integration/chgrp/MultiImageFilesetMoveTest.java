@@ -23,21 +23,51 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import omero.RString;
+import omero.api.IUpdatePrx;
+import omero.cmd.Chgrp;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
 /**
  */
 public class MultiImageFilesetMoveTest extends AbstractServerTest {
+
+    ExperimenterGroup secondGroup;
+
+    @BeforeClass
+    public void setupSecondGroup() throws Exception {
+        EventContext ec = iAdmin.getEventContext();
+        secondGroup = newGroupAddUser("rwrw--", ec.userId);
+        iAdmin.getEventContext(); // Refresh.
+    }
+
+    static class Fixture {
+        final List<Dataset> datasets;
+        final List<Image> images;
+        Fixture(List<Dataset> datasets, List<Image> images) {
+            this.datasets = datasets;
+            this.images = images;
+        }
+        DatasetImageLink link(IUpdatePrx iUpdate, int datasetIndex, int imageIndex) throws Exception {
+            DatasetImageLink link = new DatasetImageLinkI();
+            link.setParent(datasets.get(datasetIndex));
+            link.setChild(images.get(imageIndex));
+            link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
+            return link;
+        }
+    }
 
     protected List<Image> importMIF(int seriesCount) throws Throwable {
         File fake = TempFileManager.create_path("importMIF",
@@ -76,21 +106,28 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         return (List) iUpdate.saveAndReturnArray(rv);
     }
 
+
+    protected Fixture createFixture(int datasetCount, int imageCount) throws Throwable {
+        List<Dataset> datasets = createDatasets(datasetCount, "MIF");
+        List<Image> images = importMIF(imageCount);
+        return new Fixture(datasets, images);
+    }
+
     /**
      * Simplest example of the MIF chgrp edge case: a single fileset containing
      * 2 images is split among 2 datasets. Each sibling CANNOT be moved
      * independently of the other.
      */
-    @Test
-    public void testBasicWorkflow() throws Throwable {
-        List<Dataset> datasets = createDatasets(2, "testBasicWorkflow");
-        List<Image> images = importMIF(2);
-        for (int i = 0; i < 2; i++) {
-            DatasetImageLink link = new DatasetImageLinkI();
-            link.setParent(datasets.get(i));
-            link.setChild(images.get(i));
-            link = (DatasetImageLink) iUpdate.saveAndReturnObject(link);
-        }
+    @Test(groups = {"fs", "integration"})
+    public void testBasicProblem() throws Throwable {
+        Fixture f = createFixture(2, 2);
+        f.link(iUpdate, 0, 0);
+        f.link(iUpdate, 1, 1);
+
+        Chgrp command = new Chgrp("/Image",
+                f.images.get(0).getId().getValue(),
+                null, secondGroup.getId().getValue());
+        doChange(command);
     }
 
 }
