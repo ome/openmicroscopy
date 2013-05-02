@@ -31,12 +31,14 @@ import omero.RString;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.ChgrpERR;
+import omero.cmd.Delete;
 import omero.cmd.Response;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
+import omero.model.FilesetI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -127,12 +129,13 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         f.link(iUpdate, 0, 0);
         f.link(iUpdate, 1, 1);
 
+        long img0 = f.images.get(0).getId().getValue();
+        long img1 = f.images.get(1).getId().getValue();
         long fs0 = f.images.get(0).getFileset().getId().getValue();
         long fs1 = f.images.get(1).getFileset().getId().getValue();
         assertEquals(fs0, fs1);
 
-        Chgrp command = new Chgrp("/Image",
-                f.images.get(0).getId().getValue(),
+        Chgrp command = new Chgrp("/Image", img0,
                 null, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, command, false); // Don't pass
@@ -142,7 +145,13 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         assertEquals(1, filesetIds.length);
         assertEquals(fs0, filesetIds[0]);
 
+        // However, it should still be possible to delete the 2 images
+        // and have the fileset cleaned up.
+        delete(true, client, new Delete("/Image", img0, null),
+                new Delete("/Image", img1, null));
 
+        // FIXME: This needs to be worked on. The fileset still exists.
+        assertDoesNotExist(new FilesetI(fs0, false));
     }
 
 }
