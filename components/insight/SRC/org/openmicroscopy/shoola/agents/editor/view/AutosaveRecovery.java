@@ -107,9 +107,12 @@ public class AutosaveRecovery {
 				return false;
 			}
 		});
-		
-		int fileCount = recoveredFiles.length;
-		
+
+		int fileCount = 0;
+		if (recoveredFiles != null) {
+			fileCount = recoveredFiles.length;
+		}
+
 		// if there are any files found...
 		if (fileCount > 0) {
 			
