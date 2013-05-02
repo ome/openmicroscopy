@@ -22,6 +22,7 @@ import integration.AbstractServerTest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -29,6 +30,8 @@ import org.testng.annotations.Test;
 import omero.RString;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
+import omero.cmd.ChgrpERR;
+import omero.cmd.Response;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -124,10 +127,22 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         f.link(iUpdate, 0, 0);
         f.link(iUpdate, 1, 1);
 
+        long fs0 = f.images.get(0).getFileset().getId().getValue();
+        long fs1 = f.images.get(1).getFileset().getId().getValue();
+        assertEquals(fs0, fs1);
+
         Chgrp command = new Chgrp("/Image",
                 f.images.get(0).getId().getValue(),
                 null, secondGroup.getId().getValue());
-        doChange(command);
+
+        Response rsp = doChange(client, factory, command, false); // Don't pass
+        ChgrpERR err = (ChgrpERR) rsp;
+        Map<String, long[]> constraints = err.constraints;
+        long[] filesetIds = constraints.get("Fileset");
+        assertEquals(1, filesetIds.length);
+        assertEquals(fs0, filesetIds[0]);
+
+
     }
 
 }
