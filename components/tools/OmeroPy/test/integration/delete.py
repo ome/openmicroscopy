@@ -415,6 +415,137 @@ class TestDelete(lib.ITest):
         self.assertRaises(omero.ServerError, \
                 self.client.sf.getQueryService().get, "FileAnnotation", fa.id.val)
 
+    """
+    Simple example of the MIF delete bad case:
+    a single fileset containing 2 images is split among 2 datasets.
+    Delete one image, just one image is deleted.
+    """
+    def testBadCaseDeleteOneImage(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testBadCaseDeleteImage", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i])
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now delete
+        command = omero.cmd.Delete("/Image", images[0].id.val, None)
+        handle = client.sf.submit(command)
+        callback = self.waitOnCmd(client, handle)
+
+        query = client.sf.getQueryService()
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+
+
+    """
+    Simple example of the MIF delete bad case:
+    a single fileset containing 2 images is split among 2 datasets.
+    Delete one dataset, just one image and the dataset are deleted.
+    """
+    def testBadCaseDeleteDataset(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testBadCaseDeleteDataset", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i])
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now delete
+        command = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
+        handle = client.sf.submit(command)
+        callback = self.waitOnCmd(client, handle)
+
+        query = client.sf.getQueryService()
+        self.assertEquals(None, query.find("Dataset", datasets[0].id.val))
+        self.assertEquals(datasets[1].id.val, query.find("Dataset", datasets[1].id.val).id.val)
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+
+    """
+    Simple example of the MIF delete good case:
+    a single fileset containing 2 images in one dataset.
+    Delete the dataset, both images and the dataset are deleted.
+    """
+    def testGoodCaseDeleteDataset(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = omero.rtypes.rstring("testGoodCaseDeleteDataset")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds)
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now delete
+        command = omero.cmd.Delete("/Dataset", ds.id.val, None)
+        handle = client.sf.submit(command)
+        callback = self.waitOnCmd(client, handle)
+
+        query = client.sf.getQueryService()
+        self.assertEquals(None, query.find("Dataset", ds.id.val))
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(None, query.find("Image", images[1].id.val))
+
+    """
+    Simple example of the MIF delete good case:
+    a single fileset containing 2 images in one dataset.
+    Delete one image, just one image is deleted.
+    """
+    def testGoodCaseDeleteOneImage(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = omero.rtypes.rstring("testGoodCaseDeleteOneImage")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds)
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now delete
+        command = omero.cmd.Delete("/Image", images[0].id.val, None)
+        handle = client.sf.submit(command)
+        callback = self.waitOnCmd(client, handle)
+
+        query = client.sf.getQueryService()
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:
