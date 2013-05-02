@@ -197,20 +197,120 @@ class TestChgrp(lib.ITest):
 
 
     """
-    Simplest example of the MIF chgrp edge case: a single fileset containing
-    2 images is split among 2 datasets. Each sibling CANNOT be moved
-    independently of the other.
+    Simple example of the MIF chgrp bad case:
+    a single fileset containing 2 images is split among 2 datasets.
+    Each sibling CANNOT be moved independently of the other.
     """
-    def testBasicWorkflow(self):
-        client = self.new_client()
+    def testBadCaseChgrpImage(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBasicWorkflow", client=client)
+        datasets = self.createDatasets(2, "testBadCaseChgrpImage", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
             link.setParent(datasets[i])
             link.setChild(images[i])
             link = update.saveAndReturnObject(link)
+
+        # Now chgrp
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # What do we need to assert here? Will an exception be raised?
+
+    """
+    Simple example of the MIF chgrp bad case:
+    a single fileset containing 2 images is split among 2 datasets.
+    Each dataset CANNOT be moved independently of the other.
+    """
+    def testBadCaseChgrpDataset(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testBadCaseChgrpDataset", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i])
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # What do we need to assert here? Will an exception be raised?
+
+    """
+    Simple example of the MIF chgrp good case:
+    a single fileset containing 2 images in one dataset.
+    The dataset can be moved.
+    """
+    def testGoodCaseChgrpDataset(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testGoodCaseChgrpDataset")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds)
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # Assert that dataset and images are in new group?
+
+    """
+    Simple example of the MIF chgrp good case:
+    a single fileset containing 2 images in one dataset.
+    Each sibling CANNOT be moved independently of the other.
+    """
+    def testGoodCaseChgrpOneImage(self):
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        admin = client.sf.getAdminService()
+        #admin.getEventContext()
+        target_grp = self.new_group([user],perms="rw----")
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testGoodCaseChgrpOneImage")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds)
+            link.setChild(images[i])
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # What do we need to assert here? Will an exception be raised?
 
 if __name__ == '__main__':
     unittest.main()
