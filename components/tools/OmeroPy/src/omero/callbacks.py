@@ -156,7 +156,7 @@ class DeleteCallbackI(object):
             waited = (ms / 1000) * loops
             raise omero.LockTimeout(None, None,
                     "Delete unfinished after %s seconds" % waited,
-                    5000L, waited)
+                    5000L, int(waited))
         else:
             return self.handle.report()
 
@@ -319,7 +319,7 @@ class CmdCallbackI(omero.cmd.CmdCallback):
             waited = (ms / 1000.0) * loops
             raise omero.LockTimeout(None, None,
                     "Command unfinished after %s seconds" % waited,
-                    5000L, waited)
+                    5000L, int(waited))
 
     def block(self, ms):
         """
