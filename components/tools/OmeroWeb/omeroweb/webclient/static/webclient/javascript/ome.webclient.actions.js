@@ -87,7 +87,9 @@ OME.handle_tree_selection = function(data) {
                 }
                 var selected_obj = {"id":oid, "rel":$this.attr('rel')};
                 selected_obj["class"] = $this.attr('class');
-                selected_obj["fileset"] = $this.attr('data-fileset');
+                if ($this.attr('data-fileset')) {
+                    selected_obj["fileset"] = $this.attr('data-fileset');
+                }
                 if (share_id) {
                     selected_obj["share"] = share_id;
                 }
