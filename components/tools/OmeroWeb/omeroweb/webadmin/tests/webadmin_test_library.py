@@ -20,7 +20,6 @@
 
 import os
 import unittest
-import exceptions
 
 import omero
 
@@ -55,9 +54,9 @@ class WebTest(unittest.TestCase):
             self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password)
 
             if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
-                raise exceptions.Exception("Cannot connect")
+                raise Exception("Cannot connect")
         else:
-            raise exceptions.Exception("'%s' is not on omero.web.server_list" % omero_host)
+            raise Exception("'%s' is not on omero.web.server_list" % omero_host)
     
     def tearDown(self):
         try:
@@ -71,10 +70,10 @@ class WebTest(unittest.TestCase):
             connector = Connector(self.server_id, True)
             conn = connector.create_connection('TEST.webadmin', username, password)
             if conn is None or not conn.isConnected() or not conn.keepAlive():
-                raise exceptions.Exception("Cannot connect")
+                raise Exception("Cannot connect")
             return conn
         else:
-            raise exceptions.Exception("'%s' is not on omero.web.server_list"  % omero_host)
+            raise Exception("'%s' is not on omero.web.server_list"  % omero_host)
 
 class WebAdminClientTest(WebTest):
         

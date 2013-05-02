@@ -10,7 +10,7 @@ except:
     from sqlite3 import dbapi2 as sqlite
 
 from pprint import pprint
-import os, sys, exceptions
+import os, sys
 
 class whoisdb:
 
@@ -92,7 +92,7 @@ class whoisdb:
 	            seen[parts[0]] = parts[1]
 		    try:
 	   	        self.set(parts[0], parts[1])
-		    except exceptions.Exception, e:
+		    except Exception, e:
 		        print "Failed to insert %s (%s)" % (parts[0], e)
        self.conn.commit()
 

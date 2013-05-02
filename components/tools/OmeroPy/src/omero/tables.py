@@ -15,7 +15,6 @@ import logging
 import threading
 import traceback
 import subprocess
-import exceptions
 import portalocker # Third-party
 
 from path import path
@@ -139,7 +138,7 @@ class HdfList(object):
                     lock.close()
                 finally:
                     del self.__locks[hdfpath]
-        except exceptions.Exception, e:
+        except Exception, e:
             self.logger.warn("Exception on remove(%s)" % hdfpath, exc_info=True)
 
 # Global object for maintaining files
@@ -401,7 +400,7 @@ class HdfStorage(object):
         self.__initcheck()
         try:
             return self.__mea.getWhereList(condition, variables, None, start, stop, step).tolist()
-        except (exceptions.NameError, exceptions.SyntaxError, exceptions.TypeError, exceptions.ValueError), err:
+        except (NameError, SyntaxError, TypeError, ValueError), err:
             aue = omero.ApiUsageException()
             aue.message = "Bad condition: %s, %s" % (condition, variables)
             aue.serverStackTrace = "".join(traceback.format_exc())

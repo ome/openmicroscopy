@@ -18,7 +18,6 @@ import os
 import sys
 import stat
 import platform
-import exceptions
 import portalocker
 
 from path import path
@@ -495,7 +494,7 @@ Examples:
                         self.ctx.rv = 0
                 finally:
                     ic.destroy()
-            except exceptions.Exception, exc:
+            except Exception, exc:
                 self.ctx.rv = 1
                 self.ctx.dbg("Server not reachable: "+str(exc))
 
@@ -716,7 +715,7 @@ OMERO Diagnostics %s
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
                 return True
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.ctx.err("error:%s" % e)
                 return False
 

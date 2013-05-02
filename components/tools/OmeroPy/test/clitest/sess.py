@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os, subprocess, StringIO, exceptions
+import unittest, os, subprocess, StringIO
 import Ice
 import Glacier2
 import omero
@@ -40,7 +40,7 @@ class MyStore(SessionsStore):
     def create(self, name, pasw, props, new = True, set_current = True):
 
         if not isinstance(props, dict):
-            raise exceptions.Exception("Bad type")
+            raise Exception("Bad type")
 
         if self.exceptions:
             raise self.exceptions.pop(0)
@@ -147,7 +147,7 @@ class MyCLI(CLI):
 
     def input(self, prompt, hidden=False, required=False):
         if prompt not in self.REQRESP:
-            raise exceptions.Exception("Missing prompt: '%s'" % prompt)
+            raise Exception("Missing prompt: '%s'" % prompt)
         return self.REQRESP.pop(prompt)
 
     def invoke(self, *args):

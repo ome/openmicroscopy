@@ -6,7 +6,6 @@
 
 """
 
-import exceptions
 import unittest
 import omero
 import time
@@ -157,7 +156,7 @@ class PixelsTest (lib.GTest):
             self.fail("Should throw")
         except AssertionError:
             raise
-        except exceptions.Exception, e:
+        except Exception, e:
             self.assert_(not e.close)
             self.assertEquals(1, found)
 
@@ -181,7 +180,7 @@ class PixelsTest (lib.GTest):
             self.fail("Should have failed on close")
         except AssertionError:
             raise
-        except exceptions.Exception, e:
+        except Exception, e:
             self.assert_(e.close)
             self.assertEquals(2, found)
 
@@ -209,7 +208,7 @@ class PixelsTest (lib.GTest):
             self.fail("Should have failed on getPlane and close")
         except AssertionError:
             raise
-        except exceptions.Exception, e:
+        except Exception, e:
             self.assert_(not e.close)
             self.assertEquals(1, found)
 
@@ -227,7 +226,7 @@ class MockRawPixelsStore(object):
 
     def getPlane(self, *args):
         if self.good_calls == 0:
-            e = exceptions.Exception("MOCK EXCEPTION")
+            e = Exception("MOCK EXCEPTION")
             e.close = False
             raise e
         else:
@@ -236,7 +235,7 @@ class MockRawPixelsStore(object):
 
     def close(self, *args):
         if self.close_fails:
-            e = exceptions.Exception("MOCK CLOSE EXCEPTION")
+            e = Exception("MOCK CLOSE EXCEPTION")
             e.close = True
             raise e
 

@@ -10,7 +10,6 @@
 
 """
 
-import exceptions
 import logging
 import os
 import threading
@@ -134,7 +133,7 @@ class Driver(threading.Thread):
             try:
                 event.setClient(self.client)
                 event.run()
-            except exceptions.Exception, e:
+            except Exception, e:
                 self.errors.append((event, e))
                 self.log.exception("Error in Driver.run()")
 
@@ -241,7 +240,7 @@ class Replay(object):
 
     def rewrite(self, data):
         if not data.startswith(self.dir_in):
-            raise exceptions.Exception("%s doesn't start with %s" % (data, self.dir_in))
+            raise Exception("%s doesn't start with %s" % (data, self.dir_in))
         data = data[len(self.dir_in):]
         data = self.dir_out + data
         return data
@@ -263,10 +262,10 @@ class Simulator(monitors.MonitorClient):
             fileid = event.fileId
             file = path(fileid)
             if not file.parpath(self.dir):
-                raise exceptions.Exception("%s is not in %s" % (file, self.dir))
+                raise Exception("%s is not in %s" % (file, self.dir))
             if monitors.EventType.Create == event.type:
                 if file.exists():
-                    raise exceptions.Exception("%s already exists" % file)
+                    raise Exception("%s already exists" % file)
                 if hasattr(event, "dir"):
                     self.log.info("Creating dir: %s", file)
                     file.makedirs()
@@ -282,10 +281,10 @@ class Simulator(monitors.MonitorClient):
                     file.write_lines(["Created by event: %s" % event])
             elif monitors.EventType.Modify == event.type:
                 if not file.exists():
-                    raise exceptions.Exception("%s doesn't exist" % file)
+                    raise Exception("%s doesn't exist" % file)
                 if hasattr(event, "dir"):
                     if not file.isdir():
-                        raise exceptions.Exception("%s is not a directory" % file)
+                        raise Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
                     new_file = file / str(uuid.uuid4())
                     new_file.write_lines(["Writing new file to modify this directory on event: %s" % event])
@@ -294,19 +293,19 @@ class Simulator(monitors.MonitorClient):
                     file.write_lines(["Modified by event: %s" % event])
             elif monitors.EventType.Delete == event.type:
                 if not file.exists():
-                    raise exceptions.Exception("%s doesn't exist" % file)
+                    raise Exception("%s doesn't exist" % file)
                 if hasattr(event, "dir"):
                     if not file.isdir():
-                        raise exceptions.Exception("%s is not a directory" % file)
+                        raise Exception("%s is not a directory" % file)
                     self.log.info("Deleting dir %s", file)
                     file.rmtree()
                 else:
                     self.log.info("Deleting file %s", file)
                     file.remove()
             elif monitors.EventType.MoveIn == event.type:
-                raise exceptions.Exception("TO BE REMOVED")
+                raise Exception("TO BE REMOVED")
             elif monitors.EventType.MoveOut == event.type:
-                raise exceptions.Exception("TO BE REMOVED")
+                raise Exception("TO BE REMOVED")
             elif monitors.EventType.System == event.type:
                 pass # file id here is simply an informational string
             else:
@@ -353,7 +352,7 @@ class MockMonitor(MonitorClientI):
 
     def fake_meth(self, name, rv, *args, **kwargs):
         self.log.info("%s(%s, %s)=>%s", name, args, kwargs, rv)
-        if isinstance(rv, exceptions.Exception):
+        if isinstance(rv, Exception):
             raise rv
         else:
             return rv

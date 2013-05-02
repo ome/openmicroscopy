@@ -141,7 +141,7 @@ class OmeroImageServiceImpl
 	private OMEROGateway gateway;
 	
 	/**
-	 * Returns the number of rendering engine to initialize or reload.
+	 * Returns the number of rendering engines to initialize or reload.
 	 * 
 	 * @param ctx The security context.
 	 * @param pixelsID The id of pixels set.
@@ -151,7 +151,7 @@ class OmeroImageServiceImpl
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private int getNumberofRenderingEnging(SecurityContext ctx, long pixelsID)
+	private int getNumberOfRenderingEngines(SecurityContext ctx, long pixelsID)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		int number = 1;
@@ -603,7 +603,7 @@ class OmeroImageServiceImpl
 			
 			Pixels pixels = gateway.getPixels(ctx, pixelsID);
 			if (pixels == null) return null;
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
@@ -785,7 +785,7 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
 			gateway.removeREService(ctx, pixelsID);
@@ -813,7 +813,7 @@ class OmeroImageServiceImpl
 					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
-			int number = getNumberofRenderingEnging(ctx, pixelsID);
+			int number = getNumberOfRenderingEngines(ctx, pixelsID);
 			List<RenderingEnginePrx>
 			proxies = new ArrayList<RenderingEnginePrx>(number);
 			for (int i = 0; i < number; i++) {
