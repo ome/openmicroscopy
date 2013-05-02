@@ -535,4 +535,20 @@ public class ImageData extends DataObject {
     	return asImage().getFileset() != null;
     }
 
+    /**
+     * Returns the ID of the fileset to which this image belongs. Similar to
+     * {@link ImageData#isFSImage()}, for images imported pre-FS (data
+     * duplication) <code>-1</code> will be returned. Elese - the <code>long
+     * </code> value of the fileset ID.
+     *
+     * @return See above.
+     */
+    public long getFilesetId()
+    {
+        long id = -1;
+        if (isFSImage()) {
+            id = asImage().getFileset().getId().getValue();
+        }
+        return id;
+    }
 }
