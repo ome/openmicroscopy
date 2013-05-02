@@ -8,7 +8,9 @@
 package ome.services.chgrp;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.model.IObject;
@@ -77,14 +79,21 @@ public class ChgrpValidation extends GraphStep {
         // =====================================================================
         final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
 
-        List<String> total = new ArrayList<String>();
+        final Map<String, List<Long>> constraints =
+                new HashMap<String, List<Long>>();
+        final List<String> total = new ArrayList<String>();
         for (String[] lock : locks) {
-            Long bad = findImproperOutgoingLinks(session, lock);
-            if (bad != null && bad > 0) {
+            List<Long> bad = findImproperOutgoingLinks(session, lock);
+            if (bad != null && bad.size() > 0) {
                 String msg = String.format("%s:%s improperly links to %s.%s: %s",
                         iObjectType.getSimpleName(), id, lock[0], lock[1],
-                        bad);
+                        bad.size());
                 total.add(msg);
+                if (constraints.containsKey(lock[0])) {
+                    constraints.get(lock[0]).addAll(bad);
+                } else {
+                    constraints.put(lock[0], bad);
+                }
             }
         }
         if (total.size() > 0) {
@@ -96,33 +105,33 @@ public class ChgrpValidation extends GraphStep {
                 qb.param("id", id);
                 qb.query(session).executeUpdate();
             } else {
-                throw new GraphException(String.format("%s:%s improperly links to %s objects",
-                    iObjectType.getSimpleName(), id, total.size()));
+                throw new ChgrpGraphException(String.format("%s:%s improperly links to %s objects",
+                    iObjectType.getSimpleName(), id, total.size()), constraints);
             }
         }
 
         logPhase("Validated");
     }
 
-    private Long findImproperOutgoingLinks(Session session, String[] lock) {
+    private List<Long> findImproperOutgoingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
-                "select count(*) from %s target, %s source " +
+                "select source.%s.id from %s target, %s source " +
                 "where target.id = source.%s.id and source.id = ? " +
                 "and not (target.details.group.id = ? " +
                 "  or target.details.group.id = ?)",
-                lock[0], iObjectType.getName(), lock[1]);
+                lock[1], lock[0], iObjectType.getName(), lock[1]);
 
         Query q = session.createQuery(str);
         q.setLong(0, id);
         q.setLong(1, grp);
         q.setLong(2, userGroup);
-        Long rv = (Long) q.list().get(0);
+        List<Long> rv = q.list();
 
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
-                    rv, str, id, grp, userGroup));
+                    rv.size(), str, id, grp, userGroup));
         }
 
         sw.stop("omero.chgrp.validation." + lock[0] + "." + lock[1]);
