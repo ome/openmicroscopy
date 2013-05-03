@@ -501,7 +501,6 @@ class BlitzObjectWrapper (object):
         Web client will only allow this for the data Owner.
         Admin CAN move other user's data, but we don't support this in Web yet.
         """
-        return False    # TEMP: Disable Chgrp for FS Demo
         return self.isOwned() # or self._conn.isAdmin() #8974
 
     def countChildren (self):
