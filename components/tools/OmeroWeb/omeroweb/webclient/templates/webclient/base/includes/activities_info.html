@@ -151,6 +151,15 @@
                 $(".info_panel").hide();
             }
         });
+
+        // If a chgrp fails due to filesets, we provide a 'move all' button:
+        $("#activities_content").on("click", ".chgrp_move_all", function(event){
+            $.get($(this).attr('url'), function(){
+                OME.refreshActivities();
+            });
+            event.preventDefault();
+            return false;
+        });
     });
 </script>
 

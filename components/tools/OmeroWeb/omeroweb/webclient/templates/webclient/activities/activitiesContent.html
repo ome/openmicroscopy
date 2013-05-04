@@ -111,9 +111,17 @@
                                             <div style="height:35px; float: left; line-height:65px"> ... </div>
                                         {% endif %}
                                     </div>
+                                    <div style="clear:both"></div>
                                     {% endwith %}
-
                                     {% endfor %}
+                                    <div style="float:right">
+    <button class="btn silver chgrp_move_all" style="padding: 2px"
+        title="Repeat the move, including ALL images from the Fileset"
+        url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
+        >
+        MOVE ALL
+    </button>
+                                    </div>
                                 {% endif %}
                             </span>
                         </td>

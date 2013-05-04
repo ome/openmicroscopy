@@ -2133,6 +2133,7 @@ def activities(request, conn=None, **kwargs):
                                                 'blocking_iids': blocking_iids,
                                                 'attempted_iids':attempted_iids} )
                                     request.session['callback'][cbString]['split_filesets'] = split_filesets
+                                    request.session['callback'][cbString]['fsIds'] = failed_filesets
                                 else:
                                     rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
                                     logger.error("chgrp failed with: %s" % rsp_params)
@@ -2538,7 +2539,16 @@ def chgrp(request, conn=None, **kwargs):
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
-            obj_ids = oids.split(",")
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            # if 'filesets' are specified, make sure we move ALL Fileset Images
+            fsIds = request.REQUEST.getlist('fileset')
+            if len(fsIds) > 0:
+                if dtype == 'Dataset':
+                    conn.regroupFilesets (dsIds=obj_ids, fsIds=fsIds)
+                else:
+                    for fs in conn.getObjects("Fileset", fsIds):
+                        obj_ids.extend( [i.id for i in fs.copyImages()] )
+                    obj_ids = list(set(obj_ids))    # remove duplicates
             logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
             handle = conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
             jobId = str(handle)
