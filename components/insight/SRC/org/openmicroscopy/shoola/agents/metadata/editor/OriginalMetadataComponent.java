@@ -85,7 +85,7 @@ import pojos.ImageData;
  * </small>
  * @since 3.0-Beta4
  */
-class OriginalMetadataComponent 
+class OriginalMetadataComponent
 	extends JPanel
 	implements PropertyChangeListener
 {
@@ -99,11 +99,23 @@ class OriginalMetadataComponent
 		COLUMNS[1] = "Value";
 	}
 	
-	/** Reference to the model. */
+	/** Reference to the model.*/
 	private EditorModel	model;
 	
+	/** Flag indicating if the metadata have been loaded or not. */
+	private boolean metadataLoaded;
+	
+	/** Button to download the file. */
+	private JButton downloadButton;
+	
+	/** Builds the tool bar displaying the controls. */
+	private JComponent toolBar;
+	
+	/** The bar displaying the status. */
+	private JComponent statusBar;
+	
 	/** 
-	 * Brings up a dialog so that the user can select where to 
+	 * Brings up a dialog so that the user can select where to
 	 * download the file.
 	 */
 	private void download()
@@ -128,18 +140,6 @@ class OriginalMetadataComponent
 		chooser.centerDialog();
 	}
 	
-	/** Flag indicating if the metadata have been loaded or not. */
-	private boolean metadataLoaded;
-	
-	/** Button to download the file. */
-	private JButton		downloadButton;
-	
-	/** Builds the tool bar displaying the controls. */
-	private JComponent	toolBar;
-	
-	/** The bar displaying the status. */
-	private JComponent	statusBar;
-	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -156,11 +156,10 @@ class OriginalMetadataComponent
 		});
 		toolBar = buildToolBar();
 		toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(), 
+		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(),
 				icon.getIconHeight()));
 		label.setBackground(UIUtilities.BACKGROUND_COLOR);
 		label.setBusy(true);
-		//label.setHorizontalTextPosition(JXBusyLabel.RIGHT);
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
@@ -203,16 +202,17 @@ class OriginalMetadataComponent
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		String key;
-		List l;
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		List<String> l;
+		Entry<String, List<String>> entry;
+		Iterator<Entry<String, List<String>>>
+		i = components.entrySet().iterator();
 		JPanel row;
 		JLabel label;
 		p.add(new JSeparator());
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			l = (List) entry.getValue();
+			entry = i.next();
+			key = entry.getKey();
+			l = entry.getValue();
 			if (l != null && l.size() > 0) {
 				label = UIUtilities.setTextFont(key);
 				label.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -296,7 +296,7 @@ class OriginalMetadataComponent
 		JXTable table = new JXTable(
 				new OriginalMetadataTableModel(data, COLUMNS));
 		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
+				UIUtilities.BACKGROUND_COLOUR_EVEN,
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
 		return new JScrollPane(table);
@@ -423,7 +423,7 @@ class OriginalMetadataComponent
 	}
 	
 	/** Extends the table model so that the cells cannot be edited. */
-	class OriginalMetadataTableModel 
+	class OriginalMetadataTableModel
 		extends DefaultTableModel
 	{
 		/**
@@ -449,5 +449,5 @@ class OriginalMetadataComponent
 	    */
 	    public boolean isCellEditable(int row, int column) { return false; }
 	}
-	
+
 }
