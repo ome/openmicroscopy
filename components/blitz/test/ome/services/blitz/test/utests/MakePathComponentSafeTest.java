@@ -30,6 +30,8 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.util.TempFileManager;
 
@@ -47,10 +49,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"fs"})
 @Listeners(AssumptionListener.class)
 public class MakePathComponentSafeTest extends MakePathComponentSafe {
-    private static final MakePathComponentSafe sanitizer = new MakePathComponentSafe();
-
     private static final Set<Integer> codePointsOfTypeControl;
-    
+
     private static final TempFileManager tempFileManager =
             new TempFileManager("test-" + MakePathComponentSafeTest.class.getSimpleName());
 
@@ -61,13 +61,17 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
                 codePointsOfTypeControl.add(codePoint);
     }
 
+    public MakePathComponentSafeTest() {
+        super(FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values()));
+    }
+
     /**
      * Test that the transformation matrix does not correct characters to unsafe ones.
      */
     @Test
     public void testTransformationMatrixLegality() {
-        final Set<Integer> unsafeCodePoints = MakePathComponentSafe.rules.transformationMatrix.keySet();
-        for (final Integer substitute : MakePathComponentSafe.rules.transformationMatrix.values())
+        final Set<Integer> unsafeCodePoints = this.rules.transformationMatrix.keySet();
+        for (final Integer substitute : this.rules.transformationMatrix.values())
             Assert.assertFalse(unsafeCodePoints.contains(substitute), 
                     "character substitutions may not be to unsafe characters");
     }
@@ -78,15 +82,15 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
      */
     @Test
     public void testUnsafeCharacterAvoidance() {
-        final Set<Integer> unsafeCodePoints = MakePathComponentSafe.rules.transformationMatrix.keySet();
-        Assert.assertFalse(unsafeCodePoints.contains(MakePathComponentSafe.rules.safeCharacter),
+        final Set<Integer> unsafeCodePoints = this.rules.transformationMatrix.keySet();
+        Assert.assertFalse(unsafeCodePoints.contains(this.rules.safeCharacter),
                 "the safe character must not be transformed");
         final Set<String> unsafeStrings = new HashSet<String>();
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafeNames);
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafePrefixes);
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafeSuffixes);
+        unsafeStrings.addAll(this.rules.unsafeNames);
+        unsafeStrings.addAll(this.rules.unsafePrefixes);
+        unsafeStrings.addAll(this.rules.unsafeSuffixes);
         for (final String unsafeString : unsafeStrings)
-            Assert.assertEquals(unsafeString.indexOf(MakePathComponentSafe.rules.safeCharacter), -1,
+            Assert.assertEquals(unsafeString.indexOf(this.rules.safeCharacter), -1,
                     "the safe character may not appear in unsafe strings");
     }
 
@@ -97,9 +101,9 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     @Test
     public void testUnsafeStringCase() {
         final Set<String> unsafeStrings = new HashSet<String>();
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafeNames);
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafePrefixes);
-        unsafeStrings.addAll(MakePathComponentSafe.rules.unsafeSuffixes);
+        unsafeStrings.addAll(this.rules.unsafeNames);
+        unsafeStrings.addAll(this.rules.unsafePrefixes);
+        unsafeStrings.addAll(this.rules.unsafeSuffixes);
         for (final String unsafeString : unsafeStrings)
             Assert.assertEquals(unsafeString, unsafeString.toUpperCase(),
                     "the unsafe strings should be upper-case");
@@ -146,21 +150,21 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     }
 
     /**
-     * On Windows, test that data cannot be stored in files named using unsafe characters.
+     * Test that data cannot be stored in files named using unsafe characters.
+     * @param ruleId the rules for the platform to be tested
      * @throws IOException unexpected
      */
-    @Test
-    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
-    public void testUnsafeCharacterUnsafetyWindows() throws IOException {
+    private void testUnsafeCharacterUnsafety(FilePathRestrictionInstance ruleId) throws IOException {
+        final FilePathRestrictions rules = FilePathRestrictionInstance.getFilePathRestrictions(ruleId);
         final File tempDir = tempFileManager.createPath("testUnsafeCharacterUnsafetyWindows", null, true);
-        for (final int unsafeCodePoint : MakePathComponentSafe.rules.transformationMatrix.keySet()) {
+        for (final int unsafeCodePoint : rules.transformationMatrix.keySet()) {
             if (codePointsOfTypeControl.contains(unsafeCodePoint))
                 /* no point testing, one wants to avoid control characters in filenames whatever the operating system permits */
                 continue;
             final String unsafeString = new String(new int[] {unsafeCodePoint}, 0, 1);
             /* don't use the unsafe code point as a prefix or suffix */
-            final String unsafeName = "unsafe" + MakePathComponentSafe.rules.safeCharacter + unsafeString +
-                    MakePathComponentSafe.rules.safeCharacter + "unsafe";
+            final String unsafeName = "unsafe" + this.rules.safeCharacter + unsafeString +
+                    this.rules.safeCharacter + "unsafe";
             final File unsafeFile = new File(tempDir, unsafeName);
             try {
                 final OutputStream out = new FileOutputStream(unsafeFile);
@@ -177,18 +181,48 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     }
 
     /**
+     * On Microsoft Windows, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isWindows"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyWindows() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.WINDOWS_REQUIRED);
+    }
+
+    /**
+     * On Linux, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isLinux"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyLinux() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
+    }
+
+    /**
+     * On Apple Mac OS X, test that data cannot be stored in files named using unsafe characters.
+     * @throws IOException unexpected
+     */
+    @Test
+    @Assumption(methods = {"isMacOSX"}, methodClass = PlatformAssumptions.class)
+    public void testUnsafeCharacterUnsafetyMacOSX() throws IOException {
+        testUnsafeCharacterUnsafety(FilePathRestrictionInstance.UNIX_REQUIRED);
+    }
+
+    /**
      * Test that data can be stored in files named using sanitized unsafe characters.
      * @throws IOException unexpected
      */
     @Test
     public void testSanitizedUnsafeCharacterSafety() throws IOException {
         final File tempDir = tempFileManager.createPath("testSanitizedUnsafeCharacterSafety", null, true);
-        for (final int safeCodePoint : MakePathComponentSafe.rules.transformationMatrix.keySet()) {
+        for (final int safeCodePoint : this.rules.transformationMatrix.keySet()) {
             final String unsafeString = new String(new int[] {safeCodePoint}, 0, 1);
-            final String unsafeName = "safe" + MakePathComponentSafe.rules.safeCharacter + unsafeString +
-                    MakePathComponentSafe.rules.safeCharacter + "safe";
-            final String safeName = sanitizer.apply(unsafeName);
-            Assert.assertEquals(sanitizer.apply(safeName), safeName,
+            final String unsafeName = "safe" + this.rules.safeCharacter + unsafeString +
+                    this.rules.safeCharacter + "safe";
+            final String safeName = apply(unsafeName);
+            Assert.assertEquals(apply(safeName), safeName,
                     "sanitization should not change already-sanitized names");
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
@@ -204,12 +238,12 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     public void testSafeCharacterSafety() throws IOException {
         final File tempDir = tempFileManager.createPath("testSafeCharacterSafety", null, true);
         final Set<Integer> safeCodePoints = new HashSet<Integer>();
-        safeCodePoints.add(Character.codePointAt(new char[] {MakePathComponentSafe.rules.safeCharacter}, 0));
-        safeCodePoints.addAll(MakePathComponentSafe.rules.transformationMatrix.values());
+        safeCodePoints.add(Character.codePointAt(new char[] {this.rules.safeCharacter}, 0));
+        safeCodePoints.addAll(this.rules.transformationMatrix.values());
         for (final int safeCodePoint : safeCodePoints) {
             final String safeString = new String(new int[] {safeCodePoint}, 0, 1);
-            final String safeName = "safe" + MakePathComponentSafe.rules.safeCharacter + safeString +
-                    MakePathComponentSafe.rules.safeCharacter + "safe";
+            final String safeName = "safe" + this.rules.safeCharacter + safeString +
+                    this.rules.safeCharacter + "safe";
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
@@ -223,8 +257,8 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     @Test
     public void testSanitizedUnsafeNameSafety() throws IOException {
         final File tempDir = tempFileManager.createPath("testSanitizedUnsafeNameSafety", null, true);
-        for (final String unsafeName : MakePathComponentSafe.rules.unsafeNames) {
-            final String safeName = sanitizer.apply(unsafeName);
+        for (final String unsafeName : this.rules.unsafeNames) {
+            final String safeName = apply(unsafeName);
             final File safeFile = new File(tempDir, safeName);
             testDataStorage(safeFile, safeName);
         }
@@ -238,10 +272,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     @Test
     public void testSanitizedUnsafePrefixSafety() throws IOException {
         final File tempDir = tempFileManager.createPath("testSanitizedUnsafePrefixSafety", null, true);
-        for (final String unsafePrefix : MakePathComponentSafe.rules.unsafePrefixes) {
-            final String unsafeName = unsafePrefix + MakePathComponentSafe.rules.safeCharacter + "unsafe";
-            final String safeName = sanitizer.apply(unsafeName);
-            Assert.assertEquals(sanitizer.apply(safeName), safeName,
+        for (final String unsafePrefix : this.rules.unsafePrefixes) {
+            final String unsafeName = unsafePrefix + this.rules.safeCharacter + "unsafe";
+            final String safeName = apply(unsafeName);
+            Assert.assertEquals(apply(safeName), safeName,
                     "sanitization should not change already-sanitized names");
             Assert.assertTrue(safeName.endsWith("unsafe"),
                     "file path sanitization should preserve safe suffixes");
@@ -258,10 +292,10 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     @Test
     public void testSanitizedUnsafeSuffixSafety() throws IOException {
         final File tempDir = tempFileManager.createPath("testSanitizedUnsafeSuffixSafety", null, true);
-        for (final String unsafeSuffix : MakePathComponentSafe.rules.unsafeSuffixes) {
-            final String unsafeName = "unsafe" + MakePathComponentSafe.rules.safeCharacter + unsafeSuffix;
-            final String safeName = sanitizer.apply(unsafeName);
-            Assert.assertEquals(sanitizer.apply(safeName), safeName,
+        for (final String unsafeSuffix : this.rules.unsafeSuffixes) {
+            final String unsafeName = "unsafe" + this.rules.safeCharacter + unsafeSuffix;
+            final String safeName = apply(unsafeName);
+            Assert.assertEquals(apply(safeName), safeName,
                     "sanitization should not change already-sanitized names");
             Assert.assertTrue(safeName.startsWith("unsafe"),
                     "file path sanitization should preserve safe prefixes");
@@ -280,7 +314,7 @@ public class MakePathComponentSafeTest extends MakePathComponentSafe {
     public void testSensitiveNameSafety() {
         // Leica OME
         final String sensitiveName = "{Group}GroupData.xml";
-        Assert.assertEquals(sanitizer.apply(sensitiveName), sensitiveName,
+        Assert.assertEquals(apply(sensitiveName), sensitiveName,
                 "sensitive names should not be changed by sanitization");
     }
 }

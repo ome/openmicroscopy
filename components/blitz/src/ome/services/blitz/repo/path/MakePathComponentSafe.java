@@ -26,7 +26,14 @@ import com.google.common.base.Function;
  * @since 5.0
  */
 public class MakePathComponentSafe implements Function<String, String> {
-    protected static final FilePathRestrictions rules = FilePathRestrictions.CONSERVATIVE_RULES;
+    protected final FilePathRestrictions rules;
+
+    /**
+     * @param rules the rules to apply in making path components safe
+     */
+    public MakePathComponentSafe(FilePathRestrictions... rules) {
+        this.rules = FilePathRestrictions.combineFilePathRestrictions(rules);
+    }
 
     /**
      * {@inheritDoc}

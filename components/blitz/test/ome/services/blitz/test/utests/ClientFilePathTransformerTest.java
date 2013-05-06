@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 
@@ -43,16 +45,16 @@ import org.testng.annotations.Test;
 @Test(groups = {"fs"})
 public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
     private ClientFilePathTransformer fptc;
-    
+
     /**
      * Initialize a client file path transformer.
      * @throws IOException unexpected
      */
     @BeforeClass
     public void setup() throws IOException {
-        this.fptc = new ClientFilePathTransformer(new MakePathComponentSafe());
+        this.fptc = new ClientFilePathTransformer(new MakePathComponentSafe(this.conservativeRules));
     }
-    
+
     /**
      * Test maximum path depth trimming of client paths.
      * @throws IOException unexpected
@@ -69,7 +71,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
         Assert.assertEquals(fptc.getFsFileFromClientFile(clientPath, 1), new FsFile("included"),
                 "unexpected result in converting from client path to repository path");
     }
-    
+
     /**
      * Test minimum path depth calculation failure given client paths including identical paths.
      * @throws IOException unexpected
@@ -85,7 +87,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
             Assert.fail("getMinimumDepth must not give a result for file sets whose elements cannot be made distinguishable");
         } catch (IllegalArgumentException e) { }
     }
-    
+
     /**
      * Test minimum path depth calculation failure given client paths including paths only identical after sanitization.
      * @throws IOException unexpected
@@ -119,7 +121,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
         Assert.assertEquals(fptc.getMinimumDepth(files), expectedDepth,
                 "unexpected result for minimum path depth for files");
     }
-    
+
     /**
      * Test minimum path depth calculation.
      * @throws IOException unexpected
@@ -134,7 +136,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
         testMinimumDepth(4, "abcd", "bbcd", "abcf");
         testMinimumDepth(4, "aabcd", "bbcd", "d");
     }
-    
+
     /**
      * Test that different file paths are not judged to be too similar.
      * @throws IOException unexpected
@@ -149,7 +151,7 @@ public class ClientFilePathTransformerTest extends FilePathTransformerTestBase {
         Assert.assertNull(fptc.getTooSimilarFiles(files),
                 "sufficiently distinct file-paths should be permitted");
     }
-    
+
     /**
      * Test that too-similar file paths are properly grouped and reported.
      * @throws IOException unexpected

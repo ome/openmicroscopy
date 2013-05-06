@@ -36,6 +36,8 @@ import ome.services.blitz.repo.LegacyRepositoryI;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDaoImpl;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.system.Principal;
 
@@ -50,10 +52,10 @@ import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.util.TempFileManager;
 
-/**
- */
-@Test(groups = { "integration", "repo", "fslite" })
+@Test(groups = { "integration", "repo", "fs" })
 public class ManagedRepositoryITest extends AbstractServantTest {
+    private final FilePathRestrictions conservativeRules =
+            FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
 
     FakeAdapter adapter;
     Mock adapterMock, regMock, sfMock;
@@ -132,7 +134,7 @@ public class ManagedRepositoryITest extends AbstractServantTest {
 
     public void testBasicImportExample() throws Exception {
         final ClientFilePathTransformer clientPaths = 
-                new ClientFilePathTransformer(new MakePathComponentSafe());
+                new ClientFilePathTransformer(new MakePathComponentSafe(this.conservativeRules));
         
         File tmpDir = TempFileManager.create_path("mydata.", ".dir", true);
         ImportContainer ic = makeFake(tmpDir);

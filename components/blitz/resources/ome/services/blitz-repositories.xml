@@ -46,6 +46,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.fslite.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -78,6 +79,7 @@
               <constructor-arg ref="processContainer"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.fslite.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -112,6 +114,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
+              <constructor-arg value="${omero.fslite.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
