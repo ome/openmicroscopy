@@ -56,7 +56,7 @@ import javax.swing.table.DefaultTableModel;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 
 /**
  * Displays the original metadata.
@@ -109,8 +110,17 @@ class OriginalMetadataComponent
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, true);
+				"Download Metadata", "Download the metadata file.", null, true);
 		chooser.setSelectedFileFull(FileAnnotationData.ORIGINAL_METADATA_NAME);
+		chooser.setCheckOverride(true);
+		FileAnnotationData data = model.getOriginalMetadata();
+		String name = "";
+		if (data != null) name = data.getFileName();
+		else {
+			ImageData img = model.getImage();
+			name = FilenameUtils.removeExtension(img.getName());
+		}
+		chooser.setSelectedFileFull(name);
 		chooser.setApproveButtonText("Download");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
@@ -399,14 +409,15 @@ class OriginalMetadataComponent
 			File folder = files[0];
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-			FileAnnotationData fa = model.getOriginalMetadata();
-			if (fa == null) return;
-			OriginalFile f = (OriginalFile) fa.getContent();
+			UserNotifier un =
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+			ImageData img = model.getImage();
+			if (img == null) return;
 			IconManager icons = IconManager.getInstance();
-			
-			DownloadActivityParam activity = new DownloadActivityParam(f,
-					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			DownloadActivityParam activity =
+					new DownloadActivityParam(img.getId(),
+				DownloadActivityParam.METADATA_FROM_IMAGE,
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
