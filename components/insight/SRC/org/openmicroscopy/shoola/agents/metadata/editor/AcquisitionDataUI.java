@@ -583,11 +583,10 @@ class AcquisitionDataUI
 	/** Lays out the companion files if any. */
 	void layoutCompanionFiles()
 	{
-		boolean b = model.getOriginalMetadata() == null ||
-			!MetadataViewerAgent.isBinaryAvailable();
-		originalMetadataPane.setVisible(!b);
-		if (b) 
-			originalMetadataPane.setCollapsed(true);
+		boolean b = model.hasOriginalMetadata() &&
+			MetadataViewerAgent.isBinaryAvailable();
+		originalMetadataPane.setVisible(b);
+		if (b) originalMetadataPane.setCollapsed(true);
 		Collection list = model.getCompanionFiles();
 		if (list == null || list.size() == 0) {
 			companionFilesPane.setVisible(false);
