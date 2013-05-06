@@ -364,6 +364,38 @@ class TestChgrp(lib.ITest):
             img_gid = image.details.group.id.val
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
+
+    def testTwoFilesetsChgrpImages(self):
+        """
+        If we try to 'split' 2 Filesets, both should be returned
+        by the chgrp error
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        imagesFsOne = self.importMIF(2, client=client)
+        imagesFsTwo = self.importMIF(2, client=client)
+
+        # Lookup the filesets
+        qs = client.sf.getQueryService()
+        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
+        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
+
+        # chgrp should fail...
+        chgrp1 = omero.cmd.Chgrp(type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
+        chgrp2 = omero.cmd.Chgrp(type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
+        rsp = self.doAllChgrp([chgrp1,chgrp2], client, test_should_pass=False)
+
+        # ...due to the filesets
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 2, "chgrp should fail due to a Two Filesets")
+        self.assertTrue(filesetOneId in failedFilesets)
+        self.assertTrue(filesetTwoId in failedFilesets)
+
     """
     Simple example of the MIF chgrp good case:
     a single fileset containing 2 images in one dataset.
