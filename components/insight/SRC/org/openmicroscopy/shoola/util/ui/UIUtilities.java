@@ -788,7 +788,7 @@ public class UIUtilities
 	 *
 	 * @param srcFiles An array of filenames.
 	 * @param checksums Client-side calculated checksums.
-	 * @param failingChecksums A map of index to checksum indicating at witch
+	 * @param failingChecksums A map of index to checksum indicating at which
 	 *						   index of the checkum list a mismatch occurred.
 	 * @return
 	 */
