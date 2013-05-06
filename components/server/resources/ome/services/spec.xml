@@ -209,7 +209,7 @@
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
                 <value>/Image+Only</value>
-                <value>/Fileset;HARD;/Image</value>
+                <value>/Fileset;KEEP;/Image</value>
             </list>
         </constructor-arg>
     </bean>

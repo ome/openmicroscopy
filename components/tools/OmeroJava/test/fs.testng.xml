@@ -9,7 +9,24 @@
     <classes>
       <!-- Disabling until Colin has a chance to look at it.
       <class name="integration.DeleteServiceFilesTest"/>
+      <class name="integration.DeleteServicePermissionsTest"/>
+      <class name="integration.DeleteServiceTest"/>
+      <class name="integration.delete/AnnotationDeleteTest"/>
+      <class name="integration.delete/HierarchyDeleteTest"/>
+      <class name="integration.delete/RelatedToTest"/>
+      <class name="integration.delete/RoiDeleteTest"/>
+      <class name="integration.delete/SpwDeleteTest"/>
+      <class name="integration.chmod.RolesTest"/>
       -->
+      <class name="integration.chgrp.AnnotationMoveTest"/>
+      <class name="integration.chgrp.HierarchyMoveAndPermissionsTest"/>
+      <class name="integration.chgrp.HierarchyMoveCombinedDataTest"/>
+      <class name="integration.chgrp.HierarchyMoveDatasetTest"/>
+      <class name="integration.chgrp.HierarchyMoveImageWithAcquisitionDataTest"/>
+      <class name="integration.chgrp.HierarchyMoveImageWithRoiFromOtherUserTest"/>
+      <class name="integration.chgrp.HierarchyMoveImageWithRoiTest"/>
+      <class name="integration.chgrp.HierarchyMoveTest"/>
+      <class name="integration.chgrp.RenderingSettingsMoveTest"/>
       <class name="integration.ManagedRepositoryTest"/>
       <class name="integration.ImportLibraryTest"/>
     </classes>

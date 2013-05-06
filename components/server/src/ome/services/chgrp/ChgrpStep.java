@@ -9,8 +9,17 @@ package ome.services.chgrp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ome.model.IObject;
 import ome.services.graphs.AnnotationGraphSpec;
@@ -20,20 +29,11 @@ import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
-import ome.services.sharing.ShareBean;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
-import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action produced by {@link ChgrpStepFactory}
@@ -110,17 +110,24 @@ public class ChgrpStep extends GraphStep {
         // GroupA, i.e. all necessary objects were moved.
         int total = 0;
         Class<? extends IObject> x = iObjectType;
+        final Map<String, List<Long>> constraints =
+                new HashMap<String, List<Long>>();
         while (true) {
 
             final String[][] locks = em.getLockChecks(x);
 
             for (String[] lock : locks) {
-                Long bad = findImproperIncomingLinks(session, lock);
-                if (bad != null && bad > 0) {
+                List<Long> bad = findImproperIncomingLinks(session, lock);
+                if (bad != null && bad.size() > 0) {
                     log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
                             iObjectType.getSimpleName(), id, lock[0], lock[1],
-                            bad));
-                    total += bad;
+                            bad.size()));
+                    total += bad.size();
+                    if (constraints.containsKey(lock[0])) {
+                        constraints.get(lock[0]).addAll(bad);
+                    } else {
+                        constraints.put(lock[0], bad);
+                    }
                 }
             }
 
@@ -133,8 +140,8 @@ public class ChgrpStep extends GraphStep {
         }
 
         if (total > 0) {
-            throw new GraphException(String.format("%s:%s improperly linked by %s objects",
-                iObjectType.getSimpleName(), id, total));
+            throw new ChgrpGraphException(String.format("%s:%s improperly linked by %s objects",
+                iObjectType.getSimpleName(), id, total), constraints);
         }
 
 
@@ -144,22 +151,23 @@ public class ChgrpStep extends GraphStep {
         logResults(count);
     }
 
-    private Long findImproperIncomingLinks(Session session, String[] lock) {
+    @SuppressWarnings("unchecked")
+    private List<Long> findImproperIncomingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
-                "select count(*) from %s source where source.%s.id = ? and not " +
+                "select source.%s.id from %s source where source.%s.id = ? and not " +
                 "(source.details.group.id = ? OR source.details.group.id = ?)",
-                lock[0], lock[1]);
+                lock[1], lock[0], lock[1]);
 
         Query q = session.createQuery(str);
         q.setLong(0, id);
         q.setLong(1, grp);
         q.setLong(2, userGroup);
-        Long rv = (Long) q.list().get(0);
+        List<Long> rv = q.list();
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
-                    rv, str, id, grp, userGroup));
+                    rv.size(), str, id, grp, userGroup));
         }
 
         sw.stop("omero.chgrp.step." + lock[0] + "." + lock[1]);

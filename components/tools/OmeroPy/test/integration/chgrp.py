@@ -21,7 +21,7 @@ COLLAB = 'rwrw--'
 class TestChgrp(lib.ITest):
 
     def doAllChgrp(self, requests, client):
-        
+
         da = DoAll()
         da.requests = requests
         rsp = self.doSubmit(da, client)
@@ -69,14 +69,14 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
         admin = client.sf.getAdminService()
         first_gid = admin.getEventContext().groupId
-        
+
         # Create a dataset in the 'first group'
         ds = omero.model.DatasetI()
         ds.name = rstring("testChgrpImage_target")
         ds = update.saveAndReturnObject(ds)
         ds_id = ds.id.val
 
-        # Change our context to new group and create image 
+        # Change our context to new group and create image
         admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         update = client.sf.getUpdateService()   # do we need to get this again?
@@ -109,7 +109,7 @@ class TestChgrp(lib.ITest):
         l = client.sf.getQueryService().findByQuery(query, None)
         self.assertTrue(l is not None, "New DatasetImageLink on image not found")
         self.assertEqual(l.details.group.id.val, first_gid, "Link Created in same group as Image target")
-        
+
 
     def testChgrpPDI(self):
         """
@@ -161,7 +161,7 @@ class TestChgrp(lib.ITest):
     def testChgrpRdef7825(self):
 
         # One user in two groups
-        owner, owner_obj = self.new_client_and_user(perms="rwrw--")
+        owner, owner_obj = self.new_client_and_user(perms="rwra--")
         admin = owner.sf.getAdminService()
         ec = admin.getEventContext()
         source_grp = admin.getGroup(ec.groupId)
@@ -183,14 +183,17 @@ class TestChgrp(lib.ITest):
         def render(g):
             g.getObject("Image", image.id.val).getThumbnail()
         render(owner_g)
+        import pdb; pdb.set_trace()
         render(member_g)
+        import pdb; pdb.set_trace()
 
         # Now chgrp and try to delete
         chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
         self.doSubmit(chgrp, owner)
 
         # Shouldn't be necessary to change group, but we're gonna
-        owner_g.SERVICE_OPTS.setOmeroGroup("-1")
+        #owner_g.SERVICE_OPTS.setOmeroGroup("-1")
+        owner_g.SERVICE_OPTS.setOmeroGroup(str(target_gid))
         handle = owner_g.deleteObjects("/Image", [image.id.val])
         self.waitOnCmd(owner_g.c, handle)
 

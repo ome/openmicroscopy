@@ -45,6 +45,22 @@ module omero {
         };
 
         /**
+         * Returned when specifically a ome.services.chgrp.ChgrpGraphException
+         * is thrown. The contents of that internal exception are passed in
+         * this instance.
+         **/
+        class ChgrpERR extends ERR {
+
+            /**
+             * A container mapping from class names to collections of
+             * longs (ids) for each object which prevented the current
+             * operation from succeeding.
+             **/
+             omero::api::IdListMap constraints;
+
+        };
+
+        /**
          * Modifies the permissions settings for the given object.
          * Most permission modifications will be quite fast and will
          * specify this as returning a small number of steps in the
