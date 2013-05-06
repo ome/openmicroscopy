@@ -244,6 +244,14 @@ class TestChgrp(lib.ITest):
         chgrp2 = omero.cmd.Chgrp(type="/Image", id=images[1].id.val, grp=target_gid)
         self.doAllChgrp([chgrp1,chgrp2], client)
 
+        # Check both Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        for i in images:
+            image = queryService.get('Image', i.id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+
 
     def testBadCaseChgrpOneDataset(self):
         """
