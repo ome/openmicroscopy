@@ -2111,7 +2111,6 @@ def activities(request, conn=None, **kwargs):
                                 # If move has failed due to 'Filesets'
                                 if 'Fileset' in rsp.constraints:
                                     failed_filesets = rsp.constraints['Fileset']
-                                    print 'failed_filesets', failed_filesets
                                     # But, we don't know which of the Datasets / Images failed to move. Assume ALL?
                                     # We have this info from the job submission:
                                     dtype = callbackDict['dtype']
