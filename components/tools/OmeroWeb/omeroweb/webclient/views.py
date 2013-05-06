@@ -2145,6 +2145,22 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['derror'] = 0
                                 request.session['callback'][cbString]['status'] = "finished"
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+
+                            # Somehow we check if 'Fileset' returned...
+                            rsp = cb.getResponse()
+                            if False:       # E.g. if 'Fileset' in rsp.constraints:
+                                filesets = rsp.constraints['Fileset']   # list of Fileset IDs
+                                # get remaining images etc
+                                remaining_filesets = []
+                                for fset in conn.getObjects("Fileset", filesets):
+                                    remaining_iids = [i.id for i in fset.copyImages()]
+                                    fs_files = fset.listFiles()
+                                    totalSize = sum( [f.getSize() for f in fs_files] )
+                                    remaining_filesets.append( {'fsid':fset.id,
+                                            'remaining_iids': remaining_iids,
+                                            'fileCount': len(fs_files),
+                                            'totalSize': totalSize} )
+                                request.session['callback'][cbString]['remaining_filesets'] = remaining_filesets
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:

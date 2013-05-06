@@ -99,7 +99,7 @@
                                 {% endif %}
                             {% endifequal %}
                         </td>
-                        <td class="script_description">
+                        <td class="script_description" colspan="2">
                             {% if j.delmany %}
                                 <span class="activity_title">
                                     Delete {{ j.delmany }} {{ j.dtype }}s
@@ -126,9 +126,33 @@
                                 </span>
                             {% endif %}
 
-                        </td>
-                        <td class="results">
+                            {% if j.remaining_filesets %}
+                            <span class="message">
+                                {{ j.remaining_filesets|length }} Fileset{{ j.remaining_filesets|pluralize }} partially deleted.
+
+                                {% for fs in j.remaining_filesets %}
+                                <div>
+                                    <strong>{{ fs.fileCount }}</strong> files ({{ fs.totalSize|filesizeformat }}) still used by
+                                    <strong>{{ fs.remaining_iids|length }}</strong> image{{ fs.remaining_iids|pluralize }}
+                                </div>
+                                <div style="border: 1px solid #87ABD2; float: left">
+                                    {% for iid in fs.remaining_iids|slice:":5" %}
+                                        <a href="{% url webindex %}?show=image-{{ iid }}">
+                                            <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
+                                        </a>
+                                    {% endfor %}
+                                    {% if fs.remaining_iids|length > 5 %}
+                                        <div style="height:35px; float: left; line-height:65px"> ... </div>
+                                    {% endif %}
+                                </div>
+                                <div style="clear:both"></div>
+                                {% endfor %}
+                            </span>
+                            {% endif %}
+
+                            <div class="results">
                                 {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                            </div>
                         </td>
                     </tr>
                 {% endifequal %}
