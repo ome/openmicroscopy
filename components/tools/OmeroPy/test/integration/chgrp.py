@@ -225,36 +225,25 @@ class TestChgrp(lib.ITest):
         self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
 
 
-    """
-    Simple example of the MIF chgrp bad case:
-    a single fileset containing 2 images is split among 2 datasets.
-    Each sibling CANNOT be moved independently of the other.
-    but they can be moved to the same group together.
-    """
     def testBadCaseChgrpAllImages(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images
+        can be moved to the same group together.
+        """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
-        #admin.getEventContext()
         target_grp = self.new_group([user],perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBadCaseChgrpAllImages", client=client)
         images = self.importMIF(2, client=client)
-        for i in range(2):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i])
-            link.setChild(images[i])
-            link = update.saveAndReturnObject(link)
 
-        # Now chgrp
+        # chgrp should succeed
         chgrp1 = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Image", id=images[1].id.val, grp=target_gid)
         self.doAllChgrp([chgrp1,chgrp2], client)
 
-        # Is this case actually possible? Should the chgrp succeed?
-        # What do we need to assert here?
 
     """
     Simple example of the MIF chgrp bad case:
