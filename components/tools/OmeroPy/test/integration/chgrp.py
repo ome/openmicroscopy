@@ -282,17 +282,15 @@ class TestChgrp(lib.ITest):
         self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
 
 
-    """
-    Simple example of the MIF chgrp bad case:
-    a single fileset containing 2 images is split among 2 datasets.
-    Each dataset CANNOT be moved independently of the other,
-    but they can be moved to the same group together.
-    """
     def testBadCaseChgrpAllDatasets(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        a single fileset containing 2 images is split among 2 datasets.
+        Datasets can be moved to the same group together.
+        """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
-        #admin.getEventContext()
         target_grp = self.new_group([user],perms=PRIVATE)
         target_gid = target_grp.id.val
 
@@ -305,13 +303,20 @@ class TestChgrp(lib.ITest):
             link.setChild(images[i])
             link = update.saveAndReturnObject(link)
 
-        # Now chgrp
+        # Now chgrp, should succeed
         chgrp1 = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Dataset", id=datasets[1].id.val, grp=target_gid)
         self.doAllChgrp([chgrp1,chgrp2], client)
 
-        # The chgrp should fail.
-        # What do we need to assert here? Will an exception be raised?
+        # Check both Datasets and Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': str(target_gid)}      # query in the target group
+        for i in range(2):
+            dataset = queryService.get('Dataset', datasets[i].id.val, ctx)
+            image = queryService.get('Image', images[i].id.val, ctx)
+            self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
+            self.assertEqual(target_gid, image.details.group.id.val, "Image should be in group: %s" % target_gid)
+
 
     """
     Simple example of the MIF chgrp good case:
