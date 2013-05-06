@@ -318,16 +318,15 @@ class TestChgrp(lib.ITest):
             self.assertEqual(target_gid, image.details.group.id.val, "Image should be in group: %s" % target_gid)
 
 
-    """
-    Simple example of the MIF chgrp good case:
-    a single fileset containing 2 images in one dataset.
-    The dataset can be moved.
-    """
     def testGoodCaseChgrpDataset(self):
+        """
+        Simple example of the MIF chgrp good case:
+        a single fileset containing 2 images in one dataset.
+        The dataset can be moved.
+        """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
-        #admin.getEventContext()
         target_grp = self.new_group([user],perms=PRIVATE)
         target_gid = target_grp.id.val
 
@@ -342,12 +341,19 @@ class TestChgrp(lib.ITest):
             link.setChild(images[i])
             link = update.saveAndReturnObject(link)
 
-        # Now chgrp
+        # Now chgrp, should succeed
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
         self.doSubmit(chgrp, client)
 
-        # The chgrp should succeed.
-        # What do we need to assert here?
+        # Check Dataset and both Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        dataset = queryService.get('Dataset', ds.id.val, ctx)
+        self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
+        for i in range(2):
+            image = queryService.get('Image', images[i].id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
     """
     Simple example of the MIF chgrp good case:
