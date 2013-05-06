@@ -17,10 +17,18 @@
 
 package ome.services.blitz.repo;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.sift.SiftingAppender;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
+import ch.qos.logback.core.sift.AppenderTracker;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,7 +44,10 @@ import loci.formats.in.MIASReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
+import ome.api.IUpdate;
+import ome.api.IQuery;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.ImportConfig;
@@ -45,7 +56,10 @@ import ome.formats.importer.ImportSize;
 import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.util.ErrorHandler;
 import ome.io.nio.TileSizes;
+import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.fire.Registry;
+import ome.util.SqlAction;
 import ome.util.Utils;
 
 import omero.ServerError;
@@ -59,12 +73,14 @@ import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
 import omero.model.Annotation;
+import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -97,6 +113,10 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
     private final Registry reg;
 
     private final TileSizes sizes;
+
+    private final RepositoryDao dao;
+
+    private String logFilename;
 
     //
     // Import items. Initialized in init(Helper)
@@ -140,10 +160,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private List<Plate> plateList;
 
-    public ManagedImportRequestI(Registry reg, TileSizes sizes) {
+    public ManagedImportRequestI(Registry reg, TileSizes sizes, RepositoryDao dao, OMEROWrapper wrapper) {
         this.reg = reg;
         this.sizes = sizes;
-
+        this.dao = dao;
+		this.reader = wrapper;
     }
 
     //
@@ -166,8 +187,17 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw helper.cancel(new ERR(), null, "bad-location",
                     "location-type", location.getClass().getName());
         }
+        logFilename = ((ManagedImportLocationI) location).getLogFile().getFullFsPath();
+        MDC.put("fileset", logFilename);
 
         file = ((ManagedImportLocationI) location).getTarget();
+
+        try {
+            registerLogFile();
+        } catch (Throwable e) {
+            // Do we need to do more than this?
+            log.error("Failed to register log file:", e);
+        }
 
         try {
             sf = reg.getInternalServiceFactory(
@@ -218,6 +248,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw c;
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "error-on-init");
+        } finally {
+            MDC.clear();
         }
 
 
@@ -227,6 +259,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
      * Called during {@link #getResponse()}.
      */
     private void cleanup() {
+
+        MDC.put("fileset", logFilename);
         try {
             if (reader != null) {
                 reader.close();
@@ -248,11 +282,14 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         } catch (Throwable e) {
             log.error(e.toString()); // slf4j migration: toString()
         }
+        MDC.clear();
     }
 
     public Object step(int step) {
         helper.assertStep(step);
         try {
+            MDC.put("fileset", logFilename);
+            log.debug("Step "+step);
             Job j = activity.getChild();
             if (j == null) {
                 throw helper.cancel(new ERR(), null, "null-job");
@@ -264,6 +301,13 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (step == 0) {
                 return importMetadata((MetadataImportJob) j);
             } else if (step == 1) {
+                try {
+                    // This should be attached earlier.
+                    attachLogFile();
+                } catch (Throwable e) {
+                    // and if this fails what does it mean?
+                    log.error("Failed to attach log file", e);
+                }
                 return pixelData(null);//(ThumbnailGenerationJob) j);
             } else if (step == 2) {
                 return generateThumbnails(null);//(PixelDataJob) j); Nulls image
@@ -272,6 +316,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 store.launchProcessing();
                 return null;
             } else if (step == 4) {
+                updateLogFileSize();
                 return objects;
             } else {
                 throw helper.cancel(new ERR(), null, "bad-step",
@@ -309,6 +354,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                     fileName, new RuntimeException(t), usedFiles, format));
             throw helper.cancel(new ERR(), t, "import-request-failure");
+        } finally {
+            MDC.clear();
         }
     }
 
@@ -667,6 +714,46 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private void notifyObservers(Object...args) {
         // TEMPORARY REPLACEMENT. FIXME
+    }
+
+    private void registerLogFile() throws Exception {
+
+        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
+        ome.model.core.OriginalFile _logFile =
+                dao.register(repoUuid, checkedPath,
+                        "text/plain", helper.getServiceFactory(),
+                        helper.getSql());
+        logFile = new omero.model.OriginalFileI(_logFile.getId(), false);
+    }
+
+    private void attachLogFile() throws Exception {
+
+        final String LOG_FILE_NS =
+                omero.constants.namespaces.NSLOGFILE.value;
+
+        IUpdate iUpdate = helper.getServiceFactory().getUpdateService();
+
+        // use sf to get the services to link Fileset and the OriginalFile
+        FileAnnotation fa = new FileAnnotation();
+        fa.setNs(LOG_FILE_NS);
+        fa.setFile(new ome.model.core.OriginalFile(logFile.getId().getValue(), false));
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        long faid = fa.getId();
+
+        Fileset fs = activity.getParent();
+        FilesetAnnotationLink fsl = new FilesetAnnotationLink();
+        fsl.setChild(new FileAnnotation(faid, false));
+        fsl.setParent(new ome.model.fs.Fileset(fs.getId().getValue(), false));
+        ome.model.IObject[] links = {fsl};
+        iUpdate.saveAndReturnArray(links);
+    }
+
+    private void updateLogFileSize() throws Exception {
+        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
+        IQuery iQuery = helper.getServiceFactory().getQueryService();
+        ome.model.core.OriginalFile of = iQuery
+                .get(ome.model.core.OriginalFile.class, logFile.getId().getValue());
+        of.setSize(checkedPath.size());
     }
 
 }

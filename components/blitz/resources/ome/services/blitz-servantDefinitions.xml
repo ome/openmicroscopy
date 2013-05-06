@@ -357,6 +357,7 @@
     lazy-init="false">
      <constructor-arg ref="Registry"/>
      <constructor-arg ref="configuredTileSizes"/>
+     <constructor-arg ref="repositoryDao"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
 </beans>

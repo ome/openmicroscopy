@@ -28,6 +28,10 @@ import ome.io.nio.TileSizes;
 import ome.services.blitz.fire.Registry;
 import ome.system.OmeroContext;
 
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.OMEROWrapper;
+
+
 /**
  * Requests which are handled by the repository servants.
  */
@@ -38,11 +42,14 @@ public class RequestObjectFactoryRegistry extends
 
     private final TileSizes sizes;
 
+    private final RepositoryDao dao;
+
     private/* final */OmeroContext ctx;
 
-    public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes) {
+    public RequestObjectFactoryRegistry(Registry reg, TileSizes sizes, RepositoryDao repositoryDao) {
         this.reg = reg;
         this.sizes = sizes;
+        this.dao = repositoryDao;
     }
 
     public void setApplicationContext(ApplicationContext ctx)
@@ -56,7 +63,8 @@ public class RequestObjectFactoryRegistry extends
                 ManagedImportRequestI.ice_staticId()) {
             @Override
             public Ice.Object create(String name) {
-                return new ManagedImportRequestI(reg, sizes);
+                return new ManagedImportRequestI(reg, sizes, dao,
+                        new OMEROWrapper(new ImportConfig()));
             }
 
         });

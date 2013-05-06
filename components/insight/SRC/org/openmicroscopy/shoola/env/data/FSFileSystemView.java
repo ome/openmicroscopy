@@ -72,7 +72,7 @@ public class FSFileSystemView
 	/** Reference to the repositories. */
 	private Map<FileData, RepositoryPrx> repositories;
 	
-	/** The id of the user the directory structure if for. */ 
+	/** The id of the user the directory structure is for. */ 
 	private long userID;
 	
 	/** Default configuration. */

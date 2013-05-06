@@ -27,8 +27,10 @@
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency org="ome" name="specification" rev="${omero.version}" changing="true" conf="build->build"/>
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
+    <dependency org="ome" name="bio-formats" rev="${omero.version}" changing="true" conf="build,client->build">
+        <artifact name="specification"/>
+    </dependency>
   </dependencies>
 </ivy-module>
 

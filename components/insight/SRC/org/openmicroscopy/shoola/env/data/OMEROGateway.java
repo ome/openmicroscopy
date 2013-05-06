@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -470,7 +471,6 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			isNetworkUp();
-			connected = true;
 			c.ping();
 		} catch (Exception e) {
 			handleConnectionException(e);
@@ -941,7 +941,7 @@ class OMEROGateway
 			reconnecting = false;
 			return false;
 		}
-		if (networkup) return true;
+		//if (networkup) return true;
 		ConnectionExceptionHandler handler = new ConnectionExceptionHandler();
 		int index = handler.handleConnectionException(e);
 		if (index < 0) return true;
@@ -2156,7 +2156,6 @@ class OMEROGateway
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		connectors = new ArrayList<Connector>();
-		networkChecker = new NetworkChecker();
 	}
 	
 	/**
@@ -2316,12 +2315,15 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 * @param name  The user's name.
+	 * @param connectionError Pass <code>true</code> to handle the connection 
+	 * error, <code>false</code> otherwise.
 	 * @return The {@link ExperimenterData} of the current user.
 	 * @throws DSOutOfServiceException If the connection is broken, or
 	 * logged in.
 	 * @see IPojosPrx#getUserDetails(Set, Map)
 	 */
-	ExperimenterData getUserDetails(SecurityContext ctx, String name)
+	ExperimenterData getUserDetails(SecurityContext ctx, String name,
+			boolean connectionError)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
@@ -2330,7 +2332,7 @@ class OMEROGateway
 			return (ExperimenterData) 
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
-			handleConnectionException(e);
+			if (connectionError) handleConnectionException(e);
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
 		}
@@ -2382,6 +2384,14 @@ class OMEROGateway
 			secureClient.setAgent(agentName);
 			entryEncrypted = secureClient.createSession(userName, password);
 			serverVersion = getConfigService().getVersion();
+			String ip = null;
+	        try {
+				ip = InetAddress.getByName(hostName).getHostAddress();
+			} catch (Exception e) {
+				//ignore
+			}
+
+			networkChecker = new NetworkChecker(ip);
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
@@ -2442,7 +2452,7 @@ class OMEROGateway
 					connector = new Connector(ctx, secureClient, entryEncrypted,
 							encrypted);
 					connectors.add(connector);
-					exp = getUserDetails(ctx, userName);
+					exp = getUserDetails(ctx, userName, true);
 				} catch (Exception e) {
 				}
 			}
@@ -2630,16 +2640,13 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		connected = false;
-		clear();
-		
-		Iterator<Connector> i;
-		try {
-			i = connectors.iterator();
-			while (i.hasNext()) {
+		Iterator<Connector> i = connectors.iterator();
+		while (i.hasNext()) {
+			try {
 				i.next().close(networkup);
+			} catch (Throwable t) {
+				//no need to handle exception.
 			}
-		} catch (Throwable t) {
-			connected = false;
 		}
 		if (!networkup) return false;
 		if (connected) return connected;
@@ -4434,14 +4441,14 @@ class OMEROGateway
 			stream.close();
 			OriginalFile f = store.save();
 			closeService(ctx, store);
-			if (f != null) { //happens when the file is of size = 0
+			if (f != null) {
 				save = f;
 				final String clientHash = hasher.checksumAsString();
 				final String serverHash = save.getHash().getValue();
 				if (!clientHash.equals(serverHash)) {
-				    throw new ImportException("file checksum mismatch on" +
+				    throw new ImportException("file checksum mismatch on " +
 				    		"upload: " + file +
-				            " (client has " + clientHash + "," +
+				            " (client has " + clientHash + ", " +
 				            		"server has " + serverHash + ")");
 				}
 			}

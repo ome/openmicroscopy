@@ -53,8 +53,8 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
-import spec.SchemaResolver;
-import spec.OmeValidator;
+import ome.specification.SchemaResolver;
+import ome.specification.OmeValidator;
 
 /** 
  * Collections of tests for the <code>Exporter</code> service.

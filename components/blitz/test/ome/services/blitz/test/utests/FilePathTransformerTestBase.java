@@ -21,12 +21,18 @@ package ome.services.blitz.test.utests;
 
 import java.io.File;
 
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
+
 /**
  * Utility functions for file path transformer testing.
  * @author m.t.b.carroll@dundee.ac.uk
  * @since 5.0
  */
 public class FilePathTransformerTestBase {
+    protected final FilePathRestrictions conservativeRules =
+            FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
+
     /**
      * Get the absolute path of the root directory above the current directory.
      * Assumes that the current directory is named <q><code>.</code></q>.

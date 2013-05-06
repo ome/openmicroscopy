@@ -17,7 +17,6 @@ from omero.util import tail_lines
 from omero_ext.strings import shlex
 from omero.plugins.admin import AdminControl
 import re, os, sys, signal
-from exceptions import Exception as Exc
 from path import path
 
 HELP = """Control icegridnode.
@@ -72,7 +71,7 @@ class NodeControl(BaseControl):
                 self.ctx.call(command)
         except OSError, o:
                 msg = """%s\nPossibly an error finding "icegridnode". Try "icegridnode -h" from the command line.""" % o
-                raise Exc(msg)
+                raise Exception(msg)
         except NonZeroReturnCode, nzrc:
                 self._handleNZRC(nzrc)
 

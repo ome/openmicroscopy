@@ -28,12 +28,15 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -47,6 +50,8 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
@@ -128,17 +133,33 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
 
     protected final omero.model.ChecksumAlgorithm checksumAlgorithm;
 
+    protected /*final*/ FilePathRestrictions filePathRestrictions;
+
     protected OmeroContext context;
 
     private String repoUuid;
 
     public PublicRepositoryI(RepositoryDao repositoryDao,
             ChecksumProviderFactory checksumProviderFactory,
-            omero.model.ChecksumAlgorithm checksumAlgorithm) throws Exception {
+            omero.model.ChecksumAlgorithm checksumAlgorithm,
+            String pathRules) throws Exception {
         this.repositoryDao = repositoryDao;
         this.checksumProviderFactory = checksumProviderFactory;
         this.checksumAlgorithm = checksumAlgorithm;
         this.repoUuid = null;
+
+        final Set<String> terms = new HashSet<String>();
+        for (final String term : pathRules.split(",")) {
+            if (StringUtils.isNotBlank(term)) {
+                terms.add(term.trim());
+            }
+        }
+        final String[] termArray = terms.toArray(new String[terms.size()]);
+        try {
+            this.filePathRestrictions = FilePathRestrictionInstance.getFilePathRestrictions(termArray);
+        } catch (NullPointerException e) {
+            throw new ServerError(null, null, "unknown rule set named in: " + pathRules);
+        }
     }
 
     /**
@@ -156,7 +177,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         this.repoUuid = repoUuid;
         this.serverPaths = new ServerFilePathTransformer();
         this.serverPaths.setBaseDirFile(root);
-        this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
+        this.serverPaths.setPathSanitizer(new MakePathComponentSafe(this.filePathRestrictions));
     }
 
     /**

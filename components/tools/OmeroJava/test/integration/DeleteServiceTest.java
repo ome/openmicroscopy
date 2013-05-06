@@ -123,8 +123,8 @@ import org.testng.annotations.Test;
 
 import pojos.FileAnnotationData;
 
-import spec.XMLMockObjects;
-import spec.XMLWriter;
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
 
 /** 
  * Collections of tests for the <code>Delete</code> service.

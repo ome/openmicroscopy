@@ -12,7 +12,6 @@
 """
 
 from omero.cli import BaseControl, CLI
-import exceptions
 import cmd
 import time
 import cmd

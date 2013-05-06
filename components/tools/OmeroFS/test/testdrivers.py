@@ -10,7 +10,6 @@
 
 """
 
-import exceptions
 import logging
 import os
 import threading

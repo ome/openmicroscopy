@@ -34,7 +34,6 @@ import omero
 import omero.config
 import omero.clients
 import tempfile
-import exceptions
 import re
 
 from django.utils import simplejson as json
@@ -197,7 +196,7 @@ def remove_slash(s):
             s = s[:-1]
     return s
 
-class LeaveUnset(exceptions.Exception):
+class LeaveUnset(Exception):
     pass
 
 def leave_none_unset(s):

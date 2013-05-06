@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
@@ -60,7 +61,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
     @BeforeClass
     public void setup() throws IOException {
         this.tempDir = tempFileManager.createPath("unit-test",  null,  true);
-        final Function<String, String> transformer = new MakePathComponentSafe();
+        final Function<String, String> transformer = new MakePathComponentSafe(this.conservativeRules);
         this.fpts = new ServerFilePathTransformer();
         this.fpts.setPathSanitizer(transformer);
         this.fpts.setBaseDirFile(this.tempDir);
@@ -115,7 +116,7 @@ public class ServerFilePathTransformerTest extends FilePathTransformerTestBase {
      */
     @Test
     public void testClientPathSafety() throws IOException {
-        testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/.[]._", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>.");
+        testClientPath("C;/Foo1._/_nUl.txt/coM5_/_$bar/_.[]._", "C:", "Foo1.", "nUl.txt", "coM5", "$bar", ".<>.");
     }
     
     /**
