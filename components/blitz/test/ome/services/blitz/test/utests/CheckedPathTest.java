@@ -3,6 +3,8 @@ package ome.services.blitz.test.utests;
 import java.io.File;
 
 import ome.services.blitz.repo.CheckedPath;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import omero.ValidationException;
@@ -13,8 +15,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@Test
+@Test(groups = { "fs" })
 public class CheckedPathTest {
+    private final FilePathRestrictions conservativeRules =
+            FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
 
     File dir;
     CheckedPath root;
@@ -25,7 +29,7 @@ public class CheckedPathTest {
         this.dir = TempFileManager.create_path("repo", "test", true);
         this.serverPaths = new ServerFilePathTransformer();
         this.serverPaths.setBaseDirFile(this.dir);
-        this.serverPaths.setPathSanitizer(new MakePathComponentSafe());
+        this.serverPaths.setPathSanitizer(new MakePathComponentSafe(this.conservativeRules));
     }
 
     @Test

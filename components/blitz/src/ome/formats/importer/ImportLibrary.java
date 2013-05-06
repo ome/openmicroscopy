@@ -28,6 +28,8 @@ import loci.formats.FormatReader;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import ome.util.checksum.ChecksumProvider;
@@ -84,10 +86,6 @@ public class ImportLibrary implements IObservable
 
     /** The class used to identify the screen target.*/
     private static final String SCREEN_CLASS = "omero.model.Screen";
-
-    /* adjusts file paths to the format required by managed repository */
-    private static final ClientFilePathTransformer sanitizer = 
-            new ClientFilePathTransformer(new MakePathComponentSafe());
 
     /* checksum provider factory for verifying file integrity in upload */
     private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
@@ -219,6 +217,12 @@ public class ImportLibrary implements IObservable
                 log.debug(f);
             }
         }
+
+        // TODO: allow looser sanitization according to server configuration
+        final FilePathRestrictions portableRequiredRules =
+                FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.WINDOWS_REQUIRED,
+                                                                    FilePathRestrictionInstance.UNIX_REQUIRED);
+        final ClientFilePathTransformer sanitizer = new ClientFilePathTransformer(new MakePathComponentSafe(portableRequiredRules));
 
         final ImportSettings settings = new ImportSettings();
         // TODO: here or on container.fillData, we need to
