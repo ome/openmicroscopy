@@ -209,7 +209,7 @@
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
                 <value>/Image+Only</value>
-                <value>/Fileset;KEEP;/Image</value>
+                <value>/Fileset;SOFT;/Image</value>
             </list>
         </constructor-arg>
     </bean>
@@ -408,8 +408,6 @@
     <bean parent="graphSpec" name="/Fileset">
         <constructor-arg>
             <list>
-                <value>/Image+FS;HARD;/Fileset</value>
-                <!-- How to delete Plate -->
                 <value>/Fileset/FilesetEntry</value>
                 <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
                 <value>/Fileset/FilesetJobLink</value>
