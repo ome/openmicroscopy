@@ -8377,31 +8377,6 @@ class OMEROGateway
 		}
 		return -1;
 	}
-	
-	/**
-	 * Returns the specified script.
-	 * 
-	 * @param ctx The security context.
-	 * @param commands The object to delete.
-	 * @return See above.
-	 * @throws ProcessException If an error occurred while running the script.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
-	 */
-	RequestCallback deleteObject(SecurityContext ctx, Delete[] commands)
-		throws ProcessException, DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive(ctx);
-		try {
-	         Connector c = getConnector(ctx);
-	         return c.submit(Arrays.<Request>asList(commands), ctx);
-		} catch (Throwable e) {
-		 	handleException(e, "Cannot delete the specified objects.");
-			// Never reached
-			throw new ProcessException("Cannot delete the specified objects.",
-					e);
-		}
-	}
 
 	/**
 	 * Returns the back-off time if it requires a pyramid to be built, 

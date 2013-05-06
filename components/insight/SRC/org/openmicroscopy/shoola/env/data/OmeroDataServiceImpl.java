@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +42,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import omero.cmd.Delete;
+import omero.cmd.Request;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Dataset;
@@ -793,7 +795,7 @@ class OmeroDataServiceImpl
 		}
 		if (l.size() == 0) return null;
 		i = l.iterator();
-		List<Delete> commands = new ArrayList<Delete>();
+		List<Request> commands = new ArrayList<Request>();
 		Delete cmd;
 		Map<String, String> options;
 		DataObject data;
@@ -905,8 +907,7 @@ class OmeroDataServiceImpl
 				}
 			}
 		}
-		return gateway.deleteObject(ctx,
-				commands.toArray(new Delete[] {}));
+		return gateway.submit(commands, ctx);
 	}
 
 	/**
