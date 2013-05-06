@@ -187,7 +187,7 @@ public class ImporterTest
 		assertEquals(objective.getLensNA().getValue(),
 				xml.getLensNA().doubleValue());
 		assertEquals(objective.getNominalMagnification().getValue(),
-				xml.getNominalMagnification().getValue().doubleValue());
+				xml.getNominalMagnification());
 		assertEquals(objective.getWorkingDistance().getValue(), 
 				xml.getWorkingDistance());
 	}
