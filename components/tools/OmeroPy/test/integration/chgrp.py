@@ -20,11 +20,12 @@ COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
 
-    def doAllChgrp(self, requests, client):
+    def doAllChgrp(self, requests, client, test_should_pass=False):
         
         da = DoAll()
         da.requests = requests
-        rsp = self.doSubmit(da, client)
+        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
+        return rsp
 
     def testChgrpImportedImage(self):
         """
