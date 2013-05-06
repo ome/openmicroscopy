@@ -8744,4 +8744,29 @@ class OMEROGateway
 		return new HashMap<Long, Collection<AnnotationData>>();
 	}
 	
+	/**
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @param ctx The security context.
+	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 *  @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	RequestCallback submit(List<Request> commands, SecurityContext ctx)
+		throws ProcessException, DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null) return null;
+			return c.submit(commands, ctx);
+		} catch (Throwable e) {
+			handleException(e, "Cannot execute the command.");
+			// Never reached
+			throw new ProcessException("Cannot execute the command.", e);
+		}
+	}
 }
