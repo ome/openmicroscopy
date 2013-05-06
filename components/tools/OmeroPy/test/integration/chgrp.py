@@ -195,35 +195,35 @@ class TestChgrp(lib.ITest):
         self.waitOnCmd(owner_g.c, handle)
 
 
-
-    """
-    Simple example of the MIF chgrp bad case:
-    a single fileset containing 2 images is split among 2 datasets.
-    Each sibling CANNOT be moved independently of the other.
-    """
     def testBadCaseChgrpOneImage(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images - we try to chgrp ONE image.
+        Each sibling CANNOT be moved independently of the other.
+        """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
-        #admin.getEventContext()
         target_grp = self.new_group([user],perms=PRIVATE)
         target_gid = target_grp.id.val
 
-        update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBadCaseChgrpOmeImage", client=client)
+        # 2 images sharing a fileset
         images = self.importMIF(2, client=client)
-        for i in range(2):
-            link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i])
-            link.setChild(images[i])
-            link = update.saveAndReturnObject(link)
+
+        # Lookup the fileset
+        img = client.sf.getQueryService().get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
 
         # Now chgrp
         chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
-        self.doSubmit(chgrp, client)
+        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
 
-        # The chgrp should fail.
-        # What do we need to assert here? Will an exception be raised?
+        # The chgrp should fail due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+
 
     """
     Simple example of the MIF chgrp bad case:
