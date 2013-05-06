@@ -621,7 +621,7 @@ class ITest(unittest.TestCase):
             self.assertFalse(State.FAILURE in prx.getStatus().flags)
         else:
             if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s", rsp)
+                self.fail("Found OK when test_should_pass==false: %s" % rsp)
             self.assertTrue(State.FAILURE in prx.getStatus().flags)
 
         return rsp
