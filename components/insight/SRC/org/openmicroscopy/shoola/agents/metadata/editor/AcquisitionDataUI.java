@@ -636,12 +636,10 @@ class AcquisitionDataUI
 			controller.loadInstrumentData();
 		} else if (src == originalMetadataPane) {
 			if (MetadataViewerAgent.isBinaryAvailable()) {
-				FileAnnotationData f = model.getOriginalMetadata();
-				//make sure we only download it once.
-				if (f != null && !originalMetadata.isMetadataLoaded())
-					model.loadFile(f, originalMetadata);
-				else if (f == null)
-					originalMetadataPane.setCollapsed(true);
+				if (model.hasOriginalMetadata() && model.getImage() != null) {
+					if (!originalMetadata.isMetadataLoaded())
+						model.loadOriginalMetadata(originalMetadata);
+				} else originalMetadataPane.setCollapsed(true);
 			}
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);

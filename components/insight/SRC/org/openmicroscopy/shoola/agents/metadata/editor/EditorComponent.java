@@ -735,8 +735,8 @@ class EditorComponent
 	 */
 	public void setLoadedFile(FileAnnotationData data, File file, Object uiView)
 	{
-		if (file == null) return;
 		if (uiView instanceof DocComponent) {
+			if (file == null) return;
 			DocComponent doc = (DocComponent) uiView;
 			if (doc.getData() == data) {
 				doc.setThumbnail(file.getAbsolutePath());

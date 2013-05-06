@@ -352,6 +352,15 @@ class OriginalMetadataComponent
 	void setOriginalFile(File file)
 	{
 		metadataLoaded = true;
+		if (file == null) {
+			JLabel l = new JLabel("Metadata could not be retrieved.");
+			l.setBackground(UIUtilities.BACKGROUND_COLOR);
+			statusBar = UIUtilities.buildComponentPanel(l);
+			statusBar.setBackground(UIUtilities.BACKGROUND_COLOR);
+			removeAll();
+			add(statusBar, BorderLayout.NORTH);
+			return;
+		}
 		try {
 			BufferedReader input = new BufferedReader(new FileReader(file));
 			Map<String, List<String>> components = 
@@ -381,11 +390,13 @@ class OriginalMetadataComponent
 			} finally {
 				input.close();
 			}
+			file.delete();
 		} catch (IOException e) {
 			file.delete();
 			JLabel l = new JLabel("Loading metadata");
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
 			statusBar = UIUtilities.buildComponentPanel(l);
+			statusBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			removeAll();
 			add(statusBar, BorderLayout.NORTH);
 			Logger logger = MetadataViewerAgent.getRegistry().getLogger();
