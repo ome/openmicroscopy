@@ -245,16 +245,16 @@ class TestChgrp(lib.ITest):
         self.doAllChgrp([chgrp1,chgrp2], client)
 
 
-    """
-    Simple example of the MIF chgrp bad case:
-    a single fileset containing 2 images is split among 2 datasets.
-    Each dataset CANNOT be moved independently of the other.
-    """
     def testBadCaseChgrpOneDataset(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images is split among 2 datasets.
+        We try to chgrp ONE Dataset.
+        Each dataset CANNOT be moved independently of the other.
+        """
         # One user in two groups
         client, user = self.new_client_and_user(perms=PRIVATE)
         admin = client.sf.getAdminService()
-        #admin.getEventContext()
         target_grp = self.new_group([user],perms=PRIVATE)
         target_gid = target_grp.id.val
 
@@ -267,12 +267,20 @@ class TestChgrp(lib.ITest):
             link.setChild(images[i])
             link = update.saveAndReturnObject(link)
 
-        # Now chgrp
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        self.doSubmit(chgrp, client)
+        # Lookup the fileset
+        img = client.sf.getQueryService().get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
 
-        # The chgrp should fail.
-        # What do we need to assert here? Will an exception be raised?
+        # chgrp should fail...
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
+        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+
+        # ...due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+
 
     """
     Simple example of the MIF chgrp bad case:
