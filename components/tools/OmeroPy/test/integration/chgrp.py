@@ -20,7 +20,7 @@ COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
 
-    def doAllChgrp(self, requests, client, test_should_pass=False):
+    def doAllChgrp(self, requests, client, test_should_pass=True):
         
         da = DoAll()
         da.requests = requests
