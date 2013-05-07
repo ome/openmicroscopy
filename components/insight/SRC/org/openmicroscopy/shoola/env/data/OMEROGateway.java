@@ -4041,9 +4041,11 @@ class OMEROGateway
 			if (file.isDirectory()) folderPath = file.getAbsolutePath();
 			else folderPath = file.getParent();
 		}
+
+		i = files.iterator();
+		store = getRawFileService(ctx);
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
-			store = getRawFileService(ctx);
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
@@ -4086,8 +4088,8 @@ class OMEROGateway
 				throw new DSAccessException("Cannot create file in folderPath",
 						e);
 			}
-			closeService(ctx, store);
 		}
+		closeService(ctx, store);
 		result.put(Boolean.valueOf(true), results);
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
