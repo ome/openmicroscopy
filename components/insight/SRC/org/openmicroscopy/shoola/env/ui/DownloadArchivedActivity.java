@@ -142,8 +142,10 @@ public class DownloadArchivedActivity
 				File location = parameters.getLocation();
 				if (!location.isDirectory())
 					location = location.getParentFile();
-				File zipFolder = new File(location,
-				FilenameUtils.removeExtension(parameters.getImage().getName()));
+				String name = FilenameUtils.getName(
+						parameters.getImage().getName());
+				name = FilenameUtils.removeExtension(name);
+				File zipFolder = new File(location, name);
 				zipFolder.mkdir();
 				//copy file into the directory
 				Iterator<File> j = files.iterator();
