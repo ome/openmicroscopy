@@ -309,7 +309,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     @Test
     public void testExpandTemplateDay() {
         newEventContext();
-        String expected = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+        String expected = String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
         String actual = this.tmri.expandTemplate("%day%", curr);
         Assert.assertEquals(expected, actual);
     }
