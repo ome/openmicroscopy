@@ -262,7 +262,7 @@ public class OMEROMetadataStoreClient
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
 
-    private List<Pixels> pixelsList;
+    private OMEROMetadataStoreClientRoot pixelsList;
 
     private boolean encryptedConnection = false;
 
@@ -1088,7 +1088,7 @@ public class OMEROMetadataStoreClient
      */
     public MetadataRoot getRoot()
     {
-        return null;
+        return pixelsList;
     }
 
     /**
@@ -1702,7 +1702,7 @@ public class OMEROMetadataStoreClient
             delegate.updateObjects(containerArray);
             delegate.updateReferences(referenceStringCache);
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
-            pixelsList = (List) rv.get("Pixels");
+            pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
 
             if (log.isDebugEnabled())
             {
