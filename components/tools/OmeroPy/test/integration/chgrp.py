@@ -139,8 +139,8 @@ class TestChgrp(lib.ITest):
         link.setParent(dataset)
         links.append(link)
         l = omero.model.ProjectDatasetLinkI()
-        l.setChild(dataset)
-        l.setParent(project)
+        l.setChild(dataset.proxy())
+        l.setParent(project.proxy())
         links.append(l)
         update.saveAndReturnArray(links)
 
@@ -272,8 +272,8 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i])
-            link.setChild(images[i])
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
         # Lookup the fileset
@@ -308,8 +308,8 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
-            link.setParent(datasets[i])
-            link.setChild(images[i])
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
@@ -346,8 +346,8 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
-            link.setParent(ds)
-            link.setChild(images[i])
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
             link = update.saveAndReturnObject(link)
 
         # Now chgrp, should succeed
@@ -418,8 +418,8 @@ class TestChgrp(lib.ITest):
         images = self.importMIF(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
             link = omero.model.DatasetImageLinkI()
-            link.setParent(ds)
-            link.setChild(i[0])
+            link.setParent(ds.proxy())
+            link.setChild(i[0].proxy())
             link = update.saveAndReturnObject(link)
 
         # Lookup the filesets
