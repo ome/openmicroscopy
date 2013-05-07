@@ -79,12 +79,12 @@ public class DownloadArchivedActivity
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+	 * @param viewer The viewer this data loader is for.
+	 * Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-	 * @param parameters    The object hosting information about the 
-	 * 						archived image.
+	 * @param parameters The object hosting information about the original
+	 * image.
 	 */
 	DownloadArchivedActivity(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, DownloadArchivedActivityParam parameters) 
