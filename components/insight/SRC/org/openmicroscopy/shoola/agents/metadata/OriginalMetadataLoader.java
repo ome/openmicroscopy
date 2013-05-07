@@ -30,11 +30,15 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.cmd.OriginalMetadataResponse;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.OriginalMetadataParser;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
 
 /**
  * Loads the original metadata read directly from the file.
@@ -58,7 +62,17 @@ public class OriginalMetadataLoader
 
     /** The absolute of the new file. */
 	private File file;
-	
+
+    /**
+     * Notifies the user that it was not possible to retrieve the data.
+     */
+    private void onNullResult()
+    {
+    	super.handleNullResult();
+    	file.delete();
+    	viewer.setLoadedFile(null, null, uiView);
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -73,7 +87,8 @@ public class OriginalMetadataLoader
 		super(viewer, ctx);
 		this.uiView = uiView;
 		this.imageID = imageID;
-		file = new File(MetadataViewerAgent.getTmpDir(), "image_"+imageID);
+		file = new File(MetadataViewerAgent.getTmpDir(), "image_"+imageID+
+				"."+TEXTFilter.TEXT);
 		file.deleteOnExit();
 	}
 	
@@ -95,20 +110,45 @@ public class OriginalMetadataLoader
     
     /**
      * Notifies the user that it was not possible to retrieve the data.
+     * Does nothing.
      */
-    public void handleNullResult() 
+    public void handleNullResult() {}
+
+    /** 
+     * Sets the adapter.
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe)
     {
-    	super.handleNullResult();
-    	file.delete();
-    	viewer.setLoadedFile(null, null, uiView);
+    	Object o = fe.getPartialResult();
+        if (o != null) {
+        	if (o instanceof Boolean) {
+        		Boolean b = (Boolean) o;
+        		if (!b) onNullResult();
+        	} else {
+        		RequestCallback callBack = (RequestCallback) o;
+            	callBack.setAdapter(this);
+        	}
+        }
     }
     
     /**
      * Feeds the result back to the viewer.
      * @see EditorLoader#handleResult(Object)
      */
-    public void handleResult(Object result) 
+    public void handleResult(Object result)
     {
-    	viewer.setLoadedFile(null, file, uiView);
+    	if (result instanceof Boolean) {
+    		boolean b = ((Boolean) result).booleanValue();
+    		if (!b) onNullResult();
+    	} else if (result instanceof OriginalMetadataResponse) {
+    		OriginalMetadataParser parser = new OriginalMetadataParser(file);
+        	try {
+        		parser.read((OriginalMetadataResponse) result, "=");
+        		viewer.setLoadedFile(null, file, uiView);
+    		} catch (Exception e) {
+    			onNullResult();
+    		}
+    	}
     }
 }

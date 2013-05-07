@@ -42,6 +42,8 @@ import java.util.Map.Entry;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
+import omero.cmd.OriginalMetadataRequest;
+import omero.cmd.Request;
 import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.Channel;
@@ -2173,30 +2175,14 @@ class OmeroMetadataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#downloadMetadataFile(SecurityContext, File, long)
 	 */
-	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
-			throws DSOutOfServiceException, DSAccessException
+	public RequestCallback downloadMetadataFile(SecurityContext ctx,
+			File file, long id)
+			throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
 		//Get the file annotation
 		if (id < 0) return null;
-		List<Class> types = new ArrayList<Class>();
-		types.add(FileAnnotationData.class);
-		Map map = gateway.loadAnnotations(ctx, ImageData.class,
-				Arrays.asList(id), types, null, new Parameters());
-		if (map == null || map.size() == 0) return null;
-		Collection values = (Collection) map.get(id);
-		if (values == null || values.size() == 0) return null;
-		Iterator i = values.iterator();
-		FileAnnotationData fa;
-		long fileID = -1;
-		while (i.hasNext()) {
-			fa = (FileAnnotationData) i.next();
-			if (FileAnnotationData.ORIGINAL_METADATA_NAME.equals(
-					fa.getFileName())) {
-				fileID = fa.getFileID();
-				break;
-			}
-		}
-		if (fileID < 0) return null;
-		return downloadFile(ctx, file, fileID);
+		OriginalMetadataRequest cmd = new OriginalMetadataRequest();
+		cmd.imageId = id;
+		return gateway.submit(Arrays.<Request>asList(cmd), ctx);
 	}
 }

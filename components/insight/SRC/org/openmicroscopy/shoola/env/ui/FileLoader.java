@@ -29,7 +29,11 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.cmd.OriginalMetadataResponse;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.OriginalMetadataParser;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
@@ -182,6 +186,23 @@ public class FileLoader
     }
     
     /** 
+     * Sets the adapter.
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe)
+    {
+    	Object o = fe.getPartialResult();
+        if (o != null) {
+        	if (o instanceof Boolean) {
+        		handleNullResult();
+        	} else {
+        		RequestCallback callBack = (RequestCallback) o;
+            	callBack.setAdapter(this);
+        	}
+        }
+    }
+    
+    /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)
      */
@@ -189,6 +210,16 @@ public class FileLoader
     {
     	if (result == null) onException(MESSAGE_RESULT, null);
     	else {
+    		if (index == METADATA_FROM_IMAGE) {
+    			OriginalMetadataParser parser =
+    					new OriginalMetadataParser(file);
+    	    	try {
+    	    		parser.read((OriginalMetadataResponse) result);
+    			} catch (Exception e) {
+    				onException(MESSAGE_RESULT, null);
+    				return;
+    			}
+    		}
     		if (activity != null) activity.endActivity(result);
     	}
     }
