@@ -209,39 +209,6 @@
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
                 <value>/Image+Only</value>
-                <value>/Fileset;SOFT;/Image</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="graphSpec" name="/Image+WS">
-        <description>
-        Just like /Image but for use within the /Well spec
-        since this is part of a loop: Image->Fileset->Plate->...->Image
-        It does *not* contain a fileset link itself.
-
-        Assuming you're deleting via /Plate, a link to /Fileset in
-        /Plate will take care of the other objects.
-        </description>
-        <constructor-arg>
-            <list>
-                <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image+Only</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="graphSpec" name="/Image+FS">
-        <description>
-        Just like /Image but for use within the /Fileset spec
-        since this represents a loop: Image->Fileset->Plate->...->Image
-        It does *not* contain a fileset link itself.
-        </description>
-        <constructor-arg>
-            <list>
-                <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image+Only</value>
-                <!-- Missing /Fileset here -->
             </list>
         </constructor-arg>
     </bean>
@@ -276,6 +243,10 @@
                 <value>/Image/StageLabel</value>
                 <value>/Experiment;SOFT;/Image</value>
                 <value>/Instrument;SOFT;/Image</value>
+                <!-- If this is the only image in the fileset, then
+                     this entry should suffice. For multi-image filesets,
+                     an extra-step will be required. -->
+                <value>/Fileset;SOFT;/Image</value>
             </list>
         </constructor-arg>
     </bean>
@@ -293,7 +264,7 @@
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image+FS;SOFT;/Dataset/DatasetImageLink</value>
+                <value>/Image;SOFT;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
