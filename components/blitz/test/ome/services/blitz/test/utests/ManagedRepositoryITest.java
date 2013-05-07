@@ -63,28 +63,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
     }
 
-    private static class StringReprContains implements Constraint {
-        final String containedString;
-
-        StringReprContains(String containedString) {
-            this.containedString = containedString;
-        }
-
-        public StringBuffer describeTo(StringBuffer arg0) {
-            arg0.append("toString contains ");
-            arg0.append(containedString);
-            return arg0;
-        }
-
-        public boolean eval(Object arg0) {
-            if (arg0 == null) {
-                return containedString == null;
-            }
-            return arg0.toString().contains(containedString);
-        }
-
-    }
-
     Mock daoMock;
 
     /**
@@ -191,14 +169,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         return new File(l.sharedPath).getName();
     }
 
-    private void assertReturnFile(String checkedPathString, Long id) {
-        OriginalFile of = new OriginalFileI(id, false);
-        daoMock.expects(once()).method("register")
-            .with(ANYTHING /*uuid*/, new StringReprContains(checkedPathString),
-                    eq("Directory"), ANYTHING)
-            .will(returnValue(of));
-    }
-
     private void assertCreateOrFixUserDir() {
         final IsEqual isUuid = eq(TestManagedRepositoryI.UUID);
         final Constraint isUserDir = new CheckedPathIs("_-1");
@@ -215,14 +185,7 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             .will(returnValue(of));
     }
 
-    private void assertRegisterFails(String checkedPathString) {
-        daoMock.expects(once()).method("register")
-            .with(ANYTHING /*uuid*/,new StringReprContains(checkedPathString),
-                    eq("Directory"), ANYTHING)
-            .will(throwException(
-                new omero.ResourceError(null, null, "register failed")));
-    }
-
+    @Test
     public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
         newEventContext();
         /* three occasions in suggestOnConflict:
