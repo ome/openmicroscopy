@@ -2118,10 +2118,9 @@ def activities(request, conn=None, **kwargs):
                                     to_group_id =  callbackDict['to_group_id']
                                     if dtype == 'Image':
                                         attempted_imgIds = [int(iid) for iid in obj_ids]
-                                    elif dtype == 'Dataset':
-                                        attempted_imgIds = []
-                                        for d in conn.getObjects("Dataset", obj_ids):
-                                            attempted_imgIds.extend( [i.id for i in d.listChildren()] )
+                                    elif dtype in ('Project', 'Dataset'):
+                                        cs = conn.getContainerService()
+                                        attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
                                     # Want to find all images within each fileset that's causing a problem, so we can notify user
                                     split_filesets = []
                                     for fset in conn.getObjects("Fileset", failed_filesets):
