@@ -789,6 +789,9 @@ public class UIUtilities
 	 */
 	public static String formatStringListToTable(List<String> columnNames,
 			List<String[]> rows) {
+		if (columnNames == null || rows == null) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("<table>");
 		sb.append("<tr>");
