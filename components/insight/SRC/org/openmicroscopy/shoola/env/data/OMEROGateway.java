@@ -48,6 +48,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -4046,8 +4047,8 @@ class OMEROGateway
 				l.add(omero.rtypes.rlong(id));
 				param.add("imageIds", omero.rtypes.rlist(l));
 				query = createFileSetQuery();
-			} else {
-				if (image.isArchived()) { //prior to FS
+			} else {//Prior to FS
+				if (image.isArchived()) {
 					StringBuffer buffer = new StringBuffer();
 					id = image.getDefaultPixels().getId();
 					buffer.append("select ofile from OriginalFile as ofile ");
@@ -4094,7 +4095,7 @@ class OMEROGateway
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
-		if (files.size() > 1) {
+		if (values.size() > 1) {
 			if (file.isDirectory()) folderPath = file.getAbsolutePath();
 			else folderPath = file.getParent();
 		}
@@ -4103,7 +4104,7 @@ class OMEROGateway
 			of = (OriginalFile) i.next();
 			store = getRawFileService(ctx);
 			try {
-				store.setFileId(of.getId().getValue()); 
+				store.setFileId(of.getId().getValue());
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
@@ -4113,7 +4114,7 @@ class OMEROGateway
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
-				size = of.getSize().getValue(); 
+				size = of.getSize().getValue();
 				try {
 					try {
 						for (offset = 0; (offset+INC) < size;) {
