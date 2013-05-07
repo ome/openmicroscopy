@@ -439,5 +439,42 @@ class TestChgrp(lib.ITest):
         self.assertTrue(filesetTwoId in failedFilesets)
 
 
+    def testChgrpDatasetCheckFsGroup(self):
+        """
+        Move a Dataset of MIF images into a new group,
+        then check that the Fileset group is the same as the target group.
+        From 'Security Violation' Bug https://github.com/openmicroscopy/openmicroscopy/pull/1139
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpMoveDataset1")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp, should succeed
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # Check the group of the fileset is in sync with image.
+        ctx = {'omero.group': '-1'}
+        qs = client.sf.getQueryService()
+        image1 = qs.get("Image", images[0].id.val, ctx)
+        fsId = image1.fileset.id.val
+        image_gid = image1.details.group.id.val
+        fileset_gid = qs.get("Fileset", fsId, ctx).details.group.id.val
+        self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
+
+
 if __name__ == '__main__':
     unittest.main()
