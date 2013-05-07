@@ -196,7 +196,7 @@ class TestChgrp(lib.ITest):
         self.waitOnCmd(owner_g.c, handle)
 
 
-    def testBadCaseChgrpOneImage(self):
+    def testChgrpOneImageFilesetErr(self):
         """
         Simple example of the MIF chgrp bad case:
         A single fileset containing 2 images - we try to chgrp ONE image.
@@ -226,7 +226,7 @@ class TestChgrp(lib.ITest):
         self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
 
 
-    def testBadCaseChgrpAllImages(self):
+    def testChgrpAllImagesFilesetOK(self):
         """
         Simple example of the MIF chgrp bad case:
         A single fileset containing 2 images
@@ -254,7 +254,7 @@ class TestChgrp(lib.ITest):
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
 
-    def testBadCaseChgrpOneDataset(self):
+    def testChgrpOneDatasetFilesetErr(self):
         """
         Simple example of the MIF chgrp bad case:
         A single fileset containing 2 images is split among 2 datasets.
@@ -291,7 +291,7 @@ class TestChgrp(lib.ITest):
         self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
 
 
-    def testBadCaseChgrpAllDatasets(self):
+    def testChgrpAllDatasetsFilesetOK(self):
         """
         Simple example of the MIF chgrp bad case:
         a single fileset containing 2 images is split among 2 datasets.
@@ -327,7 +327,7 @@ class TestChgrp(lib.ITest):
             self.assertEqual(target_gid, image.details.group.id.val, "Image should be in group: %s" % target_gid)
 
 
-    def testGoodCaseChgrpDataset(self):
+    def testChgrpOneDatasetFilesetOK(self):
         """
         Simple example of the MIF chgrp good case:
         a single fileset containing 2 images in one dataset.
@@ -365,7 +365,7 @@ class TestChgrp(lib.ITest):
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
 
-    def testTwoFilesetsChgrpImages(self):
+    def testChgrpImagesTwoFilesetsErr(self):
         """
         If we try to 'split' 2 Filesets, both should be returned
         by the chgrp error
@@ -397,7 +397,7 @@ class TestChgrp(lib.ITest):
         self.assertTrue(filesetTwoId in failedFilesets)
 
 
-    def testTwoFilesetsChgrpDataset(self):
+    def testChgrpDatasetTwoFilesetsErr(self):
         """
         If we try to 'split' 2 Filesets, both should be returned
         by the chgrp error
