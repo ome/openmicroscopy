@@ -4148,9 +4148,8 @@ class EditorModel
 	 */
 	boolean hasOriginalMetadata()
 	{
-		//FileAnnotationData fa = getOriginalMetadata();
-		//return fa != null;
-		return true;
+		FileAnnotationData fa = getOriginalMetadata();
+		return fa != null;
 	}
 
 }
