@@ -4040,22 +4040,24 @@ class OMEROGateway
 		try {
 			ParametersI param = new ParametersI();
 			long id;
-			if (image.isArchived()) { //prior to FS
-				StringBuffer buffer = new StringBuffer();
-				id = image.getDefaultPixels().getId();
-				buffer.append("select ofile from OriginalFile as ofile ");
-				buffer.append("join fetch ofile.hasher ");
-				buffer.append("left join ofile.pixelsFileMaps as pfm ");
-				buffer.append("left join pfm.child as child ");
-				buffer.append("where child.id = :id");
-				param.map.put("id", omero.rtypes.rlong(id));
-				query = buffer.toString();
-			} else {
+			if (image.isFSImage()) {
 				id = image.getId();
 				List<RType> l = new ArrayList<RType>();
 				l.add(omero.rtypes.rlong(id));
 				param.add("imageIds", omero.rtypes.rlist(l));
 				query = createFileSetQuery();
+			} else {
+				if (image.isArchived()) { //prior to FS
+					StringBuffer buffer = new StringBuffer();
+					id = image.getDefaultPixels().getId();
+					buffer.append("select ofile from OriginalFile as ofile ");
+					buffer.append("join fetch ofile.hasher ");
+					buffer.append("left join ofile.pixelsFileMaps as pfm ");
+					buffer.append("left join pfm.child as child ");
+					buffer.append("where child.id = :id");
+					param.map.put("id", omero.rtypes.rlong(id));
+					query = buffer.toString();
+				} else return null;
 			}
 			files = service.findAllByQuery(query, param);
 		} catch (Exception e) {
@@ -4067,7 +4069,7 @@ class OMEROGateway
 		if (files == null || files.size() == 0) return null;
 		Iterator<?> i;
 		List<OriginalFile> values = new ArrayList<OriginalFile>();
-		if (!image.isArchived()) {
+		if (image.isFSImage()) {
 			i = files.iterator();
 			Fileset set;
 			List<FilesetEntry> entries;
@@ -4077,7 +4079,8 @@ class OMEROGateway
 				entries = set.copyUsedFiles();
 				j = entries.iterator();
 				while (j.hasNext()) {
-					values.add(j.next().getOriginalFile());
+					FilesetEntry fs = j.next();
+					values.add(fs.getOriginalFile());
 				}
 			}
 		} else values.addAll((List<OriginalFile>) files);
@@ -4105,7 +4108,7 @@ class OMEROGateway
 				handleException(e, "Cannot set the file's id.");
 			}
 			if (folderPath != null) {
-				f = new File(folderPath+of.getName().getValue());
+				f = new File(folderPath+ of.getName().getValue());
 			} else f = file;
 			results.add(f);
 			try {
