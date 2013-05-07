@@ -5453,6 +5453,10 @@ class _FilesetWrapper (BlitzObjectWrapper):
         """ Returns a list of L{ImageWrapper} linked to this Fileset """
         return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
 
+    def listFiles(self):
+        """ Returns a list of L{OriginalFileWrapper} linked to this Fileset via Fileset Entries """
+        return [OriginalFileWrapper(self._conn, f.originalFile) for f in self._obj.copyUsedFiles()]
+
 FilesetWrapper = _FilesetWrapper
 
 
