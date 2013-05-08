@@ -42,7 +42,7 @@ import ome.services.formats.OmeroReader;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import ome.util.messages.InternalMessage;
-import ome.xml.DOMUtil;
+import ome.scifio.xml.XMLTools;
 import ome.xml.model.OME;
 import ome.xml.model.OMEModel;
 import ome.xml.model.OMEModelImpl;
@@ -308,7 +308,7 @@ public class ExporterI extends AbstractAmdServant implements
                                         file.deleteOnExit();
                                         FileOutputStream fos = new FileOutputStream(
                                                 file);
-                                        DOMUtil.writeXML(fos, document);
+                                        XMLTools.writeXML(fos, document);
                                         fos.close();
                                         retrieve = null;
                                         __cb.ice_response(file.length());
