@@ -92,10 +92,14 @@
                             {% else %}
                                 {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
-                                        <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+                                        <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
                                 {% else %}
-                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                    {% if j.remaining_filesets %}
+                                        <img title="Fileset Delete Failed" src="{% static "webgateway/img/failed.png" %}" />
+                                    {% else %}
+                                        <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
+                                    {% endif %}
                                 {% endif %}
                             {% endifequal %}
                         </td>
@@ -128,12 +132,13 @@
 
                             {% if j.remaining_filesets %}
                             <span class="message">
-                                {{ j.remaining_filesets|length }} Fileset{{ j.remaining_filesets|pluralize }} partially deleted.
+                                Deleting part of a Fileset is not allowed. If you want to delete images from
+                                a Fileset, you must choose ALL the images in the Fileset.
 
                                 {% for fs in j.remaining_filesets %}
                                 <div>
-                                    <strong>{{ fs.fileCount }}</strong> files ({{ fs.totalSize|filesizeformat }}) still used by
                                     <strong>{{ fs.remaining_iids|length }}</strong> image{{ fs.remaining_iids|pluralize }}
+                                    in Fileset of <strong>{{ fs.fileCount }}</strong> files ({{ fs.totalSize|filesizeformat }})
                                 </div>
                                 <div style="border: 1px solid #87ABD2; float: left">
                                     {% for iid in fs.remaining_iids|slice:":5" %}
