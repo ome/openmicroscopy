@@ -31,20 +31,24 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
+import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
@@ -58,7 +62,10 @@ import ome.services.blitz.repo.path.ServerFilePathTransformer;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.FindServiceFactoryMessage;
 import ome.services.blitz.util.RegisterServantMessage;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.messages.InternalMessage;
 
@@ -85,6 +92,7 @@ import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.ChecksumAlgorithm;
 import omero.model.OriginalFile;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.IceMapper;
 
 /**
@@ -407,6 +415,43 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         return ofile;
     }
 
+    /* TODO: The server should not have any hard-coded preference for the SHA-1 algorithm
+     * (which may not be the setting of omero.checksum.default) in such a generic code path.
+     * Clients wishing to assume SHA-1 for checksumming files created using this method should
+     * somehow specify this to the server via the API.
+     */
+    /**
+     * Set the hasher of the original file of the given ID to SHA-1.
+     * @param id the ID of an original file
+     * @param current the ICE method invocation context
+     * @throws ServerError if there was a problem in executing this internal task
+     */
+    @Deprecated
+    private void setOriginalFileHasherToSHA1(final long id, Current current) throws ServerError {
+        final Executor executor = this.context.getBean("executor", Executor.class);
+        final Map<String, String> ctx = current.ctx;
+        final String session = ctx.get(omero.constants.SESSIONUUID.value);
+        final String group = ctx.get(omero.constants.GROUP.value);
+        final Principal principal = new Principal(session, group, null);
+
+        try {
+            executor.execute(ctx, principal, new Executor.SimpleWork(this, "setOriginalFileHasherToSHA1", id) {
+                    @Transactional
+                    public Object doWork(Session session, ServiceFactory sf) {
+                        final IQuery iQuery = sf.getQueryService();
+                        final ome.model.core.OriginalFile originalFile = iQuery.find(ome.model.core.OriginalFile.class, id);
+                        final ome.model.enums.ChecksumAlgorithm sha1 = iQuery.findByString(ome.model.enums.ChecksumAlgorithm.class,
+                                "value", ChecksumAlgorithmSHA1160.value);
+                        originalFile.setHasher(sha1);
+                        sf.getUpdateService().saveObject(originalFile);
+                        return null;
+                    }
+                });
+            } catch (Exception e) {
+                throw (ServerError) new IceMapper().handleException(e, executor.getContext());
+            }
+        }
+
     protected OriginalFile findOrCreateInDb(CheckedPath checked, String mode,
             Ice.Current curr) throws ServerError {
 
@@ -424,7 +469,9 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         }
 
         ofile = repositoryDao.register(repoUuid, checked, null, curr);
-        checked.setId(ofile.getId().getValue());
+        final long originalFileId = ofile.getId().getValue();
+        setOriginalFileHasherToSHA1(originalFileId, curr);
+        checked.setId(originalFileId);
         return ofile;
     }
 
