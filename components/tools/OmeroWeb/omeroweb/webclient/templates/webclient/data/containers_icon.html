@@ -188,9 +188,9 @@
 
             // When an image(s) are selected, also indicate others with the same fileset(s).
             var highlightFilesets = function(fsIds) {
-                $selectee.css('border', '1px solid white');    // clear FS highlight
+                $selectee.removeClass('fs-selected');
                 for (var fsid in fsIds) {
-                    $selectee.filter("[data-fileset='"+ fsid + "']").css('border', '1px solid #87ABD2');
+                    $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
                 }
             }
 
