@@ -44,10 +44,12 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FilesetVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.WellData;
 
 /** 
@@ -144,18 +146,25 @@ class BrowserModel
 	 */
 	private void setNodesColor(Collection<ImageDisplay> toSelect, Collection<ImageDisplay> toDeselect)
     {
-    	//paint the nodes
+		//paint the nodes
         Colors colors = Colors.getInstance();
         Iterator<ImageDisplay> i;
         ImageDisplay node;
         ImageDisplay primary = null;
         if (selectedDisplays.size() > 0) primary = selectedDisplays.get(0);
 
+        List<ImageData> selectedImages = new ArrayList<ImageData>();
+        List<ImageData> deselectedImages = new ArrayList<ImageData>();
+        Object ho;
         if (toDeselect != null && toDeselect.size() > 0) {
         	i = toDeselect.iterator();
             while (i.hasNext()) {
             	node = i.next();
             	if (node != null) {
+            		ho = node.getHierarchyObject();
+            		if (ho instanceof ImageData) {
+            			deselectedImages.add((ImageData) ho);
+            		}
             		if (toSelect != null) {
             			if (!toSelect.contains(node))
             				node.setHighlight(
@@ -169,10 +178,17 @@ class BrowserModel
         	 i = toSelect.iterator();
              while (i.hasNext()) {
      			node = i.next();
-     			node.setHighlight(colors.getSelectedHighLight(node, 
+     			ho = node.getHierarchyObject();
+        		if (ho instanceof ImageData) {
+        			selectedImages.add((ImageData) ho);
+        		}
+     			node.setHighlight(colors.getSelectedHighLight(node,
      					isSameNode(node, primary)));
      		}
         }
+        FilesetVisitor visitor = new FilesetVisitor(selectedImages,
+        		deselectedImages);
+        accept(visitor);
     }
 	
 	/**

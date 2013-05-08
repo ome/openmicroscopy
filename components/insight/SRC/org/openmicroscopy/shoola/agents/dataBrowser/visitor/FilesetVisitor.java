@@ -26,6 +26,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
 //Java imports
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -47,31 +51,40 @@ public class FilesetVisitor
 	implements ImageDisplayVisitor
 {
 
-	/** The image to handle.*/
-	private final ImageData refNode;
+	/** The selected images.*/
+	private final Collection<ImageData> selected;
+	
+	/** The de-selected images.*/
+	private final Collection<ImageData> deselected;
 	
 	/** The color to set when the node is a sibling.*/
 	private final Color borderColor;
 	
-	/** Flag indicating if the node is selected or de-selected.*/
-	private final boolean selected;
+	/** The collection of selected fileset Ids.*/
+	private final List<Long> filesetIds;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param refNode The node to handle. Mustn't be <code>null</code>.
-	 * @param selected Pass <code>true</code> if the passed not is selected,
-	 * <code>false</code> otherwise.
+	 * @param selected The selected nodes.
+	 * @param deselected The de-selected nodes
 	 */
-	public FilesetVisitor(ImageData refNode, boolean selected)
+	public FilesetVisitor(Collection<ImageData> selected,
+			Collection<ImageData> deselected)
 	{
-		if (refNode == null)
-			throw new IllegalArgumentException("Ref Image cannot be null.");
-		this.refNode = refNode;
 		this.selected = selected;
+		this.deselected = deselected;
 		borderColor = Colors.getInstance().getColor(
 				Colors.TITLE_BAR_HIGHLIGHT).brighter();
+		filesetIds = new ArrayList<Long>();
+		if (selected != null) {
+			Iterator<ImageData> i = selected.iterator();
+			while (i.hasNext()) {
+				filesetIds.add(i.next().getFilesetId());
+			}
+		}
 	}
+
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}.
      * @see ImageDisplayVisitor#visit(ImageNode)
@@ -81,10 +94,25 @@ public class FilesetVisitor
 		Object ho = node.getHierarchyObject();
 		if (!(ho instanceof ImageData)) return;
 		ImageData data = (ImageData) ho;
-		if (data.getId() == refNode.getId()) return;
-		if (data.getFilesetId() == refNode.getFilesetId()) {
-			if (selected) node.setBorderColor(borderColor);
-			else node.setBorderColor(null);
+		Iterator<ImageData> i;
+		ImageData ref;
+		if (selected != null) {
+			i = selected.iterator();
+			while (i.hasNext()) {
+				ref = i.next();
+				if (data.getId() != ref.getId() && data.getFilesetId() ==
+					ref.getFilesetId())
+					node.setBorderColor(borderColor);
+			}
+		}
+		if (deselected != null) {
+			i = deselected.iterator();
+			while (i.hasNext()) {
+				ref = i.next();
+				if (data.getFilesetId() == ref.getFilesetId() &&
+					!filesetIds.contains(data.getFilesetId()))
+					node.setBorderColor(null);
+			}
 		}
 	}
 
