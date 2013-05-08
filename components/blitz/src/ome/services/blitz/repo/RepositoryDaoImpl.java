@@ -75,7 +75,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
     /** Query to load the original file.*/
     private static final String LOAD_ORIGINAL_FILE =
-    "select f from OriginalFile as f join fetch f.hasher where ";
+    "select f from OriginalFile as f left outer join fetch f.hasher where ";
 
     private final static Logger log = LoggerFactory.getLogger(RepositoryDaoImpl.class);
 
