@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.tpane.TinyPane
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -423,6 +423,17 @@ public class TinyPane
         Color oldValue = model.getHighlight();
         model.setHighlight(highlight);
         firePropertyChange(HIGHLIGHT_PROPERTY, oldValue, highlight);
+    }
+    
+    /**
+     * Sets the color of the border only.
+     * @param borderColor A color for highlighting or <code>null</code> to
+     *                  restore the normal background.
+     */
+    public void setBorderColor(Color borderColor)
+    {
+    	uiDelegate.setBorderColor(borderColor);
+    	repaint();
     }
     
     /**
