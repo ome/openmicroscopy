@@ -160,30 +160,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         return fsFiles;
     }
 
-    private String getSuggestion(String base, String...paths) throws Exception {
-        final String template = this.tmri.expandTemplate("%user%_%userId%/" + this.uniqueId, curr);
-        final ImportLocation l =
-                this.tmri.suggestImportPaths(new FsFile(template), new FsFile(base), toFsFileList(paths),
-                        null, ChecksumAlgorithmMapper.getChecksumAlgorithm(ChecksumAlgorithmSHA1160.value), curr);
-        return new File(l.sharedPath).getName();
-    }
-
-    private void assertCreateOrFixUserDir() {
-        final IsEqual isUuid = eq(TestManagedRepositoryI.UUID);
-        final Constraint isUserDir = new CheckedPathIs("_-1");
-        daoMock.expects(once()).method("createOrFixUserDir").with(isUuid, isUserDir, eq(curr));
-    }
-
-    /**
-     * Ignores all argument parameters to register().
-     * @param id
-     */
-    private void assertReturnFile(Long id) {
-        OriginalFile of = new OriginalFileI(id, false);
-        daoMock.expects(once()).method("register")
-            .will(returnValue(of));
-    }
-
     @Test
     public void testCommonRootReturnsTopLevelWithUncommonPaths() {
         FsFile expectedCommonRoot = new FsFile();
