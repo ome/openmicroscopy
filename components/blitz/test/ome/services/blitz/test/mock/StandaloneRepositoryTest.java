@@ -38,7 +38,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
     ChecksumProviderFactory cpf;
     File dir;
 
-    @BeforeClass
+    @BeforeClass(groups = "integration")
     public void setup() throws Exception {
         dir = TempFileManager.create_path("repo", "test", true);
         System.setProperty("omero.repo.dir", dir.getAbsolutePath());
@@ -50,7 +50,7 @@ public class StandaloneRepositoryTest extends MockObjectTestCase {
         reg = fixture.blitz.getRegistry();
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testSimple() throws Exception {
         Principal p = new Principal("mock-uuid");
         InternalRepositoryI repo = new InternalRepositoryI(oa, reg, ex,

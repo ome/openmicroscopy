@@ -42,12 +42,12 @@ public class ReflectiveApiTest extends MockObjectTestCase {
 
     MockFixture fixture;
 
-    @AfterMethod
+    @AfterMethod(groups = "integration")
     public void shutdownFixture() {
         fixture.tearDown();
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testByReflection() throws Exception {
 
         fixture = new MockFixture(this);

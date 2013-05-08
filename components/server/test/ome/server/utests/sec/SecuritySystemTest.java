@@ -98,9 +98,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
         try {
-            sec.addLog("", Image.class, 1L);
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
+            // Requires ready
+            prepareMocksWithUserDetails(false);
+            assertFalse(sec.isReady());
+            sec.loadEventContext(false);
+
+            sec.addLog(null, Image.class, 1L);
+            fail("Should throw IllegalArgumentException");
+        } catch (IllegalArgumentException iae) {
         }
         ;
 
@@ -170,6 +175,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
      * Test method for 'ome.security.SecuritySystem.enableReadFilter(Object)'
      * Test method for 'ome.security.SecuritySystem.disableReadFilter(Object)'
      */
+    @Test(enabled = false) // Basically is just testing the implementation.
     public void testEnableAndDisableReadFilter() {
         prepareMocksWithUserDetails(false);
 
@@ -181,6 +187,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         mockFilter.expects(once()).method("setParameter").with(
                 eq(OneGroupSecurityFilter.current_user), eq(user.getId())).will(
                 returnValue(f));
+
         Mock mockSession = mock(Session.class);
         mockSession.expects(once()).method("enableFilter").with(
                 eq("securityFilter")).will(returnValue(f));
@@ -199,8 +206,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
      * Test method for 'ome.security.SecuritySystem.addLog(String, Class, Long)'
      */
     public void testAddLog() {
-        prepareMocksWithUserDetails(false);
-        sec.loadEventContext(false);
+        prepareMocksWithUserDetails(true);
+        sec.loadEventContext(true);
         assertTrue(sec.getLogs().size() == 0);
         sec.addLog("SHOULDN'T BE ADDED", Event.class, 1L);
         assertTrue(sec.getLogs().size() == 0);
@@ -366,8 +373,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
     @Test
     public void testIsSystemGroup() throws Exception {
-        prepareMocksWithRootDetails(false);
-        sec.loadEventContext(false);
+        prepareMocksWithRootDetails(true);
+        sec.loadEventContext(true);
         assertTrue(sec.getSecurityRoles().isSystemGroup(group));
         sec.invalidateEventContext();
     }
@@ -383,6 +390,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
     @Test
     public void testDisblingSubSystems() throws Exception {
+        prepareMocksWithUserDetails(false);
+        sec.loadEventContext(false);
         assertFalse(sec.isDisabled("foo"));
         sec.disable("foo");
         assertTrue(sec.isDisabled("foo"));
@@ -392,6 +401,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         assertTrue(sec.isDisabled("foo"));
         sec.enable();
         assertFalse(sec.isDisabled("foo"));
+        sec.invalidateEventContext();
     }
 
     // ~ CAN USE MORE WORK

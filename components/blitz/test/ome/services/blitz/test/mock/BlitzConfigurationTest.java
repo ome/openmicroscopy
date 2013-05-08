@@ -29,12 +29,12 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
     Executor ex;
     Mock m_sm, m_ss, m_ex;
     
-    @BeforeClass
+    @BeforeClass(groups = "integration")
     public void setup() throws Exception {
         ring = new Ring("uuid", null, null);
     }
     
-    @Test
+    @Test(groups = "integration")
     public void testCreation() throws Exception {
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();
@@ -42,7 +42,7 @@ public class BlitzConfigurationTest extends MockObjectTestCase {
         config = new BlitzConfiguration(id, ring, sm, ss, ex, 10000);
     }
     
-    @Test
+    @Test(groups = "integration")
     public void testCreationAndDestruction() throws Exception {
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();

@@ -55,6 +55,14 @@
    </constructor-arg>
  </bean>
 
+  <!--  from components/server/resources/ome/services/service-ome.io.nio.PixelsService.xml -->
+  <bean id="configuredTileSizes" class="ome.io.nio.ConfiguredTileSizes">
+    <constructor-arg index="0" value="${omero.pixeldata.tile_width}"/>
+    <constructor-arg index="1" value="${omero.pixeldata.tile_height}"/>
+    <constructor-arg index="2" value="${omero.pixeldata.max_plane_width}"/>
+    <constructor-arg index="3" value="${omero.pixeldata.max_plane_height}"/>
+  </bean>
+
   <bean id="threadPool" class="ome.services.scheduler.ThreadPool">
     <constructor-arg index="0" value="0"/>
     <constructor-arg index="1" value="4"/>
@@ -101,6 +109,7 @@
   </bean>
 
   <bean id="principalHolder" class="ome.security.basic.CurrentDetails"/>
+  <alias alias="currentDetails" name="principalHolder"/>
 
   <!-- ome.services.sessions.SessionManager with swappable implementation -->
 
@@ -143,5 +152,20 @@
     <constructor-arg index="0" ref="sessionFactory"/>
     <constructor-arg index="1"><null/></constructor-arg>
   </bean>
+
+  <!-- For the request factories -->
+  <bean id="Ice.Communicator" factory-method="initialize" class="Ice.Util"/>
+
+  <bean id="registryMock" class="org.jmock.Mock">
+      <constructor-arg value="ome.services.blitz.fire.Registry" type="java.lang.Class"/>
+  </bean>
+
+  <bean id="Registry" factory-bean="registryMock" factory-method="proxy"/>
+
+  <bean id="repositoryDaoMock" class="org.jmock.Mock">
+      <constructor-arg value="ome.services.blitz.repo.RepositoryDao" type="java.lang.Class"/>
+  </bean>
+
+  <bean id="repositoryDao" factory-bean="repositoryDaoMock" factory-method="proxy"/>
 
 </beans>

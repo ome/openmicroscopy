@@ -7,11 +7,14 @@
 package ome.server.utests.sessions;
 
 import ome.security.basic.CurrentDetails;
+import ome.server.utests.TestSessionCache;
 import ome.services.messages.GlobalMulticaster;
 import ome.services.messages.stats.ObjectsReadStatsMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.CurrentSessionStats;
+import ome.services.sessions.stats.MethodCounter;
 import ome.services.sessions.stats.ObjectsReadCounter;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.sessions.stats.SimpleSessionStats;
@@ -39,12 +42,14 @@ public class SessionStatsTest extends MockObjectTestCase {
     GlobalMulticaster mc;
     CurrentDetails cd;
     SessionManager sm;
+    TestSessionCache cache;
     
     @BeforeMethod
     public void setup() {
         ctx = new OmeroContext(new String[]{"classpath:ome/services/messaging.xml"});
         mc = (GlobalMulticaster) ctx.getBean("applicationEventMulticaster");
-        cd = new CurrentDetails();
+        cache = new TestSessionCache(this);
+        cd = new CurrentDetails(cache);
         cd.login(new Principal("u","g","e"));
     }
     
@@ -92,13 +97,18 @@ public class SessionStatsTest extends MockObjectTestCase {
     public void testThreadLocalStats( ) {
         boolean[] called = readCalled();
         ObjectsReadCounter read = read(1);
-        SessionStats internal = new SimpleSessionStats(read, null, null);
+        SessionStats internal = new SimpleSessionStats(read, null, new MethodCounter(1));
         
         Mock mock = new Mock(SessionManager.class);
         mock.expects(once()).method("getSessionStats").will(returnValue(internal));
         sm = (SessionManager) mock.proxy();
+
         PerSessionStats stats = new PerSessionStats(cd);
-        
+        cache.setSessionStats(internal);
+        // Need to re-login after changing the stats.
+        cd.logout();
+        cd.login(new Principal("u","g","e"));
+
         stats.loadedObjects(1);
         assertTrue(called[0]);
     }
