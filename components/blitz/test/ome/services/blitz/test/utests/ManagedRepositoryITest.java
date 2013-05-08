@@ -184,64 +184,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
             .will(returnValue(of));
     }
 
-//    @Test
-//    public void testSuggestOnConflictPassesWithNonconflictingPaths() throws Exception {
-//        newEventContext();
-//        /* three occasions in suggestOnConflict:
-//        /* - test the common root in version incrementing */
-//        /* - create the parent directory of my/path/foo */
-//        /* - create the parent directory of my/path/bar */
-//        long id = 0;
-//        /* loop for each of the above three suggestOnConflict events */
-//        for (int i = 0; i < 3; i++) {
-//            assertCreateOrFixUserDir();
-//            assertReturnFile(id++);  /* %user%_%userId% */
-//            assertReturnFile(id++);  /* unique ID */
-//            assertReturnFile(id++);  /* my */
-//            assertReturnFile(id++);  /* path */
-//        }
-//        new File(this.tmpDir, "/my/path");
-//        String expectedBasePath = "path";
-//        String suggestedBasePath = getSuggestion("/my/path", "/my/path/foo", "/my/path/bar");
-//        Assert.assertEquals(expectedBasePath, suggestedBasePath);
-//    }
-
-//    @Test
-//    public void testSuggestOnConflictReturnsSamePathOnConflict() throws Exception {
-//        newEventContext();
-//        /* three occasions in suggestOnConflict:
-//        /* - test the common root in version incrementing */
-//        /* - create the parent directory of upload/foo */
-//        /* - create the parent directory of upload/bar */
-//        long id = 0;
-//        /* loop for each of the above three suggestOnConflict events */
-//        for (int i = 0; i < 3; i++) {
-//            assertCreateOrFixUserDir();
-//            assertReturnFile(id++);  /* %user%_%userId% */
-//            assertReturnFile(id++);  /* unique ID */
-//            assertReturnFile(id++);  /* upload */
-//        }
-//        File upload = new File(this.templateDir, "/upload");
-//        upload.mkdirs();
-//        FileUtils.touch(new File(upload, "foo"));
-//        String expectedBasePath = "upload";
-//        String suggestedBasePath = getSuggestion("/upload", "/upload/foo", "/upload/bar");
-//        Assert.assertEquals(expectedBasePath, suggestedBasePath);
-//    }
-
-//    @Test
-//    public void testSuggestOnConflictReturnsBasePathWithEmptyPathsList() throws Exception {
-//        newEventContext();
-//        assertCreateOrFixUserDir();
-//        long id = 0;
-//        assertReturnFile(id++);  /* %user%_%userId% */
-//        assertReturnFile(id++);  /* unique ID */
-//        assertReturnFile(id++);  /* upload */
-//        String expectedBasePath = "upload";
-//        String suggestedBasePath = getSuggestion("/upload");
-//        Assert.assertEquals(expectedBasePath, suggestedBasePath);
-//    }
-
     @Test
     public void testCommonRootReturnsTopLevelWithUncommonPaths() {
         FsFile expectedCommonRoot = new FsFile();
@@ -257,10 +199,6 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
                 expectedCommonRoot + "/file1.dv", expectedCommonRoot + "/file2.dv"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
-
-    //
-    // expandTemplate()
-    //
 
     @Test
     public void testExpandTemplateEmptyStringOnNullToken() {
