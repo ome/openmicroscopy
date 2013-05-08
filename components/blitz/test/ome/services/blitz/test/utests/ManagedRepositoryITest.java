@@ -12,25 +12,18 @@ import java.util.UUID;
 import junit.framework.Assert;
 import loci.formats.FormatReader;
 import ome.services.blitz.fire.Registry;
-import ome.services.blitz.repo.CheckedPath;
 import ome.services.blitz.repo.FileMaker;
 import ome.services.blitz.repo.ManagedRepositoryI;
 import ome.services.blitz.repo.RepositoryDao;
 import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.util.ChecksumAlgorithmMapper;
 import omero.grid.ImportLocation;
 import omero.model.ChecksumAlgorithm;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
 import omero.model.PermissionsI;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.sys.EventContext;
 import omero.util.TempFileManager;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.jmock.core.Constraint;
-import org.jmock.core.constraint.IsEqual;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -38,27 +31,6 @@ import com.google.common.collect.Sets;
 
 @Test(groups = {"fs"})
 public class ManagedRepositoryITest extends MockObjectTestCase {
-
-    private static class CheckedPathIs implements Constraint {
-        private final FsFile path;
-
-        CheckedPathIs(String path) {
-            this.path = new FsFile(path);
-        }
-
-        public StringBuffer describeTo(StringBuffer buffer) {
-            buffer.append("checked path is ");
-            buffer.append(path);
-            return buffer;
-        }
-
-        public boolean eval(Object o) {
-            if (o instanceof CheckedPath) {
-                return path.equals(((CheckedPath) o).fsFile);
-            }
-            return false;
-        }
-    }
 
     Mock daoMock;
 
@@ -163,8 +135,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     @Test
     public void testCommonRootReturnsTopLevelWithUncommonPaths() {
         FsFile expectedCommonRoot = new FsFile();
-        FsFile actualCommonRoot = this.tmri.commonRoot(toFsFileList("/home/bob/1.jpg",
-                "/data/alice/1.jpg"));
+        FsFile actualCommonRoot = this.tmri.commonRoot(
+                toFsFileList("/home/bob/1.jpg", "/data/alice/1.jpg"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
@@ -172,7 +144,8 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     public void testCommonRootReturnsCommonRootForPathList() {
         FsFile expectedCommonRoot = new FsFile("/bob/files/dv");
         FsFile actualCommonRoot = this.tmri.commonRoot(toFsFileList(
-                expectedCommonRoot + "/file1.dv", expectedCommonRoot + "/file2.dv"));
+                expectedCommonRoot + "/file1.dv",
+                expectedCommonRoot + "/file2.dv"));
         Assert.assertEquals(expectedCommonRoot, actualCommonRoot);
     }
 
@@ -297,15 +270,20 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
     }
 
     /**
-     * Test that the checksum algorithms offered by the managed repository correspond to those
-     * listed for enum id <tt>ome.model.enums.ChecksumAlgorithm</tt> in <tt>acquisition.ome.xml</tt>.
+     * Test that the checksum algorithms offered by the managed repository
+     * correspond to those listed for enum id
+     * <tt>ome.model.enums.ChecksumAlgorithm</tt> in
+     * <tt>acquisition.ome.xml</tt>.
      */
     @Test
-    public void testAvailableChecksumAlgorithms() {
+    public void testListChecksumAlgorithms() {
         final Set<String> expectedAlgorithmNames =
-                Sets.newHashSet("Adler-32", "CRC-32", "MD5-128", "Murmur3-32", "Murmur3-128", "SHA1-160");
-        for (final ChecksumAlgorithm algorithm : this.tmri.listChecksumAlgorithms(curr)) {
-            Assert.assertTrue(expectedAlgorithmNames.remove(algorithm.getValue().getValue()));
+                Sets.newHashSet("Adler-32", "CRC-32", "MD5-128", "Murmur3-32",
+                        "Murmur3-128", "SHA1-160");
+        for (final ChecksumAlgorithm algorithm :
+            this.tmri.listChecksumAlgorithms(curr)) {
+            Assert.assertTrue(expectedAlgorithmNames.remove(
+                    algorithm.getValue().getValue()));
         }
         Assert.assertTrue(expectedAlgorithmNames.isEmpty());
     }
