@@ -30,8 +30,8 @@ import org.testng.annotations.Test;
 import omero.RString;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
-import omero.cmd.ChgrpERR;
 import omero.cmd.Delete;
+import omero.cmd.GraphConstraintERR;
 import omero.cmd.Response;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -139,7 +139,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
                 null, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, command, false); // Don't pass
-        ChgrpERR err = (ChgrpERR) rsp;
+        GraphConstraintERR err = (GraphConstraintERR) rsp;
         Map<String, long[]> constraints = err.constraints;
         long[] filesetIds = constraints.get("Fileset");
         assertEquals(1, filesetIds.length);

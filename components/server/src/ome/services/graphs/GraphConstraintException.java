@@ -1,5 +1,5 @@
 /*
- * Copyright (C) <year> University of Dundee & Open Microscopy Environment.
+ * Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  * All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-package ome.services.chgrp;
+package ome.services.graphs;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +28,8 @@ import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 
 /**
- * Exception which will be thrown by {@link ChgrpStep} and {@link ChgrpValidation}
+ * Exception which will be thrown by {@link GraphStep} implementations like
+ * {@link ome.services.chgrp.ChgrpStep} and {@link ome.services.chrp.ChgrpValidation}
  * when constraints are found against the current {@link GraphEntry}, i.e. an
  * improper link. The id of all such improper links are available in the exception
  * so that clients can take corrective measures.
@@ -36,13 +37,13 @@ import ome.services.graphs.GraphException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 5.0
  */
-public class ChgrpGraphException extends GraphException {
+public class GraphConstraintException extends GraphException {
 
     private static final long serialVersionUID = 1L;
 
     private final Map<String, List<Long>> constraints;
 
-    public ChgrpGraphException(String msg, Map<String, List<Long>> constraints) {
+    public GraphConstraintException(String msg, Map<String, List<Long>> constraints) {
         super(msg);
         this.constraints = constraints;
     }

@@ -18,8 +18,8 @@ import org.springframework.context.ApplicationContext;
 
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
-import ome.services.chgrp.ChgrpGraphException;
 import ome.services.chgrp.ChgrpStepFactory;
+import ome.services.graphs.GraphConstraintException;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
@@ -28,8 +28,8 @@ import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
 
 import omero.cmd.Chgrp;
-import omero.cmd.ChgrpERR;
 import omero.cmd.ERR;
+import omero.cmd.GraphConstraintERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
@@ -158,14 +158,14 @@ public class ChgrpI extends Chgrp implements IRequest {
             }
         } catch (GraphException ge) {
             ERR err = new ERR();
-            if (ge instanceof ChgrpGraphException) {
+            if (ge instanceof GraphConstraintException) {
                 // Specialization to provide detailed information about what
                 // went wrong with the constraint validation.
-                ChgrpGraphException cge = (ChgrpGraphException) ge;
-                ChgrpERR cerr = new ChgrpERR();
-                cerr.constraints = cge.getConstraints();
-                cerr.parameters = helper.params("ChgrpGraphException", "true");
-                err = cerr;
+                GraphConstraintException gce = (GraphConstraintException) ge;
+                GraphConstraintERR gcerr = new GraphConstraintERR();
+                gcerr.constraints = gce.getConstraints();
+                gcerr.parameters = helper.params("GraphConstraintException", "true");
+                err = gcerr;
             }
             throw helper.cancel(err, ge, "STEP ERR", "step", ""+i, "id", ""+id);
         }

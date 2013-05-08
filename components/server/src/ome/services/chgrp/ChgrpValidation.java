@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.model.IObject;
+import ome.services.graphs.GraphConstraintException;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
@@ -105,7 +106,7 @@ public class ChgrpValidation extends GraphStep {
                 qb.param("id", id);
                 qb.query(session).executeUpdate();
             } else {
-                throw new ChgrpGraphException(String.format("%s:%s improperly links to %s objects",
+                throw new GraphConstraintException(String.format("%s:%s improperly links to %s objects",
                     iObjectType.getSimpleName(), id, total.size()), constraints);
             }
         }
