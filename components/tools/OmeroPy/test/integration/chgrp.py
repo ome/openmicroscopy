@@ -268,7 +268,7 @@ class TestChgrp(lib.ITest):
         target_gid = target_grp.id.val
 
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBadCaseChgrpOneDataset", client=client)
+        datasets = self.createDatasets(2, "testChgrpOneDatasetFilesetErr", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
@@ -304,7 +304,7 @@ class TestChgrp(lib.ITest):
         target_gid = target_grp.id.val
 
         update = client.sf.getUpdateService()
-        datasets = self.createDatasets(2, "testBadCaseChgrpAllDatasets", client=client)
+        datasets = self.createDatasets(2, "testChgrpAllDatasetsFilesetOK", client=client)
         images = self.importMIF(2, client=client)
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
@@ -341,7 +341,7 @@ class TestChgrp(lib.ITest):
 
         update = client.sf.getUpdateService()
         ds = omero.model.DatasetI()
-        ds.name = rstring("testGoodCaseChgrpDataset")
+        ds.name = rstring("testChgrpOneDatasetFilesetOK")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in range(2):
@@ -413,7 +413,7 @@ class TestChgrp(lib.ITest):
 
         update = client.sf.getUpdateService()
         ds = omero.model.DatasetI()
-        ds.name = rstring("testTwoFilesetsChgrpDataset")
+        ds.name = rstring("testChgrpDatasetTwoFilesetsErr")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in (imagesFsOne, imagesFsTwo):
@@ -453,7 +453,7 @@ class TestChgrp(lib.ITest):
 
         update = client.sf.getUpdateService()
         ds = omero.model.DatasetI()
-        ds.name = rstring("testChgrpMoveDataset1")
+        ds.name = rstring("testChgrpDatasetCheckFsGroup")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
         for i in range(2):
