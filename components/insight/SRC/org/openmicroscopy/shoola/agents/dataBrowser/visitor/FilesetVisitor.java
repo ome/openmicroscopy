@@ -28,8 +28,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -61,7 +63,7 @@ public class FilesetVisitor
 	private final Color borderColor;
 	
 	/** The collection of selected fileset Ids.*/
-	private final List<Long> filesetIds;
+	private final Set<Long> filesetIds;
 	
 	/**
 	 * Creates a new instance.
@@ -76,7 +78,7 @@ public class FilesetVisitor
 		this.deselected = deselected;
 		borderColor = Colors.getInstance().getColor(
 				Colors.TITLE_BAR_HIGHLIGHT).brighter();
-		filesetIds = new ArrayList<Long>();
+		filesetIds = new HashSet<Long>();
 		if (selected != null) {
 			Iterator<ImageData> i = selected.iterator();
 			while (i.hasNext()) {
