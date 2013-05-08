@@ -11,6 +11,21 @@ import java.util.UUID;
 
 import junit.framework.Assert;
 import loci.formats.FormatReader;
+import ome.services.blitz.fire.Registry;
+import ome.services.blitz.repo.CheckedPath;
+import ome.services.blitz.repo.FileMaker;
+import ome.services.blitz.repo.ManagedRepositoryI;
+import ome.services.blitz.repo.RepositoryDao;
+import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.util.ChecksumAlgorithmMapper;
+import omero.grid.ImportLocation;
+import omero.model.ChecksumAlgorithm;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
+import omero.model.PermissionsI;
+import omero.model.enums.ChecksumAlgorithmSHA1160;
+import omero.sys.EventContext;
+import omero.util.TempFileManager;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -20,23 +35,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-
-import ome.services.blitz.fire.Registry;
-import ome.services.blitz.repo.CheckedPath;
-import ome.services.blitz.repo.FileMaker;
-import ome.services.blitz.repo.ManagedRepositoryI;
-import ome.services.blitz.repo.RepositoryDao;
-import ome.services.blitz.repo.path.FsFile;
-import ome.services.blitz.util.ChecksumAlgorithmMapper;
-
-import omero.grid.ImportLocation;
-import omero.model.ChecksumAlgorithm;
-import omero.model.OriginalFile;
-import omero.model.OriginalFileI;
-import omero.model.PermissionsI;
-import omero.model.enums.ChecksumAlgorithmSHA1160;
-import omero.sys.EventContext;
-import omero.util.TempFileManager;
 
 @Test(groups = {"fs"})
 public class ManagedRepositoryITest extends MockObjectTestCase {
@@ -99,10 +97,12 @@ public class ManagedRepositoryITest extends MockObjectTestCase {
         }
 
         @Override
-        public ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath, List<FsFile> paths,
-                Class<? extends FormatReader> reader, ChecksumAlgorithm checksumAlgorithm,
-                Ice.Current curr) throws omero.ServerError {
-            return super.suggestImportPaths(relPath, basePath, paths, reader, checksumAlgorithm, curr);
+        public ImportLocation suggestImportPaths(FsFile relPath, FsFile basePath,
+                List<FsFile> paths, Class<? extends FormatReader> reader,
+                ChecksumAlgorithm checksumAlgorithm, Ice.Current curr)
+                        throws omero.ServerError {
+            return super.suggestImportPaths(relPath, basePath, paths, reader,
+                    checksumAlgorithm, curr);
         }
 
         @Override
