@@ -15,7 +15,6 @@
 		<properties>
 			<optional name="ns" type="string"/>
 			<optional name="description" type="text"/>
-			<optional name="annotator" type="ome.model.meta.Experimenter"/>
 		</properties>
 	</abstract>
 <!-- top-level types -->
