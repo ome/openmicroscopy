@@ -527,10 +527,10 @@ class BrowserControl
     	((Component) me.getSource()).addKeyListener(keyListener);
     	shiftDown = me.isShiftDown();
 		if (dragging) return;
-		Collection l = model.getSelectedDisplays();
+		Collection<ImageDisplay> l = model.getSelectedDisplays();
 		if (source == null) {
 			if (l.size() == 0) source = (JComponent) me.getSource();
-			else source = (JComponent) ((List) l).get(0);
+			else source = (JComponent) ((List<ImageDisplay>) l).get(0);
 		}
 		if (shiftDown && l.size() > 0)
 			return;
@@ -557,9 +557,9 @@ class BrowserControl
     		dragging = false;
     		return;
     	}
-    	Collection l = model.getSelectedDisplays();
+    	Collection<ImageDisplay> l = model.getSelectedDisplays();
     	if (shiftDown && l.size() >= 1) {
-    		if (source == null) source = (JComponent) ((List) l).get(0);
+    		if (source == null) source = (JComponent) ((List<ImageDisplay>) l).get(0);
     		ImageDisplay display = findParentDisplay((Component) me.getSource());
     		Rectangle rS = display.getBounds();
     		display = findParentDisplay(source);
