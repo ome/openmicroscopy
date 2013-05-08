@@ -7,17 +7,15 @@
 
 package ome.services.graphs;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import ome.conditions.InternalException;
 import ome.model.IObject;
-import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
+
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -340,6 +338,67 @@ public abstract class GraphStep {
         savepoint =  INVALIDATED + savepoint;
     }
 
+    //
+    // Validation
+    //
+
+
+    /**
+     * Immediately we check that an object moved from GroupA to GroupB
+     * is no longer pointed at by any objects in GroupA via foreign key
+     * constraints. This is what the DB does for us inherently on delete.
+     *
+     *
+     * NB: After all objects are moved, we need to perform the reverse
+     * check, which is that no object in GroupB points at any objects in
+     * GroupA, i.e. all necessary objects were moved.
+     * @param session
+     * @throws GraphConstraintException
+     * @see ticket:6442
+     */
+    protected void graphValidation(Session session) throws GraphConstraintException {
+
+        int total = 0;
+        Class<? extends IObject> x = iObjectType;
+        final Map<String, List<Long>> constraints =
+                new HashMap<String, List<Long>>();
+        while (true) {
+
+            final String[][] locks = em.getLockChecks(x);
+
+            for (String[] lock : locks) {
+                List<Long> bad = findImproperIncomingLinks(session, lock);
+                if (bad != null && bad.size() > 0) {
+                    log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
+                            iObjectType.getSimpleName(), id, lock[0], lock[1],
+                            bad.size()));
+                    total += bad.size();
+                    if (constraints.containsKey(lock[0])) {
+                        constraints.get(lock[0]).addAll(bad);
+                    } else {
+                        constraints.put(lock[0], bad);
+                    }
+                }
+            }
+
+            Class<?> y = x.getSuperclass();
+            if (IObject.class.isAssignableFrom(y)) {
+                x = (Class<IObject>) y;
+                continue;
+            }
+            break;
+        }
+
+        if (total > 0) {
+            throw new GraphConstraintException(String.format("%s:%s improperly linked by %s objects",
+                iObjectType.getSimpleName(), id, total), constraints);
+        }
+    }
+
+    // TODO
+    protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
+        return null;
+    }
 
     /*
      * Workaround for refactoring to {@link GraphState}.
