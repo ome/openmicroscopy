@@ -19,6 +19,7 @@ import Ice.Current;
 import ome.io.nio.AbstractFileSystemService;
 import ome.services.delete.DeleteStepFactory;
 import ome.services.delete.Deletion;
+import ome.tools.hibernate.ExtendedMetadata;
 
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
@@ -55,10 +56,11 @@ public class DeleteHandleI extends AbstractAmdServant implements
     /**
      * Call the main constructor with a null call context.
      */
-    public DeleteHandleI(final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
+    public DeleteHandleI(final ExtendedMetadata em,
+            final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
             final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs)
             throws ServerError {
-        this(ctx, id, sf, afs, commands, cancelTimeoutMs, null);
+        this(em, ctx, id, sf, afs, commands, cancelTimeoutMs, null);
     }
 
     /**
@@ -71,7 +73,8 @@ public class DeleteHandleI extends AbstractAmdServant implements
      * @param cancelTimeoutMs
      * @param callContext
      */
-    public DeleteHandleI(final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
+    public DeleteHandleI(final ExtendedMetadata em,
+            final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
             final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs,
             Map<String, String> callContext) throws ServerError {
 
@@ -92,7 +95,7 @@ public class DeleteHandleI extends AbstractAmdServant implements
                 all.requests = new ArrayList<omero.cmd.Request>();
                 for (DeleteCommand command : commands) {
                     if (command != null) {
-                        DeleteStepFactory dsf = new DeleteStepFactory(sf.context);
+                        DeleteStepFactory dsf = new DeleteStepFactory(sf.context, em);
                         Deletion d = new Deletion(ctx, dsf, afs, this.ctx);
                         req = new DeleteI(d);
                         req.type = command.type;

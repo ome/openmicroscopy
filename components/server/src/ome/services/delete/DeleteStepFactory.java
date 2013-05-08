@@ -16,6 +16,7 @@ import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.services.graphs.GraphStepFactory;
 import ome.system.OmeroContext;
+import ome.tools.hibernate.ExtendedMetadata;
 
 /**
  * Single action performed by {@link DeleteState}.
@@ -28,13 +29,16 @@ public class DeleteStepFactory implements GraphStepFactory {
 
     private final OmeroContext ctx;
 
-    public DeleteStepFactory(OmeroContext ctx) {
+    private final ExtendedMetadata em;
+
+    public DeleteStepFactory(OmeroContext ctx, ExtendedMetadata em) {
         this.ctx = ctx;
+        this.em = em;
     }
 
     public GraphStep create(int idx, List<GraphStep> stack, GraphSpec spec,
             GraphEntry entry, long[] ids) throws GraphException {
-        return new DeleteStep(ctx, idx, stack, spec, entry, ids);
+        return new DeleteStep(em, ctx, idx, stack, spec, entry, ids);
     }
 
     public List<GraphStep> postProcess(List<GraphStep> steps) {

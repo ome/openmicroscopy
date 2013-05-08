@@ -51,8 +51,6 @@ public class ChgrpValidation extends GraphStep {
 
     final private OmeroContext ctx;
 
-    final private ExtendedMetadata em;
-
     final private long userGroup;
 
     final private long grp;
@@ -62,9 +60,8 @@ public class ChgrpValidation extends GraphStep {
     public ChgrpValidation(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long grp) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
-        this.em = em;
         this.grp = grp;
         this.userGroup = roles.getUserGroupId();
         this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();

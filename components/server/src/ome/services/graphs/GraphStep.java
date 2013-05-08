@@ -20,6 +20,7 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
@@ -67,6 +68,8 @@ public abstract class GraphStep {
      * Used to mark {@link #savepoint} after usage.
      */
     private final static String INVALIDATED = "INVALIDATED_";
+
+    protected final ExtendedMetadata em;
 
     /**
      * Location of this step in {@link GraphState#steps}.
@@ -145,9 +148,9 @@ public abstract class GraphStep {
 
     private boolean rollbackOnly = false;
 
-    public GraphStep(int idx, List<GraphStep> stack, GraphSpec spec, GraphEntry entry,
-            long[] ids) {
-
+    public GraphStep(ExtendedMetadata em, int idx, List<GraphStep> stack,
+            GraphSpec spec, GraphEntry entry, long[] ids) {
+        this.em = em;
         this.idx = idx;
         this.stack = new LinkedList<GraphStep>(stack);
         if (this.stack.size() > 0) {

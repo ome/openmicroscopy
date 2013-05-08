@@ -104,6 +104,12 @@
 
   <!-- ome.services.sessions.SessionManager with swappable implementation -->
 
+  <bean id="emMock" class="org.jmock.Mock">
+      <constructor-arg value="ome.tools.hibernate.ExtendedMetadata" type="java.lang.Class"/>
+  </bean>
+
+  <bean id="extendedMetadata" factory-bean="emMock" factory-method="proxy"/>
+
   <bean id="sessionsMock" class="org.jmock.Mock">
       <constructor-arg value="ome.services.sessions.SessionManager" type="java.lang.Class"/>
   </bean>

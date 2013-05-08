@@ -22,6 +22,7 @@ import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
@@ -44,9 +45,9 @@ public class DeleteStep extends GraphStep {
 
     final private OmeroContext ctx;
 
-    public DeleteStep(OmeroContext ctx, int idx, List<GraphStep> stack,
+    public DeleteStep(ExtendedMetadata em, OmeroContext ctx, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
     }
 

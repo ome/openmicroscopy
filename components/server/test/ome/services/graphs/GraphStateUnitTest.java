@@ -23,6 +23,7 @@ import ome.services.export.ExporterStepFactory;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.SqlAction;
 
 import org.hibernate.Query;
@@ -48,6 +49,10 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     private Mock queryMock;
 
+    private Mock emMock;
+
+    private ExtendedMetadata em;
+
     private Session session;
 
     private Query query;
@@ -56,10 +61,12 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     @BeforeMethod
     public void makeMocks() {
+        emMock = mock(ExtendedMetadata.class);
         sessionMock = mock(Session.class);
         session = (Session) sessionMock.proxy();
         queryMock = mock(Query.class);
         query = (Query) queryMock.proxy();
+        em = (ExtendedMetadata) emMock.proxy();
     }
 
     @Test
@@ -77,7 +84,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         // null ctx is okay until .release()
         GraphState state = new GraphState(null,
-            new DeleteStepFactory(specXml), null, session, spec);
+            new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(1, state.getTotalFoundCount());
     }
 
@@ -97,7 +104,7 @@ public class GraphStateUnitTest extends MockGraphTest {
         prepareQueryBackupIds(table);
 
         GraphState state = new GraphState(createEventContext(false),
-            new DeleteStepFactory(specXml), null, session, spec);
+            new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(2, state.getTotalFoundCount());
 
     }
@@ -115,7 +122,7 @@ public class GraphStateUnitTest extends MockGraphTest {
         prepareQueryBackupIds(table);
 
         GraphState state = new GraphState(createEventContext(false),
-            new DeleteStepFactory(specXml), null, session, spec);
+            new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(2, state.getTotalFoundCount());
 
     }
@@ -133,7 +140,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        GraphState state = new GraphState(null, new DeleteStepFactory(specXml), null, session, spec);
+        GraphState state = new GraphState(null, new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
 
     }
@@ -158,7 +165,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        GraphState state = new GraphState(null, new DeleteStepFactory(specXml), null, session, spec);
+        GraphState state = new GraphState(null, new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(state.toString(), 10, state.getTotalFoundCount());
         // includes the one parent spec
 
@@ -238,7 +245,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        GraphState state = new GraphState(null, new DeleteStepFactory(specXml), null, session, spec);
+        GraphState state = new GraphState(null, new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
         // 4 for the parent spec
 
@@ -441,7 +448,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        GraphState state = new GraphState(null, new DeleteStepFactory(specXml), null, session, spec);
+        GraphState state = new GraphState(null, new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
     }
 
@@ -458,7 +465,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        GraphState state = new GraphState(null, new DeleteStepFactory(specXml), null, session, spec);
+        GraphState state = new GraphState(null, new DeleteStepFactory(specXml, em), null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
     }
 
@@ -489,7 +496,7 @@ public class GraphStateUnitTest extends MockGraphTest {
                 if ("Project".equals(name)) {
                     count.incrementAndGet();
                 }
-                return new GraphStep(idx, stack, spec, entry, ids) {
+                return new GraphStep(em, idx, stack, spec, entry, ids) {
 
                     @Override
                     public void action(Callback cb, Session session,
@@ -528,7 +535,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        ExporterStepFactory factory = new ExporterStepFactory(null, null);
+        ExporterStepFactory factory = new ExporterStepFactory(null, null, null);
         GraphState state = new GraphState(null, factory, null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
         assertEquals(1, factory.getCount("Project"));
@@ -552,7 +559,7 @@ public class GraphStateUnitTest extends MockGraphTest {
         Executor ex = new DummyExecutor(session, null);
         Principal p = new Principal("foo");
 
-        ExporterStepFactory factory = new ExporterStepFactory(ex, p);
+        ExporterStepFactory factory = new ExporterStepFactory(ex, p, em);
         GraphState state = new GraphState(null, factory, null, session, spec);
         assertEquals(state.toString(), 5, state.getTotalFoundCount());
 
@@ -590,7 +597,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        ExporterStepFactory factory = new ExporterStepFactory(null, null);
+        ExporterStepFactory factory = new ExporterStepFactory(null, null, null);
         GraphState state = new GraphState(null, factory, null, session, spec);
         assertEquals(state.toString(), 7, state.getTotalFoundCount());
         assertEquals(1, factory.getCount("Image"));

@@ -37,6 +37,10 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
     private final static Op DEFAULT = Op.HARD;
 
+    ExtendedMetadata em() {
+        return specXml.getBean(ExtendedMetadata.class);
+    }
+    
     /**
      * Test that various entry strings will be properly parsed. These are the
      * values passed in as a list to the {@link GraphSpec} constructors in
@@ -307,7 +311,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
         BaseGraphSpec spec = new BaseGraphSpec(Arrays.asList("/Foo"));
         spec.setBeanName("/Foo");
-        spec.setExtendedMetadata(specXml.getBean(ExtendedMetadata.class));
+        spec.setExtendedMetadata(em());
         spec.postProcess(specXml);
 
         final GraphState ids = new GraphState(null, null, null, session, spec);
@@ -356,7 +360,7 @@ public class GraphSpecUnitTest extends MockGraphTest {
     GraphStep step(String type, Class<IObject> k, long id) {
 
         BaseGraphSpec spec = new BaseGraphSpec("/"+type, "/"+type);
-        GraphStep step = new GraphStep(0, new LinkedList<GraphStep>(),
+        GraphStep step = new GraphStep(em(), 0, new LinkedList<GraphStep>(),
                 spec, spec.entries.get(0), new long[0]) {
 
                     @Override

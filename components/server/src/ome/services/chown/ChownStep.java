@@ -47,8 +47,6 @@ public class ChownStep extends GraphStep {
 
     final private OmeroContext ctx;
 
-    final private ExtendedMetadata em;
-
     final private long userGroup;
 
     final private long usr;
@@ -58,9 +56,8 @@ public class ChownStep extends GraphStep {
     public ChownStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long usr) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
-        this.em = em;
         this.usr = usr;
         this.userGroup = roles.getUserGroupId();
         this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
