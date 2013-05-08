@@ -815,6 +815,17 @@ class BrowserModel
 		if (nodes.size() == 1) {
 			setSelectedDisplay(nodes.get(0), false, true);
 		} else {
+			List<ImageData> selected = new ArrayList<ImageData>(nodes.size());
+			Iterator<ImageDisplay> i = nodes.iterator();
+			ImageDisplay img;
+			while (i.hasNext()) {
+				img = i.next();
+				if (img.getHierarchyObject() instanceof ImageData) {
+					selected.add((ImageData) img.getHierarchyObject());
+				}
+			}
+			FilesetVisitor visitor = new FilesetVisitor(selected, null);
+			accept(visitor);
 			thumbSelected = false;
 		    this.multiSelection = true;
 		    Set<ImageDisplay> oldValue = 
