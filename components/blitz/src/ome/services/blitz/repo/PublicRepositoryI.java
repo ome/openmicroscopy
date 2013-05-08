@@ -673,11 +673,13 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
      */
     private CheckedPath checkId(final long id, final Ice.Current curr)
         throws SecurityViolation, ValidationException {
-        final ChecksumAlgorithm checksumAlgorithm = this.repositoryDao.getOriginalFile(id, curr).getHasher();
         final FsFile file = this.repositoryDao.getFile(id, curr, this.repoUuid);
         if (file == null) {
             throw new SecurityViolation(null, null, "FileNotFound: " + id);
         }
+
+        // TODO: could getOriginalFile and getFile be reduced to a single call?
+        final ChecksumAlgorithm checksumAlgorithm = this.repositoryDao.getOriginalFile(id, curr).getHasher();
         final CheckedPath checked = new CheckedPath(this.serverPaths,file.toString(),
                 checksumProviderFactory, checksumAlgorithm);
         checked.setId(id);
