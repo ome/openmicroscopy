@@ -59,9 +59,9 @@
 			<!-- Note: relatedTo is not used in model-->
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType in model and uses enum PixelTypes -->
-			<required name="significantBits" type="boolean"/>
-			<required name="interleaved" type="PositiveInteger"/>
-			<required name="bigEndian" type="boolean"/>
+			<optional name="significantBits" type="boolean"/>
+			<optional name="interleaved" type="PositiveInteger"/>
+			<optional name="bigEndian" type="boolean"/>
 			<required name="sizeX" type="PositiveInteger"/>
 			<required name="sizeY" type="PositiveInteger"/>
 			<required name="sizeZ" type="PositiveInteger"/>
