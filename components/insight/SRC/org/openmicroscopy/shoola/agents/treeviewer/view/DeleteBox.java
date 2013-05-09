@@ -24,9 +24,13 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,15 +44,19 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
+import org.apache.commons.io.FilenameUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -74,10 +82,16 @@ import pojos.TagAnnotationData;
  * </small>
  * @since OME3.0
  */
-public class DeleteBox 
+public class DeleteBox
 	extends MessageBox
 {
 
+	/**
+	 * The preferred size of the viewport displaying images than cannot
+	 * be deleted.
+	 */
+	private static final Dimension VIEWPORT_SIZE = new Dimension(300, 120);
+	
 	/** The title of the dialog. */
 	private static final String		TITLE = "Confirm delete";
 	
@@ -87,13 +101,19 @@ public class DeleteBox
 
 	/** The text displayed in the tool tip for annotations. */
 	private static final String    TOOL_TIP = "The annotations are " +
-			"deleted only if you own them and if they are not used by others.";
+			"deleted only if you own them and if they are not used by other " +
+			"users.";
 		
 	/** Text display if the user is a group owner. */
 	private static final String		WARNING_GROUP_OWNER = "Some data " +
 			"might be used by other users,\nthey will no longer be able to " +
 			"use or see them.";
 	
+	/** Text display if the user is a group owner. */
+	private static final String WARNING_FILESET = "The following images " +
+			"cannot be deleted. All images composing a multi-images file " +
+			"must be selected.";
+
 	/** The button to display the tool tip. */
 	private JButton					infoButton;
 	
@@ -114,6 +134,9 @@ public class DeleteBox
 	
 	/** The UI component hosting the various annotations types. */
 	private JPanel					typesPane;
+	
+	/** The image to exclude. */
+	private JPanel toExcludePane;
 	
 	/**
 	 * Creates and formats a check box.
@@ -193,35 +216,69 @@ public class DeleteBox
 	 * @param groupLeader Pass <code>true</code> to indicate that the user
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
+	 * @param toExclude The nodes to exclude from the delete list.
 	 */
-	private void layoutComponents(boolean groupLeader)
+	private void layoutComponents(boolean groupLeader,
+			Collection<ImageData> toExclude)
 	{
-		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
-		TableLayout layout = new TableLayout();
-		double[] columns = {130, TableLayout.PREFERRED};
-		layout.setColumn(columns);
-		//typesPane.setLayout(layout);
-		typesPane.setLayout(new BoxLayout(typesPane, BoxLayout.Y_AXIS));
-		typesPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
-		int index = 0;
-		while (i.hasNext()) {
-			layout.insertRow(index, TableLayout.PREFERRED);
-			//typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
-			//typesPane.add(i.next(), "1, "+index);
-			typesPane.add(i.next());
-			index++;
+		int h = 0;
+		if (toExclude != null && toExclude.size() > 0) {
+			toExcludePane = new JPanel();
+			toExcludePane.setLayout(new BoxLayout(toExcludePane,
+					BoxLayout.Y_AXIS));
+			Iterator<ImageData> j = toExclude.iterator();
+			JLabel label;
+			while (j.hasNext()) {
+				label = new JLabel(FilenameUtils.getName(j.next().getName()));
+				toExcludePane.add(label);
+				h += label.getPreferredSize().height;
+			}
 		}
+		
+		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
+		typesPane.setLayout(new BoxLayout(typesPane, BoxLayout.Y_AXIS));
+		typesPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 20, 0));
+		while (i.hasNext()) {
+			typesPane.add(i.next());
+		}
+		JPanel body = new JPanel();
+		
+		TableLayout layout = new TableLayout();
+		double[] columns = {TableLayout.FILL};
+		layout.setColumn(columns);
+		body.setLayout(layout);
+		
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		
+		JLabel mLabel;
+		int index = 0;
+		if (toExcludePane != null) {
+			mLabel = UIUtilities.setTextFont(WARNING_FILESET, Font.BOLD);
+			layout.insertRow(index, TableLayout.PREFERRED);
+			body.add(mLabel, "0, "+index);
+			JScrollPane pane = new JScrollPane(toExcludePane);
+			pane.setHorizontalScrollBarPolicy(
+					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			pane.setVerticalScrollBarPolicy(
+					ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+			if (h > VIEWPORT_SIZE.height)
+				pane.getViewport().setPreferredSize(VIEWPORT_SIZE);
+			index++;
+			layout.insertRow(index, TableLayout.PREFERRED);
+			body.add(pane, "0, "+index);
+			index++;
+			layout.insertRow(index, TableLayout.PREFERRED);
+			body.add(Box.createVerticalStrut(10), "0, "+index);
+		}
 		boolean add = false;
-		if (DatasetData.class.equals(type) || 
+		if (DatasetData.class.equals(type) ||
 				ProjectData.class.equals(type) ||
-				PlateData.class.equals(type) || 
-				ScreenData.class.equals(type) || 
+				PlateData.class.equals(type) ||
+				ScreenData.class.equals(type) ||
 				PlateAcquisitionData.class.equals(type) ||
 				ImageData.class.equals(type)) {
 			add = true;
+			
 			if (annotation) {
 				p.add(buildAnnotationWarning());
 				p.add(Box.createVerticalStrut(10));
@@ -229,18 +286,26 @@ public class DeleteBox
 				p.add(typesPane);
 			}
 		}
-		JPanel body;
+		
 		if (groupLeader) {
-			body = new JPanel();
-			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-			body.add(UIUtilities.buildComponentPanel(p));
-			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
-					Font.BOLD);
-			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-			body.add(UIUtilities.buildComponentPanel(label));
-		} else body = p;
-		if (add)
+			mLabel = UIUtilities.setTextFont(WARNING_GROUP_OWNER, Font.BOLD);
+			mLabel.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+			index++;
+			layout.insertRow(index, TableLayout.PREFERRED);
+			body.add(mLabel, "0, "+index);
+			if (annotation) {
+				index++;
+				layout.insertRow(index, TableLayout.FILL);
+				body.add(new JSeparator(), "0, "+index);
+			}
+			
+		}
+		index++;
+		layout.insertRow(index, TableLayout.PREFERRED);
+		body.add(UIUtilities.buildComponentPanel(p), "0, "+index);
+		if (add) {
 			addBodyComponent(UIUtilities.buildComponentPanel(body));
+		}
 	}
 	
 	/**
@@ -251,7 +316,7 @@ public class DeleteBox
 	 * @param ns		Name space related to the data object if any.
 	 * @return See above.
 	 */
-	private static String getTypeAsString(Class type, int number, String ns)
+	private static String getTypeAsString(Class<?> type, int number, String ns)
 	{
 		String end = "";
 		if (number > 1) end = "s";
@@ -328,16 +393,17 @@ public class DeleteBox
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
 	 */
-	public DeleteBox(JFrame parent, Class type, boolean annotation, int number,
-			String nameSpace, boolean groupLeader)
+	public DeleteBox(JFrame parent, Class<?> type, boolean annotation,
+			int number, String nameSpace, boolean groupLeader,
+			Collection<ImageData> toExclude)
 	{
-		super(parent, TITLE, 
+		super(parent, TITLE,
 				DeleteBox.getMessage(type, number, nameSpace, annotation));
 		this.nameSpace = nameSpace;
 		this.type = type;
 		this.annotation = annotation;
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
-		layoutComponents(groupLeader);
+		layoutComponents(groupLeader, toExclude);
 		pack();
 		setResizable(false);
 	}

@@ -24,7 +24,9 @@
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Java imports
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 //Third-party libraries
 
@@ -55,6 +57,9 @@ public class LeavesVisitor
     /** Set of nodes */
     private Set<TreeImageDisplay> nodes;
     
+    /** Keeps a map of file set and corresponding images.*/
+    private Map<Long, Set<ImageData>> filesetMap;
+    
     /**
      * Creates a new instance.
      * 
@@ -65,6 +70,7 @@ public class LeavesVisitor
     {
         super(model);
         nodes = new HashSet<TreeImageDisplay>();
+        filesetMap = new HashMap<Long, Set<ImageData>>();
     }
 
     /**
@@ -76,6 +82,13 @@ public class LeavesVisitor
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
             nodes.add(node);
+            ImageData img = (ImageData) uo;
+            Set<ImageData> l = filesetMap.get(img.getFilesetId());
+            if (l == null) {
+            	l = new HashSet<ImageData>();
+            	filesetMap.put(img.getFilesetId(), l);
+            }
+            l.add(img);
         }
     }
     
@@ -92,5 +105,13 @@ public class LeavesVisitor
      * @return See above.
      */
     public Set<TreeImageDisplay> getNodes() { return nodes; }
+    
+    /**
+     * Returns the map of file set and corresponding images.
+     * 
+     * @return See above.
+     */
+    public Map<Long, Set<ImageData>> getFilesetMap() { return filesetMap; }
+    
 
 }

@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
@@ -3197,6 +3198,10 @@ class TreeViewerComponent
 		String ns = null;
 		GroupData group;
 		long userID = model.getExperimenter().getId();
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
 		while (i.hasNext()) {
 			node = i.next();
 			if (node.isAnnotated() && ann == null) ann = true;
@@ -3210,18 +3215,41 @@ class TreeViewerComponent
 			}
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
+			if (ImageData.class.equals(type)) {
+				img = (ImageData) uo;
+				set = selection.get(img.getFilesetId());
+				if (set == null) {
+					set = new HashSet<ImageData>();
+					selection.put(img.getFilesetId(), set);
+				}
+				set.add(img);
+			}
 		}
+		List<ImageData> toExclude = new ArrayList<ImageData>();
 		if (ImageData.class.equals(type)) {
 			//scan all the images node
 			Browser b = model.getSelectedBrowser();
-			Set<TreeImageDisplay> images = b.getImageNodes(null);
-			
+			if (b != null) {
+				LeavesVisitor visitor = new LeavesVisitor(b);
+				b.accept(visitor);
+				Map<Long, Set<ImageData>> filesetMap = visitor.getFilesetMap();
+				Entry<Long, Set<ImageData>> e;
+				Iterator<Entry<Long, Set<ImageData>>> j =
+						selection.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					set = filesetMap.get(e.getKey());
+					if (set.size() != e.getValue().size())
+						toExclude.addAll(e.getValue());
+				}
+			}
 		}
 		boolean b = false;
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
-		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le);
+		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le,
+				toExclude);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
@@ -3241,17 +3269,19 @@ class TreeViewerComponent
 					if (values == null)
 						values = new ArrayList<DataObject>();
 					values.add((DataObject) obj);
-					//toRemove.add(node);
+					ids.add(((DataObject) obj).getId());
 				} else if (obj instanceof DataObject) {
-					d = new DeletableObject((DataObject) obj, content);
-					if (!(obj instanceof TagAnnotationData ||
-							obj instanceof FileAnnotationData))
-						d.setAttachmentTypes(types);
-					checkForImages(node, objects, content);
-					l.add(d);
+					if (!toExclude.contains(obj)) {
+						d = new DeletableObject((DataObject) obj, content);
+						if (!(obj instanceof TagAnnotationData ||
+								obj instanceof FileAnnotationData))
+							d.setAttachmentTypes(types);
+						checkForImages(node, objects, content);
+						l.add(d);
+						ids.add(((DataObject) obj).getId());
+					}
 				}
 				klass = obj.getClass();
-				ids.add(((DataObject) obj).getId());
 			}
 			if (l.size() > 0) {
 				model.setNodesToCopy(null, -1);
