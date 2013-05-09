@@ -170,9 +170,9 @@ public class PasteRndSettingsCmd
 		TreeImageDisplay node;
 		TreeImageTimeSet time;
 		
-		Class klass = null;
+		Class<?> klass = null;
 		Object ho;
-		Iterator j;
+		Iterator<TreeImageDisplay> j;
 		ExperimenterData exp;
 		TimeRefObject ref = null;
 		for (int i = 0; i < nodes.length; i++) {
@@ -180,9 +180,9 @@ public class PasteRndSettingsCmd
 			if (node instanceof TreeImageTimeSet) {
 				if (node.containsImages()) {
 					klass = ImageData.class;
-					j = ViewCmd.getImageNodeIDs(node, b).iterator();
+					j = b.getImageNodes(node).iterator();
 					while (j.hasNext())
-						ids.add((Long) j.next());
+						ids.add(((DataObject) j.next().getUserObject()).getId());
 				} else {
 					time = (TreeImageTimeSet) node;
             		exp = model.getUserDetails();

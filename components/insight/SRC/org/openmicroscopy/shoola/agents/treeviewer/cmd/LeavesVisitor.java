@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import pojos.ImageData;
 
 /** 
- * Retrieves the nodes hosting {@link ImageData} objects. 
+ * Retrieves the nodes hosting {@link ImageData} objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,22 +53,18 @@ public class LeavesVisitor
 {
 
     /** Set of nodes */
-    private Set<TreeImageDisplay> 	nodes;
-    
-    /** Set of corresponding <code>DataObject</code>s IDs*/
-    private Set<Long> 				objects;
+    private Set<TreeImageDisplay> nodes;
     
     /**
      * Creates a new instance.
      * 
-     * @param model         Reference to the {@link Browser}.
-     *                      Mustn't be <code>null</code>.
+     * @param model Reference to the {@link Browser}.
+     * Mustn't be <code>null</code>.
      */
     public LeavesVisitor(Browser model)
     {
         super(model);
         nodes = new HashSet<TreeImageDisplay>();
-        objects = new HashSet<Long>();
     }
 
     /**
@@ -80,7 +76,6 @@ public class LeavesVisitor
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
             nodes.add(node);
-            objects.add(Long.valueOf(((ImageData) uo).getId()));
         }
     }
     
@@ -93,23 +88,14 @@ public class LeavesVisitor
         Object uo = node.getUserObject();
         if (uo instanceof ImageData) {
             nodes.add(node);
-            objects.add(Long.valueOf(((ImageData) uo).getId()));
         }
     }
-    
-    /**
-     * Returns the collection of images' id.
-     * 
-     * @return See above.
-     */
-    public Set getNodeIDs() { return objects; }
     
     /**
      * Returns the collection of {@link TreeImageNode}s.
      * 
      * @return See above.
      */
-    public Set getNodes() { return nodes; }
-    
-    
+    public Set<TreeImageDisplay> getNodes() { return nodes; }
+
 }

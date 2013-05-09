@@ -3211,6 +3211,12 @@ class TreeViewerComponent
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
 		}
+		if (ImageData.class.equals(type)) {
+			//scan all the images node
+			Browser b = model.getSelectedBrowser();
+			Set<TreeImageDisplay> images = b.getImageNodes(null);
+			
+		}
 		boolean b = false;
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
@@ -3228,18 +3234,18 @@ class TreeViewerComponent
 			List<Long> ids = new ArrayList<Long>();
 			Class klass = null;
 			while (i.hasNext()) {
-				node = (TreeImageDisplay) i.next();
+				node = i.next();
 				obj = node.getUserObject();
-				if (obj instanceof GroupData || 
+				if (obj instanceof GroupData ||
 						obj instanceof ExperimenterData) {
 					if (values == null)
-						values = new ArrayList<DataObject>(); 
+						values = new ArrayList<DataObject>();
 					values.add((DataObject) obj);
 					//toRemove.add(node);
 				} else if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
-					if (!(obj instanceof TagAnnotationData || 
-							obj instanceof FileAnnotationData)) 
+					if (!(obj instanceof TagAnnotationData ||
+							obj instanceof FileAnnotationData))
 						d.setAttachmentTypes(types);
 					checkForImages(node, objects, content);
 					l.add(d);

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
 
@@ -61,34 +60,6 @@ public class ViewCmd
 
     /** Flag indicating to browse the object and retrieve the thumbnails. */
     private boolean withThumbnails;
-    
-	/**
-	 * Returns the images' id contained in the passed node.
-	 * 
-	 * @param node 		The node to handle.
-	 * @param browser 	The selected browser.
-	 * @return See above.
-	 */
-	static Set getImageNodeIDs(TreeImageDisplay node, Browser browser) 
-	{
-		LeavesVisitor visitor = new LeavesVisitor(browser);
-		node.accept(visitor);
-		return visitor.getNodeIDs();
-	}
-
-	/**
-	 * Returns the images contained in the passed node.
-	 * 
-	 * @param node 		The node to handle.
-	 * @param browser 	The selected browser.
-	 * @return See above.
-	 */
-	static Set getImageNodes(TreeImageDisplay node, Browser browser) 
-	{
-		LeavesVisitor visitor = new LeavesVisitor(browser);
-		node.accept(visitor);
-		return visitor.getNodes();
-	}
 
 	/**
 	 * Creates a new instance.
@@ -121,7 +92,7 @@ public class ViewCmd
 			if (p != null) {
 				uo = p.getUserObject();
 				gp = p.getParentDisplay();
-				if (uo instanceof DataObject) 
+				if (uo instanceof DataObject)
 					po = (DataObject) uo;
 				if (gp != null) {
 					uo = gp.getUserObject();

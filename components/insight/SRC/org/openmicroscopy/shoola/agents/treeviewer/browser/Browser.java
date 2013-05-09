@@ -870,4 +870,12 @@ public interface Browser
 	/** Rebuilds the tree when the display mode is modified.*/
 	void changeDisplayMode();
 
+	/**
+	 * Returns all the images linked to the sources node.
+	 * 
+	 * @param source The source node or <code>null</code> to visit the tree.
+	 * @return See above.
+	 */
+	Set<TreeImageDisplay> getImageNodes(TreeImageDisplay source);
+
 }
