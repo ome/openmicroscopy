@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 //Third-party libraries
 import org.apache.commons.lang.StringUtils;
@@ -64,29 +65,30 @@ public class OriginalMetadataParser
 	private String writeMap(Map<String, RType> map, String separator)
 	{
 		if (map == null || map.size() == 0) return null;
-		Entry<String, RType> entry;
-		Iterator<Entry<String, RType>> i = map.entrySet().iterator();
-		StringBuffer buffer = new StringBuffer();
-		Object v;
 		if (StringUtils.isBlank(separator)) separator = " ";
-		while (i.hasNext()) {
-			entry = i.next();
-			buffer.append(entry.getKey());
+		TreeSet<String> sortedSet = new TreeSet<String>(map.keySet());
+		Iterator<String> j = sortedSet.iterator();
+		String key;
+		Object v;
+		StringBuffer buffer = new StringBuffer();
+		while (j.hasNext()) {
+			key = j.next();
+			buffer.append(key);
 			buffer.append(separator);
-			v = ModelMapper.convertRTypeToJava(entry.getValue());
+			v = ModelMapper.convertRTypeToJava(map.get(key));
 			if (v instanceof List) {
 				List<Object> l = (List<Object>) v;
-				Iterator<Object> j = l.iterator();
-				while (j.hasNext()) {
-					buffer.append(j.next());
+				Iterator<Object> k = l.iterator();
+				while (k.hasNext()) {
+					buffer.append(k.next());
 					buffer.append(" ");
 				}
 			} else if (v instanceof Map) {
 				Map<String, Object> l = (Map<String, Object>) v;
 				Entry<String, Object> e;
-				Iterator<Entry<String, Object>> j = l.entrySet().iterator();
-				while (j.hasNext()) {
-					e = j.next();
+				Iterator<Entry<String, Object>> k = l.entrySet().iterator();
+				while (k.hasNext()) {
+					e = k.next();
 					buffer.append(e.getKey());
 					buffer.append(separator);
 					buffer.append(e.getValue());
