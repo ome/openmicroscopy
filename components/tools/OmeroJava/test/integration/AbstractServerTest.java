@@ -168,7 +168,7 @@ public class AbstractServerTest
 
     /**
      * {@link omero.client} instances which are created via the newUser* methods.
-     * These will be forcifully closed at the end of the test. "new omero.client(...)"
+     * These will be forcefully closed at the end of the test. "new omero.client(...)"
      * should be strictly avoided except for in the method {@link #newOmeroClient()}.
      *
      * @see #newUserAndGroup(Permissions)
@@ -244,7 +244,7 @@ public class AbstractServerTest
      * 
      * @param perms The permissions level.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -272,7 +272,7 @@ public class AbstractServerTest
      * 
      * @param perms The permissions level.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -326,7 +326,7 @@ public class AbstractServerTest
      * @param perms The permissions level.
      * @param experimenterId The identifier of the experimenter.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -343,7 +343,7 @@ public class AbstractServerTest
      * @param perms The permissions level.
      * @param experimenterIds The identifier of the experimenters.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -385,7 +385,7 @@ public class AbstractServerTest
      * @param perms The permissions level.
      * @param experimenterId The identifier of the experimenters.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -432,7 +432,7 @@ public class AbstractServerTest
      * @param perms The permissions level.
      * @param experimenterId The identifier of the experimenter.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
@@ -472,7 +472,7 @@ public class AbstractServerTest
      *
      * @param previousUser The context of the previous user.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @throws Exception Thrown if an error occurred.
      */
     protected EventContext newUserInGroup(EventContext previousUser,
@@ -489,7 +489,7 @@ public class AbstractServerTest
      * 
      * @param group The group to add the user to.
      * @param owner Pass <code>true</code> to indicate that the new user
-     * 				is an owner of the group, <code>false otherwise</code>.
+     * 				is an owner of the group, <code>false</code> otherwise.
      * @return The context.
      * @throws Exception Thrown if an error occurred.
      */
@@ -503,7 +503,7 @@ public class AbstractServerTest
         String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
         e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("integeration"));
+        e.setFirstName(omero.rtypes.rstring("integration"));
         e.setLastName(omero.rtypes.rstring("tester"));
         long id = rootAdmin.createUser(e, group.getName().getValue());
         e = rootAdmin.getExperimenter(id);
@@ -707,7 +707,7 @@ public class AbstractServerTest
 	}
 
 	/**
-	 * Helper method to the wells the wells.
+	 * Helper method to load the wells.
 	 * 
 	 * @param plateID The identifier of the plate.
 	 * @param pixels  Pass <code>true</code> to load the pixels, 
@@ -1004,7 +1004,7 @@ public class AbstractServerTest
     }
 
     /**
-     * Asynchronous command for a single delete, this means a single 
+     * Asynchronous command for a single delete, this means a single
      * report is returned for testing. 
      * 
      * @param dc The SINGLE command to handle.
@@ -1019,7 +1019,7 @@ public class AbstractServerTest
         return deleteWithReports(c, dc)[0];
     }
     /**
-     * Asynchronous command for delete, report array is returned. 
+     * Asynchronous command for delete, report array is returned.
      * 
      * @param dc The command to handle.
      * @throws ApiUsageException
