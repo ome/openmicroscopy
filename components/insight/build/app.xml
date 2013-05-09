@@ -139,7 +139,8 @@
            deprecation="yes"
            encoding="UTF-8"
            debug="yes"
-           debuglevel="lines,vars,source">
+           debuglevel="lines,vars,source"
+           fork="true">
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
@@ -150,7 +151,8 @@
            deprecation="yes"
            encoding="UTF-8"
            debug="yes"
-           debuglevel="lines,vars,source">
+           debuglevel="lines,vars,source"
+           fork="true">
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
@@ -161,7 +163,8 @@
            deprecation="yes"
            encoding="UTF-8"
            debug="yes"
-           debuglevel="lines,vars,source">
+           debuglevel="lines,vars,source"
+           fork="true">
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac>
