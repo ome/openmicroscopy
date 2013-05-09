@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.awt.FlowLayout;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
@@ -167,6 +169,39 @@ public class StatusLabel
 		buffer.append("/");
 		buffer.append(fileSize);
 		return buffer.toString();
+	}
+	
+	/**
+	 * Formats the checksum and filename arrays returned from an event.
+	 * The structure returned is of the form:
+	 * <p>
+	 * <code>{filename, client_checksum, server_checksum}</code>
+	 * </p>
+	 * If a failure is indicated in the <code>failingChecksums</code> map, that
+	 * specific checksum will be taken from the map and used in the returned
+	 * list. In case of matching checksums, the client checksum will be used.
+	 *
+	 * @param srcFiles An array of filenames.
+	 * @param checksums Client-side calculated checksums.
+	 * @param failingChecksums A map of index to checksum indicating at which
+	 *						   index of the checkum list a mismatch occurred.
+	 * @return A list of String arrays for each row of data.
+	 */
+	private List<String[]> formatChecksums(String[] srcFiles,
+			List<String> checksums, Map<Integer, String> failingChecksums) {
+		List<String[]> rowColumns = new ArrayList<String[]>();
+		for (int i = 0; i < srcFiles.length; ++i) {
+			String[] row = new String[3];
+			row[0] = srcFiles[i];
+			row[1] = checksums.get(i);
+			if (failingChecksums.containsKey(i)) {
+				row[2] = failingChecksums.get(i);
+			} else {
+				row[2] = checksums.get(i);
+			}
+			rowColumns.add(row);
+		}
+		return rowColumns;
 	}
 	
 	/** Creates a new instance. */
@@ -426,8 +461,13 @@ public class StatusLabel
 			uploadLabel.setText(buffer.toString());
 			ImportEvent.FILESET_UPLOAD_END fue =
 					(ImportEvent.FILESET_UPLOAD_END) event;
-			uploadLabel.setToolTipText(UIUtilities.formatChecksumMapToToolTip(
-					fue.srcFiles, fue.checksums, fue.failingChecksums));
+			List<String> columnNames = new ArrayList<String>();
+			columnNames.add("File name");
+			columnNames.add("Client checksum");
+			columnNames.add("Server checksum");
+			uploadLabel.setToolTipText(UIUtilities.formatStringListToTable(
+					columnNames, formatChecksums(fue.srcFiles, fue.checksums,
+							fue.failingChecksums)));
 			firePropertyChange(FILESET_UPLOADED_PROPERTY, fue.checksums,
 					fue.failingChecksums);
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
