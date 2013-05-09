@@ -21,12 +21,6 @@ from omero.cmd import DoAll
 
 class TestDelete(lib.ITest):
 
-    def doAllDelete(self, requests, client, test_should_pass=True):
-        da = DoAll()
-        da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
-        return rsp
-
     def testBasicUsage(self):
         img = omero.model.ImageI()
         img.name = omero.rtypes.rstring("delete test")
@@ -577,7 +571,7 @@ class TestDelete(lib.ITest):
         # Now delete all datasets, should succeed
         delete1 = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
         delete2 = omero.cmd.Delete("/Dataset", datasets[1].id.val, None)
-        self.doAllDelete([delete1,delete2], client)
+        self.doAllSubmit([delete1,delete2], client)
 
         # Both datasets and both images should be deleted.
         query = client.sf.getQueryService()
@@ -607,7 +601,7 @@ class TestDelete(lib.ITest):
         # Now delete all images, should succeed
         delete1 = omero.cmd.Delete("/Image", images[0].id.val, None)
         delete2 = omero.cmd.Delete("/Image", images[1].id.val, None)
-        self.doAllDelete([delete1,delete2], client)
+        self.doAllSubmit([delete1,delete2], client)
 
         # Both images should be deleted.
         query = client.sf.getQueryService()

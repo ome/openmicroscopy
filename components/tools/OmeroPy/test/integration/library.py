@@ -21,13 +21,13 @@ import traceback
 import exceptions
 import subprocess
 
-import omero
+import omero, omero.gateway
 
 from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime, rint, unwrap
 from path import path
 
-from omero.cmd import State, ERR, OK
+from omero.cmd import DoAll, State, ERR, OK
 from omero.callbacks import CmdCallbackI
 
 
@@ -626,6 +626,11 @@ class ITest(unittest.TestCase):
 
         return rsp
 
+    def doAllSubmit(self, requests, client, test_should_pass=True):
+        da = DoAll()
+        da.requests = requests
+        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
+        return rsp
 
     def tearDown(self):
         failure = False

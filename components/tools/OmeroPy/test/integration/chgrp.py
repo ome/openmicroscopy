@@ -11,7 +11,6 @@ import omero, omero.gateway
 import integration.library as lib
 import unittest
 from omero.rtypes import *
-from omero.cmd import Chgrp, DoAll
 from omero.api import Save
 
 PRIVATE = 'rw----'
@@ -19,13 +18,6 @@ READONLY = 'rwr---'
 COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
-
-    def doAllChgrp(self, requests, client, test_should_pass=True):
-        
-        da = DoAll()
-        da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
-        return rsp
 
     def testChgrpImportedImage(self):
         """
@@ -100,7 +92,7 @@ class TestChgrp(lib.ITest):
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
-        self.doAllChgrp(requests, client)
+        self.doAllSubmit(requests, client)
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -243,7 +235,7 @@ class TestChgrp(lib.ITest):
         # chgrp should succeed
         chgrp1 = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Image", id=images[1].id.val, grp=target_gid)
-        self.doAllChgrp([chgrp1,chgrp2], client)
+        self.doAllSubmit([chgrp1,chgrp2], client)
 
         # Check both Images moved
         queryService = client.sf.getQueryService()
@@ -315,7 +307,7 @@ class TestChgrp(lib.ITest):
         # Now chgrp, should succeed
         chgrp1 = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Dataset", id=datasets[1].id.val, grp=target_gid)
-        self.doAllChgrp([chgrp1,chgrp2], client)
+        self.doAllSubmit([chgrp1,chgrp2], client)
 
         # Check both Datasets and Images moved
         queryService = client.sf.getQueryService()
@@ -387,7 +379,7 @@ class TestChgrp(lib.ITest):
         # chgrp should fail...
         chgrp1 = omero.cmd.Chgrp(type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
         chgrp2 = omero.cmd.Chgrp(type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
-        rsp = self.doAllChgrp([chgrp1,chgrp2], client, test_should_pass=False)
+        rsp = self.doAllSubmit([chgrp1,chgrp2], client, test_should_pass=False)
 
         # ...due to the filesets
         self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
