@@ -111,7 +111,7 @@ import ome.specification.AbstractTest;
  *
  * @since Beta4.2
  */
-@Test(groups = { "client", "integration", "blitz" })
+@Test(groups = { "client", "integration", "blitz", "fs" })
 public class AbstractServerTest
 	extends AbstractTest
 {
