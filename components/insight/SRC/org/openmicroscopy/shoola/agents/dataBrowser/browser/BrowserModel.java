@@ -579,7 +579,7 @@ class BrowserModel
 			return;
 		}
 		NodesFinder finder = new NodesFinder(nodes);
-		rootDisplay.accept(finder);
+		accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
 		//to reset color if parent is selected.
 		Collection<ImageDisplay> selected = getSelectedDisplays();
@@ -594,8 +594,21 @@ class BrowserModel
 		
 		boolean b = found.size() > 1;
 		Iterator<ImageDisplay> i = found.iterator();
-		while (i.hasNext()) 
+		
+		while (i.hasNext()) {
 			setSelectedDisplay(i.next(), b, false);
+		}
+		final List<ImageData> images = new ArrayList<ImageData>();
+		ImageDisplay img;
+		selected = getSelectedDisplays();
+		i = selected.iterator();
+		while (i.hasNext()) {
+			img = i.next();
+			if (img.getHierarchyObject() instanceof ImageData)
+				images.add((ImageData) img.getHierarchyObject());
+		}
+		FilesetVisitor visitor = new FilesetVisitor(images, null);
+		accept(visitor);
 	}
 	
 	/**
