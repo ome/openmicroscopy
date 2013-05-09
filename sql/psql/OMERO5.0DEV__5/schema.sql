@@ -532,10 +532,12 @@
         id int8 not null,
         permissions int8 not null,
         gain float8,
+        integration int4,
         offsetValue float8,
         readOutRate float8,
         version int4,
         voltage float8,
+        zoom float8,
         binning int8,
         creation_id int8 not null,
         external_id int8 unique,
@@ -543,7 +545,8 @@
         owner_id int8 not null,
         update_id int8 not null,
         detector int8 not null,
-        primary key (id)
+        primary key (id),
+        check (integration > 0)
     );;
 
     create table detectortype (
@@ -1337,7 +1340,7 @@
         lotNumber varchar(255),
         manufacturer varchar(255),
         model varchar(255),
-        nominalMagnification int4,
+        nominalMagnification float8,
         serialNumber varchar(255),
         version int4,
         workingDistance float8,
@@ -1349,8 +1352,7 @@
         update_id int8 not null,
         immersion int8 not null,
         instrument int8 not null,
-        primary key (id),
-        check (nominalMagnification > 0)
+        primary key (id)
     );;
 
     create table objectivesettings (
@@ -1447,12 +1449,15 @@
 
     create table pixels (
         id int8 not null,
+        bigEndian bool not null,
         permissions int8 not null,
+        interleaved int4 not null,
         methodology varchar(255),
         physicalSizeX float8,
         physicalSizeY float8,
         physicalSizeZ float8,
         sha1 varchar(255) not null,
+        significantBits bool not null,
         sizeC int4 not null,
         sizeT int4 not null,
         sizeX int4 not null,
@@ -1474,7 +1479,7 @@
         image_index int4 not null,
         primary key (id),
         unique (image, image_index),
-        check (sizeX > 0 and sizeY > 0 and sizeZ > 0 and sizeC > 0 and sizeT > 0)
+        check (interleaved > 0 and sizeX > 0 and sizeY > 0 and sizeZ > 0 and sizeC > 0 and sizeT > 0)
     );;
 
     create table pixelsannotationlink (
