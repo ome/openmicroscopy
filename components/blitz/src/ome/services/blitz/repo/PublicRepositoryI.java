@@ -418,10 +418,10 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
     /* TODO: The server should not have any hard-coded preference for the SHA-1 algorithm
      * (which may not be the setting of omero.checksum.default) in such a generic code path.
      * Clients wishing to assume SHA-1 for checksumming files created using this method should
-     * somehow specify this to the server via the API.
+     * somehow specify this to the server via the API. This method can then be removed.
      */
     /**
-     * Set the hasher of the original file of the given ID to SHA-1.
+     * Set the hasher of the original file of the given ID to SHA-1. Clears any previous hash.
      * @param id the ID of an original file
      * @param current the ICE method invocation context
      * @throws ServerError if there was a problem in executing this internal task
@@ -442,6 +442,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
                         final ome.model.core.OriginalFile originalFile = iQuery.find(ome.model.core.OriginalFile.class, id);
                         final ome.model.enums.ChecksumAlgorithm sha1 = iQuery.findByString(ome.model.enums.ChecksumAlgorithm.class,
                                 "value", ChecksumAlgorithmSHA1160.value);
+                        originalFile.setHash(null);
                         originalFile.setHasher(sha1);
                         sf.getUpdateService().saveObject(originalFile);
                         return null;
