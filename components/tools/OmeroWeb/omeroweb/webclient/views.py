@@ -2518,16 +2518,18 @@ def figure_script(request, scriptName, conn=None, **kwargs):
         figureName = "Thumbnail_Figure"
         if datasetIds is not None:
             for d in conn.getObjects("Dataset", datasetIds):
-                figureName = d.getName()
                 imgIds = [i.id for i in d.listChildren()]
                 imageTags, ts = loadImageTags(imgIds)
                 thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
                 tags.extend(ts)
+            figureName = thumbSets[0]['name']
         else:
             imageTags, ts = loadImageTags(imageIds)
             thumbSets.append({'name':'images', 'imageTags': imageTags})
             tags.extend(ts)
-            figureName = conn.getObject("Image", imageIds[0]).getParent().getName()
+            parent = conn.getObject("Image", imageIds[0]).getParent()
+            figureName = parent.getName()
+            context['parent_id'] = parent.getId()
         uniqueTagIds = set()      # remove duplicates
         uniqueTags = []
         for t in tags:
