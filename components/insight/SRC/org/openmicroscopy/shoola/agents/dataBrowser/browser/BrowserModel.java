@@ -571,11 +571,12 @@ class BrowserModel
 	 */
 	public void setSelectedNodes(List<DataObject> nodes)
 	{
+		Set<ImageDisplay> oldValue = null;
+		if (selectedDisplays != null)
+			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
 		if (nodes == null || nodes.isEmpty()) {
-			if (selectedDisplays == null) return;
-			List<ImageDisplay> l = new ArrayList<ImageDisplay>(selectedDisplays);
-			selectedDisplays.clear();
-			setNodesColor(null, l);
+			if (selectedDisplays != null) selectedDisplays.clear();
+			setNodesColor(null, oldValue);
 			return;
 		}
 		NodesFinder finder = new NodesFinder(nodes);
@@ -589,21 +590,18 @@ class BrowserModel
 			setSelectedDisplay(null, false, false);
 			return;
 		}
-		
-		boolean b = found.size() > 1;
+
+		thumbSelected = false;
+		this.multiSelection = found.size() > 1;
+		setSelectedDisplays(found);
+		setNodesColor(found, oldValue);
+		List<ImageData> images = new ArrayList<ImageData>();
 		Iterator<ImageDisplay> i = found.iterator();
-		
+		ImageDisplay d;
 		while (i.hasNext()) {
-			setSelectedDisplay(i.next(), b, false);
-		}
-		final List<ImageData> images = new ArrayList<ImageData>();
-		ImageDisplay img;
-		selected = getSelectedDisplays();
-		i = selected.iterator();
-		while (i.hasNext()) {
-			img = i.next();
-			if (img.getHierarchyObject() instanceof ImageData)
-				images.add((ImageData) img.getHierarchyObject());
+			d = i.next();
+			if (d.getHierarchyObject() instanceof ImageData)
+				images.add((ImageData) d.getHierarchyObject());
 		}
 		FilesetVisitor visitor = new FilesetVisitor(images, null);
 		accept(visitor);
