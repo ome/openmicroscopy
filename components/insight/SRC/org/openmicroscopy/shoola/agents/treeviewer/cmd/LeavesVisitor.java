@@ -80,16 +80,11 @@ public class LeavesVisitor
     }
     
     /**
-     * Retrieves the node hosting an {@link ImageData} object.
+     * No action in that case, an image cannot be hosted by a
+     * <code>TreeImageSet</code>
      * @see BrowserVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node)
-    { 
-        Object uo = node.getUserObject();
-        if (uo instanceof ImageData) {
-            nodes.add(node);
-        }
-    }
+    public void visit(TreeImageSet node) {}
     
     /**
      * Returns the collection of {@link TreeImageNode}s.
