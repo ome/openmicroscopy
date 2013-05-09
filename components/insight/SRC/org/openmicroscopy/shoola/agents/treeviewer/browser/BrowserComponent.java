@@ -1863,7 +1863,7 @@ class BrowserComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#deleteObjects(List)
 	 */
-	public void deleteObjects(List nodes)
+	public void deleteObjects(List<TreeImageDisplay> nodes)
 	{
 		model.getParentModel().deleteObjects(nodes);
 	}

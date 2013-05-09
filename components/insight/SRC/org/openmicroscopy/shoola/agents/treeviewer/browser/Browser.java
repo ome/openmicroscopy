@@ -676,7 +676,7 @@ public interface Browser
 	 * 
 	 * @param nodes The nodes hosting the {@link DataObject}s to delete.
 	 */
-	public void deleteObjects(List nodes);
+	public void deleteObjects(List<TreeImageDisplay> nodes);
 
 	/**
 	 * Brings up the menu to manage the data.

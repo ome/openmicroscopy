@@ -3186,10 +3186,10 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#deleteObjects(List)
 	 */
-	public void deleteObjects(List nodes)
+	public void deleteObjects(List<TreeImageDisplay> nodes)
 	{
 		if (nodes == null) return;
-		Iterator i = nodes.iterator();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
 		TreeImageDisplay node;
 		Class type = null;
 		Boolean ann = null;
@@ -3198,7 +3198,7 @@ class TreeViewerComponent
 		GroupData group;
 		long userID = model.getExperimenter().getId();
 		while (i.hasNext()) {
-			node = (TreeImageDisplay) i.next();
+			node = i.next();
 			if (node.isAnnotated() && ann == null) ann = true;
 			Object uo = node.getUserObject();
 			type = uo.getClass();
