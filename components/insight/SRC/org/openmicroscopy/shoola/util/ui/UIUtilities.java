@@ -776,44 +776,38 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Builds a tooltip from a set of array, list and map.
-	 * The structure returned is of the form:
-	 * <p>
-	 * <code>filename client_checksum server_checksum</code>
-	 * </p>
-	 * If a failure is indicated in the <code>failingChecksums</code> map, that
-	 * specific checksum will be taken from the map, appended to the string
-	 * and printed in bold. In case of matching checksums, the client checksum
-	 * will be used twice after the filename.
+	 * Builds an HTML table from supplied arguments.
 	 *
-	 * @param srcFiles An array of filenames.
-	 * @param checksums Client-side calculated checksums.
-	 * @param failingChecksums A map of index to checksum indicating at witch
-	 *						   index of the checkum list a mismatch occurred.
-	 * @return
+	 * Accepts a list of column names and a list of <code>String</code> arrays.
+	 * Each array forms the column values for a specific row in the table.
+	 * If the number of column names and elements in a row array won't match
+	 * the table will be rendered correctly nevertheless.
+	 *
+	 * @param columnNames A list of column names.
+	 * @param rows A list of arrays representing column data for each row.
+	 * @return See above.
 	 */
-	public static String formatChecksumMapToToolTip(String[] srcFiles,
-			List<String> checksums, Map<Integer, String> failingChecksums) {
+	public static String formatStringListToTable(List<String> columnNames,
+			List<String[]> rows) {
+		if (columnNames == null || rows == null) {
+			return "";
+		}
 		StringBuilder sb = new StringBuilder();
-		sb.append("<table><tr>");
-		sb.append("<th>File name</th>");
-		sb.append("<th>Client checksum</th>");
-		sb.append("<th>Server checksum</th>");
+		sb.append("<table>");
+		sb.append("<tr>");
+		for (String column : columnNames) {
+			sb.append("<th>" + column + "</th>");
+		}
 		sb.append("</tr>");
-		for (int i=0; i < srcFiles.length; ++i) {
-			sb.append("<tr><td>");
-			sb.append(srcFiles[i] + "  ");
-			sb.append("</td><td>");
-			sb.append(checksums.get(i) + "  ");
-			sb.append("</td><td>");
-			if (failingChecksums.containsKey(i)) {
-				sb.append("<b>");
-				sb.append(failingChecksums.get(i));
-				sb.append("</b>");
-			} else {
-				sb.append(checksums.get(i));
+		
+		for (String[] rowColumns : rows) {
+			sb.append("<tr>");
+			for (int i = 0; i < rowColumns.length; ++i) {
+				sb.append("<td>");
+				sb.append(rowColumns[i]);
+				sb.append("</td>");
 			}
-			sb.append("</td></tr>");
+			sb.append("</tr>");
 		}
 		sb.append("</table>");
 		return formatToolTipText(sb.toString());
