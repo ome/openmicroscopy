@@ -538,7 +538,7 @@ public class ImageData extends DataObject {
     /**
      * Returns the ID of the fileset to which this image belongs. Similar to
      * {@link ImageData#isFSImage()}, for images imported pre-FS (data
-     * duplication) <code>-1</code> will be returned. Elese - the <code>long
+     * duplication) <code>-1</code> will be returned. Else - the <code>long
      * </code> value of the fileset ID.
      *
      * @return See above.
