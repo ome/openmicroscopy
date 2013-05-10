@@ -216,9 +216,11 @@ public class DeleteBox
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
 	 * @param toExclude The nodes to exclude from the delete list.
+	 * @param number The number of objects to delete. If <code>0</code> no
+	 * delete information will be displayed.
 	 */
 	private void layoutComponents(boolean groupLeader,
-			Collection<ImageData> toExclude)
+			Collection<ImageData> toExclude, int number)
 	{
 		int h = 0;
 		if (toExclude != null && toExclude.size() > 0) {
@@ -278,7 +280,7 @@ public class DeleteBox
 				ImageData.class.equals(type)) {
 			add = true;
 			
-			if (annotation) {
+			if (annotation && number != 0) {
 				p.add(buildAnnotationWarning());
 				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
@@ -286,7 +288,7 @@ public class DeleteBox
 			}
 		}
 		
-		if (groupLeader) {
+		if (groupLeader && number != 0) {
 			mLabel = UIUtilities.setTextFont(WARNING_GROUP_OWNER, Font.BOLD);
 			mLabel.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			index++;
@@ -317,32 +319,35 @@ public class DeleteBox
 	 */
 	private static String getTypeAsString(Class<?> type, int number, String ns)
 	{
+		if (number == 0) return "";
 		String end = "";
+		StringBuffer buffer = new StringBuffer();
 		if (number > 1) end = "s";
 		if (ImageData.class.equals(type))
-			return "Image"+end;
+			buffer.append("Image");
 		else if (DatasetData.class.equals(type))
-			return "Dataset"+end;
+			buffer.append("Dataset");
 		else if (ProjectData.class.equals(type))
-			return "Project"+end;
+			buffer.append("Project");
 		else if (FileAnnotationData.class.equals(type))
-			return "File"+end;
+			buffer.append("File");
 		else if (ScreenData.class.equals(type))
-			return "Screen"+end;
+			buffer.append("Screen");
 		else if (PlateData.class.equals(type))
-			return "Plate"+end;
+			buffer.append("Plate");
 		else if (PlateAcquisitionData.class.equals(type))
-			return "Plate Run"+end;
+			buffer.append("Plate Run");
 		else if (ExperimenterData.class.equals(type))
-			return "Experimenter"+end;
+			buffer.append("Experimenter");
 		else if (GroupData.class.equals(type))
-			return "Group"+end;
+			buffer.append("Group");
 		else if (TagAnnotationData.class.equals(type)) {
 			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-				return "Tag Set"+end;
-			return "Tag"+end;
-		} 
-		return "";
+				buffer.append("Tag Set");
+			else buffer.append("Tag");
+		}
+		if (buffer.length() != 0) buffer.append(end);
+		return buffer.toString();
 	}
 	
 	/**
@@ -359,6 +364,7 @@ public class DeleteBox
 	private static String getMessage(Class type, int number, String nameSpace,
 						boolean annotation)
 	{
+		if (number == 0) return "";
 		StringBuffer buffer = new StringBuffer(); 
 		String value = getTypeAsString(type, number, nameSpace);
 		String text = null;
@@ -382,12 +388,13 @@ public class DeleteBox
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param type			The type of objects to delete.
-	 * @param annotation	Pass <code>true</code> if the object has 
-	 * 						been annotated, <code>false</code> otherwise.
-	 * @param number		The number of objects to delete.
-	 * @param nameSpace		Name space related to the data object if any.
-	 * @param parent 		The parent of the frame.
+	 * @param type The type of objects to delete.
+	 * @param annotation Pass <code>true</code> if the object has
+	 * been annotated, <code>false</code> otherwise.
+	 * @param number The number of objects to delete. If <code>0</code> no
+	 * delete information will be displayed.
+	 * @param nameSpace Name space related to the data object if any.
+	 * @param parent The parent of the frame.
 	 * @param groupLeader Pass <code>true</code> to indicate that the user
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
@@ -402,7 +409,11 @@ public class DeleteBox
 		this.type = type;
 		this.annotation = annotation;
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
-		layoutComponents(groupLeader, toExclude);
+		layoutComponents(groupLeader, toExclude, number);
+		if (number == 0) {
+			setYesText("OK");
+			hideNoButton();
+		}
 		pack();
 		setResizable(false);
 	}

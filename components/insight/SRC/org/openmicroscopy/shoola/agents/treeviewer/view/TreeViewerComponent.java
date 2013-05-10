@@ -3248,8 +3248,8 @@ class TreeViewerComponent
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
-		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le,
-				toExclude);
+		DeleteBox dialog = new DeleteBox(view, type, b,
+				nodes.size()-toExclude.size(), ns, le, toExclude);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
