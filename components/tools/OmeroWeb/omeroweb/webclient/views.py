@@ -2154,6 +2154,10 @@ def activities(request, conn=None, **kwargs):
                                 callbackDict = request.session['callback'][cbString]
                                 dtype = callbackDict['dtype']
                                 obj_ids = callbackDict['did']
+                                if callbackDict['delmany']:
+                                    obj_ids = callbackDict['did']
+                                else:
+                                    obj_ids = [ callbackDict['did'] ]
                                 if dtype == 'Image':
                                     attempted_imgIds = [int(iid) for iid in obj_ids]
                                 elif dtype in ('Project', 'Dataset'):
