@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
@@ -51,6 +49,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.apache.commons.io.FilenameUtils;
 
 //Application-internal dependencies
