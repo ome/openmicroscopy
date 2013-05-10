@@ -1301,6 +1301,11 @@ class TreeViewerWin
 		return result;
 	}
 	
+
+	/** Invokes when import is going on or finished.*/
+	void onImport() { toolBar.onImport(); }
+
+	
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

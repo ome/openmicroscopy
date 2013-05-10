@@ -731,10 +731,10 @@ class ImporterUIElement
 					c.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
+			boolean toRefresh = toRefresh();
 			if (isDone()) {
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
 				JLabel label;
-				boolean toRefresh = toRefresh();
 				if (toRefresh) {
 					while (i.hasNext()) {
 						label = i.next();
@@ -777,18 +777,6 @@ class ImporterUIElement
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
-				if (!controller.isMaster()) {
-					EventBus bus = ImporterAgent.getRegistry().getEventBus();
-					ImportStatusEvent event;
-					if (toRefresh) {
-						event = new ImportStatusEvent(false, 
-								getExistingContainers());
-					} else {
-						event = new ImportStatusEvent(false, null);
-					}
-					event.setToRefresh(hasToRefreshTree());
-					bus.post(event);
-				}
 			}
 		}
 		return fileSetID;
