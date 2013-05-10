@@ -20,13 +20,13 @@ import tempfile
 import traceback
 import subprocess
 
-import omero
+import omero, omero.gateway
 
 from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime, rint, unwrap
 from path import path
 
-from omero.cmd import State, ERR, OK
+from omero.cmd import DoAll, State, ERR, OK
 from omero.callbacks import CmdCallbackI
 
 
@@ -191,6 +191,43 @@ class ITest(unittest.TestCase):
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids
+
+    """
+    Creates a fake file with a seriesCount of images, imports
+    the file and then return the list of images.
+    """
+    def importMIF(self, seriesCount, client=None):
+        if client is None:
+            client = self.client
+
+        query = client.sf.getQueryService()
+        fake = create_path("importMIF", "&series=%d.fake" % seriesCount)
+        pixelIds = self.import_image(filename=fake.abspath(), client=client)
+        self.assertEqual(seriesCount, len(pixelIds))
+
+        images = []
+        for pixIdStr in pixelIds:
+            pixels = query.get("Pixels", long(pixIdStr))
+            images.append(pixels.getImage())
+        return images
+
+    """
+    Creates a list of the given number of Dataset instances with
+    names of the form "name [1]", "name [2]", etc. and
+    returns them in a list.
+    """
+    def createDatasets(self, count, baseName, client=None):
+        if client is None:
+            client = self.client
+
+        update = client.sf.getUpdateService()
+        dsets = []
+        for i in range(count):
+            ds = omero.model.DatasetI()
+            suffix = " [" + str(i + 1) + "]"
+            ds.name = rstring(baseName + suffix)
+            dsets.append(ds)
+        return update.saveAndReturnArray(dsets)
 
     def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1, session=None):
         """
@@ -583,11 +620,16 @@ class ITest(unittest.TestCase):
             self.assertFalse(State.FAILURE in prx.getStatus().flags)
         else:
             if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s", rsp)
+                self.fail("Found OK when test_should_pass==false: %s" % rsp)
             self.assertTrue(State.FAILURE in prx.getStatus().flags)
 
         return rsp
 
+    def doAllSubmit(self, requests, client, test_should_pass=True):
+        da = DoAll()
+        da.requests = requests
+        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
+        return rsp
 
     def tearDown(self):
         failure = False

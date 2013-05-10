@@ -36,6 +36,8 @@ def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
 
+    suite.addTest(load("integration.chgrp"))
+    suite.addTest(load("integration.delete"))
     suite.addTest(load("integration.reporawfilestore"))
     suite.addTest(load("integration.repository"))
     suite.addTest(load("gatewaytest.fs"))
