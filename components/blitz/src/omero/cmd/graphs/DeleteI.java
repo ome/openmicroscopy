@@ -107,7 +107,7 @@ public class DeleteI extends Delete implements IRequest {
             return null;
         // This hierarchy is duplicated in Deletion
         } catch (GraphException ge) {
-            throw helper.cancel(err(), ge, "STEP ERR", "step", ""+i, "id", ""+id);
+            throw helper.graphException(ge, i, id);
         } catch (ConstraintViolationException cve) {
             throw helper.cancel(err(), cve, "constraint-violation", "name",
                     cve.getConstraintName());

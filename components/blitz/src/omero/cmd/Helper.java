@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.api.local.LocalAdmin;
 import ome.conditions.InternalException;
+import ome.services.graphs.GraphConstraintException;
+import ome.services.graphs.GraphException;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.system.SimpleEventContext;
@@ -355,6 +357,21 @@ public class Helper {
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
         final EventContext ec = admin.getEventContextQuiet();
         return ec;
+    }
+
+    public Cancel graphException(GraphException ge, long step, long id) {
+        ERR err = new ERR();
+        if (ge instanceof GraphConstraintException) {
+            // Specialization to provide detailed information about what
+            // went wrong with the constraint validation.
+            GraphConstraintException gce = (GraphConstraintException) ge;
+            GraphConstraintERR gcerr = new GraphConstraintERR();
+            gcerr.constraints = gce.getConstraints();
+            gcerr.parameters = params("GraphConstraintException", "true");
+            err = gcerr;
+        }
+        throw cancel(err, ge, "STEP ERR", "step", ""+step, "id", ""+id);
+
     }
 
 }

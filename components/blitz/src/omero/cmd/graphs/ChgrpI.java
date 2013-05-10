@@ -157,17 +157,7 @@ public class ChgrpI extends Chgrp implements IRequest {
                 return state.execute(i);
             }
         } catch (GraphException ge) {
-            ERR err = new ERR();
-            if (ge instanceof GraphConstraintException) {
-                // Specialization to provide detailed information about what
-                // went wrong with the constraint validation.
-                GraphConstraintException gce = (GraphConstraintException) ge;
-                GraphConstraintERR gcerr = new GraphConstraintERR();
-                gcerr.constraints = gce.getConstraints();
-                gcerr.parameters = helper.params("GraphConstraintException", "true");
-                err = gcerr;
-            }
-            throw helper.cancel(err, ge, "STEP ERR", "step", ""+i, "id", ""+id);
+            throw helper.graphException(ge, i, id);
         }
     }
 

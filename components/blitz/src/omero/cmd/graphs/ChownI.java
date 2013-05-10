@@ -22,6 +22,7 @@ import org.springframework.context.ApplicationContext;
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
 import ome.services.chown.ChownStepFactory;
+import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
 import ome.system.EventContext;
@@ -134,6 +135,8 @@ public class ChownI extends Chown implements IRequest {
         helper.assertStep(step);
         try {
             return state.execute(step);
+        } catch (GraphException ge) {
+            throw helper.graphException(ge, step, id);
         } catch (Throwable t) {
             throw helper.cancel(new ERR(), t, "step", ""+step);
         }
