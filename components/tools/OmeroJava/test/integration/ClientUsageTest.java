@@ -46,7 +46,7 @@ public class ClientUsageTest
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
     	e.setOmeName(omero.rtypes.rstring(uuid));
-    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setFirstName(omero.rtypes.rstring("integration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();
     	g.setName(omero.rtypes.rstring(uuid));
@@ -70,7 +70,7 @@ public class ClientUsageTest
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
     	e.setOmeName(omero.rtypes.rstring(uuid));
-    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setFirstName(omero.rtypes.rstring("integration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();
     	g.setName(omero.rtypes.rstring(uuid));
@@ -101,7 +101,7 @@ public class ClientUsageTest
     	String uuid = UUID.randomUUID().toString();
     	Experimenter e = new ExperimenterI();
     	e.setOmeName(omero.rtypes.rstring(uuid));
-    	e.setFirstName(omero.rtypes.rstring("integeration"));
+    	e.setFirstName(omero.rtypes.rstring("integration"));
     	e.setLastName(omero.rtypes.rstring("tester"));
     	ExperimenterGroup g = new ExperimenterGroupI();
     	g.setName(omero.rtypes.rstring(uuid));
