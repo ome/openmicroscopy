@@ -277,15 +277,6 @@ class OmeroEnvironment(SConsEnvironment):
                 # Only LIB contains the path to the Windows SDK x64 library when starting
                 # from the VS2008 x64 command line batch.
                 self.AppendUnique(LIBPATH=os.environ["LIB"].split(os.path.pathsep))
-        if ice_home:
-            if self.is64bit():
-                if self.iswin32():
-                    self.Append(LIBPATH=[os.path.join(ice_home, "lib", "x64")])
-                else:
-                    lib64 = os.path.join(ice_home, "lib64")
-                    if os.path.exists(lib64):
-                        self.Append(LIBPATH=[lib64])
-            self.Append(LIBPATH=[os.path.join(ice_home, "lib")])
 
     def isdebug(self):
 
