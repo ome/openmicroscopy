@@ -174,11 +174,9 @@ public class DeleteBox
 	}
 	
 	/** 
-	 * Initializes the components composing the display. 
-	 * 
-	 * @param annotationText The text to display after the annotations text.
+	 * Initializes the components composing the display.
 	 */
-	private void initComponents(String annotationText)
+	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
 		infoButton = new JButton(icons.getIcon(IconManager.INFO));
@@ -384,13 +382,9 @@ public class DeleteBox
 	 * @param type The type of object to handle.
 	 * @param number The number of object to remove.
 	 * @param nameSpace Name space related to the data object if any.
-	 * @param annotation Pass <code>true</code> if the objects have been
-	 * annotated, <code>false</code> otherwise.
-	 * @param text The default text.
 	 * @return See above. 
 	 */
-	private String getMessage(Class<?> type, int number,
-			String nameSpace)
+	private String getMessage(Class<?> type, int number, String nameSpace)
 	{
 		if (number == 0) return "";
 		StringBuffer buffer = new StringBuffer();
@@ -423,6 +417,7 @@ public class DeleteBox
 	 * @param groupLeader Pass <code>true</code> to indicate that the user
 	 * currently logged in is the owner of one of the groups the objects 
 	 * belong to, <code>false</code> otherwise.
+	 * @param index One of the constants defined by this class.
 	 */
 	public DeleteBox(JFrame parent, Class<?> type, boolean annotation,
 			int number, String nameSpace, boolean groupLeader,
@@ -434,7 +429,7 @@ public class DeleteBox
 		this.type = type;
 		this.annotation = annotation;
 		header.setDescription(getMessage(type, number, nameSpace));
-		initComponents(getTypeAsString(type, number, nameSpace));
+		initComponents();
 		layoutComponents(groupLeader, toExclude, number);
 		if (number == 0) {
 			setYesText("OK");
