@@ -430,6 +430,7 @@ public class DeleteBox
 	{
 		super(parent, TITLE_DELETE, "");
 		this.index = index;
+		if (index == MOVE) setTitle(TITLE_MOVE);
 		this.type = type;
 		this.annotation = annotation;
 		header.setDescription(getMessage(type, number, nameSpace));
