@@ -251,6 +251,8 @@
                 <value>/Image/Fileset/FilesetJobLink;REAP</value>
                 <value>/Image/Fileset/FilesetJobLink/Job;REAP</value>
                 <value>/Image/Fileset/FilesetJobLink/Job/FilesetVersionInfo;REAP</value>
+                <value>/Image/Fileset/FilesetAnnotationLink;REAP</value>
+                <value>/Annotation;SOFT;/Image/Fileset/FilesetAnnotationLink</value>
                 <value>/Image/Fileset;REAP</value>
                 <!-- Fileset is inlined into /Image both because REAP doesn't
                      yet support subspecs, and also because the /Fileset spec
@@ -390,6 +392,7 @@
     <bean parent="graphSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ExperimenterAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ExperimenterGroupAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterGroupAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/FilesetAnnotationLink"> <constructor-arg> <list> <value>/FilesetAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
     <bean parent="graphSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
