@@ -217,7 +217,7 @@ public class FileLoader
     	    		OriginalMetadataParser parser =
     	    				new OriginalMetadataParser(file);
     	        	try {
-    	        		parser.read((OriginalMetadataResponse) result);
+    	        		parser.read((OriginalMetadataResponse) result, "=");
     	    		} catch (Exception e) {
     	    			onException(MESSAGE_RESULT, null);
     	    			return;
