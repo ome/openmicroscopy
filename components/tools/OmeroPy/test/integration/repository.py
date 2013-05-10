@@ -119,7 +119,7 @@ class AbstractRepoTest(lib.ITest):
 
     def assertNoDirWrite(self, mrepo2, dirname):
         # Also check that it's not possible to write
-        # in someone elses directory.
+        # in someone else's directory.
         self.assertRaises(omero.SecurityViolation,
                           self.createFile, mrepo2, dirname+"/file2.txt")
 
@@ -663,7 +663,7 @@ class TestRecursiveDelete(AbstractRepoTest):
     # Trying to get up and out of the current directory
     # to delete more. Muahahaha...
     def testDoubleDot(self):
-        naughty = self.unique_dir + "/" + ".." + ".." + ".."
+        naughty = self.unique_dir + "/" + ".." + "/" + ".." + "/" + ".."
         self.assertRaises(omero.ValidationException,
                           self.mrepo.deletePaths, [naughty], True, True)
 
