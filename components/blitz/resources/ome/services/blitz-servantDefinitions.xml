@@ -361,4 +361,22 @@
      <constructor-arg ref="repositoryDao"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
+
+  <!-- Other data objects
+  ==============================================================================
+  -->
+
+  <bean id="repoPrincipal" class="ome.system.Principal">
+      <constructor-arg index="0" ref="uuid"/>
+      <constructor-arg index="1" value="system"/>
+      <constructor-arg index="2" value="Internal"/>
+  </bean>
+
+  <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDaoImpl">
+    <constructor-arg index="0" ref="repoPrincipal"/>
+    <constructor-arg index="1" ref="roles"/>
+    <constructor-arg index="2" ref="executor"/>
+    <constructor-arg index="3" ref="statefulExecutor"/>
+  </bean>
+
 </beans>
