@@ -319,9 +319,12 @@ class ImageTable
     }
 
 	/**
-	 * 
-	 * @param node
-	 * @param selectedNodes
+	 * Visits the table-tree and recurrently checks each element for the
+	 * fileset id. Applies different highlighting if needed. In the future,
+	 * this might become a stand-alone visitor.
+	 *
+	 * @param node The starting tree root node.
+	 * @param selectedNodes The nodes selected in the UI by the user.
 	 */
 	private void visitAllNodesToHighlight(ImageTableNode node,
 			List<ImageDisplay> selectedNodes) {
