@@ -8,27 +8,27 @@
 package ome.services.graphs;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import ome.model.IObject;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import ome.model.IObject;
 import ome.services.messages.EventLogMessage;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -428,6 +428,39 @@ public abstract class GraphStep {
                 log.info("Deleted " + count + " annotation links");
                 swTop.stop("omero.graphstep.deleteannotationlinks." + id);
             }
+        }
+    }
+
+    /**
+     * If the table/id pair for this step is not already contained in the cache,
+     * then add them. Otherwise, reduce our own operation to something less than
+     * REAP.
+     *
+     * @param reapTableIds
+     */
+    public void handleReap(Map<String, Set<Long>> reapTableIds) {
+
+        if (ids == null) {
+            // FIXME: subspecs should be supported.
+            return; //EARLY EXIT
+        }
+
+        if (!entry.isReap()) {
+            return; // EARLY EXIT.
+        }
+
+        Set<Long> reapIds = reapTableIds.get(table);
+        if (reapIds == null) {
+            reapIds = new HashSet<Long>();
+            reapTableIds.put(table, reapIds);
+        }
+
+        Long reapId = ids[ids.length-1];
+        if (reapIds.contains(id)) {
+            logPhase("Reduce on REAP");
+            entry.reduceOnReap();
+        } else {
+            reapIds.add(reapId);
         }
     }
 

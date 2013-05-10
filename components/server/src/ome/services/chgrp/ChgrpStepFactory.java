@@ -7,7 +7,10 @@
 
 package ome.services.chgrp;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
@@ -44,12 +47,28 @@ public class ChgrpStepFactory implements GraphStepFactory {
     }
 
     public List<GraphStep> postProcess(List<GraphStep> steps) {
+        Map<String, Set<Long>> reapTableIds = new HashMap<String, Set<Long>>();
         int originalSize = steps.size();
+
+        // Handle REAP
+        for (int i = originalSize - 1; i >= 0; i--) {
+            GraphStep step = steps.get(i);
+            step.handleReap(reapTableIds);
+        }
+
+        // Schedule validation steps
         for (int i = 0; i < originalSize; i++) {
             GraphStep step = steps.get(i);
             steps.add(new ChgrpValidation(ctx, em, roles, step.idx, step.stack,
                     step.spec, step.entry, step.getIds(), grp));
         }
+
+        // Handle REAP for validation steps
+        for (int i = originalSize + originalSize - 1; i >= originalSize; i--) {
+            GraphStep step = steps.get(i);
+            step.handleReap(reapTableIds);
+        }
+        
         return steps;
     }
 

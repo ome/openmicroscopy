@@ -116,6 +116,14 @@ public class GraphEntry {
         return Op.KEEP.equals(operation);
     }
 
+    public boolean isReap() {
+        return Op.REAP.equals(operation);
+    }
+
+    public void reduceOnReap() {
+        operation = Op.SOFT;
+    }
+
     /**
      * Splits the name of the entry into the path components. Any suffixes
      * prefixed with a "+" are stripped.

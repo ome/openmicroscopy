@@ -154,7 +154,7 @@
                 <value>/Annotation;SOFT;/Image/Pixels/Channel/ChannelAnnotationLink</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
-                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
+                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP? -->
                 <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
                 <value>/LightSource;SOFT;/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
@@ -246,7 +246,15 @@
                 <!-- If this is the only image in the fileset, then
                      this entry should suffice. For multi-image filesets,
                      an extra-step will be required. -->
-                <value>/Fileset;SOFT;/Image</value>
+                <value>/Image/Fileset/FilesetEntry;REAP</value>
+                <value>/OriginalFile+Only;REAP;/Image/Fileset/FilesetEntry</value>
+                <value>/Image/Fileset/FilesetJobLink;REAP</value>
+                <value>/Image/Fileset/FilesetJobLink/Job;REAP</value>
+                <value>/Image/Fileset/FilesetJobLink/Job/FilesetVersionInfo;REAP</value>
+                <value>/Image/Fileset;REAP</value>
+                <!-- Fileset is inlined into /Image both because REAP doesn't
+                     yet support subspecs, and also because the /Fileset spec
+                     was not yet properly defined. -->
             </list>
         </constructor-arg>
     </bean>
@@ -264,7 +272,7 @@
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image;SOFT;/Dataset/DatasetImageLink</value>
+                <value>/Image;HARD;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
@@ -372,19 +380,6 @@
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
                 <value>/OriginalFile+Only</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="graphSpec" name="/Fileset">
-        <constructor-arg>
-            <list>
-                <value>/Fileset/FilesetEntry</value>
-                <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
-                <value>/Fileset/FilesetJobLink</value>
-                <value>/Fileset/FilesetJobLink/Job</value>
-                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
-                <value>/Fileset</value>
             </list>
         </constructor-arg>
     </bean>
