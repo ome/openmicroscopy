@@ -406,15 +406,7 @@ public class DeleteBox
 					buffer.append(DEFAULT_TEXT_DELETE);
 			}
 			buffer.append(value);
-			buffer.append("?\n");
-			if (ImageData.class.equals(type) ||
-					DatasetData.class.equals(type) ||
-					ProjectData.class.equals(type) ||
-					ScreenData.class.equals(type) ||
-					PlateData.class.equals(type) ||
-					PlateAcquisitionData.class.equals(type)) {
-				if (annotation) buffer.append("If yes, ");
-			}
+			buffer.append("?");
 		}
 		return buffer.toString();
 	}
