@@ -177,6 +177,24 @@ class TreeViewerComponent
 	private ScriptingDialog     scriptDialog;
 
 	/**
+	 * Returns <code>true</code> if the image is contained in the list of
+	 * elements to exclude, <code>false</code> otherwise.
+	 * 
+	 * @param data The image to handle
+	 * @param toExclude The list hosting the images to exclude.
+	 * @return See above.
+	 */
+	private boolean isInList(ImageData data, List<ImageData> toExclude)
+	{
+		Iterator<ImageData> i = toExclude.iterator();
+		while (i.hasNext()) {
+			if (i.next().getId() == data.getId())
+				return true;;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the name of the group.
 	 * 
 	 * @param groupId The id of the group.
@@ -1911,7 +1929,7 @@ class TreeViewerComponent
 		TreeImageDisplay[] nodes = model.getNodesToCopy();
 		if (nodes == null || nodes.length == 0) return;
 		//check to transfer data.
-		Map<Long, List<DataObject>> elements = 
+		Map<Long, List<DataObject>> elements =
 			new HashMap<Long, List<DataObject>>();
 		long gid;
 		List<DataObject> l = new ArrayList<DataObject>();
@@ -2042,9 +2060,30 @@ class TreeViewerComponent
 		i = elements.keySet().iterator();
 		Map<SecurityContext, List<DataObject>> trans = 
 			new HashMap<SecurityContext, List<DataObject>>();
+		List<DataObject> objects;
+		List<DataObject> selectionNew;
+		Iterator<DataObject> kk;
 		while (i.hasNext()) {
 			gid = i.next();
-			trans.put(new SecurityContext(gid), elements.get(gid));
+			//Exclude the nodes first.
+			if (toExclude.size() > 0) {
+				objects = elements.get(gid);
+				kk = objects.iterator();
+				selectionNew = new ArrayList<DataObject>();
+				while (kk.hasNext()) {
+					img = (ImageData) kk.next();
+					if (!isInList(img, toExclude))
+						selectionNew.add(img);
+				}
+				if (selectionNew.size() > 0)
+					trans.put(new SecurityContext(gid), selectionNew);
+			} else {
+				trans.put(new SecurityContext(gid), elements.get(gid));
+			}
+			
+			selectionNew = new ArrayList<DataObject>();
+			
+			
 		}
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param;
@@ -4481,7 +4520,10 @@ class TreeViewerComponent
 						elements.put(gid, new ArrayList<DataObject>());
 					}
 					l = elements.get(gid);
-					l.add((DataObject) os);
+					if (toExclude.size() > 0) {
+						if (!isInList((ImageData) os, toExclude))
+							l.add((DataObject) os);
+					} else l.add((DataObject) os);
 				}
 			}
 			if (elements.size() == 0) return;
@@ -4656,6 +4698,28 @@ class TreeViewerComponent
 		}
 		
 		ctx = new SecurityContext(refgid);
+		//Exclude the objects
+		if (toExclude.size() > 0) {
+			Entry<SecurityContext, List<DataObject>> e;
+			Iterator<Entry<SecurityContext, List<DataObject>>> k;
+			k = map.entrySet().iterator();
+			List<DataObject> objects;
+			List<DataObject> selectionNew;
+			Iterator<DataObject> kk;
+			while (k.hasNext()) {
+				e = k.next();
+				objects = e.getValue();
+				selectionNew = new ArrayList<DataObject>();
+				kk = objects.iterator();
+				DataObject d;
+				while (kk.hasNext()) {
+					d =  kk.next();
+					if (!isInList((ImageData) d, toExclude))
+						selectionNew.add(d);
+				}
+				map.put(e.getKey(), selectionNew);
+			}
+		}
 		if (b != null) { //move The data
 			moveData(ctx, null, map);
 		} else { //load the collection for the specified group
