@@ -4278,8 +4278,8 @@ class TreeViewerComponent
 		}
 		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
-			un.notifyInfo("DnD", 
-					"You must be the owner of the container.");
+			un.notifyInfo("DnD",
+					"You must be authorize to add to the container.");
 			browser.rejectTransfer();
 			return;
 		}
