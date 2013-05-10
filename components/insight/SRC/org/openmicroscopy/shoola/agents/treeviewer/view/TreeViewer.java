@@ -1016,9 +1016,10 @@ public interface TreeViewer
 	 * @param containers The containers that need to be refreshed.
 	 * @param refresh Pass <code>true</code> to mark the node to refresh,
 	 * <code>false</code> otherwise.
+	 * @param importedObject The result of the import.
 	 */
 	void setImporting(boolean importing, List<DataObject> containers, boolean
-			refresh);
+			refresh, Object importedObject);
 
 	/**
 	 * Marks the passed nodes.
