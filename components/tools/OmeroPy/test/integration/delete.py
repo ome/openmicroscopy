@@ -489,10 +489,12 @@ class TestDelete(lib.ITest):
         """
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
         ds = omero.model.DatasetI()
         ds.name = omero.rtypes.rstring("testDeleteDatasetFilesetOK")
         ds = update.saveAndReturnObject(ds)
         images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
             link.setParent(ds.proxy())
@@ -503,9 +505,9 @@ class TestDelete(lib.ITest):
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
         self.doSubmit(delete, client)
 
-        # The dataset and both images should be deleted.
-        query = client.sf.getQueryService()
+        # The dataset, fileset and both images should be deleted.
         self.assertEquals(None, query.find("Dataset", ds.id.val))
+        self.assertEquals(None, query.find("Fileset", fsId))
         self.assertEquals(None, query.find("Image", images[0].id.val))
         self.assertEquals(None, query.find("Image", images[1].id.val))
 
@@ -517,8 +519,10 @@ class TestDelete(lib.ITest):
         """
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
         datasets = self.createDatasets(2, "testDeleteAllDatasetsFilesetOK", client=client)
         images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
         for i in range(2):
             link = omero.model.DatasetImageLinkI()
             link.setParent(datasets[i].proxy())
@@ -530,10 +534,10 @@ class TestDelete(lib.ITest):
         delete2 = omero.cmd.Delete("/Dataset", datasets[1].id.val, None)
         self.doAllSubmit([delete1,delete2], client)
 
-        # Both datasets and both images should be deleted.
-        query = client.sf.getQueryService()
+        # Both datasets, the fileset and both images should be deleted.
         self.assertEquals(None, query.find("Dataset", datasets[0].id.val))
         self.assertEquals(None, query.find("Dataset", datasets[1].id.val))
+        self.assertEquals(None, query.find("Fileset", fsId))
         self.assertEquals(None, query.find("Image", images[0].id.val))
         self.assertEquals(None, query.find("Image", images[1].id.val))
 
@@ -545,15 +549,17 @@ class TestDelete(lib.ITest):
         """
         client, user = self.new_client_and_user(perms="rw----")
         update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
         images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
 
         # Now delete all images, should succeed
         delete1 = omero.cmd.Delete("/Image", images[0].id.val, None)
         delete2 = omero.cmd.Delete("/Image", images[1].id.val, None)
         self.doAllSubmit([delete1,delete2], client)
 
-        # Both images should be deleted.
-        query = client.sf.getQueryService()
+        # The fileset and both images should be deleted.
+        self.assertEquals(None, query.find("Fileset", fsId))
         self.assertEquals(None, query.find("Image", images[0].id.val))
         self.assertEquals(None, query.find("Image", images[1].id.val))
 
