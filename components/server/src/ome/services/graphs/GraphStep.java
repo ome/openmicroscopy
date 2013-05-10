@@ -147,6 +147,8 @@ public abstract class GraphStep {
 
     private boolean rollbackOnly = false;
 
+    private boolean softOnReap = false;
+
     public GraphStep(ExtendedMetadata em, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
         this.em = em;
@@ -468,11 +470,15 @@ public abstract class GraphStep {
 
         Long reapId = ids[ids.length-1];
         if (reapIds.contains(id)) {
-            logPhase("Reduce on REAP");
-            entry.reduceOnReap();
+            logPhase("softOnReap");
+            softOnReap = true;
         } else {
             reapIds.add(reapId);
         }
+    }
+
+    public boolean markedReap() {
+        return softOnReap;
     }
 
 }

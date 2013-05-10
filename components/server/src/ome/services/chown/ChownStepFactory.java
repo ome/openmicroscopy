@@ -9,11 +9,11 @@ package ome.services.chown;
 
 import java.util.List;
 
+import ome.services.graphs.AbstractStepFactory;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
-import ome.services.graphs.GraphStepFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -22,7 +22,7 @@ import ome.tools.hibernate.ExtendedMetadata;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.2
  */
-public class ChownStepFactory implements GraphStepFactory {
+public class ChownStepFactory extends AbstractStepFactory {
 
     private final OmeroContext ctx;
 
@@ -43,14 +43,12 @@ public class ChownStepFactory implements GraphStepFactory {
         return new ChownStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    public List<GraphStep> postProcess(List<GraphStep> steps) {
-        int originalSize = steps.size();
+    public void onPostProcess(List<GraphStep> steps) {
         for (int i = 0; i < originalSize; i++) {
             GraphStep step = steps.get(i);
             steps.add(new ChownValidation(ctx, em, roles, step.idx, step.stack,
                     step.spec, step.entry, step.getIds(), grp));
         }
-        return steps;
     }
 
     /**

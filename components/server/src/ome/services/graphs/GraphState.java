@@ -388,7 +388,7 @@ public class GraphState implements GraphStep.Callback {
 
         // If this entry is "SOFT" then there's nothing
         // special we need to do.
-        if (step.entry.isSoft()) {
+        if (step.entry.isSoft() || step.markedReap()) {
             log.debug(msg);
             return "Skipping processing of " + step.table + ":" + step.id + "\n";
         }

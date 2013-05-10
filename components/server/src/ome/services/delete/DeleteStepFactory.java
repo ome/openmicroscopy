@@ -10,11 +10,11 @@ package ome.services.delete;
 import java.util.List;
 
 import ome.api.IDelete;
+import ome.services.graphs.AbstractStepFactory;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
-import ome.services.graphs.GraphStepFactory;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 
@@ -25,7 +25,7 @@ import ome.tools.hibernate.ExtendedMetadata;
  * @since Beta4.2.3
  * @see IDelete
  */
-public class DeleteStepFactory implements GraphStepFactory {
+public class DeleteStepFactory extends AbstractStepFactory {
 
     private final OmeroContext ctx;
 
@@ -41,7 +41,4 @@ public class DeleteStepFactory implements GraphStepFactory {
         return new DeleteStep(em, ctx, idx, stack, spec, entry, ids);
     }
 
-    public List<GraphStep> postProcess(List<GraphStep> steps) {
-        return steps;
-    }
 }
