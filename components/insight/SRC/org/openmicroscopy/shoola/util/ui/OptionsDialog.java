@@ -105,6 +105,9 @@ public class OptionsDialog
 	/** The component hosting added components. */
 	protected JPanel			body;
 	
+	/** Header hosting the message.*/
+	protected JXHeader header;
+	
     /** Action performed when the {@link #yesButton} is pressed. */
     private void yesSelection()
     { 
@@ -129,6 +132,8 @@ public class OptionsDialog
     /** Creates the various UI components that make up the dialog. */
     private void createComponents()
     {
+    	header = new JXHeader();
+    	header.setBackgroundPainter(new RectanglePainter(getBackground(), null));
     	body = new JPanel();
     	mainPanel = new JPanel();
     	controlPanel = new JPanel();
@@ -217,9 +222,6 @@ public class OptionsDialog
      */
     private void buildGUI(String message, Icon icon)
     {
-    	JXHeader header = new JXHeader();
-    	header.setBackgroundPainter(
-    			new RectanglePainter(getBackground(), null));
     	header.setDescription(message);
     	mainPanel.setOpaque(false);
     	mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

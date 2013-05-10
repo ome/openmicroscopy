@@ -85,6 +85,12 @@ public class DeleteBox
 	extends MessageBox
 {
 
+	/** Indicates that the dialog is used to delete objects.*/
+	public static final int DELETE = 0;
+	
+	/** Indicates that the dialog is used to move objects.*/
+	public static final int MOVE = 1;
+	
 	/**
 	 * The preferred size of the viewport displaying images than cannot
 	 * be deleted.
@@ -92,50 +98,63 @@ public class DeleteBox
 	private static final Dimension VIEWPORT_SIZE = new Dimension(300, 120);
 	
 	/** The title of the dialog. */
-	private static final String		TITLE = "Confirm delete";
+	private static final String TITLE_DELETE = "Confirm delete";
+	
+	/** The title of the dialog. */
+	private static final String TITLE_MOVE = "Confirm Group change";
 	
 	/** The default delete text. */
-	private static final String		DEFAULT_TEXT = "Are you sure you want to " +
-			"delete the selected ";
+	private static final String DEFAULT_TEXT_DELETE =
+			"Are you sure you want to delete the selected ";
+	
+	/** The default delete text. */
+	private static final String DEFAULT_TEXT_MOVE =
+			"Are you sure you want to move the selected ";
 
 	/** The text displayed in the tool tip for annotations. */
-	private static final String    TOOL_TIP = "The annotations are " +
+	private static final String TOOL_TIP = "The annotations are " +
 			"deleted only if you own them and if they are not used by other " +
 			"users.";
 		
 	/** Text display if the user is a group owner. */
-	private static final String		WARNING_GROUP_OWNER = "Some data " +
+	private static final String WARNING_GROUP_OWNER = "Some data " +
 			"might be used by other users,\nthey will no longer be able to " +
 			"use or see them.";
 	
 	/** Text display if the user is a group owner. */
-	private static final String WARNING_FILESET = "The following images " +
+	private static final String WARNING_FILESET_DELETE =
+			"The following images " +
 			"cannot be deleted. All images composing a multi-images file " +
+			"must be selected.";
+	
+	/** Text display if the user is a group owner. */
+	private static final String WARNING_FILESET_MOVE = "The following images " +
+			"cannot be moved. All images composing a multi-images file " +
 			"must be selected.";
 
 	/** The button to display the tool tip. */
-	private JButton					infoButton;
+	private JButton infoButton;
 	
 	/** Delete the related annotations if selected. */
-	private JCheckBox				withAnnotation;
+	private JCheckBox withAnnotation;
 	
 	/** The type of object to remove. */
-	private Class					type;
-	
-	/** The Name space of the object to remove. */
-	private String					nameSpace;
+	private Class<?> type;
 	
 	/** Flag indicating if the objects have been annotated. */
-	private boolean					annotation;
+	private boolean annotation;
     
 	/** The components corresponding to the annotation. */
-	private Map<JCheckBox, Class>	annotationTypes;
+	private Map<JCheckBox, Class<?>> annotationTypes;
 	
 	/** The UI component hosting the various annotations types. */
-	private JPanel					typesPane;
+	private JPanel typesPane;
 	
 	/** The image to exclude. */
 	private JPanel toExcludePane;
+	
+	/** The dialog index. One of the constants defined this class.*/
+	private int index;
 	
 	/**
 	 * Creates and formats a check box.
@@ -168,7 +187,7 @@ public class DeleteBox
 		withAnnotation = new JCheckBox("Also delete the annotations " +
 				"linked to the objects.");
 		withAnnotation.setToolTipText(TOOL_TIP);
-		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
+		annotationTypes = new LinkedHashMap<JCheckBox, Class<?>>();
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
 		//annotationTypes.put(createBox("Ontology Terms"), 
@@ -252,11 +271,20 @@ public class DeleteBox
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		JLabel mLabel;
-		int index = 0;
+		int count = 0;
 		if (toExcludePane != null) {
-			mLabel = UIUtilities.setTextFont(WARNING_FILESET, Font.BOLD);
-			layout.insertRow(index, TableLayout.PREFERRED);
-			body.add(mLabel, "0, "+index);
+			String s;
+			switch (index) {
+				case MOVE:
+					s = WARNING_FILESET_MOVE;
+					break;
+				case DELETE:
+				default:
+				s = WARNING_FILESET_DELETE;
+			}
+			mLabel = UIUtilities.setTextFont(s, Font.BOLD);
+			layout.insertRow(count, TableLayout.PREFERRED);
+			body.add(mLabel, "0, "+count);
 			JScrollPane pane = new JScrollPane(toExcludePane);
 			pane.setHorizontalScrollBarPolicy(
 					ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -264,12 +292,12 @@ public class DeleteBox
 					ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 			if (h > VIEWPORT_SIZE.height)
 				pane.getViewport().setPreferredSize(VIEWPORT_SIZE);
-			index++;
-			layout.insertRow(index, TableLayout.PREFERRED);
-			body.add(pane, "0, "+index);
-			index++;
-			layout.insertRow(index, TableLayout.PREFERRED);
-			body.add(Box.createVerticalStrut(10), "0, "+index);
+			count++;
+			layout.insertRow(count, TableLayout.PREFERRED);
+			body.add(pane, "0, "+count);
+			count++;
+			layout.insertRow(count, TableLayout.PREFERRED);
+			body.add(Box.createVerticalStrut(10), "0, "+count);
 		}
 		boolean add = false;
 		if (DatasetData.class.equals(type) ||
@@ -291,19 +319,19 @@ public class DeleteBox
 		if (groupLeader && number != 0) {
 			mLabel = UIUtilities.setTextFont(WARNING_GROUP_OWNER, Font.BOLD);
 			mLabel.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-			index++;
-			layout.insertRow(index, TableLayout.PREFERRED);
-			body.add(mLabel, "0, "+index);
+			if (count > 0) count++;
+			layout.insertRow(count, TableLayout.PREFERRED);
+			body.add(mLabel, "0, "+count);
 			if (annotation) {
-				index++;
-				layout.insertRow(index, TableLayout.FILL);
-				body.add(new JSeparator(), "0, "+index);
+				count++;
+				layout.insertRow(count, TableLayout.FILL);
+				body.add(new JSeparator(), "0, "+count);
 			}
 			
 		}
-		index++;
-		layout.insertRow(index, TableLayout.PREFERRED);
-		body.add(UIUtilities.buildComponentPanel(p), "0, "+index);
+		if (count > 0) count++;
+		layout.insertRow(count, TableLayout.PREFERRED);
+		body.add(UIUtilities.buildComponentPanel(p), "0, "+count);
 		if (add) {
 			addBodyComponent(UIUtilities.buildComponentPanel(body));
 		}
@@ -317,7 +345,7 @@ public class DeleteBox
 	 * @param ns		Name space related to the data object if any.
 	 * @return See above.
 	 */
-	private static String getTypeAsString(Class<?> type, int number, String ns)
+	private String getTypeAsString(Class<?> type, int number, String ns)
 	{
 		if (number == 0) return "";
 		String end = "";
@@ -354,29 +382,35 @@ public class DeleteBox
 	 * Returns the message corresponding to the specified class and
 	 * the number of selected items.
 	 * 
-	 * @param type			The type of object to handle.
-	 * @param number		The number of object to remove.
-	 * @param nameSpace		Name space related to the data object if any.
-	 * @param annotation	Pass <code>true</code> if the objects have been 
-	 * 						annotated, <code>false</code> otherwise.
+	 * @param type The type of object to handle.
+	 * @param number The number of object to remove.
+	 * @param nameSpace Name space related to the data object if any.
+	 * @param annotation Pass <code>true</code> if the objects have been
+	 * annotated, <code>false</code> otherwise.
+	 * @param text The default text.
 	 * @return See above. 
 	 */
-	private static String getMessage(Class type, int number, String nameSpace,
-						boolean annotation)
+	private String getMessage(Class<?> type, int number,
+			String nameSpace)
 	{
 		if (number == 0) return "";
-		StringBuffer buffer = new StringBuffer(); 
+		StringBuffer buffer = new StringBuffer();
 		String value = getTypeAsString(type, number, nameSpace);
-		String text = null;
-		if (value != null && value.length() > 0)
-			text = DEFAULT_TEXT+value+"?";
-		if (text != null) {
-			buffer.append(text);
-			buffer.append("\n");
-			if (ImageData.class.equals(type) || 
-					DatasetData.class.equals(type) || 
+		if (value != null && value.length() > 0) {
+			switch (index) {
+				case MOVE:
+					buffer.append(DEFAULT_TEXT_MOVE);
+					break;
+				case DELETE:
+				default:
+					buffer.append(DEFAULT_TEXT_DELETE);
+			}
+			buffer.append(value);
+			buffer.append("?\n");
+			if (ImageData.class.equals(type) ||
+					DatasetData.class.equals(type) ||
 					ProjectData.class.equals(type) ||
-					ScreenData.class.equals(type) || 
+					ScreenData.class.equals(type) ||
 					PlateData.class.equals(type) ||
 					PlateAcquisitionData.class.equals(type)) {
 				if (annotation) buffer.append("If yes, ");
@@ -401,14 +435,14 @@ public class DeleteBox
 	 */
 	public DeleteBox(JFrame parent, Class<?> type, boolean annotation,
 			int number, String nameSpace, boolean groupLeader,
-			Collection<ImageData> toExclude)
+			Collection<ImageData> toExclude, int index)
 	{
-		super(parent, TITLE,
-				DeleteBox.getMessage(type, number, nameSpace, annotation));
-		this.nameSpace = nameSpace;
+		super(parent, TITLE_DELETE, "");
+		this.index = index;
 		this.type = type;
 		this.annotation = annotation;
-		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
+		header.setDescription(getMessage(type, number, nameSpace));
+		initComponents(getTypeAsString(type, number, nameSpace));
 		layoutComponents(groupLeader, toExclude, number);
 		if (number == 0) {
 			setYesText("OK");

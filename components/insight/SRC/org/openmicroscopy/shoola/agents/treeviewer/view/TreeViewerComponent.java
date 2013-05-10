@@ -3249,7 +3249,8 @@ class TreeViewerComponent
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
 		DeleteBox dialog = new DeleteBox(view, type, b,
-				nodes.size()-toExclude.size(), ns, le, toExclude);
+				nodes.size()-toExclude.size(), ns, le, toExclude,
+				DeleteBox.DELETE);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
@@ -4283,6 +4284,7 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
+
 		TreeImageDisplay p = target.getParentDisplay();
 		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
@@ -4293,15 +4295,21 @@ class TreeViewerComponent
 		String parent;
 		os = null;
 		int childCount = 0;
-		long userID = TreeViewerAgent.getUserDetails().getId();
+		long userID = model.getExperimenter().getId();
 		boolean administrator = TreeViewerAgent.isAdministrator();
 		ExperimenterData exp;
 		long gId;
 		List<Long> groupIds = new ArrayList<Long>();
 		DataObject data;
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
+		Class<?> type = null;
 		while (i.hasNext()) {
 			n = i.next();
 			os = n.getUserObject();
+			type = os.getClass();
 			if (target.contains(n)) {
 				childCount++;
 			} else {
@@ -4332,6 +4340,15 @@ class TreeViewerComponent
 								data = (DataObject) os;
 								if (!groupIds.contains(data.getGroupId()))
 									groupIds.add(data.getGroupId());
+								if (data instanceof ImageData) {
+									img = (ImageData) data;
+									set = selection.get(img.getFilesetId());
+									if (set == null) {
+										set = new HashSet<ImageData>();
+										selection.put(img.getFilesetId(), set);
+									}
+									set.add(img);
+								}
 							}
 						}
 					}
@@ -4342,6 +4359,7 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
+		
 		
 		
 		if (list.size() == 0) {
@@ -4357,6 +4375,9 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
+		
+		
+		
 		DataObject otData = (DataObject) ot;
 		long groupID = -1;
 		if (ot instanceof ExperimenterData) {
@@ -4372,8 +4393,32 @@ class TreeViewerComponent
 			model.transfer(target, list);
 		else {
 			if (groupID == -1) return;
-			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"sure you want to move the selected items to another group?");
+			List<ImageData> toExclude = new ArrayList<ImageData>();
+			if (selection.size() > 0) { //moving images.
+				
+				Browser b = model.getSelectedBrowser();
+				if (b != null) {
+					LeavesVisitor visitor = new LeavesVisitor(b);
+					b.accept(visitor);
+					Map<Long, Set<ImageData>> filesetMap =
+							visitor.getFilesetMap();
+					Entry<Long, Set<ImageData>> e;
+					Iterator<Entry<Long, Set<ImageData>>> j =
+							selection.entrySet().iterator();
+					while (j.hasNext()) {
+						e = j.next();
+						set = filesetMap.get(e.getKey());
+						if (set.size() != e.getValue().size())
+							toExclude.addAll(e.getValue());
+					}
+				}
+			}
+			DeleteBox box = new DeleteBox(view, type, false,
+					list.size()-toExclude.size(), null, true, toExclude,
+					DeleteBox.MOVE);
+			//
+			//"Change group", "Are you " +
+			//	"sure you want to move the selected items to another group?");
 			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
 			SecurityContext ctx = new SecurityContext(groupID);
 			otData = null;
