@@ -43,16 +43,9 @@
     <dependency org="PDFBox" name="PDFBox" rev="${versions.PDFBox}"/>
     <dependency org="FontBox" name="FontBox" rev="${versions.FontBox}"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build,server->*"/>
-    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}" conf="build,server->*">
-        <exclude org="org.aopalliance"/>
-    </dependency>
-    <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}" conf="build,server->*">
-        <exclude org="org.aopalliance"/>
-        <exclude org="com.springsource.org.apache.commons.logging"/>
-        <exclude org="com.springsource.org.apache.velocity"/>
-        <exclude org="com.springsource.freemarker"/>
-    </dependency>
+    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0"/>
+    <dependency org="org.springframework" name="org.springframework.aop" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.context.support" rev="${versions.spring}"/>
     <dependency org="spring" name="spring-security-core" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-ldap" rev="${versions.spring-security}"/>

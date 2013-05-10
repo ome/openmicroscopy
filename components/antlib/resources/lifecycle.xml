@@ -59,12 +59,8 @@
         <target name="retrieve" unless="retrieve.done">
                 <property name="retrieve.done" value="true"/>
                 <installIvy/>
-		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" sync="false" symlink="true"/>
+		<ivy:retrieve settingsRef="ivy.${ant.project.name}" pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 	</target>
-
-    <target name="report" depends="retrieve">
-        <ivy:report settingsRef="ivy.${ant.project.name}" todir="${target.dir}/ivy-report"/>
-    </target>
 
 	<target name="prepare" depends="retrieve">
 		<mkdir dir="${deps.lib.dir}"/>
