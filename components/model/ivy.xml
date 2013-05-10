@@ -36,13 +36,19 @@
     <dependency org="org/hibernate" name="freemarker" rev="${versions.hibernate-tools}" conf="build->default"/>
     <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/>
     <!-- spring -->
-    <dependency org="org.springframework" name="org.springframework.beans" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.context" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.jdbc" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->default"/>
-    <dependency org="org.springframework" name="org.springframework.transaction" rev="${versions.spring}" conf="build,client,server->default"/>
+    <dependency org="org.springframework" name="org.springframework.orm" rev="${versions.spring}" conf="build,client,server->runtime">
+        <!--
+        <include org="org.springframework" module="beans"/>
+        <include org="org.springframework" module="context"/>
+        <include org="org.springframework" module="jdbc"/>
+        <include org="org.springframework" module="transaction"/>
+        -->
+        <exclude org="org.aopalliance"/>
+        <exclude org="com.springsource.org.apache.commons.logging"/>
+    </dependency>
+    <dependency org="org.springframework" name="com.springsource.org.aopalliance" rev="1.0.0" conf="build,client,server->*"/>
     <!-- also spring; added here instead of in server to make tests pass -->
-    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}"/>
-    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}"/>
+    <dependency org="org.springframework" name="org.springframework.asm" rev="${versions.spring}" conf="build,client,server->runtime"/>
+    <dependency org="org.springframework" name="org.springframework.expression" rev="${versions.spring}" conf="build,client,server->runtime"/>
   </dependencies>
 </ivy-module>
