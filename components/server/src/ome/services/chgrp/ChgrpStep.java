@@ -104,7 +104,6 @@ public class ChgrpStep extends GraphStep {
         logResults(count);
     }
 
-
     @SuppressWarnings("unchecked")
     protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
