@@ -7,6 +7,7 @@
 
 package ome.services.graphs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -377,6 +378,16 @@ public abstract class GraphStep {
                         constraints.get(lock[0]).addAll(bad);
                     } else {
                         constraints.put(lock[0], bad);
+                    }
+                    // TODO: Have both the source and the target IDs as a
+                    // workaround even though iObjectType hasn't done anything
+                    // "wrong".
+                    if (constraints.containsKey(iObjectType.getSimpleName())) {
+                        constraints.get(iObjectType.getSimpleName()).add(id);
+                    } else {
+                        List<Long> list = new ArrayList<Long>();
+                        constraints.put(iObjectType.getSimpleName(), list);
+                        list.add(id);
                     }
                 }
             }
