@@ -25,3 +25,7 @@ function types = getObjectTypes()
 names = {'project', 'dataset', 'image', 'screen', 'plate', 'plateacquisition'};
 classnames = {'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'PlateAcquisition'};
 types = createObjectDictionary(names, classnames);
+
+for i = 1 : numel(types)
+    types(i).annotationLink = str2func(['omero.model.' classnames{i} 'AnnotationLinkI']);
+end
