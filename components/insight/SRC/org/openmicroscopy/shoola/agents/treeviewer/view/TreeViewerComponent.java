@@ -4345,11 +4345,15 @@ class TreeViewerComponent
 		
 		
 		if (list.size() == 0) {
-			String s = "";
-			if (nodes.size() > 1) s = "s";
-			un.notifyInfo("DnD", 
-			"The "+getObjectType(os)+s+" cannot be moved to the selected "+
-				getObjectType(ot)+".");
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("The ");
+			buffer.append(getObjectType(os));
+			if (nodes.size() > 1) buffer.append("s");
+			buffer.append(" cannot be moved to the selected ");
+			buffer.append(getObjectType(ot));
+			buffer.append(".");
+			
+			un.notifyInfo("DnD", buffer.toString());
 			browser.rejectTransfer();
 			return;
 		}
