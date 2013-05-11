@@ -214,10 +214,7 @@ class ToolBar
 	
 	/** Label indicating the import status.*/
 	private JXBusyLabel importLabel;
-	
-	/** Button showing the activities dialog.*/
-	private JButton activitiesButton;
-	
+
 	/** Handles the group and users selection.*/
 	private void handleUsersSelection()
 	{
@@ -717,8 +714,6 @@ class ToolBar
         p.add(importSuccessLabel);
         p.add(Box.createHorizontalStrut(5));
         p.add(importLabel);
-        p.add(Box.createHorizontalStrut(5));
-        p.add(activitiesButton);
     	return p;
     }
     
@@ -747,8 +742,6 @@ class ToolBar
     	importLabel = new JXBusyLabel(d);
     	importLabel.setVisible(false);
     	importLabel.setBusy(false);
-    	activitiesButton = new JButton("activities");
-    	UIUtilities.unifiedButtonLookAndFeel(activitiesButton);
     	sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
         addToDisplay = new JButton("Update");
