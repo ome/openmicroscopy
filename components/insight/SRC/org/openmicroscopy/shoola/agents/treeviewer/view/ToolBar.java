@@ -114,6 +114,9 @@ class ToolBar
 	/** The text indicating the number of failed import.*/
 	private static final String FAILED_TEXT = " Failed";
 	
+	/** The tool tip used to indicate on-going import.*/
+	private static final String IMPORT_TOOLTIP = "Indicates on-going imports";
+	
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
 
@@ -741,6 +744,7 @@ class ToolBar
     	Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
 				UIUtilities.DEFAULT_ICON_HEIGHT);
     	importLabel = new JXBusyLabel(d);
+    	importLabel.setToolTipText(IMPORT_TOOLTIP);
     	importLabel.setVisible(false);
     	importLabel.setBusy(false);
     	sorter = new ViewerSorter();
