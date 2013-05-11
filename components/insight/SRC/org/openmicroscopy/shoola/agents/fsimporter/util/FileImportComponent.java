@@ -336,6 +336,22 @@ public class FileImportComponent
 
 	
 	/**
+	 * Returns the formatted result.
+	 * 
+	 * @return See above.
+	 */
+	private Object getFormattedResult()
+	{
+		if (image == null) return null;
+		ImportErrorObject o = getImportErrorObject();
+		if (o != null) return null;
+		if (image instanceof ImageData || image instanceof ThumbnailData ||
+			image instanceof PlateData || image instanceof List)
+			return image;
+		return null;
+	}
+	
+	/**
 	 * Logs the exception.
 	 * 
 	 * @param e The error to log.
@@ -836,9 +852,10 @@ public class FileImportComponent
 	 * Sets the result of the import.
 	 * 
 	 * @param status Flag indicating the status of the import.
-	 * @param image  The image.
+	 * @param image The image.
+	 * @return The formatted result.
 	 */
-	public void setStatus(boolean status, Object image)
+	public Object setStatus(boolean status, Object image)
 	{
 		this.image = image;	
 		busyLabel.setBusy(false);
@@ -1058,8 +1075,9 @@ public class FileImportComponent
 			}
 		}
 		repaint();
+		return getFormattedResult();
 	}
-	
+
 	/**
 	 * Returns the files that failed to import.
 	 * 
