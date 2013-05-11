@@ -711,6 +711,7 @@ class ToolBar
     	p.setBorder(null);
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(importFailureLabel);
+        p.add(Box.createHorizontalStrut(5));
         p.add(importSuccessLabel);
         p.add(Box.createHorizontalStrut(5));
         p.add(importLabel);
@@ -1144,8 +1145,9 @@ class ToolBar
 		importLabel.setBusy(model.isImporting());
 		importLabel.setVisible(model.isImporting());
 		int n = model.getImportFailureCount();
-		StringBuffer buffer = new StringBuffer();
+		StringBuffer buffer;
 		if (n > 0) {
+			buffer = new StringBuffer();
 			buffer.append(n);
 			buffer.append(FAILED_TEXT);
 			importFailureLabel.setText(buffer.toString());
@@ -1153,6 +1155,7 @@ class ToolBar
 		}
 		n = model.getImportSuccessCount();
 		if (n > 0) {
+			buffer = new StringBuffer();
 			buffer.append(n);
 			buffer.append(IMPORTED_TEXT);
 			importSuccessLabel.setText(buffer.toString());
