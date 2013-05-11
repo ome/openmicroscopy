@@ -314,9 +314,10 @@ class ImporterComponent
 		ImporterUIElement element = view.getUIElement(index);
 		List<DataObject> containers = null;
 		boolean refreshTree = false;
+		Object formattedResult = null;
 		if (element != null) {
-			long fileSetID = element.setImportedFile(f, result);
-			if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
+			formattedResult = element.setImportedFile(f, result);
+			//if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
 			if (element.isDone()) {
 				refreshTree = element.hasToRefreshTree();
 				containers = element.getExistingContainers();
@@ -337,7 +338,7 @@ class ImporterComponent
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			ImportStatusEvent event;
 			event = new ImportStatusEvent(hasOnGoingImport(), containers,
-					result);
+					formattedResult);
 			event.setToRefresh(refreshTree);
 			bus.post(event);
 		}

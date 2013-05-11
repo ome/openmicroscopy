@@ -70,6 +70,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -708,18 +709,36 @@ class ImporterUIElement
 	int getID() { return id; }
 	
 	/**
-	 * Sets the result of the import for the specified file.
+	 * Returns the formatted result.
 	 * 
-	 * @param f The file to import.
-	 * @param result The result.
+	 * @param f The imported file.
+	 * @return See above.
 	 */
-	long setImportedFile(ImportableFile f, Object result)
+	Object getFormattedResult(ImportableFile f)
 	{
 		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
-		long fileSetID = -1;
+		if (c == null) return null;
+		ImportErrorObject object = c.getImportErrorObject();
+		if (object != null) return object;
+		
+		return null;
+	}
+	
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param f The imported file.
+	 * @param result The result.
+	 * @result Returns the formatted result or <code>null</code>.
+	 */
+	Object setImportedFile(ImportableFile f, Object result)
+	{
+		File file = f.getFile();
+		FileImportComponent c = components.get(f.toString());
+		Object formattedResult = null;
 		if (c != null) {
-			fileSetID = c.setStatus(false, result);
+			formattedResult = c.setStatus(false, result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
@@ -779,7 +798,7 @@ class ImporterUIElement
 				timeLabel.setText(text+" Duration: "+time);
 			}
 		}
-		return fileSetID;
+		return formattedResult;
 	}
 	
 	/**
