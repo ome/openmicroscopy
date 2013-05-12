@@ -24,15 +24,18 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Icon;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -63,7 +66,7 @@ public class StatusLabel
 	extends JPanel
 	implements IObserver
 {
-
+	
 	/** The text displayed when the file is already selected.*/
 	public static final String DUPLICATE = "Already processed, skipping";
 	
@@ -112,7 +115,25 @@ public class StatusLabel
 	public static final String FILESET_UPLOADED_PROPERTY = "filesetUploaded";
 	
 	/** Default text when a failure occurred. */
-	private static final String		FAILURE_TEXT = "failed";
+	private static final String FAILURE_TEXT = "failed";
+
+	/** The default text of the component.*/
+	private static final String DEFAULT_TEXT = "Pending...";
+
+	/** Text to indicate that the import is cancelled. */
+	private static final String CANCEL_TEXT = "cancelled";
+
+	/** Text to indicate that no files to import. */
+	private static final String NO_FILES_TEXT = "No Files to Import.";
+
+	/** 
+	 * The number of processing sets.
+	 * 1. Metadata imported
+	 * 2. Pixels Processing
+	 * 3. Thumbnails generation
+	 * 4. Metadata processed
+	 */
+	private static final int PROCESSING_STEPS = 4;
 	
 	/** The number of images in a series. */
 	private int seriesCount;
@@ -123,17 +144,11 @@ public class StatusLabel
 	/** The files associated to the file that failed to import. */
 	private String[] usedFiles;
 	
-	/** The time at which the import started. */
-	private long     startTime;
-	
-	/** The time at which the import ended. */
-	private long     endTime;
-	
 	/** The text if an error occurred. */
-	private String	 errorText;
+	private String errorText;
 	
 	/** Flag indicating that the import has been cancelled. */
-	private boolean  markedAsCancel;
+	private boolean markedAsCancel;
 	
 	/** Flag indicating that the import can or not be cancelled.*/
 	private boolean cancellable;
@@ -155,6 +170,33 @@ public class StatusLabel
 	
 	/** The label displaying the general import information.*/
 	private JLabel generalLabel;
+	
+	/** Indicate the progress of the upload.*/
+	private JProgressBar uploadBar;
+	
+	/** Indicate the progress of the processing.*/
+	private JProgressBar processingBar;
+	
+	/** The label indicating information posted during the processing.*/
+	private JLabel processingLabel;
+	
+	/** The size of the upload,*/
+	private long sizeUpload;
+	
+	/**
+	 * Builds and lays out the components indicating the status of the upload.
+	 * 
+	 * @return See above
+	 */
+	private JPanel buildUploadPane()
+	{
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(uploadBar);
+		p.add(uploadLabel);
+		return p;
+	}
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -204,25 +246,57 @@ public class StatusLabel
 		return rowColumns;
 	}
 	
-	/** Creates a new instance. */
-	public StatusLabel()
+	/** Builds and lays out the UI.*/
+	private void buildUI()
 	{
-		uploadLabel = new JLabel();
-		generalLabel = new JLabel();
+		setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(generalLabel);
+		add(buildUploadPane());
+		add(Box.createHorizontalStrut(5));
+		add(processingBar);
+		add(processingLabel);
+		setOpaque(false);
+	}
+
+	/** Initializes the components.*/
+	private void initiliaze()
+	{
+		sizeUpload = 0;
 		fileSize = "";
 		seriesCount = 0;
 		readerType = "";
 		errorText = FAILURE_TEXT;
-		uploadLabel.setText("pending");
 		markedAsCancel = false;
 		cancellable = true;
 		totalUploadedSize = 0;
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(uploadLabel);
-		add(generalLabel);
-		setOpaque(false);
+		generalLabel = new JLabel(DEFAULT_TEXT);
+		uploadLabel = new JLabel();
+		uploadBar = new JProgressBar(0, 100);
+		uploadBar.setStringPainted(true);
+		processingBar = new JProgressBar(0, PROCESSING_STEPS);
+		processingBar.setStringPainted(true);
+		uploadBar.setBackground(Color.RED);
+		processingLabel = new JLabel();
+		uploadLabel.setVisible(false);
+		uploadBar.setVisible(false);
+		processingBar.setVisible(false);
 	}
-	
+
+	/** Handles error that occurred during the processing.*/
+	private void handleProcessingError()
+	{
+		//Change the color of the processing bar.
+		cancellable = false;
+		firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+	}
+
+	/** Creates a new instance. */
+	public StatusLabel()
+	{
+		initiliaze();
+		buildUI();
+	}
+
 	/**
 	 * Sets the collection of files to import.
 	 * 
@@ -232,15 +306,18 @@ public class StatusLabel
 	{
 		this.usedFiles = usedFiles;
 		if (usedFiles == null) return;
-		long size = 0;
 		for (int i = 0; i < usedFiles.length; i++) {
-			size += (new File(usedFiles[i])).length();
+			sizeUpload += (new File(usedFiles[i])).length();
 		}
-		fileSize = FileUtils.byteCountToDisplaySize(size);
+		fileSize = FileUtils.byteCountToDisplaySize(sizeUpload);
 	}
-	
+
 	/** Marks the import has cancelled. */
-	public void markedAsCancel() { this.markedAsCancel = true; }
+	public void markedAsCancel()
+	{
+		generalLabel.setText(CANCEL_TEXT);
+		this.markedAsCancel = true;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the import is marked as cancel, 
@@ -249,10 +326,10 @@ public class StatusLabel
 	 * @return See above.
 	 */
 	public boolean isMarkedAsCancel() { return markedAsCancel; }
-	
+
 	/** Marks the import has duplicate. */
 	public void markedAsDuplicate() { this.markedAsDuplicate = true; }
-	
+
 	/**
 	 * Returns <code>true</code> if the import is marked as duplicate, 
 	 * <code>false</code> otherwise.
@@ -260,36 +337,29 @@ public class StatusLabel
 	 * @return See above.
 	 */
 	public boolean isMarkedAsDuplicate() { return markedAsDuplicate; }
-	
+
 	/**
 	 * Returns the text if an error occurred.
 	 * 
 	 * @return See above.
 	 */
 	public String getErrorText() { return errorText; }
-	
-	/**
-	 * Returns the duration of the import. 
-	 * 
-	 * @return See above.
-	 */
-	public long getDuration() { return endTime-startTime; }
-	
+
 	/**
 	 * Returns the type of reader used.
 	 * 
 	 * @return See above.
 	 */
 	public String getReaderType() { return readerType; }
-	
+
 	/**
 	 * Returns the files associated to the file failing to import.
 	 * 
 	 * @return See above.
 	 */
 	public String[] getUsedFiles() { return usedFiles; }
-	
-	/** 
+
+	/**
 	 * Sets the status of the import.
 	 * 
 	 * @param value The value to set.
@@ -299,17 +369,18 @@ public class StatusLabel
 		if (value == null) value = "";
 		generalLabel.setText(value);
 	}
-	
-	/** 
+
+	/**
 	 * Fires a property indicating to import the files.
 	 * 
 	 * @param files The file to handle.
 	 */
 	public void setFiles(Map<File, StatusLabel> files)
 	{
+		generalLabel.setText(NO_FILES_TEXT);
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
 	}
-	
+
 	/**
 	 * Indicates that the original container has been reset.
 	 */
@@ -318,7 +389,7 @@ public class StatusLabel
 		firePropertyChange(NO_CONTAINER_PROPERTY,
 				Boolean.valueOf(false), Boolean.valueOf(true));
 	}
-	
+
 	/**
 	 * Sets the container corresponding to the folder.
 	 * 
@@ -328,7 +399,7 @@ public class StatusLabel
 	{
 		firePropertyChange(CONTAINER_FROM_FOLDER_PROPERTY, null, container);
 	}
-	
+
 	/**
 	 * Replaces the initial file by the specified one. This should only be 
 	 * invoked if the original file was an arbitrary one requiring to use the
@@ -340,15 +411,15 @@ public class StatusLabel
 	{
 		firePropertyChange(FILE_RESET_PROPERTY, null, file);
 	}
-	
+
 	/**
 	 * Returns the number of series.
 	 * 
 	 * @return See above.
 	 */
 	public int getSeriesCount() { return seriesCount; }
-	
-	/** 
+
+	/**
 	 * Fires a property indicating that the file has been imported.
 	 * 
 	 * @param file The file to import.
@@ -362,7 +433,7 @@ public class StatusLabel
 		cancellable = false;
 		firePropertyChange(FILE_IMPORTED_PROPERTY, null, results);
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the import can be cancelled,
 	 * <code>false</code> otherwise.
@@ -370,7 +441,7 @@ public class StatusLabel
 	 * @return See above.
 	 */
 	public boolean isCancellable() { return cancellable; }
-	
+
 	/**
 	 * Sets the text of the labels.
 	 * 
@@ -381,31 +452,7 @@ public class StatusLabel
 		generalLabel.setText(text);
 		uploadLabel.setText("");
 	}
-	
-	/**
-	 * Sets the icon of the upload label. Does not change the icon of the
-	 * general label.
-	 *
-	 * @param icon The icon to set.
-	 */
-	public void setIcon(Icon icon) {
-		uploadLabel.setIcon(icon);
-	}
-	
-	/**
-	 * Makes both component labels visible if their previous state was
-	 * invisible.
-	 *
-	 * @param b The boolean flag.
-	 * @see javax.swing.JComponent#setVisible(boolean)
-	 */
-	public void setVisible(boolean b)
-	{
-		if (!generalLabel.isVisible() && !uploadLabel.isVisible()) {
-			generalLabel.setVisible(b);
-			uploadLabel.setVisible(b);
-		}
-	}
+
 	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
@@ -414,68 +461,53 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		cancellable = false;
-		//System.err.println(event);
 		if (event instanceof ImportEvent.IMPORT_DONE) {
-			generalLabel.setText("import completed");
-			endTime = System.currentTimeMillis();
 		} else if (event instanceof ImportCandidates.SCANNING) {
-			if (!markedAsCancel) uploadLabel.setText("scanning");
+			if (!markedAsCancel) generalLabel.setText("scanning");
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
-			endTime = System.currentTimeMillis();
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			errorText = "unknown format";
-			cancellable = false;
-			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+			handleProcessingError();
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			errorText = "missing required library";
-			cancellable = false;
-			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+			handleProcessingError();
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("uploading ");
-			if (e.fileTotal > 1) {
-				buffer.append(e.fileIndex+1);
-				buffer.append(":");
-				buffer.append(e.fileTotal);
-				buffer.append(" ");
-			}
-			buffer.append(formatUpload(totalUploadedSize+e.uploadedBytes));
+			long v = totalUploadedSize+e.uploadedBytes;
+			uploadBar.setString(formatUpload(v));
+			uploadBar.setValue((int) (v*100/sizeUpload));
 			if (e.timeLeft != 0) {
+				StringBuffer buffer = new StringBuffer();
 				buffer.append(" time left: ");
-				buffer.append(UIUtilities.calculateHMSFromMilliseconds(e.timeLeft));
+				buffer.append(
+						UIUtilities.calculateHMSFromMilliseconds(e.timeLeft));
+				uploadLabel.setText(buffer.toString());
 			}
-			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("upload finished ");
-			buffer.append(formatUpload(totalUploadedSize));
-			uploadLabel.setText(buffer.toString());
-			ImportEvent.FILESET_UPLOAD_END fue =
-					(ImportEvent.FILESET_UPLOAD_END) event;
-			List<String> columnNames = new ArrayList<String>();
-			columnNames.add("File name");
-			columnNames.add("Client checksum");
-			columnNames.add("Server checksum");
-			uploadLabel.setToolTipText(UIUtilities.formatStringListToTable(
-					columnNames, formatChecksums(fue.srcFiles, fue.checksums,
-							fue.failingChecksums)));
-			firePropertyChange(FILESET_UPLOADED_PROPERTY, fue.checksums,
-					fue.failingChecksums);
+			uploadLabel.setText("done");
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-			generalLabel.setText("metadata extracted");
+			processingBar.setVisible(true);
+			processingLabel.setVisible(true);
+			processingBar.setValue(1);
+		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
+			processingBar.setValue(2);
 		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
-			generalLabel.setText("thumbnails generated");
+			processingBar.setValue(3);
+		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
+			processingBar.setValue(4);
+			processingBar.setStringPainted(false);
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
-			uploadLabel.setText("upload started");
+			generalLabel.setText("");
+			uploadLabel.setVisible(true);
+			uploadBar.setVisible(true);
 		}
 	}
 

@@ -60,7 +60,6 @@ import javax.swing.event.ChangeListener;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
-
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -159,7 +158,7 @@ public class FileImportComponent
 	 * Bound property indicating to load the content of the log file.
 	 */
 	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
-	
+
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -208,9 +207,6 @@ public class FileImportComponent
 	
 	/** Text to indicate that the file, after scanning is not valid. */
 	private static final String FILE_NOT_VALID_TEXT = "File Not Valid";
-	
-	/** Text to indicate that the import is cancelled. */
-	private static final String CANCEL_TEXT = "cancelled";
 
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
@@ -228,40 +224,40 @@ public class FileImportComponent
 	private static final String TEXT_IMPORTED = "Imported to:";
 
 	/** One of the constants defined by this class. */
-	private int				type;
+	private int type;
 	
 	/** The file to import. */
-	private File 			file;
+	private File file;
 	
 	/** The component indicating the progress of the import. */
-	private JXBusyLabel 	busyLabel;
+	private JXBusyLabel busyLabel;
 	
 	/** The component displaying the file name. */
-	private JPanel			namePane;
+	private JPanel namePane;
 
 	/** The component displaying the result. */
-	private JLabel			resultLabel;
+	private JLabel resultLabel;
 	
 	/** The component displaying the imported image. */
-	private ThumbnailLabel	imageLabel;
+	private ThumbnailLabel imageLabel;
 	
 	/** Keeps track of the extra images if any. */
 	private List<ThumbnailLabel> imageLabels;
 
 	/** The imported image. */
-	private Object			image;
+	private Object image;
 	
 	/** The check box displayed if the import failed. */
-	private JCheckBox		errorBox;
+	private JCheckBox errorBox;
 	
 	/** The button indicating that an error occurred. */
-	private JButton		errorButton;
+	private JButton errorButton;
 	
 	/** Indicates the status of the on-going import. */
-	private StatusLabel		statusLabel;
+	private StatusLabel statusLabel;
 	
 	/** The component displaying the name of the file. */
-	private JLabel			fileNameLabel;
+	private JLabel fileNameLabel;
 	
 	/** Keep tracks of the components. */
 	private Map<File, FileImportComponent> components;
@@ -352,7 +348,7 @@ public class FileImportComponent
 
 	/** The log file if any to load.*/
 	private FileAnnotationData logFile;
-	
+
 	/**
 	 * Returns the formatted result.
 	 * 
@@ -424,7 +420,6 @@ public class FileImportComponent
 			return;
 		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
-		statusLabel.setText(CANCEL_TEXT);
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
@@ -676,10 +671,7 @@ public class FileImportComponent
 	 */
 	private void insertFiles(Map<File, StatusLabel> files)
 	{
-		if (files == null || files.size() == 0) {
-			statusLabel.setText("No files to import.");
-			return;
-		}
+		if (files == null || files.size() == 0) return;
 		components = new HashMap<File, FileImportComponent>();
 		totalFiles = files.size();
 		String text = "Importing "+totalFiles+" file";
@@ -968,8 +960,6 @@ public class FileImportComponent
 			ThumbnailData thumbnail = (ThumbnailData) image;
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
-				
-				statusLabel.setVisible(false);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
 				resultLabel.setText(VIEW_TEXT);
@@ -1009,7 +999,6 @@ public class FileImportComponent
 			}
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
-			statusLabel.setVisible(false);
 			groupUserLabel.setVisible(!singleGroup);
 			if (browsable) {
 				resultLabel.setText(BROWSE_TEXT);
@@ -1028,7 +1017,6 @@ public class FileImportComponent
 				containerLabel.setVisible(showContainerLabel);
 			}
 		} else if (image instanceof List) {
-			statusLabel.setVisible(false);
 			groupUserLabel.setVisible(!singleGroup);
 			List<ImageData> list = new ArrayList<ImageData>((List) image);
 			int m = list.size();
@@ -1066,7 +1054,6 @@ public class FileImportComponent
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
 				if (statusLabel.isMarkedAsDuplicate()) {
-					statusLabel.setVisible(false);
 					setStatusText(StatusLabel.DUPLICATE);
 				} else {
 					statusLabel.setVisible(false);
@@ -1515,7 +1502,6 @@ public class FileImportComponent
 		String name = evt.getPropertyName();
 		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
 			if (isCancelled()) {
-				statusLabel.setText(CANCEL_TEXT);
 				busyLabel.setBusy(false);
 				busyLabel.setVisible(false);
 				return;
@@ -1582,21 +1568,18 @@ public class FileImportComponent
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (StatusLabel.FILESET_UPLOADED_PROPERTY.equals(name)) {
-			IconManager icons = IconManager.getInstance();
 			List<String> checksums = (List<String>) evt.getOldValue();
 			Map<Integer, String> failingChecksums =
 					(Map<Integer, String>) evt.getNewValue();
-			if (checksums.size() == failingChecksums.size()) {
-				statusLabel.setIcon(icons.getIcon(IconManager.DELETE));
-				statusLabel.setText(CHECKSUM_MISMATCH_TEXT);
-			} else if (failingChecksums.isEmpty()) {
-				statusLabel.setIcon(icons.getIcon(IconManager.APPLY));
-			} else {
-				statusLabel.setIcon(icons.getIcon(IconManager.APPLY_CANCEL));
-			}
+			//TODO: Format and handle checksums.
+			/*
+			UIUtilities.formatStringListToTable(
+					columnNames, formatChecksums(fue.srcFiles, fue.checksums,
+							fue.failingChecksums)));
+			firePropertyChange(FILESET_UPLOADED_PROPERTY, fue.checksums,
+					fue.failingChecksums);
+					*/
 			// Add code to query for log file and create a download button
-			
-			statusLabel.setVisible(true);
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
 			SecurityContext ctx = new SecurityContext(group.getId());
