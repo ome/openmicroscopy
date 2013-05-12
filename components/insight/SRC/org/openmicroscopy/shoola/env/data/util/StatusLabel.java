@@ -24,13 +24,10 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -512,7 +509,6 @@ public class StatusLabel
 		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
 			processingBar.setValue(4);
 			processingLabel.setText(STEPS.get(4));
-			processingBar.setForeground(Color.red);
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
 			generalLabel.setText("");
 			uploadLabel.setVisible(true);
