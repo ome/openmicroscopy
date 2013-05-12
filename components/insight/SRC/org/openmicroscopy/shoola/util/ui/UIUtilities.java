@@ -85,6 +85,7 @@ import javax.swing.text.TabStop;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
@@ -1524,25 +1525,25 @@ public class UIUtilities
         int minutes = timeInSeconds/60;
         timeInSeconds = timeInSeconds-(minutes*60);
         int seconds = timeInSeconds;
-        String text = "";
+        StringBuffer text = new StringBuffer();
         if (hours > 0) {
-        	text += hours;
-        	text += " hour";
+        	text.append(hours);
+        	text.append(" hour");
         }
-        if (hours > 1) text += "s";
+        if (hours > 1) text.append("s");
         if (minutes > 0) {
-        	text += " "; 
-        	text += minutes;
-        	text += " minute";
-        	if (minutes > 1) text += "s";
+        	text.append(" "); 
+        	text.append(minutes);
+        	text.append(" minute");
+        	if (minutes > 1) text.append("s");
         }
         if (seconds > 0) {
-        	text += " "; 
-        	text += seconds;
-        	text += " second";
-        	if (seconds > 1) text += "s";
+        	text.append(" "); 
+        	text.append(seconds);
+        	text.append(" second");
+        	if (seconds > 1) text.append("s");
         }
-        return text;
+        return text.toString();
     }
     
     /**
@@ -2107,7 +2108,7 @@ public class UIUtilities
 		if (alpha == 0) alpha = 255;
 		return ((alpha & 0xFF) << 24) |
     	((c.getRed() & 0xFF) << 16) |
-    	((c.getGreen() & 0xFF) << 8)  |
+    	((c.getGreen() & 0xFF) << 8) |
     	((c.getBlue() & 0xFF) << 0);
 	}
 	
@@ -2208,7 +2209,6 @@ public class UIUtilities
     {
     	if (ex == null) return "";
     	if (n <= 0) n = MAX_LINES_EXCEPTION;
-    	//ex.printStackTrace();
     	String s;
     	if (ex.getCause() != null) {
     		s = UIUtilities.printErrorText(ex.getCause());
@@ -2222,8 +2222,11 @@ public class UIUtilities
    			for (int i = 0; i < lines.length-1; i++) {
    				lines[i] = values[i];
    			}
-   			lines[lines.length-1] = 
-   				"... "+(values.length-MAX_LINES_EXCEPTION)+" more";
+   			StringBuffer buffer = new StringBuffer();
+   			buffer.append(DOTS);
+   			buffer.append(values.length-MAX_LINES_EXCEPTION);
+   			buffer.append(" more");
+   			lines[lines.length-1] = buffer.toString();
    		}
    		return formatToolTipText(lines);
     }
@@ -2298,8 +2301,7 @@ public class UIUtilities
     {
     	if (family == null) return "";
     	String value = FONTS.get(family);
-    	if (value == null || value.trim().length() == 0)
-    		return "";
+    	if (StringUtils.isBlank(value)) return "";
     	return value;
     }
     
@@ -2414,7 +2416,10 @@ public class UIUtilities
 		int n = DOTS.length()+numberOfCharacters;
 		int m = name.length();
 		if (m <= n) return name;
-		return DOTS+name.substring(m-n, m);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(DOTS);
+		buffer.append(name.substring(m-n, m));
+		return buffer.toString();
 	}
 	
 	/**
@@ -2493,13 +2498,22 @@ public class UIUtilities
     	int remainder = v%3600;
     	int minutes = remainder/60;
     	int seconds = remainder%60;
-    	String text = "";
-    	if (hours > 0) text += hours+"h";
+    	StringBuffer text = new StringBuffer();
+    	if (hours > 0) {
+    		text.append(hours);
+    		text.append("h");
+    	}
     	if (minutes > 0) {
-    		text += minutes+"min";
-    		if (seconds > 0) text += seconds+"s";
-    	} else text +=  seconds+"s";
-	
-		return text;
+    		text.append(minutes);
+    		text.append("min");
+    		if (seconds > 0) {
+    			text.append(seconds);
+        		text.append("s");
+    		}
+    	} else {
+    		text.append(seconds);
+    		text.append("s");
+    	}
+		return text.toString();
     }
 }
