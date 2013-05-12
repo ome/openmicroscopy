@@ -243,40 +243,7 @@ public class StatusLabel
 		buffer.append(fileSize);
 		return buffer.toString();
 	}
-	
-	/**
-	 * Formats the checksum and filename arrays returned from an event.
-	 * The structure returned is of the form:
-	 * <p>
-	 * <code>{filename, client_checksum, server_checksum}</code>
-	 * </p>
-	 * If a failure is indicated in the <code>failingChecksums</code> map, that
-	 * specific checksum will be taken from the map and used in the returned
-	 * list. In case of matching checksums, the client checksum will be used.
-	 *
-	 * @param srcFiles An array of filenames.
-	 * @param checksums Client-side calculated checksums.
-	 * @param failingChecksums A map of index to checksum indicating at which
-	 *						   index of the checkum list a mismatch occurred.
-	 * @return A list of String arrays for each row of data.
-	 */
-	private List<String[]> formatChecksums(String[] srcFiles,
-			List<String> checksums, Map<Integer, String> failingChecksums) {
-		List<String[]> rowColumns = new ArrayList<String[]>();
-		for (int i = 0; i < srcFiles.length; ++i) {
-			String[] row = new String[3];
-			row[0] = srcFiles[i];
-			row[1] = checksums.get(i);
-			if (failingChecksums.containsKey(i)) {
-				row[2] = failingChecksums.get(i);
-			} else {
-				row[2] = checksums.get(i);
-			}
-			rowColumns.add(row);
-		}
-		return rowColumns;
-	}
-	
+
 	/** Builds and lays out the UI.*/
 	private void buildUI()
 	{
