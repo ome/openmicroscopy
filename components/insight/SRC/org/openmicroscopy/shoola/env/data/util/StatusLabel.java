@@ -486,7 +486,8 @@ public class StatusLabel
 				if (!StringUtils.isBlank(s)) buffer.append(" left");
 				else buffer.append("Almost complete");
 			} else {
-				buffer.append("Almost complete");
+				if (!StringUtils.isBlank(uploadLabel.getText()))
+					buffer.append("Almost complete");
 			}
 			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
