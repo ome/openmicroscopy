@@ -26,8 +26,10 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +46,7 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorHandler;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -73,6 +76,9 @@ public class StatusLabel
 	/** The text displayed when loading the image to import. */
 	public static final String PREPPING_TEXT = "prepping";
 	
+	/** The text indicating the scanning steps. */
+	public static final String SCANNING_TEXT = "Scanning...";
+	
 	/** 
 	 * Bound property indicating that the original container has been reset.
 	 * */
@@ -88,7 +94,7 @@ public class StatusLabel
 	public static final String FILE_RESET_PROPERTY = "fileReset";
 	
 	/** Bound property indicating that the import of the file has started. */
-	public static final String FILE_IMPORT_STARTED_PROPERTY = 
+	public static final String FILE_IMPORT_STARTED_PROPERTY =
 		"fileImportStarted";
 	
 	/** Bound property indicating that the file is imported. */
@@ -98,11 +104,11 @@ public class StatusLabel
 	 * Bound property indicating that the container corresponding to the
 	 * folder has been created. 
 	 * */
-	public static final String CONTAINER_FROM_FOLDER_PROPERTY = 
+	public static final String CONTAINER_FROM_FOLDER_PROPERTY =
 		"containerFromFolder";
 	
 	/** Bound property indicating that the status has changed.*/
-	public static final String CANCELLABLE_IMPORT_PROPERTY = 
+	public static final String CANCELLABLE_IMPORT_PROPERTY =
 		"cancellableImport";
 	
 	/** Bound property indicating that the status has changed.*/
@@ -129,11 +135,20 @@ public class StatusLabel
 	/** 
 	 * The number of processing sets.
 	 * 1. Metadata imported
-	 * 2. Pixels Processing
+	 * 2. Pixels Processed
 	 * 3. Thumbnails generation
 	 * 4. Metadata processed
 	 */
-	private static final int PROCESSING_STEPS = 4;
+	/** Map hosting the description of each steps.*/
+	private static final Map<Integer, String> STEPS;
+	
+	static {
+		STEPS = new HashMap<Integer, String>();
+		STEPS.put(1, "Metadata imported");
+		STEPS.put(2, "Pixels processed");
+		STEPS.put(3, "Thumbnails generated");
+		STEPS.put(4, "Processing complete");
+	}
 	
 	/** The number of images in a series. */
 	private int seriesCount;
@@ -198,6 +213,22 @@ public class StatusLabel
 		return p;
 	}
 	
+	/**
+	 * Builds and lays out the components indicating the status of the
+	 * processing.
+	 * 
+	 * @return See above
+	 */
+	private JPanel buildProcessingPane()
+	{
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(processingBar);
+		p.add(processingLabel);
+		return p;
+	}
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -253,8 +284,7 @@ public class StatusLabel
 		add(generalLabel);
 		add(buildUploadPane());
 		add(Box.createHorizontalStrut(5));
-		add(processingBar);
-		add(processingLabel);
+		add(buildProcessingPane());
 		setOpaque(false);
 	}
 
@@ -270,13 +300,18 @@ public class StatusLabel
 		cancellable = true;
 		totalUploadedSize = 0;
 		generalLabel = new JLabel(DEFAULT_TEXT);
+		Font f = generalLabel.getFont();
+		Font derived = f.deriveFont(f.getStyle(), f.getSize()-2);
 		uploadLabel = new JLabel();
+		uploadLabel.setFont(derived);
 		uploadBar = new JProgressBar(0, 100);
+		uploadBar.setFont(derived);
 		uploadBar.setStringPainted(true);
-		processingBar = new JProgressBar(0, PROCESSING_STEPS);
+		processingBar = new JProgressBar(0, STEPS.size());
 		processingBar.setStringPainted(true);
-		uploadBar.setBackground(Color.RED);
+		processingBar.setFont(derived);
 		processingLabel = new JLabel();
+		processingLabel.setFont(derived);
 		uploadLabel.setVisible(false);
 		uploadBar.setVisible(false);
 		processingBar.setVisible(false);
@@ -320,7 +355,7 @@ public class StatusLabel
 	}
 	
 	/**
-	 * Returns <code>true</code> if the import is marked as cancel, 
+	 * Returns <code>true</code> if the import is marked as cancel,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -331,7 +366,7 @@ public class StatusLabel
 	public void markedAsDuplicate() { this.markedAsDuplicate = true; }
 
 	/**
-	 * Returns <code>true</code> if the import is marked as duplicate, 
+	 * Returns <code>true</code> if the import is marked as duplicate,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
@@ -401,9 +436,9 @@ public class StatusLabel
 	}
 
 	/**
-	 * Replaces the initial file by the specified one. This should only be 
+	 * Replaces the initial file by the specified one. This should only be
 	 * invoked if the original file was an arbitrary one requiring to use the
-	 * import candidate e.g. <code>.log</code>
+	 * import candidate e.g. <code>.log</code>.
 	 * 
 	 * @param file The new file.
 	 */
@@ -480,30 +515,37 @@ public class StatusLabel
 			long v = totalUploadedSize+e.uploadedBytes;
 			uploadBar.setString(formatUpload(v));
 			uploadBar.setValue((int) (v*100/sizeUpload));
+			StringBuffer buffer = new StringBuffer();
 			if (e.timeLeft != 0) {
-				StringBuffer buffer = new StringBuffer();
-				buffer.append(" time left: ");
-				buffer.append(
-						UIUtilities.calculateHMSFromMilliseconds(e.timeLeft));
-				uploadLabel.setText(buffer.toString());
+				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft);
+				buffer.append(s);
+				if (!StringUtils.isBlank(s)) buffer.append(" left");
+				else buffer.append("Almost complete");
+			} else {
+				buffer.append("Almost complete");
 			}
+			uploadLabel.setText(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
-			uploadLabel.setText("done");
+			uploadLabel.setText("uploaded");
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
 			processingBar.setVisible(true);
 			processingLabel.setVisible(true);
 			processingBar.setValue(1);
+			processingLabel.setText(STEPS.get(1));
 		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
 			processingBar.setValue(2);
+			processingLabel.setText(STEPS.get(2));
 		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
 			processingBar.setValue(3);
+			processingLabel.setText(STEPS.get(3));
 		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
 			processingBar.setValue(4);
-			processingBar.setStringPainted(false);
+			processingLabel.setText(STEPS.get(4));
+			processingBar.setForeground(Color.red);
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
 			generalLabel.setText("");
 			uploadLabel.setVisible(true);
