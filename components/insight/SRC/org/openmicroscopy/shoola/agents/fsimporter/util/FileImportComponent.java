@@ -62,6 +62,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
+import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
@@ -1069,12 +1070,14 @@ public class FileImportComponent
 					setStatusText(StatusLabel.DUPLICATE);
 				} else {
 					statusLabel.setVisible(false);
-					setStatusText(FILE_NOT_VALID_TEXT);
-					this.image = new ImportException(FILE_NOT_VALID_TEXT);
-					exception = (ImportException) this.image;
-					errorButton.setVisible(true);
-					errorBox.setVisible(true);
-					errorBox.addChangeListener(this);
+					if (file.isFile()) {
+						setStatusText(FILE_NOT_VALID_TEXT);
+						this.image = new ImportException(FILE_NOT_VALID_TEXT);
+						exception = (ImportException) this.image;
+						errorButton.setVisible(true);
+						errorBox.setVisible(true);
+						errorBox.addChangeListener(this);
+					}
 				}
 			} else resultLabel.setText("");
 		} else {
@@ -1535,8 +1538,15 @@ public class FileImportComponent
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
 			if (f.getAbsolutePath().equals(file.getAbsolutePath())) {
-				setStatus(false, results[1]);
+				Object result = setStatus(false, results[1]);
+				firePropertyChange(StatusLabel.FILE_IMPORTED_PROPERTY, null,
+						result);
 				if (f.isFile()) {
+					EventBus bus = ImporterAgent.getRegistry().getEventBus();
+					ImportStatusEvent event;
+					//Always assume true
+					event = new ImportStatusEvent(true, null, result);
+					bus.post(event);
 					if (hasImportFailed())
 						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
 								FAILURE);
