@@ -1165,6 +1165,7 @@ class ToolBar
 			importSuccessLabel.setText(buffer.toString());
 			importSuccessLabel.setVisible(true);
 		}
+		repaint();
 	}
 
 }
