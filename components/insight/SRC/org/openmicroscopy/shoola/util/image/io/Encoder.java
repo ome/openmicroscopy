@@ -120,7 +120,7 @@ public abstract class Encoder
     
     /**
      * Writes the encoded image. Sub-classes override this method.
-     * @throws EncoderException Exception thrown if an error occured during the
+     * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
      */
 	public abstract void write()

@@ -283,14 +283,14 @@ public interface Browser
     public void cancel();   
     
     /**
-     * Returns the location of the mouse click event occured.
+     * Returns the location of the mouse click event occurred.
      * 
      * @return See above.
      */
     public Point getClickPoint();
     
     /** 
-     * Returns the UI component where the mouse click event occured.
+     * Returns the UI component where the mouse click event occurred.
      * 
      * @return See above.
      */
