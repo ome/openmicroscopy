@@ -258,7 +258,17 @@ public class DoAllI extends DoAll implements IRequest {
         this.helper = helper;
         int steps = 0;
         try {
-            new Preprocessor(this.requests, this.helper);
+
+            Map<String, String> allgroups = new HashMap<String, String>();
+            allgroups.put("omero.group", "-1");
+            ctx.publishMessage(new ContextMessage.Push(this, allgroups));
+            try {
+                // Process within -1 block.
+                new Preprocessor(this.requests, this.helper);
+            } finally {
+                ctx.publishMessage(new ContextMessage.Pop(this, allgroups));
+            }
+
             for (int i = 0; i < this.requests.size(); i++) {
                 final Request req = requests.get(i);
                 final Status substatus = new Status();
