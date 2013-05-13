@@ -153,7 +153,7 @@ public class StatusLabel
 		STEPS.put(3, "Generating Thumbnails");
 		STEPS.put(4, "Processing Metadata");
 		STEPS.put(5, "Generating Objects");
-		STEPS.put(6, "Processing Complete");
+		STEPS.put(6, "Complete");
 	}
 	
 	/** The number of images in a series. */
@@ -218,8 +218,10 @@ public class StatusLabel
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(generalLabel);
+		add(new JLabel("Upload"));
 		add(uploadBar);
 		add(Box.createHorizontalStrut(5));
+		add(new JLabel("Processing"));
 		add(processingBar);
 		setOpaque(false);
 	}
@@ -245,7 +247,7 @@ public class StatusLabel
 		uploadBar.setPreferredSize(new Dimension(WIDTH, d.height));
 		processingBar = new JProgressBar(0, STEPS.size());
 		processingBar.setStringPainted(true);
-		processingBar.setString("Processing Pending...");
+		processingBar.setString("Pending...");
 		processingBar.setFont(derived);
 		uploadBar.setVisible(false);
 		processingBar.setVisible(false);
@@ -448,7 +450,8 @@ public class StatusLabel
 			long v = totalUploadedSize+e.uploadedBytes;
 			uploadBar.setValue((int) (v*MAX/sizeUpload));
 			StringBuffer buffer = new StringBuffer();
-			buffer.append(formatUpload(v));
+			if (v != sizeUpload) buffer.append(formatUpload(v));
+			else  buffer.append(fileSize);
 			buffer.append(" ");
 			if (e.timeLeft != 0) {
 				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft);
