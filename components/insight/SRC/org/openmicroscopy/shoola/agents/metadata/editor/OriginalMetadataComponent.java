@@ -55,6 +55,7 @@ import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
@@ -213,7 +214,7 @@ class OriginalMetadataComponent
 			entry = i.next();
 			key = entry.getKey();
 			l = entry.getValue();
-			if (l != null && l.size() > 0) {
+			if (!CollectionUtils.isEmpty(l)) {
 				label = UIUtilities.setTextFont(key);
 				label.setBackground(UIUtilities.BACKGROUND_COLOR);
 				row = UIUtilities.buildComponentPanel(label);
@@ -225,6 +226,8 @@ class OriginalMetadataComponent
 		removeAll();
 		add(toolBar, BorderLayout.NORTH);
 		add(p, BorderLayout.CENTER);
+		revalidate();
+		repaint();
 	}
 	
 	/**
@@ -386,12 +389,13 @@ class OriginalMetadataComponent
 						}
 					}
 				}
-				buildGUI(components);
 			} finally {
 				input.close();
 			}
+			buildGUI(components);
 			file.delete();
 		} catch (IOException e) {
+			e.printStackTrace();
 			file.delete();
 			JLabel l = new JLabel("Loading metadata");
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
