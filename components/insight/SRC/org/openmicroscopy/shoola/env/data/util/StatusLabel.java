@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
@@ -129,6 +130,12 @@ public class StatusLabel
 	/** Text to indicate that no files to import. */
 	private static final String NO_FILES_TEXT = "No Files to Import.";
 
+	/** The width of the upload bar.*/
+	private static final int WIDTH = 300;
+	
+	/** The maximum number of value for upload.*/
+	private static final int MAX = 100;
+	
 	/** 
 	 * The number of processing sets.
 	 * 1. Metadata imported
@@ -141,10 +148,12 @@ public class StatusLabel
 	
 	static {
 		STEPS = new HashMap<Integer, String>();
-		STEPS.put(1, "Metadata imported");
-		STEPS.put(2, "Pixels processed");
-		STEPS.put(3, "Thumbnails generated");
-		STEPS.put(4, "Processing complete");
+		STEPS.put(1, "Importing Metadata");
+		STEPS.put(2, "Processing Pixels");
+		STEPS.put(3, "Generating Thumbnails");
+		STEPS.put(4, "Processing Metadata");
+		STEPS.put(5, "Generating Objects");
+		STEPS.put(6, "Processing Complete");
 	}
 	
 	/** The number of images in a series. */
@@ -177,9 +186,6 @@ public class StatusLabel
 	/** The total size of uploaded files.*/
 	private long totalUploadedSize;
 	
-	/** The label displaying the upload information.*/
-	private JLabel uploadLabel;
-	
 	/** The label displaying the general import information.*/
 	private JLabel generalLabel;
 	
@@ -188,43 +194,9 @@ public class StatusLabel
 	
 	/** Indicate the progress of the processing.*/
 	private JProgressBar processingBar;
-	
-	/** The label indicating information posted during the processing.*/
-	private JLabel processingLabel;
-	
+
 	/** The size of the upload,*/
 	private long sizeUpload;
-	
-	/**
-	 * Builds and lays out the components indicating the status of the upload.
-	 * 
-	 * @return See above
-	 */
-	private JPanel buildUploadPane()
-	{
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(uploadBar);
-		p.add(uploadLabel);
-		return p;
-	}
-	
-	/**
-	 * Builds and lays out the components indicating the status of the
-	 * processing.
-	 * 
-	 * @return See above
-	 */
-	private JPanel buildProcessingPane()
-	{
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(processingBar);
-		p.add(processingLabel);
-		return p;
-	}
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -246,9 +218,9 @@ public class StatusLabel
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(generalLabel);
-		add(buildUploadPane());
+		add(uploadBar);
 		add(Box.createHorizontalStrut(5));
-		add(buildProcessingPane());
+		add(processingBar);
 		setOpaque(false);
 	}
 
@@ -266,17 +238,15 @@ public class StatusLabel
 		generalLabel = new JLabel(DEFAULT_TEXT);
 		Font f = generalLabel.getFont();
 		Font derived = f.deriveFont(f.getStyle(), f.getSize()-2);
-		uploadLabel = new JLabel();
-		uploadLabel.setFont(derived);
-		uploadBar = new JProgressBar(0, 100);
+		uploadBar = new JProgressBar(0, MAX);
 		uploadBar.setFont(derived);
 		uploadBar.setStringPainted(true);
+		Dimension d = uploadBar.getPreferredSize();
+		uploadBar.setPreferredSize(new Dimension(WIDTH, d.height));
 		processingBar = new JProgressBar(0, STEPS.size());
 		processingBar.setStringPainted(true);
+		processingBar.setString("Processing Pending...");
 		processingBar.setFont(derived);
-		processingLabel = new JLabel();
-		processingLabel.setFont(derived);
-		uploadLabel.setVisible(false);
 		uploadBar.setVisible(false);
 		processingBar.setVisible(false);
 	}
@@ -449,7 +419,6 @@ public class StatusLabel
 	public void setText(String text)
 	{
 		generalLabel.setText(text);
-		uploadLabel.setText("");
 	}
 
 	/**
@@ -477,43 +446,43 @@ public class StatusLabel
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
 			long v = totalUploadedSize+e.uploadedBytes;
-			uploadBar.setString(formatUpload(v));
-			uploadBar.setValue((int) (v*100/sizeUpload));
+			uploadBar.setValue((int) (v*MAX/sizeUpload));
 			StringBuffer buffer = new StringBuffer();
+			buffer.append(formatUpload(v));
+			buffer.append(" ");
 			if (e.timeLeft != 0) {
 				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft);
 				buffer.append(s);
-				if (!StringUtils.isBlank(s)) buffer.append(" left");
+				if (!StringUtils.isBlank(s)) buffer.append(" Left");
 				else buffer.append("Almost complete");
-			} else {
-				if (!StringUtils.isBlank(uploadLabel.getText()))
-					buffer.append("Almost complete");
 			}
-			uploadLabel.setText(buffer.toString());
+			uploadBar.setString(buffer.toString());
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
 			ImportEvent.FILE_UPLOAD_COMPLETE e =
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
-			uploadLabel.setText("uploaded");
-		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-			processingBar.setVisible(true);
-			processingLabel.setVisible(true);
 			processingBar.setValue(1);
-			processingLabel.setText(STEPS.get(1));
-		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
+			processingBar.setString(STEPS.get(1));
+		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
 			processingBar.setValue(2);
-			processingLabel.setText(STEPS.get(2));
-		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
+			processingBar.setString(STEPS.get(2));
+		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
 			processingBar.setValue(3);
-			processingLabel.setText(STEPS.get(3));
-		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
+			processingBar.setString(STEPS.get(3));
+		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
 			processingBar.setValue(4);
-			processingLabel.setText(STEPS.get(4));
+			processingBar.setString(STEPS.get(4));
+		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
+			processingBar.setValue(5);
+			processingBar.setString(STEPS.get(5));
+		} else if (event instanceof ImportEvent.OBJECTS_RETURNED) {
+			processingBar.setValue(6);
+			processingBar.setString(STEPS.get(6));
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
 			generalLabel.setText("");
-			uploadLabel.setVisible(true);
 			uploadBar.setVisible(true);
+			processingBar.setVisible(true);
 		}
 	}
 
