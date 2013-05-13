@@ -673,8 +673,9 @@ OMERO Diagnostics %s
                     err = 0
                     for l in p.lines():
                         # ensure errors/warnings search is case-insensitive
-                        found_err = l.find("ERROR") >= 0 or l.find("error") >= 0
-                        found_warn = l.find("WARN") >= 0 or l.find("warn") >= 0
+                        lcl = l.lower()
+                        found_err = lcl.find("error") >= 0
+                        found_warn = lcl.find("warn") >= 0
                         
                         if found_err:
                             err += 1
