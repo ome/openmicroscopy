@@ -620,7 +620,7 @@ class AcquisitionDataUI
 		imagePane.setCollapsed(true);
 		*/
 	}
-	
+
 	/**
 	 * Loads the acquisition data.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
