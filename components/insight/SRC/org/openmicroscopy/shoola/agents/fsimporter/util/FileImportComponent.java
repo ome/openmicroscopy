@@ -361,7 +361,7 @@ public class FileImportComponent
 	{
 		if (image == null) return null;
 		ImportErrorObject o = getImportErrorObject();
-		if (o != null) return null;
+		if (o != null) return o;
 		if (image instanceof ImageData || image instanceof ThumbnailData ||
 			image instanceof PlateData || image instanceof List)
 			return image;
