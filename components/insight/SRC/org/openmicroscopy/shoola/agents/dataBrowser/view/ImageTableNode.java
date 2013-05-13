@@ -78,6 +78,12 @@ public class ImageTableNode
 	/** The text displayed in the tool tip.*/
 	private String toolTip;
 	
+	/** 
+	 * The color used to indicate that the file is a sibling of the 
+	 * selected node or <code>null</code>
+	 */
+	private Color siblingColor;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -95,6 +101,24 @@ public class ImageTableNode
 					EditorUtil.formatObjectTooltip((ImageData) o));
 	}
 
+	/** 
+	 * Sets the color indicating that the node is part of a Multi-image fileset.
+	 * 
+	 * @param siblingColor The color to set or <code>null</code>.
+	 */
+	void setSibingColor(Color siblingColor)
+	{
+		this.siblingColor = siblingColor;
+	}
+	
+	/**
+	 * Returns the color indicating that the node is part of a Multi-image
+	 * fileset.
+	 * 
+	 * @return See above.
+	 */
+	public Color getSibingColor() { return siblingColor; }
+	
 	/**
 	 * Returns the text displayed in the tool tip.
 	 * 

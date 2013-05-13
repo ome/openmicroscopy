@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -53,7 +54,7 @@ import pojos.ProjectData;
  * </small>
  * @since 3.0-Beta3
  */
-public class ImageTableRenderer 
+public class ImageTableRenderer
 	extends DefaultTreeCellRenderer
 {
 
@@ -69,10 +70,14 @@ public class ImageTableRenderer
 		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
 	}
 	
+	/** The default foreground color.*/
+	private final Color color;
+	
 	/** Creates a new instance. */
 	public ImageTableRenderer()
 	{
 		setOpaque(false);
+		color = getForeground();
 	}
 	
 	/**
@@ -92,6 +97,9 @@ public class ImageTableRenderer
 			setIcon(null);
 			setText(((ImageDisplay) node.getUserObject()).toString());
 			setToolTipText(node.getToolTip());
+			Color c = node.getSibingColor();
+			if (c == null) c = color;
+			setForeground(c);
 		} else if (v instanceof DatasetData) {
 			setIcon(DATASET_ICON);
 			setText(node.getUserObject().toString());

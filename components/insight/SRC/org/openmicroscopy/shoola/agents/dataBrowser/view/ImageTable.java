@@ -331,7 +331,6 @@ class ImageTable
 		if (selectedNodes == null) {
 			return;
 		}
-
 		Color borderColor = Colors.getInstance().getColor(
 				Colors.TITLE_BAR_HIGHLIGHT).brighter();
 		Object ho = node.getHierarchyObject();
@@ -342,12 +341,13 @@ class ImageTable
 			Object refNode;
 			for (ImageDisplay display : selectedNodes) {
 				refNode = display.getHierarchyObject();
+				node.setSibingColor(null);
 				if (refNode instanceof ImageData) {
 					selected = (ImageData) refNode;
 					sibling = (ImageData) nodeDataObject;
 					if (selected.getId() != nodeId &&
 							selected.getFilesetId() == sibling.getFilesetId()) {
-						nodes.add(node);
+						node.setSibingColor(borderColor);
 						break;
 					}
 				}
@@ -459,21 +459,10 @@ class ImageTable
 	 *
 	 * @param nodes The list of user-selected nodes.
 	 */
-	void setHighlightedNodes(List<ImageDisplay> objects) {
-		removeTreeSelectionListener(selectionListener);
+	void setHighlightedNodes(List<ImageDisplay> objects)
+	{
 		visitAllNodesToHighlight(tableRoot, objects);
-		Iterator<ImageTableNode> i = nodes.iterator();
-		ImageTableNode node;
-		int row = 0;
-		selectionModel.clearSelection();
-		while (i.hasNext()) {
-			node = i.next();
-			row = getRowForPath(node.getPath());
-			selectionModel.addSelectionInterval(row, row);
-		}
-		nodes.clear();
 		repaint();
-		addTreeSelectionListener(selectionListener);
 	}
 
 	/**
