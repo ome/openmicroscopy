@@ -123,15 +123,6 @@ public class ImageTableNode
 	}
 	
 	/**
-	 * Sets the highlight color of the node.
-	 *
-	 * @param highlight The highlight color.
-	 */
-	public void setHighlight(Color highlight) {
-		((ImageDisplay) getUserObject()).setForeground(highlight);
-	}
-	
-	/**
 	 * Returns the icon representing the thumbnail.
 	 * 
 	 * @return See above.
