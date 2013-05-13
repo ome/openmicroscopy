@@ -39,6 +39,7 @@ import omero.cmd.IRequest;
 import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.Status;
+import omero.cmd.graphs.Preprocessor;
 
 /**
  * Permits performing multiple operations
@@ -257,7 +258,7 @@ public class DoAllI extends DoAll implements IRequest {
         this.helper = helper;
         int steps = 0;
         try {
-            preprocessRequests();
+            new Preprocessor(this.requests, this.helper);
             for (int i = 0; i < this.requests.size(); i++) {
                 final Request req = requests.get(i);
                 final Status substatus = new Status();
@@ -348,117 +349,6 @@ public class DoAllI extends DoAll implements IRequest {
         status.category = ice_id();
         status.name = "subcancel";
         throw c;
-    }
-
-    //
-    // Specializations
-    //
-
-    @SuppressWarnings("unchecked")
-    private void preprocessRequests() {
-
-        if (requests.size() == 0) {
-            return; // EARLY EXIT
-        }
-
-        // These cached values will be used for each operation type.
-        final Map<Long, Set<Long>> filesetIdToImageIds = new HashMap<Long, Set<Long>>();
-        final Map<Long, Long> imageIdToFilesetId = new HashMap<Long, Long>();
-
-        for (@SuppressWarnings("rawtypes") Class op : new Class[]{Chgrp.class, Delete.class}) {
-
-            // Targets for possible optimization.
-            final Set<Request> targets = new HashSet<Request>();
-
-            // Known IDs
-            final Set<Long> knownImageIds = new HashSet<Long>();
-
-            // 1. Lookup all filesets for the given images.
-            for (Request request : requests) {
-                if (op.isAssignableFrom(request.getClass())) {
-                    GraphModify gm = (GraphModify) request;
-                    String type = gm.type;
-                    long id = gm.id;
-                    if ("/Image".equals(type)) {
-                        targets.add(request);
-                        knownImageIds.add(id);
-                        lookupFilesetForImage(id, imageIdToFilesetId, filesetIdToImageIds);
-                    }
-                }
-            }    
-
-            // 2. For those filesets which have all their images selected,
-            // reduce the entries found by inserting the fileset operation
-            // at the location of the last contained image.
-            for (Map.Entry<Long, Set<Long>> entry : filesetIdToImageIds.entrySet()) {
-                final Long filesetId = entry.getKey();
-                final Set<Long> imageIds = entry.getValue();
-
-                if (imageIds.size() < 2) {
-                    helper.debug("Skipping on Image count " + imageIds.size());
-                    continue; // SKIP
-                }
-
-                Request lastRequest = null;
-                int lastIndex = -1;
-                for (int i = requests.size() - 1; i >= 0; i--) {
-                    Request request = requests.get(i);
-                    if (!(targets.contains(request))) {
-                        continue; // SKIP
-                    }
-                    if (knownImageIds.containsAll(imageIds)) {
-                        Request popped = requests.remove(i);
-                        if (lastRequest == null) {
-                            lastRequest = popped; 
-                            lastIndex = i;
-                        }
-                    }
-                }
-
-                if (lastIndex >= 0) {
-                    // FIXME: this does not look into modifying the options
-                    // set by the user.
-                    GraphModify gm = ((GraphModify) lastRequest);
-                    gm.type = "/Fileset";
-                    gm.id = filesetId;
-                    requests.add(lastIndex, lastRequest);
-                }
-            }
-        }
-    }
-
-    private void lookupFilesetForImage(long imageId1,
-            Map<Long, Long> imageIdToFilesetId,
-            Map<Long, Set<Long>> filesetIdToImageIds) {
-
-        if (imageIdToFilesetId.containsKey(imageId1)) {
-            return; // EARLY EXIT
-        }
-
-        helper.debug("Loading filesets for Image:" + imageId1);
-        List<Object[]> rv =
-        helper.getServiceFactory().getQueryService().projection(
-                "select i.fileset.id, i2.id from Image i, Image i2 " +
-                "where i.fileset.id = i2.fileset.id and i.id = " + imageId1, null);
-
-        if (rv.size() <= 1) {
-           // Only perform optimization for multi-image filesets (MIF)
-            return; // EARLY EXIT
-        }
-
-        for (Object[] ids : rv) {
-            Long filesetId = (Long) ids[0];
-            Long imageId2 = (Long) ids[1];
-            Set<Long> imageIds = filesetIdToImageIds.get(filesetId);
-            if (imageIds == null) {
-                imageIds = new HashSet<Long>();
-                filesetIdToImageIds.put(filesetId, imageIds);
-            }
-            imageIds.add(imageId2);
-            imageIdToFilesetId.put(imageId2, filesetId);
-            helper.debug("Registered Image:%s=>Fileset:%s", imageId2, filesetId);
-        }
-        
     }
 
 }
