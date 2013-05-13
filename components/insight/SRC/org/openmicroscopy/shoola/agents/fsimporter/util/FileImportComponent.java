@@ -1016,6 +1016,11 @@ public class FileImportComponent
 				} else {
 					statusLabel.setVisible(false);
 					setStatusText(FILE_NOT_VALID_TEXT);
+					this.image = new ImportException(FILE_NOT_VALID_TEXT);
+					exception = (ImportException) this.image;
+					errorButton.setVisible(true);
+					errorBox.setVisible(true);
+					errorBox.addChangeListener(this);
 				}
 			} else resultLabel.setText("");
 		} else {
