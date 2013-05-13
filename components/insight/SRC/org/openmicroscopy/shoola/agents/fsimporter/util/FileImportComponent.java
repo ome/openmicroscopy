@@ -349,6 +349,31 @@ public class FileImportComponent
 	/** The log file if any to load.*/
 	private FileAnnotationData logFile;
 
+	/** The button displayed the various options post if the import worked.*/
+	private JButton successMenuButton;
+	
+	/**
+	 * The button displayed the various options post if the import did not
+	 * work.
+	 */
+	private JButton failureMenuButton;
+
+	/** Indicates that the import was successful or if it failed.*/
+	private void formatResult()
+	{
+		resultLabel.setVisible(true);
+		IconManager icons = IconManager.getInstance();
+		if (hasImportFailed()) {
+			resultLabel.setIcon(icons.getIcon(IconManager.DELETE));
+			failureMenuButton.setVisible(true);
+		} else {
+			if (!statusLabel.isMarkedAsCancel()) {
+				successMenuButton.setVisible(true);
+				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
+			}
+		}
+	}
+	
 	/**
 	 * Returns the formatted result.
 	 * 
@@ -458,6 +483,33 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		successMenuButton = new JButton("View");
+		successMenuButton.setVisible(false);
+		successMenuButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+		successMenuButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * 
+			 */
+			public void mousePressed(MouseEvent e) {
+
+				//show menu
+			}
+		});
+		failureMenuButton = new JButton("Failed");
+		failureMenuButton.setVisible(false);
+		failureMenuButton.setForeground(Color.RED);
+		failureMenuButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * 
+			 */
+			public void mousePressed(MouseEvent e) {
+
+				//show menu
+			}
+		});
+		
 		reimportedLabel = new JLabel("Reimported");
 		reimportedLabel.setVisible(false);
 		showContainerLabel = true;
@@ -615,25 +667,32 @@ public class FileImportComponent
 		deleteButton.setVisible(false);
 		image = null;
 	}
-	
+
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		removeAll();
 		add(namePane);
-		add(busyLabel);
-		add(cancelButton);
-		add(resultLabel);
 		add(statusLabel);
-		add(errorButton);
-		add(errorBox);
-		add(deleteButton);
+		
 		add(Box.createHorizontalStrut(15));
-		add(containerLabel);
-		add(browseButton);
-		add(groupUserLabel);
-		add(reimportedLabel);
-		add(importLogButton);
+		add(busyLabel);
+		add(resultLabel);
+		add(cancelButton);
+		add(successMenuButton);
+		add(failureMenuButton);
+		//TODO:
+		
+		//add(errorButton);
+		//add(errorBox);
+		//add(deleteButton);
+		
+		
+		//add(containerLabel);
+		//add(browseButton);
+		//add(groupUserLabel);
+		//add(reimportedLabel);
+		//add(importLogButton);
 	}
 	
 	/**
@@ -936,17 +995,11 @@ public class FileImportComponent
 				deleteButton.addActionListener(this);
 			} else {
 				imageLabel.setData(img);
-				resultLabel.setText(VIEW_TEXT);
-				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-				if (browsable)
-					resultLabel.setToolTipText(
-							ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				else imageLabel.setToolTipText("");
-				resultLabel.setVisible(true);
+				if (!browsable) imageLabel.setToolTipText("");
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
-				showContainerLabel = 
+				showContainerLabel =
 					(dataset != null || containerFromFolder != null);
 				if (noContainer) {
 					browseButton.setVisible(false);
@@ -962,18 +1015,10 @@ public class FileImportComponent
 				imageLabel.setData(thumbnail);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
-				resultLabel.setText(VIEW_TEXT);
-				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-				if (browsable)
-					resultLabel.setToolTipText(
-							ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-				else imageLabel.setToolTipText("");
-				resultLabel.setVisible(false);
+				if (!browsable) imageLabel.setToolTipText("");
 				if (thumbnail.requirePyramid() != null 
 						&& thumbnail.requirePyramid().booleanValue()) {
 						imageLabel.setToolTipText(PYRAMID_TEXT);
-						resultLabel.setVisible(true);
-						resultLabel.addMouseListener(adapter);
 				}
 				showContainerLabel = 
 					(dataset != null || containerFromFolder != null);
@@ -985,13 +1030,7 @@ public class FileImportComponent
 					containerLabel.setVisible(showContainerLabel);
 				}
 			} else {
-				statusLabel.setVisible(false);
 				fileNameLabel.setForeground(ERROR_COLOR);
-				resultLabel.setText(IMAGE_CREATION_ERROR_TEXT);
-				resultLabel.setToolTipText(
-						UIUtilities.formatExceptionForToolTip(
-						thumbnail.getError()));
-				resultLabel.setVisible(true);
 				errorButton.setVisible(false);
 				errorBox.setVisible(false);
 				groupUserLabel.setVisible(!singleGroup);
@@ -1000,14 +1039,7 @@ public class FileImportComponent
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			groupUserLabel.setVisible(!singleGroup);
-			if (browsable) {
-				resultLabel.setText(BROWSE_TEXT);
-				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-				resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
-				resultLabel.setVisible(true);
-			}
 			fileNameLabel.addMouseListener(adapter);
-			resultLabel.addMouseListener(adapter);
 			showContainerLabel = containerObject instanceof ScreenData;
 			if (noContainer || !browsable) {
 				browseButton.setVisible(false);
@@ -1041,7 +1073,6 @@ public class FileImportComponent
 					label.setText(value);
 				}
 			}
-			resultLabel.setVisible(true);
 			showContainerLabel = true;
 			if (noContainer) {
 				browseButton.setVisible(false);
@@ -1066,19 +1097,16 @@ public class FileImportComponent
 						errorBox.addChangeListener(this);
 					}
 				}
-			} else resultLabel.setText("");
+			}
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);
-				resultLabel.setToolTipText("");
-				resultLabel.setEnabled(false);
 				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
 				} else if (image instanceof Exception) {
 					Exception e = (Exception) image;
 					fileNameLabel.setForeground(ERROR_COLOR);
-					resultLabel.setVisible(false);
 					toReImport = false;
 					errorButton.setToolTipText(
 							UIUtilities.formatExceptionForToolTip(e));
@@ -1088,33 +1116,6 @@ public class FileImportComponent
 					cancelButton.setVisible(false);
 					if (e instanceof ImportException) {
 						toReImport = true;
-						ImportException ie = (ImportException) image;
-						int s = ie.getStatus();
-						if (s == ImportException.COMPRESSION) {
-							resultLabel.setVisible(true);
-							resultLabel.setText(COMPRESSION_ERROR_TEXT);
-							resultLabel.setToolTipText(
-									UIUtilities.formatExceptionForToolTip(ie));
-						} else if (s == ImportException.MISSING_LIBRARY) {
-							resultLabel.setVisible(true);
-							resultLabel.setText(MISSING_LIB_ERROR_TEXT);
-							resultLabel.setToolTipText(
-									UIUtilities.formatExceptionForToolTip(ie));
-						} else if (s == ImportException.FILE_ON_TAPE) {
-							resultLabel.setVisible(true);
-							resultLabel.setText(FILE_ON_TAPE_ERROR_TEXT);
-							resultLabel.setToolTipText(
-									UIUtilities.formatExceptionForToolTip(ie));
-						} else if (s == ImportException.NO_SPACE) {
-							resultLabel.setVisible(true);
-							resultLabel.setText(NO_SPACE_ERROR_TEXT);
-							resultLabel.setToolTipText(
-									UIUtilities.formatExceptionForToolTip(ie));
-						} else {
-							errorButton.setVisible(true);
-							errorBox.setVisible(true);
-							errorBox.addChangeListener(this);
-						}
 					} else {
 						errorButton.setVisible(true);
 						errorBox.setVisible(true);
@@ -1124,7 +1125,8 @@ public class FileImportComponent
 			}
 		}
 		repaint();
-		return getFormattedResult();//getFileSetID(this.image);
+		formatResult();
+		return getFileSetID(this.image);
 	}
 
 	/**
