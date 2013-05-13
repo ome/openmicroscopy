@@ -124,25 +124,25 @@ class FileSelectionTable
 	
 	/** The index of the file's name column. */
 	static final int FILE_INDEX = 0;
+
+	/** The index of the column indicating the group where to import data. */
+	static final int GROUP_INDEX = 1;
 	
-	/** The index of the file's length column. */
-	static final int SIZE_INDEX = 1;
+	/** The index of the column indicating the owner of import data. */
+	static final int OWNER_INDEX = 2;
 	
 	/** 
 	 * The index of the column indicating the container where files will
 	 * be imported
 	 */
-	static final int CONTAINER_INDEX = 2;
-	
-	/** The index of the column indicating the group where to import data. */
-	static final int GROUP_INDEX = 3;
-	
-	/** The index of the column indicating the owner of import data. */
-	static final int OWNER_INDEX = 4;
+	static final int CONTAINER_INDEX = 3;
 	
 	/** The index of the column indicating to use the folder as a dataset. */
-	static final int FOLDER_AS_DATASET_INDEX = 5;
-
+	static final int FOLDER_AS_DATASET_INDEX = 4;
+	
+	/** The index of the file's length column. */
+	static final int SIZE_INDEX = 5;
+	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
 
@@ -192,60 +192,61 @@ class FileSelectionTable
 	static {
 		COLUMNS = new Vector<String>(6);
 		COLUMNS.add(FILE_TEXT);
-		COLUMNS.add(SIZE_TEXT);
-		COLUMNS.add(CONTAINER_PROJECT_TEXT);
-		COLUMNS.add(OWNER_TEXT);
 		COLUMNS.add(GROUP_TEXT);
+		COLUMNS.add(OWNER_TEXT);
+		COLUMNS.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS.add(FAD_TEXT);
+		COLUMNS.add(SIZE_TEXT);
+		
 		
 		COLUMNS_TOOLTIP = new String[6];
 		COLUMNS_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
-		COLUMNS_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
-		COLUMNS_TOOLTIP[CONTAINER_INDEX] =	TOOLTIP_CONTAINER;
 		COLUMNS_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
 		COLUMNS_TOOLTIP[OWNER_INDEX] = TOOLTIP_OWNER;
+		COLUMNS_TOOLTIP[CONTAINER_INDEX] =	TOOLTIP_CONTAINER;
 		COLUMNS_TOOLTIP[FOLDER_AS_DATASET_INDEX] = TOOLTIP_FAD;
+		COLUMNS_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
 
 		COLUMNS_NO_GROUP = new Vector<String>(5);
 		COLUMNS_NO_GROUP.add(FILE_TEXT);
-		COLUMNS_NO_GROUP.add(SIZE_TEXT);
-		COLUMNS_NO_GROUP.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_GROUP.add(OWNER_TEXT);
+		COLUMNS_NO_GROUP.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_GROUP.add(FAD_TEXT);
+		COLUMNS_NO_GROUP.add(SIZE_TEXT);
 
 		COLUMNS_NO_GROUP_TOOLTIP = new String[5];
 		COLUMNS_NO_GROUP_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
-		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
-		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
 		COLUMNS_NO_GROUP_TOOLTIP[OWNER_INDEX-1] = TOOLTIP_OWNER;
+		COLUMNS_NO_GROUP_TOOLTIP[CONTAINER_INDEX-1] = TOOLTIP_CONTAINER;
 		COLUMNS_NO_GROUP_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
+		COLUMNS_NO_GROUP_TOOLTIP[SIZE_INDEX-1] = TOOLTIP_SIZE;
 
 		COLUMNS_NO_USER = new Vector<String>(5);
 		COLUMNS_NO_USER.add(FILE_TEXT);
-		COLUMNS_NO_USER.add(SIZE_TEXT);
-		COLUMNS_NO_USER.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_USER.add(GROUP_TEXT);
+		COLUMNS_NO_USER.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_USER.add(FAD_TEXT);
+		COLUMNS_NO_USER.add(SIZE_TEXT);
 
 		COLUMNS_NO_USER_TOOLTIP = new String[5];
 		COLUMNS_NO_USER_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
-		COLUMNS_NO_USER_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
-		COLUMNS_NO_USER_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
 		COLUMNS_NO_USER_TOOLTIP[GROUP_INDEX] = TOOLTIP_GROUP;
+		COLUMNS_NO_USER_TOOLTIP[CONTAINER_INDEX-1] = TOOLTIP_CONTAINER;
 		COLUMNS_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-1] = TOOLTIP_FAD;
+		COLUMNS_NO_USER_TOOLTIP[SIZE_INDEX-1] = TOOLTIP_SIZE;
 
 		COLUMNS_NO_GROUP_NO_USER = new Vector<String>(4);
 		COLUMNS_NO_GROUP_NO_USER.add(FILE_TEXT);
-		COLUMNS_NO_GROUP_NO_USER.add(SIZE_TEXT);
 		COLUMNS_NO_GROUP_NO_USER.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_GROUP_NO_USER.add(FAD_TEXT);
+		COLUMNS_NO_GROUP_NO_USER.add(SIZE_TEXT);
 
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP = new String[4];
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FILE_INDEX] = TOOLTIP_FILE;
-		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[SIZE_INDEX] = TOOLTIP_SIZE;
-		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[CONTAINER_INDEX] = TOOLTIP_CONTAINER;
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[CONTAINER_INDEX-2] = TOOLTIP_CONTAINER;
 		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[FOLDER_AS_DATASET_INDEX-2] = 
 				TOOLTIP_FAD;
+		COLUMNS_NO_GROUP_NO_USER_TOOLTIP[SIZE_INDEX-2] = TOOLTIP_SIZE;
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -326,25 +327,31 @@ class FileSelectionTable
 		
 		TableCellRenderer renderer = new MultilineHeaderSelectionRenderer();
 
-		setHeaderRenderer(tcm, SIZE_INDEX, renderer);
 		setHeaderRenderer(tcm, FILE_INDEX, renderer);
-		setHeaderRenderer(tcm, CONTAINER_INDEX, renderer);
 		
 		if (!singleGroup) {
 			if(model.canImportAs()) {
 				setHeaderRenderer(tcm, OWNER_INDEX, renderer);
 				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, CONTAINER_INDEX, renderer);
 				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX, renderer);
+				setHeaderRenderer(tcm, SIZE_INDEX, renderer);
 			} else {
 				setHeaderRenderer(tcm, GROUP_INDEX, renderer);
+				setHeaderRenderer(tcm, CONTAINER_INDEX-1, renderer);
 				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+				setHeaderRenderer(tcm, SIZE_INDEX-1, renderer);
 			}
 		} else {
 			if(model.canImportAs()) {
 				setHeaderRenderer(tcm, OWNER_INDEX-1, renderer);
+				setHeaderRenderer(tcm, CONTAINER_INDEX-1, renderer);
 				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-1, renderer);
+				setHeaderRenderer(tcm, SIZE_INDEX-1, renderer);
 			} else {
+				setHeaderRenderer(tcm, CONTAINER_INDEX-2, renderer);
 				setHeaderRenderer(tcm, FOLDER_AS_DATASET_INDEX-2, renderer);
+				setHeaderRenderer(tcm, SIZE_INDEX-2, renderer);
 			}
 		}
 		table.getTableHeader().resizeAndRepaint();
@@ -710,30 +717,31 @@ class FileSelectionTable
 				
 				if (model.isSingleGroup()) {
 					if(model.canImportAs()) {
-						dtm.addRow(new Object[] {element, 
-								element.getFileLengthAsString(),
-								new DataNodeElement(node, value), 
+						dtm.addRow(new Object[] {element,
 								user.getUserName(),
-								Boolean.valueOf(v)});
-					} else {
-						dtm.addRow(new Object[] {element, 
-								element.getFileLengthAsString(),
 								new DataNodeElement(node, value),
-								Boolean.valueOf(v)});
+								Boolean.valueOf(v), 
+								element.getFileLengthAsString()});
+					} else {
+						dtm.addRow(new Object[] {element,
+								new DataNodeElement(node, value),
+								Boolean.valueOf(v), 
+								element.getFileLengthAsString()});
 					}
 				} else {
 					if(model.canImportAs()) {
-						dtm.addRow(new Object[] {element, 
-								element.getFileLengthAsString(),
+						dtm.addRow(new Object[] {element,
+								group.getName(),
+								user.getUserName(),
 								new DataNodeElement(node, value), 
-								user.getUserName(), group.getName(),
-								Boolean.valueOf(v)});
+								Boolean.valueOf(v), 
+								element.getFileLengthAsString()});
 					} else {
 						dtm.addRow(new Object[] {element, 
-								element.getFileLengthAsString(),
-								new DataNodeElement(node, value), 
 								group.getName(),
-								Boolean.valueOf(v)});
+								new DataNodeElement(node, value),
+								Boolean.valueOf(v), 
+								element.getFileLengthAsString()});
 					}
 				}
 			}
