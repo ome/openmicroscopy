@@ -30,9 +30,7 @@ import java.awt.Font;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -138,10 +136,11 @@ public class StatusLabel
 	
 	/** 
 	 * The number of processing sets.
-	 * 1. Metadata imported
-	 * 2. Pixels Processed
-	 * 3. Thumbnails generation
-	 * 4. Metadata processed
+	 * 1. Importing Metadata
+	 * 2. Processing Pixels
+	 * 3. Generating Thumbnails
+	 * 4. Processing Metadata
+	 * 5. Generating Objects
 	 */
 	/** Map hosting the description of each steps.*/
 	private static final Map<Integer, String> STEPS;
@@ -433,7 +432,7 @@ public class StatusLabel
 		cancellable = false;
 		if (event instanceof ImportEvent.IMPORT_DONE) {
 		} else if (event instanceof ImportCandidates.SCANNING) {
-			if (!markedAsCancel) generalLabel.setText("scanning");
+			if (!markedAsCancel) generalLabel.setText(SCANNING_TEXT);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
