@@ -340,7 +340,6 @@ class ImageTable
 			long nodeId = nodeDataObject.getId();
 			ImageData selected, sibling;
 			Object refNode;
-			Iterator<ImageDisplay> i = selectedNodes.iterator();
 			for (ImageDisplay display : selectedNodes) {
 				refNode = display.getHierarchyObject();
 				if (refNode instanceof ImageData) {
@@ -348,7 +347,7 @@ class ImageTable
 					sibling = (ImageData) nodeDataObject;
 					if (selected.getId() != nodeId &&
 							selected.getFilesetId() == sibling.getFilesetId()) {
-						node.setHighlight(borderColor);
+						nodes.add(node);
 						break;
 					}
 				}
@@ -460,9 +459,19 @@ class ImageTable
 	 *
 	 * @param nodes The list of user-selected nodes.
 	 */
-	void setHighlightedNodes(List<ImageDisplay> nodes) {
+	void setHighlightedNodes(List<ImageDisplay> objects) {
 		removeTreeSelectionListener(selectionListener);
-		visitAllNodesToHighlight(tableRoot, nodes);
+		visitAllNodesToHighlight(tableRoot, objects);
+		Iterator<ImageTableNode> i = nodes.iterator();
+		ImageTableNode node;
+		int row = 0;
+		selectionModel.clearSelection();
+		while (i.hasNext()) {
+			node = i.next();
+			row = getRowForPath(node.getPath());
+			selectionModel.addSelectionInterval(row, row);
+		}
+		nodes.clear();
 		repaint();
 		addTreeSelectionListener(selectionListener);
 	}
