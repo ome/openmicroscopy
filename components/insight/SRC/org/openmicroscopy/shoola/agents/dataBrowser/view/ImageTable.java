@@ -332,7 +332,7 @@ class ImageTable
 			return;
 		}
 		Color borderColor = Colors.getInstance().getColor(
-				Colors.TITLE_BAR_HIGHLIGHT).brighter();
+				Colors.TITLE_BAR_HIGHLIGHT_SECONDARY);
 		Object ho = node.getHierarchyObject();
 		if (ho instanceof DataObject) {
 			DataObject nodeDataObject = (DataObject) ho;
