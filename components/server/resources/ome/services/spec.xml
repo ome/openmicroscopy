@@ -261,6 +261,14 @@
         </constructor-arg>
     </bean>
 
+    <bean parent="graphSpec" name="/Fileset">
+        <constructor-arg>
+            <list>
+                <value>/Image;HARD;/Fileset</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
     <bean parent="graphSpec" name="/Dataset">
         <constructor-arg>
             <list>
