@@ -28,7 +28,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -129,7 +132,7 @@ public class StatusLabel
 	private static final String NO_FILES_TEXT = "No Files to Import.";
 
 	/** The width of the upload bar.*/
-	private static final int WIDTH = 300;
+	private static final int WIDTH = 200;
 	
 	/** The maximum number of value for upload.*/
 	private static final int MAX = 100;
@@ -197,6 +200,9 @@ public class StatusLabel
 	/** The size of the upload,*/
 	private long sizeUpload;
 	
+	/** The labels displaying information before the progress bars.*/
+	private List<JLabel> labels;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -215,12 +221,19 @@ public class StatusLabel
 	/** Builds and lays out the UI.*/
 	private void buildUI()
 	{
+		labels = new ArrayList<JLabel>();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(generalLabel);
-		add(new JLabel("Upload"));
+		JLabel label = new JLabel("Upload");
+		label.setVisible(false);
+		labels.add(label);
+		add(label);
 		add(uploadBar);
 		add(Box.createHorizontalStrut(5));
-		add(new JLabel("Processing"));
+		label = new JLabel("Processing");
+		label.setVisible(false);
+		labels.add(label);
+		add(label);
 		add(processingBar);
 		setOpaque(false);
 	}
@@ -482,6 +495,10 @@ public class StatusLabel
 			processingBar.setValue(6);
 			processingBar.setString(STEPS.get(6));
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
+			Iterator<JLabel> i = labels.iterator();
+			while (i.hasNext()) {
+				i.next().setVisible(true);
+			}
 			generalLabel.setText("");
 			uploadBar.setVisible(true);
 			processingBar.setVisible(true);
