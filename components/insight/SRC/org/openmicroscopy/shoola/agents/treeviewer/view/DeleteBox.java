@@ -56,6 +56,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.springframework.util.CollectionUtils;
+
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -239,7 +241,7 @@ public class DeleteBox
 			Collection<ImageData> toExclude, int number)
 	{
 		int h = 0;
-		if (toExclude != null && toExclude.size() > 0) {
+		if (!CollectionUtils.isEmpty(toExclude)) {
 			toExcludePane = new JPanel();
 			toExcludePane.setLayout(new BoxLayout(toExcludePane,
 					BoxLayout.Y_AXIS));
