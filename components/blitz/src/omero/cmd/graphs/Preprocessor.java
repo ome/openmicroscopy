@@ -17,6 +17,7 @@
 
 package omero.cmd.graphs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,27 +46,73 @@ public class Preprocessor {
 
     private final Helper helper;
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Cache of filesets which have been looked up.
+     */
+    protected final Map<Long, Set<Long>> filesetIdToImageIds;
+
+    /**
+     * Cache of Images which have been found during the lookups.
+     */
+    protected final Map<Long, Long> imageIdToFilesetId;
+
     public Preprocessor(List<Request> requests, Helper helper) {
 
         this.requests = requests;
         this.helper = helper;
 
         if (this.requests.size() == 0) {
+            filesetIdToImageIds = null;
+            imageIdToFilesetId = null;
             return; // EARLY EXIT
         }
 
-        // These cached values will be used for each operation type.
-        final Map<Long, Set<Long>> filesetIdToImageIds = new HashMap<Long, Set<Long>>();
-        final Map<Long, Long> imageIdToFilesetId = new HashMap<Long, Long>();
+        filesetIdToImageIds = new HashMap<Long, Set<Long>>();
+        imageIdToFilesetId = new HashMap<Long, Long>();
 
+        process();
+    }
+
+    /**
+     * Returns the size of the Image id cache or -1 if null.
+     * @return
+     */
+    public long getImageCount() {
+        if (imageIdToFilesetId == null) {
+            return -1;
+        }
+        return imageIdToFilesetId.size();
+    }
+
+    /**
+     * Returns the size of the Fileset id cache or -1 if null.
+     */
+    public long getFilesetCount() {
+        if (filesetIdToImageIds == null) {
+            return -1;
+        }
+        return filesetIdToImageIds.size();
+    }
+
+    /**
+     * Returns a copy of the requests field or an empty list if null.
+     */
+    public List<Request> getRequests() {
+        if (requests == null) {
+            return new ArrayList<Request>();
+        }
+        return new ArrayList<Request>(requests);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void process() {
         for (@SuppressWarnings("rawtypes") Class op : new Class[]{Chgrp.class, Delete.class}) {
 
             // Targets for possible optimization.
             final Set<Request> targets = new HashSet<Request>();
 
-            // Known IDs
-            final Set<Long> knownImageIds = new HashSet<Long>();
+            // Image IDs which are present in a request as opposed to queried.
+            final Set<Long> requestedImageIds = new HashSet<Long>();
 
             // 1. Lookup all filesets for the given images.
             for (Request request : requests) {
@@ -74,8 +121,8 @@ public class Preprocessor {
                     String type = gm.type;
                     long id = gm.id;
                     if ("/Image".equals(type)) {
-                        targets.add(request);
-                        knownImageIds.add(id);
+                        targets.add(request); // Properly filtered.
+                        requestedImageIds.add(id);
                         lookupFilesetForImage(id, imageIdToFilesetId, filesetIdToImageIds);
                     }
                 }
@@ -95,13 +142,21 @@ public class Preprocessor {
 
                 Request lastRequest = null;
                 int lastIndex = -1;
+                int removed = 0;
                 for (int i = requests.size() - 1; i >= 0; i--) {
+
+                    // Check that this is one of our candidate requests
                     Request request = requests.get(i);
                     if (!(targets.contains(request))) {
-                        continue; // SKIP
+                        continue; // SKIP. Must match previous filter.
                     }
-                    if (knownImageIds.containsAll(imageIds)) {
+
+                    // If so, it's a GraphModify in which case we find its id.
+                    long imageId = ((GraphModify) request).id;
+                    if (imageIds.contains(imageId) &&
+                            requestedImageIds.containsAll(imageIds)) {
                         Request popped = requests.remove(i);
+                        removed++;
                         if (lastRequest == null) {
                             lastRequest = popped;
                             lastIndex = i;
@@ -111,11 +166,12 @@ public class Preprocessor {
 
                 if (lastIndex >= 0) {
                     // FIXME: this does not look into modifying the options
-                    // set by the user.
+                    // set by the user and in general this is likely handled
+                    // better by clients.
                     GraphModify gm = ((GraphModify) lastRequest);
                     gm.type = "/Fileset";
                     gm.id = filesetId;
-                    requests.add(lastIndex, lastRequest);
+                    requests.add(lastIndex-removed+1, lastRequest);
                 }
             }
         }
