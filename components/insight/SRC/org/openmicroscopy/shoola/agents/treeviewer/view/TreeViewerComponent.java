@@ -189,7 +189,7 @@ class TreeViewerComponent
 		Iterator<ImageData> i = toExclude.iterator();
 		while (i.hasNext()) {
 			if (i.next().getId() == data.getId())
-				return true;;
+				return true;
 		}
 		return false;
 	}
@@ -4361,7 +4361,7 @@ class TreeViewerComponent
 		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
 			un.notifyInfo("DnD",
-					"You must be authorize to add to the container.");
+					"You must be authorized to add to the container.");
 			browser.rejectTransfer();
 			return;
 		}
@@ -4445,6 +4445,7 @@ class TreeViewerComponent
 		if (list.size() == 0) {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("The ");
+			//The object to move e.g. image(s)
 			buffer.append(getObjectType(os));
 			if (nodes.size() > 1) buffer.append("s");
 			buffer.append(" cannot be moved to the selected ");
