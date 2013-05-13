@@ -395,20 +395,23 @@ public class DoAllI extends DoAll implements IRequest {
                 final Set<Long> imageIds = entry.getValue();
 
                 if (imageIds.size() < 2) {
+                    helper.debug("Skipping on Image count " + imageIds.size());
                     continue; // SKIP
                 }
 
                 Request lastRequest = null;
                 int lastIndex = -1;
-                for (int i = 0; i < requests.size(); i++) {
+                for (int i = requests.size() - 1; i >= 0; i--) {
                     Request request = requests.get(i);
                     if (!(targets.contains(request))) {
                         continue; // SKIP
                     }
                     if (knownImageIds.containsAll(imageIds)) {
-                        lastRequest = requests.remove(i);
-                        lastIndex = i;
-                        i--;
+                        Request popped = requests.remove(i);
+                        if (lastRequest == null) {
+                            lastRequest = popped; 
+                            lastIndex = i;
+                        }
                     }
                 }
 
@@ -424,19 +427,19 @@ public class DoAllI extends DoAll implements IRequest {
         }
     }
 
-    private void lookupFilesetForImage(long id,
+    private void lookupFilesetForImage(long imageId1,
             Map<Long, Long> imageIdToFilesetId,
             Map<Long, Set<Long>> filesetIdToImageIds) {
 
-        if (imageIdToFilesetId.containsKey(id)) {
+        if (imageIdToFilesetId.containsKey(imageId1)) {
             return; // EARLY EXIT
         }
 
-        helper.debug("Loading filesets for Image:" + id);
+        helper.debug("Loading filesets for Image:" + imageId1);
         List<Object[]> rv =
         helper.getServiceFactory().getQueryService().projection(
                 "select i.fileset.id, i2.id from Image i, Image i2 " +
-                "where i.fileset.id = i2.fileset.id and i.id = " + id, null);
+                "where i.fileset.id = i2.fileset.id and i.id = " + imageId1, null);
 
         if (rv.size() <= 1) {
            // Only perform optimization for multi-image filesets (MIF)
@@ -445,14 +448,15 @@ public class DoAllI extends DoAll implements IRequest {
 
         for (Object[] ids : rv) {
             Long filesetId = (Long) ids[0];
-            Long imageId = (Long) ids[1];
+            Long imageId2 = (Long) ids[1];
             Set<Long> imageIds = filesetIdToImageIds.get(filesetId);
             if (imageIds == null) {
                 imageIds = new HashSet<Long>();
                 filesetIdToImageIds.put(filesetId, imageIds);
             }
-            imageIds.add(imageId);
-            imageIdToFilesetId.put(imageId, filesetId);
+            imageIds.add(imageId2);
+            imageIdToFilesetId.put(imageId2, filesetId);
+            helper.debug("Registered Image:%s=>Fileset:%s", imageId2, filesetId);
         }
         
     }
