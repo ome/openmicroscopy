@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -54,7 +56,10 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -350,14 +355,50 @@ public class FileImportComponent
 	private FileAnnotationData logFile;
 
 	/** The button displayed the various options post if the import worked.*/
-	private JButton successMenuButton;
+	private JButton actionMenuButton;
 	
-	/**
-	 * The button displayed the various options post if the import did not
-	 * work.
-	 */
-	private JButton failureMenuButton;
-
+	private JPopupMenu menu;
+	
+	private int resultIndex = -1;
+	
+	
+	private JPopupMenu createActionMenu()
+	{
+		if (menu != null) return menu;
+		menu = new JPopupMenu();
+		switch(resultIndex) {
+		case FAILURE:
+			menu.add(new JMenuItem(new AbstractAction("Submit") {
+	            public void actionPerformed(ActionEvent e) {
+	            	// TODO: submit the failure
+	            }
+	        }));
+			break;
+		case SUCCESS:
+			menu.add(new JMenuItem(new AbstractAction("In Full Viewer") {
+	            public void actionPerformed(ActionEvent e) {
+	            	launchFullViewer();
+	            }
+	        }));
+			menu.add(new JMenuItem(new AbstractAction("In Data Browser") {
+	            public void actionPerformed(ActionEvent e) {
+	            	// TODO: link to data browser
+	            }
+	        }));
+		}
+		
+		menu.add(new JMenuItem(new AbstractAction("Import Log") {
+            public void actionPerformed(ActionEvent e) {
+            	// TODO: submit the failure
+            }
+        }));
+		menu.add(new JMenuItem(new AbstractAction("Checksum") {
+            public void actionPerformed(ActionEvent e) {
+            	// TODO: submit the failure
+            }
+        }));
+		return menu;
+	}
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
@@ -365,11 +406,20 @@ public class FileImportComponent
 		IconManager icons = IconManager.getInstance();
 		if (hasImportFailed()) {
 			resultLabel.setIcon(icons.getIcon(IconManager.DELETE));
-			failureMenuButton.setVisible(true);
+			
+			actionMenuButton.setVisible(true);
+			actionMenuButton.setForeground(Color.RED);
+			actionMenuButton.setText("Failed");
+			
+			resultIndex = FAILURE;
 		} else {
 			if (!statusLabel.isMarkedAsCancel()) {
-				successMenuButton.setVisible(true);
 				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
+				actionMenuButton.setVisible(true);
+				actionMenuButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+				actionMenuButton.setText("View");
+				
+				resultIndex = SUCCESS;
 			}
 		}
 	}
@@ -480,33 +530,52 @@ public class FileImportComponent
 		imageLabel.setEnabled(false);
 	}
 	
+	/**
+	 * Launches the full viewer for the selected item.
+	 */
+	private void launchFullViewer()
+	{
+		ViewImage evt;
+		int plugin = ImporterAgent.runAsPlugin();
+		if (image instanceof ThumbnailData) {
+			ThumbnailData data = (ThumbnailData) image;
+			EventBus bus = 
+				ImporterAgent.getRegistry().getEventBus();
+			if (data.getImage() != null) {
+				evt = new ViewImage(
+						new SecurityContext(group.getId()),
+						new ViewImageObject(
+						data.getImage()), null);
+				evt.setPlugin(plugin);
+				bus.post(evt);
+			}
+		} else if (image instanceof ImageData) {
+			ImageData data = (ImageData) image;
+			EventBus bus = 
+				ImporterAgent.getRegistry().getEventBus();
+			if (data != null) {
+				evt = new ViewImage(
+						new SecurityContext(group.getId()),
+						new ViewImageObject(data), null);
+				evt.setPlugin(plugin);
+				bus.post(evt);
+			}
+		} else if (image instanceof PlateData) {
+			firePropertyChange(BROWSE_PROPERTY, null, image);
+		}
+	}
 	/** Initializes the components. */
 	private void initComponents()
 	{
-		successMenuButton = new JButton("View");
-		successMenuButton.setVisible(false);
-		successMenuButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		successMenuButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * 
-			 */
-			public void mousePressed(MouseEvent e) {
-
-				//show menu
-			}
-		});
-		failureMenuButton = new JButton("Failed");
-		failureMenuButton.setVisible(false);
-		failureMenuButton.setForeground(Color.RED);
-		failureMenuButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * 
-			 */
-			public void mousePressed(MouseEvent e) {
-
-				//show menu
+		actionMenuButton = new JButton();
+		actionMenuButton.setVisible(false);
+		actionMenuButton.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ev) {
+				int x = 0;
+				int y = actionMenuButton.getY()
+				           + actionMenuButton.getHeight();
+				JPopupMenu popup = createActionMenu();
+				popup.show(actionMenuButton,x,y);
 			}
 		});
 		
@@ -522,34 +591,7 @@ public class FileImportComponent
 			public void mousePressed(MouseEvent e)
 			{ 
 				if (e.getClickCount() == 1) {
-					ViewImage evt;
-					int plugin = ImporterAgent.runAsPlugin();
-					if (image instanceof ThumbnailData) {
-						ThumbnailData data = (ThumbnailData) image;
-						EventBus bus = 
-							ImporterAgent.getRegistry().getEventBus();
-						if (data.getImage() != null) {
-							evt = new ViewImage(
-									new SecurityContext(group.getId()),
-									new ViewImageObject(
-									data.getImage()), null);
-							evt.setPlugin(plugin);
-							bus.post(evt);
-						}
-					} else if (image instanceof ImageData) {
-						ImageData data = (ImageData) image;
-						EventBus bus = 
-							ImporterAgent.getRegistry().getEventBus();
-						if (data != null) {
-							evt = new ViewImage(
-									new SecurityContext(group.getId()),
-									new ViewImageObject(data), null);
-							evt.setPlugin(plugin);
-							bus.post(evt);
-						}
-					} else if (image instanceof PlateData) {
-						firePropertyChange(BROWSE_PROPERTY, null, image);
-					}
+					launchFullViewer();
 				}
 			}
 		};
@@ -679,8 +721,7 @@ public class FileImportComponent
 		add(busyLabel);
 		add(resultLabel);
 		add(cancelButton);
-		add(successMenuButton);
-		add(failureMenuButton);
+		add(actionMenuButton);
 		//TODO:
 		
 		//add(errorButton);
@@ -997,8 +1038,8 @@ public class FileImportComponent
 				imageLabel.setData(img);
 				if (!browsable) imageLabel.setToolTipText("");
 				fileNameLabel.addMouseListener(adapter);
-				resultLabel.addMouseListener(adapter);
-				addMouseListener(adapter);
+				//resultLabel.addMouseListener(adapter);
+				//addMouseListener(adapter);
 				showContainerLabel =
 					(dataset != null || containerFromFolder != null);
 				if (noContainer) {
@@ -1014,7 +1055,7 @@ public class FileImportComponent
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				fileNameLabel.addMouseListener(adapter);
-				addMouseListener(adapter);
+				//addMouseListener(adapter);
 				if (!browsable) imageLabel.setToolTipText("");
 				if (thumbnail.requirePyramid() != null 
 						&& thumbnail.requirePyramid().booleanValue()) {
@@ -1573,6 +1614,7 @@ public class FileImportComponent
 			List<String> checksums = (List<String>) evt.getOldValue();
 			Map<Integer, String> failingChecksums =
 					(Map<Integer, String>) evt.getNewValue();
+			
 			//TODO: Format and handle checksums.
 			/*
 			UIUtilities.formatStringListToTable(
