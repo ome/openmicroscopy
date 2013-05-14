@@ -277,8 +277,6 @@ class FileSelectionTable
 		TableColumn tc = tcm.getColumn(FILE_INDEX);
 		tc.setCellRenderer(new FileTableRenderer()); 
 
-		tc = tcm.getColumn(CONTAINER_INDEX);
-		tc.setCellRenderer(new FileTableRenderer());
 		
 		String[] tips;
 		
@@ -291,7 +289,9 @@ class FileSelectionTable
 				tc.setCellRenderer(new FileTableRenderer());
 				tc = tcm.getColumn(OWNER_INDEX);
 				tc.setCellRenderer(new FileTableRenderer());
-				
+
+				tc = tcm.getColumn(CONTAINER_INDEX);
+				tc.setCellRenderer(new FileTableRenderer());
 				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX);
 				setColumnAsBoolean(tc);
 
@@ -299,7 +299,9 @@ class FileSelectionTable
 			} else {
 				tc = tcm.getColumn(GROUP_INDEX);
 				tc.setCellRenderer(new FileTableRenderer());
-				
+
+				tc = tcm.getColumn(CONTAINER_INDEX-1);
+				tc.setCellRenderer(new FileTableRenderer());
 				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
 				setColumnAsBoolean(tc);
 
@@ -309,12 +311,17 @@ class FileSelectionTable
 			if(model.canImportAs()) {
 				tc = tcm.getColumn(OWNER_INDEX-1);
 				tc.setCellRenderer(new FileTableRenderer());
-				
+
+				tc = tcm.getColumn(CONTAINER_INDEX-1);
+				tc.setCellRenderer(new FileTableRenderer());
 				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-1);
 				setColumnAsBoolean(tc);
 				
 				tips = COLUMNS_NO_GROUP_TOOLTIP;
 			} else {
+				tc = tcm.getColumn(CONTAINER_INDEX-2);
+				tc.setCellRenderer(new FileTableRenderer());
+				
 				tc = tcm.getColumn(FOLDER_AS_DATASET_INDEX-2);
 				setColumnAsBoolean(tc);
 				
@@ -576,31 +583,35 @@ class FileSelectionTable
 		DatasetData dataset;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX);
 			file = element.getFile();
-			dataset = dne.getLocation();
 
 			if (model.isSingleGroup()) {
 				if(model.canImportAs()) {
+					dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX-1);
 					isFolderDataset = Boolean.valueOf((Boolean) 
 							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-1));
 					importable = new ImportableFile(file, isFolderDataset);
 				} else {
+					dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX-2);
 					isFolderDataset = Boolean.valueOf((Boolean) 
 							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-2));
 					importable = new ImportableFile(file, isFolderDataset);
 				}
 			} else {
 				if(model.canImportAs()) {
+					dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX);
 					isFolderDataset = Boolean.valueOf((Boolean) 
 							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX));
 					importable = new ImportableFile(file, isFolderDataset);
 				} else {
+					dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX-1);
 					isFolderDataset = Boolean.valueOf((Boolean) 
 							dtm.getValueAt(i, FOLDER_AS_DATASET_INDEX-1));
 					importable = new ImportableFile(file, isFolderDataset);
 				}
 			}
+			
+			dataset = dne.getLocation();
 			
 			if (isFolderDataset) dataset = null;
 			importable.setLocation(dne.getParent(), dataset);
