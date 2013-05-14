@@ -563,6 +563,26 @@ class TestDelete(lib.ITest):
         self.assertEquals(None, query.find("Image", images[0].id.val))
         self.assertEquals(None, query.find("Image", images[1].id.val))
 
+    def testDeleteFilesetOK(self):
+        """
+        Simple example of the MIF delete good case:
+        a single fileset containing 2 images.
+        Delete the fileset, the delete should succeed.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        query = client.sf.getQueryService()
+        images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
+
+        # Now delete the fileset, should succeed
+        delete = omero.cmd.Delete("/Fileset", fsId, None)
+        self.doSubmit(delete, client)
+
+        # The dataset, fileset and both images should be deleted.
+        self.assertEquals(None, query.find("Fileset", fsId))
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(None, query.find("Image", images[1].id.val))
+
 if __name__ == '__main__':
     if "TRACE" in os.environ:
         import trace

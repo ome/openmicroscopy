@@ -467,6 +467,38 @@ class TestChgrp(lib.ITest):
         fileset_gid = qs.get("Fileset", fsId, ctx).details.group.id.val
         self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
 
+    def testChgrpFilesetOK(self):
+        """
+        Move a Fileset of MIF images into a new group,
+        then check that the Fileset group is the same as the target group.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        query = client.sf.getQueryService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
+
+        # Now chgrp, should succeed
+        chgrp = omero.cmd.Chgrp(type="/Fileset", id=fsId, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # Check Fataset and both Images moved and the fileset is in sync with image.
+        ctx = {'omero.group': '-1'}      # query across groups
+        fileset = query.get('Fileset', fsId, ctx)
+        self.assertEqual(target_gid, fileset.details.group.id.val, "Fileset should be in group: %s" % target_gid)
+        for i in range(2):
+            image = query.get('Image', images[i].id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+        image_gid = query.get("Image", images[0].id.val, ctx).details.group.id.val
+        fileset_gid = fileset.details.group.id.val
+        self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
+
 
 if __name__ == '__main__':
     unittest.main()
