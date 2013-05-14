@@ -17,6 +17,7 @@ import omero.callbacks
 import Ice
 import sys
 import os
+from omero.cmd import DoAll
 
 class TestDelete(lib.ITest):
 
@@ -406,7 +407,7 @@ class TestDelete(lib.ITest):
         """
         o = self.client.upload(__file__)
         fa = omero.model.FileAnnotationI()
-        fa.file = o
+        fa.file = o.proxy()
         fa = self.update.saveAndReturnObject(fa)
 
         command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
@@ -415,6 +416,152 @@ class TestDelete(lib.ITest):
         self.assertRaises(omero.ServerError, \
                 self.client.sf.getQueryService().get, "FileAnnotation", fa.id.val)
 
+    def testDeleteOneDatasetFilesetErr(self):
+        """
+        Simple example of the MIF delete bad case:
+        a single fileset containing 2 images is split among 2 datasets.
+        Delete one dataset, delete fails.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testDeleteOneDatasetFilesetErr", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Lookup the fileset
+        query = client.sf.getQueryService()
+        img = query.get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
+
+        # Now delete one dataset
+        delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
+        rsp = self.doSubmit(delete, client, test_should_pass=False)
+
+        # The delete should fail due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+
+        # Neither image or the dataset should be deleted.
+        self.assertEquals(datasets[0].id.val, query.find("Dataset", datasets[0].id.val).id.val)
+        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
+        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+
+    def testDeleteOneImageFilesetErr(self):
+        """
+        Simple example of the MIF delete good case:
+        two images in a MIF.
+        Delete one image, the delete should fail.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        update = client.sf.getUpdateService()
+        images = self.importMIF(2, client=client)
+
+        # Lookup the fileset
+        query = client.sf.getQueryService()
+        img = query.get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
+
+        # Now delete one image
+        delete = omero.cmd.Delete("/Image", images[0].id.val, None)
+        rsp = self.doSubmit(delete, client, test_should_pass=False)
+
+        # The delete should fail due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "delete should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "delete should fail due to this Fileset")
+
+        # Neither image should be deleted.
+        self.assertEquals(images[0].id.val, query.find("Image", images[0].id.val).id.val)
+        self.assertEquals(images[1].id.val, query.find("Image", images[1].id.val).id.val)
+
+    def testDeleteDatasetFilesetOK(self):
+        """
+        Simple example of the MIF delete good case:
+        a single fileset containing 2 images in one dataset.
+        Delete the dataset, the delete should succeed.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
+        ds = omero.model.DatasetI()
+        ds.name = omero.rtypes.rstring("testDeleteDatasetFilesetOK")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now delete the dataset, should succeed
+        delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
+        self.doSubmit(delete, client)
+
+        # The dataset, fileset and both images should be deleted.
+        self.assertEquals(None, query.find("Dataset", ds.id.val))
+        self.assertEquals(None, query.find("Fileset", fsId))
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(None, query.find("Image", images[1].id.val))
+
+    def testDeleteAllDatasetsFilesetOK(self):
+        """
+        Simple example of the MIF delete bad case:
+        a single fileset containing 2 images is split among 2 datasets.
+        Delete all datasets, delete succeeds.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
+        datasets = self.createDatasets(2, "testDeleteAllDatasetsFilesetOK", client=client)
+        images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now delete all datasets, should succeed
+        delete1 = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
+        delete2 = omero.cmd.Delete("/Dataset", datasets[1].id.val, None)
+        self.doAllSubmit([delete1,delete2], client)
+
+        # Both datasets, the fileset and both images should be deleted.
+        self.assertEquals(None, query.find("Dataset", datasets[0].id.val))
+        self.assertEquals(None, query.find("Dataset", datasets[1].id.val))
+        self.assertEquals(None, query.find("Fileset", fsId))
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(None, query.find("Image", images[1].id.val))
+
+    def testDeleteAllImagesFilesetOK(self):
+        """
+        Simple example of the MIF delete good case:
+        two images in a MIF.
+        Delete all images, the delete should succeed.
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        update = client.sf.getUpdateService()
+        query = client.sf.getQueryService()
+        images = self.importMIF(2, client=client)
+        fsId = query.get("Image", images[0].id.val).fileset.id.val
+
+        # Now delete all images, should succeed
+        delete1 = omero.cmd.Delete("/Image", images[0].id.val, None)
+        delete2 = omero.cmd.Delete("/Image", images[1].id.val, None)
+        self.doAllSubmit([delete1,delete2], client)
+
+        # The fileset and both images should be deleted.
+        self.assertEquals(None, query.find("Fileset", fsId))
+        self.assertEquals(None, query.find("Image", images[0].id.val))
+        self.assertEquals(None, query.find("Image", images[1].id.val))
 
 if __name__ == '__main__':
     if "TRACE" in os.environ:

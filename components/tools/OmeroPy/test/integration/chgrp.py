@@ -11,7 +11,6 @@ import omero, omero.gateway
 import integration.library as lib
 import unittest
 from omero.rtypes import *
-from omero.cmd import Chgrp, DoAll
 from omero.api import Save
 
 PRIVATE = 'rw----'
@@ -19,12 +18,6 @@ READONLY = 'rwr---'
 COLLAB = 'rwrw--'
 
 class TestChgrp(lib.ITest):
-
-    def doAllChgrp(self, requests, client):
-        
-        da = DoAll()
-        da.requests = requests
-        rsp = self.doSubmit(da, client)
 
     def testChgrpImportedImage(self):
         """
@@ -99,7 +92,7 @@ class TestChgrp(lib.ITest):
         self.set_context(client, first_gid)
 
         # We have to be in destination group for link Save to work
-        self.doAllChgrp(requests, client)
+        self.doAllSubmit(requests, client)
 
         # ...check image
         img = client.sf.getQueryService().get("Image", img.id.val)
@@ -138,8 +131,8 @@ class TestChgrp(lib.ITest):
         link.setParent(dataset)
         links.append(link)
         l = omero.model.ProjectDatasetLinkI()
-        l.setChild(dataset)
-        l.setParent(project)
+        l.setChild(dataset.proxy())
+        l.setParent(project.proxy())
         links.append(l)
         update.saveAndReturnArray(links)
 
@@ -193,6 +186,286 @@ class TestChgrp(lib.ITest):
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
         handle = owner_g.deleteObjects("/Image", [image.id.val])
         self.waitOnCmd(owner_g.c, handle)
+
+
+    def testChgrpOneImageFilesetErr(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images - we try to chgrp ONE image.
+        Each sibling CANNOT be moved independently of the other.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        # 2 images sharing a fileset
+        images = self.importMIF(2, client=client)
+
+        # Lookup the fileset
+        img = client.sf.getQueryService().get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
+
+        # Now chgrp
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
+        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+
+        # The chgrp should fail due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+
+
+    def testChgrpAllImagesFilesetOK(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images
+        can be moved to the same group together.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        images = self.importMIF(2, client=client)
+
+        # chgrp should succeed
+        chgrp1 = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
+        chgrp2 = omero.cmd.Chgrp(type="/Image", id=images[1].id.val, grp=target_gid)
+        self.doAllSubmit([chgrp1,chgrp2], client)
+
+        # Check both Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        for i in images:
+            image = queryService.get('Image', i.id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+
+
+    def testChgrpOneDatasetFilesetErr(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        A single fileset containing 2 images is split among 2 datasets.
+        We try to chgrp ONE Dataset.
+        Each dataset CANNOT be moved independently of the other.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testChgrpOneDatasetFilesetErr", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Lookup the fileset
+        img = client.sf.getQueryService().get('Image', images[0].id.val)    # load first image
+        filesetId =  img.fileset.id.val
+
+        # chgrp should fail...
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
+        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+
+        # ...due to the fileset
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 1, "chgrp should fail due to a single Fileset")
+        self.assertEqual(failedFilesets[0], filesetId, "chgrp should fail due to this Fileset")
+
+
+    def testChgrpAllDatasetsFilesetOK(self):
+        """
+        Simple example of the MIF chgrp bad case:
+        a single fileset containing 2 images is split among 2 datasets.
+        Datasets can be moved to the same group together.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        datasets = self.createDatasets(2, "testChgrpAllDatasetsFilesetOK", client=client)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(datasets[i].proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp, should succeed
+        chgrp1 = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
+        chgrp2 = omero.cmd.Chgrp(type="/Dataset", id=datasets[1].id.val, grp=target_gid)
+        self.doAllSubmit([chgrp1,chgrp2], client)
+
+        # Check both Datasets and Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': str(target_gid)}      # query in the target group
+        for i in range(2):
+            dataset = queryService.get('Dataset', datasets[i].id.val, ctx)
+            image = queryService.get('Image', images[i].id.val, ctx)
+            self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
+            self.assertEqual(target_gid, image.details.group.id.val, "Image should be in group: %s" % target_gid)
+
+
+    def testChgrpOneDatasetFilesetOK(self):
+        """
+        Simple example of the MIF chgrp good case:
+        a single fileset containing 2 images in one dataset.
+        The dataset can be moved.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpOneDatasetFilesetOK")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp, should succeed
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # Check Dataset and both Images moved
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        dataset = queryService.get('Dataset', ds.id.val, ctx)
+        self.assertEqual(target_gid, dataset.details.group.id.val, "Dataset should be in group: %s" % target_gid)
+        for i in range(2):
+            image = queryService.get('Image', images[i].id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+
+
+    def testChgrpImagesTwoFilesetsErr(self):
+        """
+        If we try to 'split' 2 Filesets, both should be returned
+        by the chgrp error
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        imagesFsOne = self.importMIF(2, client=client)
+        imagesFsTwo = self.importMIF(2, client=client)
+
+        # Lookup the filesets
+        qs = client.sf.getQueryService()
+        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
+        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
+
+        # chgrp should fail...
+        chgrp1 = omero.cmd.Chgrp(type="/Image", id=imagesFsOne[0].id.val, grp=target_gid)
+        chgrp2 = omero.cmd.Chgrp(type="/Image", id=imagesFsTwo[0].id.val, grp=target_gid)
+        rsp = self.doAllSubmit([chgrp1,chgrp2], client, test_should_pass=False)
+
+        # ...due to the filesets
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 2, "chgrp should fail due to a Two Filesets")
+        self.assertTrue(filesetOneId in failedFilesets)
+        self.assertTrue(filesetTwoId in failedFilesets)
+
+
+    def testChgrpDatasetTwoFilesetsErr(self):
+        """
+        If we try to 'split' 2 Filesets, both should be returned
+        by the chgrp error
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        imagesFsOne = self.importMIF(2, client=client)
+        imagesFsTwo = self.importMIF(2, client=client)
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpDatasetTwoFilesetsErr")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in (imagesFsOne, imagesFsTwo):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(i[0].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Lookup the filesets
+        qs = client.sf.getQueryService()
+        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
+        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
+
+        # chgrp should fail...
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+
+        # ...due to the filesets
+        self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 2, "chgrp should fail due to a Two Filesets")
+        self.assertTrue(filesetOneId in failedFilesets)
+        self.assertTrue(filesetTwoId in failedFilesets)
+
+
+    def testChgrpDatasetCheckFsGroup(self):
+        """
+        Move a Dataset of MIF images into a new group,
+        then check that the Fileset group is the same as the target group.
+        From 'Security Violation' Bug https://github.com/openmicroscopy/openmicroscopy/pull/1139
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpDatasetCheckFsGroup")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp, should succeed
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
+
+        # Check the group of the fileset is in sync with image.
+        ctx = {'omero.group': '-1'}
+        qs = client.sf.getQueryService()
+        image1 = qs.get("Image", images[0].id.val, ctx)
+        fsId = image1.fileset.id.val
+        image_gid = image1.details.group.id.val
+        fileset_gid = qs.get("Fileset", fsId, ctx).details.group.id.val
+        self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
 
 
 if __name__ == '__main__':
