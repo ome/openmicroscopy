@@ -5498,6 +5498,30 @@ class _PixelsWrapper (BlitzObjectWrapper):
 PixelsWrapper = _PixelsWrapper
 
 
+class _FilesetWrapper (BlitzObjectWrapper):
+    """
+    omero_model_FilesetI class wrapper extends BlitzObjectWrapper
+    """
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Fileset'
+
+    def _getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("Fileset")
+        """
+        return "select obj from Fileset obj "\
+                "left outer join fetch obj.images as image "\
+                "left outer join fetch obj.usedFiles as usedFile " \
+                "join fetch usedFile.originalFile"
+
+    def copyImages(self):
+        """ Returns a list of L{ImageWrapper} linked to this Fileset """
+        return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
+
+FilesetWrapper = _FilesetWrapper
+
+
 class _ChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_ChannelI class wrapper extends BlitzObjectWrapper.
@@ -7481,18 +7505,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         files that created this image, if available.
         """
         # If we have an FS image, return Fileset files.
-        if self.countFilesetFiles() > 0:
-            params = omero.sys.Parameters()
-            params.map = {'imageId': rlong(self.getId())}
-            query = "select fs from Fileset as fs "\
-                    "left outer join fetch fs.images as image "\
-                    "left outer join fetch fs.usedFiles as usedFile " \
-                    "join fetch usedFile.originalFile where image.id=:imageId"
-            queryService = self._conn.getQueryService()
-            filesets = queryService.findAllByQuery(query, params, self._conn.SERVICE_OPTS)
-            for fs in filesets:
-                for usedfile in fs.copyUsedFiles():
-                    yield OriginalFileWrapper(self._conn, usedfile.originalFile)
+        fs = self.getFileset()
+        if fs is not None:
+            for usedfile in fs.copyUsedFiles():
+                yield OriginalFileWrapper(self._conn, usedfile.originalFile)
 
         # Otherwise, return Original Archived Files
         pid = self.getPixelsId()
@@ -7502,6 +7518,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         links = self._conn.getQueryService().findAllByQuery(query, params,self._conn.SERVICE_OPTS)
         for l in links:
             yield OriginalFileWrapper(self._conn, l.parent)
+
+    def getFileset (self):
+        """
+        Returns the Fileset linked to this Image.
+        Fileset images, usedFiles and originalFiles are loaded.
+        """
+        if self.countFilesetFiles() > 0:
+            return self._conn.getObject("Fileset", self.fileset.id.val)
 
     def getROICount(self, shapeType=None, filterByCurrentUser=False):
         """
@@ -8167,6 +8191,7 @@ def refreshWrappers ():
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,
                   "originalfile":OriginalFileWrapper,
+                  "fileset":FilesetWrapper,
                   "commentannotation":CommentAnnotationWrapper,
                   "tagannotation":TagAnnotationWrapper,
                   "longannotation":LongAnnotationWrapper,

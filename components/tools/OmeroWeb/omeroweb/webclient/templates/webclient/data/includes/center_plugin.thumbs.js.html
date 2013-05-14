@@ -41,22 +41,6 @@ $(document).ready(function() {
         showWell = qKeys["show"];
     }
 
-    var syncPanels = function(get_selected) {
-        $("#dataIcons").find("li.ui-selectee").removeClass('ui-selected');    // clear selection
-        get_selected.each(function(i) {
-            var dtype = $(this).attr("rel");
-            dtype = dtype && dtype.replace("-locked", "");
-            if (dtype == "image") {
-                var imgId = $(this).attr("id").split("-")[1];
-                $("#image_icon-"+imgId).addClass('ui-selected');
-            }
-        });
-        // Also clear well selection if 'plate' selected
-        if (get_selected.attr('id').split("-")[0] === 'plate') {
-            $("td.ui-selected").removeClass("ui-selected");
-        }
-    }
-
     // on change of selection in tree, update center panel
     var update_thumbnails_panel = function(event, force_update) {
 
@@ -70,7 +54,6 @@ $(document).ready(function() {
         // if nothing selected, simply update selection
         var sel_objs = $("body").data("selected_objects.ome");
         if (sel_objs.length == 0) {
-            syncPanels(selected);
             if (force_update === true) {
                 $("div#content_details").empty();
                 $("div#content_details").removeAttr('rel');
@@ -168,6 +151,11 @@ $(document).ready(function() {
             update['empty'] = true;
         }
 
+        // clear well selection if 'plate' or 'acquisition' selected
+        if (orel == "plate" || orel === 'acquisition') {
+            $("td.ui-selected").removeClass("ui-selected");
+        }
+
         var $content_details = $("#content_details");
 
         var page_change = ((page != null) && (page!=cpage));
@@ -197,16 +185,12 @@ $(document).ready(function() {
             if ($content_details.is(":visible")) {
                 $("div#content_details").html('<p class="loading_center">Loading... please wait. <img src ="{% static "webgateway/img/spinner_big.gif" %}"/></p>');
                 $("div#content_details").attr('rel', update.rel);
-                $("div#content_details").load(update.url, function() {
-                    syncPanels(selected);
-                });
+                $("div#content_details").load(update.url);
             } else {
                 $("div#content_details").empty();
                 $("div#content_details").removeAttr('rel');
             }
         }
-        
-        syncPanels(selected); // update selected thumbs
     };
     
     // on change of selection (in tree) OR switching pluginupdate center panel

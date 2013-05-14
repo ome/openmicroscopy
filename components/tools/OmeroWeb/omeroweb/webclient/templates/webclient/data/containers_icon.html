@@ -180,6 +180,41 @@
                 }
             });
 
+            // ** The code above uses the 'ui-selected' class to mark selected images...
+            // * Then calls syncTreeSelection() to update the tree (using image Ids)
+            // * The code below responds to ALL changes in tree selection and 
+            // * highlights the thumbnails accordingly.
+            var $selectee = $("#dataIcons").find("li.ui-selectee");
+
+            // When an image(s) are selected, also indicate others with the same fileset(s).
+            var highlightFilesets = function(fsIds) {
+                $selectee.removeClass('fs-selected');
+                for (var fsid in fsIds) {
+                    $selectee.filter("[data-fileset='"+ fsid + "']").addClass('fs-selected');
+                }
+            }
+
+            var syncThumbSelection = function() {
+                var sel_objs = $("body").data("selected_objects.ome");
+                $selectee.removeClass('ui-selected');    // clear selection
+                var fsIds = {};
+                var sel_obj, imgId;
+                for (var _s=0; _s<sel_objs.length; _s++) {
+                    sel_obj = sel_objs[_s];
+                    if (sel_obj.rel.replace("-locked","") == "image") {
+                        imgId = sel_obj.id.split("-")[1];
+                        $("#image_icon-"+imgId).addClass('ui-selected');
+                        fsIds[sel_obj.fileset] = true;
+                    }
+                }
+                highlightFilesets(fsIds);
+            }
+
+            // Sync selection on selection change (in tree)...
+            $("body").bind("selection_change.ome", syncThumbSelection);
+            //...and on page load
+            syncThumbSelection()
+
             // switch between 'icon' or 'table' layout by switching CSS
             var setLayout = function(layout) {
                 if (layout == "icon"){
@@ -342,7 +377,7 @@
             <div class='sort-numeric'>{% trans "Size Z" %}</div>
         </li>
         {% for c in manager.containers.images %}
-            <li class='row' id="image_icon-{{ c.id }}">
+            <li class='row' id="image_icon-{{ c.id }}" data-fileset="{{ c.fileset.id.val }}">
                 <div class="image">
                     <img id="{{ c.id }}" src="{% url render_thumbnail_resize 96 c.id %}" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                 </div>
