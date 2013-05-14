@@ -50,13 +50,14 @@ import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.springframework.util.CollectionUtils;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
