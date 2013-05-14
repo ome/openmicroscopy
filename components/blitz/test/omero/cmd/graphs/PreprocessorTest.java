@@ -48,10 +48,7 @@ public class PreprocessorTest extends MockObjectTestCase {
     }
 
     private void projection(Object[]... rv) {
-        List<Object> list = new ArrayList<Object>();
-        for (Object[] obj : rv) {
-            list.add(obj);
-        }
+        List<Object> list = new ArrayList<Object>(Arrays.asList(rv));
         msf.mockQuery.expects(once()).method("projection")
                 .will(returnValue(list));
     }

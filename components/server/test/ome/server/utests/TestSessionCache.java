@@ -67,6 +67,7 @@ public class TestSessionCache extends SessionCache {
     public SessionContext getSessionContext(String uuid) {
 
         Session session = null;
+        // TODO: are null sessions ever stored?
         if (sessions.containsKey(uuid)) {
             session = sessions.get(uuid);
         } else {

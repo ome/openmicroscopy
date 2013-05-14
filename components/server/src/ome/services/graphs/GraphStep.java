@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -371,7 +372,7 @@ public abstract class GraphStep {
 
             for (String[] lock : locks) {
                 List<Long> bad = findImproperIncomingLinks(session, lock);
-                if (bad != null && bad.size() > 0) {
+                if (CollectionUtils.isNotEmpty(bad)) {
                     log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
                             iObjectType.getSimpleName(), id, lock[0], lock[1],
                             bad.size()));

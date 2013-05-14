@@ -52,7 +52,7 @@ public class GraphConstraintException extends GraphException {
         Map<String, long[]> rv = new HashMap<String, long[]>();
         for (Map.Entry<String, List<Long>> entry : constraints.entrySet()) {
             String key = toSimpleKey(entry);
-            long[] arr  = toArray(entry);
+            long[] arr = toArray(entry);
             rv.put(key, arr);
         }
         return rv;

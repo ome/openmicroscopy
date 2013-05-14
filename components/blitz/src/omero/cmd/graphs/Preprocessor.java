@@ -106,7 +106,7 @@ public class Preprocessor {
 
     @SuppressWarnings("unchecked")
     protected void process() {
-        for (@SuppressWarnings("rawtypes") Class op : new Class[]{Chgrp.class, Delete.class}) {
+        for (Class<? extends GraphModify> op : new Class[]{Chgrp.class, Delete.class}) {
 
             // Targets for possible optimization.
             final Set<Request> targets = new HashSet<Request>();
