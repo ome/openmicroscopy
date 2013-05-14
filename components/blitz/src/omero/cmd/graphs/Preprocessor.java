@@ -18,11 +18,14 @@
 package omero.cmd.graphs;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.HashMultimap;
 
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
@@ -49,7 +52,7 @@ public class Preprocessor {
     /**
      * Cache of filesets which have been looked up.
      */
-    protected final Map<Long, Set<Long>> filesetIdToImageIds;
+    protected final HashMultimap<Long, Long> filesetIdToImageIds;
 
     /**
      * Cache of Images which have been found during the lookups.
@@ -67,7 +70,7 @@ public class Preprocessor {
             return; // EARLY EXIT
         }
 
-        filesetIdToImageIds = new HashMap<Long, Set<Long>>();
+        filesetIdToImageIds = HashMultimap.create();
         imageIdToFilesetId = new HashMap<Long, Long>();
 
         process();
@@ -91,7 +94,7 @@ public class Preprocessor {
         if (filesetIdToImageIds == null) {
             return -1;
         }
-        return filesetIdToImageIds.size();
+        return filesetIdToImageIds.keySet().size();
     }
 
     /**
@@ -131,9 +134,10 @@ public class Preprocessor {
             // 2. For those filesets which have all their images selected,
             // reduce the entries found by inserting the fileset operation
             // at the location of the last contained image.
-            for (Map.Entry<Long, Set<Long>> entry : filesetIdToImageIds.entrySet()) {
+            Map<Long, Collection<Long>> asMap = filesetIdToImageIds.asMap();
+            for (Map.Entry<Long, Collection<Long>> entry : asMap.entrySet()) {
                 final Long filesetId = entry.getKey();
-                final Set<Long> imageIds = entry.getValue();
+                final Collection<Long> imageIds = entry.getValue();
 
                 if (imageIds.size() < 2) {
                     helper.debug("Skipping on Image count " + imageIds.size());
@@ -179,7 +183,7 @@ public class Preprocessor {
 
     private void lookupFilesetForImage(long imageId1,
             Map<Long, Long> imageIdToFilesetId,
-            Map<Long, Set<Long>> filesetIdToImageIds) {
+            HashMultimap<Long, Long> filesetIdToImageIds) {
 
         if (imageIdToFilesetId.containsKey(imageId1)) {
             return; // EARLY EXIT
@@ -199,12 +203,7 @@ public class Preprocessor {
         for (Object[] ids : rv) {
             Long filesetId = (Long) ids[0];
             Long imageId2 = (Long) ids[1];
-            Set<Long> imageIds = filesetIdToImageIds.get(filesetId);
-            if (imageIds == null) {
-                imageIds = new HashSet<Long>();
-                filesetIdToImageIds.put(filesetId, imageIds);
-            }
-            imageIds.add(imageId2);
+            filesetIdToImageIds.put(filesetId, imageId2);
             imageIdToFilesetId.put(imageId2, filesetId);
             helper.debug("Registered Image:%s=>Fileset:%s", imageId2, filesetId);
         }
