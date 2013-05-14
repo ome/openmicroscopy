@@ -86,5 +86,8 @@
     <!-- importer -->
     <dependency org="importer" name="slf4j-api" rev="${versions.slf4j}"/>
     <dependency org="importer" name="slf4j-log4j12" rev="${versions.slf4j}"/>
+
+    <!-- temporary fix for o.s.u.CollectionUtils-->
+    <dependency org="org.springframework" name="org.springframework.core" rev="${versions.spring}" conf="build,client->default"/>
   </dependencies>
 </ivy-module>
