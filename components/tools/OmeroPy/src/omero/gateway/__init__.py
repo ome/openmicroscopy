@@ -3279,30 +3279,6 @@ class _BlitzGateway (object):
                 '/Well':[],
                 '/Annotation':[] }
 
-        if graph_spec == "/Image":
-            imgsToDelete = []
-            imgsWithFs = []
-            images = self.getObjects("Image", obj_ids)
-            for i in images:
-                # if we share filesets, remove duplicates
-                if i.countFilesetFiles() > 0:
-                    imgsWithFs.append(i.getId())
-                else:
-                    imgsToDelete.append(i.getId())
-            if len(imgsWithFs) > 0:
-                params = omero.sys.Parameters()
-                params.map = {'imageIds': wrap(imgsWithFs)}
-                query = "select fs from Fileset fs "\
-                        "left outer join fetch fs.images as image "\
-                        "where image.id in (:imageIds)"
-                queryService = self.getQueryService()
-                filesets = queryService.findAllByQuery(query, params, self.SERVICE_OPTS)
-                for fs in filesets:
-                    for fsImg in fs.copyImages():
-                        imgsToDelete.append(fsImg.id.val)
-                        break
-            obj_ids = imgsToDelete
-
         if not deleteChildren:
             try:
                 for c in childTypes[graph_spec]:
@@ -5517,6 +5493,10 @@ class _FilesetWrapper (BlitzObjectWrapper):
     def copyImages(self):
         """ Returns a list of L{ImageWrapper} linked to this Fileset """
         return [ImageWrapper(self._conn, i) for i in self._obj.copyImages()]
+
+    def listFiles(self):
+        """ Returns a list of L{OriginalFileWrapper} linked to this Fileset via Fileset Entries """
+        return [OriginalFileWrapper(self._conn, f.originalFile) for f in self._obj.copyUsedFiles()]
 
 FilesetWrapper = _FilesetWrapper
 
