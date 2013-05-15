@@ -55,8 +55,9 @@ import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import omero.model.OriginalFile;
+import org.apache.commons.io.FilenameUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
@@ -70,6 +71,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 
 /**
  * Displays the original metadata.
@@ -84,7 +86,7 @@ import pojos.FileAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-class OriginalMetadataComponent 
+class OriginalMetadataComponent
 	extends JPanel
 	implements PropertyChangeListener
 {
@@ -98,37 +100,46 @@ class OriginalMetadataComponent
 		COLUMNS[1] = "Value";
 	}
 	
-	/** Reference to the model. */
+	/** Reference to the model.*/
 	private EditorModel	model;
 	
+	/** Flag indicating if the metadata have been loaded or not. */
+	private boolean metadataLoaded;
+	
+	/** Button to download the file. */
+	private JButton downloadButton;
+	
+	/** Builds the tool bar displaying the controls. */
+	private JComponent toolBar;
+	
+	/** The bar displaying the status. */
+	private JComponent statusBar;
+	
 	/** 
-	 * Brings up a dialog so that the user can select where to 
+	 * Brings up a dialog so that the user can select where to
 	 * download the file.
 	 */
 	private void download()
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, true);
+				"Download Metadata", "Download the metadata file.", null, true);
 		chooser.setSelectedFileFull(FileAnnotationData.ORIGINAL_METADATA_NAME);
+		chooser.setCheckOverride(true);
+		FileAnnotationData data = model.getOriginalMetadata();
+		String name = "";
+		if (data != null) name = data.getFileName();
+		else {
+			ImageData img = model.getImage();
+			name = FilenameUtils.removeExtension(img.getName());
+		}
+		chooser.setSelectedFileFull(name);
 		chooser.setApproveButtonText("Download");
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
 	}
-	
-	/** Flag indicating if the metadata have been loaded or not. */
-	private boolean metadataLoaded;
-	
-	/** Button to download the file. */
-	private JButton		downloadButton;
-	
-	/** Builds the tool bar displaying the controls. */
-	private JComponent	toolBar;
-	
-	/** The bar displaying the status. */
-	private JComponent	statusBar;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -146,11 +157,10 @@ class OriginalMetadataComponent
 		});
 		toolBar = buildToolBar();
 		toolBar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(), 
+		JXBusyLabel label = new JXBusyLabel(new Dimension(icon.getIconWidth(),
 				icon.getIconHeight()));
 		label.setBackground(UIUtilities.BACKGROUND_COLOR);
 		label.setBusy(true);
-		//label.setHorizontalTextPosition(JXBusyLabel.RIGHT);
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
@@ -193,17 +203,18 @@ class OriginalMetadataComponent
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		String key;
-		List l;
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
+		List<String> l;
+		Entry<String, List<String>> entry;
+		Iterator<Entry<String, List<String>>>
+		i = components.entrySet().iterator();
 		JPanel row;
 		JLabel label;
 		p.add(new JSeparator());
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			key = (String) entry.getKey();
-			l = (List) entry.getValue();
-			if (l != null && l.size() > 0) {
+			entry = i.next();
+			key = entry.getKey();
+			l = entry.getValue();
+			if (!CollectionUtils.isEmpty(l)) {
 				label = UIUtilities.setTextFont(key);
 				label.setBackground(UIUtilities.BACKGROUND_COLOR);
 				row = UIUtilities.buildComponentPanel(label);
@@ -215,6 +226,8 @@ class OriginalMetadataComponent
 		removeAll();
 		add(toolBar, BorderLayout.NORTH);
 		add(p, BorderLayout.CENTER);
+		revalidate();
+		repaint();
 	}
 	
 	/**
@@ -286,7 +299,7 @@ class OriginalMetadataComponent
 		JXTable table = new JXTable(
 				new OriginalMetadataTableModel(data, COLUMNS));
 		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
+				UIUtilities.BACKGROUND_COLOUR_EVEN,
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
 		return new JScrollPane(table);
@@ -342,6 +355,15 @@ class OriginalMetadataComponent
 	void setOriginalFile(File file)
 	{
 		metadataLoaded = true;
+		if (file == null) {
+			JLabel l = new JLabel("Metadata could not be retrieved.");
+			l.setBackground(UIUtilities.BACKGROUND_COLOR);
+			statusBar = UIUtilities.buildComponentPanel(l);
+			statusBar.setBackground(UIUtilities.BACKGROUND_COLOR);
+			removeAll();
+			add(statusBar, BorderLayout.NORTH);
+			return;
+		}
 		try {
 			BufferedReader input = new BufferedReader(new FileReader(file));
 			Map<String, List<String>> components = 
@@ -367,15 +389,18 @@ class OriginalMetadataComponent
 						}
 					}
 				}
-				buildGUI(components);
 			} finally {
 				input.close();
 			}
+			buildGUI(components);
+			file.delete();
 		} catch (IOException e) {
+			e.printStackTrace();
 			file.delete();
 			JLabel l = new JLabel("Loading metadata");
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
 			statusBar = UIUtilities.buildComponentPanel(l);
+			statusBar.setBackground(UIUtilities.BACKGROUND_COLOR);
 			removeAll();
 			add(statusBar, BorderLayout.NORTH);
 			Logger logger = MetadataViewerAgent.getRegistry().getLogger();
@@ -399,20 +424,21 @@ class OriginalMetadataComponent
 			File folder = files[0];
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
-			UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-			FileAnnotationData fa = model.getOriginalMetadata();
-			if (fa == null) return;
-			OriginalFile f = (OriginalFile) fa.getContent();
+			UserNotifier un =
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+			ImageData img = model.getImage();
+			if (img == null) return;
 			IconManager icons = IconManager.getInstance();
-			
-			DownloadActivityParam activity = new DownloadActivityParam(f,
-					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			DownloadActivityParam activity =
+					new DownloadActivityParam(img.getId(),
+				DownloadActivityParam.METADATA_FROM_IMAGE,
+						folder, icons.getIcon(IconManager.DOWNLOAD_22));
 			un.notifyActivity(model.getSecurityContext(), activity);
 		}
 	}
 	
 	/** Extends the table model so that the cells cannot be edited. */
-	class OriginalMetadataTableModel 
+	class OriginalMetadataTableModel
 		extends DefaultTableModel
 	{
 		/**
@@ -438,5 +464,5 @@ class OriginalMetadataComponent
 	    */
 	    public boolean isCellEditable(int row, int column) { return false; }
 	}
-	
+
 }

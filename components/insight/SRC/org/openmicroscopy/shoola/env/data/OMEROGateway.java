@@ -8377,31 +8377,6 @@ class OMEROGateway
 		}
 		return -1;
 	}
-	
-	/**
-	 * Returns the specified script.
-	 * 
-	 * @param ctx The security context.
-	 * @param commands The object to delete.
-	 * @return See above.
-	 * @throws ProcessException If an error occurred while running the script.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
-	 */
-	RequestCallback deleteObject(SecurityContext ctx, Delete[] commands)
-		throws ProcessException, DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive(ctx);
-		try {
-	         Connector c = getConnector(ctx);
-	         return c.submit(Arrays.<Request>asList(commands), ctx);
-		} catch (Throwable e) {
-		 	handleException(e, "Cannot delete the specified objects.");
-			// Never reached
-			throw new ProcessException("Cannot delete the specified objects.",
-					e);
-		}
-	}
 
 	/**
 	 * Returns the back-off time if it requires a pyramid to be built, 
@@ -8744,4 +8719,29 @@ class OMEROGateway
 		return new HashMap<Long, Collection<AnnotationData>>();
 	}
 	
+	/**
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @param ctx The security context.
+	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 *  @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	RequestCallback submit(List<Request> commands, SecurityContext ctx)
+		throws ProcessException, DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		try {
+			Connector c = getConnector(ctx);
+			if (c == null) return null;
+			return c.submit(commands, ctx);
+		} catch (Throwable e) {
+			handleException(e, "Cannot execute the command.");
+			// Never reached
+			throw new ProcessException("Cannot execute the command.", e);
+		}
+	}
 }

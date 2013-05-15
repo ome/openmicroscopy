@@ -583,11 +583,10 @@ class AcquisitionDataUI
 	/** Lays out the companion files if any. */
 	void layoutCompanionFiles()
 	{
-		boolean b = model.getOriginalMetadata() == null ||
-			!MetadataViewerAgent.isBinaryAvailable();
-		originalMetadataPane.setVisible(!b);
-		if (b) 
-			originalMetadataPane.setCollapsed(true);
+		boolean b = model.hasOriginalMetadata() &&
+			MetadataViewerAgent.isBinaryAvailable();
+		originalMetadataPane.setVisible(b);
+		if (b) originalMetadataPane.setCollapsed(true);
 		Collection list = model.getCompanionFiles();
 		if (list == null || list.size() == 0) {
 			companionFilesPane.setVisible(false);
@@ -621,7 +620,7 @@ class AcquisitionDataUI
 		imagePane.setCollapsed(true);
 		*/
 	}
-	
+
 	/**
 	 * Loads the acquisition data.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -637,12 +636,10 @@ class AcquisitionDataUI
 			controller.loadInstrumentData();
 		} else if (src == originalMetadataPane) {
 			if (MetadataViewerAgent.isBinaryAvailable()) {
-				FileAnnotationData f = model.getOriginalMetadata();
-				//make sure we only download it once.
-				if (f != null && !originalMetadata.isMetadataLoaded())
-					model.loadFile(f, originalMetadata);
-				else if (f == null)
-					originalMetadataPane.setCollapsed(true);
+				if (model.hasOriginalMetadata() && model.getImage() != null) {
+					if (!originalMetadata.isMetadataLoaded())
+						model.loadOriginalMetadata(originalMetadata);
+				} else originalMetadataPane.setCollapsed(true);
 			}
 		} else {
 			ChannelData channel = channelAcquisitionPanes.get(src);

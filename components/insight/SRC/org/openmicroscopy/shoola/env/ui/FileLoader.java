@@ -29,7 +29,11 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.cmd.OriginalMetadataResponse;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.util.OriginalMetadataParser;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
@@ -131,7 +135,7 @@ public class FileLoader
 	}
 	
 	/** 
-	 * Downloads the file. 
+	 * Downloads the file.
 	 * @see UserNotifierLoader#load()
 	 */
 	public void load()
@@ -150,7 +154,7 @@ public class FileLoader
 	}
     
 	/** 
-	 * Cancels the data loading. 
+	 * Cancels the data loading.
 	 * @see UserNotifierLoader#cancel()
 	 */
 	public void cancel()
@@ -163,7 +167,7 @@ public class FileLoader
 	 * Notifies the user that the data retrieval has been canceled.
 	 * @see UserNotifierLoader#handleResult(Object)
 	 */
-    public void handleCancellation() 
+    public void handleCancellation()
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
@@ -173,12 +177,28 @@ public class FileLoader
      * Notifies the user that it wasn't possible to retrieve the file.
      * @see UserNotifierLoader#handleNullResult()
      */
-    public void handleNullResult() 
+    public void handleNullResult()
     {
-    	if (activity != null) {
-    		activity.notifyError("File no longer exists", 
+    	if (index != METADATA_FROM_IMAGE && activity != null)
+    		activity.notifyError("File no longer exists",
     				"The file you wish to download no longer exists.", null);
-    	}
+    }
+    
+    /** 
+     * Sets the adapter.
+     * @see UserNotifierLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe)
+    {
+    	Object o = fe.getPartialResult();
+        if (o != null) {
+        	if (o instanceof Boolean) {
+        		handleNullResult();
+        	} else {
+        		RequestCallback callBack = (RequestCallback) o;
+            	callBack.setAdapter(this);
+        	}
+        }
     }
     
     /** 
@@ -189,6 +209,21 @@ public class FileLoader
     {
     	if (result == null) onException(MESSAGE_RESULT, null);
     	else {
+    		if (index == METADATA_FROM_IMAGE) {
+    			if (result instanceof Boolean) {
+    	    		boolean b = ((Boolean) result).booleanValue();
+    	    		if (!b) onException(MESSAGE_RESULT, null);
+    			} else if (result instanceof OriginalMetadataResponse) {
+    	    		OriginalMetadataParser parser =
+    	    				new OriginalMetadataParser(file);
+    	        	try {
+    	        		parser.read((OriginalMetadataResponse) result, "=");
+    	    		} catch (Exception e) {
+    	    			onException(MESSAGE_RESULT, null);
+    	    			return;
+    	    		}
+    	    	}
+    		}
     		if (activity != null) activity.endActivity(result);
     	}
     }

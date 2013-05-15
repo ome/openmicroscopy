@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.ImageSizeLoader;
 import org.openmicroscopy.shoola.agents.metadata.InstrumentDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.OriginalMetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.metadata.ROILoader;
@@ -3367,15 +3368,15 @@ class EditorModel
 	}
 
 	/**
-	 * Loads the specified file.
+	 * Loads the original metadata file for the image currently selected.
 	 * 
-	 * @param data   The file to load.
 	 * @param uiView The view to notify.
 	 */
-	void loadFile(FileAnnotationData data, Object uiView)
+	void loadOriginalMetadata(Object uiView)
 	{
-		FileLoader loader = new FileLoader(component,
-				parent.getSecurityContext(), data, uiView);
+		ImageData img = getImage();
+		OriginalMetadataLoader loader = new OriginalMetadataLoader(component,
+				parent.getSecurityContext(), img.getId(), uiView);
 		loader.load();
 	}
 	
@@ -4178,8 +4179,9 @@ class EditorModel
 	 */
 	boolean hasOriginalMetadata()
 	{
-		FileAnnotationData fa = getOriginalMetadata();
-		return fa != null;
+		//FileAnnotationData fa = getOriginalMetadata();
+		//return fa != null;
+		return true;
 	}
 
 }
