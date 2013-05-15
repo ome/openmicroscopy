@@ -54,25 +54,28 @@ public class Colors
 {
 
 	/** Identifies the color used to highlight the title bar. */
-    public static final int     TITLE_BAR_HIGHLIGHT = 0;
+    public static final int TITLE_BAR_HIGHLIGHT = 0;
     
     /** Identifies the color of the title bar. */
-    public static final int     TITLE_BAR = 1;
+    public static final int TITLE_BAR = 1;
     
     /** Identifies the color used to highlight an unmodified title bar. */
-    private static final int     TITLE_BAR_UNMODIFIED = 2;
+    private static final int TITLE_BAR_UNMODIFIED = 2;
     
     /** Identifies the color of the title bar of the primary node. */
-    private static final int     TITLE_BAR_PRIMARY = 3;
+    private static final int TITLE_BAR_PRIMARY = 3;
     
     /** Identifies the color used to highlight an unmodified title bar. */
-    private static final int     TITLE_BAR_HIGHLIGHT_PRIMARY = 4;
+    private static final int TITLE_BAR_HIGHLIGHT_PRIMARY = 4;
+
+    /** Identifies the secondary title bar highlight color. */
+    public static final int TITLE_BAR_HIGHLIGHT_SECONDARY = 5;
     
     /** The default color the title bar. */
-    private static final Color	 COLOR_TITLE_BAR = new Color(189, 210, 230);
+    private static final Color COLOR_TITLE_BAR = new Color(189, 210, 230);
 
     /** The default color the title bar. */
-    private static final Color	 COLOR_TITLE_BAR_HIGHLIGHT_BAR = 
+    private static final Color COLOR_TITLE_BAR_HIGHLIGHT_BAR =
     	new Color(58, 116, 215);
     
     /** The sole instance. */
@@ -111,6 +114,11 @@ public class Colors
         colorsMap.put(TITLE_BAR_PRIMARY, c.darker().darker());
         c = (Color) registry.lookup("/resources/colors/TitleBarUnmodified");
         colorsMap.put(TITLE_BAR_UNMODIFIED, c);
+        c = ((Color) registry.lookup("/resources/colors/TitleBarHighlightSecondary"));
+        if (c == null) {
+            c = COLOR_TITLE_BAR_HIGHLIGHT_BAR;
+        }
+        colorsMap.put(TITLE_BAR_HIGHLIGHT_SECONDARY, c);
     }
     
     /**

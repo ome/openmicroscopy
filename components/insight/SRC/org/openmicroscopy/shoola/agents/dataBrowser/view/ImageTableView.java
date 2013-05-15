@@ -151,6 +151,7 @@ class ImageTableView
 	 */
 	void selectNodes(List<ImageDisplay> nodes) 
 	{
+		table.setHighlightedNodes(nodes);
 		firePropertyChange(TABLE_NODES_SELECTION_PROPERTY, null, nodes);
 	}
 

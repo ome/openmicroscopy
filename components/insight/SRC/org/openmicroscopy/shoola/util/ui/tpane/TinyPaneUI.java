@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.util.ui.tpane.TinyPaneUI
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -164,7 +164,7 @@ class TinyPaneUI
     /**
      * Creates a new UI delegate for the specified <code>frame</code>.
      * 
-     * @param frame The frame that will own this UI delegate.  
+     * @param frame The frame that will own this UI delegate.
      *              Mustn't be <code>null</code>.
      */
     TinyPaneUI(TinyPane frame)
@@ -181,6 +181,17 @@ class TinyPaneUI
         attachBorderListener();
     }
     
+    /**
+     * Sets the color of the border.
+     * 
+     * @param color A color for highlighting or <code>null</code> to
+     * restore the normal background.
+     */
+    void setBorderColor(Color color)
+    {
+    	border.setBackgroundColor(color);
+    }
+
     /**
      * Decorates the frame's internal desktop with a scroll pane.
      * 

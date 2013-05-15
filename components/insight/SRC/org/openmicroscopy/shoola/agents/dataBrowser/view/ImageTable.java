@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -44,10 +45,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 
-//Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
-
-//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
@@ -58,6 +57,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
+
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -319,6 +319,50 @@ class ImageTable
     }
 
 	/**
+	 * Visits the table-tree and recurrently checks each element for the
+	 * fileset id. Applies different highlighting if needed. In the future,
+	 * this might become a stand-alone visitor.
+	 *
+	 * @param node The starting tree root node.
+	 * @param selectedNodes The nodes selected in the UI by the user.
+	 */
+	private void visitAllNodesToHighlight(ImageTableNode node,
+			List<ImageDisplay> selectedNodes) {
+		if (selectedNodes == null) {
+			return;
+		}
+		Color borderColor = Colors.getInstance().getColor(
+				Colors.TITLE_BAR_HIGHLIGHT_SECONDARY);
+		Object ho = node.getHierarchyObject();
+		if (ho instanceof DataObject) {
+			DataObject nodeDataObject = (DataObject) ho;
+			long nodeId = nodeDataObject.getId();
+			ImageData selected, sibling;
+			Object refNode;
+			for (ImageDisplay display : selectedNodes) {
+				refNode = display.getHierarchyObject();
+				node.setSibingColor(null);
+				if (refNode instanceof ImageData) {
+					selected = (ImageData) refNode;
+					sibling = (ImageData) nodeDataObject;
+					if (selected.getId() != nodeId &&
+							selected.getFilesetId() == sibling.getFilesetId()) {
+						node.setSibingColor(borderColor);
+						break;
+					}
+				}
+			}
+		}
+
+		if (node.getChildCount() >= 0) {
+			for (Enumeration e = node.children(); e.hasMoreElements();) {
+				visitAllNodesToHighlight((ImageTableNode) e.nextElement(),
+						selectedNodes);
+			}
+		}
+	}
+
+	/**
 	 * Visits the tree.
 	 * 
 	 * @param node	The node to visit.
@@ -328,8 +372,6 @@ class ImageTable
 	private void visitAllNodes(ImageTableNode node, Class type, 
 			Collection<Long> ids)
 	{
-        // node is visited exactly once
-        //process(node);
 		if (node == null | ids == null) return;
 		Object ho = node.getHierarchyObject();
 		if (ho == null) return;
@@ -409,6 +451,18 @@ class ImageTable
 		nodes.clear();
 		repaint();
 		addTreeSelectionListener(selectionListener);
+	}
+
+	/**
+	 * Sets the highlighting for nodes with the same fileset id as the supplied
+	 * nodes.
+	 *
+	 * @param nodes The list of user-selected nodes.
+	 */
+	void setHighlightedNodes(List<ImageDisplay> objects)
+	{
+		visitAllNodesToHighlight(tableRoot, objects);
+		repaint();
 	}
 
 	/**
