@@ -41,6 +41,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.messages.MessageException;
 
@@ -58,6 +59,7 @@ public class ManagedContextFixture {
     public final Ice.ObjectAdapter adapter;
     public final OmeroContext ctx;
     public final SessionManager mgr;
+    public final ExtendedMetadata em;
     public final Executor ex;
     public final ServiceFactoryI sf;
     public final ServiceFactory managedSf;
@@ -115,6 +117,7 @@ public class ManagedContextFixture {
         be = (BlitzExecutor) ctx.getBean("throttlingStrategy");
         adapter = (Ice.ObjectAdapter) ctx.getBean("adapter");
         mgr = (SessionManager) ctx.getBean("sessionManager");
+        em = (ExtendedMetadata) ctx.getBean("extendedMetadata");
         ex = (Executor) ctx.getBean("executor");
         security = (SecuritySystem) ctx.getBean("securitySystem");
         holder = (PrincipalHolder) ctx.getBean("principalHolder");
@@ -187,7 +190,7 @@ public class ManagedContextFixture {
     protected DeleteI delete() throws Exception {
         String out = ctx.getProperty("omero.threads.cancel_timeout");
         int timeout = Integer.valueOf(out);
-        DeleteI d = new DeleteI(managedSf.getDeleteService(), be,
+        DeleteI d = new DeleteI(em, managedSf.getDeleteService(), be,
                 ctx.getBean("threadPool", ThreadPool.class),
                 timeout, ctx.getProperty("omero.data.dir"));
         d.setServiceFactory(sf);

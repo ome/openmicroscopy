@@ -6,9 +6,19 @@
  */
 package ome.server.utests;
 
-// Java imports
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
+import org.jmock.Mock;
+import org.jmock.MockObjectTestCase;
+import org.springframework.aop.framework.ProxyFactory;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import ome.api.IQuery;
 import ome.conditions.ApiUsageException;
@@ -17,21 +27,12 @@ import ome.model.IObject;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
 import ome.security.basic.CurrentDetails;
-import ome.security.basic.PrincipalHolder;
 import ome.server.itests.LoginInterceptor;
+import ome.services.sessions.SessionContext;
+import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.stats.NullSessionStats;
 import ome.services.util.ServiceHandler;
 import ome.system.Principal;
-
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
-import org.jmock.core.stub.DefaultResultStub;
-import org.springframework.aop.framework.ProxyFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -48,23 +49,23 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
     protected Mock mockSession, mockFactory;
 
     @Override
-    @BeforeMethod
+    @BeforeMethod(alwaysRun=true)
     protected void setUp() throws Exception {
         super.setUp();
         impl = new QueryImpl();
+        createMocks();
         ProxyFactory pf = new ProxyFactory(impl);
-        CurrentDetails holder = new CurrentDetails();
+        CurrentDetails holder = new CurrentDetails(new TestSessionCache(this));
         LoginInterceptor login = new LoginInterceptor(holder);
-        ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
+        ServiceHandler serviceHandler = new ServiceHandler(holder);
         pf.addAdvice(login);
         pf.addAdvice(serviceHandler);
         login.p = new Principal("user","user","Test");
         iQuery = (IQuery) pf.getProxy();
-        createMocks();
     }
 
     @Override
-    @AfterMethod
+    @AfterMethod(alwaysRun=true)
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();
@@ -73,8 +74,19 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
     protected void createMocks() {
         mockSession = mock(Session.class);
         mockFactory = mock(SessionFactory.class);
-        mockFactory.setDefaultStub(new DefaultResultStub());
+        
         impl.setSessionFactory((SessionFactory) mockFactory.proxy());
+
+        ome.model.meta.Session session = new ome.model.meta.Session();
+        session.setStarted(new Timestamp(System.currentTimeMillis()));
+        session.setTimeToLive(0L);
+        session.setTimeToIdle(60000L);
+
+    }
+
+    protected void loadsSession() {
+        mockFactory.expects(atLeastOnce()).method("getCurrentSession").will(
+                returnValue(mockSession.proxy()));
     }
 
     protected Mock criteriaUniqueResultCall(Object obj) {
@@ -92,6 +104,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_get() throws Exception {
+        loadsSession();
         mockSession.expects(once()).method("load").id("test");
         iQuery.get(IObject.class, 1L);
     }
@@ -103,7 +116,8 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_find() throws Exception {
-        mockSession.expects(once()).method("get").id("test");
+        loadsSession();
+        mockSession.expects(once()).method("get");
         iQuery.find(IObject.class, 1L);
     }
 
@@ -114,8 +128,10 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_findAll_nullfilter() {
+        loadsSession();
         List blank = new ArrayList();
         Mock mockCriteria = criteriaListCall(blank);
+        mockCriteria.expects(once()).method("setResultTransformer");
         mockSession.expects(once()).method("createCriteria").will(
                 returnValue(mockCriteria.proxy())).id("test");
         List retVal = iQuery.findAll(Project.class, null);
@@ -124,6 +140,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_findAll_realfilter() {
+        loadsSession();
         Filter filter = new Filter();
         filter.page(1, 10);
 
@@ -145,6 +162,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_findByExample() throws Exception {
+        loadsSession();
         Project test = new Project();
         Project dummy = new Project();
         Mock mockCriteria = criteriaUniqueResultCall(dummy);
@@ -167,10 +185,13 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_findAllByExample() throws Exception {
+        loadsSession();
         Project test = new Project();
         List blank = new ArrayList();
         Mock mockCriteria = criteriaListCall(blank);
         mockCriteria.expects(once()).method("add");
+        mockCriteria.expects(once()).method("setFirstResult");
+        mockCriteria.expects(once()).method("setMaxResults");
         mockSession.expects(once()).method("createCriteria").will(
                 returnValue(mockCriteria.proxy())).id("test");
         Object retVal = iQuery.findAllByExample(test, null);
@@ -179,6 +200,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
 
     @Test
     public void test_findAllByExample_filter() throws Exception {
+        loadsSession();
         Project test = new Project();
         List blank = new ArrayList();
         Mock mockCriteria = criteriaListCall(blank);

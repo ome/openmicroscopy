@@ -11,6 +11,7 @@ import java.util.Set;
 
 import ome.model.IObject;
 import ome.services.export.ExporterIndex;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.SqlAction;
 
 import org.hibernate.Session;
@@ -27,9 +28,9 @@ public class ExportIndexUnitTest extends MockGraphTest {
 
     class Step extends GraphStep {
 
-        public Step(int idx, List<GraphStep> stack, GraphSpec spec,
+        public Step(ExtendedMetadata em, int idx, List<GraphStep> stack, GraphSpec spec,
                 GraphEntry entry, long[] ids) {
-            super(idx, stack, spec, entry, ids);
+            super(em, idx, stack, spec, entry, ids);
         }
 
         @Override
@@ -61,7 +62,7 @@ public class ExportIndexUnitTest extends MockGraphTest {
         final long ids[] = new long[] { 0 };
         final GraphSpec image = spec("/Image");
         final GraphEntry entry = image.entries().get(0);
-        final Step s = new Step(0, stack, image, entry, ids);
+        final Step s = new Step(null, 0, stack, image, entry, ids);
 
         v.add(s, ids);
         assertEquals(1, v.size());

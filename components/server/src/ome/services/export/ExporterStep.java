@@ -16,6 +16,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.SqlAction;
 
 import org.slf4j.Logger;
@@ -32,9 +33,9 @@ public class ExporterStep extends GraphStep {
 
     final private static Logger log = LoggerFactory.getLogger(ExporterStep.class);
 
-    public ExporterStep(int idx, List<GraphStep> stack,
+    public ExporterStep(ExtendedMetadata em, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
     }
 
     @Override

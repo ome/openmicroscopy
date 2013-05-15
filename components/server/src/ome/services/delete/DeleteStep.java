@@ -20,8 +20,8 @@ import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
@@ -44,9 +44,9 @@ public class DeleteStep extends GraphStep {
 
     final private OmeroContext ctx;
 
-    public DeleteStep(OmeroContext ctx, int idx, List<GraphStep> stack,
+    public DeleteStep(ExtendedMetadata em, OmeroContext ctx, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
     }
 
@@ -69,11 +69,15 @@ public class DeleteStep extends GraphStep {
         // Phase 2: NULL
         optionallyNullField(session, nullOp, id);
 
-        // Phase 3: primary action
+        // Phase 3: validation (duplicates constraint violation logic)
+        graphValidation(session);
+
+        // Phase 4: primary action
         StopWatch swStep = new Slf4JStopWatch();
         qb.param("id", id);
         Query q = qb.query(session);
         int count = q.executeUpdate();
+
         if (count > 0) {
             cb.addGraphIds(this);
         }
@@ -111,6 +115,26 @@ public class DeleteStep extends GraphStep {
                 log.debug("Nulled " + updated + " Pixels.relatedTo fields");
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
+        StopWatch sw = new Slf4JStopWatch();
+        String str = String.format(
+                "select source.%s.id from %s source where source.%s.id = ?",
+                lock[1], lock[0], lock[1]);
+
+        Query q = session.createQuery(str);
+        q.setLong(0, id);
+        List<Long> rv = q.list();
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s", rv.size(), str, id));
+        }
+
+        sw.stop("omero.delete.step." + lock[0] + "." + lock[1]);
+
+        return rv;
     }
 
     @Override

@@ -7,6 +7,7 @@ package ome.services.delete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import ome.api.IDelete;
@@ -75,7 +76,12 @@ public class DeleteUnitTest extends MockObjectTestCase {
         hm.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
         xm.expects(atLeastOnce()).method("executeUpdate").will(returnValue(0));
 
-        bean = new DeleteBean(a, new SessionFactory(null, null){
+        Mock sfMock = mock(org.hibernate.SessionFactory.class);
+        sfMock.expects(once()).method("getAllClassMetadata").will(
+                returnValue(new HashMap<String, Object>()));
+        org.hibernate.SessionFactory sf = (org.hibernate.SessionFactory) sfMock.proxy();
+
+        bean = new DeleteBean(a, new SessionFactory(sf, null){
             @Override
             public Session getSession() {
                 return hibernate;
@@ -175,6 +181,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
     public void testAllMetadataIsGone() throws Exception {
         // Setup graph
         Pixels p = ObjectFactory.createPixelGraph(null);
+        i = new Image();
         i.addPixels(p);
 
         // Locate deletes
@@ -213,7 +220,9 @@ public class DeleteUnitTest extends MockObjectTestCase {
         i.getDetails().setOwner(new Experimenter(owner, false));
         i.getDetails().setGroup(new ExperimenterGroup(group, false));
         // The findByQuery is now run within an AdminAction
-        qm.expects(once()).method("findByQuery").will(returnValue(i));
+        hm.expects(atLeastOnce()).method("clear");
+        qm.expects(atLeastOnce()).method("get").will(returnValue(i));
+        xm.expects(atLeastOnce()).method("setParameter");
         sm.expects(atLeastOnce()).method("runAsAdmin").will(new Stub() {
 
             public Object invoke(Invocation arg0) throws Throwable {
@@ -226,18 +235,20 @@ public class DeleteUnitTest extends MockObjectTestCase {
                 return arg0.append(" calls runAsAdmin");
             }
         });
+        // delete settings & channels
+        qm.expects(atLeastOnce()).method("projection").will(returnValue(new ArrayList()));
     }
 
     private void setCurrentEventContext(String name, long user, boolean admin,
             Long... leaderof) {
-        am.expects(once()).method("getEventContext").will(returnValue(ec));
+        sm.expects(atLeastOnce()).method("getEventContext").will(returnValue(ec));
         ecm.expects(atLeastOnce()).method("getCurrentUserName").will(
                 returnValue(name));
         ecm.expects(atLeastOnce()).method("getCurrentUserId").will(
                 returnValue(user));
         ecm.expects(atLeastOnce()).method("isCurrentUserAdmin").will(
                 returnValue(admin));
-        ecm.expects(once()).method("getLeaderOfGroupsList").will(
+        ecm.expects(atLeastOnce()).method("getLeaderOfGroupsList").will(
                 returnValue(Arrays.asList(leaderof)));
     }
 

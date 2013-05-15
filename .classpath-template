@@ -34,7 +34,6 @@
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio-devel/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/scifio-devel/test"/>
-	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/specification/test"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/stubs/lwf-stubs/src"/>
 	<classpathentry kind="src" output="target/eclipse-bioformats" path="components/bioformats/components/test-suite/src"/>
 	<!-- Broken.

@@ -32,6 +32,7 @@
 
   <bean id="ome.services.delete.Deletion" class="ome.services.delete.Deletion$Builder" singleton="false">
       <constructor-arg ref="/OMERO/Files"/>
+      <constructor-arg ref="extendedMetadata"/>
   </bean>
 
 </beans>

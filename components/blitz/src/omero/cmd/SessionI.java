@@ -126,7 +126,8 @@ public class SessionI implements _SessionOperations {
             cache.put(new Element(key, holder));
         } else {
             // Check that SessionManagerI has given us the same instance.
-            assert cache.get(key).getObjectValue() == holder;
+            ServantHolder oldHolder = (ServantHolder) cache.get(key).getObjectValue();
+            assert oldHolder == holder;
         }
     }
 

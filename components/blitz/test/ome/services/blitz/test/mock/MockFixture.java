@@ -160,7 +160,7 @@ public class MockFixture {
         // Add our topic manager
         TopicManager tm = new TopicManager.Impl(blitz.getCommunicator());
         this.ctx.addApplicationListener(tm);
-        
+
         // Setup mock router which allows us to use omero.client
         // rather than solely ServiceFactoryProxies, though it is
         // still necessary to call the proper mock methods.
@@ -357,7 +357,7 @@ public class MockFixture {
             if (prx != null) {
                 log.info("Destroying " + prx);
                 prx.destroy();
-            }        
+            }
         }
 
         public String getCategoryForClient(Current arg0) {

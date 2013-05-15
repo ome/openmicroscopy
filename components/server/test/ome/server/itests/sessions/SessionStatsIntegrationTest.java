@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4
  */
+@Test(groups = "integration")
 public class SessionStatsIntegrationTest extends TestCase {
 
     ManagedContextFixture fixture;

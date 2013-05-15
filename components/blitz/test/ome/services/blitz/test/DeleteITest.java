@@ -23,6 +23,8 @@ import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
+import ome.tools.hibernate.ExtendedMetadata;
+
 import omero.ApiUsageException;
 import omero.RLong;
 import omero.RType;
@@ -83,6 +85,8 @@ public class DeleteITest extends AbstractServantTest {
 
     Mock adapterMock;
     AbstractFileSystemService afs;
+    Mock emMock;
+    ExtendedMetadata em;
 
     @Override
     @BeforeClass
@@ -91,6 +95,8 @@ public class DeleteITest extends AbstractServantTest {
         adapterMock = (Mock) user.ctx.getBean("adapterMock");
         adapterMock.setDefaultStub(new FakeAdapter());
         afs = new AbstractFileSystemService(user.ctx.getProperty("omero.data.dir"));
+        emMock = new Mock(ExtendedMetadata.class);
+        em = (ExtendedMetadata) emMock.proxy();
     }
 
     /**
@@ -757,7 +763,7 @@ public class DeleteITest extends AbstractServantTest {
 
                                 try {
                                     EventContext ec = user.getCurrentEventContext();
-                                    GraphState ids = new GraphState(ec, new DeleteStepFactory(ctx), null, session, spec);
+                                    GraphState ids = new GraphState(ec, new DeleteStepFactory(ctx, em), null, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*
@@ -805,7 +811,8 @@ public class DeleteITest extends AbstractServantTest {
     private _DeleteHandleTie doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
         //DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(user.delete.loadSpecs(), id, user.sf, afs, dc, 1000);
+        DeleteHandleI handle = new DeleteHandleI(em,
+                user.delete.loadSpecs(), id, user.sf, afs, dc, 1000);
         handle.run();
         DeleteReport[] reports = handle.report(null);
         assertEquals(toString(reports), 0, handle.errors(null));

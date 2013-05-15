@@ -113,7 +113,11 @@ public class GraphEntry {
     }
 
     public boolean isKeep() {
-        return Op.KEEP.equals(operation);
+        return Op.KEEP == operation;
+    }
+
+    public boolean isReap() {
+        return Op.REAP == operation;
     }
 
     /**

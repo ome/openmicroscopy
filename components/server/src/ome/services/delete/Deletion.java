@@ -49,6 +49,7 @@ import ome.services.graphs.GraphState;
 import ome.services.messages.DeleteLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
+import ome.tools.hibernate.ExtendedMetadata;
 import ome.util.SqlAction;
 
 /**
@@ -83,8 +84,11 @@ public class Deletion {
 
         protected AbstractFileSystemService afs;
 
-        public Builder(AbstractFileSystemService afs) {
+        protected ExtendedMetadata em;
+
+        public Builder(AbstractFileSystemService afs, ExtendedMetadata em) {
             this.afs = afs;
+            this.em = em;
         }
 
         /* @Override - JDK6 only */
@@ -98,7 +102,7 @@ public class Deletion {
             throws Exception {
             ClassPathXmlApplicationContext specs = new ClassPathXmlApplicationContext(
                 new String[]{"classpath:ome/services/spec.xml"}, this.ctx);
-            DeleteStepFactory dsf = new DeleteStepFactory(this.ctx);
+            DeleteStepFactory dsf = new DeleteStepFactory(this.ctx, em);
             return new Deletion(specs, dsf, afs, this.ctx);
         }
 

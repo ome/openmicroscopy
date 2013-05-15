@@ -56,6 +56,7 @@ import ome.services.messages.EventLogMessage;
 import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.PerSessionStats;
 import ome.services.sharing.ShareStore;
 import ome.system.EventContext;
@@ -107,12 +108,12 @@ public class BasicSecuritySystem implements SecuritySystem,
     protected/* final */ShareStore store;
 
     /**
-     * Simpilifed factory method which generates all the security primitives
+     * Simplified factory method which generates all the security primitives
      * internally. Primarily useful for generated testing instances.
      */
     public static BasicSecuritySystem selfConfigure(SessionManager sm,
-            ServiceFactory sf) {
-        CurrentDetails cd = new CurrentDetails();
+            ServiceFactory sf, SessionCache cache) {
+        CurrentDetails cd = new CurrentDetails(cache);
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),

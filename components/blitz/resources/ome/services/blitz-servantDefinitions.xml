@@ -144,11 +144,12 @@
   </bean>
   <!-- External for use as a factory method during testing. -->
   <bean id="DeleteI" class="ome.services.blitz.impl.DeleteI">
-      <constructor-arg index="0" ref="managed-ome.api.IDelete"/>
-      <constructor-arg index="1" ref="throttlingStrategy"/>
-      <constructor-arg index="2" ref="threadPool"/>
-      <constructor-arg index="3" value="${omero.threads.cancel_timeout}"/>
-      <constructor-arg index="4" value="${omero.data.dir}"/>
+      <constructor-arg index="0" ref="extendedMetadata"/>
+      <constructor-arg index="1" ref="managed-ome.api.IDelete"/>
+      <constructor-arg index="2" ref="throttlingStrategy"/>
+      <constructor-arg index="3" ref="threadPool"/>
+      <constructor-arg index="4" value="${omero.threads.cancel_timeout}"/>
+      <constructor-arg index="5" value="${omero.data.dir}"/>
   </bean>
 
 
@@ -360,4 +361,22 @@
      <constructor-arg ref="repositoryDao"/>
      <property name="iceCommunicator" ref="Ice.Communicator"/>
   </bean>
+
+  <!-- Other data objects
+  ==============================================================================
+  -->
+
+  <bean id="repoPrincipal" class="ome.system.Principal">
+      <constructor-arg index="0" ref="uuid"/>
+      <constructor-arg index="1" value="system"/>
+      <constructor-arg index="2" value="Internal"/>
+  </bean>
+
+  <bean id="repositoryDao" class="ome.services.blitz.repo.RepositoryDaoImpl">
+    <constructor-arg index="0" ref="repoPrincipal"/>
+    <constructor-arg index="1" ref="roles"/>
+    <constructor-arg index="2" ref="executor"/>
+    <constructor-arg index="3" ref="statefulExecutor"/>
+  </bean>
+
 </beans>

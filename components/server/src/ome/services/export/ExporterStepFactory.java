@@ -22,6 +22,7 @@ import ome.services.graphs.GraphStepFactory;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
@@ -55,16 +56,19 @@ public class ExporterStepFactory implements GraphStepFactory {
 
     private final Principal p;
 
+    private final ExtendedMetadata em;
+
     private final Map<String, ExporterIndex> data = new HashMap<String, ExporterIndex>();
 
-    public ExporterStepFactory(Executor ex, Principal p) {
+    public ExporterStepFactory(Executor ex, Principal p, ExtendedMetadata em) {
         this.ex = ex;
         this.p = p;
+        this.em = em;
     }
 
     public GraphStep create(int idx, List<GraphStep> stack, GraphSpec spec,
             GraphEntry entry, long[] ids) throws GraphException {
-        ExporterStep step = new ExporterStep(idx, stack, spec, entry, ids);
+        ExporterStep step = new ExporterStep(em, idx, stack, spec, entry, ids);
         update(spec, entry, ids, step);
         return step;
     }

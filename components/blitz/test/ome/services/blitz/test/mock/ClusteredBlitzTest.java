@@ -20,14 +20,14 @@ import org.testng.annotations.Test;
 public class ClusteredBlitzTest extends MockObjectTestCase {
 
     MockFixture fixture1, fixture2;
-    
-    @BeforeClass
+
+    @BeforeClass(groups = "integration")
     public void setup() throws Exception {
         fixture1 = new MockFixture(this, "a");
         fixture2 = new MockFixture(this, "b");
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testSimple() throws Exception {
         Session s = fixture1.session();
         Cache c = fixture1.cache();
@@ -36,12 +36,12 @@ public class ClusteredBlitzTest extends MockObjectTestCase {
         Thread.sleep(1000L);
         fixture1.prepareServiceFactory(s, c);
         fixture2.createServiceFactory("my-session-uuid", "client2");
-        
+
         Ring ring = fixture1.ring();
-        
+
         // Tests
 
-        
+
     }
 
 }

@@ -43,14 +43,14 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
     MockFixture fixture;
 
-    @AfterMethod
+    @AfterMethod(groups = "integration")
     public void shutdownFixture() {
         if (fixture != null) {
             fixture.tearDown();
         }
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testOneSessionGlacierDestruction() throws Exception {
         fixture = new MockFixture(this);
         ServiceFactoryPrx sf = fixture.createServiceFactory();
@@ -65,7 +65,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testOneSessionNotificationDestruction() throws Exception {
         fixture = new MockFixture(this);
         ServiceFactoryPrx sf = fixture.createServiceFactory();
@@ -81,7 +81,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testOneSessionDetachNotificationDestruction() throws Exception {
         fixture = new MockFixture(this);
         ServiceFactoryPrx sf = fixture.createServiceFactory();
@@ -97,7 +97,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
 
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testTwoClientsSessionGlacierDestruction() throws Exception {
 
         fixture = new MockFixture(this);
@@ -120,7 +120,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         sf2.destroy();
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testTwoClientsSessionNotificationDestruction() throws Exception {
 
         fixture = new MockFixture(this);
@@ -137,7 +137,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
                 new DestroySessionMessage(this, "my-session-uuid"));
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testTwoClientsSessionDetachedNotificationDestruction()
             throws Exception {
 
@@ -155,7 +155,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
                 new DestroySessionMessage(this, "my-session-uuid"));
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testSessionClosesStatefulService() throws Exception {
         fixture = new MockFixture(this);
         Session s = fixture.session();
@@ -167,7 +167,7 @@ public class SessionDestructionTest extends MockObjectTestCase {
         // rather than a mock, in order to test that IceMethodInvoker
         // unwraps proxies.
         //
-        HotSwappableTargetSource swap = (HotSwappableTargetSource) 
+        HotSwappableTargetSource swap = (HotSwappableTargetSource)
             fixture.getContext().getBean("swappable-ome.api.ThumbnailStore");
         final boolean called[] = new boolean[]{false};
         ThumbnailBean bean = new ThumbnailBean() {
@@ -184,23 +184,23 @@ public class SessionDestructionTest extends MockObjectTestCase {
                 }
                 return null;
             }
-            
+
         });
 	*/
         swap.swap(proxy.getProxy());
-        
+
         fixture.getSessionManager().onApplicationEvent(
                 new DestroySessionMessage(this, "my-session-uuid"));
-        
+
         assertTrue(called[0]);
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testTwoSessionsClosedConcurrently() throws Exception {
         fail("NYI");
     }
 
-    @Test
+    @Test(groups = "integration")
     @SuppressWarnings( { "unchecked" })
     public void testSessionTimeoutWithRealSessionCache() throws Exception {
 

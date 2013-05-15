@@ -58,7 +58,10 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
     @BeforeMethod
     protected void setUp() throws Exception {
 
-        ctx = new OmeroContext(new String[] { "classpath:omero/test.xml",
+        ctx = new OmeroContext(new String[] {
+                "classpath:ome/config.xml",
+                "classpath:omero/test.xml",
+                "classpath:ome/services/throttling/throttling.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml" });
 
         CacheFactory factory1 = new CacheFactory(), factory2 = new CacheFactory();
@@ -85,20 +88,24 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
 
         Principal p = new Principal("user1", "group", "event");
 
+        // set adapter before instantiating SF
+        current.adapter = adapter;
+
+        curr1.id = id1;
+        curr1.adapter = adapter;
         sf1 = new ServiceFactoryI(current,
                 new omero.util.ServantHolder("session1"),
                 null, ctx, manager, executor, p,
                 new ArrayList<HardWiredInterceptor>(), null, null);
-        curr1.id = id1;
-        curr1.adapter = adapter;
 
+        curr2.id = id2;
+        curr2.adapter = adapter;
         Principal p2 = new Principal("user2", "group", "event");
         sf2 = new ServiceFactoryI(current,
                 new omero.util.ServantHolder("session2"),
                 null, ctx, manager, executor, p2,
                 new ArrayList<HardWiredInterceptor>(), null, null);
-        curr2.id = id2;
-        curr2.adapter = adapter;
+
     }
 
     @Test
