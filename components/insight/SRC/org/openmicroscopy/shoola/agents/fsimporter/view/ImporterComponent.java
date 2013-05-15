@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -126,12 +126,6 @@ class ImporterComponent
 		if (element == null) return;
 		view.setSelectedPane(element, true);
 		model.fireImportData(element.getData(), element.getID());
-		if (!model.isMaster()) {
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			bus.post(new ImportStatusEvent(true, 
-					element.getExistingContainers()));
-			fireStateChange();
-		}
 	}
 	
 	/**
@@ -302,6 +296,12 @@ class ImporterComponent
 		ImporterUIElement element = view.addImporterElement(data);
 		if (model.getState() == IMPORTING) return;
 		importData(element);
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent event;
+			event = new ImportStatusEvent(hasOnGoingImport(), null, null);
+			bus.post(event);
+		}
 	}
 	
 	/** 
@@ -312,25 +312,40 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
+		List<DataObject> containers = null;
+		boolean refreshTree = false;
+		Object formattedResult = null;
 		if (element != null) {
-			long fileSetID = element.setImportedFile(f, result);
-			if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
+			formattedResult = element.setImportedFile(f, result);
+			//if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
 			if (element.isDone()) {
+				refreshTree = element.hasToRefreshTree();
+				containers = element.getExistingContainers();
 				model.importCompleted(element.getID());
 				view.onImportEnded(element);
 				if (markToclose) {
 					view.setVisible(false);
-					fireStateChange();
-					return;
+				} else {
+					element = view.getElementToStartImportFor();
+					if (element != null) importData(element);
 				}
-				element = view.getElementToStartImportFor();
-				if (element != null) {
-					importData(element);
-				}
-			}	
+				
+			}
 			fireStateChange();
 		}
-		if (!hasOnGoingImport() && chooser.reloadHierarchies()) {
+		//post an event
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent event;
+			event = new ImportStatusEvent(hasOnGoingImport(), containers,
+					formattedResult);
+			event.setToRefresh(refreshTree);
+			bus.post(event);
+		}
+		
+		
+		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
+		{
 			//reload the hierarchies.
 			Class rootType = ProjectData.class;
 			if (chooser != null && 

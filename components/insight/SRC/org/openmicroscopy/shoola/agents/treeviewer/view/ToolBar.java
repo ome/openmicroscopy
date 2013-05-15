@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.ToolBar
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -107,7 +107,16 @@ import pojos.GroupData;
 class ToolBar
     extends JPanel
 {
-    
+
+	/** The text indicating the number of successful import.*/
+	private static final String IMPORTED_TEXT = " Imported";
+	
+	/** The text indicating the number of failed import.*/
+	private static final String FAILED_TEXT = " Failed";
+	
+	/** The tool tip used to indicate on-going import.*/
+	private static final String IMPORT_TOOLTIP = "Indicates on-going imports";
+	
     /** Size of the horizontal box. */
     private static final Dimension HBOX = new Dimension(100, 16);
 
@@ -141,28 +150,28 @@ class ToolBar
     }
     
     /** Reference to the control. */
-    private TreeViewerControl   controller;
+    private TreeViewerControl controller;
     
     /** Reference to the model. */
-    private TreeViewerModel	   model;
+    private TreeViewerModel model;
     
     /** Reference to the view. */
-    private TreeViewerWin	   view;
+    private TreeViewerWin view;
     
     /** The menu displaying the groups the user is a member of. */
-    private JPopupMenu			personalMenu;
+    private JPopupMenu personalMenu;
 
     /** Button to open the full in a separate window. */
-    private JToggleButton		fullScreen;
+    private JToggleButton fullScreen;
     
     /** The menu displaying the available scripts.*/
-    private JPopupMenu			scriptsMenu;
+    private JPopupMenu scriptsMenu;
     
     /** The button showing the available scripts.*/
-    private JButton				scriptButton;
+    private JButton scriptButton;
     
     /** Indicates the loading progress. */
-	private JXBusyLabel		busyLabel;
+	private JXBusyLabel busyLabel;
 	
 	/** The index of the {@link #scriptButton}.*/
 	private int index;
@@ -200,6 +209,15 @@ class ToolBar
 	/** Listens to selection in the groups menu.*/
 	private MouseAdapter usersMenuListener;
 	
+	/** Label indicating the number of successful import if any.*/
+	private JLabel importSuccessLabel;
+	
+	/** Label indicating the number of failed import if any.*/
+	private JLabel importFailureLabel;
+	
+	/** Label indicating the import status.*/
+	private JXBusyLabel importLabel;
+
 	/** Handles the group and users selection.*/
 	private void handleUsersSelection()
 	{
@@ -681,11 +699,54 @@ class ToolBar
         
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(outerPanel));
+        add(UIUtilities.buildComponentPanelRight(buildRightPane()));
+    }
+    
+    /** 
+     * Builds and lays out the component displayed on the right hand side of
+     * the toolbar.
+     * 
+     * @return See above.
+     */
+    private JPanel buildRightPane()
+    {
+    	JPanel p = new JPanel();
+    	p.setBorder(null);
+        p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+        p.add(importFailureLabel);
+        p.add(Box.createHorizontalStrut(5));
+        p.add(importSuccessLabel);
+        p.add(Box.createHorizontalStrut(5));
+        p.add(importLabel);
+    	return p;
+    }
+    
+    /**
+     * Formats the specified label.
+     * 
+     * @param label The label to format.
+     */
+    private void formatLabel(JLabel label)
+    {
+    	label.setHorizontalTextPosition(SwingConstants.LEADING);
+    	label.setAlignmentX(SwingConstants.RIGHT);
+    	label.setVisible(false);
     }
     
     /** Initializes the components.*/
     private void initialize()
     {
+    	IconManager icons = IconManager.getInstance();
+    	importFailureLabel = new JLabel(icons.getIcon(IconManager.DELETE));
+    	formatLabel(importFailureLabel);
+    	importSuccessLabel = new JLabel(icons.getIcon(IconManager.APPLY));
+    	formatLabel(importSuccessLabel);
+    	Dimension d = new Dimension(UIUtilities.DEFAULT_ICON_WIDTH,
+				UIUtilities.DEFAULT_ICON_HEIGHT);
+    	importLabel = new JXBusyLabel(d);
+    	importLabel.setToolTipText(IMPORT_TOOLTIP);
+    	importLabel.setVisible(false);
+    	importLabel.setBusy(false);
     	sorter = new ViewerSorter();
         sorter.setCaseSensitive(true);
         addToDisplay = new JButton("Update");
@@ -1081,5 +1142,30 @@ class ToolBar
     	usersButton.setVisible(!b);
 		repaint();
     }
+    
+	/** Invokes when import is going on or finished.*/
+	void onImport()
+	{
+		importLabel.setBusy(model.isImporting());
+		importLabel.setVisible(model.isImporting());
+		int n = model.getImportFailureCount();
+		StringBuffer buffer;
+		if (n > 0) {
+			buffer = new StringBuffer();
+			buffer.append(n);
+			buffer.append(FAILED_TEXT);
+			importFailureLabel.setText(buffer.toString());
+			importFailureLabel.setVisible(true);
+		}
+		n = model.getImportSuccessCount();
+		if (n > 0) {
+			buffer = new StringBuffer();
+			buffer.append(n);
+			buffer.append(IMPORTED_TEXT);
+			importSuccessLabel.setText(buffer.toString());
+			importSuccessLabel.setVisible(true);
+		}
+		repaint();
+	}
 
 }
