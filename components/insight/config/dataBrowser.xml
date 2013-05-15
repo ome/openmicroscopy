@@ -28,6 +28,11 @@
 <green>116</green>
 <blue>215</blue>
 </structuredEntry>
+<structuredEntry name="/resources/colors/TitleBarHighlightSecondary" type="color">
+<red>71</red>
+<green>58</green>
+<blue>215</blue>
+</structuredEntry>
 <structuredEntry name="/resources/colors/TitleBar" type="color">
 <red>189</red>
 <green>210</green>

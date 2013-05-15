@@ -44,10 +44,12 @@ import javax.swing.JScrollPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.FilesetVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.WellData;
 
 /** 
@@ -144,18 +146,25 @@ class BrowserModel
 	 */
 	private void setNodesColor(Collection<ImageDisplay> toSelect, Collection<ImageDisplay> toDeselect)
     {
-    	//paint the nodes
+		//paint the nodes
         Colors colors = Colors.getInstance();
         Iterator<ImageDisplay> i;
         ImageDisplay node;
         ImageDisplay primary = null;
         if (selectedDisplays.size() > 0) primary = selectedDisplays.get(0);
 
+        List<ImageData> selectedImages = new ArrayList<ImageData>();
+        List<ImageData> deselectedImages = new ArrayList<ImageData>();
+        Object ho;
         if (toDeselect != null && toDeselect.size() > 0) {
         	i = toDeselect.iterator();
             while (i.hasNext()) {
             	node = i.next();
             	if (node != null) {
+            		ho = node.getHierarchyObject();
+            		if (ho instanceof ImageData) {
+            			deselectedImages.add((ImageData) ho);
+            		}
             		if (toSelect != null) {
             			if (!toSelect.contains(node))
             				node.setHighlight(
@@ -169,10 +178,17 @@ class BrowserModel
         	 i = toSelect.iterator();
              while (i.hasNext()) {
      			node = i.next();
-     			node.setHighlight(colors.getSelectedHighLight(node, 
+     			ho = node.getHierarchyObject();
+        		if (ho instanceof ImageData) {
+        			selectedImages.add((ImageData) ho);
+        		}
+     			node.setHighlight(colors.getSelectedHighLight(node,
      					isSameNode(node, primary)));
      		}
         }
+        FilesetVisitor visitor = new FilesetVisitor(selectedImages,
+        		deselectedImages);
+        accept(visitor);
     }
 	
 	/**
@@ -555,31 +571,40 @@ class BrowserModel
 	 */
 	public void setSelectedNodes(List<DataObject> nodes)
 	{
+		Set<ImageDisplay> oldValue = null;
+		if (selectedDisplays != null)
+			oldValue = new HashSet<ImageDisplay>(selectedDisplays);
 		if (nodes == null || nodes.isEmpty()) {
-			if (selectedDisplays == null) return;
-			List<ImageDisplay> l = new ArrayList<ImageDisplay>(selectedDisplays);
-			selectedDisplays.clear();
-			setNodesColor(null, l);
+			if (selectedDisplays != null) selectedDisplays.clear();
+			setNodesColor(null, oldValue);
 			return;
 		}
 		NodesFinder finder = new NodesFinder(nodes);
-		rootDisplay.accept(finder);
+		accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
-		//to reset color if parent is selected.
-		Collection<ImageDisplay> selected = getSelectedDisplays();
-		setNodesColor(found, selected);
 		if (found.size() == 0) {
+			Collection<ImageDisplay> selected = getSelectedDisplays();
 			if (selected == null || selected.size() == 0) {
 				setNodesColor(null, getRootNodes());
 			}
 			setSelectedDisplay(null, false, false);
 			return;
 		}
-		
-		boolean b = found.size() > 1;
+
+		thumbSelected = false;
+		this.multiSelection = found.size() > 1;
+		setSelectedDisplays(found);
+		setNodesColor(found, oldValue);
+		List<ImageData> images = new ArrayList<ImageData>();
 		Iterator<ImageDisplay> i = found.iterator();
-		while (i.hasNext()) 
-			setSelectedDisplay(i.next(), b, false);
+		ImageDisplay d;
+		while (i.hasNext()) {
+			d = i.next();
+			if (d.getHierarchyObject() instanceof ImageData)
+				images.add((ImageData) d.getHierarchyObject());
+		}
+		FilesetVisitor visitor = new FilesetVisitor(images, null);
+		accept(visitor);
 	}
 	
 	/**
@@ -799,6 +824,17 @@ class BrowserModel
 		if (nodes.size() == 1) {
 			setSelectedDisplay(nodes.get(0), false, true);
 		} else {
+			List<ImageData> selected = new ArrayList<ImageData>(nodes.size());
+			Iterator<ImageDisplay> i = nodes.iterator();
+			ImageDisplay img;
+			while (i.hasNext()) {
+				img = i.next();
+				if (img.getHierarchyObject() instanceof ImageData) {
+					selected.add((ImageData) img.getHierarchyObject());
+				}
+			}
+			FilesetVisitor visitor = new FilesetVisitor(selected, null);
+			accept(visitor);
 			thumbSelected = false;
 		    this.multiSelection = true;
 		    Set<ImageDisplay> oldValue = 
