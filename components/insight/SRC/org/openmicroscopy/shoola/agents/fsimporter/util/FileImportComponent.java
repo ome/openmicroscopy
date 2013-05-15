@@ -63,7 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
@@ -384,77 +384,60 @@ public class FileImportComponent
 	        }));
 			menu.add(new JMenuItem(new AbstractAction("In Data Browser") {
 	            public void actionPerformed(ActionEvent e) {
-	            	// TODO: link to data browser
+	            	browse();
 	            }
 	        }));
 		}
 		
+		/*
 		menu.add(new JMenuItem(new AbstractAction("Import Log") {
             public void actionPerformed(ActionEvent e) {
             	// TODO: download and view the import log
             }
         }));
+        */
 		menu.add(new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
-            	JDialog dialog = new JDialog();
-
-            	ChecksumTableModel model = new ChecksumTableModel(
-            			statusLabel.getChecksumFiles(), 
-            			statusLabel.getChecksums(), 
-            			statusLabel.getFailingChecksums());
-            	
-            	JTable table = new JTable(model);
-            	JScrollPane scrollPane = new JScrollPane(table);
-            	table.setFillsViewportHeight(true);
-
-            	dialog.add(scrollPane);
-            	dialog.pack();
-            	dialog.setVisible(true);
+            	showChecksumDetails();
             }
+
+			
         }));
 		
 		return menu;
 	}
 	
-	public class ChecksumTableModel extends DefaultTableModel
-	{
-		private String[] columnNames = {"Filename",
-                "Client Checksum",
-                "Server Checksum",
-                "Valid"};
-	    public ChecksumTableModel(String[] checksumFiles,
-				List<String> checksums, Map<Integer, String> failingChecksums) {
-			setDataVector(formatData(checksumFiles, checksums, failingChecksums), columnNames);
-		}
+	/**
+	 * Displays the checksum details dialog for the file(s) in this entry
+	 */
+	private void showChecksumDetails() {
+		JDialog dialog = new JDialog();
 
-		public boolean isCellEditable(int row, int col) {
-	    	return false;
-	    }
-		
-		public Class getColumnClass(int c) {
-	        return getValueAt(0, c).getClass();
-	    }
-		
-		private Object[][] formatData(String[] checksumFiles,
-				List<String> checksums,
-				Map<Integer, String> failingChecksums) {
-			Object[][] data = new Object[checksumFiles.length][4];
-			for (int i = 0; i < checksumFiles.length; i++) {
-				data[i][0] = checksumFiles[i];
-				data[i][1] = checksums.get(i).substring(0, 9);
-				
-				if(failingChecksums.containsKey(i)) {
-					data[i][2] = failingChecksums.get(i).substring(0, 9);
-					data[i][3] = "No";
-				} else {
-					data[i][2] = checksums.get(i).substring(0, 9);
-					data[i][3] = "Yes";
-				}
-			}
-			return data;
-		}
+    	ChecksumTableModel model = new ChecksumTableModel(
+    			statusLabel.getChecksumFiles(), 
+    			statusLabel.getChecksums(), 
+    			statusLabel.getFailingChecksums());
+    	
+    	JTable table = new JTable(model);
+    	setColumnAsBoolean(table, 3);
+    	JScrollPane scrollPane = new JScrollPane(table);
+    	table.setFillsViewportHeight(true);
 
+    	dialog.add(scrollPane);
+    	dialog.pack();
+    	UIUtilities.centerAndShow(dialog);
 	}
+	
+	/**
+	 * Helper method to setup the column as a boolean column
+	 * @param column the column to set
+	 */
+	private void setColumnAsBoolean(JTable table, int columnIndex) {
+		TableColumn column = table.getColumnModel().getColumn(columnIndex);
+		column.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+		column.setResizable(false);
+	}
+	
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
