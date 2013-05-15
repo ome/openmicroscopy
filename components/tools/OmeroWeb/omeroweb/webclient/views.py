@@ -2174,6 +2174,39 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['derror'] = 0
                                 request.session['callback'][cbString]['status'] = "finished"
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+
+                            # Somehow we check if 'Fileset' returned...
+                            rsp = cb.getResponse()
+                            if 'Fileset' in rsp.constraints:
+                                filesets = rsp.constraints['Fileset']   # list of Fileset IDs
+                                # We have this info from the job submission:
+                                callbackDict = request.session['callback'][cbString]
+                                dtype = callbackDict['dtype']
+                                obj_ids = callbackDict['did']
+                                if callbackDict['delmany']:
+                                    obj_ids = callbackDict['did']
+                                else:
+                                    obj_ids = [ callbackDict['did'] ]
+                                if dtype == 'Image':
+                                    attempted_imgIds = [int(iid) for iid in obj_ids]
+                                elif dtype in ('Project', 'Dataset'):
+                                    cs = conn.getContainerService()
+                                    attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
+                                # Want to find all images within each fileset that's causing a problem, so we can notify user
+                                split_filesets = []
+                                for fset in conn.getObjects("Fileset", filesets):
+                                    fsetImgs = fset.copyImages()
+                                    attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
+                                    blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
+                                    fs_files = fset.listFiles()
+                                    totalSize = sum( [f.getSize() for f in fs_files] )
+                                    split_filesets.append( {'fsid':fset.id,
+                                            'blocking_iids': blocking_iids,
+                                            'attempted_iids':attempted_iids,
+                                            'imageCount': len(fsetImgs),
+                                            'fileCount': len(fs_files),
+                                            'totalSize': totalSize})
+                                request.session['callback'][cbString]['split_filesets'] = split_filesets
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:
