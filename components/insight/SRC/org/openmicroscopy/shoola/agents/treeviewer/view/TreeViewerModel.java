@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerModel
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -189,6 +190,12 @@ class TreeViewerModel
     
     /** The display mode.*/
     private int displayMode;
+    
+    /** The number of import failures.*/
+    private int importFailureCount;
+    
+    /** The number of successful import.*/
+    private int importSuccessCount;
     
     /**
      * Returns the collection of scripts with a UI, mainly the figure scripts.
@@ -333,6 +340,8 @@ class TreeViewerModel
 	/** Initializes. */
 	private void initialize()
 	{
+		importFailureCount = 0;
+		importSuccessCount = 0;
 		state = TreeViewer.NEW;
 		browsers = new HashMap<Integer, Browser>();
 		recycled = false;
@@ -1164,8 +1173,32 @@ class TreeViewerModel
 	 * 
 	 * @param importing Pass <code>true</code> if there are on-going imports,
 	 * 					<code>false</code> otherwise.
+	 * @param importResult The result of the import.
 	 */
-	void setImporting(boolean importing) { this.importing = importing; }
+	void setImporting(boolean importing, Object importResult)
+	{
+		this.importing = importing;
+		if (importResult == null) return;
+		if (importResult instanceof ImportErrorObject) {
+			importFailureCount++;
+		} else {
+			importSuccessCount++;
+		}
+	}
+	
+	/**
+	 * Returns the number of import failures.
+	 * 
+	 * @return See above.
+	 */
+	int getImportFailureCount() { return importFailureCount; }
+	
+	/**
+	 * Returns the number of successful imports.
+	 * 
+	 * @return See above.
+	 */
+	int getImportSuccessCount() { return importSuccessCount; }
 	
 	/** 
 	 * Returns 
