@@ -21,6 +21,8 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphSpec;
 import ome.services.scheduler.ThreadPool;
+import ome.tools.hibernate.ExtendedMetadata;
+
 import omero.ApiUsageException;
 import omero.SecurityViolation;
 import omero.ServerError;
@@ -61,10 +63,14 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     private final AbstractFileSystemService afs;
 
+    private final ExtendedMetadata em;
+
     private/* final */ServiceFactoryI sf;
 
-    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, int cancelTimeoutMs, String omeroDataDir) {
+    public DeleteI(ExtendedMetadata em, IDelete service, BlitzExecutor be,
+            ThreadPool threadPool, int cancelTimeoutMs, String omeroDataDir) {
         super(service, be);
+        this.em = em;
         this.threadPool = threadPool;
         this.cancelTimeoutMs = cancelTimeoutMs;
         this.afs = new AbstractFileSystemService(omeroDataDir);
@@ -193,7 +199,8 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Current current, final Ice.Identity id,
             final DeleteCommand...commands) throws ServerError {
-        DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
+        DeleteHandleI handle = new DeleteHandleI(em,
+                loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
         handle.setApplicationContext(ctx);
         threadPool.getExecutor().execute(handle);
         return handle;
@@ -204,7 +211,8 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public void makeAndRun(final Ice.Current current, final Ice.Identity id, final DeleteCommand...commands) throws ServerError {
-        DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
+        DeleteHandleI handle = new DeleteHandleI(em,
+                loadSpecs(), id, sf, afs, commands, cancelTimeoutMs, current.ctx);
         handle.setApplicationContext(ctx);
         handle.run();
     }

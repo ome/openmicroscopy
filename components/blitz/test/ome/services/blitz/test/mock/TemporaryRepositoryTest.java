@@ -41,7 +41,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
     Registry reg;
     ChecksumProviderFactory cpf;
 
-    @BeforeClass
+    @BeforeClass(groups = "integration")
     public void setup() throws Exception {
         fixture = new MockFixture(this, "OMERO.mock");
         oa = fixture.blitz.getBlitzAdapter();
@@ -54,7 +54,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
         mockCpf.expects(atLeastOnce()).method("getProvider()");
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testSimple() throws Exception {
         final OriginalFile repo = new OriginalFile();
         repo.setId(1L);
@@ -93,7 +93,7 @@ public class TemporaryRepositoryTest extends MockObjectTestCase {
         assertNotNull(tr.getDescription());
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testFileUtils() throws Exception {
         String tmpPath = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(tmpPath).getAbsoluteFile();

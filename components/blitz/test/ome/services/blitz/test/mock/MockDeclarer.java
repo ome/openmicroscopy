@@ -66,7 +66,7 @@ public class MockDeclarer implements BeanFactoryPostProcessor {
             values.addGenericArgumentValue(new RuntimeBeanReference(hidden));
             BeanDefinition swapper = new RootBeanDefinition(HotSwappableTargetSource.class, values, null);
             registry.registerBeanDefinition(swappable, swapper);
-            
+
             // internal- with a spring proxy
             MutablePropertyValues properties = new MutablePropertyValues();
             properties.addPropertyValue("proxyInterfaces", ifaces);

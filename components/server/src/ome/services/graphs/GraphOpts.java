@@ -54,6 +54,12 @@ public class GraphOpts {
          */
         FORCE(true),
 
+        /**
+         * If more than one step points at the same {@link REAP} {@link GraphSpec}
+         * then only the last one will be interpreted as {@link HARD}, all
+         * others will be interpreted as {@link SOFT}. This gives earlier objects
+         * in the graph a chance to let later objects cleanup for them.
+         */
         REAP(false),
 
         ORPHAN(false),

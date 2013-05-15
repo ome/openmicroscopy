@@ -47,8 +47,6 @@ public class ChownStep extends GraphStep {
 
     final private OmeroContext ctx;
 
-    final private ExtendedMetadata em;
-
     final private long userGroup;
 
     final private long usr;
@@ -58,9 +56,8 @@ public class ChownStep extends GraphStep {
     public ChownStep(OmeroContext ctx, ExtendedMetadata em, Roles roles,
             int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids, long usr) {
-        super(idx, stack, spec, entry, ids);
+        super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
-        this.em = em;
         this.usr = usr;
         this.userGroup = roles.getUserGroupId();
         this.share = (ShareBean) new InternalServiceFactory(ctx).getShareService();
@@ -104,12 +101,12 @@ public class ChownStep extends GraphStep {
             final String[][] locks = em.getLockChecks(x);
 
             for (String[] lock : locks) {
-                Long bad = findImproperIncomingLinks(session, lock);
-                if (bad != null && bad > 0) {
+                List<Long> bad = findImproperIncomingLinks(session, lock);
+                if (bad != null && bad.size() > 0) {
                     log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
                             iObjectType.getSimpleName(), id, lock[0], lock[1],
-                            bad));
-                    total += bad;
+                            bad.size()));
+                    total += bad.size();
                 }
             }
 
@@ -133,7 +130,8 @@ public class ChownStep extends GraphStep {
         logResults(count);
     }
 
-    private Long findImproperIncomingLinks(Session session, String[] lock) {
+    @SuppressWarnings("unchecked")
+    protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
                 "select count(*) from %s source where source.%s.id = ? and not " +
@@ -144,11 +142,11 @@ public class ChownStep extends GraphStep {
         q.setLong(0, id);
         q.setLong(1, usr);
         q.setLong(2, userGroup);
-        Long rv = (Long) q.list().get(0);
+        List<Long> rv = q.list();
 
         if (log.isDebugEnabled()) {
             log.debug(String.format("%s<==%s, id=%s, usr=%s, userGroup=%s",
-                    rv, str, id, usr, userGroup));
+                    rv.size(), str, id, usr, userGroup));
         }
 
         sw.stop("omero.chown.step." + lock[0] + "." + lock[1]);

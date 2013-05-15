@@ -29,7 +29,7 @@ public class ClientCallbackTest extends MockObjectTestCase {
     omero.client client;
     MockFixture fixture;
 
-    @BeforeMethod
+    @BeforeMethod(groups = "integration")
     public void setup() throws Exception {
         fixture = new MockFixture(this);
         client = fixture.newClient();
@@ -46,19 +46,19 @@ public class ClientCallbackTest extends MockObjectTestCase {
         }
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testBasic() throws Exception {
         session = fixture.session("uuid-basic");
         cache = fixture.cache();
         fixture.prepareServiceFactory(session, cache);
         client.createSession("a", "b");
 
-        
+
         fixture.prepareClose(0);
         client.closeSession();
     }
 
-    @Test
+    @Test(groups = "integration")
     public void testServerCloses() throws Exception {
         session = fixture.session("uuid-serverCloses");
         cache = fixture.cache();
@@ -69,14 +69,14 @@ public class ClientCallbackTest extends MockObjectTestCase {
         fixture.ctx.publishEvent(new DestroySessionMessage(this,
                 "uuid-serverCloses"));
     }
-    
-    @Test
+
+    @Test(groups = "integration")
     public void testClientReceivesHeartRequest() throws Exception {
         session = fixture.session("uuid-clientReceivesHeartRequest");
         cache = fixture.cache();
         fixture.prepareServiceFactory(session, cache);
         client.createSession("a", "b");
-        
+
         fixture.prepareClose(0);
         final CyclicBarrier barrier = new CyclicBarrier(2);
         Runnable r = new Runnable(){

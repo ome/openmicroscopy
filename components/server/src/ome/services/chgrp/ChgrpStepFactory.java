@@ -9,11 +9,11 @@ package ome.services.chgrp;
 
 import java.util.List;
 
+import ome.services.graphs.AbstractStepFactory;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
-import ome.services.graphs.GraphStepFactory;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -22,7 +22,7 @@ import ome.tools.hibernate.ExtendedMetadata;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.3.2
  */
-public class ChgrpStepFactory implements GraphStepFactory {
+public class ChgrpStepFactory extends AbstractStepFactory {
 
     private final OmeroContext ctx;
 
@@ -43,14 +43,21 @@ public class ChgrpStepFactory implements GraphStepFactory {
         return new ChgrpStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    public List<GraphStep> postProcess(List<GraphStep> steps) {
-        int originalSize = steps.size();
+    public void onPostProcess(List<GraphStep> steps) {
+
+        // Schedule validation steps
         for (int i = 0; i < originalSize; i++) {
             GraphStep step = steps.get(i);
             steps.add(new ChgrpValidation(ctx, em, roles, step.idx, step.stack,
                     step.spec, step.entry, step.getIds(), grp));
         }
-        return steps;
+
+        // Handle REAP for validation steps
+        for (int i = originalSize + originalSize - 1; i >= originalSize; i--) {
+            GraphStep step = steps.get(i);
+            step.handleReap(reapTableIds);
+        }
+
     }
 
     /**

@@ -25,7 +25,7 @@ public class TestPixelsService extends PixelsService
 	}
 	
 	@Override
-	public PixelBuffer getPixelBuffer(Pixels pixels)
+	public PixelBuffer getPixelBuffer(Pixels pixels, boolean write)
 	{
 		return new TestPixelBuffer(pixels.getPixelsType(), dummyPlane);
 	}

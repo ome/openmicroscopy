@@ -20,6 +20,7 @@ import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -89,6 +90,8 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
     protected MockServiceFactory sf;
 
+    protected TestSessionCache cache;
+
     @Override
     @BeforeMethod
     protected void setUp() throws Exception {
@@ -102,12 +105,15 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-        sec = BasicSecuritySystem.selfConfigure(mgr, sf);
+        cache = new TestSessionCache(this);
+        sec = BasicSecuritySystem.selfConfigure(mgr, sf, cache);
 
         filter = new UpdateFilter();
 
         ROOT = new Experimenter(ROOT_OWNER_ID, true);
         ROOT_GROUP = new ExperimenterGroup(SYS_GROUP_ID, true);
+        ROOT_GROUP.getDetails().setPermissions(Permissions.READ_ONLY);
+
         INITIAL_EVENT = new Event(INITIAL_EVENT_ID, true);
         BOOTSTRAP = new EventType(INITIAL_EVENT_ID, true);
         USEREVENT = new EventType(INITIAL_EVENT_ID + 1, true);
@@ -117,6 +123,8 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
         USER = new Experimenter(USER_OWNER_ID, true);
         USER_GROUP = new ExperimenterGroup(USER_GROUP_ID, true);
+        USER_GROUP.getDetails().setPermissions(Permissions.READ_ONLY);
+        
 
         rootLogin();
 
@@ -127,22 +135,20 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         MEMBER_OF_GROUPS = Arrays.asList(0L, 1L);
         USER_ROLES = Arrays.asList("user", "default");
         // Setup session
-        Session s = new Session();
+        Session s = cache.fakeSession();
+        s.setId(1L);
         Details d = Details.create();
         d.setOwner(new Experimenter(0L, true));
         d.getOwner().setOmeName("root");
-        d.setGroup(new ExperimenterGroup(0L, true));
-        d.getGroup().setName("system");
+        d.setGroup(ROOT_GROUP);
         s.getDetails().copy(d);
+        cache.setFakeSession("root", s);
         SessionContextImpl sci = new SessionContextImpl(s, LEADER_OF_GROUPS,
                 MEMBER_OF_GROUPS, USER_ROLES, new NullSessionStats(), null);
-        mockMgr.expects(once()).method("getEventContext")
-                .will(returnValue(sci));
         INITIAL_EVENT.setType(BOOTSTRAP);
-        sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
-                .with(new Type(Event.class)).will(returnValue(INITIAL_EVENT));
+
         sec.login(new Principal("root", "system", "Bootstrap"));
-        sec.loadEventContext(false);
+
     }
 
     protected void userLogin() {
@@ -162,7 +168,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
                 .with(new Type(Event.class)).will(returnValue(INITIAL_EVENT));
         sec.login(new Principal("user1", "user", "User"));
-        sec.loadEventContext(false);
+        sec.loadEventContext(true);
     }
 
     @Override

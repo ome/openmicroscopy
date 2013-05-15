@@ -381,8 +381,7 @@ public class TestPixelBuffer implements PixelBuffer {
      */
     public Dimension getTileSize()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new Dimension(256, 256);
     }
 
     /* (non-Javadoc)

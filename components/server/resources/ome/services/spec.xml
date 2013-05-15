@@ -26,7 +26,7 @@
 
     <bean class="ome.services.graphs.GraphSpecPostProcessor"/>
 
-    <bean id="delSpec"  abstract="true" class="ome.services.graphs.BaseGraphSpec" singleton="false">
+    <bean id="graphSpec"  abstract="true" class="ome.services.graphs.BaseGraphSpec" singleton="false">
         <description>
         Graph specification which takes a single id as the identifier for where
         the graph of objects to be processed starts.
@@ -70,7 +70,7 @@
             </list>
         </constructor-arg>
     </bean>
-    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
+    <bean parent="graphSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
         <description>
         Lists all abstract and concrete annotation types as steps with their
         default operations.
@@ -90,7 +90,7 @@
         <constructor-arg ref="annotationList"/>
     </bean>
 
-    <bean parent="delSpec" name="/FileAnnotation+special" class="ome.services.graphs.AnnotationGraphSpec">
+    <bean parent="graphSpec" name="/FileAnnotation+special" class="ome.services.graphs.AnnotationGraphSpec">
         <description>
         More specific version of /Annotation which
         Primarily necessary since for /OriginalFile there are two links to
@@ -100,7 +100,7 @@
         <constructor-arg ref="annotationList"/><!-- optimally just FA -->
     </bean>
 
-    <bean parent="delSpec" name="/Roi">
+    <bean parent="graphSpec" name="/Roi">
         <description>
         Describes a Region of interest, its shapes, and any attached annotations.
         </description>
@@ -114,7 +114,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image/Pixels/RenderingDef" class="ome.services.graphs.RenderingDefGraphSpec">
+    <bean parent="graphSpec" name="/Image/Pixels/RenderingDef" class="ome.services.graphs.RenderingDefGraphSpec">
         <description>
         Describes a rendering def based on the image id from where it comes.
         </description>
@@ -129,7 +129,7 @@
 
     </bean>
 
-    <bean parent="delSpec" name="/LightSource" class="ome.services.graphs.LightSourceGraphSpec">
+    <bean parent="graphSpec" name="/LightSource" class="ome.services.graphs.LightSourceGraphSpec">
         <description>
         Describes a single light-source.
         </description>
@@ -144,7 +144,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image/Pixels/Channel">
+    <bean parent="graphSpec" name="/Image/Pixels/Channel">
         <description>
         Describes a Channel
         </description>
@@ -154,7 +154,7 @@
                 <value>/Annotation;SOFT;/Image/Pixels/Channel/ChannelAnnotationLink</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
-                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
+                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP? -->
                 <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
                 <value>/LightSource;SOFT;/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
@@ -173,7 +173,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Instrument">
+    <bean parent="graphSpec" name="/Instrument">
         <constructor-arg>
             <list>
                 <value>/Instrument/Detector</value>
@@ -190,7 +190,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Experiment">
+    <bean parent="graphSpec" name="/Experiment">
         <constructor-arg>
             <list>
                 <value>/Experiment/MicrobeamManipulation/LightSettings</value>
@@ -200,7 +200,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image">
+    <bean parent="graphSpec" name="/Image">
         <description>
         The /Image specification is equivalent to the original
         deleteImage method as specified in ome.api.IDelete.
@@ -209,44 +209,11 @@
             <list>
                 <value>/Image/DatasetImageLink;FORCE</value>
                 <value>/Image+Only</value>
-                <value>/Fileset;HARD;/Image</value>
             </list>
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Image+WS">
-        <description>
-        Just like /Image but for use within the /Well spec
-        since this is part of a loop: Image->Fileset->Plate->...->Image
-        It does *not* contain a fileset link itself.
-
-        Assuming you're deleting via /Plate, a link to /Fileset in
-        /Plate will take care of the other objects.
-        </description>
-        <constructor-arg>
-            <list>
-                <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image+Only</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="delSpec" name="/Image+FS">
-        <description>
-        Just like /Image but for use within the /Fileset spec
-        since this represents a loop: Image->Fileset->Plate->...->Image
-        It does *not* contain a fileset link itself.
-        </description>
-        <constructor-arg>
-            <list>
-                <value>/Image/DatasetImageLink;FORCE</value>
-                <value>/Image+Only</value>
-                <!-- Missing /Fileset here -->
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="delSpec" name="/Image+Only">
+    <bean parent="graphSpec" name="/Image+Only">
         <description>
         The /Image+Only specification is equivalent to the /Image
         but does not remove DatasetImageLinks from the Image. This
@@ -276,11 +243,33 @@
                 <value>/Image/StageLabel</value>
                 <value>/Experiment;SOFT;/Image</value>
                 <value>/Instrument;SOFT;/Image</value>
+                <!-- If this is the only image in the fileset, then
+                     this entry should suffice. For multi-image filesets,
+                     an extra-step will be required. -->
+                <value>/Image/Fileset/FilesetEntry;REAP</value>
+                <value>/OriginalFile+Only;REAP;/Image/Fileset/FilesetEntry</value>
+                <value>/Image/Fileset/FilesetJobLink;REAP</value>
+                <value>/Image/Fileset/FilesetJobLink/Job;REAP</value>
+                <value>/Image/Fileset/FilesetJobLink/Job/FilesetVersionInfo;REAP</value>
+                <value>/Image/Fileset/FilesetAnnotationLink;REAP</value>
+                <value>/Annotation;SOFT;/Image/Fileset/FilesetAnnotationLink</value>
+                <value>/Image/Fileset;REAP</value>
+                <!-- Fileset is inlined into /Image both because REAP doesn't
+                     yet support subspecs, and also because the /Fileset spec
+                     was not yet properly defined. -->
             </list>
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Dataset">
+    <bean parent="graphSpec" name="/Fileset">
+        <constructor-arg>
+            <list>
+                <value>/Image;HARD;/Fileset</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Dataset">
         <constructor-arg>
             <list>
                 <value>/Dataset/ProjectDatasetLink;FORCE</value>
@@ -289,11 +278,11 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Dataset+Only">
+    <bean parent="graphSpec" name="/Dataset+Only">
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image+FS;SOFT;/Dataset/DatasetImageLink</value>
+                <value>/Image;HARD;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
@@ -301,7 +290,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Project">
+    <bean parent="graphSpec" name="/Project">
         <constructor-arg>
             <list>
                 <value>/Project/ProjectDatasetLink;FORCE</value>
@@ -313,7 +302,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Well">
+    <bean parent="graphSpec" name="/Well">
         <constructor-arg>
             <list>
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
@@ -328,7 +317,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Plate">
+    <bean parent="graphSpec" name="/Plate">
         <constructor-arg>
             <list>
                 <value>/Plate/ScreenPlateLink;FORCE</value>
@@ -338,7 +327,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Plate+Only">
+    <bean parent="graphSpec" name="/Plate+Only">
         <constructor-arg>
             <list>
                 <value>/Well;;/Plate</value>
@@ -352,7 +341,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/PlateAcquisition">
+    <bean parent="graphSpec" name="/PlateAcquisition">
         <constructor-arg>
             <list>
                 <value>/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
@@ -366,7 +355,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Screen">
+    <bean parent="graphSpec" name="/Screen">
         <constructor-arg>
             <list>
                 <value>/Screen/ScreenPlateLink;FORCE</value>
@@ -381,7 +370,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/OriginalFile">
+    <bean parent="graphSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
                 <value>/OriginalFile/FilesetEntry</value>
@@ -391,7 +380,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/OriginalFile+Only">
+    <bean parent="graphSpec" name="/OriginalFile+Only">
         <constructor-arg>
             <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
@@ -405,41 +394,27 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Fileset">
-        <constructor-arg>
-            <list>
-                <value>/Image+FS;HARD;/Fileset</value>
-                <!-- How to delete Plate -->
-                <value>/Fileset/FilesetEntry</value>
-                <value>/OriginalFile+Only;HARD;/Fileset/FilesetEntry</value><!-- and hope it's not double linked -->
-                <value>/Fileset/FilesetJobLink</value>
-                <value>/Fileset/FilesetJobLink/Job</value>
-                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
-                <value>/Fileset</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
     <!-- Adding annotation link support. Could be more generic #7301 -->
-    <bean parent="delSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ExperimenterAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ExperimenterGroupAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterGroupAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/OriginalfileAnnotationLink"> <constructor-arg> <list> <value>/OriginalfileAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/PlateAnnotationLink"> <constructor-arg> <list> <value>/PlateAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ProjectAnnotationLink"> <constructor-arg> <list> <value>/ProjectAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ReagentAnnotationLink"> <constructor-arg> <list> <value>/ReagentAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/RoiAnnotationLink"> <constructor-arg> <list> <value>/RoiAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/ScreenAnnotationLink"> <constructor-arg> <list> <value>/ScreenAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/SessionAnnotationLink"> <constructor-arg> <list> <value>/SessionAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
-    <bean parent="delSpec" name="/WellSampleAnnotationLink"> <constructor-arg> <list> <value>/WellSampleAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/AnnotationAnnotationLink"> <constructor-arg> <list> <value>/AnnotationAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ChannelAnnotationLink"> <constructor-arg> <list> <value>/ChannelAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/DatasetAnnotationLink"> <constructor-arg> <list> <value>/DatasetAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ExperimenterAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ExperimenterGroupAnnotationLink"> <constructor-arg> <list> <value>/ExperimenterGroupAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/FilesetAnnotationLink"> <constructor-arg> <list> <value>/FilesetAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ImageAnnotationLink"> <constructor-arg> <list> <value>/ImageAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/NamespaceAnnotationLink"> <constructor-arg> <list> <value>/NamespaceAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/NodeAnnotationLink"> <constructor-arg> <list> <value>/NodeAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/OriginalfileAnnotationLink"> <constructor-arg> <list> <value>/OriginalfileAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/PixelsAnnotationLink"> <constructor-arg> <list> <value>/PixelsAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/PlaneinfoAnnotationLink"> <constructor-arg> <list> <value>/PlaneinfoAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/PlateAcquisitionAnnotationLink"> <constructor-arg> <list> <value>/PlateAcquisitionAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/PlateAnnotationLink"> <constructor-arg> <list> <value>/PlateAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ProjectAnnotationLink"> <constructor-arg> <list> <value>/ProjectAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ReagentAnnotationLink"> <constructor-arg> <list> <value>/ReagentAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/RoiAnnotationLink"> <constructor-arg> <list> <value>/RoiAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/ScreenAnnotationLink"> <constructor-arg> <list> <value>/ScreenAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/SessionAnnotationLink"> <constructor-arg> <list> <value>/SessionAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/WellAnnotationLink"> <constructor-arg> <list> <value>/WellAnnotationLink</value> </list> </constructor-arg> </bean>
+    <bean parent="graphSpec" name="/WellSampleAnnotationLink"> <constructor-arg> <list> <value>/WellSampleAnnotationLink</value> </list> </constructor-arg> </bean>
 
 </beans>

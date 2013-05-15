@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
  */
 public class BlitzEntryTest extends MockObjectTestCase {
 
-    @Test
+    @Test(groups = "integration")
     public void testCreation() throws Exception {
         final Entry e = new Entry("OMERO.blitz.test");
         class Work extends Thread {
@@ -29,16 +29,16 @@ public class BlitzEntryTest extends MockObjectTestCase {
         }
         Work work = new Work();
         work.start();
-        
+
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + 5000L) {
             // try
         }
-        
+
         // Shutdown & test
         e.shutdown(false);
-        
+
         assertEquals(0, e.status());
     }
-    
+
 }

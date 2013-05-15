@@ -7,29 +7,30 @@
 
 package ome.services.graphs;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import ome.conditions.InternalException;
-import ome.model.IObject;
-import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
-import ome.services.messages.EventLogMessage;
-import ome.system.EventContext;
-import ome.tools.hibernate.QueryBuilder;
-import ome.util.SqlAction;
-
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ome.model.IObject;
+import ome.services.messages.EventLogMessage;
+import ome.system.EventContext;
+import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -67,6 +68,8 @@ public abstract class GraphStep {
      * Used to mark {@link #savepoint} after usage.
      */
     private final static String INVALIDATED = "INVALIDATED_";
+
+    protected final ExtendedMetadata em;
 
     /**
      * Location of this step in {@link GraphState#steps}.
@@ -145,9 +148,11 @@ public abstract class GraphStep {
 
     private boolean rollbackOnly = false;
 
-    public GraphStep(int idx, List<GraphStep> stack, GraphSpec spec, GraphEntry entry,
-            long[] ids) {
+    private boolean softOnReap = false;
 
+    public GraphStep(ExtendedMetadata em, int idx, List<GraphStep> stack,
+            GraphSpec spec, GraphEntry entry, long[] ids) {
+        this.em = em;
         this.idx = idx;
         this.stack = new LinkedList<GraphStep>(stack);
         if (this.stack.size() > 0) {
@@ -337,6 +342,77 @@ public abstract class GraphStep {
         savepoint =  INVALIDATED + savepoint;
     }
 
+    //
+    // Validation
+    //
+
+
+    /**
+     * Immediately we check that an object moved from GroupA to GroupB
+     * is no longer pointed at by any objects in GroupA via foreign key
+     * constraints. This is what the DB does for us inherently on delete.
+     *
+     *
+     * NB: After all objects are moved, we need to perform the reverse
+     * check, which is that no object in GroupB points at any objects in
+     * GroupA, i.e. all necessary objects were moved.
+     * @param session
+     * @throws GraphConstraintException
+     * @see ticket:6442
+     */
+    protected void graphValidation(Session session) throws GraphConstraintException {
+
+        int total = 0;
+        Class<? extends IObject> x = iObjectType;
+        final Map<String, List<Long>> constraints =
+                new HashMap<String, List<Long>>();
+        while (true) {
+
+            final String[][] locks = em.getLockChecks(x);
+
+            for (String[] lock : locks) {
+                List<Long> bad = findImproperIncomingLinks(session, lock);
+                if (CollectionUtils.isNotEmpty(bad)) {
+                    log.warn(String.format("%s:%s improperly linked by %s.%s: %s",
+                            iObjectType.getSimpleName(), id, lock[0], lock[1],
+                            bad.size()));
+                    total += bad.size();
+                    if (constraints.containsKey(lock[0])) {
+                        constraints.get(lock[0]).addAll(bad);
+                    } else {
+                        constraints.put(lock[0], bad);
+                    }
+                    // TODO: Have both the source and the target IDs as a
+                    // workaround even though iObjectType hasn't done anything
+                    // "wrong".
+                    if (constraints.containsKey(iObjectType.getSimpleName())) {
+                        constraints.get(iObjectType.getSimpleName()).add(id);
+                    } else {
+                        List<Long> list = new ArrayList<Long>();
+                        constraints.put(iObjectType.getSimpleName(), list);
+                        list.add(id);
+                    }
+                }
+            }
+
+            Class<?> y = x.getSuperclass();
+            if (IObject.class.isAssignableFrom(y)) {
+                x = (Class<IObject>) y;
+                continue;
+            }
+            break;
+        }
+
+        if (total > 0) {
+            throw new GraphConstraintException(String.format("%s:%s improperly linked by %s objects",
+                iObjectType.getSimpleName(), id, total), constraints);
+        }
+    }
+
+    // TODO
+    protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
+        return null;
+    }
 
     /*
      * Workaround for refactoring to {@link GraphState}.
@@ -367,6 +443,43 @@ public abstract class GraphStep {
                 swTop.stop("omero.graphstep.deleteannotationlinks." + id);
             }
         }
+    }
+
+    /**
+     * If the table/id pair for this step is not already contained in the cache,
+     * then add them. Otherwise, reduce our own operation to something less than
+     * REAP.
+     *
+     * @param reapTableIds
+     */
+    public void handleReap(Map<String, Set<Long>> reapTableIds) {
+
+        if (ids == null) {
+            // FIXME: subspecs should be supported.
+            return; //EARLY EXIT
+        }
+
+        if (!entry.isReap()) {
+            return; // EARLY EXIT.
+        }
+
+        Set<Long> reapIds = reapTableIds.get(table);
+        if (reapIds == null) {
+            reapIds = new HashSet<Long>();
+            reapTableIds.put(table, reapIds);
+        }
+
+        Long reapId = ids[ids.length-1];
+        if (reapIds.contains(id)) {
+            logPhase("softOnReap");
+            softOnReap = true;
+        } else {
+            reapIds.add(reapId);
+        }
+    }
+
+    public boolean markedReap() {
+        return softOnReap;
     }
 
 }

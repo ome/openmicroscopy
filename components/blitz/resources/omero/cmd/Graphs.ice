@@ -25,6 +25,23 @@ module omero {
             StringMap options;
         };
 
+        /**
+         * Returned when specifically a ome.services.graphs.GraphConstraintException
+         * is thrown. The contents of that internal exception are passed in
+         * this instance.
+         **/
+        class GraphConstraintERR extends ERR {
+
+            /**
+             * A container mapping from class names to collections of
+             * longs (ids) for each object which prevented the current
+             * operation from succeeding.
+             **/
+             omero::api::IdListMap constraints;
+
+        };
+
+
         ["java:type:java.util.ArrayList<omero.cmd.GraphModify>:java.util.List<omero.cmd.GraphModify>"]
         sequence<GraphModify> GraphModifyList;
 

@@ -133,6 +133,10 @@ public class GraphState implements GraphStep.Callback {
         // Find the group for the object in question and create an
         // EventContext that will be assigned to each step.
         final ExperimenterGroup g = spec.groupInfo(sql);
+        if (g == null) {
+            throw new GraphException("No group information found. Does object exist? " + spec);
+        }
+
         final EventContext gec = new SimpleEventContext(ec) {
             @Override
             protected void copy(EventContext ec) {
@@ -384,7 +388,7 @@ public class GraphState implements GraphStep.Callback {
 
         // If this entry is "SOFT" then there's nothing
         // special we need to do.
-        if (step.entry.isSoft()) {
+        if (step.entry.isSoft() || step.markedReap()) {
             log.debug(msg);
             return "Skipping processing of " + step.table + ":" + step.id + "\n";
         }
