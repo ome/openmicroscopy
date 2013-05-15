@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
@@ -432,12 +433,12 @@ class ImporterUIElement
 					} else if (
 						FileImportComponent.IMPORT_STATUS_CHANGE_PROPERTY.equals(
 								name)) {
-						Integer v = (Integer) evt.getNewValue();
+						ImportStatus v = ((ImportStatus) evt.getNewValue());
 						switch (v) {
-							case FileImportComponent.FAILURE:
+							case FAILURE:
 								countFailure++;
 								break;
-							case FileImportComponent.PARTIAL:
+							case PARTIAL:
 								countCancelled++;
 								break;
 							default:
@@ -1035,14 +1036,14 @@ class ImporterUIElement
 			FileImportComponent fc;
 			Entry<String, FileImportComponent> entry;
 			int failure = 0;
-			int v;
+			ImportStatus v;
 			while (i.hasNext()) {
 				entry = i.next();
 				fc = entry.getValue();
 				v = fc.getImportStatus();
-				if (v == FileImportComponent.PARTIAL)
+				if (v == ImportStatus.PARTIAL)
 					return IMPORT_PARTIAL;
-				if (v == FileImportComponent.FAILURE) failure++;
+				if (v == ImportStatus.FAILURE) failure++;
 			}
 			if (failure == totalToImport) return IMPORT_FAIL;
 			else if (failure != 0) return IMPORT_PARTIAL;

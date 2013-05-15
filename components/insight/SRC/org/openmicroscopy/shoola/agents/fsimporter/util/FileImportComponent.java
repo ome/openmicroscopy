@@ -114,16 +114,6 @@ public class FileImportComponent
 	extends JPanel
 	implements ActionListener, ChangeListener, PropertyChangeListener
 {
-
-	/** The value indicating that the import was successful. */
-	public static final int SUCCESS = 0;
-	
-	/** The value indicating that the import was partially successful. */
-	public static final int PARTIAL = 1;
-	
-	/** The value indicating that the import was not successful. */
-	public static final int FAILURE = 2;
-	
 	/** Indicates that the container is of type <code>Project</code>. */
 	public static final int PROJECT_TYPE = 0;
 	
@@ -168,7 +158,7 @@ public class FileImportComponent
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
 	/** Color used to indicate that a file could not be imported. */
-	private static final Color		ERROR_COLOR = Color.red;
+	private static final Color ERROR_COLOR = Color.red;
 	
 	/** Text to indicate to view the image. */
 	private static final String VIEW_TEXT = "View";
@@ -357,9 +347,11 @@ public class FileImportComponent
 	/** The button displayed the various options post if the import worked.*/
 	private JButton actionMenuButton;
 	
+	/** The popup menu associated with the action button */
 	private JPopupMenu menu;
 	
-	private int resultIndex = -1;
+	/** The state of the import */
+	private ImportStatus resultIndex;
 	
 	
 	private JPopupMenu createActionMenu()
@@ -371,6 +363,13 @@ public class FileImportComponent
 			menu.add(new JMenuItem(new AbstractAction("Submit") {
 	            public void actionPerformed(ActionEvent e) {
 	            	// TODO: submit the failure
+	            }
+	        }));
+			break;
+		case UPLOAD_FAILURE:
+			menu.add(new JMenuItem(new AbstractAction("Retry") {
+	            public void actionPerformed(ActionEvent e) {
+	            	// TODO: retry the upload
 	            }
 	        }));
 			break;
@@ -389,16 +388,18 @@ public class FileImportComponent
 		
 		menu.add(new JMenuItem(new AbstractAction("Import Log") {
             public void actionPerformed(ActionEvent e) {
-            	// TODO: submit the failure
+            	// TODO: download and view the import log
             }
         }));
 		menu.add(new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
-            	// TODO: submit the failure
+            	// TODO: display the checksum
             }
         }));
+		
 		return menu;
 	}
+	
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
@@ -411,7 +412,7 @@ public class FileImportComponent
 			actionMenuButton.setForeground(Color.RED);
 			actionMenuButton.setText("Failed");
 			
-			resultIndex = FAILURE;
+			resultIndex = ImportStatus.FAILURE;
 		} else {
 			if (!statusLabel.isMarkedAsCancel()) {
 				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
@@ -419,7 +420,7 @@ public class FileImportComponent
 				actionMenuButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 				actionMenuButton.setText("View");
 				
-				resultIndex = SUCCESS;
+				resultIndex = ImportStatus.SUCCESS;
 			}
 		}
 	}
@@ -499,7 +500,8 @@ public class FileImportComponent
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
 		if (image == null && file.isFile())
-			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null, PARTIAL);
+			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
+					ImportStatus.PARTIAL);
 		if (fire)
 			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 	}
@@ -1315,43 +1317,43 @@ public class FileImportComponent
 	}
 	
 	/**
-	 * Returns one of the following constants: {@link #SUCCESS}, 
-	 * {@link #PARTIAL} or {@link #FAILURE}.
+	 * Returns the status of the import process one of the 
+	 * values defined in @see ImportStatus
 	 * 
 	 * @return See above.
 	 */
-	public int getImportStatus()
+	public ImportStatus getImportStatus()
 	{
 		if (file.isFile()) {
-			if (errorBox.isVisible()) return FAILURE;
-			return SUCCESS;
+			if (errorBox.isVisible()) return ImportStatus.FAILURE;
+			return ImportStatus.SUCCESS;
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
 				if (file.isDirectory()) {
-					if  (isCancelled()) return SUCCESS;
-					if (errorBox.isVisible()) return FAILURE;
-					return SUCCESS;
+					if  (isCancelled()) return ImportStatus.SUCCESS;
+					if (errorBox.isVisible()) return ImportStatus.FAILURE;
+					return ImportStatus.SUCCESS;
 				} else {
 					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
-						return FAILURE;
+						return ImportStatus.FAILURE;
 				}
 			} else {
-				if (errorBox.isVisible()) return FAILURE;
+				if (errorBox.isVisible()) return ImportStatus.FAILURE;
 			}
-			return SUCCESS;
+			return ImportStatus.SUCCESS;
 		}
 			
 		Iterator<FileImportComponent> i = components.values().iterator();
 		int n = components.size();
 		int count = 0;
 		while (i.hasNext()) {
-			if (i.next().getImportStatus() == FAILURE) 
+			if (i.next().getImportStatus() == ImportStatus.FAILURE) 
 				count++;
 		}
-		if (count == n) return FAILURE;
-		if (count > 0) return PARTIAL;
-		return SUCCESS;
+		if (count == n) return ImportStatus.FAILURE;
+		if (count > 0) return ImportStatus.PARTIAL;
+		return ImportStatus.SUCCESS;
 	}
 	
 	/**
@@ -1578,12 +1580,12 @@ public class FileImportComponent
 					bus.post(event);
 					if (hasImportFailed())
 						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-								FAILURE);
+								ImportStatus.FAILURE);
 					else if (isCancelled())
 						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-							PARTIAL);
+								ImportStatus.PARTIAL);
 					else firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-							SUCCESS);
+								ImportStatus.SUCCESS);
 				}
 			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
