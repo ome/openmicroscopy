@@ -48,6 +48,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -4040,22 +4041,24 @@ class OMEROGateway
 		try {
 			ParametersI param = new ParametersI();
 			long id;
-			if (image.isArchived()) { //prior to FS
-				StringBuffer buffer = new StringBuffer();
-				id = image.getDefaultPixels().getId();
-				buffer.append("select ofile from OriginalFile as ofile ");
-				buffer.append("join fetch ofile.hasher ");
-				buffer.append("left join ofile.pixelsFileMaps as pfm ");
-				buffer.append("left join pfm.child as child ");
-				buffer.append("where child.id = :id");
-				param.map.put("id", omero.rtypes.rlong(id));
-				query = buffer.toString();
-			} else {
+			if (image.isFSImage()) {
 				id = image.getId();
 				List<RType> l = new ArrayList<RType>();
 				l.add(omero.rtypes.rlong(id));
 				param.add("imageIds", omero.rtypes.rlist(l));
 				query = createFileSetQuery();
+			} else {//Prior to FS
+				if (image.isArchived()) {
+					StringBuffer buffer = new StringBuffer();
+					id = image.getDefaultPixels().getId();
+					buffer.append("select ofile from OriginalFile as ofile ");
+					buffer.append("join fetch ofile.hasher ");
+					buffer.append("left join ofile.pixelsFileMaps as pfm ");
+					buffer.append("left join pfm.child as child ");
+					buffer.append("where child.id = :id");
+					param.map.put("id", omero.rtypes.rlong(id));
+					query = buffer.toString();
+				} else return null;
 			}
 			files = service.findAllByQuery(query, param);
 		} catch (Exception e) {
@@ -4067,7 +4070,7 @@ class OMEROGateway
 		if (files == null || files.size() == 0) return null;
 		Iterator<?> i;
 		List<OriginalFile> values = new ArrayList<OriginalFile>();
-		if (!image.isArchived()) {
+		if (image.isFSImage()) {
 			i = files.iterator();
 			Fileset set;
 			List<FilesetEntry> entries;
@@ -4077,7 +4080,8 @@ class OMEROGateway
 				entries = set.copyUsedFiles();
 				j = entries.iterator();
 				while (j.hasNext()) {
-					values.add(j.next().getOriginalFile());
+					FilesetEntry fs = j.next();
+					values.add(fs.getOriginalFile());
 				}
 			}
 		} else values.addAll((List<OriginalFile>) files);
@@ -4091,26 +4095,26 @@ class OMEROGateway
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
-		if (files.size() > 1) {
+		if (values.size() > 1) {
 			if (file.isDirectory()) folderPath = file.getAbsolutePath();
 			else folderPath = file.getParent();
 		}
 		i = values.iterator();
+		store = getRawFileService(ctx);
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
-			store = getRawFileService(ctx);
 			try {
-				store.setFileId(of.getId().getValue()); 
+				store.setFileId(of.getId().getValue());
 			} catch (Exception e) {
 				handleException(e, "Cannot set the file's id.");
 			}
 			if (folderPath != null) {
-				f = new File(folderPath+of.getName().getValue());
+				f = new File(folderPath, of.getName().getValue());
 			} else f = file;
 			results.add(f);
 			try {
 				stream = new FileOutputStream(f);
-				size = of.getSize().getValue(); 
+				size = of.getSize().getValue();
 				try {
 					try {
 						for (offset = 0; (offset+INC) < size;) {
@@ -4141,8 +4145,8 @@ class OMEROGateway
 				throw new DSAccessException("Cannot create file in folderPath",
 						e);
 			}
-			closeService(ctx, store);
 		}
+		closeService(ctx, store);
 		result.put(Boolean.valueOf(true), results);
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
