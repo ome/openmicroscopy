@@ -1875,6 +1875,46 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return tm.getEventLogsByPeriod(rtime(start), rtime(end), p, service_opts)
         #yield EventLogWrapper(self, e)
 
+
+    def regroupFilesets (self, dsIds, fsIds):
+        """
+        For each Fileset, make sure all the Images are in the same Dataset
+        as each other.
+        We choose a 'target' Dataset that already has one of the Fileset Images in it,
+        and is in the dsIds list.
+        This method is used when preparing to chgrp the specified datasets
+        """
+
+        for fileset in self.getObjects("Fileset", fsIds):
+            gid = fileset.getDetails().group.id.val
+            self.SERVICE_OPTS.setOmeroGroup(gid)
+            fsImgs = fileset.copyImages()   # all these need to be in same Datasaet
+            # find one of the Datasets (obj_ids) that contains one of these images...
+            target_ds = None
+            for i in fsImgs:
+                for d in i.listParents():
+                    if d.id in dsIds:
+                        target_ds = d.id
+                        break
+                if target_ds is not None:
+                    break
+            # move ALL fs images into that Dataset
+            for i in fsImgs:
+                correct_dataset = False
+                for plink in i.getParentLinks():
+                    if plink.parent.id != target_ds:
+                        self.deleteObjectDirect(plink._obj)
+                    else:
+                        correct_dataset = True
+                if not correct_dataset:
+                    link = omero.model.DatasetImageLinkI()
+                    link.setChild(omero.model.ImageI(i.getId(), False))
+                    link.setParent(omero.model.DatasetI(target_ds, False))
+                    self.saveObject(link)
+
+
+        #conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
+
 omero.gateway.BlitzGateway = OmeroWebGateway
 
 class OmeroWebSafeCallWrapper(OmeroGatewaySafeCallWrapper): #pragma: no cover

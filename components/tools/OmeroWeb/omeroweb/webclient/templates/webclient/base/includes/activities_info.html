@@ -53,7 +53,7 @@
             // display what we recieved, bind events etc
             OME.displayStatus(new_results, inprogress);
             $("#activities_content").empty();
-            $("#activities_content").append( $("table", $(data)) );
+            $("#activities_content").append( $("#jobsTable", $(data)) );
             $("#jobsTable").alternateRowColors();
             
             // bind events
@@ -150,6 +150,20 @@
             if (event.keyCode === $.ui.keyCode.ESCAPE) {
                 $(".info_panel").hide();
             }
+        });
+
+        // If a chgrp fails due to filesets, we provide a 'move all' button:
+        $("#activities_content").on("click", ".chgrp_move_all", function(event){
+            var $this = $(this);
+            if ($this.attr('disabled')){
+                return false;
+            }
+            $this.attr('disabled', 'disabled');
+            $.get($this.attr('url'), function(){
+                OME.refreshActivities();
+            });
+            event.preventDefault();
+            return false;
         });
     });
 </script>

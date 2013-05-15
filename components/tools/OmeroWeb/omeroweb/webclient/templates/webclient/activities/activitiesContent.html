@@ -51,12 +51,17 @@
                     <tr id="{{ j.id }}" class="{% if j.new %}new_result{% endif %}{% ifequal j.status 'in progress' %} in_progress{% endifequal %}" >
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
-                            {% else %} <img class="icon" src="{% static "webgateway/img/success.png" %}" />
+                            {% else %}
+                                {% if j.error or j.split_filesets %}
+                                    <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
+                                {% else %}
+                                    <img class="icon" src="{% static "webgateway/img/success.png" %}" />
+                                {% endif %}
                             {% endifequal %}
                         </td>
-                        <td class="script_description">
+                        <td class="script_description" colspan='2'>
                             <span class="activity_title">
-                                Move {{ j.dtype }}{{ j.obj_ids|pluralize }} to Group
+                                Move to Group '{{ j.group }}'
                             </span>
                             <span class="message">
                                 {% ifequal j.status "in progress" %}
@@ -76,9 +81,50 @@
                                         </div>
                                     {% endif %}
                                 {% endifequal %}
+                                {% if j.split_filesets %}
+                                    Filesets cannot be split into 2 groups.
+
+                                    {% for fs in j.split_filesets %}
+                                    <div>
+                                        You tried to move <strong>{{ fs.attempted_iids|length }}</strong>
+                                        image{{ fs.attempted_iids|pluralize}} from Fileset,
+                                        leaving <strong>{{ fs.blocking_iids|length }}</strong>.
+                                    </div>
+                                    {% with MAX_SHOWN=3 %}
+                                    <div style="border: 1px solid #87ABD2; float: left">
+                                        {% for iid in fs.attempted_iids|slice:":3" %}
+                                            <a href="{% url webindex %}?show=image-{{ iid }}">
+                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
+                                            </a>
+                                        {% endfor %}
+                                        {% if fs.attempted_iids|length > MAX_SHOWN %}
+                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
+                                        {% endif %}
+                                    </div>
+                                    <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
+                                        {% for iid in fs.blocking_iids|slice:":3" %}
+                                            <a href="{% url webindex %}?show=image-{{ iid }}">
+                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
+                                            </a>
+                                        {% endfor %}
+                                        {% if fs.blocking_iids|length > MAX_SHOWN %}
+                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
+                                        {% endif %}
+                                    </div>
+                                    <div style="clear:both"></div>
+                                    {% endwith %}
+                                    {% endfor %}
+                                    <div style="float:right">
+    <button class="btn silver chgrp_move_all" style="padding: 2px"
+        title="Repeat the move, including ALL images from the Fileset"
+        url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
+        >
+        MOVE ALL
+    </button>
+                                    </div>
+                                {% endif %}
                             </span>
                         </td>
-                        <td></td>
                     </tr>
                 {% endifequal %}
 

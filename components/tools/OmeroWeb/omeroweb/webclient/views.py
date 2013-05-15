@@ -2085,9 +2085,10 @@ def activities(request, conn=None, **kwargs):
 
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
-        job_type = request.session['callback'][cbString]['job_type']
+        callbackDict = request.session['callback'][cbString]
+        job_type = callbackDict['job_type']
 
-        status = request.session['callback'][cbString]['status']
+        status = callbackDict['status']
         if status == "failed":
             failure+=1
 
@@ -2101,6 +2102,7 @@ def activities(request, conn=None, **kwargs):
                     prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
                     close_handle = False
+
                     try:
                         # if response is None, then we're still in progress, otherwise...
                         if rsp is not None:
@@ -2108,9 +2110,34 @@ def activities(request, conn=None, **kwargs):
                             new_results.append(cbString)
                             if isinstance(rsp, omero.cmd.ERR):
                                 request.session['callback'][cbString]['status'] = "failed"
-                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                                logger.error("chgrp failed with: %s" % rsp_params)
-                                request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
+                                # If move has failed due to 'Filesets'
+                                if 'Fileset' in rsp.constraints:
+                                    failed_filesets = rsp.constraints['Fileset']
+                                    # But, we don't know which of the Datasets / Images failed to move. Assume ALL?
+                                    # We have this info from the job submission:
+                                    dtype = callbackDict['dtype']
+                                    obj_ids = callbackDict['obj_ids']
+                                    to_group_id =  callbackDict['to_group_id']
+                                    if dtype == 'Image':
+                                        attempted_imgIds = [int(iid) for iid in obj_ids]
+                                    elif dtype in ('Project', 'Dataset'):
+                                        cs = conn.getContainerService()
+                                        attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
+                                    # Want to find all images within each fileset that's causing a problem, so we can notify user
+                                    split_filesets = []
+                                    for fset in conn.getObjects("Fileset", failed_filesets):
+                                        fsetImgs = fset.copyImages()
+                                        attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
+                                        blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
+                                        split_filesets.append( {'fsid':fset.id, 
+                                                'blocking_iids': blocking_iids,
+                                                'attempted_iids':attempted_iids} )
+                                    request.session['callback'][cbString]['split_filesets'] = split_filesets
+                                    request.session['callback'][cbString]['fsIds'] = failed_filesets
+                                else:
+                                    rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                    logger.error("chgrp failed with: %s" % rsp_params)
+                                    request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
                             elif isinstance(rsp, omero.cmd.OK):
                                 request.session['callback'][cbString]['status'] = "finished"
                         else:
@@ -2512,13 +2539,23 @@ def chgrp(request, conn=None, **kwargs):
     for dtype in dtypes:
         oids = request.REQUEST.get(dtype, None)
         if oids is not None:
-            obj_ids = oids.split(",")
+            obj_ids = [int(oid) for oid in oids.split(",")]
+            # if 'filesets' are specified, make sure we move ALL Fileset Images
+            fsIds = request.REQUEST.getlist('fileset')
+            if len(fsIds) > 0:
+                if dtype == 'Dataset':
+                    conn.regroupFilesets (dsIds=obj_ids, fsIds=fsIds)
+                else:
+                    for fs in conn.getObjects("Fileset", fsIds):
+                        obj_ids.extend( [i.id for i in fs.copyImages()] )
+                    obj_ids = list(set(obj_ids))    # remove duplicates
             logger.debug("chgrp to group:%s %s-%s" % (group_id, dtype, obj_ids))
             handle = conn.chgrpObjects(dtype, obj_ids, group_id, container_id)
             jobId = str(handle)
             request.session['callback'][jobId] = {
                 'job_type': "chgrp",
                 'group': group.getName(),
+                'to_group_id': group_id,
                 'dtype': dtype,
                 'obj_ids': obj_ids,
                 'job_name': "Change group",
