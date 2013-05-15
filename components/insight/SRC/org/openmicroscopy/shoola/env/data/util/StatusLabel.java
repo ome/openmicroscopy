@@ -42,6 +42,7 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
+import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
 
 import org.apache.commons.io.FileUtils;
@@ -115,9 +116,6 @@ public class StatusLabel
 	
 	/** Bound property indicating that the debug text has been sent.*/
 	public static final String DEBUG_TEXT_PROPERTY = "debugText";
-	
-	/** Bound property indicating that the fileset has finished uploading.*/
-	public static final String FILESET_UPLOADED_PROPERTY = "filesetUploaded";
 	
 	/** Default text when a failure occurred. */
 	private static final String FAILURE_TEXT = "failed";
@@ -202,6 +200,9 @@ public class StatusLabel
 	
 	/** The labels displaying information before the progress bars.*/
 	private List<JLabel> labels;
+
+	/** Checksum event stored for later retrieval */
+	private FILESET_UPLOAD_END checksumEvent;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -343,6 +344,24 @@ public class StatusLabel
 	public String[] getUsedFiles() { return usedFiles; }
 
 	/**
+	 * Returns the source files that have checksum values
+	 * @return See above.
+	 */
+	public List<String> getChecksums() { return checksumEvent.checksums; }
+	
+	/**
+	 * Returns the checksum values
+	 * @return See above.
+	 */
+	public Map<Integer, String> getFailingChecksums() { return checksumEvent.failingChecksums; }
+	
+	/**
+	 * Returns the source files that have checksum values
+	 * @return See above.
+	 */
+	public String[] getChecksumFiles() { return checksumEvent.srcFiles; }
+	
+	/**
 	 * Sets the status of the import.
 	 * 
 	 * @param value The value to set.
@@ -477,6 +496,7 @@ public class StatusLabel
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
+            checksumEvent = (ImportEvent.FILESET_UPLOAD_END) event;
 			processingBar.setValue(1);
 			processingBar.setString(STEPS.get(1));
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 import info.clearthought.layout.TableLayout;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -55,13 +54,16 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
@@ -356,6 +358,7 @@ public class FileImportComponent
 	
 	private JPopupMenu createActionMenu()
 	{
+		final JPanel frame = this;
 		if (menu != null) return menu;
 		menu = new JPopupMenu();
 		switch(resultIndex) {
@@ -393,13 +396,65 @@ public class FileImportComponent
         }));
 		menu.add(new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
-            	// TODO: display the checksum
+            	JDialog dialog = new JDialog();
+
+            	ChecksumTableModel model = new ChecksumTableModel(
+            			statusLabel.getChecksumFiles(), 
+            			statusLabel.getChecksums(), 
+            			statusLabel.getFailingChecksums());
+            	
+            	JTable table = new JTable(model);
+            	JScrollPane scrollPane = new JScrollPane(table);
+            	table.setFillsViewportHeight(true);
+
+            	dialog.add(scrollPane);
+            	dialog.pack();
+            	dialog.setVisible(true);
             }
         }));
 		
 		return menu;
 	}
 	
+	public class ChecksumTableModel extends DefaultTableModel
+	{
+		private String[] columnNames = {"Filename",
+                "Client Checksum",
+                "Server Checksum",
+                "Valid"};
+	    public ChecksumTableModel(String[] checksumFiles,
+				List<String> checksums, Map<Integer, String> failingChecksums) {
+			setDataVector(formatData(checksumFiles, checksums, failingChecksums), columnNames);
+		}
+
+		public boolean isCellEditable(int row, int col) {
+	    	return false;
+	    }
+		
+		public Class getColumnClass(int c) {
+	        return getValueAt(0, c).getClass();
+	    }
+		
+		private Object[][] formatData(String[] checksumFiles,
+				List<String> checksums,
+				Map<Integer, String> failingChecksums) {
+			Object[][] data = new Object[checksumFiles.length][4];
+			for (int i = 0; i < checksumFiles.length; i++) {
+				data[i][0] = checksumFiles[i];
+				data[i][1] = checksums.get(i).substring(0, 9);
+				
+				if(failingChecksums.containsKey(i)) {
+					data[i][2] = failingChecksums.get(i).substring(0, 9);
+					data[i][3] = "No";
+				} else {
+					data[i][2] = checksums.get(i).substring(0, 9);
+					data[i][3] = "Yes";
+				}
+			}
+			return data;
+		}
+
+	}
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
@@ -1612,20 +1667,6 @@ public class FileImportComponent
 			noContainer = true;
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
-		} else if (StatusLabel.FILESET_UPLOADED_PROPERTY.equals(name)) {
-			List<String> checksums = (List<String>) evt.getOldValue();
-			Map<Integer, String> failingChecksums =
-					(Map<Integer, String>) evt.getNewValue();
-			
-			//TODO: Format and handle checksums.
-			/*
-			UIUtilities.formatStringListToTable(
-					columnNames, formatChecksums(fue.srcFiles, fue.checksums,
-							fue.failingChecksums)));
-			firePropertyChange(FILESET_UPLOADED_PROPERTY, fue.checksums,
-					fue.failingChecksums);
-					*/
-			// Add code to query for log file and create a download button
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
 			SecurityContext ctx = new SecurityContext(group.getId());
