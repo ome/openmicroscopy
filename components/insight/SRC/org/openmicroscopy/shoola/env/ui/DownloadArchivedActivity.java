@@ -58,15 +58,15 @@ public class DownloadArchivedActivity
 {
 
 	/** The description of the activity when finished. */
-	private static final String DESCRIPTION_CREATED = "Archived Image " +
+	private static final String DESCRIPTION_CREATED = "Original Image " +
 			"downloaded";
 	
 	/** The description of the activity when cancelled. */
-	private static final String DESCRIPTION_CANCEL = "Download Archived " +
+	private static final String DESCRIPTION_CANCEL = "Download Original " +
 			"Image cancelled";
 	
 	/** The description of the activity when no archived files found. */
-	private static final String DESCRIPTION_NO_ARCHIVED = "No Archived " +
+	private static final String DESCRIPTION_NO_ARCHIVED = "No Original " +
 			"Image available";
 	
 	/** The description of the activity when no archived files found. */
@@ -79,12 +79,12 @@ public class DownloadArchivedActivity
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param registry		Convenience reference for subclasses.
+	 * @param viewer The viewer this data loader is for.
+	 * Mustn't be <code>null</code>.
+     * @param registry Convenience reference for subclasses.
      * @param ctx The security context.
-	 * @param parameters    The object hosting information about the 
-	 * 						archived image.
+	 * @param parameters The object hosting information about the original
+	 * image.
 	 */
 	DownloadArchivedActivity(UserNotifier viewer, Registry registry,
 			SecurityContext ctx, DownloadArchivedActivityParam parameters) 
@@ -93,7 +93,7 @@ public class DownloadArchivedActivity
 		if (parameters == null)
 			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
-		initialize("Downloading Archived Image", parameters.getIcon());
+		initialize("Downloading Original Image", parameters.getIcon());
 		File f = parameters.getLocation();
 		if (f.isFile()) f = f.getParentFile();
 		messageLabel.setText("in "+f.getAbsolutePath());
@@ -142,8 +142,10 @@ public class DownloadArchivedActivity
 				File location = parameters.getLocation();
 				if (!location.isDirectory())
 					location = location.getParentFile();
-				File zipFolder = new File(location,
-				FilenameUtils.removeExtension(parameters.getImage().getName()));
+				String name = FilenameUtils.getName(
+						parameters.getImage().getName());
+				name = FilenameUtils.removeExtension(name);
+				File zipFolder = new File(location, name);
 				zipFolder.mkdir();
 				//copy file into the directory
 				Iterator<File> j = files.iterator();
