@@ -487,7 +487,7 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Fileset", id=fsId, grp=target_gid)
         self.doSubmit(chgrp, client)
 
-        # Check Fataset and both Images moved and the fileset is in sync with image.
+        # Check Fileset and both Images moved and thus the Fileset is in sync with Images.
         ctx = {'omero.group': '-1'}      # query across groups
         fileset = query.get('Fileset', fsId, ctx)
         self.assertEqual(target_gid, fileset.details.group.id.val, "Fileset should be in group: %s" % target_gid)
@@ -495,9 +495,6 @@ class TestChgrp(lib.ITest):
             image = query.get('Image', images[i].id.val, ctx)
             img_gid = image.details.group.id.val
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
-        image_gid = query.get("Image", images[0].id.val, ctx).details.group.id.val
-        fileset_gid = fileset.details.group.id.val
-        self.assertEqual(image_gid, fileset_gid, "Image group: %s and Fileset group: %s don't match" % (image_gid, fileset_gid))
 
 
 if __name__ == '__main__':
