@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
@@ -32,15 +33,13 @@ package org.openmicroscopy.shoola.env.data;
 import omero.ServerError;
 import omero.client;
 import omero.cmd.CmdCallbackI;
-import omero.cmd.DeleteRsp;
+import omero.cmd.DoAllRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.Status;
-
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-
 import Ice.Current;
 
 /** 
@@ -72,7 +71,12 @@ public class RequestCallback
 	{
 		Response response = getResponse();
 		if (response == null) return Boolean.valueOf(false);
-		if (response instanceof OK) return Boolean.valueOf(true);
+		if (response instanceof DoAllRsp) {
+			List<Response> responses = ((DoAllRsp) response).responses;
+			if (responses.size() == 1) return responses.get(0);
+			return responses;
+		}
+		else if (response instanceof OK) return Boolean.valueOf(true);
 		else if (response instanceof ERR)
 			return new ProcessReport((ERR) response);
 		return null;

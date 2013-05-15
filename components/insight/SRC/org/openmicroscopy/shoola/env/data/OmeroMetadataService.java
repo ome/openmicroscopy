@@ -704,13 +704,14 @@ public interface OmeroMetadataService
 	 * @param file The file to write the data into.
 	 * @param id The id of the image.
 	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                   in.
-	 * @throws DSAccessException        If an error occurred while trying to 
-	 *                                  retrieve data from OMEDS service.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 * @throws ProcessException If an error occurred while starting the process.
 	 */
-	public Object downloadMetadataFile(SecurityContext ctx, File file, long id)
-		throws DSOutOfServiceException, DSAccessException;
+	public RequestCallback downloadMetadataFile(SecurityContext ctx, File file,
+			long id)
+		throws DSOutOfServiceException, DSAccessException, ProcessException;
 
 	/**
 	 * Loads the annotations of the given type linked to the specified objects.

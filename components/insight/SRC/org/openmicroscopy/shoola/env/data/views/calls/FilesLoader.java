@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.RequestCallback;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -134,8 +135,11 @@ public class FilesLoader
     	return new BatchCall("Downloading original metadata.") {
     		public void doCall() throws Exception
     		{
-    			OmeroMetadataService service = context.getMetadataService();
-    			result = service.downloadMetadataFile(ctx, file, id);
+    			result = null;
+    			OmeroMetadataService svc = context.getMetadataService();
+    			RequestCallback cb = svc.downloadMetadataFile(ctx, file, id);
+    			if (cb == null) currentFile = Boolean.valueOf(false);
+    			else currentFile = cb;
     		}
     	};
     }
