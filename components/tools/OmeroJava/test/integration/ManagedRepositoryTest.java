@@ -1,18 +1,34 @@
 /*
- * $Id$
+ * Copyright (C) 2012-2013 University of Dundee & Open Microscopy Environment.
+ * All rights reserved.
  *
- *   Copyright 2012 University of Dundee. All rights reserved.
- *   Use is subject to license terms supplied in LICENSE.txt
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package integration;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.ArrayUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -21,12 +37,16 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.repo.path.ClientFilePathTransformer;
+import ome.services.blitz.repo.path.FilePathRestrictionInstance;
+import ome.services.blitz.repo.path.FilePathRestrictions;
+import ome.services.blitz.repo.path.FsFile;
+import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 
 import omero.LockTimeout;
 import omero.ServerError;
-import omero.api.RawFileStorePrx;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.HandlePrx;
 import omero.grid.ImportLocation;
@@ -39,23 +59,31 @@ import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Fileset;
 import omero.model.OriginalFile;
+import omero.util.TempFileManager;
 
 /**
 * Collections of tests for the <code>ManagedRepository</code> service.
 *
 * @author Colin Blackburn &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:c.blackburn@dundee.ac.uk">c.blackburn@dundee.ac.uk</a>
+* @author m.t.b.carroll@dundee.ac.uk
 */
 @Test(groups = {"integration", "fs"})
 public class ManagedRepositoryTest
    extends AbstractServerTest
 {
+    /* temporary file manager for sources of file uploads */
+    private static final TempFileManager tempFileManager =
+            new TempFileManager("test-" + ManagedRepositoryTest.class.getSimpleName());
 
 	/** Reference to the managed repository. */
 	ManagedRepositoryPrx repo;
 
 	/** Description object representing this repository */
 	OriginalFile obj;
+
+	/* client file path transformer for comparing local and repo paths */
+	private ClientFilePathTransformer cfpt = null;
 
 	@BeforeClass
 	public void setRepo() throws Exception {
@@ -74,6 +102,18 @@ public class ManagedRepositoryTest
 			throw new Exception("Unable to find managed repository");
 		}
 	}
+
+    @BeforeClass
+    public void setupClientFilePathTransformer() {
+        final FilePathRestrictions conservativeRules =
+                FilePathRestrictionInstance.getFilePathRestrictions(FilePathRestrictionInstance.values());
+        this.cfpt = new ClientFilePathTransformer(new MakePathComponentSafe(conservativeRules));
+    }
+
+    @AfterClass
+    public void teardownClientFilePathTransformer() {
+        this.cfpt = null;
+    }
 
 	/**
 	 * Makes sure that the OMERO file exists of the given name
@@ -95,22 +135,25 @@ public class ManagedRepositoryTest
 	    assertFalse(message + path, repo.fileExists(path));
 	}
 
-	/**
-	 * Construct a path from its elements
-	 *
-	 * @param pathElements Array containing elements of a path.
-	 */
-	String buildPath(String[] pathElements)
-	{
-	    String path = "";
-	    for (String element : pathElements) {
-	        path = FilenameUtils.concat(path, element);
-	    }
-	    return path;
-	}
+    /**
+     * Import the given files.
+     * Like {@link #importFileset(List, int)} but with all the srcPaths to be uploaded.
+     * @param srcPaths the source paths
+     * @return the resulting import location
+     * @throws Exception unexpected
+     */
+    ImportLocation importFileset(List<String> srcPaths) throws Exception {
+        return importFileset(srcPaths, srcPaths.size());
+    }
 
-	// Primarily to get code compiling during the major refactoring
-	ImportLocation importFileset(List<String> srcPaths) throws Exception {
+	/**
+	 * Import the given files.
+	 * @param srcPaths the source paths
+	 * @param numberToUpload how many of the source paths to actually upload
+	 * @return the resulting import location
+	 * @throws Exception unexpected
+	 */
+	ImportLocation importFileset(List<String> srcPaths, int numberToUpload) throws Exception {
 
 	    // Setup that should be easier, most likely a single ctor on IL
 	    OMEROMetadataStoreClient client = new OMEROMetadataStoreClient();
@@ -121,7 +164,7 @@ public class ManagedRepositoryTest
 	    // This should also be simplified.
 	    ImportContainer container = new ImportContainer(new File(srcPaths.get(0)),
 	            null /*target*/, null /*user pixels */, "FakeReader",
-	            srcPaths.toArray(new String[0]), false /*isspw*/);
+	            srcPaths.toArray(new String[srcPaths.size()]), false /*isspw*/);
 
 	    // Now actually use the library.
 	    ImportProcessPrx proc = lib.createImport(container);
@@ -132,7 +175,7 @@ public class ManagedRepositoryTest
         final byte[] buf = new byte[client.getDefaultBlockSize()];
         final ChecksumProviderFactory cpf = new ChecksumProviderFactoryImpl();
 
-        for (int i = 0; i < srcFiles.length; i++) {
+        for (int i = 0; i < numberToUpload; i++) {
             checksums.add(lib.uploadFile(proc, srcFiles, i, cpf, buf));
         }
 
@@ -147,412 +190,399 @@ public class ManagedRepositoryTest
         return req.location;
 	}
 
-	// This should not really be necessary, since it's done by the above!
-	RawFileStorePrx uploadUsedFile(ImportLocation data, String file) {
-	    fail("NYI");
-	    return null;
-	}
+    /**
+     * Make sure that the given filename exists in the given directory, creating it if necessary.
+     * @param directory the directory in which the file should exist
+     * @param filename the name of the file
+     * @return a File instance corresponding to the file in the given directory
+     * @throws IOException if the file could not be created
+     */
+    private static File ensureFileExists(File directory, String filename) throws IOException {
+        final File file = new File(directory, filename);
 
-	/**
-	 * Test that the expected repository path is returned
-	 * for a single image file if new or already uploaded.
-	 *
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testGetCurrentRepoDirSimple()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
-	    String destPath;
+        if (!file.exists()) {
+            final FileWriter out = new FileWriter(file);
+            out.write("client-side file name is " + filename);
+            out.close();
+        }
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
-	    String file2 = UUID.randomUUID().toString() + ".dv";
-
-	    // Completely new file
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    String[] dest = {uniquePath, file1};
-	    destPath = buildPath(dest);
-	    ImportLocation data = importFileset(srcPaths);
-		assertContains(data.usedFiles.get(0), destPath);
-		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-
-        // Different file that should go in existing directory
-	    src[1] = file2;
-	    srcPaths.set(0, buildPath(src));
-	    dest[1] = file2;
-	    destPath = buildPath(dest);
-	    data = importFileset(srcPaths);
-		assertContains(data.usedFiles.get(0), destPath);
-		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-
-        // Same file that should go in new directory
-	    dest[0] = uniquePath + "-1";
-	    destPath = buildPath(dest);
-	    data = importFileset(srcPaths);
-		assertContains(data.usedFiles.get(0), destPath);
-		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-
-        // Same file again that should go in new directory
-	    dest[0] = uniquePath + "-2";
-	    destPath = buildPath(dest);
-	    data = importFileset(srcPaths);
-		assertContains(data.usedFiles.get(0), destPath);
-	}
-
-	/**
-	 * Test that the expected repository path is returned
-	 * for multiple files if new or already uploaded.
-	 *
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testGetCurrentRepoDirMultipleFiles()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
-	    List<String> destPaths = new ArrayList<String>();
-
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
-	    String file2 = file1 + ".log";
-	    String file3 = UUID.randomUUID().toString() + ".dv";
-	    String file4 = file3 + ".log";
-
-	    // Completely new files
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = file2;
-	    srcPaths.add(buildPath(src));
-	    String[] dest = {uniquePath, file1};
-	    destPaths.add(buildPath(dest));
-	    dest[1] = file2;
-	    destPaths.add(buildPath(dest));
-	    ImportLocation data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
-
-        // One identical file both should go in a new directory
-	    src[1] = file1;
-	    srcPaths.set(0, buildPath(src));
-	    src[1] = file4;
-	    srcPaths.set(1, buildPath(src));
-        dest[0] = uniquePath + "-1";
-	    dest[1] = file1;
-	    destPaths.set(0, buildPath(dest));
-	    dest[1] = file4;
-	    destPaths.set(1, buildPath(dest));
-	    data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
-
-        // Two different files that should go in existing directory
-	    src[1] = file3;
-	    srcPaths.set(0, buildPath(src));
-	    src[1] = file4;
-	    srcPaths.set(1, buildPath(src));
-        dest[0] = uniquePath;
-	    dest[1] = file3;
-	    destPaths.set(0, buildPath(dest));
-	    dest[1] = file4;
-	    destPaths.set(1, buildPath(dest));
-	    data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
-
-        // Two identical files that should go in a new directory
-        dest[0] = uniquePath + "-2";
-	    dest[1] = file3;
-	    destPaths.set(0, buildPath(dest));
-	    dest[1] = file4;
-	    destPaths.set(1, buildPath(dest));
-	    data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
+        return file;
     }
 
-	/**
-	 * Test that the expected repository path is returned
-	 * for multiple nested files if new or already uploaded.
-	 *
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testGetCurrentRepoDirNested()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
-	    List<String> destPaths = new ArrayList<String>();
+    /**
+     * Provide the managed repository path of the specified used file.
+     * @param importLocation an import location
+     * @param index a used file index within the import location's used files
+     * @return the used file's managed repository path
+     */
+    private static String pathToUsedFile(ImportLocation importLocation, int index) {
+        final StringBuffer sb = new StringBuffer();
+        sb.append(importLocation.sharedPath);
+        sb.append(FsFile.separatorChar);
+        sb.append(importLocation.usedFiles.get(index));
+        return sb.toString();
+    }
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String subDir = "sub";
-	    String subSubDir = "subsub";
-	    String file1 = UUID.randomUUID().toString() + ".mdb";
-	    String file2 = UUID.randomUUID().toString() + ".tif";
-	    String file3 = UUID.randomUUID().toString() + ".tif";
+    /**
+     * Test that the expected repository path is returned
+     * for a single image file if new or already uploaded.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetCurrentRepoDirSimple() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2).toString();
+        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2).toString();
+
+        final List<String> srcPaths = new ArrayList<String>();
+        final Set<String> usedFile2s = new HashSet<String>();
+
+        // Completely new file
+        srcPaths.add(file1.getAbsolutePath());
+        ImportLocation data = importFileset(srcPaths);
+        assertEndsWith(pathToUsedFile(data, 0), destPath1);
+
+        // Different files that should go in same directory
+        srcPaths.add(file2.getAbsolutePath());
+        data = importFileset(srcPaths);
+        assertEndsWith(pathToUsedFile(data, 0), destPath1);
+        assertEndsWith(pathToUsedFile(data, 1), destPath2);
+        for (final String usedFile : data.usedFiles) {
+            /* all in the same directory below data.sharedPath */
+            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+        }
+        assertTrue(usedFile2s.add(pathToUsedFile(data, 1)));
+
+        // Same file that should go in new directory
+        srcPaths.remove(0);
+        data = importFileset(srcPaths);
+        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
+
+        // Same file again that should go in new directory
+        data = importFileset(srcPaths);
+        assertEndsWith(pathToUsedFile(data, 0), destPath2);
+        assertTrue(usedFile2s.add(pathToUsedFile(data, 0)));
+	}
+
+    /**
+     * Test that the expected repository path is returned
+     * for multiple files if new or already uploaded.
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetCurrentRepoDirMultipleFiles() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file3 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file4 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file5 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final String destPath1 = cfpt.getFsFileFromClientFile(file1, 2).toString();
+        final String destPath2 = cfpt.getFsFileFromClientFile(file2, 2).toString();
+        final String destPath3 = cfpt.getFsFileFromClientFile(file3, 2).toString();
+        final String destPath4 = cfpt.getFsFileFromClientFile(file4, 2).toString();
+        final String destPath5 = cfpt.getFsFileFromClientFile(file5, 2).toString();
+
+        final List<String> srcPaths = new ArrayList<String>();
+        final List<String> destPaths = new ArrayList<String>();
+        final Set<String> sharedPaths = new HashSet<String>();
 
 	    // Completely new files
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = subDir;
-	    src = (String[]) ArrayUtils.add(src, file2);
-	    srcPaths.add(buildPath(src));
-	    src[2] = subSubDir;
-	    src = (String[]) ArrayUtils.add(src,file3);
-	    srcPaths.add(buildPath(src));
-	    String[] dest = {uniquePath, file1};
-	    destPaths.add(buildPath(dest));
-	    dest[1] = subDir;
-	    dest = (String[]) ArrayUtils.add(dest,file2);
-	    destPaths.add(buildPath(dest));
-	    dest[2] = subSubDir;
-	    dest = (String[]) ArrayUtils.add(dest,file3);
-	    destPaths.add(buildPath(dest));
-	    ImportLocation data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        destPaths.add(destPath1);
+        destPaths.add(destPath2);
+        ImportLocation data = importFileset(srcPaths);
+        assertTrue(data.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
+        }
+        for (final String usedFile : data.usedFiles) {
+            /* all in the same directory below data.sharedPath */
+            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+        }
+        assertTrue(sharedPaths.add(data.sharedPath));
 
-	    // Same files should go into new directory
-	    destPaths.clear();
-	    String[] dest2 = {uniquePath + "-1", file1};
-	    destPaths.add(buildPath(dest2));
-	    dest2[1] = subDir;
-	    dest2 = (String[]) ArrayUtils.add(dest2,file2);
-	    destPaths.add(buildPath(dest2));
-	    dest2[2] = subSubDir;
-	    dest2 = (String[]) ArrayUtils.add(dest2,file3);
-	    destPaths.add(buildPath(dest2));
-	    data = importFileset(srcPaths);
-	    assertTrue(data.usedFiles.size()==destPaths.size());
-	    for (int i=0; i<data.usedFiles.size(); i++) {
-            assertContains(data.usedFiles.get(i), destPaths.get(i));
-		    touch(uploadUsedFile(data, data.usedFiles.get(i)));
-	    }
-	}
+        // One identical file both should go in a new directory
+        srcPaths.set(1, file3.getAbsolutePath());
+        destPaths.set(1, destPath3);
+        data = importFileset(srcPaths);
+        assertTrue(data.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
+        }
+        for (final String usedFile : data.usedFiles) {
+            /* all in the same directory below data.sharedPath */
+            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+        }
+        assertTrue(sharedPaths.add(data.sharedPath));
 
-	/**
-	 * Test that
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testDeleteUploadedFileSimple()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
+        // Two different files that should go in new directory
+        srcPaths.set(0, file4.getAbsolutePath());
+        srcPaths.set(1, file5.getAbsolutePath());
+        destPaths.set(0, destPath4);
+        destPaths.set(1, destPath5);
+        data = importFileset(srcPaths);
+        assertTrue(data.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
+        }
+        for (final String usedFile : data.usedFiles) {
+            /* all in the same directory below data.sharedPath */
+            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+        }
+        assertTrue(sharedPaths.add(data.sharedPath));
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
+        // Two identical files that should go in a new directory
+        data = importFileset(srcPaths);
+        assertTrue(data.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data, i), destPaths.get(i));
+        }
+        for (final String usedFile : data.usedFiles) {
+            /* all in the same directory below data.sharedPath */
+            assertEquals(-1, usedFile.indexOf(FsFile.separatorChar));
+        }
+        assertTrue(sharedPaths.add(data.sharedPath));
+    }
 
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    ImportLocation data = importFileset(srcPaths);
-		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-		for (String path : data.usedFiles) {
-		    assertFileExists("Upload failed. File does not exist: ", path);
-		}
+    /**
+     * Test that the expected repository path is returned
+     * for multiple nested files if new or already uploaded.
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetCurrentRepoDirNested() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File uniquePathSubDir = new File(uniquePath, UUID.randomUUID().toString());
+        final File uniquePathSubSubDir = new File(uniquePathSubDir, UUID.randomUUID().toString());
+        uniquePathSubDir.mkdir();
+        uniquePathSubSubDir.mkdir();
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePathSubDir, UUID.randomUUID().toString() + ".fake");
+        final File file3 = ensureFileExists(uniquePathSubSubDir, UUID.randomUUID().toString() + ".fake");
+        final FsFile destFsFile1 = cfpt.getFsFileFromClientFile(file1, 2);
+        final FsFile destFsFile2 = cfpt.getFsFileFromClientFile(file2, 3);
+        final FsFile destFsFile3 = cfpt.getFsFileFromClientFile(file3, 4);
 
-		assertDeletePaths(data);
+        assertEquals(2, destFsFile1.getComponents().size());
+        assertEquals(3, destFsFile2.getComponents().size());
+        assertEquals(4, destFsFile3.getComponents().size());
+        assertEquals(destFsFile1.getComponents().get(0), destFsFile2.getComponents().get(0));
+        assertEquals(destFsFile1.getComponents().get(0), destFsFile3.getComponents().get(0));
+        assertEquals(destFsFile2.getComponents().get(1), destFsFile3.getComponents().get(1));
 
-		for (String path : data.usedFiles) {
-		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
-		}
-	}
+        final List<String> srcPaths = new ArrayList<String>();
+        final List<String> destPaths = new ArrayList<String>();
 
-	/**
-	 * Test that
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testDeleteUploadedMultipleFilesSimple()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
+        // Completely new files
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        srcPaths.add(file3.getAbsolutePath());
+        destPaths.add(destFsFile1.toString());
+        destPaths.add(destFsFile2.toString());
+        destPaths.add(destFsFile3.toString());
+        ImportLocation data1 = importFileset(srcPaths);
+        assertTrue(data1.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data1.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data1, i), destPaths.get(i));
+        }
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
-	    String file2 = file1 + ".dv.log";
+        // Same files should go into new directory
+        ImportLocation data2 = importFileset(srcPaths);
+        assertTrue(data2.usedFiles.size()==destPaths.size());
+        for (int i=0; i<data2.usedFiles.size(); i++) {
+            assertEndsWith(pathToUsedFile(data2, i), destPaths.get(i));
+        }
+        assertNotSame(data1.sharedPath, data2.sharedPath);
+        for (int index = 0; index < destPaths.size(); index++) {
+            assertEquals(data1.usedFiles.get(index), data2.usedFiles.get(index));
+        }
+    }
 
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = file2;
-	    srcPaths.add(buildPath(src));
-	    ImportLocation data = importFileset(srcPaths);
-		for (String path : data.usedFiles) {
-		    touch(uploadUsedFile(data, path));
-		    assertFileExists("Upload failed. File does not exist: ", path);
-		}
+    /**
+     * Test that a single uploaded file can be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteUploadedFileSimple() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
 
-		assertDeletePaths(data);
+        final List<String> srcPaths = new ArrayList<String>();
 
-		for (String path : data.usedFiles) {
-		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
-		}
-	}
+        srcPaths.add(file1.getAbsolutePath());
+        ImportLocation data = importFileset(srcPaths);
 
-	/**
-	 * Test that
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testDeleteUploadedPartialFiles()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, index));
+        }
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
-	    String file2 = file1 + ".dv.log";
+        assertDeletePaths(data);
 
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = file2;
-	    srcPaths.add(buildPath(src));
-	    ImportLocation data = importFileset(srcPaths);
-		touch(uploadUsedFile(data, data.usedFiles.get(0)));
-		assertFileExists("Upload failed. File does not exist: ", data.usedFiles.get(0));
-		assertFileDoesNotExist("Something wrong. File does exist!: ", data.usedFiles.get(1));
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileDoesNotExist("Delete failed. File not deleted: ", pathToUsedFile(data, index));
+        }
+    }
 
-		// Non-existent file should be silently ignored.
-		assertDeletePaths(data);
+    /**
+     * Test that multiple uploaded files can be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteUploadedMultipleFilesSimple() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
 
-		for (String path : data.usedFiles) {
-		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
-		}
-	}
+        final List<String> srcPaths = new ArrayList<String>();
 
-	/**
-	 * Test that
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testDeleteUploadedMultipleFilesNested()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        ImportLocation data = importFileset(srcPaths);
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String subDir = "sub";
-	    String subSubDir = "subsub";
-	    String file1 = UUID.randomUUID().toString() + ".mdb";
-	    String file2 = UUID.randomUUID().toString() + ".tif";
-	    String file3 = UUID.randomUUID().toString() + ".tif";
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, index));
+        }
 
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = subDir;
-	    src = (String[]) ArrayUtils.add(src, file2);
-	    srcPaths.add(buildPath(src));
-	    src[2] = subSubDir;
-	    src = (String[]) ArrayUtils.add(src,file3);
-	    srcPaths.add(buildPath(src));
+        assertDeletePaths(data);
 
-	    ImportLocation data = importFileset(srcPaths);
-		for (String path : data.usedFiles) {
-		    touch(uploadUsedFile(data, path));
-		    assertFileExists("Upload failed. File does not exist: ", path);
-		}
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileDoesNotExist("Delete failed. File not deleted: ", pathToUsedFile(data, index));
+        }
+    }
 
-		assertDeletePaths(data);
+    /**
+     * Test that a partial upload can be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteUploadedPartialFiles() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
 
-		for (String path : data.usedFiles) {
-		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
-		}
-	}
+        final List<String> srcPaths = new ArrayList<String>();
 
-	/**
-	 * Test that
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test
-	public void testDeleteUploadedMultipleSetsDeleteOneSet()
-	        throws Exception
-	{
-	    List<String> srcPaths = new ArrayList<String>();
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        // TODO: due to verifyUpload one cannot obtain the import location without uploading both files
+        ImportLocation data = importFileset(srcPaths, 1);
 
-	    String uniquePath = UUID.randomUUID().toString();
-	    String file1 = UUID.randomUUID().toString() + ".dv";
-	    String file2 = file1 + ".dv.log";
+        assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, 0));
+        assertFileDoesNotExist("Something wrong. File does exist!: ", pathToUsedFile(data, 1));
+ 
+        assertDeletePaths(data);
 
-	    String[] src = {uniquePath, file1};
-	    srcPaths.add(buildPath(src));
-	    src[1] = file2;
-	    srcPaths.add(buildPath(src));
-	    ImportLocation data1 = importFileset(srcPaths);
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileDoesNotExist("Delete failed. File not deleted: ", pathToUsedFile(data, index));
+        }
+    }
 
-	    srcPaths.clear();
-	    file1 = UUID.randomUUID().toString() + ".dv";
-	    file2 = file1 + ".dv.log";
-	    src[1] = file1;
-	    srcPaths.add(buildPath(src));
-	    src[1] = file2;
-	    srcPaths.add(buildPath(src));
-	    ImportLocation data2 = importFileset(srcPaths);
+    /**
+     * Test that multiple nested files can be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteUploadedMultipleFilesNested() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File uniquePathSubDir = new File(uniquePath, UUID.randomUUID().toString());
+        final File uniquePathSubSubDir = new File(uniquePathSubDir, UUID.randomUUID().toString());
+        uniquePathSubDir.mkdir();
+        uniquePathSubSubDir.mkdir();
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePathSubDir, UUID.randomUUID().toString() + ".fake");
+        final File file3 = ensureFileExists(uniquePathSubSubDir, UUID.randomUUID().toString() + ".fake");
 
-		for (String path : data1.usedFiles) {
-		    touch(uploadUsedFile(data1, path));
-		    assertFileExists("Upload failed. File does not exist: ", path);
-		}
-		for (String path : data2.usedFiles) {
-		    touch(uploadUsedFile(data2, path));
-		    assertFileExists("Upload failed. File does not exist: ", path);
-		}
-		assertDeletePaths(data1);
+        final List<String> srcPaths = new ArrayList<String>();
 
-		// This set should be gone
-		for (String path : data1.usedFiles) {
-		    assertFileDoesNotExist("Delete failed. File not deleted: ", path);
-		}
-		// This set should be still there
-		for (String path : data2.usedFiles) {
-		    assertFileExists("Delete failed. File deleted!: ", path);
-		}
-	}
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        srcPaths.add(file3.getAbsolutePath());
+        ImportLocation data = importFileset(srcPaths);
 
-    protected void assertDeletePaths(ImportLocation data1) throws ServerError,
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, index));
+        }
+
+        assertDeletePaths(data);
+
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            assertFileDoesNotExist("Delete failed. File not deleted: ", pathToUsedFile(data, index));
+        }
+    }
+
+    /**
+     * Test that with multiple files only those for a particular image are deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteUploadedMultipleSetsDeleteOneSet() throws Exception {
+        final File uniquePath = tempFileManager.createPath(UUID.randomUUID().toString(), null, true);
+        final File file1 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file2 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file3 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+        final File file4 = ensureFileExists(uniquePath, UUID.randomUUID().toString() + ".fake");
+
+        final List<String> srcPaths = new ArrayList<String>();
+
+        srcPaths.add(file1.getAbsolutePath());
+        srcPaths.add(file2.getAbsolutePath());
+        ImportLocation data1 = importFileset(srcPaths);
+
+        srcPaths.set(0, file3.getAbsolutePath());
+        srcPaths.set(1, file4.getAbsolutePath());
+        ImportLocation data2 = importFileset(srcPaths);
+
+        for (int index = 0; index < data1.usedFiles.size(); index++) {
+            assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data1, index));
+        }
+        for (int index = 0; index < data2.usedFiles.size(); index++) {
+            assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data2, index));
+        }
+
+        assertDeletePaths(data1);
+
+        for (int index = 0; index < data1.usedFiles.size(); index++) {
+            assertFileDoesNotExist("Delete failed. File not deleted: ", pathToUsedFile(data1, index));
+        }
+        for (int index = 0; index < data2.usedFiles.size(); index++) {
+            assertFileExists("Delete failed. File deleted!: ", pathToUsedFile(data2, index));
+        }
+    }
+
+    /**
+     * Make sure that the call to delete the import location's used files returns with success.
+     * @param data an import location
+     * @throws ServerError unexpected
+     * @throws InterruptedException unexpected
+     * @throws LockTimeout unexpected
+     */
+    protected void assertDeletePaths(ImportLocation data) throws ServerError,
             InterruptedException, LockTimeout {
-        HandlePrx handle = repo.deletePaths(
-		        data1.usedFiles.toArray(new String[data1.usedFiles.size()]),
-		        false, false);
+        final String[] pathsToDelete = new String[data.usedFiles.size()];
+        for (int index = 0; index < data.usedFiles.size(); index++) {
+            pathsToDelete[index] = pathToUsedFile(data, index);
+        }
+        HandlePrx handle = repo.deletePaths(pathsToDelete, false, false);
 		CmdCallbackI cb = new CmdCallbackI(client, handle);
-		cb.loop(5, 100);
+		cb.loop(10, 500);
 		assertCmd(cb, true);
     }
 
-    private void assertContains(String usedFile, String destPath)
+    /**
+     * Assert that the destination path ends with the used file.
+     * @param usedFile the used file
+     * @param destPath the destination path
+     */
+    private static void assertEndsWith(String usedFile, String destPath)
     {
-        assertTrue("\nExpected :" + destPath + "\nActual  :"
-                + usedFile, usedFile.contains(destPath));
+        assertTrue("\nExpected: " + destPath + "\nActual: "
+                + usedFile, usedFile.endsWith(destPath));
     }
-
-    private void touch(RawFileStorePrx prx) throws ServerError
-	{
-	    try
-	    {
-	        prx.write(new byte[]{0}, 0, 1);
-	    }
-	    finally
-	    {
-	        if (prx != null)
-	        {
-	            prx.close();
-	        }
-	    }
-	}
 }
