@@ -6187,12 +6187,13 @@ class _ImageWrapper (BlitzObjectWrapper):
                 self._onResetDefaults(rdid)
         return tb
 
-    def loadOriginalMetadata(self):
+    def loadOriginalMetadata(self, sort=True):
         """
         Gets original metadata from the file annotation.
         Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple.
         Metadata lists are lists of (key, value) tuples.
 
+        @param sort:    If True, we sort Metadata by key
         @return:    Tuple of (file-annotation, global-metadata, series-metadata)
         @rtype:     Tuple (L{FileAnnotationWrapper}, [], [])
         """
@@ -6216,7 +6217,9 @@ class _ImageWrapper (BlitzObjectWrapper):
             for k, v in m.items():
                 l.append((k, unwrap(v))) # was RType!
 
-        # Either FileAnnotation OR Fileset may be returned!
+        if sort:
+            global_metadata.sort(key=lambda x:x[0].lower())
+            series_metadata.sort(key=lambda x:x[0].lower())
         return (None, (global_metadata), (series_metadata))
 
     @assert_re()
