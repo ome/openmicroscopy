@@ -232,9 +232,11 @@ class OmeroImageServiceImpl
 					icContainers = ic.getContainers();
 					if (icContainers.size() == 0)
 						return Boolean.valueOf(false);
-					result = gateway.importImage(ctx, object, ioContainer,
+					result = gateway.importImageFile(ctx, object, ioContainer,
 							icContainers.get(0),
-							label, toClose, ImportableObject.isHCSFile(file), userName);
+							label, toClose, ImportableObject.isHCSFile(file),
+							userName);
+					/*
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -257,6 +259,7 @@ class OmeroImageServiceImpl
 						}
 						label.setFile(file, converted);
 					} else label.setFile(file, result);
+					*/
 				} catch (Exception e) {
 					label.setFile(file, e);
 				}
