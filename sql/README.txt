@@ -1,21 +1,20 @@
 
 DATABASE SCRIPTS:
-================
+=================
 
 The directories which are named after the supported database profiles (currently "psql")
-contains scripts for creating fresh databases as well as for upgrading existing database.
+contain scripts for creating fresh databases as well as for upgrading existing databases.
 
 All scripts are of the form:
 
-  CURRENTVERSION__CURRENTPATCH__TARGETVERSION__TARGETPATCH.sql
+  CURRENTVERSION__CURRENTPATCH/TARGETVERSION__TARGETPATCH.sql
 
-with the exception of:
+with the exception of scripts concatenated by "omero db script":
 
-  CURRENTVERSION__0__bootstrap.sql        Adds the "dbpatch" table to earlier databases
-  CURRENTVERSION__0__schema.sql           Creates a fresh database
-  CURRENTVERSION__0__data.sql             Adds OMERO-specific data to a fresh database
+  CURRENTVERSION__0/psql-header.sql      Prefixes schema.sql
+  CURRENTVERSION__0/schema.sql           Creates a fresh database
+  CURRENTVERSION__0/psql-footer.sql      Suffixes schema.sql, adjusts the "dbpatch" table
 
-
-To create the update scripts, first cleaned version of each schema are compared 
+To create the update scripts, first cleaned versions of each schema are compared 
 (where cleaned means simple formatting differences, random foreign key names, etc. 
 are removed). Then it is necessary to compare the values in all enumerations.
