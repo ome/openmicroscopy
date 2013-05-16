@@ -9,12 +9,11 @@ All scripts are of the form:
 
   CURRENTVERSION__CURRENTPATCH/TARGETVERSION__TARGETPATCH.sql
 
-with the exception of:
+with the exception of scripts concatenated by "omero db script":
 
   CURRENTVERSION__0/psql-header.sql      Prefixes schema.sql
   CURRENTVERSION__0/schema.sql           Creates a fresh database
   CURRENTVERSION__0/psql-footer.sql      Suffixes schema.sql, adjusts the "dbpatch" table
-  CURRENTVERSION__0/data.sql             Adds OMERO-specific data to a fresh database
 
 To create the update scripts, first cleaned versions of each schema are compared 
 (where cleaned means simple formatting differences, random foreign key names, etc. 
