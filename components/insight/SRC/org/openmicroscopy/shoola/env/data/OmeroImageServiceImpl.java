@@ -75,6 +75,7 @@ import omero.model.TagAnnotation;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1091,6 +1092,13 @@ class OmeroImageServiceImpl
 		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
 		StatusLabel status = importable.getStatus();
+		SecurityContext ctx = new SecurityContext(importable.getGroup().getId());
+
+		if (status.isMarkedAsCancel()) {
+			if (close) gateway.closeImport(ctx);
+			return Boolean.valueOf(false);
+		}
+		//If import as.
 		ExperimenterData loggedIn = context.getAdminService().getUserDetails();
 		long userID = loggedIn.getId();
 		String userName = null;
@@ -1100,19 +1108,14 @@ class OmeroImageServiceImpl
 			if (exp.getId() != loggedIn.getId())
 				userName = exp.getUserName();
 		}
-		SecurityContext ctx = 
-			new SecurityContext(importable.getGroup().getId());
 
-		if (status.isMarkedAsCancel()) {
-			if (close) gateway.closeImport(ctx);
-			return Boolean.valueOf(false);
-		}
 		Object result = null;
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
 		//Tags
-		if (tags != null && tags.size() > 0) {
+		Map<Object, Object> parameters = new HashMap<Object, Object>();
+		if (!CollectionUtils.isEmpty(tags)) {
 			List<TagAnnotationData> values = new ArrayList<TagAnnotationData>();
 			Iterator<TagAnnotationData> i = tags.iterator();
 			TagAnnotationData tag;
@@ -1126,7 +1129,7 @@ class OmeroImageServiceImpl
 			}
 			//save the tag.
 			try {
-				l = gateway.saveAndReturnObject(ctx, l, new HashMap(), userName);
+				l = gateway.saveAndReturnObject(ctx, l, parameters, userName);
 				Iterator<IObject> j = l.iterator();
 				Annotation a;
 				while (j.hasNext()) {
@@ -1152,7 +1155,7 @@ class OmeroImageServiceImpl
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
-		Map parameters = new HashMap();
+		
 		DataObject createdData;
 		IObject project = null;
 		DataObject folder = null;
@@ -1197,36 +1200,23 @@ class OmeroImageServiceImpl
 					container = null;
 			}
 			//remove hcs check if we want to create screen from folder.
-			if (!hcsFile && importable.isFolderAsContainer()) { 
+			if (!hcsFile && importable.isFolderAsContainer()) {
 				//we have to import the image in this container.
 				folder = object.createFolderAsContainer(importable, hcsFile);
-				if (folder instanceof DatasetData) {
-					try {
-						ioContainer = determineContainer(ctx,
-								(DatasetData) folder, container, object,
-								userName);
-						status.setContainerFromFolder(PojoMapper.asDataObject(
-								ioContainer));
-					} catch (Exception e) {
-						LogMessage msg = new LogMessage();
-						msg.print("Cannot create the container hosting the " +
-								"images.");
-						msg.print(e);
-						context.getLogger().error(this, msg);
-					}
-				} else if (folder instanceof ScreenData) {
-					try {
-						ioContainer = determineContainer(ctx, null, folder,
-								object, userName);
-						status.setContainerFromFolder(PojoMapper.asDataObject(
-								ioContainer));
-					} catch (Exception e) {
-						LogMessage msg = new LogMessage();
-						msg.print("Cannot create the Screen hosting " +
-								"the plate.");
-						msg.print(e);
-						context.getLogger().error(this, msg);
-					}
+				DatasetData d = null;
+				DataObject c = container;
+				if (folder instanceof DatasetData) d = (DatasetData) folder;
+				else if (folder instanceof ScreenData) c = folder;
+				try {
+					ioContainer = determineContainer(ctx, d, c, object,
+							userName);
+					status.setContainerFromFolder(PojoMapper.asDataObject(
+							ioContainer));
+				} catch (Exception e) {
+					LogMessage msg = new LogMessage();
+					msg.print("Cannot create the container.");
+					msg.print(e);
+					context.getLogger().error(this, msg);
 				}
 			}
 			if (folder == null && dataset != null) { //dataset
@@ -1431,6 +1421,7 @@ class OmeroImageServiceImpl
 					if (folder instanceof DatasetData) {
 						if (container != null) {
 							try {
+								Project p;
 								if (container.getId() <= 0) { 
 									//project needs to be created to.
 									createdData = object.hasObjectBeenCreated(
@@ -1441,32 +1432,19 @@ class OmeroImageServiceImpl
 												parameters, userName);
 										object.addNewDataObject(
 											PojoMapper.asDataObject(project));
-										link = (ProjectDatasetLink) 
-										ModelMapper.linkParentToChild(
-												(Dataset) ioContainer, 
-												(Project) project);
-										link = (ProjectDatasetLink) 
-										gateway.saveAndReturnObject(ctx, link,
-												parameters, userName);
+										p = (Project) project;
 									} else {
-										link = (ProjectDatasetLink) 
-										ModelMapper.linkParentToChild(
-												(Dataset) ioContainer, 
-												(Project) 
-												createdData.asProject());
-										link = (ProjectDatasetLink) 
-										gateway.saveAndReturnObject(ctx, link,
-												parameters, userName);
+										p = (Project) createdData.asProject();
 									}
 								} else { //project already exists.
-									link = (ProjectDatasetLink) 
-									ModelMapper.linkParentToChild(
-											(Dataset) ioContainer, 
-											(Project) container.asProject());
-									link = (ProjectDatasetLink) 
-									gateway.saveAndReturnObject(ctx, link, 
-											parameters, userName);
+									p = (Project) container.asProject();
 								}
+								link = (ProjectDatasetLink) 
+										ModelMapper.linkParentToChild(
+												(Dataset) ioContainer, p);
+										link = (ProjectDatasetLink) 
+										gateway.saveAndReturnObject(ctx, link,
+												parameters, userName);
 							} catch (Exception e) {
 								LogMessage msg = new LogMessage();
 								msg.print("Cannot create the container " +
