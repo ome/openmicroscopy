@@ -76,6 +76,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
@@ -85,6 +86,7 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ChecksumValidationException;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -124,7 +126,9 @@ import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallback;
+import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
+import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -132,6 +136,8 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportRequest;
 import omero.grid.LongColumn;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
@@ -6840,6 +6846,36 @@ class OMEROGateway
 			library.addObserver(status);
 			
 			//TODO create the handler
+			//TMP Code to be moved to the import
+			final ImportProcessPrx proc = library.createImport(ic);
+	        final HandlePrx handle;
+	        final String[] srcFiles = ic.getUsedFiles();
+	        final List<String> checksums = new ArrayList<String>();
+	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
+	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
+
+	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
+	                null, 0, srcFiles.length, null, null, null));
+
+	        for (int i = 0; i < srcFiles.length; i++) {
+	            checksums.add(library. uploadFile(proc, srcFiles, i,
+	            		checksumProviderFactory,
+	                    buf));
+	        }
+
+	        try {
+	            handle = proc.verifyUpload(checksums);
+	        } catch (ChecksumValidationException cve) {
+	            failingChecksums = cve.failingChecksums;
+	            throw cve;
+	        } finally {
+	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+	                    null, 0, srcFiles.length, null, null, srcFiles,
+	                    checksums, failingChecksums, null));
+	        }
+	        final ImportRequest req = (ImportRequest) handle.getRequest();
+	        final Fileset fs = req.activity.getParent();
+	        return library.createCallback(proc, handle, ic);
 		} catch (Throwable e) {
 			try {
 				if (reader != null) reader.close();
@@ -6855,7 +6891,6 @@ class OMEROGateway
 			if (omsc != null && close)
 				closeImport(ctx);
 		}
-		return null;
 	}
     
     Object importImageNew(SecurityContext ctx,
