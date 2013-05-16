@@ -1451,13 +1451,13 @@
         id int8 not null,
         bigEndian bool,
         permissions int8 not null,
-        interleaved int4,
+        interleaved bool,
         methodology varchar(255),
         physicalSizeX float8,
         physicalSizeY float8,
         physicalSizeZ float8,
         sha1 varchar(255) not null,
-        significantBits bool,
+        significantBits int4,
         sizeC int4 not null,
         sizeT int4 not null,
         sizeX int4 not null,
@@ -1479,7 +1479,7 @@
         image_index int4 not null,
         primary key (id),
         unique (image, image_index),
-        check (interleaved > 0 and sizeX > 0 and sizeY > 0 and sizeZ > 0 and sizeC > 0 and sizeT > 0)
+        check (significantBits > 0 and sizeX > 0 and sizeY > 0 and sizeZ > 0 and sizeC > 0 and sizeT > 0)
     );;
 
     create table pixelsannotationlink (
