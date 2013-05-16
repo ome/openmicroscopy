@@ -4047,8 +4047,9 @@ class OMEROGateway
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
 			try {
-				store.setFileId(of.getId().getValue()); 
+				store.setFileId(of.getId().getValue());
 			} catch (Exception e) {
+				closeService(ctx, store);
 				handleException(e, "Cannot set the file's id.");
 			}
 			if (folderPath != null) {
