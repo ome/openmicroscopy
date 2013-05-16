@@ -632,7 +632,7 @@ class BrowserModel
 			} catch (Throwable e) {
 				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 				un.notifyInfo("Magnification", 
-						"An error occured while magnifying the image.");
+						"An error occurred while magnifying the image.");
 			}
 			if (img != null) displayedImage = img;
         } else displayedImage = renderedImage;
