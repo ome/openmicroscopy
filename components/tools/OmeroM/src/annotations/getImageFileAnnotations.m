@@ -5,6 +5,9 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 %    annotations linked to the image specified by the input identifiers ids
 %    and owned by the session user.
 %
+%    fas = getImageFileAnnotations(session, images) returns all file
+%    annotations linked to the input images and owned by the session user.
+%
 %    fas = getImageFileAnnotations(session,  ids, 'include', include) only
 %    returns file annotations with the input namespace.
 %
@@ -14,6 +17,7 @@ function fas = getImageFileAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        fas = getImageFileAnnotations(session, ids)
+%        fas = getImageFileAnnotations(session, images)
 %        fas = getImageFileAnnotations(session, ids, 'include', include)
 %        fas = getImageFileAnnotations(session, ids, 'exclude', exclude)
 %

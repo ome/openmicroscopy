@@ -5,6 +5,9 @@ function fas = getScreenFileAnnotations(session, ids, varargin)
 %    annotations linked to the screens specified by the input identifiers
 %    and owned by the session user.
 %
+%    fas = getScreenFileAnnotations(session, screens) returns all file
+%    annotations linked to the input screens and owned by the session user.
+%
 %    fas = getScreenFileAnnotations(session,  ids, 'include', include) only
 %    returns file annotations with the input namespace.
 %
@@ -14,6 +17,7 @@ function fas = getScreenFileAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        fas = getScreenFileAnnotations(session, ids)
+%        fas = getScreenFileAnnotations(session, screens)
 %        fas = getScreenFileAnnotations(session, ids, 'include', include)
 %        fas = getScreenFileAnnotations(session, ids, 'exclude', exclude)
 %
