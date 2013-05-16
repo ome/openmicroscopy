@@ -70,8 +70,9 @@ rm -rf $(bin/brew --cache)
 # Install git if not already installed
 bin/brew list | grep "\bgit\b" || bin/brew install git
 
-# Update homebrew and run brew doctor
+# Update Homebrew, clean the git repository and run brew doctor
 bin/brew update
+git clean -df
 export PATH=$(bin/brew --prefix)/bin:$PATH
 bin/brew doctor
 
