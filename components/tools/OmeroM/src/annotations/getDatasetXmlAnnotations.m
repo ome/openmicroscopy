@@ -1,21 +1,26 @@
 function xas = getDatasetXmlAnnotations(session, ids, varargin)
 % GETDATASETXMLANNOTATIONS Retrieve xml annotations linked to datasets
 %
-%    fas = getDatasetXmlAnnotations(session, ids) returns all xml
+%    xas = getDatasetXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the datasets specified by the input identifiers
 %    and owned by the session user.
 %
-%    fas = getDatasetXmlAnnotations(session,  ids, 'include', include) only
+%    xas = getDatasetXmlAnnotations(session, datasets) returns all xml
+%    annotations linked to the input datasets and owned by the session
+%    user.
+%
+%    xas = getDatasetXmlAnnotations(session,  ids, 'include', include) only
 %    returns xml annotations with the input namespace.
 %
-%    fas = getDatasetXmlAnnotations(session,  ids, 'exclude', exclude)
+%    xas = getDatasetXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getDatasetXmlAnnotations(session, ids)
-%        fas = getDatasetXmlAnnotations(session, ids, 'include', include)
-%        fas = getDatasetXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getDatasetXmlAnnotations(session, ids)
+%        xas = getDatasetXmlAnnotations(session, datasets)
+%        xas = getDatasetXmlAnnotations(session, ids, 'include', include)
+%        xas = getDatasetXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETDATASETCOMMENTANNOTATIONS,
 % GETDATASETTAGANNOTATIONS, GETDATASETFILEANNOTATIONS
