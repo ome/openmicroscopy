@@ -340,7 +340,12 @@ public class FullTextBridge extends BridgeHelper {
             // None of these values can be null
             add(document, "file.name", file.getName(), opts);
             add(document, "file.path", file.getPath(), opts);
-            add(document, "file.hash", file.getHash(), opts);
+            if (file.getHasher() != null) {
+                add(document, "file.hasher", file.getHasher().getValue(), opts);
+            }
+            if (file.getHash() != null) {
+                add(document, "file.hash", file.getHash(), opts);
+            }
             if (file.getMimetype() != null) {
                 add(document, "file.format", file.getMimetype(), opts);
                 // ticket:2211 - duplicating for backwards compatibility
