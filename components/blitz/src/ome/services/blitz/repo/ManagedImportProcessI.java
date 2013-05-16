@@ -268,7 +268,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         if (!failingChecksums.isEmpty()) {
             throw new omero.ChecksumValidationException(null,
                     omero.ChecksumValidationException.class.toString(),
-                    "A checksum mismatch has occured.",
+                    "A checksum mismatch has occurred.",
                     failingChecksums);
         }
         // i==0 is the upload job which is implicit.
