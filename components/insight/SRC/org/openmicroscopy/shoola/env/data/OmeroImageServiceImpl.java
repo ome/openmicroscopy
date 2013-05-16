@@ -1274,9 +1274,10 @@ class OmeroImageServiceImpl
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
 					status.setUsedFiles(importIc.getUsedFiles());
-					result = gateway.importImage(ctx, object, ioContainer,
+					result = gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close,
 							ImportableObject.isHCSFile(f),userName);
+					/*
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -1292,7 +1293,7 @@ class OmeroImageServiceImpl
 									thumbnail));
 						}
 						return converted;
-					}
+					}*/
 					return result;
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
@@ -1325,8 +1326,10 @@ class OmeroImageServiceImpl
 					return Boolean.valueOf(false);
 				importIc = icContainers.get(0);
 				status.setUsedFiles(importIc.getUsedFiles());
-				result = gateway.importImage(ctx, object, ioContainer, importIc,
+				result = gateway.importImageFile(ctx, object, ioContainer,
+						importIc,
 					status, close, ImportableObject.isHCSFile(file), userName);
+				/*
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -1343,6 +1346,7 @@ class OmeroImageServiceImpl
 					}
 					return converted;
 				}
+				*/
 				return result;
 			}
 		} //file import ends.

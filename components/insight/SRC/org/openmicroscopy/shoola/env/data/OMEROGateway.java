@@ -123,6 +123,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
+import omero.cmd.CmdCallback;
 import omero.cmd.Delete;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -6800,6 +6801,63 @@ class OMEROGateway
                 config, ic ,status, close, hcs, userName);
 	}
 
+    /**
+	 * Imports the specified file. Returns the image.
+	 * 
+	 * @param ctx The security context.
+	 * @param object Information about the file to import.
+	 * @param container The folder to import the image.
+	 * @param name		The name to give to the imported image.
+	 * @param usedFiles The files returned composing the import.
+     * @param close Pass <code>true</code> to close the import,
+     * 		<code>false</code> otherwise.
+     * @param userName The user's name.
+	 * @return See above.
+	 * @throws ImportException If an error occurred while importing.
+	 */
+    CmdCallback importImageFile(SecurityContext ctx, ImportableObject object,
+            IObject container, ImportContainer ic, StatusLabel status,
+            boolean close, boolean hcs, String userName)
+        throws ImportException, DSAccessException, DSOutOfServiceException
+	{
+    	isSessionAlive(ctx);
+        ImportConfig config = new ImportConfig();
+        //FIXME: unclear why we would need to set these values on
+        // both the ImportConfig and the ImportContainer.
+        if (container != null) {
+        	 config.targetClass.set(container.getClass().getSimpleName());
+             config.targetId.set(container.getId().getValue());
+             ic.setTarget(container);
+        }
+       
+        ic.setUserPixels(object.getPixelsSize());
+        OMEROMetadataStoreClient omsc = null;
+        OMEROWrapper reader = null;
+		try {
+			omsc = getImportStore(ctx, userName);
+			reader = new OMEROWrapper(config);
+			ImportLibrary library = new ImportLibrary(omsc, reader);
+			library.addObserver(status);
+			
+			//TODO create the handler
+		} catch (Throwable e) {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
+			
+			handleConnectionException(e);
+			if (close) closeImport(ctx);
+			throw new ImportException(e);
+		} finally {
+			try {
+				if (reader != null) reader.close();
+			} catch (Exception ex) {}
+			if (omsc != null && close)
+				closeImport(ctx);
+		}
+		return null;
+	}
+    
     Object importImageNew(SecurityContext ctx,
             ImportConfig config, ImportContainer ic, StatusLabel status,
             boolean close, boolean hcs, String userName)
