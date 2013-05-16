@@ -4028,9 +4028,9 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
-		Iterator<?> i = files.iterator();
+		
 		OriginalFile of;
-		long size;	
+		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
@@ -4042,7 +4042,7 @@ class OMEROGateway
 			else folderPath = file.getParent();
 		}
 
-		i = files.iterator();
+		Iterator<?> i = files.iterator();
 		store = getRawFileService(ctx);
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
