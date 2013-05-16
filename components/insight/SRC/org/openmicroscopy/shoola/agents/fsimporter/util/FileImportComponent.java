@@ -365,7 +365,7 @@ public class FileImportComponent
 		case FAILURE:
 			menu.add(new JMenuItem(new AbstractAction("Submit") {
 	            public void actionPerformed(ActionEvent e) {
-	            	// TODO: submit the failure
+	            	showError();
 	            }
 	        }));
 			break;
@@ -498,7 +498,7 @@ public class FileImportComponent
 	 * 
 	 * @param p The location where to show the box.
 	 */
-	private void showError(Point p)
+	private void showError()
 	{
 		if (exception == null) return;
 		firePropertyChange(DISPLAY_ERROR_PROPERTY, null, exception);
@@ -735,7 +735,7 @@ public class FileImportComponent
 			 * @see MouseAdapter#mouseReleased(MouseEvent) 
 			 */
 			public void mouseReleased(MouseEvent e) {
-				showError(e.getPoint());
+				showError();
 			}
 			
 		});
