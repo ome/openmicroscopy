@@ -83,17 +83,20 @@ public class ImportEvent {
     }
 
     public static class POST_UPLOAD_EVENT extends PROGRESS_EVENT {
+        public final Long logFileId;
+
         public POST_UPLOAD_EVENT(int index, String filename, IObject target, Long pixId,
-                int series, ImportSize size, Integer numDone, Integer total) {
+                int series, ImportSize size, Integer numDone, Integer total, Long logFileId) {
             super(index, filename, target, pixId, series, size, numDone, total);
+            this.logFileId = logFileId;
         }
 
         @Override
         public String toLog() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.toLog());
-            sb.append(String.format("Step: %d of %d",
-                    numDone, total));
+            sb.append(String.format("Step: %d of %d  Logfile: %d",
+                    numDone, total, logFileId));
             return sb.toString();
         }
     }
@@ -381,36 +384,41 @@ public class ImportEvent {
 
     public static class METADATA_IMPORTED extends POST_UPLOAD_EVENT {
         public METADATA_IMPORTED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class THUMBNAILS_GENERATED extends POST_UPLOAD_EVENT {
         public THUMBNAILS_GENERATED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class PIXELDATA_PROCESSED extends POST_UPLOAD_EVENT {
         public PIXELDATA_PROCESSED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class METADATA_PROCESSED extends POST_UPLOAD_EVENT {
         public METADATA_PROCESSED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
     public static class OBJECTS_RETURNED extends POST_UPLOAD_EVENT {
         public OBJECTS_RETURNED(int index, String filename, IObject target,
-                Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
-            super(index, filename, target, pixId, series, size, numDone, total);
+                Long pixId, int series, ImportSize size,
+                Integer numDone, Integer total, Long fsId) {
+            super(index, filename, target, pixId, series, size, numDone, total, fsId);
         }
     }
 
