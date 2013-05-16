@@ -396,13 +396,14 @@ public class FileImportComponent
             }
         }));
         */
-		menu.add(new JMenuItem(new AbstractAction("Checksum") {
+		
+		JMenuItem checksumItem = new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
             	showChecksumDetails();
             }
-
-			
-        }));
+		});
+		checksumItem.setEnabled(statusLabel.hasChecksum());
+		menu.add(checksumItem);
 		
 		return menu;
 	}

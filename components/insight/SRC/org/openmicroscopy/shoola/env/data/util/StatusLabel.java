@@ -525,4 +525,8 @@ public class StatusLabel
 		}
 	}
 
+	public boolean hasChecksum() {
+		return checksumEvent != null;
+	}
+
 }
