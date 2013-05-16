@@ -47,7 +47,8 @@ fi
 if [ -d "$BREW_DIR/.git" ]
 then
     echo "Uninstalling Homebrew"
-    rm -rf $BREW_DIR/Cellar $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
+    rm -rf $BREW_DIR/Cellar && $BREW_DIR/bin/brew prune
+    rm -rf $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
 fi
 
 if [ -d "$BREW_DIR/Library/Taps" ]
