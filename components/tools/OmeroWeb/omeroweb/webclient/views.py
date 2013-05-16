@@ -2498,7 +2498,7 @@ def script_ui(request, scriptId, conn=None, **kwargs):
     return {'template':'webclient/scripts/script_ui.html', 'paramData': paramData, 'scriptId': scriptId}
 
 
-@login_required()
+@login_required(setGroupContext=True)       # group ctx used for getting Tags etc.
 @render_response()
 def figure_script(request, scriptName, conn=None, **kwargs):
     """
@@ -2506,50 +2506,111 @@ def figure_script(request, scriptName, conn=None, **kwargs):
     """
 
     imageIds = request.REQUEST.get('Image', None)    # comma - delimited list
-    if imageIds is None:
-        return HttpResponse("Need to specify Images as /?Image=1,2")
-    try:
-        imageIds = [long(i) for i in imageIds.split(",")]
-    except Exception, e:
-        return HttpResponse("Need to specify Images as /?Image=1,2")
+    datasetIds = request.REQUEST.get('Dataset', None)
+    if imageIds is None and datasetIds is None:
+        return HttpResponse("Need to specify /?Image=1,2 or /?Dataset=1,2")
 
-    images = list( conn.getObjects("Image", imageIds) )
-    if len(images) == 0:
-        raise Http404("No Images found with IDs %s" % imageIds)
+    def validateIds(dtype, ids):
+        ints = [int(oid) for oid in ids.split(",")]
+        validObjs = {}
+        for obj in conn.getObjects(dtype, ints):
+            validObjs[obj.id] = obj
+        filteredIds = [iid for iid in ints if iid in validObjs.keys()]
+        if len(filteredIds) == 0:
+            raise Http404("No %ss found with IDs %s" % (dtype, ids))
+        return filteredIds, validObjs
 
-    # 'images' list is not sorted. Only use it for validating imageIds
-    validImages = {}
-    for img in images:
-        validImages[img.getId()] = img
-    imageIds = [iid for iid in imageIds if iid in validImages]
+    context = {}
 
-    # Lookup Tags & Datasets (for row labels)
-    imgDict = []    # A list of data about each image.
-    for iId in imageIds:
-        data = {'id':iId}
-        img = validImages[iId]
-        data['name'] = img.getName()
-        tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
-        data['tags'] = tags
-        data['datasets'] = [d.getName() for d in img.listParents()]
-        imgDict.append(data)
+    if imageIds is not None:
+        imageIds, validImages = validateIds("Image", imageIds)
+        context['idString'] = ",".join( [str(i) for i in imageIds] )
+        context['dtype'] = "Image"
+    if datasetIds is not None:
+        datasetIds, validDatasets = validateIds("Dataset", datasetIds)
+        context['idString'] = ",".join( [str(i) for i in datasetIds] )
+        context['dtype'] = "Dataset"
 
-    # Use the first image as a reference
-    image = validImages[imageIds[0]]
-    channels = image.getChannels()
+    if scriptName == "SplitView":
+        scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
+        template = "webclient/scripts/split_view_figure.html"
+        # Lookup Tags & Datasets (for row labels)
+        imgDict = []    # A list of data about each image.
+        for iId in imageIds:
+            data = {'id':iId}
+            img = validImages[iId]
+            data['name'] = img.getName()
+            tags = [ann.getTextValue() for ann in img.listAnnotations() if ann._obj.__class__ == omero.model.TagAnnotationI]
+            data['tags'] = tags
+            data['datasets'] = [d.getName() for d in img.listParents()]
+            imgDict.append(data)
+
+        # Use the first image as a reference
+        image = validImages[imageIds[0]]
+        context['imgDict'] = imgDict
+        context['image'] = image
+        context['channels'] = image.getChannels()
+
+    elif scriptName == "Thumbnail":
+        scriptPath = "/omero/figure_scripts/Thumbnail_Figure.py"
+        template = "webclient/scripts/thumbnail_figure.html"
+        #context['tags'] = BaseContainer(conn).getTagsByObject()    # ALL tags
+
+        def loadImageTags(imageIds):
+            tagLinks = conn.getAnnotationLinks("Image", parent_ids=imageIds)
+            linkMap = {}    # group tags. {imageId: [tags]}
+            tagMap = {}
+            for iId in imageIds:
+                linkMap[iId] = []
+            for l in tagLinks:
+                c = l.getChild()
+                if c._obj.__class__ == omero.model.TagAnnotationI:
+                    tagMap[c.id] = c
+                    linkMap[l.getParent().id].append(c)
+            imageTags = []
+            for iId in imageIds:
+                imageTags.append({'id':iId, 'tags':linkMap[iId]})
+            tags = []
+            for tId, t in tagMap.items():
+                tags.append(t)
+            return imageTags, tags
+
+        thumbSets = []  # multiple collections of images
+        tags = []
+        figureName = "Thumbnail_Figure"
+        if datasetIds is not None:
+            for d in conn.getObjects("Dataset", datasetIds):
+                imgIds = [i.id for i in d.listChildren()]
+                imageTags, ts = loadImageTags(imgIds)
+                thumbSets.append({'name':d.getName(), 'imageTags': imageTags})
+                tags.extend(ts)
+            figureName = thumbSets[0]['name']
+        else:
+            imageTags, ts = loadImageTags(imageIds)
+            thumbSets.append({'name':'images', 'imageTags': imageTags})
+            tags.extend(ts)
+            parent = conn.getObject("Image", imageIds[0]).getParent()
+            figureName = parent.getName()
+            context['parent_id'] = parent.getId()
+        uniqueTagIds = set()      # remove duplicates
+        uniqueTags = []
+        for t in tags:
+            if t.id not in uniqueTagIds:
+                uniqueTags.append(t)
+                uniqueTagIds.add(t.id)
+        uniqueTags.sort(key=lambda x: x.getTextValue().lower())
+        context['thumbSets'] = thumbSets
+        context['tags'] = uniqueTags
+        context['figureName'] = figureName.replace(" ", "_")
 
     scriptService = conn.getScriptService()
-    scriptPath = "/omero/figure_scripts/Split_View_Figure.py"
     scriptId = scriptService.getScriptID(scriptPath);
     if (scriptId < 0):
         raise AttributeError("No script found for path '%s'" % scriptPath)
 
-    idString = ",".join( [str(i) for i in imageIds] )
-
-
-
-    return {"template": "webclient/scripts/split_view_figure.html", "scriptId": scriptId,
-        "image": image, "imgDict": imgDict, "idString":idString, "channels": channels, "tags": tags}
+    context['template'] = template
+    context['scriptId'] = scriptId
+    return context
 
 
 @login_required()
