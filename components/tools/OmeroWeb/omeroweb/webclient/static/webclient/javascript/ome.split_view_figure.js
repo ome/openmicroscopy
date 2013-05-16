@@ -17,14 +17,6 @@
 //
 
 $(document).ready(function() {
-    OME.setupAjaxError("{% url fsend %}");      // just in case!
-
-    $('#script_form').ajaxForm({
-        success: function(data) {
-            window.opener.OME.showActivities();
-            self.close();
-        }
-    });
 
 
     // Basically what we're doing here is supplementing the form fields
@@ -307,7 +299,4 @@ $(document).ready(function() {
             setImgSize(ui.value);
         }
     });
-
-    // For 'number' fields, only allow numbers input.
-    $(".number").numbersOnly();
 });

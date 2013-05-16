@@ -197,7 +197,16 @@ class BaseContainer(BaseController):
                     if i.getSizeC() > 1:
                         splitView['enabled'] = True
                         break
+        thumbnailFig = {'id': 'Thumbnail', 'name': 'Thumbnail Figure', 'enabled': False,
+            'tooltip': "Export a figure of thumbnails, optionally sorted by tag"}
+        # Thumbnail figure is enabled if we have Datasets or Images selected
+        if self.image or self.dataset:
+            thumbnailFig['enabled'] = True
+        elif objDict is not None:
+            if 'image' in objDict or 'dataset' in objDict:
+                thumbnailFig['enabled'] = True
         figureScripts.append(splitView)
+        figureScripts.append(thumbnailFig)
         return figureScripts
 
 
