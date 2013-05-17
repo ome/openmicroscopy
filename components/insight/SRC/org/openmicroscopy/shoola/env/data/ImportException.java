@@ -58,6 +58,19 @@ public class ImportException
 	/** Text to indicate that the file, after scanning is not valid. */
 	public static final String FILE_NOT_VALID_TEXT = "File Not Valid";
 	
+	/** Text to indicate that the file format is not supported. */
+	public static final String UNKNOWN_FORMAT_TEXT = "Unknown format";
+	
+	/** Text to indicate a library is missing. */
+	public static final String MISSING_LIBRARY_TEXT = "Missing library";
+	
+	/** Text to indicate the file is on tape. */
+	private static final String NETWORK_NAME_TEXT =
+			"The specified network name is no longer available";
+	
+	/** Text to indicate the file is on tape. */
+	private static final String SPACE_TEXT = "No space left on device";
+	
 	/** Indicates that the compression is not supported.*/
 	public static int COMPRESSION = 0;
 	
@@ -75,6 +88,9 @@ public class ImportException
 	
 	/** Indicates that the file is not valid.*/
 	public static int NOT_VALID = 5;
+	
+	/** Indicates that the file format is not supported.*/
+	public static int UNKNOWN_FORMAT = 6;
 
 	/** The status associated to the exception.*/
 	private int status;
@@ -117,6 +133,7 @@ public class ImportException
 	{
 		this(message, null);
 		if (FILE_NOT_VALID_TEXT.equals(message)) status = NOT_VALID;
+		else if (UNKNOWN_FORMAT_TEXT.equals(message)) status = UNKNOWN_FORMAT;
 	}
 	
 	/**
@@ -159,21 +176,19 @@ public class ImportException
 			return COMPRESSION;
 		} else if (cause instanceof FormatException) {
 			String message = cause.getMessage();
-			if (message.contains("missing libary"))
+			if (message.contains(MISSING_LIBRARY_TEXT.toLowerCase()))
 				return MISSING_LIBRARY;
 		} else if (cause instanceof IOException) {
 			String message = cause.getMessage();
-			if (message.contains(
-					"The specified network name is no longer available"))
+			if (message.contains(NETWORK_NAME_TEXT))
 				return FILE_ON_TAPE;
 		} else if (cause.getCause() instanceof IOException) {
 			String message = cause.getCause().getMessage();
-			if (message.contains(
-					"The specified network name is no longer available"))
+			if (message.contains(NETWORK_NAME_TEXT))
 				return FILE_ON_TAPE;
 		} else if (cause instanceof ResourceError) {
 			String message = cause.getMessage();
-			if (message.contains("No space left on device"))
+			if (message.contains(SPACE_TEXT))
 				return NO_SPACE;
 		} else if (cause instanceof omero.ChecksumValidationException) {
 			return CHECKSUM_MISMATCH;

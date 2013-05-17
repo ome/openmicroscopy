@@ -47,6 +47,7 @@ import ome.formats.importer.util.ErrorHandler;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -165,9 +166,6 @@ public class StatusLabel
 	/** The files associated to the file that failed to import. */
 	private String[] usedFiles;
 	
-	/** The text if an error occurred. */
-	private String errorText;
-	
 	/** Flag indicating that the import has been cancelled. */
 	private boolean markedAsCancel;
 	
@@ -203,6 +201,9 @@ public class StatusLabel
 
 	/** Checksum event stored for later retrieval */
 	private FILESET_UPLOAD_END checksumEvent;
+	
+	/** The exception if an error occurred.*/
+	private ImportException exception;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -246,7 +247,6 @@ public class StatusLabel
 		fileSize = "";
 		seriesCount = 0;
 		readerType = "";
-		errorText = FAILURE_TEXT;
 		markedAsCancel = false;
 		cancellable = true;
 		totalUploadedSize = 0;
@@ -327,7 +327,7 @@ public class StatusLabel
 	 * 
 	 * @return See above.
 	 */
-	public String getErrorText() { return errorText; }
+	public String getErrorText() { return ""; }
 
 	/**
 	 * Returns the type of reader used.
@@ -367,10 +367,16 @@ public class StatusLabel
 	}
 	
 	/**
-	 * Returns the source files that have checksum values
+	 * Returns the source files that have checksum values or <code>null</code>
+	 * if no event stored.
+	 * 
 	 * @return See above.
 	 */
-	public String[] getChecksumFiles() { return checksumEvent.srcFiles; }
+	public String[] getChecksumFiles()
+	{
+		if (checksumEvent == null) return null;
+		return checksumEvent.srcFiles;
+	}
 	
 	/**
 	 * Sets the status of the import.
@@ -481,10 +487,12 @@ public class StatusLabel
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
-			errorText = "unknown format";
+			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
+					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
 			handleProcessingError();
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
-			errorText = "missing required library";
+			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
+					((ErrorHandler.MISSING_LIBRARY) event).exception);
 			handleProcessingError();
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
