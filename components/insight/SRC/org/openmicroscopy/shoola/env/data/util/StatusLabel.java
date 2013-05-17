@@ -351,7 +351,7 @@ public class StatusLabel
 	 */
 	public List<String> getChecksums()
 	{
-		if (checksumEvent == null) return null;
+		if (!hasChecksum()) return null;
 		return checksumEvent.checksums;
 	}
 	
@@ -362,7 +362,7 @@ public class StatusLabel
 	 */
 	public Map<Integer, String> getFailingChecksums()
 	{
-		if (checksumEvent == null) return null;
+		if (!hasChecksum()) return null;
 		return checksumEvent.failingChecksums;
 	}
 	
@@ -374,9 +374,18 @@ public class StatusLabel
 	 */
 	public String[] getChecksumFiles()
 	{
-		if (checksumEvent == null) return null;
+		if (!hasChecksum()) return null;
 		return checksumEvent.srcFiles;
 	}
+	
+
+	/** 
+	 * Returns <code>true</code> if the checksums have been calculated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return
+	 */
+	public boolean hasChecksum() { return checksumEvent != null; }
 	
 	/**
 	 * Sets the status of the import.
@@ -480,6 +489,7 @@ public class StatusLabel
 		if (event == null) return;
 		cancellable = false;
 		if (event instanceof ImportEvent.IMPORT_DONE) {
+			//Notify that we have the pixels now.
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			if (!markedAsCancel) generalLabel.setText(SCANNING_TEXT);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
@@ -542,10 +552,6 @@ public class StatusLabel
 			uploadBar.setVisible(true);
 			processingBar.setVisible(true);
 		}
-	}
-
-	public boolean hasChecksum() {
-		return checksumEvent != null;
 	}
 
 }
