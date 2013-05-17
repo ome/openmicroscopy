@@ -739,7 +739,7 @@ public class FileImportComponent
 				{10.0, TableLayout.FILL, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED, TableLayout.PREFERRED,10.0},
-				{10.0, TableLayout.PREFERRED, 100.0}
+				{10.0, TableLayout.PREFERRED, 10.0}
 		};
 		
 		TableLayout layout = new TableLayout(design);
