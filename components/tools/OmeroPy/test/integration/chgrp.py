@@ -32,12 +32,10 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
 
         # Import an image into the client context
-        pixID = long(self.import_image(client=client)[0])
-        pixels = client.sf.getQueryService().get("Pixels", pixID)
-        imageId = pixels.getImage().getId().getValue()
+        image = self.importSingleImage(name="testChgrpImportedImage", client=client)
 
         # Chgrp
-        chgrp = omero.cmd.Chgrp(type="/Image", id=imageId, options=None, grp=gid)
+        chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, options=None, grp=gid)
         self.doSubmit(chgrp, client)
 
         # Change our context to new group...
@@ -45,7 +43,7 @@ class TestChgrp(lib.ITest):
         admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         # ...check image
-        img = client.sf.getQueryService().get("Image", imageId)
+        img = client.sf.getQueryService().get("Image", image.id.val)
         self.assertEqual(img.details.group.id.val, gid)
 
 
@@ -168,7 +166,7 @@ class TestChgrp(lib.ITest):
         member = self.new_client(group=source_grp)
 
         # Create an image as the owner
-        image = self.createTestImage(session=owner.sf)
+        image = self.importSingleImage(name="testChgrpRdef7825", client=owner)
 
         # Render as both users
         owner_g = omero.gateway.BlitzGateway(client_obj=owner)
