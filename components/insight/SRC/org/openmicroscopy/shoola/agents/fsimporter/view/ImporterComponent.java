@@ -878,7 +878,7 @@ class ImporterComponent
 		Iterator<PixelsData> i = pixels.iterator();
 		int index = 0;
 		while (i.hasNext()) {
-			if (index == 3) break;
+			if (index == FileImportComponent.MAX_THUMBNAILS) break;
 			l.add(i.next());
 			index++;
 		}
@@ -893,6 +893,6 @@ class ImporterComponent
 	{
 		if (component == null || model.getState() == DISCARDED) return;
 		FileImportComponent c = (FileImportComponent) component;
-		c.setStatus(true, result);
+		c.setStatus(result);
 	}
 }

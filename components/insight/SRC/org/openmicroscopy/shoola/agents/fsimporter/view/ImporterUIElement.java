@@ -504,23 +504,6 @@ class ImporterUIElement
 			//
 			components.put(c.toString(), c);
 		}
-		List<DataObject> objects = getExistingContainers();
-		int n = objects.size();
-		if (n == 1) {
-			DataObject o = objects.get(0);
-			containerComponents.put(createNameLabel(o), o);
-			Iterator<FileImportComponent> j = components.values().iterator();
-			while (j.hasNext()) {
-				j.next().showContainerLabel(false);
-			}
-		} else if (n == 0) {
-			if (foldersName.size() == 1) {
-				Iterator<FileImportComponent> j = components.values().iterator();
-				while (j.hasNext()) {
-					j.next().showContainerLabel(false);
-				}
-			}
-		}
 		totalToImport = files.size();
 		totalFilesToImport = files.size();
 	}
@@ -777,7 +760,7 @@ class ImporterUIElement
 		FileImportComponent c = components.get(f.toString());
 		Object formattedResult = null;
 		if (c != null) {
-			formattedResult = c.setStatus(false, result);
+			c.setStatus(result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
@@ -976,27 +959,6 @@ class ImporterUIElement
 		existingContainers.addAll(projects.values());
 		existingContainers.addAll(screens.values());
 		return existingContainers;
-	}
-	
-	/**
-	 * Returns <code>true</code> if errors to send, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasFailuresToSend()
-	{
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (fc.hasFailuresToSend()) 
-				return true;
-		}
-		return false;
 	}
 
 	/**

@@ -313,9 +313,9 @@ class ImporterUI extends TopWindow
 				controller.getAction(
 						ImporterControl.RETRY_BUTTON).setEnabled(
 							hasFailuresToReimport());
-				controller.getAction(
-						ImporterControl.SEND_BUTTON).setEnabled(
-								hasSelectedFailuresToSend());
+				//controller.getAction(
+				//		ImporterControl.SEND_BUTTON).setEnabled(
+				//				hasSelectedFailuresToSend());
 			}
 		});
 	}
@@ -625,7 +625,7 @@ class ImporterUI extends TopWindow
 	 */
 	boolean hasFailuresToSend()
 	{
-		return hasSelectedFailuresToSend();
+		return false;//hasSelectedFailuresToSend();
 	}
 	
 	
@@ -671,19 +671,6 @@ class ImporterUI extends TopWindow
 			//ignore
 		}
 	}
-    
-    /**
-     * Returns <code>true</code> if the selected pane has failures to send,
-     * <code>false/code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean hasSelectedFailuresToSend()
-    {
-    	ImporterUIElement pane = getSelectedPane();
-    	if (pane == null) return false;
-    	return pane.hasFailuresToSend();
-    }
     
     /**
 	 * Returns the collection of files that could not be imported.
