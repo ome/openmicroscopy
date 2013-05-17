@@ -11,7 +11,6 @@ export BREW_DIR=${BREW_DIR:-/usr/local}
 export VENV_DIR=${VENV_DIR:-$BREW_DIR/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
-export JOB_WS=`pwd`
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
 VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
@@ -138,7 +137,7 @@ bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
 # Install additional Python dependencies
-bash $JOB_WS/docs/install/python_deps.sh
+bash bin/omero_python_deps
 
 # Set environment variables
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
