@@ -235,7 +235,8 @@ class TestDelete(lib.ITest):
 
         images = list()
         for i in range(0,10):
-            img = self.createTestImage(session = self.client.sf)
+            img = self.new_image()
+            img = update.saveAndReturnObject(img)
             iid = img.getId().getValue()
             
             oFile = omero.model.OriginalFileI()
@@ -282,7 +283,8 @@ class TestDelete(lib.ITest):
         
         images = list()
         for i in range(0,5):
-            img = self.createTestImage(session=self.client.sf)
+            img = self.new_image()
+            img = update.saveAndReturnObject(img)
             images.append(img.id.val)
         
         p = omero.sys.Parameters()
@@ -376,9 +378,7 @@ class TestDelete(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
 
-        img = omero.model.ImageI()
-        img.name = omero.rtypes.rstring("delete tagset test")
-        img.acquisitionDate = omero.rtypes.rtime(0)
+        img = self.new_image(name="delete tagset test")
 
         tag = omero.model.TagAnnotationI()
         tag.textValue = omero.rtypes.rstring("tag %s" % uuid)
