@@ -43,6 +43,7 @@ import omero.cmd.CmdCallbackI;
 import omero.cmd.ERR;
 import omero.cmd.HandlePrx;
 import omero.cmd.Response;
+import omero.cmd.Status;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
@@ -62,6 +63,8 @@ import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import Ice.Current;
 
 /**
  * support class for the proper usage of {@link OMEROMetadataStoreClient} and
@@ -482,6 +485,45 @@ public class ImportLibrary implements IObservable
                     notifyObservers(new ImportEvent.OBJECTS_RETURNED(
                             0, container.getFile().getAbsolutePath(),
                             null, null, 0, null, step, total));
+                }
+            }
+            
+            /**
+             * Overridden to handle the end of the process.
+             * @see CmdCallbackI#onFinished(Response, Status, Current)
+             */
+            public void onFinished(Response rsp, Status status, Current c)
+            {
+                ImportResponse rv = null;
+                final ImportRequest req = (ImportRequest) handle.getRequest();
+                final Fileset fs = req.activity.getParent();
+                if (rsp instanceof ERR) {
+                    final ERR err = (ERR) rsp;
+                    final RuntimeException rt = new RuntimeException(
+                    		String.format(
+                            "Failure response on import!\n" +
+                            "Category: %s\n" +
+                            "Name: %s\n" +
+                            "Parameters: %s\n", err.category, err.name,
+                            err.parameters));
+                    notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                            container.getFile().getAbsolutePath(), rt,
+                            container.getUsedFiles(), container.getReader()));
+                    return;
+                } else if (rsp instanceof ImportResponse) {
+                    rv = (ImportResponse) rsp;
+                }
+
+                if (rv == null) {
+                    final RuntimeException rt
+                        = new RuntimeException("Unknown response: " + rsp);
+                    notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                            container.getFile().getAbsolutePath(), rt,
+                            container.getUsedFiles(), container.getReader()));
+                } else {
+                	notifyObservers(new ImportEvent.IMPORT_DONE(
+                            0, container.getFile().getAbsolutePath(),
+                            null, null, 0, null, rv.pixels, fs, rv.objects));
                 }
             }
         };
