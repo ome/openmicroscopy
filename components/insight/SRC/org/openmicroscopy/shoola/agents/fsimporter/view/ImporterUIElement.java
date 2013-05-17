@@ -740,22 +740,26 @@ class ImporterUIElement
 	 * @param result The result.
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	void uploaComplete(ImportableFile f, Object result)
+	Object uploaComplete(ImportableFile f, Object result)
 	{
 		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
-		if (c == null) return;
+		if (c == null) return null;
 		countUploaded++;
-		if (isDone() && rotationIcon != null)
-			rotationIcon.stopRotation();
+		Object r = null;
 		if (file.isFile()) {
-			if (result instanceof Exception) countFailure++;
-			else if (c.isCancelled()) countCancelled++;
+			//handle error that occurred during the scanning or upload.
+			if (result instanceof Exception) {
+				r = new ImportErrorObject(file, (Exception) result);
+				countFailure++;
+				setImportedFile(f, result);
+			} else if (c.isCancelled()) countCancelled++;
 		}
 		if (file.isDirectory() && !c.hasComponents() && 
 				c.isCancelled()) countCancelled++;
 		setNumberOfImport();
 		setClosable(isUploadComplete());
+		return r;
 	}
 	
 	/**
@@ -776,8 +780,9 @@ class ImporterUIElement
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
-				if (c.hasImportFailed()) countFailure++;
-				else if (!c.isCancelled()) countFilesImported++;
+				//if (c.hasImportFailed()) countFailure++;
+				//else
+				if (!c.isCancelled()) countFilesImported++;
 			}
 			if (file.isDirectory() && !c.hasComponents() && 
 					c.isCancelled()) countCancelled++;

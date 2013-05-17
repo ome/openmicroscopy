@@ -312,11 +312,12 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
-		if (element != null) element.uploaComplete(f, result);
-
-		/*
+		boolean refreshTree = false;
+		List<DataObject> containers = null;
+		Object formattedResult = null;
+		//Handle exception that can occur during scanning or upload.
 		if (element != null) {
-			formattedResult = element.setImportedFile(f, result);
+			formattedResult = element.uploaComplete(f, result);
 			if (element.isDone()) {
 				refreshTree = element.hasToRefreshTree();
 				containers = element.getExistingContainers();
@@ -328,10 +329,10 @@ class ImporterComponent
 					element = view.getElementToStartImportFor();
 					if (element != null) importData(element);
 				}
-				
 			}
 			fireStateChange();
 		}
+
 		//post an event
 		if (!controller.isMaster()) {
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
@@ -341,19 +342,17 @@ class ImporterComponent
 			event.setToRefresh(refreshTree);
 			bus.post(event);
 		}
-		
-		
+
+
 		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
 		{
 			//reload the hierarchies.
-			Class rootType = ProjectData.class;
-			if (chooser != null && 
-					chooser.getType() == Importer.SCREEN_TYPE)
+			Class<?> rootType = ProjectData.class;
+			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
 				rootType = ScreenData.class;
 			model.fireContainerLoading(rootType, true, false, -1);
 			fireStateChange();
 		}
-		*/
 	}
 	
 	/** 
