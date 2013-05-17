@@ -596,11 +596,8 @@ public class FileImportComponent
 		actionMenuButton.setVisible(false);
 		actionMenuButton.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent ev) {
-				int x = 0;
-				int y = actionMenuButton.getY()
-				           + actionMenuButton.getHeight();
 				JPopupMenu popup = createActionMenu();
-				popup.show(actionMenuButton,x,y);
+				popup.show(actionMenuButton,0,actionMenuButton.getHeight());
 			}
 		});
 		
@@ -742,7 +739,7 @@ public class FileImportComponent
 				{10.0, TableLayout.FILL, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED, TableLayout.PREFERRED,10.0},
-				{10.0, TableLayout.PREFERRED, 10.0}
+				{10.0, TableLayout.PREFERRED, 100.0}
 		};
 		
 		TableLayout layout = new TableLayout(design);
