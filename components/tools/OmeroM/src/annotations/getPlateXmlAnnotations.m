@@ -1,21 +1,25 @@
 function xas = getPlateXmlAnnotations(session, ids, varargin)
 % GETPLATEXMLANNOTATIONS Retrieve xml annotations linked to plates
 %
-%    fas = getPlateXmlAnnotations(session, ids) returns all xml
+%    xas = getPlateXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the plates specified by the input identifiers
 %    and owned by the session user.
 %
-%    fas = getPlateXmlAnnotations(session,  ids, 'include', include) only
+%    xas = getPlateXmlAnnotations(session, plates) returns all xml
+%    annotations linked to the input plates and owned by the session user.
+%
+%    xas = getPlateXmlAnnotations(session,  ids, 'include', include) only
 %    returns xml annotations with the input namespace.
 %
-%    fas = getPlateXmlAnnotations(session,  ids, 'exclude', exclude)
+%    xas = getPlateXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getPlateXmlAnnotations(session, ids)
-%        fas = getPlateXmlAnnotations(session, ids, 'include', include)
-%        fas = getPlateXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getPlateXmlAnnotations(session, ids)
+%        xas = getPlateXmlAnnotations(session, plates)
+%        xas = getPlateXmlAnnotations(session, ids, 'include', include)
+%        xas = getPlateXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETPLATECOMMENTANNOTATIONS,
 % GETPLATETAGANNOTATIONS, GETPLATEFILEANNOTATIONS

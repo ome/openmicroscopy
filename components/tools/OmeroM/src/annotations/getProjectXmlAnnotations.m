@@ -1,21 +1,26 @@
 function xas = getProjectXmlAnnotations(session, ids, varargin)
 % GETPROJECTXMLANNOTATIONS Retrieve xml annotations linked to projects
 %
-%    fas = getProjectXmlAnnotations(session, ids) returns all xml
+%    xas = getProjectXmlAnnotations(session, ids) returns all xml
 %    annotations linked to the projects specified by the input identifiers
 %    and owned by the session user.
 %
-%    fas = getProjectXmlAnnotations(session,  ids, 'include', include) only
+%    xas = getProjectXmlAnnotations(session, projects) returns all xml
+%    annotations linked to the input projects and owned by the session
+%    user.
+%
+%    xas = getProjectXmlAnnotations(session,  ids, 'include', include) only
 %    returns xml annotations with the input namespace.
 %
-%    fas = getProjectXmlAnnotations(session,  ids, 'exclude', exclude)
+%    xas = getProjectXmlAnnotations(session,  ids, 'exclude', exclude)
 %    excludes xml annotations with the input namespace.
 %
 %    Examples:
 %
-%        fas = getProjectXmlAnnotations(session, ids)
-%        fas = getProjectXmlAnnotations(session, ids, 'include', include)
-%        fas = getProjectXmlAnnotations(session, ids, 'exclude', exclude)
+%        xas = getProjectXmlAnnotations(session, ids)
+%        xas = getProjectXmlAnnotations(session, projects)
+%        xas = getProjectXmlAnnotations(session, ids, 'include', include)
+%        xas = getProjectXmlAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETPROJECTCOMMENTANNOTATIONS,
 % GETPROJECTTAGANNOTATIONS, GETPROJECTFILEANNOTATIONS

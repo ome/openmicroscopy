@@ -5,6 +5,9 @@ function tas = getScreenTagAnnotations(session, ids, varargin)
 %    annotations linked to the screens specified by the input identifiers
 %    ids and owned by the session user.
 %
+%    tas = getScreenTagAnnotations(session, screens) returns all tag
+%    annotations linked to the input screens and owned by the session user.
+%
 %    tas = getScreenTagAnnotations(session,  ids, 'include', include) only
 %    returns tag annotations with the input namespace.
 %
@@ -14,8 +17,9 @@ function tas = getScreenTagAnnotations(session, ids, varargin)
 %    Examples:
 %
 %        tas = getScreenTagAnnotations(session, ids)
-%        fas = getScreenTagAnnotations(session, ids, 'include', include)
-%        fas = getScreenTagAnnotations(session, ids, 'exclude', exclude)
+%        tas = getScreenTagAnnotations(session, screens)
+%        tas = getScreenTagAnnotations(session, ids, 'include', include)
+%        tas = getScreenTagAnnotations(session, ids, 'exclude', exclude)
 %
 % See also: GETOBJECTANNOTATIONS, GETSCREENCOMMENTANNOTATIONS,
 % GETSCREENFILEANNOTATIONS, GETSCREENXMLANNOTATIONS
