@@ -27,26 +27,26 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
+
+import org.apache.commons.collections.CollectionUtils;
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
-import org.springframework.util.CollectionUtils;
-
 import pojos.DataObject;
-import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 
 /**
@@ -64,15 +64,17 @@ public class ImportResultLoader
 	private CallHandle handle;
 	
 	/** The identifier of the objects to load.*/
-	private final List<Object> ids;
+	private final Collection<DataObject> ids;
 	
 	/** 
 	 * The type of object to load: supported ImageData, PlateData,
 	 * ThumbnailData.*/
 	private final Class<?> nodeType;
-
-	/** The importable object.*/
-	private final ImportableFile object;
+	
+	/** The component hosting the result of the upload.*/
+	private Object comp;
+	
+	private List<Object> result;
 	
 	/**
 	 * Creates a new instance.
@@ -81,22 +83,22 @@ public class ImportResultLoader
 	 * Mustn't be <code>null</code>.
      * @param ctx The security context.
 	 * @param ids The collection of objects to load.
-	 * @param nodeType The type of node either Image or Plate
+	 * @param nodeType The type of node.
+	 * @param comp The component hosting the result.
 	 */
 	public ImportResultLoader(Importer viewer, SecurityContext ctx,
-			List<Object> ids, Class<?> nodeType, ImportableFile object)
+			Collection<DataObject> ids, Class<?> nodeType, Object comp)
 	{
 		super(viewer, ctx);
-		if (CollectionUtils.isEmpty(ids) || object == null || nodeType == null)
+		if (CollectionUtils.isEmpty(ids) || nodeType == null)
 			throw new IllegalArgumentException("No data to load");
 		//Check supported type
-		if (!(ImageData.class.equals(nodeType) ||
-			PlateData.class.equals(nodeType) ||
+		if (!(PlateData.class.equals(nodeType) ||
 			ThumbnailData.class.equals(nodeType)))
 			throw new IllegalArgumentException("Type not supported");
 		this.ids = ids;
 		this.nodeType = nodeType;
-		this.object = object;
+		this.comp = comp;
 	}
 	
 	/** 
@@ -105,19 +107,17 @@ public class ImportResultLoader
 	 */
 	public void load()
 	{
-		if (nodeType.equals(ImageData.class)) {
-			handle = dmView.getImages(ctx, nodeType, ids, userID, this);
-		} else if (nodeType.equals(ThumbnailData.class)) {
-			List<DataObject> objects = new ArrayList<DataObject>();
-			Iterator<Object> i = ids.iterator();
-			Object object;
+		if (nodeType.equals(PlateData.class)) {
+			List<Long> objects = new ArrayList<Long>();
+			Iterator<DataObject> i = ids.iterator();
+			PixelsData pxd;
 			while (i.hasNext()) {
-				object = i.next();
-				if (object instanceof DataObject) {
-					objects.add((DataObject) object);
-				}
+				pxd = (PixelsData) i.next();
+				objects.add(pxd.getImage().getId());
 			}
-			handle = hiBrwView.loadThumbnails(ctx, objects,
+			//handle = dmView.getImages(ctx, nodeType, objects, userID, this);
+		} else if (nodeType.equals(ThumbnailData.class)) {
+			handle = hiBrwView.loadThumbnails(ctx, ids,
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, HierarchyBrowsingView.IMAGE, this);
@@ -137,19 +137,19 @@ public class ImportResultLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED ||
-        	!ThumbnailData.class.equals(nodeType)) return;  //Async cancel.
+        	!ThumbnailData.class.equals(nodeType)) return;
         
         List l = (List) fe.getPartialResult();
-        if (l != null && l.size()  > 0) {
+        if (!CollectionUtils.isEmpty(l)) {
+        	if (result == null) result = new ArrayList<Object>();
         	Iterator i = l.iterator();
         	ThumbnailData td;
         	Object ref;
         	while (i.hasNext()) {
-        		td = (ThumbnailData) i.next();
-        		ref = td.getRefObject();
-        		if (ref == null) ref = td.getImageID();
-        		//TODO handle result
+        		result.add(i.next());
 			}
+        	if (result.size() == ids.size())
+        		viewer.setImportResult(result, comp);
         }
     }
     

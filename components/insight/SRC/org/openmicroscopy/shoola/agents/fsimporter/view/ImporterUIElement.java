@@ -738,13 +738,15 @@ class ImporterUIElement
 	 * 
 	 * @param f The imported file.
 	 * @param result The result.
+	 * @param index The index corresponding to the component
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object uploaComplete(ImportableFile f, Object result)
+	Object uploaComplete(ImportableFile f, Object result, int index)
 	{
 		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
 		if (c == null) return null;
+		c.uploadComplete(result, index);
 		countUploaded++;
 		Object r = null;
 		if (file.isFile()) {

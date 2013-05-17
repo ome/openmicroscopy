@@ -368,6 +368,8 @@ class ImporterControl
 		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
 			GroupData newGroup = (GroupData) evt.getNewValue();
 			model.setUserGroup(newGroup);
+		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
+			model.onImportComplete((FileImportComponent) evt.getNewValue());
 		}
 	}
 

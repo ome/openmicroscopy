@@ -50,16 +50,19 @@ import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import org.springframework.util.CollectionUtils;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
+import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -306,9 +309,9 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setImportedFile(ImportableFile, Object, int)
+	 * @see Importer#uploadComplete(ImportableFile, Object, int)
 	 */
-	public void setImportedFile(ImportableFile f, Object result, int index)
+	public void uploadComplete(ImportableFile f, Object result, int index)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
@@ -317,7 +320,7 @@ class ImporterComponent
 		Object formattedResult = null;
 		//Handle exception that can occur during scanning or upload.
 		if (element != null) {
-			formattedResult = element.uploaComplete(f, result);
+			formattedResult = element.uploaComplete(f, result, index);
 			if (element.isDone()) {
 				refreshTree = element.hasToRefreshTree();
 				containers = element.getExistingContainers();
@@ -355,6 +358,44 @@ class ImporterComponent
 		}
 	}
 	
+	private void handleCompletion(ImporterUIElement element, Object result)
+	{
+		boolean refreshTree = false;
+		List<DataObject> containers = null;
+		if (element != null && element.isDone()) {
+			refreshTree = element.hasToRefreshTree();
+			containers = element.getExistingContainers();
+			model.importCompleted(element.getID());
+			view.onImportEnded(element);
+			if (markToclose) {
+				view.setVisible(false);
+			} else {
+				element = view.getElementToStartImportFor();
+				if (element != null) importData(element);
+			}
+			fireStateChange();
+		}
+
+		//post an event
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
+					containers, result);
+			e.setToRefresh(refreshTree);
+			bus.post(e);
+		}
+
+
+		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
+		{
+			//reload the hierarchies.
+			Class<?> rootType = ProjectData.class;
+			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
+				rootType = ScreenData.class;
+			model.fireContainerLoading(rootType, true, false, -1);
+			fireStateChange();
+		}
+	}
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setExistingTags(Collection)
@@ -815,4 +856,43 @@ class ImporterComponent
 		return false;
 	}
 
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#onImportComplete(FileImportComponent)
+	 */
+	public void onImportComplete(FileImportComponent component)
+	{
+		if (component == null || model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getUIElement(component.getIndex());
+		if (element == null) return;
+		Object result = component.getImportResult();
+		handleCompletion(element, result);
+		if (result instanceof Exception) {
+			//notify error
+			return;
+		}
+		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
+		if (CollectionUtils.isEmpty(pixels)) return;
+		//Extract the first 3.
+		Collection<DataObject> l = new ArrayList<DataObject>();
+		Iterator<PixelsData> i = pixels.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			if (index == 3) break;
+			l.add(i.next());
+			index++;
+		}
+		model.fireImportResultLoading(l, ThumbnailData.class, component);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#setImportResult(Object, Object)
+	 */
+	public void setImportResult(Object result, Object component)
+	{
+		if (component == null || model.getState() == DISCARDED) return;
+		FileImportComponent c = (FileImportComponent) component;
+		c.setStatus(true, result);
+	}
 }

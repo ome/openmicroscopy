@@ -93,6 +93,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -355,6 +356,8 @@ public class FileImportComponent
 	/** The state of the import */
 	private ImportStatus resultIndex;
 	
+	/** The index associated to the main component.*/
+	private int index;
 	
 	private JPopupMenu createActionMenu()
 	{
@@ -1547,7 +1550,33 @@ public class FileImportComponent
 		reimportedLabel.setVisible(true);
 		repaint();
 	}
+	
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param result The result.
+	 * @param index The index corresponding to the component.
+	 */
+	public void uploadComplete(Object result, int index)
+	{
+		this.index = index;
+	}
 
+	/**
+	 * Returns the index associated to the main component.
+	 * 
+	 * @return See above.
+	 */
+	public int getIndex() { return index; }
+	
+	/**
+	 * Returns the result of the import either a collection of
+	 * <code>PixelsData</code> or an exception.
+	 * 
+	 * @return See above.
+	 */
+	public Object getImportResult() { return statusLabel.getImportResult(); }
+	
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
@@ -1599,11 +1628,8 @@ public class FileImportComponent
 				firePropertyChange(StatusLabel.FILE_IMPORTED_PROPERTY, null,
 						result);
 				if (f.isFile()) {
-					EventBus bus = ImporterAgent.getRegistry().getEventBus();
-					ImportStatusEvent event;
-					//Always assume true
-					event = new ImportStatusEvent(true, null, result);
-					bus.post(event);
+					firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null,
+							this);
 					if (hasImportFailed())
 						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
 								ImportStatus.FAILURE);
@@ -1644,6 +1670,8 @@ public class FileImportComponent
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			ImageData img = (ImageData) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(img), null));
+		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
+			firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
 		}
 	}
 

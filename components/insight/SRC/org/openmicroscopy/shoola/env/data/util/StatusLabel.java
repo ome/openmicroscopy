@@ -29,6 +29,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -484,6 +485,18 @@ public class StatusLabel
 	public void setText(String text)
 	{
 		generalLabel.setText(text);
+	}
+
+	/**
+	 * Returns the result of the import either a collection of
+	 * <code>PixelsData</code> or an exception.
+	 * 
+	 * @return See above.
+	 */
+	public Object getImportResult()
+	{
+		if (exception != null) return exception;
+		return pixels;
 	}
 
 	/**

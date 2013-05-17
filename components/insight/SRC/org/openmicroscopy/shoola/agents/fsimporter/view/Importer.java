@@ -31,6 +31,7 @@ import java.util.Collection;
 import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -142,7 +143,7 @@ public interface Importer
 	 * @param result Depends on the result, it can be an image, an exception.
 	 * @param index The index of the UI components.
 	 */
-	public void setImportedFile(ImportableFile f, Object result, int index);
+	public void uploadComplete(ImportableFile f, Object result, int index);
 
 	/**
 	 * Sets the import log file.
@@ -331,5 +332,14 @@ public interface Importer
 	 * @return See above.
 	 */
 	boolean hasOnGoingUpload();
+
+	/** 
+	 * Indicates that the import is complete for the specified component.
+	 * 
+	 * @param component The component to handle.
+	 */
+	void onImportComplete(FileImportComponent component);
 	
+	void setImportResult(Object result, Object component);
+
 }
