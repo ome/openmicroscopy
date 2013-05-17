@@ -749,8 +749,8 @@ class ImporterUIElement
 		if (isDone() && rotationIcon != null)
 			rotationIcon.stopRotation();
 		if (file.isFile()) {
-			if (c.hasImportFailed()) countFailure++;
-			else if (!c.isCancelled()) countFilesImported++;
+			if (result instanceof Exception) countFailure++;
+			else if (c.isCancelled()) countCancelled++;
 		}
 		if (file.isDirectory() && !c.hasComponents() && 
 				c.isCancelled()) countCancelled++;

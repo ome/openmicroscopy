@@ -51,9 +51,12 @@ import loci.formats.UnsupportedCompressionException;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportException 
+public class ImportException
 	extends Exception
 {
+	
+	/** Text to indicate that the file, after scanning is not valid. */
+	public static final String FILE_NOT_VALID_TEXT = "File Not Valid";
 	
 	/** Indicates that the compression is not supported.*/
 	public static int COMPRESSION = 0;
@@ -69,6 +72,9 @@ public class ImportException
 
 	/** Indicates that there was a checksum mismatch.*/
 	public static int CHECKSUM_MISMATCH = 4;
+	
+	/** Indicates that the file is not valid.*/
+	public static int NOT_VALID = 5;
 
 	/** The status associated to the exception.*/
 	private int status;
@@ -110,6 +116,7 @@ public class ImportException
 	public ImportException(String message)
 	{
 		this(message, null);
+		if (FILE_NOT_VALID_TEXT.equals(message)) status = NOT_VALID;
 	}
 	
 	/**
@@ -120,7 +127,7 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(Throwable cause) 
+	public ImportException(Throwable cause)
 	{
 		this((String) getImportFailureMessage(cause), cause);
 	}
@@ -133,7 +140,7 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(String message, Throwable cause) 
+	public ImportException(String message, Throwable cause)
 	{
 		super(message, cause);
 		status = -1;

@@ -1325,8 +1325,10 @@ class OmeroImageServiceImpl
 					status.setNoContainer();
 				ic = gateway.getImportCandidates(ctx, object, file, status);
 				icContainers = ic.getContainers();
-				if (icContainers.size() == 0)
-					return Boolean.valueOf(false);
+				if (icContainers.size() == 0) {
+					return new ImportException(
+							ImportException.FILE_NOT_VALID_TEXT);
+				}
 				importIc = icContainers.get(0);
 				status.setUsedFiles(importIc.getUsedFiles());
 				result = gateway.importImageFile(ctx, object, ioContainer,
