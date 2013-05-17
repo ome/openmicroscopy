@@ -25,12 +25,12 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 //Java imports
 import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -465,22 +465,6 @@ public class FileImportComponent
 	}
 	
 	/**
-	 * Returns the formatted result.
-	 * 
-	 * @return See above.
-	 */
-	private Object getFormattedResult()
-	{
-		if (image == null) return null;
-		ImportErrorObject o = getImportErrorObject();
-		if (o != null) return o;
-		if (image instanceof ImageData || image instanceof ThumbnailData ||
-			image instanceof PlateData || image instanceof List)
-			return image;
-		return null;
-	}
-	
-	/**
 	 * Logs the exception.
 	 * 
 	 * @param e The error to log.
@@ -754,17 +738,26 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		double[][] design = new double[][]{
+				{10.0, TableLayout.FILL, TableLayout.PREFERRED, 
+					TableLayout.PREFERRED, TableLayout.PREFERRED, 
+					TableLayout.PREFERRED, TableLayout.PREFERRED,10.0},
+				{10.0, TableLayout.PREFERRED, 10.0}
+		};
+		
+		TableLayout layout = new TableLayout(design);
+		setLayout(layout);
+		
 		removeAll();
-		add(namePane);
-		add(statusLabel);
+		add(namePane, new TableLayoutConstraints(1, 1));
+		add(statusLabel, new TableLayoutConstraints(2, 1));
 		
-		add(Box.createHorizontalStrut(15));
-		add(busyLabel);
-		add(resultLabel);
-		add(cancelButton);
-		add(actionMenuButton);
+		add(busyLabel, new TableLayoutConstraints(3, 1));
+		add(resultLabel, new TableLayoutConstraints(4, 1));
+		add(cancelButton, new TableLayoutConstraints(5, 1));
+		add(actionMenuButton, new TableLayoutConstraints(6, 1));
+		
 		//TODO:
-		
 		//add(errorButton);
 		//add(errorBox);
 		//add(deleteButton);
@@ -1079,8 +1072,6 @@ public class FileImportComponent
 				imageLabel.setData(img);
 				if (!browsable) imageLabel.setToolTipText("");
 				fileNameLabel.addMouseListener(adapter);
-				//resultLabel.addMouseListener(adapter);
-				//addMouseListener(adapter);
 				showContainerLabel =
 					(dataset != null || containerFromFolder != null);
 				if (noContainer) {
@@ -1096,7 +1087,6 @@ public class FileImportComponent
 			if (thumbnail.isValidImage()) {
 				imageLabel.setData(thumbnail);
 				fileNameLabel.addMouseListener(adapter);
-				//addMouseListener(adapter);
 				if (!browsable) imageLabel.setToolTipText("");
 				if (thumbnail.requirePyramid() != null 
 						&& thumbnail.requirePyramid().booleanValue()) {
