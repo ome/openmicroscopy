@@ -22,41 +22,51 @@ else
     CURL="curl ${CURL_OPTS-} -O"
 fi
 
-###################################################################
-# Homebrew & pip uninstallation
-###################################################################
-
-# Remove existing PIP virtualenvironment
-if [ -f "$VENV_DIR/bin/pip" ]
-then
-    echo "Removing pip-installed packages IN $VENV_DIR"
-    # Solve Cython uninstallation error exit
-    ($VENV_DIR/bin/pip freeze -l | grep Cython && $VENV_DIR/bin/pip freeze uninstall -y Cython) || echo "Cython uninstalled"
-
-    for plugin in $($VENV_DIR/bin/pip freeze -l); do
-        packagename=$(echo "$plugin" | awk -F == '{print $1}')
-        echo "Uninstalling $packagename..."
-        $VENV_DIR/bin/pip uninstall -y $packagename
-    done
-
-    echo "Deleting $VENV_DIR"
-    rm -rf $VENV_DIR
+# Test wether this script is run in a job environment
+JOB_NAME=${JOB_NAME:-}
+if [[ -n $JOB_NAME ]]; then
+    DEFAULT_TESTING_MODE=true
+else
+    DEFAULT_TESTING_MODE=false
 fi
+TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 
-# Remove Homebrew installation
-if [ -d "$BREW_DIR/.git" ]
-then
-    echo "Uninstalling Homebrew"
-    rm -rf $BREW_DIR/Cellar && $BREW_DIR/bin/brew prune
-    rm -rf $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
+if [ $TESTING_MODE ]; then
+    ###################################################################
+    # Homebrew & pip uninstallation
+    ###################################################################
+
+    # Remove existing PIP virtualenvironment
+    if [ -f "$VENV_DIR/bin/pip" ]
+    then
+        echo "Removing pip-installed packages IN $VENV_DIR"
+        # Solve Cython uninstallation error exit
+        ($VENV_DIR/bin/pip freeze -l | grep Cython && $VENV_DIR/bin/pip freeze uninstall -y Cython) || echo "Cython uninstalled"
+
+        for plugin in $($VENV_DIR/bin/pip freeze -l); do
+            packagename=$(echo "$plugin" | awk -F == '{print $1}')
+            echo "Uninstalling $packagename..."
+            $VENV_DIR/bin/pip uninstall -y $packagename
+        done
+
+        echo "Deleting $VENV_DIR"
+        rm -rf $VENV_DIR
+    fi
+
+    # Remove Homebrew installation
+    if [ -d "$BREW_DIR/.git" ]
+    then
+        echo "Uninstalling Homebrew"
+        rm -rf $BREW_DIR/Cellar && $BREW_DIR/bin/brew prune
+        rm -rf $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
+    fi
+
+    if [ -d "$BREW_DIR/Library/Taps" ]
+    then
+        echo "Cleaning Homebrew taps"
+        rm -rf $BREW_DIR/Library/Taps
+    fi
 fi
-
-if [ -d "$BREW_DIR/Library/Taps" ]
-then
-    echo "Cleaning Homebrew taps"
-    rm -rf $BREW_DIR/Library/Taps
-fi
-
 ###################################################################
 # Homebrew installation
 ###################################################################
@@ -65,15 +75,21 @@ fi
 ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
 cd $BREW_DIR
 
-# Clean cache before any operation to test full installation
-rm -rf $(bin/brew --cache)
-
 # Install git if not already installed
 bin/brew list | grep "\bgit\b" || bin/brew install git
 
-# Update Homebrew, clean the git repository and run brew doctor
+# Update Homebrew
 bin/brew update
-git clean -df
+
+if [ $TESTING_MODE ]; then
+    # Clean cache before any operation to test full installation
+    rm -rf $(bin/brew --cache)
+
+    # Clean the Git repository
+    git clean -df
+fi
+
+# Run brew doctor
 export PATH=$(bin/brew --prefix)/bin:$PATH
 bin/brew doctor
 
@@ -91,15 +107,18 @@ set +u
 source $VENV_DIR/bin/activate
 set -u
 
-# Install scc tools
-$VENV_DIR/bin/pip install -U scc || echo "scc installed"
-
 # Tap ome-alt library
 bin/brew tap $OMERO_ALT || echo "Already tapped"
 
-# Merge homebrew-alt PRs
-cd Library/Taps/${OMERO_ALT/\//-}
-$VENV_DIR/bin/scc merge master
+if [ $TESTING_MODE ]; then
+    # Install scc tools
+    $VENV_DIR/bin/pip install -U scc || echo "scc installed"
+
+    # Merge homebrew-alt PRs
+    cd Library/Taps/${OMERO_ALT/\//-}
+    $VENV_DIR/bin/scc merge master
+fi
+
 cd $BREW_DIR
 
 ###################################################################
