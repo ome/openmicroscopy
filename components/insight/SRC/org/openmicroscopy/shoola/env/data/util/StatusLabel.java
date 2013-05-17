@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -51,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
+import pojos.PixelsData;
 
 /**
  * Component displaying the status of a specific import.
@@ -118,9 +121,9 @@ public class StatusLabel
 	/** Bound property indicating that the debug text has been sent.*/
 	public static final String DEBUG_TEXT_PROPERTY = "debugText";
 	
-	/** Default text when a failure occurred. */
-	private static final String FAILURE_TEXT = "failed";
-
+	/** Bound property indicating that the import is done. */
+	public static final String IMPORT_DONE_PROPERTY = "importDone";
+	
 	/** The default text of the component.*/
 	private static final String DEFAULT_TEXT = "Pending...";
 
@@ -205,6 +208,9 @@ public class StatusLabel
 	/** The exception if an error occurred.*/
 	private ImportException exception;
 	
+	/** The list of pixels' identifiers returned when the import is complete.*/
+	private Set<PixelsData> pixels;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -260,7 +266,7 @@ public class StatusLabel
 		uploadBar.setPreferredSize(new Dimension(WIDTH, d.height));
 		processingBar = new JProgressBar(0, STEPS.size());
 		processingBar.setStringPainted(true);
-		processingBar.setString("Pending...");
+		processingBar.setString(DEFAULT_TEXT);
 		processingBar.setFont(derived);
 		uploadBar.setVisible(false);
 		processingBar.setVisible(false);
@@ -489,13 +495,17 @@ public class StatusLabel
 		if (event == null) return;
 		cancellable = false;
 		if (event instanceof ImportEvent.IMPORT_DONE) {
-			//Notify that we have the pixels now.
+			pixels = (Set<PixelsData>) PojoMapper.asDataObjects(
+					((ImportEvent.IMPORT_DONE) event).pixels);
+			firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			if (!markedAsCancel) generalLabel.setText(SCANNING_TEXT);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
+			exception = new ImportException(e.exception);
+			handleProcessingError();
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
@@ -551,6 +561,13 @@ public class StatusLabel
 			generalLabel.setText("");
 			uploadBar.setVisible(true);
 			processingBar.setVisible(true);
+		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
+			ErrorHandler.INTERNAL_EXCEPTION e =
+					(ErrorHandler.INTERNAL_EXCEPTION) event;
+			readerType = e.reader;
+			usedFiles = e.usedFiles;
+			exception = new ImportException(e.exception);
+			handleProcessingError();
 		}
 	}
 
