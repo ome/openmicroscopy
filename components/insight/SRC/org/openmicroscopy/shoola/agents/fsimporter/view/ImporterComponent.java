@@ -312,12 +312,11 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
-		List<DataObject> containers = null;
-		boolean refreshTree = false;
-		Object formattedResult = null;
+		if (element != null) element.uploaComplete(f, result);
+
+		/*
 		if (element != null) {
 			formattedResult = element.setImportedFile(f, result);
-			//if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
 			if (element.isDone()) {
 				refreshTree = element.hasToRefreshTree();
 				containers = element.getExistingContainers();
@@ -354,6 +353,7 @@ class ImporterComponent
 			model.fireContainerLoading(rootType, true, false, -1);
 			fireStateChange();
 		}
+		*/
 	}
 	
 	/** 

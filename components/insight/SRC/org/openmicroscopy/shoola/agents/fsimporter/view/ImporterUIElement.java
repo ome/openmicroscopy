@@ -55,6 +55,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
+import omero.cmd.CmdCallback;
+
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
@@ -137,6 +139,9 @@ class ImporterUIElement
 	/** Component hosting the entries. */
 	private JPanel	entries;
 
+	/** The number of uploaded files.*/
+	private int countUploaded;
+	
 	/** The number of files/folder imported. */
 	private int countImported;
 	
@@ -727,6 +732,32 @@ class ImporterUIElement
 		return null;
 	}
 	
+
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param f The imported file.
+	 * @param result The result.
+	 * @result Returns the formatted result or <code>null</code>.
+	 */
+	void uploaComplete(ImportableFile f, Object result)
+	{
+		File file = f.getFile();
+		FileImportComponent c = components.get(f.toString());
+		if (c == null) return;
+		countUploaded++;
+		if (isDone() && rotationIcon != null)
+			rotationIcon.stopRotation();
+		if (file.isFile()) {
+			if (c.hasImportFailed()) countFailure++;
+			else if (!c.isCancelled()) countFilesImported++;
+		}
+		if (file.isDirectory() && !c.hasComponents() && 
+				c.isCancelled()) countCancelled++;
+		setNumberOfImport();
+		setClosable(isUploadComplete());
+	}
+	
 	/**
 	 * Sets the result of the import for the specified file.
 	 * 
@@ -802,6 +833,14 @@ class ImporterUIElement
 		}
 		return formattedResult;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the upload is finished, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUploadComplete() { return countUploaded == totalToImport; }
 	
 	/**
 	 * Returns <code>true</code> if the import is finished, <code>false</code>
