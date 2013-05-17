@@ -15,10 +15,10 @@
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;server->server"/>
     <!-- Public -->
-    <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="omero" name="ice-glacier2" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="omero" name="ice-grid" rev="${versions.ice}" conf="build,client,server->default"/>
-    <dependency org="omero" name="ice-storm" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="zeroc" name="ice" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="zeroc" name="ice-glacier2" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="zeroc" name="ice-grid" rev="${versions.ice}" conf="build,client,server->default"/>
+    <dependency org="zeroc" name="ice-storm" rev="${versions.ice}" conf="build,client,server->default"/>
     <dependency org="jts" name="jts" rev="${versions.jts}" conf="build,server->default"/>
     <!-- Export -->
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
