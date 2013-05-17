@@ -344,16 +344,27 @@ public class StatusLabel
 	public String[] getUsedFiles() { return usedFiles; }
 
 	/**
-	 * Returns the source files that have checksum values
+	 * Returns the source files that have checksum values or <code>null</code>
+	 * if no event stored.
+	 * 
 	 * @return See above.
 	 */
-	public List<String> getChecksums() { return checksumEvent.checksums; }
+	public List<String> getChecksums()
+	{
+		if (checksumEvent == null) return null;
+		return checksumEvent.checksums;
+	}
 	
 	/**
-	 * Returns the checksum values
+	 * Returns the checksum values or <code>null</code> if no event stored.
+	 * 
 	 * @return See above.
 	 */
-	public Map<Integer, String> getFailingChecksums() { return checksumEvent.failingChecksums; }
+	public Map<Integer, String> getFailingChecksums()
+	{
+		if (checksumEvent == null) return null;
+		return checksumEvent.failingChecksums;
+	}
 	
 	/**
 	 * Returns the source files that have checksum values
