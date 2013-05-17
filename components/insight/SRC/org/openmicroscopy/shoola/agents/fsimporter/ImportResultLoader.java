@@ -26,16 +26,26 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailProvider;
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.springframework.util.CollectionUtils;
+
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
 
@@ -54,9 +64,11 @@ public class ImportResultLoader
 	private CallHandle handle;
 	
 	/** The identifier of the objects to load.*/
-	private final List<Long> ids;
+	private final List<Object> ids;
 	
-	/** The type of object to load, either Image or Plate.*/
+	/** 
+	 * The type of object to load: supported ImageData, PlateData,
+	 * ThumbnailData.*/
 	private final Class<?> nodeType;
 
 	/** The importable object.*/
@@ -72,14 +84,15 @@ public class ImportResultLoader
 	 * @param nodeType The type of node either Image or Plate
 	 */
 	public ImportResultLoader(Importer viewer, SecurityContext ctx,
-			List<Long> ids, Class<?> nodeType, ImportableFile object)
+			List<Object> ids, Class<?> nodeType, ImportableFile object)
 	{
 		super(viewer, ctx);
 		if (CollectionUtils.isEmpty(ids) || object == null || nodeType == null)
 			throw new IllegalArgumentException("No data to load");
 		//Check supported type
-		if (!(nodeType.equals(ImageData.class) ||
-				nodeType.equals(PlateData.class)))
+		if (!(ImageData.class.equals(nodeType) ||
+			PlateData.class.equals(nodeType) ||
+			ThumbnailData.class.equals(nodeType)))
 			throw new IllegalArgumentException("Type not supported");
 		this.ids = ids;
 		this.nodeType = nodeType;
@@ -94,8 +107,20 @@ public class ImportResultLoader
 	{
 		if (nodeType.equals(ImageData.class)) {
 			handle = dmView.getImages(ctx, nodeType, ids, userID, this);
-		} else {
-			
+		} else if (nodeType.equals(ThumbnailData.class)) {
+			List<DataObject> objects = new ArrayList<DataObject>();
+			Iterator<Object> i = ids.iterator();
+			Object object;
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof DataObject) {
+					objects.add((DataObject) object);
+				}
+			}
+			handle = hiBrwView.loadThumbnails(ctx, objects,
+                    ThumbnailProvider.THUMB_MAX_WIDTH,
+                    ThumbnailProvider.THUMB_MAX_HEIGHT,
+                    userID, HierarchyBrowsingView.IMAGE, this);
 		}
 	}
 	
@@ -105,6 +130,30 @@ public class ImportResultLoader
 	 */
 	public void cancel() { handle.cancel(); }
 
+	 /** 
+     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * @see DataBrowserLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        if (viewer.getState() == DataBrowser.DISCARDED ||
+        	!ThumbnailData.class.equals(nodeType)) return;  //Async cancel.
+        
+        List l = (List) fe.getPartialResult();
+        if (l != null && l.size()  > 0) {
+        	Iterator i = l.iterator();
+        	ThumbnailData td;
+        	Object ref;
+        	while (i.hasNext()) {
+        		td = (ThumbnailData) i.next();
+        		ref = td.getRefObject();
+        		if (ref == null) ref = td.getImageID();
+        		//TODO handle result
+			}
+        }
+    }
+    
+    
     /**
      * Feeds the result back to the viewer.
      * @see DataImporterLoader#handleResult(Object)
