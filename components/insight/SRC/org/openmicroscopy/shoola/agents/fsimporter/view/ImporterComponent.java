@@ -498,14 +498,14 @@ class ImporterComponent
 		while (i.hasNext()) {
 			element = i.next();
 			if (element.hasStarted()) started = element;
-			if (!element.isDone())
+			if (!element.isUploadComplete())
 				toImport.add(element);
 		}
 		if (toImport.size() > 0) {
 			MessageBox box = new MessageBox(view, CANCEL_TITLE,
 					CANCEL_TEXT+"\n" +
 					"If Yes, the window will close when the on-going " +
-					"import is completed.");
+					"upload is completed.");
 			if (box.centerMsgBox() == MessageBox.NO_OPTION)
 				return;
 			markToclose = true;
@@ -795,5 +795,25 @@ class ImporterComponent
 	 * @see Importer#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#hasOnGoingUpload()
+	 */
+	public boolean hasOnGoingUpload()
+	{
+		if (model.getState() != DISCARDED) {
+			Collection<ImporterUIElement> list = view.getImportElements();
+			if (list == null || list.size() == 0) return false;
+			Iterator<ImporterUIElement> i = list.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isUploadComplete())
+					return true;
+			}
+		}
+		return false;
+	}
 
 }

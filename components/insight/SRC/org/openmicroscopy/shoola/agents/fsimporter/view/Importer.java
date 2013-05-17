@@ -324,4 +324,12 @@ public interface Importer
 	 */
 	int getDisplayMode();
 	
+	/**
+	 * Returns <code>true</code> if there are files to upload,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOnGoingUpload();
+	
 }

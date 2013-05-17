@@ -417,7 +417,7 @@ public class ImporterAgent
     	if (!ImporterFactory.doesImporterExist()) return true;
     	Importer importer = ImporterFactory.getImporter(groupId, displayMode);
     	if (importer == null) return true;
-    	return !importer.hasOnGoingImport();
+    	return !importer.hasOnGoingUpload();
     }
 
     /**
