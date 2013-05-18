@@ -401,7 +401,7 @@ public class FileImportComponent
 	{
 		if (callback != null) {
 			try {
-				((CmdCallbackI) callback).close(true); 
+				((CmdCallbackI) callback).close(true);
 			} catch (Exception e) {}
 		}
 		resultLabel.setVisible(true);
@@ -412,6 +412,8 @@ public class FileImportComponent
 		if (result instanceof ImportException) {
 			ImportException e = (ImportException) result;
 			resultLabel.setIcon(icons.getIcon(IconManager.DELETE));
+			resultLabel.setToolTipText(
+					UIUtilities.formatExceptionForToolTip(e));
 			actionMenuButton.setVisible(true);
 			actionMenuButton.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			actionMenuButton.setText("Failed");
