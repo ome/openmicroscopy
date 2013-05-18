@@ -574,6 +574,7 @@ public class StatusLabel
 			generalLabel.setText("");
 			uploadBar.setVisible(true);
 			processingBar.setVisible(true);
+			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
 			ErrorHandler.INTERNAL_EXCEPTION e =
 					(ErrorHandler.INTERNAL_EXCEPTION) event;
