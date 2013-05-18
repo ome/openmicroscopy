@@ -59,6 +59,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
@@ -87,6 +88,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -371,6 +373,11 @@ public class FileImportComponent
 	private void showChecksumDetails() {
 		JDialog dialog = new JDialog();
 
+		IconManager icons = IconManager.getInstance();
+		ChecksumTableRenderer rnd = new ChecksumTableRenderer(
+				icons.getIcon(IconManager.DELETE),
+				icons.getIcon(IconManager.APPLY));
+		
     	ChecksumTableModel model = new ChecksumTableModel(
     			statusLabel.getChecksumFiles(), 
     			statusLabel.getChecksums(), 
@@ -378,10 +385,13 @@ public class FileImportComponent
     	
     	JTable table = new JTable(model);
     	setColumnAsBoolean(table, 3);
+    	TableColumnModel tcm = table.getColumnModel();
+    	for (int i = 0; i < tcm.getColumnCount(); i++) {
+    		tcm.getColumn(i).setCellRenderer(rnd);
+		}
     	JScrollPane scrollPane = new JScrollPane(table);
     	table.setFillsViewportHeight(true);
-
-    	dialog.add(scrollPane);
+    	dialog.getContentPane().add(scrollPane);
     	dialog.pack();
     	UIUtilities.centerAndShow(dialog);
 	}

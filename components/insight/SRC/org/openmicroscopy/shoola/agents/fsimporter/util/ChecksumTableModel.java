@@ -27,25 +27,29 @@ import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 
 /** 
- * Provides a TableModel for checksum information
+ * Provides a TableModel for checksum information.
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since 4.4
  */
-public class ChecksumTableModel extends DefaultTableModel
+class ChecksumTableModel
+	extends DefaultTableModel
 {
+
+	/** The column index indicating if it is valid or not.*/
+	static final int VALID_COLUMN = 3;
+
 	/** Column headers to be used by the checksum table */
-	private final String[] columnNames = {"Filename",
-            "Client Checksum",
-            "Server Checksum",
-            "Valid"};
+	private final String[] columnNames = {"Filename", "Client Checksum",
+            "Server Checksum", ""};
 	
 	/**
-	 * Creates the table model for the data provided
+	 * Creates the table model for the data provided.
+	 * 
 	 * @param checksumFiles The files with checksums
 	 * @param checksums The client side checksums
 	 * @param failingChecksums The failing checksum values
 	 */
-    public ChecksumTableModel(String[] checksumFiles,
+    ChecksumTableModel(String[] checksumFiles,
 			List<String> checksums, Map<Integer, String> failingChecksums) {
 		setData(checksumFiles, checksums, failingChecksums);
 	}
@@ -68,14 +72,13 @@ public class ChecksumTableModel extends DefaultTableModel
 		Object[][] data = new Object[checksumFiles.length][4];
 		for (int i = 0; i < checksumFiles.length; i++) {
 			data[i][0] = checksumFiles[i];
-			data[i][1] = checksums.get(i).substring(0, 8);
-			
-			if(failingChecksums.containsKey(i)) {
-				data[i][2] = failingChecksums.get(i).substring(0, 8);
-				data[i][3] = false;
+			data[i][1] = checksums.get(i);
+			if (failingChecksums.containsKey(i)) {
+				data[i][2] = failingChecksums.get(i);
+				data[i][3] = Boolean.valueOf(false);
 			} else {
-				data[i][2] = checksums.get(i).substring(0, 8);
-				data[i][3] = true;
+				data[i][2] = checksums.get(i);
+				data[i][3] = Boolean.valueOf(true);
 			}
 		}
 		setDataVector(data, columnNames);
