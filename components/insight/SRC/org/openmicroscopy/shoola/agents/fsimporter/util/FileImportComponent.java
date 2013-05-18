@@ -165,37 +165,6 @@ public class FileImportComponent
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 
-	/** Text to indicate to view the image. */
-	private static final String VIEW_TEXT = "View";
-	
-	/** Text to indicate to view the image. */
-	private static final String BROWSE_TEXT = "Browse";
-	
-	/** Text to indicate to view the image. */
-	private static final String PYRAMID_TEXT = "Building pyramid, please wait";
-	
-	/** Text to indicate that the thumbnail cannot be created */
-	private static final String IMAGE_CREATION_ERROR_TEXT = 
-		"Cannot create thumbnail";
-	
-	/** Text to indicate that the compression level is not supported. */
-	private static final String COMPRESSION_ERROR_TEXT = 
-		"Compression not supported";
-	
-	/** Text to indicate that library is missing. */
-	private static final String MISSING_LIB_ERROR_TEXT = 
-		"Missing Library";
-	
-	/** Text to indicate that the file is not accessible. */
-	private static final String NO_SPACE_ERROR_TEXT = "No more space on Disk";
-	
-	/** Text to indicate that the file is not accessible. */
-	private static final String FILE_ON_TAPE_ERROR_TEXT = "File on Tape";
-	
-	/** Text to indicate that a checksum mismatch occurred during import. */
-	private static final String CHECKSUM_MISMATCH_TEXT =
-			"File integrity error during upload.";
-
 	/** The number of extra labels for images to add. */
 	public static final int MAX_THUMBNAILS = 3;
 
@@ -204,12 +173,6 @@ public class FileImportComponent
 	
 	/** Action id to cancel the import before it starts. */
 	private static final int CANCEL_ID = 1;
-	
-	/** Action id to browse the container. */
-	private static final int BROWSE_ID = 2;
-
-	/** Text indicating where the images where imported. */
-	private static final String TEXT_IMPORTED = "Imported to:";
 
 	/** One of the constants defined by this class. */
 	private int type;
@@ -633,20 +596,7 @@ public class FileImportComponent
 		add(cancelButton);
 		add(actionMenuButton);
 	}
-	
-	/**
-	 * Sets the text of the {@link #resultLabel}.
-	 * 
-	 * @param text The string to set.
-	 */
-	private void setStatusText(String text)
-	{
-		if (text == null) text = "";
-		text = text.trim();
-		if (text.length() == 0) resultLabel.setText(statusLabel.getErrorText());
-		else resultLabel.setText(text);
-	}
-	
+
 	/** 
 	 * Attaches the listeners to the newly created component.
 	 * 
