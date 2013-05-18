@@ -89,6 +89,7 @@ import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -474,29 +475,28 @@ public class FileImportComponent
 	{
 		ViewImage evt;
 		int plugin = ImporterAgent.runAsPlugin();
-		if (image instanceof ThumbnailData) {
-			ThumbnailData data = (ThumbnailData) image;
-			EventBus bus = 
-				ImporterAgent.getRegistry().getEventBus();
-			if (data.getImage() != null) {
-				evt = new ViewImage(
-						new SecurityContext(group.getId()),
-						new ViewImageObject(
-						data.getImage()), null);
-				evt.setPlugin(plugin);
-				bus.post(evt);
-			}
-		} else if (image instanceof ImageData) {
-			ImageData data = (ImageData) image;
-			EventBus bus = 
-				ImporterAgent.getRegistry().getEventBus();
-			if (data != null) {
-				evt = new ViewImage(
-						new SecurityContext(group.getId()),
-						new ViewImageObject(data), null);
-				evt.setPlugin(plugin);
-				bus.post(evt);
-			}
+		if (image == null) image = statusLabel.getImportResult();
+		Object ho = image;
+		if (image instanceof List) {
+			List l = (List) image;
+			if (CollectionUtils.isEmpty(l) || l.size() > 1) return;
+			ho = l.get(0);
+		}
+		if (ho instanceof ThumbnailData) {
+			ThumbnailData data = (ThumbnailData) ho;
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			evt = new ViewImage(new SecurityContext(group.getId()),
+					new ViewImageObject(data.getImageID()), null);
+			evt.setPlugin(plugin);
+			bus.post(evt);
+		} else if (ho instanceof PixelsData) {
+			PixelsData data = (PixelsData) image;
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			evt = new ViewImage(
+					new SecurityContext(group.getId()),
+					new ViewImageObject(data.getImage().getId()), null);
+			evt.setPlugin(plugin);
+			bus.post(evt);
 		} else if (image instanceof PlateData) {
 			firePropertyChange(BROWSE_PROPERTY, null, image);
 		}
@@ -830,6 +830,7 @@ public class FileImportComponent
 	{
 		cancelButton.setVisible(false);
 		importCount++;
+		this.image = image;
 		if (parent != null) parent.increaseNumberOfImport();
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
@@ -1286,8 +1287,8 @@ public class FileImportComponent
 			//use the group
 			SecurityContext ctx = new SecurityContext(group.getId());
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			ImageData img = (ImageData) evt.getNewValue();
-			bus.post(new ViewImage(ctx, new ViewImageObject(img), null));
+			Long id = (Long) evt.getNewValue();
+			bus.post(new ViewImage(ctx, new ViewImageObject(id), null));
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
 			formatResult();
 			firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
