@@ -63,6 +63,9 @@ import javax.swing.table.TableColumn;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
 
+import omero.cmd.CmdCallback;
+import omero.cmd.CmdCallbackI;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
@@ -91,7 +94,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -309,6 +311,9 @@ public class FileImportComponent
 	/** The index associated to the main component.*/
 	private int index;
 	
+	/** Reference to the callback.*/
+	private CmdCallback callback;
+	
 	private JPopupMenu createActionMenu()
 	{
 		if (menu != null) return menu;
@@ -394,6 +399,11 @@ public class FileImportComponent
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
+		if (callback != null) {
+			try {
+				((CmdCallbackI) callback).close(true); 
+			} catch (Exception e) {}
+		}
 		resultLabel.setVisible(true);
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
@@ -1226,6 +1236,8 @@ public class FileImportComponent
 	public void uploadComplete(Object result, int index)
 	{
 		this.index = index;
+		if (result instanceof CmdCallback)
+			callback = (CmdCallback) result;
 	}
 
 	/**
@@ -1331,7 +1343,6 @@ public class FileImportComponent
 			ImageData img = (ImageData) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(img), null));
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
-			//Check the result
 			formatResult();
 			firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
 		}

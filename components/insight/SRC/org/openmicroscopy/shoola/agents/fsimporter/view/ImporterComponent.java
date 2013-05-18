@@ -360,12 +360,8 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
-		boolean refreshTree = false;
-		List<DataObject> containers = null;
-		Object formattedResult = null;
-		//Handle exception that can occur during scanning or upload.
 		if (element != null) {
-			formattedResult = element.uploaComplete(f, result, index);
+			Object formattedResult = element.uploaComplete(f, result, index);
 			handleCompletion(element, formattedResult);
 		}
 	}
