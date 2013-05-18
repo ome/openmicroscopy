@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import omero.model.FileAnnotation;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -61,6 +59,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.CheckSumDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -69,6 +68,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -174,6 +174,9 @@ class ImporterUIElement
 	
 	/** Flag indicating that the images will be added to the default dataset. */
 	private boolean orphanedFiles;
+	
+	/** Reference to the view. */
+	private ImporterUI view;
 	
 	/** Reference to the controller. */
 	private ImporterControl controller;
@@ -474,6 +477,12 @@ class ImporterUIElement
 						FilesetData data = (FilesetData) evt.getNewValue();
 						if (data != null)
 							model.fireImportLogFileLoading(data.getId(), id);
+					} else if (
+						FileImportComponent.CHECKSUM_DISPLAY_PROPERTY.equals(
+							name)) {
+						StatusLabel label = (StatusLabel) evt.getNewValue();
+						CheckSumDialog d = new CheckSumDialog(view, label);
+						UIUtilities.centerAndShow(d);
 					}
 				}
 			});
@@ -671,13 +680,15 @@ class ImporterUIElement
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the model. Mustn't be <code>null</code>.
 	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
 	 * @param object the object to handle. Mustn't be <code>null</code>.
 	 */
 	ImporterUIElement(ImporterControl controller, ImporterModel model,
-			int id, int index, String name, ImportableObject object)
+			ImporterUI view, int id, int index, String name,
+			ImportableObject object)
 	{
 		super(index, name, DESCRIPTION);
 		if (object == null) 
@@ -685,9 +696,12 @@ class ImporterUIElement
 		if (controller == null)
 			throw new IllegalArgumentException("No Control.");
 		if (model == null)
-			throw new IllegalArgumentException("No Model."); 
+			throw new IllegalArgumentException("No Model.");
+		if (view == null)
+			throw new IllegalArgumentException("No View.");
 		this.controller = controller;
 		this.model = model;
+		this.view = view;
 		this.id = id;
 		this.object = object;
 		initialize();

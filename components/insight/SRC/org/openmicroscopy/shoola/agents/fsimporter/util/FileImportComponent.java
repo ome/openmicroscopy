@@ -51,15 +51,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstraints;
@@ -85,11 +80,8 @@ import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -164,6 +156,11 @@ public class FileImportComponent
 	 * Bound property indicating to retrieve the log file.
 	 */
 	public static final String RETRIEVE_LOGFILEPROPERTY = "retrieveLogfile";
+	
+	/**
+	 * Bound property indicating to show the checksums,
+	 */
+	public static final String CHECKSUM_DISPLAY_PROPERTY = "checksumDisplay";
 	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
@@ -394,42 +391,11 @@ public class FileImportComponent
 	/**
 	 * Displays the checksum details dialog for the file(s) in this entry
 	 */
-	private void showChecksumDetails() {
-		JDialog dialog = new JDialog();
+	private void showChecksumDetails()
+	{
+		firePropertyChange(CHECKSUM_DISPLAY_PROPERTY, null, statusLabel);
+	}
 
-		IconManager icons = IconManager.getInstance();
-		ChecksumTableRenderer rnd = new ChecksumTableRenderer(
-				icons.getIcon(IconManager.DELETE),
-				icons.getIcon(IconManager.APPLY));
-		
-    	ChecksumTableModel model = new ChecksumTableModel(
-    			statusLabel.getChecksumFiles(), 
-    			statusLabel.getChecksums(), 
-    			statusLabel.getFailingChecksums());
-    	
-    	JTable table = new JTable(model);
-    	setColumnAsBoolean(table, 3);
-    	TableColumnModel tcm = table.getColumnModel();
-    	for (int i = 0; i < tcm.getColumnCount(); i++) {
-    		tcm.getColumn(i).setCellRenderer(rnd);
-		}
-    	JScrollPane scrollPane = new JScrollPane(table);
-    	table.setFillsViewportHeight(true);
-    	dialog.getContentPane().add(scrollPane);
-    	dialog.pack();
-    	UIUtilities.centerAndShow(dialog);
-	}
-	
-	/**
-	 * Helper method to setup the column as a boolean column
-	 * @param column the column to set
-	 */
-	private void setColumnAsBoolean(JTable table, int columnIndex) {
-		TableColumn column = table.getColumnModel().getColumn(columnIndex);
-		column.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-		column.setResizable(false);
-	}
-	
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{

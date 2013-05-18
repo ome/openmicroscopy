@@ -470,7 +470,7 @@ class ImporterUI extends TopWindow
 		int n = tabs.getComponentCount();
 		String title = "Import #"+total;
 		ImporterUIElement element = new ImporterUIElement(controller, model,
-				uiElementID, n, title, object);
+				this, uiElementID, n, title, object);
 		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
