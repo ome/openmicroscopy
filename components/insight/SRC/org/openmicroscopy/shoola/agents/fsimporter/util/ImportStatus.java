@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -22,12 +22,13 @@
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 /** 
- * Enum values for the status of an import
+ * Enumeration values for the status of an import.
  *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since 4.4
  */
 public enum ImportStatus {
+
 	/** Indicates that the import has not started */
 	QUEUED,
 	

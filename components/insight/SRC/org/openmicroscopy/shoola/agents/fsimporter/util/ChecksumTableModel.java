@@ -1,6 +1,6 @@
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -50,9 +50,11 @@ public class ChecksumTableModel extends DefaultTableModel
 		setData(checksumFiles, checksums, failingChecksums);
 	}
 
-	public boolean isCellEditable(int row, int col) {
-    	return false;
-    }
+    /**
+     * Overridden so that the user cannot edit the cell.
+     * @see DefaultTableModel#isCellEditable(int, int)
+     */
+	public boolean isCellEditable(int row, int col) { return false; }
 	
 	/**
 	 * Sets the table data using the information provided
