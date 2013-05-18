@@ -340,13 +340,15 @@ public class FileImportComponent
 						launchFullViewer();
 					}
 				}));
-				item = new JMenuItem(new AbstractAction("In Data Browser") {
+				menu.add(new JMenuItem(new AbstractAction("In Data Browser") {
 					public void actionPerformed(ActionEvent e) {
 						browse();
 					}
-				});
-				item.setEnabled(!noContainer && browsable);
-				menu.add(item);
+					
+					public void setEnabled(boolean b) {
+						super.setEnabled(!noContainer && browsable);
+					}
+				}));
 		}
 		
 		
@@ -358,14 +360,15 @@ public class FileImportComponent
         }));
         
 		
-		item = new JMenuItem(new AbstractAction("Checksum") {
+		menu.add(new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
             	showChecksumDetails();
             }
-		});
-		item.setEnabled(statusLabel.hasChecksum());
-		menu.add(item);
-		
+            
+            public void setEnabled(boolean b) {
+				super.setEnabled(statusLabel.hasChecksum());
+			}
+		}));
 		return menu;
 	}
 	
@@ -653,18 +656,6 @@ public class FileImportComponent
 		add(resultLabel, new TableLayoutConstraints(4, 1));
 		add(cancelButton, new TableLayoutConstraints(5, 1));
 		add(actionMenuButton, new TableLayoutConstraints(6, 1));
-		
-		//TODO:
-		//add(errorButton);
-		//add(errorBox);
-		//add(deleteButton);
-		
-		
-		//add(containerLabel);
-		//add(browseButton);
-		//add(groupUserLabel);
-		//add(reimportedLabel);
-		//add(importLogButton);
 	}
 	
 	/**
