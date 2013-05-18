@@ -340,6 +340,12 @@ public interface Importer
 	 */
 	void onImportComplete(FileImportComponent component);
 	
+	/**
+	 * Sets the result e.g. thumbnails corresponding to the images imported.
+	 * 
+	 * @param result The result to set.
+	 * @param component The component hosting the result.
+	 */
 	void setImportResult(Object result, Object component);
 
 }
