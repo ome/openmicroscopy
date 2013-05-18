@@ -24,9 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-import info.clearthought.layout.TableLayoutConstraints;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -54,7 +51,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -62,15 +58,15 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.TableColumn;
+
+import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
-import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
@@ -630,24 +626,14 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		double[][] design = new double[][]{
-				{10.0, TableLayout.FILL, TableLayout.PREFERRED, 
-					TableLayout.PREFERRED, TableLayout.PREFERRED, 
-					TableLayout.PREFERRED, TableLayout.PREFERRED,10.0},
-				{10.0, TableLayout.PREFERRED, 10.0}
-		};
-		
-		TableLayout layout = new TableLayout(design);
-		setLayout(layout);
-		
 		removeAll();
-		add(namePane, new TableLayoutConstraints(1, 1));
-		add(statusLabel, new TableLayoutConstraints(2, 1));
+		add(namePane);
+		add(statusLabel);
 		
-		add(busyLabel, new TableLayoutConstraints(3, 1));
-		add(resultLabel, new TableLayoutConstraints(4, 1));
-		add(cancelButton, new TableLayoutConstraints(5, 1));
-		add(actionMenuButton, new TableLayoutConstraints(6, 1));
+		add(busyLabel);
+		add(resultLabel);
+		add(cancelButton);
+		add(actionMenuButton);
 	}
 	
 	/**
@@ -736,7 +722,7 @@ public class FileImportComponent
 		pane.add(p);
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
-		add(pane, "0, 0");
+		add(pane, new TableLayoutConstraints(0, 0));
 		validate();
 		repaint();
 	}
