@@ -29,7 +29,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -187,6 +186,9 @@ public class StatusLabel
 	/** The size of the file.*/
 	private String fileSize;
 	
+	/** The size units.*/
+	private String units;
+	
 	/** The total size of uploaded files.*/
 	private long totalUploadedSize;
 	
@@ -226,7 +228,13 @@ public class StatusLabel
 	private String formatUpload(long value)
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(UIUtilities.formatFileSize(value));
+		String v = FileUtils.byteCountToDisplaySize(value);
+		String[] values = v.split(" ");
+		if (values.length > 1) {
+			String u = values[1];
+			if (units.equals(u)) buffer.append(values[0]);
+			else buffer.append(v);
+		} else buffer.append(v);
 		buffer.append("/");
 		buffer.append(fileSize);
 		return buffer.toString();
@@ -328,6 +336,8 @@ public class StatusLabel
 			sizeUpload += (new File(usedFiles[i])).length();
 		}
 		fileSize = FileUtils.byteCountToDisplaySize(sizeUpload);
+		String[] values = fileSize.split(" ");
+		if (values.length > 1) units = values[1];
 	}
 
 	/** Marks the import has cancelled. */
