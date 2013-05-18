@@ -55,23 +55,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
-import omero.cmd.CmdCallback;
-
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
-import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.DownloadAndLaunchActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -82,7 +77,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -737,7 +731,7 @@ class ImporterUIElement
 			if (result instanceof Exception) {
 				r = new ImportErrorObject(file, (Exception) result);
 				countFailure++;
-				setImportedFile(f, result);
+				setImportResult(c, result);
 			} else if (c.isCancelled()) countCancelled++;
 		}
 		if (file.isDirectory() && !c.hasComponents() && 
@@ -750,27 +744,26 @@ class ImporterUIElement
 	/**
 	 * Sets the result of the import for the specified file.
 	 * 
-	 * @param f The imported file.
+	 * @param fc The component hosting the file to import.
 	 * @param result The result.
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object setImportedFile(ImportableFile f, Object result)
+	Object setImportResult(FileImportComponent fc, Object result)
 	{
-		File file = f.getFile();
-		FileImportComponent c = components.get(f.toString());
+		File file = fc.getFile();
 		Object formattedResult = null;
-		if (c != null) {
-			c.setStatus(result);
+		if (fc != null) {
+			fc.setStatus(result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
 				//if (c.hasImportFailed()) countFailure++;
 				//else
-				if (!c.isCancelled()) countFilesImported++;
+				if (!fc.isCancelled()) countFilesImported++;
 			}
-			if (file.isDirectory() && !c.hasComponents() && 
-					c.isCancelled()) countCancelled++;
+			if (file.isDirectory() && !fc.hasComponents() && 
+					fc.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
 			boolean toRefresh = toRefresh();
@@ -795,13 +788,13 @@ class ImporterUIElement
 					}
 				}
 				if (foldersName.size() > 0) {
-					Entry entry;
-					Iterator k = foldersName.entrySet().iterator();
-					FileImportComponent fc;
+					Entry<JLabel, Object> entry;
+					Iterator<Entry<JLabel, Object>> k =
+							foldersName.entrySet().iterator();
 					Object value;
 					while (k.hasNext()) {
-						entry = (Entry) k.next();
-						label = (JLabel) entry.getKey();
+						entry = k.next();
+						label = entry.getKey();
 						value = entry.getValue();
 						if (value instanceof FileImportComponent) {
 							fc = (FileImportComponent) value;

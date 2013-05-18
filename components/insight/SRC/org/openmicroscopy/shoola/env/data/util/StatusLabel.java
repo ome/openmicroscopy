@@ -48,6 +48,7 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmicroscopy.shoola.env.data.ImportException;
@@ -273,10 +274,14 @@ public class StatusLabel
 		processingBar.setVisible(false);
 	}
 
-	/** Handles error that occurred during the processing.*/
-	private void handleProcessingError()
+	/**
+	 * Handles error that occurred during the processing.
+	 * 
+	 * @param text The text to display if any.
+	 */
+	private void handleProcessingError(String text)
 	{
-		//Change the color of the processing bar.
+		generalLabel.setText(text);
 		cancellable = false;
 		firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 	}
@@ -393,17 +398,6 @@ public class StatusLabel
 	 * @return
 	 */
 	public boolean hasChecksum() { return checksumEvent != null; }
-	
-	/**
-	 * Sets the status of the import.
-	 * 
-	 * @param value The value to set.
-	 */
-	public void setStatus(String value)
-	{
-		if (value == null) value = "";
-		generalLabel.setText(value);
-	}
 
 	/**
 	 * Fires a property indicating to import the files.
@@ -413,6 +407,14 @@ public class StatusLabel
 	public void setFiles(Map<File, StatusLabel> files)
 	{
 		generalLabel.setText(NO_FILES_TEXT);
+		if (!CollectionUtils.isEmpty(files.entrySet())) {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Importing ");
+			buffer.append(files.size());
+			buffer.append(" file");
+			if (files.size() > 1) buffer.append("s");
+			generalLabel.setText(buffer.toString());
+		}
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
 	}
 
@@ -478,16 +480,6 @@ public class StatusLabel
 	public boolean isCancellable() { return cancellable; }
 
 	/**
-	 * Sets the text of the labels.
-	 * 
-	 * @param text The value to set.
-	 */
-	public void setText(String text)
-	{
-		generalLabel.setText(text);
-	}
-
-	/**
 	 * Returns the result of the import either a collection of
 	 * <code>PixelsData</code> or an exception.
 	 * 
@@ -512,21 +504,22 @@ public class StatusLabel
 					((ImportEvent.IMPORT_DONE) event).pixels);
 			firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
 		} else if (event instanceof ImportCandidates.SCANNING) {
-			if (!markedAsCancel) generalLabel.setText(SCANNING_TEXT);
+			if (!markedAsCancel && exception == null)
+				generalLabel.setText(SCANNING_TEXT);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError();
+			handleProcessingError("");
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
-			handleProcessingError();
+			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
 					((ErrorHandler.MISSING_LIBRARY) event).exception);
-			handleProcessingError();
+			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT);
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
@@ -581,7 +574,7 @@ public class StatusLabel
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError();
+			handleProcessingError("");
 		}
 	}
 

@@ -134,6 +134,8 @@ public class ImportException
 		this(message, null);
 		if (FILE_NOT_VALID_TEXT.equals(message)) status = NOT_VALID;
 		else if (UNKNOWN_FORMAT_TEXT.equals(message)) status = UNKNOWN_FORMAT;
+		else if (MISSING_LIBRARY_TEXT.equals(message))
+			status = MISSING_LIBRARY;
 	}
 	
 	/**

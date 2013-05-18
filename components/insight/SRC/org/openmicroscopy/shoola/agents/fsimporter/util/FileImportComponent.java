@@ -231,8 +231,7 @@ public class FileImportComponent
 
 	/** The imported image. */
 	private Object image;
-	
-	
+
 	/** Indicates the status of the on-going import. */
 	private StatusLabel statusLabel;
 	
@@ -340,18 +339,14 @@ public class FileImportComponent
 						launchFullViewer();
 					}
 				}));
-				menu.add(new JMenuItem(new AbstractAction("In Data Browser") {
+				item = new JMenuItem(new AbstractAction("In Data Browser") {
 					public void actionPerformed(ActionEvent e) {
 						browse();
 					}
-					
-					public void setEnabled(boolean b) {
-						super.setEnabled(!noContainer && browsable);
-					}
-				}));
+				});
+				item.setEnabled(!noContainer && browsable);
+				menu.add(item);
 		}
-		
-		
 		menu.add(new JMenuItem(new AbstractAction("Import Log") {
             public void actionPerformed(ActionEvent e) {
             	// TODO: download and view the import log
@@ -359,16 +354,13 @@ public class FileImportComponent
             }
         }));
         
-		
-		menu.add(new JMenuItem(new AbstractAction("Checksum") {
+		item = new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
             	showChecksumDetails();
             }
-            
-            public void setEnabled(boolean b) {
-				super.setEnabled(statusLabel.hasChecksum());
-			}
-		}));
+		});
+		item.setEnabled(statusLabel.hasChecksum());
+		menu.add(item);
 		return menu;
 	}
 	
@@ -696,9 +688,6 @@ public class FileImportComponent
 		if (files == null || files.size() == 0) return;
 		components = new HashMap<File, FileImportComponent>();
 		totalFiles = files.size();
-		String text = "Importing "+totalFiles+" file";
-		if (totalFiles > 1) text += "s";
-		statusLabel.setText(text);
 		
 		Entry<File, StatusLabel> entry;
 		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
@@ -927,7 +916,8 @@ public class FileImportComponent
 					}
 				}
 			}
-			
+		} else if (image instanceof ImportException) {
+			formatResult();
 		}
 		repaint();
 	}
@@ -1303,7 +1293,6 @@ public class FileImportComponent
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
-				System.err.println("label");
 				busyLabel.setBusy(true);
 				busyLabel.setVisible(true);
 				cancelButton.setVisible(sl.isCancellable());

@@ -120,6 +120,51 @@ class ImporterComponent
 	private boolean 		markToclose;
 	
 	/**
+	 * Posts event if required indicating the status of the import process.
+	 * 
+	 * @param element The UI element to handle.
+	 * @param result The formatted result.
+	 */
+	private void handleCompletion(ImporterUIElement element, Object result)
+	{
+		boolean refreshTree = false;
+		List<DataObject> containers = null;
+		if (element != null && element.isDone()) {
+			refreshTree = element.hasToRefreshTree();
+			containers = element.getExistingContainers();
+			model.importCompleted(element.getID());
+			view.onImportEnded(element);
+			if (markToclose) {
+				view.setVisible(false);
+			} else {
+				element = view.getElementToStartImportFor();
+				if (element != null) importData(element);
+			}
+			fireStateChange();
+		}
+
+		//post an event
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
+					containers, result);
+			e.setToRefresh(refreshTree);
+			bus.post(e);
+		}
+
+
+		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
+		{
+			//reload the hierarchies.
+			Class<?> rootType = ProjectData.class;
+			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
+				rootType = ScreenData.class;
+			model.fireContainerLoading(rootType, true, false, -1);
+			fireStateChange();
+		}
+	}
+	
+	/**
 	 * Imports the data for the specified import view.
 	 * 
 	 * @param element The import view. 
@@ -321,81 +366,10 @@ class ImporterComponent
 		//Handle exception that can occur during scanning or upload.
 		if (element != null) {
 			formattedResult = element.uploaComplete(f, result, index);
-			if (element.isDone()) {
-				refreshTree = element.hasToRefreshTree();
-				containers = element.getExistingContainers();
-				model.importCompleted(element.getID());
-				view.onImportEnded(element);
-				if (markToclose) {
-					view.setVisible(false);
-				} else {
-					element = view.getElementToStartImportFor();
-					if (element != null) importData(element);
-				}
-			}
-			fireStateChange();
-		}
-
-		//post an event
-		if (!controller.isMaster()) {
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			ImportStatusEvent event;
-			event = new ImportStatusEvent(hasOnGoingImport(), containers,
-					formattedResult);
-			event.setToRefresh(refreshTree);
-			bus.post(event);
-		}
-
-
-		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
-		{
-			//reload the hierarchies.
-			Class<?> rootType = ProjectData.class;
-			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
-				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false, -1);
-			fireStateChange();
+			handleCompletion(element, formattedResult);
 		}
 	}
-	
-	private void handleCompletion(ImporterUIElement element, Object result)
-	{
-		boolean refreshTree = false;
-		List<DataObject> containers = null;
-		if (element != null && element.isDone()) {
-			refreshTree = element.hasToRefreshTree();
-			containers = element.getExistingContainers();
-			model.importCompleted(element.getID());
-			view.onImportEnded(element);
-			if (markToclose) {
-				view.setVisible(false);
-			} else {
-				element = view.getElementToStartImportFor();
-				if (element != null) importData(element);
-			}
-			fireStateChange();
-		}
 
-		//post an event
-		if (!controller.isMaster()) {
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
-					containers, result);
-			e.setToRefresh(refreshTree);
-			bus.post(e);
-		}
-
-
-		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
-		{
-			//reload the hierarchies.
-			Class<?> rootType = ProjectData.class;
-			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
-				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false, -1);
-			fireStateChange();
-		}
-	}
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setExistingTags(Collection)
@@ -892,7 +866,11 @@ class ImporterComponent
 	public void setImportResult(Object result, Object component)
 	{
 		if (component == null || model.getState() == DISCARDED) return;
+		
 		FileImportComponent c = (FileImportComponent) component;
-		c.setStatus(result);
+		ImporterUIElement element = view.getUIElement(c.getIndex());
+		if (element == null) return;
+		Object formattedResult = element.setImportResult(c, result);
+		handleCompletion(element, formattedResult);
 	}
 }
