@@ -393,7 +393,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#submitFiles()
 	 */
-	public void submitFiles() { controller.submitFiles(); }
+	public void submitFiles() { controller.submitFiles(null); }
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.

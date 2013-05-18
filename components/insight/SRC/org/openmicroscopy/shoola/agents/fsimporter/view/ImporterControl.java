@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterControl 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +45,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
@@ -58,7 +58,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.PersonalManagementAct
 import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
-import org.openmicroscopy.shoola.agents.fsimporter.util.ErrorDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -69,7 +68,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
-import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
@@ -258,20 +256,24 @@ class ImporterControl
 	ImporterAction getAction(Integer id) { return actionsMap.get(id); }
 
 	
-	/** Submits the files that failed to import. */
-	void submitFiles()
+	/**
+	 * Submits the files that failed to import. 
+	 * 
+	 * @param fc The component to handle or <code>null</code>.
+	 */
+	void submitFiles(FileImportComponent fc)
 	{
-		List<FileImportComponent> list = view.getMarkedFiles();
-		UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
-		if (list == null || list.size() == 0) {
-			un.notifyInfo("Import Failures", "No files to submit.");
-			return;
+		List<ImportErrorObject> toSubmit = new ArrayList<ImportErrorObject>();
+		List<FileImportComponent> list;
+		if (fc != null) {
+			list = new ArrayList<FileImportComponent>();
+			list.add(fc);
+		} else {
+			list = view.getMarkedFiles();
 		}
 		markedFailed = list;
 		//Now prepare the list of object to send.
 		Iterator<FileImportComponent> i = list.iterator();
-		FileImportComponent fc;
-		List<ImportErrorObject> toSubmit = new ArrayList<ImportErrorObject>();
 		ImportErrorObject object;
 		while (i.hasNext()) {
 			fc = i.next();
@@ -283,9 +285,13 @@ class ImporterControl
 		String email = exp.getEmail();
 		if (email == null) email = "";
 		//Get log File
+		/*
 		File f = new File(ImporterAgent.getRegistry().getLogger().getLogFile());
 		object = new ImportErrorObject(f, null);
 		toSubmit.add(object);
+		*/
+		if (CollectionUtils.isEmpty(toSubmit)) return;
+		UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 		un.notifyError("Import Failures", "Files that failed to import", email, 
 				toSubmit, this);
 	}
@@ -336,10 +342,8 @@ class ImporterControl
 			model.cancelAllImports();
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			model.removeImportElement(evt.getNewValue());
-		} else if (FileImportComponent.DISPLAY_ERROR_PROPERTY.equals(name)) {
-			ErrorDialog d = new ErrorDialog(view, 
-					(Throwable) evt.getNewValue());
-			UIUtilities.centerAndShow(d);
+		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
+			submitFiles((FileImportComponent) evt.getNewValue());
 		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
 			//need to update the count
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {

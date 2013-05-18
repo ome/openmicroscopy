@@ -297,7 +297,7 @@ public class FileImportComponent
 			case FAILURE:
 				menu.add(new JMenuItem(new AbstractAction("Submit") {
 					public void actionPerformed(ActionEvent e) {
-						showError();
+						submitError();
 					}
 				}));
 				break;
@@ -395,16 +395,12 @@ public class FileImportComponent
 		}
 	}
 
-	/**
-	 * Displays the error box at the specified location.
-	 * 
-	 * @param p The location where to show the box.
-	 */
-	private void showError()
+	/** Submits the error.*/
+	private void submitError()
 	{
 		Object o = statusLabel.getImportResult();
 		if (o instanceof Exception)
-			firePropertyChange(DISPLAY_ERROR_PROPERTY, null, (Exception) o);
+			firePropertyChange(SUBMIT_ERROR_PROPERTY, null, this);
 	}
 	
 	/** Sets the text indicating the number of import. */
