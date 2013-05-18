@@ -35,6 +35,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
@@ -55,7 +56,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import org.springframework.util.CollectionUtils;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -772,7 +772,7 @@ class ImporterComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		}
 		Collection<ImporterUIElement> list = view.getImportElements();
-		if (list == null || list.size() == 0) {
+		if (CollectionUtils.isEmpty(list)) {
 			return;
 		}
 		Iterator<ImporterUIElement> i = list.iterator();

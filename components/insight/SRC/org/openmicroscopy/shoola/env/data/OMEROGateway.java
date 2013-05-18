@@ -6875,6 +6875,7 @@ class OMEROGateway
 	        }
 	        final ImportRequest req = (ImportRequest) handle.getRequest();
 	        final Fileset fs = req.activity.getParent();
+	        status.setFilesetData(new FilesetData(fs));
 	        return library.createCallback(proc, handle, ic);
 		} catch (Throwable e) {
 			try {

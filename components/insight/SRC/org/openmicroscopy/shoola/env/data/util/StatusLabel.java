@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
+import pojos.FilesetData;
 import pojos.PixelsData;
 
 /**
@@ -213,6 +214,9 @@ public class StatusLabel
 	/** The list of pixels' identifiers returned when the import is complete.*/
 	private Set<PixelsData> pixels;
 	
+	/** The file associated to that import.*/
+	private FilesetData fileset;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -293,6 +297,24 @@ public class StatusLabel
 		buildUI();
 	}
 
+	/** 
+	 * Sets the file set when the upload is complete.
+	 * To be modified.
+	 * 
+	 * @param fileset The value to set.
+	 */
+	public void setFilesetData(final FilesetData fileset)
+	{
+		this.fileset = fileset;
+	}
+	
+	/**
+	 * Returns the file set associated to the import.
+	 * 
+	 * @return See above.
+	 */
+	public FilesetData getFileset() { return fileset; }
+	
 	/**
 	 * Sets the collection of files to import.
 	 * 

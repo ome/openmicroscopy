@@ -94,6 +94,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -159,6 +160,11 @@ public class FileImportComponent
 	 */
 	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
 
+	/**
+	 * Bound property indicating to retrieve the log file.
+	 */
+	public static final String RETRIEVE_LOGFILEPROPERTY = "retrieveLogfile";
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 
@@ -316,6 +322,11 @@ public class FileImportComponent
 	/** Reference to the callback.*/
 	private CmdCallback callback;
 	
+	/**
+	 * Creates or recycles the menu corresponding to the import status.
+	 * 
+	 * @return See above.
+	 */
 	private JPopupMenu createActionMenu()
 	{
 		if (menu != null) return menu;
@@ -348,14 +359,16 @@ public class FileImportComponent
 					}
 				});
 				item.setEnabled(!noContainer && browsable);
+			
 				menu.add(item);
 		}
-		menu.add(new JMenuItem(new AbstractAction("Import Log") {
+		item = new JMenuItem(new AbstractAction("Import Log") {
             public void actionPerformed(ActionEvent e) {
-            	// TODO: download and view the import log
-            	//firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+            	displayLogFile();
             }
-        }));
+        });
+		item.setEnabled(callback != null);
+		menu.add(item);
         
 		item = new JMenuItem(new AbstractAction("Checksum") {
             public void actionPerformed(ActionEvent e) {
@@ -367,6 +380,17 @@ public class FileImportComponent
 		return menu;
 	}
 	
+	/** Displays or loads the log file.*/
+	private void displayLogFile()
+	{
+		if (logFile != null)
+    		firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+    	else {
+    		firePropertyChange(RETRIEVE_LOGFILEPROPERTY, null,
+    				statusLabel.getFileset());
+    	}
+	}
+
 	/**
 	 * Displays the checksum details dialog for the file(s) in this entry
 	 */
@@ -438,21 +462,7 @@ public class FileImportComponent
 			}
 		}
 	}
-	
-	/**
-	 * Logs the exception.
-	 * 
-	 * @param e The error to log.
-	 */
-	private void logException(Exception e)
-	{
-		String s = "Error during import: ";
-        LogMessage msg = new LogMessage();
-        msg.print(s);
-        msg.print(e);
-		ImporterAgent.getRegistry().getLogger().warn(this, msg);
-	}
-	
+
 	/**
 	 * Displays the error box at the specified location.
 	 * 
@@ -816,10 +826,17 @@ public class FileImportComponent
 		}
 	}
 	
-	public void setImportLogFile(Collection<FileAnnotationData> data, long id) {
-		/*
-		long fileSetID = getFileSetID(image);
-		if (id != fileSetID || data == null) return;
+	/**
+	 * Sets the log file annotation.
+	 * 
+	 * @param data The annotation associated to the file set.
+	 * @param id The id of the file set.
+	 */
+	public void setImportLogFile(Collection<FileAnnotationData> data, long id)
+	{
+		FilesetData fs = statusLabel.getFileset();
+		if (fs == null) return;
+		if (id != fs.getId() || data == null) return;
 		Iterator<FileAnnotationData> i = data.iterator();
 		FileAnnotationData fa;
 		while (i.hasNext()) {
@@ -830,8 +847,9 @@ public class FileImportComponent
 				break;
 			}
 		}
-		if (logFile == null) return;
-		*/
+		if (logFile != null) {
+			firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
+		}
 	}
 
 	/**

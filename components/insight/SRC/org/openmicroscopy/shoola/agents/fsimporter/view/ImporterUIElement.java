@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
+import omero.model.FileAnnotation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -55,7 +55,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXBusyLabel;
+
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -77,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -455,16 +458,22 @@ class ImporterUIElement
 								ImporterAgent.getRegistry().lookup(
 										LookupNames.ENV);
 						String path = env.getOmeroFilesHome();
-						path += File.separator+v.getFileID();
-						File f = new File(path);
+						long id = v.getFileID();
+						if (id < 0) return;
+						File f = new File(path, "log_"+id);
 						DownloadAndLaunchActivityParam activity;
-						activity = new DownloadAndLaunchActivityParam(
-								v.getFileID(),
+						activity = new DownloadAndLaunchActivityParam(id,
 								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
 								f, null);
 						UserNotifier un =
 								ImporterAgent.getRegistry().getUserNotifier();
 						un.notifyActivity(model.getSecurityContext(), activity);
+					} else if (
+						FileImportComponent.RETRIEVE_LOGFILEPROPERTY.equals(
+							name)) {
+						FilesetData data = (FilesetData) evt.getNewValue();
+						if (data != null)
+							model.fireImportLogFileLoading(data.getId(), id);
 					}
 				}
 			});
