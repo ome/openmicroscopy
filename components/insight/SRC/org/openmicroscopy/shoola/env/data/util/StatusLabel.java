@@ -562,7 +562,8 @@ public class StatusLabel
 			else  buffer.append(fileSize);
 			buffer.append(" ");
 			if (e.timeLeft != 0) {
-				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft);
+				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft,
+						true);
 				buffer.append(s);
 				if (!StringUtils.isBlank(s)) buffer.append(" Left");
 				else buffer.append("Almost complete");

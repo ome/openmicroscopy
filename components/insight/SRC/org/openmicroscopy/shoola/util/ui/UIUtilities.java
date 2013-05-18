@@ -1543,7 +1543,7 @@ public class UIUtilities
         StringBuffer text = new StringBuffer();
         if (hours > 0) {
         	text.append(hours);
-        	if (shortUnit) text.append(" h");
+        	if (shortUnit) text.append("h");
         	else {
         		text.append(" hour");
         		if (hours > 1) text.append("s");
@@ -1553,7 +1553,7 @@ public class UIUtilities
         if (minutes > 0) {
         	text.append(" "); 
         	text.append(minutes);
-        	if (shortUnit) text.append(" min");
+        	if (shortUnit) text.append("min");
         	else {
         		text.append(" minute");
             	if (minutes > 1) text.append("s");
@@ -1562,7 +1562,7 @@ public class UIUtilities
         if (seconds > 0) {
         	text.append(" "); 
         	text.append(seconds);
-        	if (shortUnit) text.append(" s");
+        	if (shortUnit) text.append("s");
         	else {
         		text.append(" second");
             	if (seconds > 1) text.append("s");
