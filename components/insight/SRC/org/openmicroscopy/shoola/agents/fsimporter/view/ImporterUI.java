@@ -313,9 +313,9 @@ class ImporterUI extends TopWindow
 				controller.getAction(
 						ImporterControl.RETRY_BUTTON).setEnabled(
 							hasFailuresToReimport());
-				//controller.getAction(
-				//		ImporterControl.SEND_BUTTON).setEnabled(
-				//				hasSelectedFailuresToSend());
+				controller.getAction(
+						ImporterControl.SEND_BUTTON).setEnabled(
+								hasFailuresToSend());
 			}
 		});
 	}
@@ -625,9 +625,10 @@ class ImporterUI extends TopWindow
 	 */
 	boolean hasFailuresToSend()
 	{
-		return false;//hasSelectedFailuresToSend();
+		ImporterUIElement element = getSelectedPane();
+		if (element == null) return false;
+		return element.hasFailuresToSend();
 	}
-	
 	
     /**
      * Brings up the menu on top of the specified component at 
@@ -696,7 +697,7 @@ class ImporterUI extends TopWindow
 		if (element == null) return false;
 		return element.hasFailuresToReimport();
 	}
-	
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

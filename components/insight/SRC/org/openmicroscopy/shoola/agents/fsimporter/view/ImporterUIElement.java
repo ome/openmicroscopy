@@ -979,6 +979,28 @@ class ImporterUIElement
 			fc.setImportLogFile(data, id);
 		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToSend()
+	{
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (fc.hasFailuresToSend())
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns <code>true</code> if files to reimport, <code>false</code>
 	 * otherwise.
@@ -994,7 +1016,7 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			if (fc.hasFailuresToReimport()) 
+			if (fc.hasFailuresToReimport())
 				return true;
 		}
 		return false;

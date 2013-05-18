@@ -40,6 +40,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -288,9 +289,6 @@ public class FileImportComponent
 	
 	/** Set to <code>true</code> if attempt to re-import.*/
 	private boolean reimported;
-
-	/** Flag indicating that the file should be reimported.*/
-	private boolean toReImport;
 	
 	/** The group in which to import the file.*/
 	private GroupData group;
@@ -1017,24 +1015,38 @@ public class FileImportComponent
 	}
 	
 	/**
-	 * Returns <code>true</code> if file to reimport, <code>false</code>
-	 * otherwise.
+	 * Returns <code>true</code> if the file can be re-imported,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	public boolean hasFailuresToReimport()
 	{
 		if (file.isFile()) {
-			//if (errorButton.isVisible() && !reimported)
-			//	return true;
-			return (toReImport && !reimported);
+			return (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported);
 		}
-		if (components == null) {
-			return false;
-		}
+		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
-			if (i.next().hasFailuresToReimport()) 
+			if (i.next().hasFailuresToReimport())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> the error can be submitted, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToSend()
+	{
+		if (file.isFile()) return resultIndex == ImportStatus.FAILURE;
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToSend())
 				return true;
 		}
 		return false;
@@ -1205,10 +1217,8 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (file.isFile()) {
-			if (toReImport && !reimported) {
-				l = new ArrayList<FileImportComponent>();
-				l.add(this);
-				return l;
+			if (resultIndex == ImportStatus.FAILURE && !reimported) {
+				return Arrays.asList(this);
 			}
 		} else {
 			if (components != null) {
