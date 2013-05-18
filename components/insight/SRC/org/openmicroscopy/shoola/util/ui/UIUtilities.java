@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
@@ -1509,7 +1508,67 @@ public class UIUtilities
      */
     public static String calculateHMSFromMilliseconds(long timeInMilliSeconds)
     {
-    	return calculateHMS((int) (timeInMilliSeconds/1000));
+    	return calculateHMS((int) (timeInMilliSeconds/1000), false);
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
+     * @param timeInMilliSeconds The time in milliseconds to convert.
+     * @param shortUnit Pass <code>true</code> to use short units
+     * e.g. s for second, <code>false</code> otherwise.
+     * @return See above.
+     */
+    public static String calculateHMSFromMilliseconds(long timeInMilliSeconds,
+    		boolean shortUnit)
+    {
+    	return calculateHMS((int) (timeInMilliSeconds/1000), shortUnit);
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
+     * @param timeInSeconds The time in seconds to convert.
+     * @param shortUnit Pass <code>true</code> to use short units
+     * e.g. s for second, <code>false</code> otherwise.
+     * @return See above.
+     */
+    public static String calculateHMS(int timeInSeconds, boolean shortUnit)
+    {
+        int hours = timeInSeconds/3600;
+        timeInSeconds = timeInSeconds-(hours*3600);
+        int minutes = timeInSeconds/60;
+        timeInSeconds = timeInSeconds-(minutes*60);
+        int seconds = timeInSeconds;
+        StringBuffer text = new StringBuffer();
+        if (hours > 0) {
+        	text.append(hours);
+        	if (shortUnit) text.append(" h");
+        	else {
+        		text.append(" hour");
+        		if (hours > 1) text.append("s");
+        	}
+        }
+       
+        if (minutes > 0) {
+        	text.append(" "); 
+        	text.append(minutes);
+        	if (shortUnit) text.append(" min");
+        	else {
+        		text.append(" minute");
+            	if (minutes > 1) text.append("s");
+        	}
+        }
+        if (seconds > 0) {
+        	text.append(" "); 
+        	text.append(seconds);
+        	if (shortUnit) text.append(" s");
+        	else {
+        		text.append(" second");
+            	if (seconds > 1) text.append("s");
+        	}
+        }
+        return text.toString();
     }
     
     /**
@@ -1520,30 +1579,7 @@ public class UIUtilities
      */
     public static String calculateHMS(int timeInSeconds)
     {
-        int hours = timeInSeconds/3600;
-        timeInSeconds = timeInSeconds-(hours*3600);
-        int minutes = timeInSeconds/60;
-        timeInSeconds = timeInSeconds-(minutes*60);
-        int seconds = timeInSeconds;
-        StringBuffer text = new StringBuffer();
-        if (hours > 0) {
-        	text.append(hours);
-        	text.append(" hour");
-        }
-        if (hours > 1) text.append("s");
-        if (minutes > 0) {
-        	text.append(" "); 
-        	text.append(minutes);
-        	text.append(" minute");
-        	if (minutes > 1) text.append("s");
-        }
-        if (seconds > 0) {
-        	text.append(" "); 
-        	text.append(seconds);
-        	text.append(" second");
-        	if (seconds > 1) text.append("s");
-        }
-        return text.toString();
+        return calculateHMS(timeInSeconds, false);
     }
     
     /**
