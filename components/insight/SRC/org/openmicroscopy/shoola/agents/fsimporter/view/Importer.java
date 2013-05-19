@@ -199,7 +199,7 @@ public interface Importer
 	 * 
 	 * @return See above.
 	 */
-	public boolean hasFailuresToReimport();
+	public boolean hasFailuresToReupload();
 	
 	/** 
 	 * Sets the used and available disk space.
@@ -221,8 +221,12 @@ public interface Importer
 	 */
 	public void moveToFront();
 	
-	/** Tries to re-import failed import. */
-	public void retryImport();
+	/**
+	 * Tries to re-upload the failed upload(s).
+	 * 
+	 * @param fc The file to upload or <code>null</code>.
+	 */
+	public void retryUpload(FileImportComponent fc);
 
 	/**
 	 * Returns <code>true</code> if it is the last file to import,

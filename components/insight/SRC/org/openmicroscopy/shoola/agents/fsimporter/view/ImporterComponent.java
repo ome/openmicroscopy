@@ -466,7 +466,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#hasFailuresToSend()
 	 */
-	public boolean hasFailuresToReimport()
+	public boolean hasFailuresToReupload()
 	{
 		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
 			return false;
@@ -536,17 +536,20 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#retryImport()
+	 * @see Importer#retryUpload(FileImportComponent)
 	 */
-	public void retryImport()
+	public void retryUpload(FileImportComponent fc)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getSelectedPane();
 		if (element == null) return;
-		List<FileImportComponent> l = element.getFilesToReimport();
-		if (l == null || l.size() == 0) return;
+		List<FileImportComponent> l;
+		if (fc != null) {
+			l = new ArrayList<FileImportComponent>(1);
+			l.add(fc);
+		} else l = element.getFilesToReupload();
+		if (CollectionUtils.isEmpty(l)) return;
 		Iterator<FileImportComponent> i = l.iterator();
-		FileImportComponent fc;
 		ImportableObject object = element.getData();
 		List<File> files = new ArrayList<File>();
 		while (i.hasNext()) {
@@ -554,7 +557,7 @@ class ImporterComponent
 			fc.setReimported(true);
 			files.add(fc.getFile());
 		}
-		object.reImport(files);
+		object.reUpload(files);
 		importData(object);
 	}
 

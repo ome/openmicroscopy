@@ -682,7 +682,7 @@ class ImporterUI extends TopWindow
 	{
 		ImporterUIElement pane = getSelectedPane();
     	if (pane == null) return null;
-    	return pane.getFilesToReimport();
+    	return pane.getFilesToReupload();
 	}
 	
 	/**

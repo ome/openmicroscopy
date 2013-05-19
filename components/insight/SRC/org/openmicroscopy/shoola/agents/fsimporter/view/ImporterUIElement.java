@@ -54,6 +54,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 import info.clearthought.layout.TableLayout;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -483,7 +485,9 @@ class ImporterUIElement
 						StatusLabel label = (StatusLabel) evt.getNewValue();
 						CheckSumDialog d = new CheckSumDialog(view, label);
 						UIUtilities.centerAndShow(d);
-					}
+					} else if (FileImportComponent.RETRY_PROPERTY.equals(name))
+						firePropertyChange(name, evt.getOldValue(),
+								evt.getNewValue());
 				}
 			});
 			if (f.isDirectory()) {
@@ -914,7 +918,7 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getFilesToReimport()
+	List<FileImportComponent> getFilesToReupload()
 	{
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		Entry<String, FileImportComponent> entry;
@@ -925,8 +929,8 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			l = fc.getReImport();
-			if (l != null && l.size() > 0)
+			l = fc.getFilesToReupload();
+			if (!CollectionUtils.isEmpty(l))
 				list.addAll(l);
 		}
 		return list;

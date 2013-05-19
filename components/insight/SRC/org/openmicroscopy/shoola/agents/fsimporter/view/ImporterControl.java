@@ -295,6 +295,7 @@ class ImporterControl
 		un.notifyError("Import Failures", "Files that failed to import", email, 
 				toSubmit, this);
 	}
+
 	
 	/**
 	 * Returns the list of group the user is a member of.
@@ -363,6 +364,9 @@ class ImporterControl
 			model.setUserGroup(newGroup);
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
 			model.onImportComplete((FileImportComponent) evt.getNewValue());
+		} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
+			FileImportComponent fc = (FileImportComponent) evt.getNewValue();
+			model.retryUpload(fc);
 		}
 	}
 

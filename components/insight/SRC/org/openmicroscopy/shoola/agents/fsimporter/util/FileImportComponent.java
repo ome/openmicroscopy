@@ -125,6 +125,9 @@ public class FileImportComponent
 	/** Indicates that no container specified. */
 	public static final int NO_CONTAINER = 3;
 	
+	/** Bound property indicating to retry an upload.*/
+	public static final String RETRY_PROPERTY = "retry";
+	
 	/** 
 	 * Bound property indicating that the error to submit is selected or not.
 	 */
@@ -283,6 +286,13 @@ public class FileImportComponent
 	/** Reference to the callback.*/
 	private CmdCallback callback;
 	
+	/** Retries to upload the file.*/
+	private void retry()
+	{
+		Object o = statusLabel.getImportResult();
+		if (o instanceof Exception)
+			firePropertyChange(RETRY_PROPERTY, null, this);
+	}
 	/**
 	 * Creates or recycles the menu corresponding to the import status.
 	 * 
@@ -306,7 +316,7 @@ public class FileImportComponent
 			case UPLOAD_FAILURE:
 				menu.add(new JMenuItem(new AbstractAction("Retry") {
 					public void actionPerformed(ActionEvent e) {
-						// TODO: retry the upload
+						retry();
 					}
 				}));
 				break;
@@ -1140,11 +1150,11 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public List<FileImportComponent> getReImport()
+	public List<FileImportComponent> getFilesToReupload()
 	{
 		List<FileImportComponent> l = null;
 		if (file.isFile()) {
-			if (resultIndex == ImportStatus.FAILURE && !reimported) {
+			if (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported) {
 				return Arrays.asList(this);
 			}
 		} else {
@@ -1155,8 +1165,8 @@ public class FileImportComponent
 				List<FileImportComponent> list;
 				while (i.hasNext()) {
 					fc = i.next();
-					list = fc.getReImport();
-					if (list != null && list.size() > 0)
+					list = fc.getFilesToReupload();
+					if (!CollectionUtils.isEmpty(list))
 						l.addAll(list);
 				}
 			}

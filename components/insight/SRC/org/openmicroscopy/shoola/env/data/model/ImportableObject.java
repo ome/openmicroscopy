@@ -664,11 +664,11 @@ public class ImportableObject
 	}
 	
 	/**
-	 * Resets the files to reimport.
+	 * Resets the files to re-upload
 	 * 
 	 * @param list The list of files to handle.
 	 */
-	public void reImport(List<File> list)
+	public void reUpload(List<File> list)
 	{
 		if (list == null || list.size() == 0) return;
 		Iterator<File> i = list.iterator();
