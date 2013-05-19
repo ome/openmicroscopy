@@ -293,6 +293,8 @@ public class FileImportComponent
 		if (menu != null) return menu;
 		menu = new JPopupMenu();
 		JMenuItem item;
+		String logText = "View Import Log";
+		String checksumText = "View Checksum";
 		switch (resultIndex) {
 			case FAILURE:
 				menu.add(new JMenuItem(new AbstractAction("Submit") {
@@ -309,21 +311,26 @@ public class FileImportComponent
 				}));
 				break;
 			case SUCCESS:
-				menu.add(new JMenuItem(new AbstractAction("In Full Viewer") {
+				logText = "Import Log";
+				checksumText = "Checksum";
+				item = new JMenuItem(new AbstractAction("In Full Viewer") {
 					public void actionPerformed(ActionEvent e) {
 						launchFullViewer();
 					}
-				}));
+				});
+				boolean b = false;
+				if (image instanceof List) b = ((List) image).size() == 1;
+				item.setEnabled(b);
+				menu.add(item);
 				item = new JMenuItem(new AbstractAction("In Data Browser") {
 					public void actionPerformed(ActionEvent e) {
 						browse();
 					}
 				});
-				item.setEnabled(!noContainer && browsable);
-			
+				item.setEnabled(browsable);
 				menu.add(item);
 		}
-		item = new JMenuItem(new AbstractAction("Import Log") {
+		item = new JMenuItem(new AbstractAction(logText) {
             public void actionPerformed(ActionEvent e) {
             	displayLogFile();
             }
@@ -331,7 +338,7 @@ public class FileImportComponent
 		item.setEnabled(callback != null);
 		menu.add(item);
         
-		item = new JMenuItem(new AbstractAction("Checksum") {
+		item = new JMenuItem(new AbstractAction(checksumText) {
             public void actionPerformed(ActionEvent e) {
             	showChecksumDetails();
             }
