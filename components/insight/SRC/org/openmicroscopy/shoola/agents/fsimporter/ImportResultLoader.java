@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -74,14 +75,15 @@ public class ImportResultLoader
 	/** The component hosting the result of the upload.*/
 	private Object comp;
 	
+	/** The result when loading the thumbnails.*/
 	private List<Object> result;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer The Importer this data loader is for.
 	 * Mustn't be <code>null</code>.
-     * @param ctx The security context.
+	 * * @param ctx The security context.
 	 * @param ids The collection of objects to load.
 	 * @param nodeType The type of node.
 	 * @param comp The component hosting the result.
@@ -115,7 +117,7 @@ public class ImportResultLoader
 				pxd = (PixelsData) i.next();
 				objects.add(pxd.getImage().getId());
 			}
-			//handle = dmView.getImages(ctx, nodeType, objects, userID, this);
+			handle = dmView.loadPlateFromImage(ctx, objects, this);
 		} else if (nodeType.equals(ThumbnailData.class)) {
 			handle = hiBrwView.loadThumbnails(ctx, ids,
                     ThumbnailProvider.THUMB_MAX_WIDTH,
@@ -136,30 +138,36 @@ public class ImportResultLoader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-        if (viewer.getState() == DataBrowser.DISCARDED ||
-        	!ThumbnailData.class.equals(nodeType)) return;
-        
-        List l = (List) fe.getPartialResult();
-        if (!CollectionUtils.isEmpty(l)) {
-        	if (result == null) result = new ArrayList<Object>();
-        	Iterator i = l.iterator();
-        	ThumbnailData td;
-        	Object ref;
-        	while (i.hasNext()) {
-        		result.add(i.next());
-			}
-        	if (result.size() == ids.size())
-        		viewer.setImportResult(result, comp);
-        }
+    	if (viewer.getState() == DataBrowser.DISCARDED ||
+    			!ThumbnailData.class.equals(nodeType)) return;
+
+    	List l = (List) fe.getPartialResult();
+    	if (!CollectionUtils.isEmpty(l)) {
+    		if (result == null) result = new ArrayList<Object>();
+    		Iterator i = l.iterator();
+    		while (i.hasNext()) {
+    			result.add(i.next());
+    		}
+    		if (result.size() == ids.size())
+    			viewer.setImportResult(result, comp);
+    	}
     }
-    
-    
+
     /**
      * Feeds the result back to the viewer.
      * @see DataImporterLoader#handleResult(Object)
      */
 	public void handleResult(Object result)
 	{
-		
+		if (viewer.getState() == DataBrowser.DISCARDED ||
+				!PlateData.class.equals(nodeType)) return;
+		//Handle the plate.
+		Map<Long, Object> m = (Map<Long, Object>) result;
+		if (m.size() == 1) {
+			Iterator<Object> i = m.values().iterator();
+			while (i.hasNext()) {
+				viewer.setImportResult(i.next(), comp);
+			}
+		}
 	}
 }

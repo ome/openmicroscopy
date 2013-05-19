@@ -219,6 +219,9 @@ public class StatusLabel
 	/** The file associated to that import.*/
 	private FilesetData fileset;
 	
+	/** Flag indicating if the image is a HCS file or not.*/
+	private boolean hcs;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -315,6 +318,23 @@ public class StatusLabel
 	{
 		this.fileset = fileset;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if it is a HCS file, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param hcs Pass <code>true</code> if it is a HCS file, <code>false</code>
+	 * otherwise.
+	 */
+	public void setHCS(boolean hcs) { this.hcs = hcs; }
+	
+	/**
+	 * Returns <code>true</code> if it is a HCS file, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isHCS() { return hcs; }
 	
 	/**
 	 * Returns the file set associated to the import.

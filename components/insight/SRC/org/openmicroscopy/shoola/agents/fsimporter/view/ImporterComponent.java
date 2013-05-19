@@ -63,6 +63,7 @@ import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -843,16 +844,21 @@ class ImporterComponent
 		}
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
 		if (CollectionUtils.isEmpty(pixels)) return;
-		//Extract the first 3.
 		Collection<DataObject> l = new ArrayList<DataObject>();
 		Iterator<PixelsData> i = pixels.iterator();
+		Class<?> klass = ThumbnailData.class;
+		int n = FileImportComponent.MAX_THUMBNAILS;
+		if (component.isHCS()) {
+			n = 1;
+			klass = PlateData.class;
+		}
 		int index = 0;
 		while (i.hasNext()) {
-			if (index == FileImportComponent.MAX_THUMBNAILS) break;
+			if (index == n) break;
 			l.add(i.next());
 			index++;
 		}
-		model.fireImportResultLoading(l, ThumbnailData.class, component);
+		model.fireImportResultLoading(l, klass, component);
 	}
 
 	/** 

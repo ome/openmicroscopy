@@ -1199,6 +1199,14 @@ public class FileImportComponent
 	public Object getImportResult() { return statusLabel.getImportResult(); }
 	
 	/**
+	 * Returns <code>true</code> if it is a HCS file, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isHCS() { return statusLabel.isHCS(); }
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)

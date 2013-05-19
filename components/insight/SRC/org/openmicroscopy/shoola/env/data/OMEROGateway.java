@@ -6827,6 +6827,7 @@ class OMEROGateway
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
     	isSessionAlive(ctx);
+    	status.setHCS(hcs);
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
