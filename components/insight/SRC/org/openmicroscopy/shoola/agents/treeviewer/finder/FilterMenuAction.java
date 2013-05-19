@@ -86,7 +86,7 @@ public class FilterMenuAction
     
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
-     * event occured. 
+     * event occurred. 
      * @see MouseListener#mousePressed(MouseEvent)
      */
     public void mousePressed(MouseEvent me) { pressedPoint = me.getPoint(); }
