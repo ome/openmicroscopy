@@ -1122,7 +1122,7 @@ class MeasurementViewerUI
     						"Problem while handling ROI "+e.getMessage());
     		statusBar.setStatus(text);
     	} else {
-    		String s = "An unexpected error occured while handling ROI ";
+    		String s = "An unexpected error occurred while handling ROI ";
     		reg.getLogger().error(this, s+e.getMessage());
     		reg.getUserNotifier().notifyError("ROI", s, e);
     	}
