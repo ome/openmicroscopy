@@ -544,6 +544,13 @@ public class StatusLabel
 	}
 
 	/**
+	 * Returns the size of the upload.
+	 * 
+	 * @return See above.
+	 */
+	public long getFileSize() { return sizeUpload; }
+
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */

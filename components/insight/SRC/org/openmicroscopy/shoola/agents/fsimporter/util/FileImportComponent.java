@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -63,6 +64,7 @@ import omero.cmd.CmdCallback;
 import omero.cmd.CmdCallbackI;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -377,6 +379,73 @@ public class FileImportComponent
 		firePropertyChange(CHECKSUM_DISPLAY_PROPERTY, null, statusLabel);
 	}
 
+	/**
+	 * Formats the tool tip of a successful import.
+	 * 
+	 * @return See above.
+	 */
+	private void formatResultTooltip()
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append("<b>Date Uploaded: </b>");
+		buf.append(UIUtilities.formatShortDateTime(null));
+		buf.append("<br>");
+		if (image instanceof PlateData) {
+			PlateData p = (PlateData) image;
+			buf.append("<b>Plate ID: </b>");
+			buf.append(p.getId());
+			buf.append("<br>");
+		}
+		if (!statusLabel.isHCS()) {
+			Set<PixelsData> list =
+					(Set<PixelsData>) statusLabel.getImportResult();
+			int n = list.size();
+			if (n == 1) {
+				buf.append("<b>Image ID: </b>");
+				Iterator<PixelsData> i = list.iterator();
+				while (i.hasNext()) {
+					buf.append(i.next().getImage().getId());
+					buf.append("<br>");
+				}
+			} else if (n > 1) {
+				buf.append("<b>Number of Images: </b>");
+				buf.append(n);
+				buf.append("<br>");
+			}
+		}
+		buf.append("<b>Size: </b>");
+		buf.append(FileUtils.byteCountToDisplaySize(statusLabel.getFileSize()));
+		buf.append("<br>");
+		buf.append("<b>Group: </b>");
+		buf.append(group.getName());
+		buf.append("<br>");
+		buf.append("<b>Owner: </b>");
+		buf.append(EditorUtil.formatExperimenter(user));
+		buf.append("<br>");
+		if (containerObject instanceof ProjectData) {
+			buf.append("<b>Project: </b>");
+			buf.append(((ProjectData) containerObject).getName());
+			buf.append("<br>");
+		} else if (containerObject instanceof ScreenData) {
+			buf.append("<b>Screen: </b>");
+			buf.append(((ScreenData) containerObject).getName());
+			buf.append("<br>");
+		} else if (containerObject instanceof DatasetData) {
+			buf.append("<b>Dataset: </b>");
+			buf.append(((DatasetData) containerObject).getName());
+			buf.append("<br>");
+		} else if (dataset != null) {
+			buf.append("<b>Dataset: </b>");
+			buf.append(dataset.getName());
+			buf.append("<br>");
+		}
+		buf.append("</body></html>");
+		String tip = buf.toString();
+		fileNameLabel.setToolTipText(tip);
+		resultLabel.setToolTipText(tip);
+	}
+	
 	/** Indicates that the import was successful or if it failed.*/
 	private void formatResult()
 	{
@@ -403,6 +472,7 @@ public class FileImportComponent
 			else resultIndex = ImportStatus.FAILURE;
 		} else {
 			if (!statusLabel.isMarkedAsCancel()) {
+				formatResultTooltip();
 				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
 				actionMenuButton.setVisible(true);
 				actionMenuButton.setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -848,6 +918,7 @@ public class FileImportComponent
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
+			formatResultTooltip();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
