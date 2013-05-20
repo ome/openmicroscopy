@@ -2188,14 +2188,11 @@ def activities(request, conn=None, **kwargs):
                                     fsetImgs = fset.copyImages()
                                     attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
                                     blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                    fs_files = fset.listFiles()
-                                    totalSize = sum( [f.getSize() for f in fs_files] )
+                                    # fs_files = fset.listFiles()
+                                    # totalSize = sum( [f.getSize() for f in fs_files] )
                                     split_filesets.append( {'fsid':fset.id,
                                             'blocking_iids': blocking_iids,
-                                            'attempted_iids':attempted_iids,
-                                            'imageCount': len(fsetImgs),
-                                            'fileCount': len(fs_files),
-                                            'totalSize': totalSize})
+                                            'attempted_iids':attempted_iids})
                                 request.session['callback'][cbString]['split_filesets'] = split_filesets
                             elif err:
                                 request.session['callback'][cbString]['derror'] = 1
