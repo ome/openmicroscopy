@@ -2163,21 +2163,11 @@ def activities(request, conn=None, **kwargs):
                             in_progress+=1
                         else: # Response available
                             close_handle = True
-                            err = isinstance(cb.getResponse(), omero.cmd.ERR)
                             new_results.append(cbString)
-                            if err:
-                                request.session['callback'][cbString]['derror'] = 1
-                                request.session['callback'][cbString]['status'] = "failed"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                                failure+=1
-                            else:
-                                request.session['callback'][cbString]['derror'] = 0
-                                request.session['callback'][cbString]['status'] = "finished"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-
-                            # Somehow we check if 'Fileset' returned...
                             rsp = cb.getResponse()
-                            if 'Fileset' in rsp.constraints:
+                            err = isinstance(rsp, omero.cmd.ERR)
+                            # Check if 'Fileset' returned...
+                            if err and 'Fileset' in rsp.constraints:
                                 filesets = rsp.constraints['Fileset']   # list of Fileset IDs
                                 # We have this info from the job submission:
                                 callbackDict = request.session['callback'][cbString]
@@ -2207,6 +2197,16 @@ def activities(request, conn=None, **kwargs):
                                             'fileCount': len(fs_files),
                                             'totalSize': totalSize})
                                 request.session['callback'][cbString]['split_filesets'] = split_filesets
+                            elif err:
+                                request.session['callback'][cbString]['derror'] = 1
+                                request.session['callback'][cbString]['status'] = "failed"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                                failure+=1
+                            # no error...
+                            else:
+                                request.session['callback'][cbString]['derror'] = 0
+                                request.session['callback'][cbString]['status'] = "finished"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:
