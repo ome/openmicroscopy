@@ -200,7 +200,7 @@ class ITest(unittest.TestCase):
         if client is None:
             client = self.client
         if name is None:
-            name = "importSimgleImage"
+            name = "importSingleImage"
 
         images = self.importMIF(1, name=name, client=client)
         return images[0]
