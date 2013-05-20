@@ -4028,9 +4028,9 @@ class OMEROGateway
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
 		RawFileStorePrx store;
-		Iterator<?> i = files.iterator();
+		
 		OriginalFile of;
-		long size;	
+		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
 		File f;
@@ -4041,12 +4041,15 @@ class OMEROGateway
 			if (file.isDirectory()) folderPath = file.getAbsolutePath();
 			else folderPath = file.getParent();
 		}
+
+		Iterator<?> i = files.iterator();
+		store = getRawFileService(ctx);
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
-			store = getRawFileService(ctx);
 			try {
-				store.setFileId(of.getId().getValue()); 
+				store.setFileId(of.getId().getValue());
 			} catch (Exception e) {
+				closeService(ctx, store);
 				handleException(e, "Cannot set the file's id.");
 			}
 			if (folderPath != null) {
@@ -4086,8 +4089,8 @@ class OMEROGateway
 				throw new DSAccessException("Cannot create file in folderPath",
 						e);
 			}
-			closeService(ctx, store);
 		}
+		closeService(ctx, store);
 		result.put(Boolean.valueOf(true), results);
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
