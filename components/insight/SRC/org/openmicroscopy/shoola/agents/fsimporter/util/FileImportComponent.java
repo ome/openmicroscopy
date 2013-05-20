@@ -945,6 +945,10 @@ public class FileImportComponent
 			}
 		} else if (image instanceof ImportException) {
 			formatResult();
+		} else if (image instanceof Boolean) {
+			if (!statusLabel.isMarkedAsCancel()) {
+				cancelButton.setVisible(false);
+			}
 		}
 		repaint();
 	}

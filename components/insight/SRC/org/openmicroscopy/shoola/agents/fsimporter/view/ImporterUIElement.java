@@ -759,6 +759,8 @@ class ImporterUIElement
 				r = new ImportErrorObject(file, (Exception) result);
 				countFailure++;
 				setImportResult(c, result);
+			} else if (result instanceof Boolean) {
+				setImportResult(c, result);
 			} else if (c.isCancelled()) countCancelled++;
 		}
 		if (file.isDirectory() && !c.hasComponents() && 

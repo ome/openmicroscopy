@@ -376,7 +376,11 @@ public class StatusLabel
 	public boolean isMarkedAsCancel() { return markedAsCancel; }
 
 	/** Marks the import has duplicate. */
-	public void markedAsDuplicate() { this.markedAsDuplicate = true; }
+	public void markedAsDuplicate()
+	{
+		this.markedAsDuplicate = true;
+		generalLabel.setText(DUPLICATE);
+	}
 
 	/**
 	 * Returns <code>true</code> if the import is marked as duplicate,
