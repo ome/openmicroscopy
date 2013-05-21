@@ -398,20 +398,22 @@ public class FileImportComponent
 			buf.append("<br>");
 		}
 		if (!statusLabel.isHCS()) {
-			Set<PixelsData> list =
-					(Set<PixelsData>) statusLabel.getImportResult();
-			int n = list.size();
-			if (n == 1) {
-				buf.append("<b>Image ID: </b>");
-				Iterator<PixelsData> i = list.iterator();
-				while (i.hasNext()) {
-					buf.append(i.next().getImage().getId());
+			Object o = statusLabel.getImportResult();
+			if (o instanceof Set) {
+				Set<PixelsData> list = (Set<PixelsData>) o;
+				int n = list.size();
+				if (n == 1) {
+					buf.append("<b>Image ID: </b>");
+					Iterator<PixelsData> i = list.iterator();
+					while (i.hasNext()) {
+						buf.append(i.next().getImage().getId());
+						buf.append("<br>");
+					}
+				} else if (n > 1) {
+					buf.append("<b>Number of Images: </b>");
+					buf.append(n);
 					buf.append("<br>");
 				}
-			} else if (n > 1) {
-				buf.append("<b>Number of Images: </b>");
-				buf.append(n);
-				buf.append("<br>");
 			}
 		}
 		buf.append("<b>Size: </b>");
