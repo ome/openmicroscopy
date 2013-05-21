@@ -569,6 +569,7 @@ public class StatusLabel
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			if (!markedAsCancel && exception == null)
 				generalLabel.setText(SCANNING_TEXT);
+			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
