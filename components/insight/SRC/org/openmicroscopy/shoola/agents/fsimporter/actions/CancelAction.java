@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -51,10 +51,11 @@ public class CancelAction
 {
 
 	/** The description of the action. */
-    private static final String NAME = "Cancel";
+    private static final String NAME = "Cancel All";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Cancel the on-going import.";
+    private static final String DESCRIPTION = "Cancel the imports that" +
+    		" have not yet started.";
     
 	/** 
 	 * Sets the enabled flag depending on the state.
@@ -78,7 +79,7 @@ public class CancelAction
         super(model);
         setEnabled(false);
         putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
+        putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));
     }
     

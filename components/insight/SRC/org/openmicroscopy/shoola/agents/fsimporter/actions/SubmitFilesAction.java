@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ public class SubmitFilesAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Submit Failures";
+	private static final String NAME = "Submit All";
 	
     /** The description of the action. */
     private static final String DESCRIPTION = "Submit the files that failed " +
@@ -80,7 +80,7 @@ public class SubmitFilesAction
 		super(model);
 		setEnabled(false);
 		putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
+		putValue(Action.SHORT_DESCRIPTION,
 				UIUtilities.formatToolTipText(DESCRIPTION));
 	}
 	
@@ -89,5 +89,5 @@ public class SubmitFilesAction
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) { model.submitFiles(); }
-    
+
 }
