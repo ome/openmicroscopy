@@ -498,7 +498,7 @@ class ImporterComponent
 		Collection<ImporterUIElement> list = view.getImportElements();
 		List<ImporterUIElement> 
 		toImport = new ArrayList<ImporterUIElement>();
-		if (list == null || list.size() == 0) {
+		if (CollectionUtils.isEmpty(list)) {
 			 view.setVisible(false);
 			return;
 		}
@@ -523,10 +523,9 @@ class ImporterComponent
 			while (i.hasNext()) {
 				element = i.next();
 				element.cancelLoading();
-				//if (!element.hasStarted())
 				model.cancel(element.getID());
 			}
-			if (started != null && started.isDone()) {
+			if (started != null && started.isUploadComplete()) {
 				markToclose = false;
 			}
 		} else markToclose = false;
