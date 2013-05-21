@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -47,6 +49,7 @@ import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,6 +57,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -85,7 +89,6 @@ import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /** 
  * Component displaying an import.
@@ -107,6 +110,12 @@ class ImporterUIElement
 	/** Description of the component. */
 	private static final String DESCRIPTION = 
 		"Closing will cancel imports that have not yet started.";
+	
+	/** Text indicating to only show the failure.*/
+	private static final String SHOW_FAILURE = "Show Failed";
+	
+	/** Text indicating to show all the imports.*/
+	private static final String SHOW_ALL = "Show All";
 	
 	/** The columns for the layout of the {@link #entries}. */
 	private static final double[] COLUMNS = {TableLayout.FILL};
@@ -213,6 +222,9 @@ class ImporterUIElement
 	
 	/**The icon used to indicate an on-going import.*/
 	private RotationIcon rotationIcon;
+	
+	/** Controls used to filter the result.*/
+	private JButton filterButton;
 	
 	/**
 	 * Returns the object found by identifier.
@@ -332,9 +344,35 @@ class ImporterUIElement
 		return label;
 	}
 	
+	/**
+	 * Displays only the failures or all the results.
+	 */
+	private void filterFailures()
+	{
+		String v = filterButton.getText();
+		if (SHOW_FAILURE.equals(v)) {
+			filterButton.setText(SHOW_ALL);
+			layoutEntries(true);
+		} else {
+			filterButton.setText(SHOW_FAILURE);
+			layoutEntries(false);
+		}
+	}
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
+		filterButton = new JButton(SHOW_FAILURE);
+		filterButton.setEnabled(false);
+		filterButton.addActionListener(new ActionListener() {
+			
+			/**
+			 * Filters or not the import that did not fail.
+			 */
+			public void actionPerformed(ActionEvent evt) {
+				filterFailures();
+			}
+		});
 		sizeImport = 0;
 		busyLabel = new JXBusyLabel(ICON_SIZE);
 		
@@ -559,6 +597,7 @@ class ImporterUIElement
 		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
     	row.add(label);
     	row.add(sizeLabel);
+    	row.add(filterButton);
     	header.add(row);
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -568,7 +607,7 @@ class ImporterUIElement
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		layoutEntries();
+		layoutEntries(false);
 		JScrollPane pane = new JScrollPane(entries);
 		pane.setOpaque(false);
 		pane.setBorder(new LineBorder(Color.LIGHT_GRAY));
@@ -577,8 +616,13 @@ class ImporterUIElement
 		add(pane, BorderLayout.CENTER);
 	}
 	
-	/** Lays out the entries. */
-	private void layoutEntries()
+	/** 
+	 * Lays out the entries.
+	 * 
+	 * @param failure Pass <code>true</code> to display the failed import only,
+	 * <code>false</code> to display all the entries.
+	 */
+	private void layoutEntries(boolean failure)
 	{
 		entries.removeAll();
 		TableLayout layout = new TableLayout();
@@ -588,11 +632,24 @@ class ImporterUIElement
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = i.next();
-			addRow(layout, index, entry.getValue());
-			index++;
+		if (failure) {
+			FileImportComponent fc;
+			while (i.hasNext()) {
+				entry = i.next();
+				fc = entry.getValue();
+				if (fc.hasImportFailed()) {
+					addRow(layout, index, entry.getValue());
+					index++;
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				entry = i.next();
+				addRow(layout, index, entry.getValue());
+				index++;
+			}
 		}
+		
 		entries.revalidate();
 		repaint();
 		setNumberOfImport();
@@ -612,7 +669,7 @@ class ImporterUIElement
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else 
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-		entries.add(c, "0, "+index+"");
+		entries.add(c, new TableLayoutConstraints(0, index));
 	}
 	
 	/**
@@ -768,14 +825,14 @@ class ImporterUIElement
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
-				//if (c.hasImportFailed()) countFailure++;
-				//else
+				if (fc.hasImportFailed()) countFailure++;
 				if (!fc.isCancelled()) countFilesImported++;
 			}
 			if (file.isDirectory() && !fc.hasComponents() && 
 					fc.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
+			filterButton.setEnabled(countFailure > 0);
 		}
 		return formattedResult;
 	}
