@@ -583,6 +583,71 @@ class TestDelete(lib.ITest):
         self.assertEquals(None, query.find("Image", images[0].id.val))
         self.assertEquals(None, query.find("Image", images[1].id.val))
 
+    def testDeleteImagesTwoFilesetsErr(self):
+        """
+        If we try to partially delete 2 Filesets, both should be returned
+        by the delete error
+        """
+        client, user = self.new_client_and_user(perms="rw----")
+        # 2 filesets, each with 2 images
+        imagesFsOne = self.importMIF(2, client=client)
+        imagesFsTwo = self.importMIF(2, client=client)
+
+        # Lookup the filesets
+        qs = client.sf.getQueryService()
+        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
+        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
+
+        # delete should fail...
+        delete1 = omero.cmd.Delete("/Image", imagesFsOne[0].id.val, None)
+        delete2 = omero.cmd.Delete("/Image", imagesFsTwo[0].id.val, None)
+        rsp = self.doAllSubmit([delete1,delete2], client, test_should_pass=False)
+
+        # ...due to the filesets
+        self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
+        self.assertTrue(filesetOneId in failedFilesets)
+        self.assertTrue(filesetTwoId in failedFilesets)
+
+    def testDeleteDatasetTwoFilesetsErr(self):
+        """
+        If we try to partially delete 2 Filesets, both should be returned
+        by the delete error
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms="rw----")
+        # 2 filesets, each with 2 images
+        imagesFsOne = self.importMIF(2, client=client)
+        imagesFsTwo = self.importMIF(2, client=client)
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = omero.rtypes.rstring("testDeleteDatasetTwoFilesetsErr")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in (imagesFsOne, imagesFsTwo):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(i[0].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Lookup the filesets
+        qs = client.sf.getQueryService()
+        filesetOneId = qs.get('Image', imagesFsOne[0].id.val).fileset.id.val
+        filesetTwoId = qs.get('Image', imagesFsTwo[0].id.val).fileset.id.val
+
+        # delete should fail...
+        delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
+        rsp = self.doSubmit(delete, client, test_should_pass=False)
+
+        # ...due to the filesets
+        self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")
+        failedFilesets = rsp.constraints['Fileset']
+        self.assertEqual(len(failedFilesets), 2, "Delete should fail due to a Two Filesets")
+        self.assertTrue(filesetOneId in failedFilesets)
+        self.assertTrue(filesetTwoId in failedFilesets)
+
 if __name__ == '__main__':
     if "TRACE" in os.environ:
         import trace
