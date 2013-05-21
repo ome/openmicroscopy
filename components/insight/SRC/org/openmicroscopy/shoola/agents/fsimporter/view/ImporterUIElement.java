@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -80,6 +81,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
+import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -138,6 +140,11 @@ class ImporterUIElement
 		IMPORT_FAIL = icons.getIcon(IconManager.DELETE);
 		IMPORT_PARTIAL = icons.getIcon(IconManager.APPLY_CANCEL);
 	}
+	
+	/** The message to display in the header.*/
+	private static final String MESSAGE = "When uplaod is complete, the " +
+			"import window and OMERO session can be closed." +
+			"Processing will continue on the server";
 	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
@@ -597,8 +604,16 @@ class ImporterUIElement
 		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
     	row.add(label);
     	row.add(sizeLabel);
-    	row.add(filterButton);
+    	JPanel p = createRow();
+    	p.add(filterButton);
+    	row.add(Box.createHorizontalStrut(40));
+    	row.add(p);
     	header.add(row);
+    	
+    	MultilineLabel ml = new MultilineLabel(MESSAGE);
+    	ml.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p = UIUtilities.buildComponentPanelRight(ml);
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		return content;
