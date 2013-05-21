@@ -182,7 +182,7 @@
                                 Delete ALL or None of the images in a fileset.
                                 {% for fs in j.split_filesets %}
                                 <div>
-                                    Tried to delete <strong>{{ fs.attempted_iids|length }}</strong> images
+                                    You tried to delete <strong>{{ fs.attempted_iids|length }}</strong> image{{ fs.attempted_iids|pluralize}}
                                     in a fileset, leaving <strong>{{ fs.blocking_iids|length }}</strong>.
                                 </div>
                                 {% with MAX_SHOWN=3 %}
