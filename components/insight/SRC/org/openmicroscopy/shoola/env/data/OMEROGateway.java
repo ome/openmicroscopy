@@ -6880,9 +6880,10 @@ class OMEROGateway
 		throws ImportException
 	{
 		isSessionAlive(ctx);
+		OMEROWrapper reader = null;
 		try {
 			ImportConfig config = new ImportConfig();
-			OMEROWrapper reader = new OMEROWrapper(config);
+			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates candidates = new ImportCandidates(reader,
@@ -6890,6 +6891,12 @@ class OMEROGateway
 			return candidates;
 		} catch (Throwable e) {
 			throw new ImportException(e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (Exception ex) {}
+			}
 		}
 	}
 	
