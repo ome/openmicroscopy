@@ -183,7 +183,7 @@ class OmeroImageServiceImpl
 	private Object importCandidates(SecurityContext ctx,
 		Map<File, StatusLabel> files, StatusLabel status,
 		ImportableObject object, IObject ioContainer,
-		List<Annotation> list, long userID, boolean close, boolean hcs, 
+		List<Annotation> list, long userID, boolean close, boolean hcs,
 		String userName)
 	throws DSAccessException, DSOutOfServiceException
 	{
@@ -191,7 +191,6 @@ class OmeroImageServiceImpl
 			if (close) gateway.closeImport(ctx);
 			return Boolean.valueOf(false);
 		}
-		boolean thumbnail = object.isLoadThumbnail();
 		Entry<File, StatusLabel> entry;
 		Iterator<Entry<File, StatusLabel>> jj = files.entrySet().iterator();
 		StatusLabel label = null;
@@ -237,74 +236,15 @@ class OmeroImageServiceImpl
 							icContainers.get(0),
 							label, toClose, ImportableObject.isHCSFile(file),
 							userName);
-					/*
-					if (result instanceof ImageData) {
-						image = (ImageData) result;
-						images.add(image);
-						if (thumbnail)
-							label.setFile(file, 
-								createImportedImage(ctx, userID, image));
-						else label.setFile(file, image);
-					} else if (result instanceof Set) {
-						ll = (Set<ImageData>) result;
-						annotatedImportedImage(ctx, list, ll, userName);
-						images.addAll(ll);
-						kk = ll.iterator();
-						converted = new ArrayList<Object>(ll.size());
-						while (kk.hasNext()) {
-							image = kk.next();
-							if (thumbnail)
-								converted.add(
-									createImportedImage(ctx, userID, image));
-							else converted.add(image);
-						}
-						label.setFile(file, converted);
-					} else label.setFile(file, result);
-					*/
 				} catch (Exception e) {
 					label.setFile(file, e);
 				}
 			}
 		}
-		annotatedImportedImage(ctx, list, images, userName);
 		if (close) gateway.closeImport(ctx);
 		return null;
 	}
-	
-	/**
-	 * Annotates the imported images.
-	 * 
-	 * @param ctx The security context.
-	 * @param annotations The annotations to add.
-	 * @param images The imported images.
-	 * @param userName The name of the user who will own the links
-	 */
-	private void annotatedImportedImage(SecurityContext ctx,
-		List<Annotation> annotations, Collection images, String userName)
-	{
-		if (annotations.size() == 0 || images.size() == 0) return;
-		Iterator i = images.iterator();
-		ImageData image;
-		Iterator<Annotation> j;
-		List<IObject> list = new ArrayList<IObject>();
-		IObject io;
-		while (i.hasNext()) {
-			image = (ImageData) i.next();
-			j = annotations.iterator();
-			while (j.hasNext()) {
-				io = ModelMapper.linkAnnotation(image.asIObject(), j.next());
-				if (io != null)
-					list.add(io);
-			}
-		}
-		if (list.size() == 0) return;
-		try {
-			gateway.saveAndReturnObject(ctx, list, new HashMap(), userName);
-		} catch (Exception e) {
-			//ignore 
-		}
-	}
-	
+
 	/**
 	 * Creates a thumbnail for the imported image.
 	 * 
@@ -1112,8 +1052,6 @@ class OmeroImageServiceImpl
 			if (exp.getId() != loggedIn.getId())
 				userName = exp.getUserName();
 		}
-
-		Object result = null;
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
@@ -1146,16 +1084,9 @@ class OmeroImageServiceImpl
 		}
 		IObject link;
 		//prepare the container.
-		List<ImageData> images = new ArrayList<ImageData>();
-		//IObject io;
-		Set<ImageData> ll;
-		ImageData image;
-		Iterator<ImageData> kk;
-		List<Object> converted;
 		List<String> candidates;
 		ImportCandidates ic = null;
 		File file = importable.getFile();
-		boolean thumbnail = object.isLoadThumbnail();
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
@@ -1281,27 +1212,9 @@ class OmeroImageServiceImpl
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
 					status.setUsedFiles(importIc.getUsedFiles());
-					result = gateway.importImageFile(ctx, object, ioContainer,
+					return gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close,
 							ImportableObject.isHCSFile(f),userName);
-					/*
-					if (result instanceof ImageData) {
-						image = (ImageData) result;
-						images.add(image);
-						annotatedImportedImage(ctx, list, images, userName);
-						return formatResult(ctx, image, userID, thumbnail);
-					} else if (result instanceof Set) {
-						ll = (Set<ImageData>) result;
-						annotatedImportedImage(ctx, list, ll, userName);
-						kk = ll.iterator();
-						converted = new ArrayList<Object>(ll.size());
-						while (kk.hasNext()) {
-							converted.add(formatResult(ctx, kk.next(), userID,
-									thumbnail));
-						}
-						return converted;
-					}*/
-					return result;
 				} else {
 					List<ImportContainer> containers = ic.getContainers();
 					hcs = isHCS(containers);
@@ -1333,28 +1246,9 @@ class OmeroImageServiceImpl
 				}
 				importIc = icContainers.get(0);
 				status.setUsedFiles(importIc.getUsedFiles());
-				result = gateway.importImageFile(ctx, object, ioContainer,
+				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc,
 					status, close, ImportableObject.isHCSFile(file), userName);
-				/*
-				if (result instanceof ImageData) {
-					image = (ImageData) result;
-					images.add(image);
-					annotatedImportedImage(ctx, list, images, userName);
-					return formatResult(ctx, image, userID, thumbnail);
-				} else if (result instanceof Set) {
-					ll = (Set<ImageData>) result;
-					annotatedImportedImage(ctx, list, ll, userName);
-					kk = ll.iterator();
-					converted = new ArrayList<Object>(ll.size());
-					while (kk.hasNext()) {
-						converted.add(formatResult(ctx, kk.next(), userID,
-								thumbnail));
-					}
-					return converted;
-				}
-				*/
-				return result;
 			}
 		} //file import ends.
 		//Checks folder import.
@@ -1393,9 +1287,6 @@ class OmeroImageServiceImpl
 		status.setFiles(files);
 		//check candidates and see if we are dealing with HCS data
 		if (hcsFiles.size() > 0) {
-			//remove comment if we want screen from folder.
-			//if (container == null && importable.isFolderAsContainer())
-			//	container = object.createFolderAsContainer(importable, true);
 			if (container != null && container instanceof ScreenData) {
 				if (container.getId() <= 0) {
 					//project needs to be created to.

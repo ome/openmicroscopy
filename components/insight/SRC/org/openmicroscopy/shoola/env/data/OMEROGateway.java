@@ -6773,39 +6773,6 @@ class OMEROGateway
 		}
 		return runScript(ctx, id, map);
 	}
-	
-	/**
-	 * Imports the specified file. Returns the image.
-	 * 
-	 * @param ctx The security context.
-	 * @param object Information about the file to import.
-	 * @param container The folder to import the image.
-	 * @param name		The name to give to the imported image.
-	 * @param usedFiles The files returned composing the import.
-     * @param close Pass <code>true</code> to close the import,
-     * 		<code>false</code> otherwise.
-     * @param userName The user's name.
-	 * @return See above.
-	 * @throws ImportException If an error occurred while importing.
-	 */
-    Object importImage(SecurityContext ctx, ImportableObject object,
-            IObject container, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs, String userName)
-        throws ImportException, DSAccessException, DSOutOfServiceException
-	{
-        ImportConfig config = new ImportConfig();
-        //FIXME: unclear why we would need to set these values on
-        // both the ImportConfig and the ImportContainer.
-        if (container != null) {
-        	 config.targetClass.set(container.getClass().getSimpleName());
-             config.targetId.set(container.getId().getValue());
-             ic.setTarget(container);
-        }
-       
-        ic.setUserPixels(object.getPixelsSize());
-        return importImageNew(ctx,
-                config, ic ,status, close, hcs, userName);
-	}
 
     /**
 	 * Imports the specified file. Returns the image.
@@ -6895,82 +6862,6 @@ class OMEROGateway
 		}
 	}
     
-    Object importImageNew(SecurityContext ctx,
-            ImportConfig config, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs, String userName)
-        throws ImportException
-    {
-        isSessionAlive(ctx);
-        OMEROMetadataStoreClient omsc = null;
-        OMEROWrapper reader = null;
-		try {
-			omsc = getImportStore(ctx, userName);
-			reader = new OMEROWrapper(config);
-			ImportLibrary library = new ImportLibrary(omsc, reader);
-			library.addObserver(status);
-			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-			Iterator<Pixels> j;
-			Pixels p;
-			Image image;
-			reader.close();
-			if (pixels != null && pixels.size() > 0) {
-				int n = pixels.size();
-				long id;
-				List<Long> ids;
-				Parameters params = new Parameters();
-				p = pixels.get(0);
-				image = p.getImage();
-				id = image.getId().getValue();
-
-				if (hcs) {
-					PlateData plate = getImportedPlate(ctx, id);
-					if (plate != null) return plate;
-					return getImage(ctx, id, params);
-				}
-				if (n == 1) {
-					return getImage(ctx, id, params);
-				} else if (n == 2) {
-					ids = new ArrayList<Long>();
-					ids.add(id);
-					p = pixels.get(1);
-					id = p.getImage().getId().getValue();
-					ids.add(id);
-					return getContainerImages(ctx, ImageData.class, ids,
-							params);
-				} else if (n >= 3) {
-					j = pixels.iterator();
-					int index = 0;
-					ids = new ArrayList<Long>();
-					while (j.hasNext()) {
-						p = j.next();
-						id = p.getImage().getId().getValue();
-						ids.add(id);
-						index++;
-						if (index == 3)
-							break;
-					}
-					return getContainerImages(ctx, ImageData.class, ids,
-							params);
-				}
-			}
-		} catch (Throwable e) {
-			try {
-				if (reader != null) reader.close();
-			} catch (Exception ex) {}
-			
-			handleConnectionException(e);
-			if (close) closeImport(ctx);
-			throw new ImportException(e);
-		} finally {
-			try {
-				if (reader != null) reader.close();
-			} catch (Exception ex) {}
-			if (omsc != null && close)
-				closeImport(ctx);
-		}
-		return null;
-	}
-	
 	/**
 	 * Returns the import candidates.
 	 * 
@@ -6994,7 +6885,7 @@ class OMEROGateway
 			OMEROWrapper reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			ImportCandidates candidates = new ImportCandidates(reader, 
+			ImportCandidates candidates = new ImportCandidates(reader,
 					paths, status);
 			return candidates;
 		} catch (Throwable e) {
