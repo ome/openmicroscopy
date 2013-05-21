@@ -420,36 +420,6 @@
                     }
                 });
 
-                // Fileset thumbnail actions
-                var $extra_fs_thumbs = $(".fileset_image.extra"),
-                    hide_txt = 'hide';
-                // Show/Hide thumbs - and save state to 'body'
-                $("#show_all_fileset_thumbs").click(function(){
-                    $extra_fs_thumbs.toggle();
-                    var vis = $extra_fs_thumbs.is(':visible');
-                    $("body").data('show_fileset_thumbs', vis);
-                    $(this).text(vis ? hide_txt : 'show all');
-                    return false;
-                });
-                if ($("body").data('show_fileset_thumbs')){
-                    $extra_fs_thumbs.show();       // show if previously shown
-                    $("#show_all_fileset_thumbs").text(hide_txt);
-                }
-                // Link to an image: IF it's in the jstree, select it.
-                $(".fileset_image_link").click(function(){
-                    var imgId = $(this).attr('data-iid');
-                    // if we're not on a jstree page (E.g. search)
-                    if (typeof $.jstree === "undefined") {
-                        return;
-                    }
-                    var datatree = $.jstree._focused();
-                    if (!datatree) return;
-                    // if selection was OK, we return false (don't follow link)
-                    var selected = datatree.select_node("#image-"+imgId, true);
-                    if (selected !== false) {
-                        return false;
-                    }
-                });
             {% endif %}
 
             });
