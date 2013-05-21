@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java import
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,7 +88,6 @@ import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -195,12 +193,6 @@ class OmeroImageServiceImpl
 		Iterator<Entry<File, StatusLabel>> jj = files.entrySet().iterator();
 		StatusLabel label = null;
 		File file;
-		Object result;
-		List<ImageData> images = new ArrayList<ImageData>();
-		ImageData image;
-		Set<ImageData> ll;
-		Iterator<ImageData> kk;
-		List<Object> converted;
 		boolean toClose = false;
 		int n = files.size()-1;
 		int index = 0;
@@ -232,7 +224,7 @@ class OmeroImageServiceImpl
 					if (icContainers.size() == 0)
 						return new ImportException(
 								ImportException.FILE_NOT_VALID_TEXT);
-					result = gateway.importImageFile(ctx, object, ioContainer,
+					return gateway.importImageFile(ctx, object, ioContainer,
 							icContainers.get(0),
 							label, toClose, ImportableObject.isHCSFile(file),
 							userName);
@@ -245,68 +237,6 @@ class OmeroImageServiceImpl
 		return null;
 	}
 
-	/**
-	 * Creates a thumbnail for the imported image.
-	 * 
-	 * @param ctx The security context.
-	 * @param userID  The identifier of the user.
-	 * @param image   The image to handle.
-	 * @return See above.
-	 */
-	private Object createImportedImage(SecurityContext ctx, long userID,
-		ImageData image)
-	{
-		if (image != null) {
-			ThumbnailData data;
-			try {
-				PixelsData pix = image.getDefaultPixels();
-				BufferedImage img = createImage(
-						gateway.getThumbnailByLongestSide(ctx, pix.getId(),
-								Factory.THUMB_DEFAULT_WIDTH));
-				data = new ThumbnailData(image.getId(), img, userID, true);
-				data.setImage(image);
-				return data;
-			} catch (Exception e) {
-				data = new ThumbnailData(image.getId(), 
-						createDefaultImage(image), userID, false);
-				data.setImage(image);
-				data.setError(e);
-				return data;
-			}
-		}
-		return image;
-	}
-	
-	/**
-	 * Formats the result of an image import.
-	 * 
-	 * @param ctx The security context.
-	 * @param image The image to handle.
-	 * @param userID The user's id.
-	 * @param thumbnail Pass <code>true</code> if thumbnail has to be created,
-	 * 					<code>false</code> otherwise.
-	 * @return See above.
-	 */
-	private Object formatResult(SecurityContext ctx, ImageData image,
-		long userID, boolean thumbnail)
-	{
-		Boolean backoff = null;
-		try {
-			PixelsData pixels = image.getDefaultPixels();
-			backoff = gateway.isLargeImage(ctx, pixels.getId());
-		} catch (Exception e) {}
-		//if (backoff != null && backoff.booleanValue())
-		//	return new ThumbnailData(image, backoff);
-		if (thumbnail) {
-			ThumbnailData thumb = (ThumbnailData) createImportedImage(ctx,
-				userID, image);
-			thumb.setBackOffForPyramid(backoff);
-			return thumb;
-		} 
-		return image;
-	}
-	
-	
 	/**
 	 * Returns <code>true</code> if the binary data are available, 
 	 * <code>false</code> otherwise.
@@ -337,26 +267,7 @@ class OmeroImageServiceImpl
 					e);
 		}
 	}
-	
-    /**
-     * Creates a default thumbnail for the passed image.
-     * 
-     * @param data The image to handle.
-     * @return See above.
-     */
-    private BufferedImage createDefaultImage(ImageData data) 
-    {
-    	PixelsData pxd = null;
-        try {
-        	pxd = data.getDefaultPixels();
-		} catch (Exception e) {} //something went wrong during import
-        if (pxd == null)
-        	return Factory.createDefaultImageThumbnail(-1);
-        Dimension d = Factory.computeThumbnailSize(Factory.THUMB_DEFAULT_WIDTH,
-        		Factory.THUMB_DEFAULT_HEIGHT, pxd.getSizeX(), pxd.getSizeY());
-        return Factory.createDefaultImageThumbnail(d.width, d.height);
-    }
-    
+
 	/**
 	 * Creates a <code>BufferedImage</code> from the passed array of bytes.
 	 * 
@@ -393,7 +304,7 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		IObject ioContainer = null;
-		Map parameters = new HashMap();
+		Map<Object, Object> parameters = new HashMap<Object, Object>();
 		DataObject createdData;
 		IObject project = null;
 		IObject link;
