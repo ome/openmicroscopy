@@ -121,7 +121,7 @@ public class CheckSumDialog
 	private void buildGUI()
 	{
 		JScrollPane scrollPane = new JScrollPane(table);
-		table.setFillsViewportHeight(true);
+		//table.setFillsViewportHeight(true);
 		TitlePanel tp = new TitlePanel(TEXT, "", null);
 		Container c = getContentPane();
 		c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
