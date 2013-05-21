@@ -23,25 +23,23 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.util;
 
+
+//Java imports
 import java.awt.Color;
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.apache.commons.io.FilenameUtils;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.commons.io.FilenameUtils;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- *
+ * Render the checksums correctly.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,7 +50,7 @@ class ChecksumTableRenderer
 {
 
 	/** The maximum number of characters displayed.*/
-	private static final int MAX_CHARACTERS = 10;
+	static final int MAX_CHARACTERS = 10;
 	
 	/** The icon displayed when the checksums do not match.*/
 	private final Icon failure;

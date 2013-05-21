@@ -37,7 +37,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 
@@ -122,7 +121,11 @@ public class CheckSumDialog
 	{
 		JScrollPane scrollPane = new JScrollPane(table);
 		//table.setFillsViewportHeight(true);
-		TitlePanel tp = new TitlePanel(TEXT, "", null);
+		StringBuffer buf = new StringBuffer();
+		buf.append("Only the last ");
+		buf.append(ChecksumTableRenderer.MAX_CHARACTERS);
+		buf.append(" characters of the checksums are displayed.");
+		TitlePanel tp = new TitlePanel(TEXT, buf.toString(), null);
 		Container c = getContentPane();
 		c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 		c.add(tp, BorderLayout.NORTH);
