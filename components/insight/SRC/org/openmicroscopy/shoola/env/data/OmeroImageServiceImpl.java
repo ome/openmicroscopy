@@ -180,7 +180,7 @@ class OmeroImageServiceImpl
 	 * @param hcs Value returns by the import containers.
 	 * @param userName The login name of the user to import for.
 	 */
-	private Boolean importCandidates(SecurityContext ctx,
+	private Object importCandidates(SecurityContext ctx,
 		Map<File, StatusLabel> files, StatusLabel status,
 		ImportableObject object, IObject ioContainer,
 		List<Annotation> list, long userID, boolean close, boolean hcs, 
@@ -231,7 +231,8 @@ class OmeroImageServiceImpl
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 					icContainers = ic.getContainers();
 					if (icContainers.size() == 0)
-						return Boolean.valueOf(false);
+						return new ImportException(
+								ImportException.FILE_NOT_VALID_TEXT);
 					result = gateway.importImageFile(ctx, object, ioContainer,
 							icContainers.get(0),
 							label, toClose, ImportableObject.isHCSFile(file),
@@ -1263,7 +1264,10 @@ class OmeroImageServiceImpl
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 				candidates = ic.getPaths();
 				int size = candidates.size();
-				if (size == 0) return Boolean.valueOf(false);
+				if (size == 0) {
+					return new ImportException(
+							ImportException.FILE_NOT_VALID_TEXT);
+				}
 				else if (size == 1) {
 					String value = candidates.get(0);
 					if (!file.getAbsolutePath().equals(value) && 
@@ -1314,11 +1318,9 @@ class OmeroImageServiceImpl
 					}
 						
 					status.setFiles(files);
-					Boolean v = importCandidates(ctx, files, status, object,
+					Object v = importCandidates(ctx, files, status, object,
 							ioContainer, list, userID, close, hcs, userName);
-					if (v != null) {
-						return v.booleanValue();
-					}
+					if (v != null) return v;
 				}
 			} else { //single file let's try to import it.
 				if (ioContainer == null)
@@ -1358,7 +1360,9 @@ class OmeroImageServiceImpl
 		//Checks folder import.
 		ic = gateway.getImportCandidates(ctx, object, file, status);
 		List<ImportContainer> lic = ic.getContainers();
-		if (lic.size() == 0) return Boolean.valueOf(false);
+		if (lic.size() == 0)
+			return new ImportException(
+				ImportException.FILE_NOT_VALID_TEXT);
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
