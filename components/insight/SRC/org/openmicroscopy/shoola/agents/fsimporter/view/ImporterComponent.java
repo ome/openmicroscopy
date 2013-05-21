@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.GroupData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -652,7 +651,7 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (!element.isDone() && !element.isLastImport())
+				if (!element.hasStarted())
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
@@ -663,9 +662,10 @@ class ImporterComponent
 				i = toImport.iterator();
 				while (i.hasNext()) {
 					element = i.next();
-					element.cancelLoading();
-					//if (!element.hasStarted())
-					model.cancel(element.getID());
+					if (element.hasStarted()) {
+						element.cancelLoading();
+						model.cancel(element.getID());
+					}
 				}
 			}
 		}
