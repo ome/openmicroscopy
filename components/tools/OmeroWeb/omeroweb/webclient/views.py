@@ -2177,8 +2177,9 @@ def activities(request, conn=None, **kwargs):
                                     obj_ids = callbackDict['did']
                                 else:
                                     obj_ids = [ callbackDict['did'] ]
+                                obj_ids = [int(iid) for iid in obj_ids]
                                 if dtype == 'Image':
-                                    attempted_imgIds = [int(iid) for iid in obj_ids]
+                                    attempted_imgIds = obj_ids
                                 elif dtype in ('Project', 'Dataset'):
                                     cs = conn.getContainerService()
                                     attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
