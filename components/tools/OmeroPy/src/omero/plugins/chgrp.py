@@ -52,6 +52,17 @@ class ChgrpControl(GraphControl):
             self.ctx.die(196, "Failed to find group: %s" % args.grp.orig)
         super(ChgrpControl, self)._process_request(req, args, client)
 
+    def create_error_report(self, rsp):
+        import omero.cmd
+        if isinstance(rsp, omero.cmd.GraphConstraintERR):
+            if "Fileset" in rsp.constraints:
+                fileset = rsp.constraints.get("Fileset")
+                return "Fileset %s can not be split into 2 groups\n" % ", ".join(str(x) for x in fileset)
+            else:
+                return super(ChgrpControl, self).create_error_report(rsp)
+        else:
+            return super(ChgrpControl, self).create_error_report(rsp)
+
 try:
     register("chgrp", ChgrpControl, HELP)
 except NameError:

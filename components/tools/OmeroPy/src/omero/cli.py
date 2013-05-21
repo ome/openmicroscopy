@@ -1292,11 +1292,19 @@ class CmdControl(BaseControl):
             return None
         else:
             sb = "failed: '%s'\n" % rsp.name
-            if rsp.parameters:
-                for k in sorted(rsp.parameters):
-                    v = rsp.parameters.get(k, "")
-                    sb += "\t%s=%s\n" % (k, v)
+            sb += self.create_error_report(rsp)
             return sb
+
+    def create_error_report(self, rsp):
+        """
+        Generate default error report aggregating the response parameters
+        """
+        sb = ""
+        if rsp.parameters:
+            for k in sorted(rsp.parameters):
+                v = rsp.parameters.get(k, "")
+                sb += "\t%s=%s\n" % (k, v)
+        return sb
 
     def print_report(self, req, rsp, status, detailed):
         import omero
