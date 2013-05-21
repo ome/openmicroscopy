@@ -56,6 +56,7 @@ import javax.swing.border.LineBorder;
 import info.clearthought.layout.TableLayout;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
@@ -159,11 +160,11 @@ class ImporterUIElement
 	/** The total number of files to import.*/
 	private int totalFilesToImport;
 	
-	/** The time when the import started. */
-	private long startImport;
+	/** The size of the import.. */
+	private long sizeImport;
 	
-	/** The component displaying the duration of the import. */
-	private JLabel timeLabel;
+	/** The component displaying the size the import. */
+	private JLabel sizeLabel;
 	
 	/** The component displaying the number of files to import. */
 	private JLabel numberOfImportLabel;
@@ -275,13 +276,10 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
+		buffer.append(countUploaded);
 		buffer.append(" out of ");
 		buffer.append(totalFilesToImport);
-		buffer.append(" imported: "+countFilesImported);
-		if (countCancelled > 0)
-			buffer.append(" cancelled: "+countCancelled);
-		if (countFailure > 0)
-			buffer.append(" failed: "+countFailure);
+		buffer.append(" uploaded");
 		numberOfImportLabel.setText(buffer.toString());
 	}
 	
@@ -337,6 +335,7 @@ class ImporterUIElement
 	/** Initializes the components. */
 	private void initialize()
 	{
+		sizeImport = 0;
 		busyLabel = new JXBusyLabel(ICON_SIZE);
 		
 		numberOfImportLabel = UIUtilities.createComponent(null);
@@ -555,32 +554,12 @@ class ImporterUIElement
 		row.add(numberOfImportLabel);
 		header.add(row);
 		row = createRow();
-		label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
-		timeLabel = UIUtilities.createComponent(null);
-		timeLabel.setText(UIUtilities.formatShortDateTime(null));
+		label = UIUtilities.setTextFont("Import Size:", Font.BOLD);
+		sizeLabel = UIUtilities.createComponent(null);
+		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
     	row.add(label);
-    	row.add(timeLabel);
+    	row.add(sizeLabel);
     	header.add(row);
-    	Collection<TagAnnotationData> tags = object.getTags();
-		if (tags != null && tags.size() > 0) {
-			row = createRow();
-			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
-			JLabel value = UIUtilities.createComponent(null);
-			StringBuffer buffer = new StringBuffer();
-			Iterator<TagAnnotationData> i = tags.iterator();
-			int index = 0;
-			int n = tags.size()-1;
-			while (i.hasNext()) {
-				buffer.append((i.next()).getTagValue());
-				if (index < n) buffer.append(", ");
-				index++;
-			}
-			value.setText(buffer.toString());
-			row.add(label);
-			row.add(value);
-			header.add(row);
-		}
-		topContainerToRefresh = topContainerToRefresh();
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		return content;
@@ -752,6 +731,8 @@ class ImporterUIElement
 		if (c == null) return null;
 		c.uploadComplete(result, index);
 		countUploaded++;
+		sizeImport += c.getImportSize();
+		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
 		Object r = null;
 		if (file.isFile()) {
 			//handle error that occurred during the scanning or upload.
@@ -795,53 +776,6 @@ class ImporterUIElement
 					fc.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
-			boolean toRefresh = toRefresh();
-			if (isDone()) {
-				Iterator<JLabel> i = containerComponents.keySet().iterator();
-				JLabel label;
-				if (toRefresh) {
-					while (i.hasNext()) {
-						label = i.next();
-						if (label.isEnabled()) {
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-							label.addMouseListener(containerListener);
-						}
-					}
-				}
-				if (topContainerToRefresh) {
-					i = topContainerComponents.keySet().iterator();
-					while (i.hasNext()) {
-						label = i.next();
-						if (label.isEnabled())
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-					}
-				}
-				if (foldersName.size() > 0) {
-					Entry<JLabel, Object> entry;
-					Iterator<Entry<JLabel, Object>> k =
-							foldersName.entrySet().iterator();
-					Object value;
-					while (k.hasNext()) {
-						entry = k.next();
-						label = entry.getKey();
-						value = entry.getValue();
-						if (value instanceof FileImportComponent) {
-							fc = (FileImportComponent) value;
-							if (fc.toRefresh()) {
-								label.setForeground(UIUtilities.HYPERLINK_COLOR);
-								label.addMouseListener(folderListener);
-							}
-						} else {
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-							label.addMouseListener(folderListener);
-						}
-					}
-				}
-				long duration = System.currentTimeMillis()-startImport;
-				String text = timeLabel.getText();
-				String time = UIUtilities.calculateHMS((int) (duration/1000));
-				timeLabel.setText(text+" Duration: "+time);
-			}
 		}
 		return formattedResult;
 	}
@@ -877,7 +811,6 @@ class ImporterUIElement
 	 */
 	Icon startImport(JComponent component)
 	{ 
-		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();

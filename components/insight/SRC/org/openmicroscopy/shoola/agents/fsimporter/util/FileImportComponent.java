@@ -1299,6 +1299,13 @@ public class FileImportComponent
 	public boolean isHCS() { return statusLabel.isHCS(); }
 	
 	/**
+	 * Returns the size of the upload.
+	 * 
+	 * @return See above.
+	 */
+	public long getImportSize() { return statusLabel.getFileSize(); }
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)
