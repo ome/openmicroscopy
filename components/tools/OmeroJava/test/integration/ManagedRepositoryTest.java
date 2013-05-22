@@ -36,6 +36,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.ImportLibrary.ImportCallback;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
@@ -44,7 +45,6 @@ import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.cmd.CmdCallbackI;
@@ -183,10 +183,8 @@ public class ManagedRepositoryTest
         // steps.
         final HandlePrx handle = proc.verifyUpload(checksums);
         final ImportRequest req = (ImportRequest) handle.getRequest();
-        final Fileset fs = req.activity.getParent();
-        final CmdCallbackI cb = lib.createCallback(proc, handle, container);
+        final ImportCallback cb = lib.createCallback(proc, handle, container);
         cb.loop(60*60, 1000); // Wait 1 hr per step.
-        final ImportResponse rsp = lib.getImportResponse(cb, container, fs);
         return req.location;
 	}
 
