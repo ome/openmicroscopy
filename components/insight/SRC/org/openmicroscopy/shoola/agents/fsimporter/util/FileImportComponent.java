@@ -1402,7 +1402,7 @@ public class FileImportComponent
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel)) {
+			if (sl.equals(statusLabel) && hasParent()) {
 				importCount++;
 				formatResult();
 				firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null, this);

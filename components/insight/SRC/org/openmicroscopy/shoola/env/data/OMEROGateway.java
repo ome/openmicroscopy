@@ -6831,9 +6831,7 @@ class OMEROGateway
 	            handle = proc.verifyUpload(checksums);
 	        } catch (ChecksumValidationException cve) {
 	            failingChecksums = cve.failingChecksums;
-	            ImportException ie = new ImportException(cve);
-	            status.setCallback(ie);
-	            return ie;
+	            return new ImportException(cve);
 	        } finally {
 	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
 	                    null, 0, srcFiles.length, null, null, srcFiles,
@@ -6850,9 +6848,7 @@ class OMEROGateway
 			
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
-			ImportException ie = new ImportException(e);
-            status.setCallback(ie);
-            return ie;
+            return new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
