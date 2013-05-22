@@ -367,6 +367,8 @@ class ImporterControl
 		} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
 			FileImportComponent fc = (FileImportComponent) evt.getNewValue();
 			model.retryUpload(fc);
+		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
+			model.onUploadComplete((FileImportComponent) evt.getNewValue());
 		}
 	}
 

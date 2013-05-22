@@ -456,6 +456,7 @@ public class FileImportComponent
 				((CmdCallbackI) callback).close(true);
 			} catch (Exception e) {}
 		}
+		
 		resultLabel.setVisible(true);
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
@@ -472,6 +473,8 @@ public class FileImportComponent
 			if (e.getStatus() == ImportException.CHECKSUM_MISMATCH)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
 			else resultIndex = ImportStatus.FAILURE;
+		} else if (result instanceof CmdCallback) {
+			callback = (CmdCallback) result;
 		} else {
 			if (!statusLabel.isMarkedAsCancel()) {
 				formatResultTooltip();
@@ -726,15 +729,16 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = i.next();
 			f = entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer, browsable, group, user,
-					singleGroup);
+			c = new FileImportComponent(f, folderAsContainer, browsable, group,
+					user, singleGroup);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
 			}
 			c.setType(getType());
 			attachListeners(c);
-			c.setStatusLabel((StatusLabel) entry.getValue());
+			c.setStatusLabel(entry.getValue());
+			entry.getValue().addPropertyChangeListener(this);
 			if (index%2 == 0)
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 			else 
@@ -899,6 +903,14 @@ public class FileImportComponent
 	{
 		this.parent = parent;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the parent is set.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasParent() { return parent != null; }
 	
 	/**
 	 * Returns the components displaying the status of an on-going import.
@@ -1347,6 +1359,13 @@ public class FileImportComponent
 				busyLabel.setVisible(true);
 				cancelButton.setVisible(sl.isCancellable());
 			}
+		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
+			StatusLabel sl = (StatusLabel) evt.getNewValue();
+			if (sl.equals(statusLabel)) {
+				importCount++;
+				formatResult();
+				firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null, this);
+			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			cancelButton.setVisible(sl.isCancellable());
@@ -1395,7 +1414,6 @@ public class FileImportComponent
 			Long id = (Long) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(id), null));
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
-			formatResult();
 			firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
 		}
 	}

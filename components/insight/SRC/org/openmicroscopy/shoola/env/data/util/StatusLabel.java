@@ -46,6 +46,8 @@ import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
+import omero.cmd.CmdCallback;
+import omero.cmd.CmdCallbackI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -125,6 +127,9 @@ public class StatusLabel
 	
 	/** Bound property indicating that the import is done. */
 	public static final String IMPORT_DONE_PROPERTY = "importDone";
+	
+	/** Bound property indicating that the upload is done. */
+	public static final String UPLOAD_DONE_PROPERTY = "uploadDone";
 	
 	/** The default text of the component.*/
 	private static final String DEFAULT_TEXT = "Pending...";
@@ -221,6 +226,9 @@ public class StatusLabel
 	
 	/** Flag indicating if the image is a HCS file or not.*/
 	private boolean hcs;
+	
+	/** The callback. This should only be set when importing a directory.*/
+	private CmdCallback callback;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -360,6 +368,23 @@ public class StatusLabel
 		if (values.length > 1) units = values[1];
 	}
 
+	
+	public void setCallback(Object cmd)
+	{
+		if (cmd instanceof ImportException) exception = (ImportException) cmd;
+		else if (cmd instanceof CmdCallback) callback = (CmdCallback) cmd;
+		firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
+	}
+	
+	public void close()
+	{
+		if (callback != null) {
+			try {
+				((CmdCallbackI) callback).close(true);
+			} catch (Exception e) {}
+		}
+	}
+	
 	/** Marks the import has cancelled. */
 	public void markedAsCancel()
 	{
@@ -544,7 +569,8 @@ public class StatusLabel
 	public Object getImportResult()
 	{
 		if (exception != null) return exception;
-		return pixels;
+		if (pixels != null) return pixels;
+		return callback;
 	}
 
 	/**

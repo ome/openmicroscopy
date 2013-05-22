@@ -201,16 +201,11 @@ class OmeroImageServiceImpl
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
-			if (hcs) {
-			//if (ImportableObject.isHCSFile(file) || hcs) {
-				if (!file.getName().endsWith(
-						ImportableObject.DAT_EXTENSION)) {
-					if (ioContainer != null && 
-							!(ioContainer.getClass().equals(Screen.class) ||
-							ioContainer.getClass().equals(ScreenI.class)))
-							ioContainer = null;
-				}
-			}
+			if (hcs && !file.getName().endsWith(ImportableObject.DAT_EXTENSION))
+				if (ioContainer != null && 
+					!(ioContainer.getClass().equals(Screen.class) ||
+					ioContainer.getClass().equals(ScreenI.class)))
+					ioContainer = null;
 			label = (StatusLabel) entry.getValue();
 			if (close) {
 				toClose = index == n;
@@ -221,15 +216,17 @@ class OmeroImageServiceImpl
 					if (ioContainer == null) label.setNoContainer();
 					ic = gateway.getImportCandidates(ctx, object, file, status);
 					icContainers = ic.getContainers();
-					if (icContainers.size() == 0)
-						return new ImportException(
-								ImportException.FILE_NOT_VALID_TEXT);
-					return gateway.importImageFile(ctx, object, ioContainer,
-							icContainers.get(0),
-							label, toClose, ImportableObject.isHCSFile(file),
-							userName);
+					if (icContainers.size() == 0) {
+						label.setCallback(new ImportException(
+								ImportException.FILE_NOT_VALID_TEXT));
+					} else {
+						label.setCallback(gateway.importImageFile(ctx, object,
+								ioContainer, icContainers.get(0),
+								label, toClose, ImportableObject.isHCSFile(file),
+								userName));
+					}
 				} catch (Exception e) {
-					label.setFile(file, e);
+					label.setCallback(e);
 				}
 			}
 		}

@@ -345,6 +345,13 @@ public interface Importer
 	void onImportComplete(FileImportComponent component);
 	
 	/**
+	 * Indicates that the import is complete for the specified component.
+	 * 
+	 * @param component The component to handle.
+	 */
+	void onUploadComplete(FileImportComponent component);
+	
+	/**
 	 * Sets the result e.g. thumbnails corresponding to the images imported.
 	 * 
 	 * @param result The result to set.

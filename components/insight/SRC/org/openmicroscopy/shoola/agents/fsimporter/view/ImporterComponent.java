@@ -124,8 +124,11 @@ class ImporterComponent
 	 * 
 	 * @param element The UI element to handle.
 	 * @param result The formatted result.
+	 * @param startUpload Pass <code>true</code> to indicate to start the 
+	 * upload, <code>false</code> otherwise.
 	 */
-	private void handleCompletion(ImporterUIElement element, Object result)
+	private void handleCompletion(ImporterUIElement element, Object result,
+			boolean startUpload)
 	{
 		boolean refreshTree = false;
 		List<DataObject> containers = null;
@@ -138,7 +141,7 @@ class ImporterComponent
 				view.setVisible(false);
 			} else {
 				element = view.getElementToStartImportFor();
-				if (element != null) importData(element);
+				if (element != null && startUpload) importData(element);
 			}
 			fireStateChange();
 		}
@@ -361,8 +364,8 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
 		if (element != null) {
-			Object formattedResult = element.uploaComplete(f, result, index);
-			handleCompletion(element, formattedResult);
+			Object formattedResult = element.uploadComplete(f, result, index);
+			handleCompletion(element, formattedResult, true);
 		}
 	}
 
@@ -839,7 +842,7 @@ class ImporterComponent
 		ImporterUIElement element = view.getUIElement(component.getIndex());
 		if (element == null) return;
 		Object result = component.getImportResult();
-		handleCompletion(element, result);
+		handleCompletion(element, result, !component.hasParent());
 		if (result instanceof Exception) {
 			//notify error
 			return;
@@ -864,6 +867,27 @@ class ImporterComponent
 	}
 
 	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#onUploadComplete(FileImportComponent)
+	 */
+	public void onUploadComplete(FileImportComponent component)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (component == null || model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getUIElement(component.getIndex());
+		if (element == null) return;
+		Object result = component.getImportResult();
+		Object formattedResult = element.uploadComplete(component, result,
+				component.getIndex());
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
+					null, formattedResult);
+			bus.post(e);
+		}
+	}
+	
+	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see Importer#setImportResult(Object, Object)
 	 */
@@ -875,6 +899,7 @@ class ImporterComponent
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
 		Object formattedResult = element.setImportResult(c, result);
-		handleCompletion(element, formattedResult);
+		handleCompletion(element, formattedResult, !c.hasParent());
 	}
+
 }

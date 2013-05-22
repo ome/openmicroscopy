@@ -297,7 +297,7 @@ class ImporterUIElement
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(countUploaded);
 		buffer.append(" out of ");
-		buffer.append(totalFilesToImport);
+		buffer.append(totalToImport);
 		buffer.append(" uploaded");
 		numberOfImportLabel.setText(buffer.toString());
 	}
@@ -479,7 +479,7 @@ class ImporterUIElement
 								name)) {
 						//-1 to remove the entry for the folder.
 						Integer v = (Integer) evt.getNewValue()-1;
-						totalFilesToImport += v;
+						totalToImport += v;
 						setNumberOfImport();
 					} else if (
 						FileImportComponent.IMPORT_STATUS_CHANGE_PROPERTY.equals(
@@ -778,7 +778,6 @@ class ImporterUIElement
 	 */
 	Object getFormattedResult(ImportableFile f)
 	{
-		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
 		if (c == null) return null;
 		ImportErrorObject object = c.getImportErrorObject();
@@ -796,17 +795,30 @@ class ImporterUIElement
 	 * @param index The index corresponding to the component
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object uploaComplete(ImportableFile f, Object result, int index)
+	Object uploadComplete(ImportableFile f, Object result, int index)
 	{
-		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
+		return uploadComplete(c, result, index);
+	}
+	
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param f The imported file.
+	 * @param result The result.
+	 * @param index The index corresponding to the component
+	 * @result Returns the formatted result or <code>null</code>.
+	 */
+	Object uploadComplete(FileImportComponent c, Object result, int index)
+	{
 		if (c == null) return null;
 		c.uploadComplete(result, index);
-		countUploaded++;
-		sizeImport += c.getImportSize();
-		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+		File file = c.getFile();
 		Object r = null;
 		if (file.isFile()) {
+			countUploaded++;
+			sizeImport += c.getImportSize();
+			sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
 			//handle error that occurred during the scanning or upload.
 			if (result instanceof Exception) {
 				r = new ImportErrorObject(file, (Exception) result);
