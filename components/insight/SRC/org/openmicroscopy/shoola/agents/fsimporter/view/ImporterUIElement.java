@@ -419,6 +419,7 @@ class ImporterUIElement
 		countCancelled = 0;
 		countFailure = 0;
 		countFilesImported = 0;
+		countUploaded = 0;
 		//setClosable(true);
 		addPropertyChangeListener(controller);
 		entries = new JPanel();
@@ -459,7 +460,7 @@ class ImporterUIElement
 			f = (File) importable.getFile();
 			c = new FileImportComponent(f, importable.isFolderAsContainer(),
 					!controller.isMaster(), importable.getGroup(),
-					importable.getUser(), single);
+					importable.getUser(), single, getID());
 			c.setLocation(importable.getParent(), importable.getDataset(), 
 					importable.getRefNode());
 			c.setType(type);
@@ -647,20 +648,28 @@ class ImporterUIElement
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();
+		FileImportComponent fc;
 		if (failure) {
-			FileImportComponent fc;
 			while (i.hasNext()) {
 				entry = i.next();
 				fc = entry.getValue();
-				if (fc.hasImportFailed()) {
+				if (fc.hasComponents()) {
 					addRow(layout, index, entry.getValue());
+					fc.layoutEntries(failure);
 					index++;
+				} else {
+					if (fc.hasImportFailed()) {
+						addRow(layout, index, entry.getValue());
+						index++;
+					}
 				}
 			}
 		} else {
 			while (i.hasNext()) {
 				entry = i.next();
-				addRow(layout, index, entry.getValue());
+				fc = entry.getValue();
+				addRow(layout, index, fc);
+				fc.layoutEntries(failure);
 				index++;
 			}
 		}
@@ -758,6 +767,7 @@ class ImporterUIElement
 		this.model = model;
 		this.view = view;
 		this.id = id;
+		System.err.println(id);
 		this.object = object;
 		initialize();
 		buildGUI();
@@ -792,13 +802,12 @@ class ImporterUIElement
 	 * 
 	 * @param f The imported file.
 	 * @param result The result.
-	 * @param index The index corresponding to the component
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object uploadComplete(ImportableFile f, Object result, int index)
+	Object uploadComplete(ImportableFile f, Object result)
 	{
 		FileImportComponent c = components.get(f.toString());
-		return uploadComplete(c, result, index);
+		return uploadComplete(c, result);
 	}
 	
 	/**
@@ -809,10 +818,10 @@ class ImporterUIElement
 	 * @param index The index corresponding to the component
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object uploadComplete(FileImportComponent c, Object result, int index)
+	Object uploadComplete(FileImportComponent c, Object result)
 	{
 		if (c == null) return null;
-		c.uploadComplete(result, index);
+		c.uploadComplete(result);
 		File file = c.getFile();
 		Object r = null;
 		if (file.isFile()) {

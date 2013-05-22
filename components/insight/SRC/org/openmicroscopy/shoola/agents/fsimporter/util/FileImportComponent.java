@@ -715,10 +715,6 @@ public class FileImportComponent
 		Entry<File, StatusLabel> entry;
 		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
 		FileImportComponent c;
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		int index = 0;
-		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		File f;
 		DatasetData d = dataset;
 		Object node = refNode;
@@ -731,7 +727,7 @@ public class FileImportComponent
 			entry = i.next();
 			f = entry.getKey();
 			c = new FileImportComponent(f, folderAsContainer, browsable, group,
-					user, singleGroup);
+					user, singleGroup, getIndex());
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -740,14 +736,9 @@ public class FileImportComponent
 			attachListeners(c);
 			c.setStatusLabel(entry.getValue());
 			entry.getValue().addPropertyChangeListener(this);
-			if (index%2 == 0)
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
-			else 
-				c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 			components.put((File) entry.getKey(), c);
-			p.add(c);
-			index++;
 		}
+		
 		removeAll();
 		pane = EditorUtil.createTaskPane("");
 		pane.setCollapsed(false);
@@ -757,7 +748,7 @@ public class FileImportComponent
 		pane.setIcon(icons.getIcon(IconManager.DIRECTORY));
 		Font font = pane.getFont();
 		pane.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
-		pane.add(p);
+		layoutEntries(false);
 		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(pane, new TableLayoutConstraints(0, 0));
@@ -775,16 +766,19 @@ public class FileImportComponent
 	 * @param browsable Flag indicating that the container can be browsed or not.
 	 * @param group The group in which to import the file.
 	 * @param user The user that will own the data being imported
-	 * @param singleGroup Passes <code>true</code> if the user is member of 
+	 * @param singleGroup Passes <code>true</code> if the user is member of
 	 * only one group, <code>false</code> otherwise.
+	 * @param index The index of the parent.
 	 */
 	public FileImportComponent(File file, boolean folderAsContainer, boolean
-			browsable, GroupData group, ExperimenterData user, boolean singleGroup)
+			browsable, GroupData group, ExperimenterData user,
+			boolean singleGroup, int index)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
 		if (group == null)
 			throw new IllegalArgumentException("No group specified.");
+		this.index = index;
 		this.file = file;
 		this.group = group;
 		this.user = user;
@@ -1096,6 +1090,55 @@ public class FileImportComponent
 		return components != null && components.size() > 0;
 	}
 	
+	/** 
+	 * Lays out the entries.
+	 * 
+	 * @param failure Pass <code>true</code> to display the failed import only,
+	 * <code>false</code> to display all the entries.
+	 */
+	public void layoutEntries(boolean failure)
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		if (!hasComponents()) return;
+		Entry<File, FileImportComponent> e;
+		Iterator<Entry<File, FileImportComponent>> i =
+				components.entrySet().iterator();
+		int index = 0;
+		FileImportComponent fc;
+		if (failure) {
+			while (i.hasNext()) {
+				e = i.next();
+				fc = e.getValue();
+				if (fc.hasImportFailed()) {
+					if (index%2 == 0)
+						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+					else 
+						fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+					p.add(fc);
+					index++;
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				e = i.next();
+				fc = e.getValue();
+				if (index%2 == 0)
+					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+				else 
+					fc.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
+				p.add(fc);
+				index++;
+			}
+		}
+		
+		pane.removeAll();
+		pane.add(p);
+		pane.revalidate();
+		pane.repaint();
+	}
+	
 	/**
 	 * Returns the status of the import process one of the
 	 * values defined in @see ImportStatus
@@ -1290,11 +1333,9 @@ public class FileImportComponent
 	 * Sets the result of the import for the specified file.
 	 * 
 	 * @param result The result.
-	 * @param index The index corresponding to the component.
 	 */
-	public void uploadComplete(Object result, int index)
+	public void uploadComplete(Object result)
 	{
-		this.index = index;
 		if (result instanceof CmdCallback)
 			callback = (CmdCallback) result;
 	}
@@ -1360,8 +1401,9 @@ public class FileImportComponent
 			}
 			Map<File, StatusLabel> files = (Map<File, StatusLabel>)
 				evt.getNewValue();
+			int n = files.size();
 			insertFiles(files);
-			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null, files.size());
+			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null,n);
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
@@ -1380,6 +1422,11 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel))
 				cancelButton.setVisible(sl.isCancellable());
+		} else if (StatusLabel.PROCESSING_ERROR_PROPERTY.equals(name)) {
+			StatusLabel sl = (StatusLabel) evt.getNewValue();
+			if (sl.equals(statusLabel)) {
+				firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
+			}
 		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel)) {

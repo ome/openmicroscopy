@@ -47,7 +47,6 @@ import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportEvent.FILESET_UPLOAD_END;
 import ome.formats.importer.util.ErrorHandler;
 import omero.cmd.CmdCallback;
-import omero.cmd.CmdCallbackI;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -131,6 +130,9 @@ public class StatusLabel
 	/** Bound property indicating that the scanning has started. */
 	public static final String SCANNING_PROPERTY = "scanning";
 	
+	/** Bound property indicating that the scanning has started. */
+	public static final String PROCESSING_ERROR_PROPERTY = "processingError";
+
 	/** The default text of the component.*/
 	private static final String DEFAULT_TEXT = "Pending...";
 
@@ -306,7 +308,7 @@ public class StatusLabel
 	{
 		generalLabel.setText(text);
 		cancellable = false;
-		firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+		firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
 	}
 
 	/** Creates a new instance. */
@@ -583,6 +585,13 @@ public class StatusLabel
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
 			handleProcessingError("");
+		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
+			ErrorHandler.INTERNAL_EXCEPTION e =
+					(ErrorHandler.INTERNAL_EXCEPTION) event;
+			readerType = e.reader;
+			usedFiles = e.usedFiles;
+			exception = new ImportException(e.exception);
+			handleProcessingError("");
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
@@ -642,13 +651,6 @@ public class StatusLabel
 			uploadBar.setVisible(true);
 			processingBar.setVisible(true);
 			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
-		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
-			ErrorHandler.INTERNAL_EXCEPTION e =
-					(ErrorHandler.INTERNAL_EXCEPTION) event;
-			readerType = e.reader;
-			usedFiles = e.usedFiles;
-			exception = new ImportException(e.exception);
-			handleProcessingError("");
 		}
 	}
 

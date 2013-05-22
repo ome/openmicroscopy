@@ -132,16 +132,21 @@ class ImporterComponent
 	{
 		boolean refreshTree = false;
 		List<DataObject> containers = null;
-		if (element != null && element.isDone()) {
-			refreshTree = element.hasToRefreshTree();
-			containers = element.getExistingContainers();
-			model.importCompleted(element.getID());
-			view.onImportEnded(element);
+		if (element != null) {
+			if (element.isDone()) {
+				refreshTree = element.hasToRefreshTree();
+				containers = element.getExistingContainers();
+				model.importCompleted(element.getID());
+				view.onImportEnded(element);
+			}
+			
 			if (markToclose) {
 				view.setVisible(false);
 			} else {
-				element = view.getElementToStartImportFor();
-				if (element != null && startUpload) importData(element);
+				if (element.isUploadComplete()) {
+					element = view.getElementToStartImportFor();
+					if (element != null && startUpload) importData(element);
+				}
 			}
 			fireStateChange();
 		}
@@ -364,7 +369,7 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
 		if (element != null) {
-			Object formattedResult = element.uploadComplete(f, result, index);
+			Object formattedResult = element.uploadComplete(f, result);
 			handleCompletion(element, formattedResult, true);
 		}
 	}
@@ -842,11 +847,12 @@ class ImporterComponent
 		ImporterUIElement element = view.getUIElement(component.getIndex());
 		if (element == null) return;
 		Object result = component.getImportResult();
-		handleCompletion(element, result, !component.hasParent());
 		if (result instanceof Exception) {
-			//notify error
+			element.setImportResult(component, result);
+			handleCompletion(element, result, !component.hasParent());
 			return;
 		}
+		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
 		if (CollectionUtils.isEmpty(pixels)) return;
 		Collection<DataObject> l = new ArrayList<DataObject>();
@@ -877,8 +883,7 @@ class ImporterComponent
 		ImporterUIElement element = view.getUIElement(component.getIndex());
 		if (element == null) return;
 		Object result = component.getImportResult();
-		Object formattedResult = element.uploadComplete(component, result,
-				component.getIndex());
+		Object formattedResult = element.uploadComplete(component, result);
 		if (!controller.isMaster()) {
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
@@ -896,6 +901,7 @@ class ImporterComponent
 		if (component == null || model.getState() == DISCARDED) return;
 		
 		FileImportComponent c = (FileImportComponent) component;
+		System.err.println(c.getIndex());
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
 		Object formattedResult = element.setImportResult(c, result);
