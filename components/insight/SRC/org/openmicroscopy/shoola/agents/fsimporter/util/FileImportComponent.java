@@ -338,7 +338,8 @@ public class FileImportComponent
             	displayLogFile();
             }
         });
-		item.setEnabled(callback != null);
+		Object o = statusLabel.getImportResult();
+		item.setEnabled(callback != null || o instanceof CmdCallback);
 		menu.add(item);
         
 		item = new JMenuItem(new AbstractAction(checksumText) {
