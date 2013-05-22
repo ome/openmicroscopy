@@ -1372,7 +1372,17 @@ public class FileImportComponent
 			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			cancelButton.setVisible(sl.isCancellable());
+			if (sl.equals(statusLabel))
+				cancelButton.setVisible(sl.isCancellable());
+		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
+			StatusLabel sl = (StatusLabel) evt.getNewValue();
+			if (sl.equals(statusLabel)) {
+				if (busyLabel != null) {
+					busyLabel.setBusy(true);
+					busyLabel.setVisible(true);
+				}
+				//cancelButton.setVisible(sl.isCancellable());
+			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			file = (File) evt.getNewValue();
 			fileNameLabel.setText(file.getName());

@@ -128,6 +128,9 @@ public class StatusLabel
 	/** Bound property indicating that the upload is done. */
 	public static final String UPLOAD_DONE_PROPERTY = "uploadDone";
 	
+	/** Bound property indicating that the scanning has started. */
+	public static final String SCANNING_PROPERTY = "scanning";
+	
 	/** The default text of the component.*/
 	private static final String DEFAULT_TEXT = "Pending...";
 
@@ -573,7 +576,7 @@ public class StatusLabel
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			if (!markedAsCancel && exception == null)
 				generalLabel.setText(SCANNING_TEXT);
-			firePropertyChange(CANCELLABLE_IMPORT_PROPERTY, null, this);
+			firePropertyChange(SCANNING_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
