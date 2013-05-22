@@ -48,7 +48,6 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -125,9 +124,6 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
-import omero.cmd.CmdCallback;
-import omero.cmd.CmdCallbackI;
-import omero.cmd.Delete;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
