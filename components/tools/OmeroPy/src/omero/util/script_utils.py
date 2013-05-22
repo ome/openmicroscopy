@@ -366,6 +366,11 @@ def getObjects(conn, params):
     else:
         if not len(objects) == len(ids):
             message += "Found %s out of %s %s%s(s). " % (len(objects), len(ids), dataType[0].lower(), dataType[1:])
+
+        # Sort the objects according to the order of IDs
+        idMap = dict( [(o.id, o) for o in objects] )
+        objects = [idMap[i] for i in ids if i in idMap]
+
     return objects, message
 
 def addAnnotationToImage(updateService, image, annotation):
