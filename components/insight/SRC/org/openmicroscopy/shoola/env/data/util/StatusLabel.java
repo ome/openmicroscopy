@@ -681,7 +681,7 @@ public class StatusLabel
 			if (v != sizeUpload) buffer.append(formatUpload(v));
 			else  buffer.append(fileSize);
 			buffer.append(" ");
-			if (e.timeLeft != 0) {
+			if (e.timeLeft != null) {
 				String s = UIUtilities.calculateHMSFromMilliseconds(e.timeLeft,
 						true);
 				buffer.append(s);
