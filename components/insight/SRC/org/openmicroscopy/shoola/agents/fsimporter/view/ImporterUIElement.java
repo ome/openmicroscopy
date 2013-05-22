@@ -704,7 +704,8 @@ class ImporterUIElement
 			}
 			setNumberOfImport();
 			setClosable(isDone());
-			filterButton.setEnabled(countFailure > 0);
+			filterButton.setEnabled(countFailure > 0 &&
+					countFailure != totalToImport);
 		}
 		return formattedResult;
 	}

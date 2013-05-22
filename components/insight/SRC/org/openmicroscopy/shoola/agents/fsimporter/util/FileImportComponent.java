@@ -243,9 +243,6 @@ public class FileImportComponent
 	/** The value indicating the number of imports in the folder. */
 	private int importCount;
 
-	/** Flag indicating that no container specified.*/
-	private boolean noContainer;
-	
 	/** 
 	 * Flag indicating that the container hosting the imported image
 	 * can be browsed or not depending on how the import is launched.
@@ -1440,8 +1437,6 @@ public class FileImportComponent
 			} else if (containerFromFolder instanceof ScreenData) {
 				containerObject = containerFromFolder;
 			}
-		} else if (StatusLabel.NO_CONTAINER_PROPERTY.equals(name)) {
-			noContainer = true;
 		} else if (StatusLabel.DEBUG_TEXT_PROPERTY.equals(name)) {
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
