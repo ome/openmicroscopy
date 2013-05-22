@@ -31,9 +31,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -162,19 +159,10 @@ class ImporterUIElement
 	private int countImported;
 	
 	/** The number of files imported. */
-	private int countFilesImported;
-	
-	/** The number of files imported. */
-	private int countCancelled;
-	
-	/** The number of files imported. */
 	private int countFailure;
 	
 	/** The total number of files or folder to import. */
 	private int totalToImport;
-	
-	/** The total number of files to import.*/
-	private int totalFilesToImport;
 	
 	/** The size of the import.. */
 	private long sizeImport;
@@ -190,10 +178,7 @@ class ImporterUIElement
 	
 	/** The collection of folders' name used as dataset. */
 	private Map<JLabel, Object> foldersName;
-	
-	/** Flag indicating that the images will be added to the default dataset. */
-	private boolean orphanedFiles;
-	
+
 	/** Reference to the view. */
 	private ImporterUI view;
 	
@@ -202,22 +187,7 @@ class ImporterUIElement
 	
 	/** Reference to the controller. */
 	private ImporterModel model;
-	
-	/** The components displaying the components. */
-	private Map<JLabel, Object> containerComponents;
-	
-	/** The components displaying the components. */
-	private Map<JLabel, Object> topContainerComponents;
-	
-	/** Flag indicating to refresh the topContainer. */
-	private boolean topContainerToRefresh;
-	
-	/** The listener associated to the folder. */
-	private MouseAdapter folderListener;
-	
-	/** The listener associated to the container. */
-	private MouseAdapter containerListener;
-	
+
 	/** The type of container to handle. */
 	private int type;
 	
@@ -244,7 +214,6 @@ class ImporterUIElement
 	{
 		Iterator i = result.iterator();
 		DataObject object;
-		String n = "";
 		while (i.hasNext()) {
 			object = (DataObject) i.next();
 			if (object.getClass().equals(data.getClass()) 
@@ -320,37 +289,7 @@ class ImporterUIElement
 						node));
 		}
 	}
-	
-	/**
-	 * Returns the label hosting the passed object.
-	 * 
-	 * @param data The object to handle.
-	 * @return See above.
-	 */
-	private JLabel createNameLabel(Object data)
-	{
-		JLabel label = new JLabel();
-		boolean browse = false;
-		String name = "";
-		if (data instanceof DatasetData) {
-			browse = true;
-			name = ((DatasetData) data).getName();
-		} else if (data instanceof ScreenData) {
-			browse = true;
-			name = ((ScreenData) data).getName();
-		} else if (data instanceof ProjectData) {
-			browse = true;
-			name = ((ProjectData) data).getName();
-		}
-		label.setEnabled(browse);
-		if (browse) {
-			label.setBackground(UIUtilities.BACKGROUND_COLOR);
-			label.setToolTipText("Browse when import completed.");
-		}
-		label.setText(name);
-		return label;
-	}
-	
+
 	/**
 	 * Displays only the failures or all the results.
 	 */
@@ -382,45 +321,10 @@ class ImporterUIElement
 		});
 		sizeImport = 0;
 		busyLabel = new JXBusyLabel(ICON_SIZE);
-		
 		numberOfImportLabel = UIUtilities.createComponent(null);
-		containerComponents = new LinkedHashMap<JLabel, Object>();
-		topContainerComponents = new LinkedHashMap<JLabel, Object>();
 		foldersName = new LinkedHashMap<JLabel, Object>();
-		folderListener = new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse(foldersName.get((JLabel) src), null);
-				}
-			}
-		};
-		containerListener = new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse(containerComponents.get((JLabel) src), null);
-				}
-			}
-		};
-		countImported = 0;
-		countCancelled = 0;
 		countFailure = 0;
-		countFilesImported = 0;
 		countUploaded = 0;
-		//setClosable(true);
 		addPropertyChangeListener(controller);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
@@ -429,7 +333,6 @@ class ImporterUIElement
 		FileImportComponent c;
 		File f;
 		Iterator<ImportableFile> i = files.iterator();
-		orphanedFiles = false;
 		ImportableFile importable;
 		type = -1;
 		List<Object> containers = object.getRefNodes();
@@ -453,7 +356,6 @@ class ImporterUIElement
 			type = FileImportComponent.NO_CONTAINER;
 		}
 		JLabel l;
-		int count = 0;
 		boolean single = model.isSingleGroup();
 		while (i.hasNext()) {
 			importable = i.next();
@@ -481,21 +383,6 @@ class ImporterUIElement
 						//-1 to remove the entry for the folder.
 						Integer v = (Integer) evt.getNewValue()-1;
 						totalToImport += v;
-						setNumberOfImport();
-					} else if (
-						FileImportComponent.IMPORT_STATUS_CHANGE_PROPERTY.equals(
-								name)) {
-						ImportStatus v = ((ImportStatus) evt.getNewValue());
-						switch (v) {
-							case FAILURE:
-								countFailure++;
-								break;
-							case PARTIAL:
-								countCancelled++;
-								break;
-							default:
-								countFilesImported++;
-						}
 						setNumberOfImport();
 					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
 							name)) {
@@ -544,12 +431,13 @@ class ImporterUIElement
 				if (importable.isFolderAsContainer()) {
 					String name = f.getParentFile().getName();
 					//first check if the name is already there.
-					Entry entry;
-					Iterator k = foldersName.entrySet().iterator();
+					Entry<JLabel, Object> entry;
+					Iterator<Entry<JLabel, Object>>
+					k = foldersName.entrySet().iterator();
 					boolean exist = false;
 					while (k.hasNext()) {
-						entry = (Entry) k.next();
-						l = (JLabel) entry.getKey();
+						entry = k.next();
+						l = entry.getKey();
 						if (l.getText().equals(name)) {
 							exist = true;
 							break;
@@ -559,14 +447,11 @@ class ImporterUIElement
 						foldersName.put(new JLabel(name), c);
 					}
 				}
-				if (!c.isHCSFile()) count++;
 			}
 			importable.setStatus(c.getStatus());
-			//
 			components.put(c.toString(), c);
 		}
 		totalToImport = files.size();
-		totalFilesToImport = files.size();
 	}
 	
 	/** 
@@ -697,49 +582,6 @@ class ImporterUIElement
 	}
 	
 	/**
-	 * Returns <code>true</code> if some files were imported, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean toRefresh()
-	{
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (fc.toRefresh()) 
-				return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the top container has to be refreshed,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean topContainerToRefresh()
-	{
-		List<DataObject> l = getExistingContainers();
-		if (l == null || l.size() == 0) return false;
-		DataObject object = l.get(0);
-		if (!(object instanceof ProjectData)) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			fc = i.next();
-			if (fc.isFolderAsContainer())
-				return true;
-		}
-		return false;
-	}
-	
-	/**
 	 * Creates a new instance.
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
@@ -767,7 +609,6 @@ class ImporterUIElement
 		this.model = model;
 		this.view = view;
 		this.id = id;
-		System.err.println(id);
 		this.object = object;
 		initialize();
 		buildGUI();
@@ -835,10 +676,8 @@ class ImporterUIElement
 			} else if (result instanceof Boolean) {
 				countFailure++;
 				setImportResult(c, result);
-			} else if (c.isCancelled()) countCancelled++;
+			}
 		}
-		if (file.isDirectory() && !c.hasComponents() && 
-				c.isCancelled()) countCancelled++;
 		setNumberOfImport();
 		setClosable(isUploadComplete());
 		return r;
@@ -862,10 +701,7 @@ class ImporterUIElement
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
 				if (fc.hasImportFailed()) countFailure++;
-				if (!fc.isCancelled()) countFilesImported++;
 			}
-			if (file.isDirectory() && !fc.hasComponents() && 
-					fc.isCancelled()) countCancelled++;
 			setNumberOfImport();
 			setClosable(isDone());
 			filterButton.setEnabled(countFailure > 0);

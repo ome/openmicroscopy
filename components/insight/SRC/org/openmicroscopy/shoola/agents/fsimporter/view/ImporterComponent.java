@@ -899,9 +899,7 @@ class ImporterComponent
 	public void setImportResult(Object result, Object component)
 	{
 		if (component == null || model.getState() == DISCARDED) return;
-		
 		FileImportComponent c = (FileImportComponent) component;
-		System.err.println(c.getIndex());
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
 		Object formattedResult = element.setImportResult(c, result);

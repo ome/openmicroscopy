@@ -148,12 +148,6 @@ public class FileImportComponent
 	public static final String IMPORT_FILES_NUMBER_PROPERTY = "importFilesNumber";
 	
 	/**
-	 * Bound property indicating to the import of the file has been cancelled,
-	 * failed or successful.
-	 */
-	public static final String IMPORT_STATUS_CHANGE_PROPERTY = "importStatusChange";
-	
-	/**
 	 * Bound property indicating to load the content of the log file.
 	 */
 	public static final String LOAD_LOGFILEPROPERTY = "loadLogfile";
@@ -530,9 +524,6 @@ public class FileImportComponent
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
-		if (image == null && file.isFile())
-			firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-					ImportStatus.PARTIAL);
 		if (fire)
 			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 	}
