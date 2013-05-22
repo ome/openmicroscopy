@@ -41,6 +41,7 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -670,7 +671,7 @@ public class ImportableObject
 	 */
 	public void reUpload(List<File> list)
 	{
-		if (list == null || list.size() == 0) return;
+		if (CollectionUtils.isEmpty(list)) return;
 		Iterator<File> i = list.iterator();
 		List<ImportableFile> values = new ArrayList<ImportableFile>();
 		ImportableFile v;

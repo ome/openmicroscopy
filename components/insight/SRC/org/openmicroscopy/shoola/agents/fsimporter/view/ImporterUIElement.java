@@ -418,8 +418,8 @@ class ImporterUIElement
 						CheckSumDialog d = new CheckSumDialog(view, label);
 						UIUtilities.centerAndShow(d);
 					} else if (FileImportComponent.RETRY_PROPERTY.equals(name))
-						firePropertyChange(name, evt.getOldValue(),
-								evt.getNewValue());
+						controller.retryUpload(
+								(FileImportComponent) evt.getNewValue());
 				}
 			});
 			if (f.isDirectory()) {

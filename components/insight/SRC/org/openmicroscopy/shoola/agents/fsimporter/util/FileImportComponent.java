@@ -283,7 +283,7 @@ public class FileImportComponent
 	private void retry()
 	{
 		Object o = statusLabel.getImportResult();
-		if (o instanceof Exception)
+		if (o instanceof Exception || image instanceof Exception)
 			firePropertyChange(RETRY_PROPERTY, null, this);
 	}
 	/**

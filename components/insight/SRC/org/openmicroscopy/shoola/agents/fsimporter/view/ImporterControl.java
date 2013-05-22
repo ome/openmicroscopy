@@ -364,14 +364,15 @@ class ImporterControl
 			model.setUserGroup(newGroup);
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
 			model.onImportComplete((FileImportComponent) evt.getNewValue());
-		} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
-			FileImportComponent fc = (FileImportComponent) evt.getNewValue();
-			model.retryUpload(fc);
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			model.onUploadComplete((FileImportComponent) evt.getNewValue());
 		}
 	}
 
+	void retryUpload(FileImportComponent fc)
+	{
+		model.retryUpload(fc);
+	}
 	/**
 	 * Handles group selection.
 	 * @see ActionListener#actionPerformed(ActionEvent)

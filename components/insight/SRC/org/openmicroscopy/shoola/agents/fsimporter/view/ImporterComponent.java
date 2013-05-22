@@ -341,7 +341,7 @@ class ImporterComponent
 	public void importData(ImportableObject data)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (data == null || data.getFiles() == null || 
+		if (data == null || data.getFiles() == null ||
 				data.getFiles().size() == 0) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "No Files to import.");
