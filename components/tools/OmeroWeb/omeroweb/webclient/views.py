@@ -1621,7 +1621,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
-                'derror':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
+                'error':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
@@ -1640,7 +1640,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':0,
+                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'error':0,
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
@@ -2137,7 +2137,7 @@ def activities(request, conn=None, **kwargs):
                                 else:
                                     rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
                                     logger.error("chgrp failed with: %s" % rsp_params)
-                                    request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
+                                request.session['callback'][cbString]['error'] = rsp.name
                             elif isinstance(rsp, omero.cmd.OK):
                                 request.session['callback'][cbString]['status'] = "finished"
                         else:
@@ -2157,7 +2157,7 @@ def activities(request, conn=None, **kwargs):
                     close_handle = False
                     try:
                         if not cb.block(0): # Response not available
-                            request.session['callback'][cbString]['derror'] = 0
+                            request.session['callback'][cbString]['error'] = 0
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             in_progress+=1
@@ -2196,25 +2196,25 @@ def activities(request, conn=None, **kwargs):
                                             'attempted_iids':attempted_iids})
                                 request.session['callback'][cbString]['split_filesets'] = split_filesets
                             elif err:
-                                request.session['callback'][cbString]['derror'] = 1
+                                request.session['callback'][cbString]['error'] = 1
                                 request.session['callback'][cbString]['status'] = "failed"
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                                 failure+=1
                             # no error...
                             else:
-                                request.session['callback'][cbString]['derror'] = 0
+                                request.session['callback'][cbString]['error'] = 0
                                 request.session['callback'][cbString]['status'] = "finished"
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:
-                    request.session['callback'][cbString]['derror'] = 0
+                    request.session['callback'][cbString]['error'] = 0
                     request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
                 except Exception, x:
                     logger.error(traceback.format_exc())
                     logger.error("Status job '%s'error:" % cbString)
-                    request.session['callback'][cbString]['derror'] = 1
+                    request.session['callback'][cbString]['error'] = 1
                     request.session['callback'][cbString]['status'] = "failed"
                     request.session['callback'][cbString]['dreport'] = str(x)
                     failure+=1
@@ -2283,6 +2283,7 @@ def activities(request, conn=None, **kwargs):
         return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
         
     jobs = []
+    new_errors = False
     for key, data in rv.items():
         # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
         # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
@@ -2294,6 +2295,8 @@ def activities(request, conn=None, **kwargs):
         rv[key]['key'] = key
         if key in new_results:
             rv[key]['new'] = True
+            if 'error' in data:
+                new_errors = True
         jobs.append(rv[key])
 
     jobs.sort(key=lambda x:x['start_time'], reverse=True)
@@ -2301,6 +2304,7 @@ def activities(request, conn=None, **kwargs):
             'jobs':jobs,
             'inprogress':in_progress,
             'new_results':len(new_results),
+            'new_errors': new_errors,
             'failure':failure}
 
     context['template'] = "webclient/activities/activitiesContent.html"

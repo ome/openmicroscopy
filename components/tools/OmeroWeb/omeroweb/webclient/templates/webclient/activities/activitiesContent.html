@@ -31,6 +31,7 @@
     <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
     <div id="inprogress" style="display:none">{{ inprogress }}</div>
     <div id="new_results" style="display:none">{{ new_results }}</div>
+    {% if new_errors %}<div id="new_errors" style="display:none">True</div>{% endif %}
     <div id="failure" style="display:none">{{ failure }}</div>
 
     <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
@@ -52,7 +53,7 @@
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.error or j.split_filesets %}
+                                {% if j.error %}
                                     <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
                                 {% else %}
                                     <img class="icon" src="{% static "webgateway/img/success.png" %}" />
@@ -136,7 +137,7 @@
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.derror %}
+                                {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
                                         <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
@@ -213,7 +214,7 @@
                             {% endif %}
 
                             <div class="results">
-                                {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                                {% if j.dreport %}{{ j.error }} error(s) ({{ j.dreport }}){% endif %}
                             </div>
                         </td>
                     </tr>
