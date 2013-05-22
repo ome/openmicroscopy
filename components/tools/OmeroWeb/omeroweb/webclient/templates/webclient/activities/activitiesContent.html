@@ -82,12 +82,12 @@
                                     {% endif %}
                                 {% endifequal %}
                                 {% if j.split_filesets %}
-                                    Filesets cannot be split into 2 groups.
+                                    Multi-image filesets cannot be split into 2 groups.
 
                                     {% for fs in j.split_filesets %}
                                     <div>
                                         You tried to move <strong>{{ fs.attempted_iids|length }}</strong>
-                                        image{{ fs.attempted_iids|pluralize}} from Fileset,
+                                        image{{ fs.attempted_iids|pluralize}} from a fileset,
                                         leaving <strong>{{ fs.blocking_iids|length }}</strong>.
                                     </div>
                                     {% with MAX_SHOWN=3 %}
@@ -178,12 +178,12 @@
 
                             {% if j.split_filesets %}
                             <span class="message">
-                                Deleting part of a multi-image Fileset is not allowed.<br/>
-                                Delete ALL or None of the images in a Fileset.
+                                Deleting part of a multi-image fileset is not allowed.<br/>
+                                Delete ALL or None of the images in a fileset.
                                 {% for fs in j.split_filesets %}
                                 <div>
-                                    Tried to delete <strong>{{ fs.attempted_iids|length }}/{{ fs.imageCount }}</strong> images
-                                    in Fileset of <strong>{{ fs.fileCount }}</strong> files ({{ fs.totalSize|filesizeformat }})
+                                    You tried to delete <strong>{{ fs.attempted_iids|length }}</strong> image{{ fs.attempted_iids|pluralize}}
+                                    in a fileset, leaving <strong>{{ fs.blocking_iids|length }}</strong>.
                                 </div>
                                 {% with MAX_SHOWN=3 %}
                                     <div style="border: 1px solid #87ABD2; float: left">
