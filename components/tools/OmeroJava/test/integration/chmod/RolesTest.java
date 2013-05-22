@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 
 import static omero.rtypes.rstring;

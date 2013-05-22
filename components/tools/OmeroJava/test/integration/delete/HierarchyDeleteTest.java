@@ -24,6 +24,7 @@ import omero.model.Screen;
 import omero.model.ScreenI;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests for deleting hierarchies and the effects that that should have under

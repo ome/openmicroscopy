@@ -90,6 +90,7 @@ import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import pojos.BooleanAnnotationData;
 import pojos.DatasetData;

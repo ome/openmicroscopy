@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import omero.RString;
 import omero.api.IUpdatePrx;

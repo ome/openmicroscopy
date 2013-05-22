@@ -38,6 +38,7 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Tests for deleting user ratings.

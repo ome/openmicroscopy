@@ -23,6 +23,7 @@ import omero.model.ExperimenterI;
 import omero.model.PermissionsI;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Various uses of the {@link omero.client} object.

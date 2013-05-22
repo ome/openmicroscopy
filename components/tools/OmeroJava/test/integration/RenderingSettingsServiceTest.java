@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;

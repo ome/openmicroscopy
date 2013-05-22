@@ -37,6 +37,7 @@ import omero.util.IceMapper;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 @Test(groups = {"repo", "integration"})
 public class BfPixelBufferTest extends AbstractServerTest {
