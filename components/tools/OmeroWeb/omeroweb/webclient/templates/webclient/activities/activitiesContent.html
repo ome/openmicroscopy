@@ -136,7 +136,7 @@
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.error %}
+                                {% if j.derror %}
                                     <div class='script_error' title="{{ j.error }}">
                                         <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
