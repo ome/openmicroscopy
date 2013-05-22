@@ -295,7 +295,7 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(countUploaded);
+		buffer.append(countUploaded-countFailure);
 		buffer.append(" out of ");
 		buffer.append(totalToImport);
 		buffer.append(" uploaded");
@@ -822,9 +822,9 @@ class ImporterUIElement
 			//handle error that occurred during the scanning or upload.
 			if (result instanceof Exception) {
 				r = new ImportErrorObject(file, (Exception) result);
-				countFailure++;
 				setImportResult(c, result);
 			} else if (result instanceof Boolean) {
+				countFailure++;
 				setImportResult(c, result);
 			} else if (c.isCancelled()) countCancelled++;
 		}

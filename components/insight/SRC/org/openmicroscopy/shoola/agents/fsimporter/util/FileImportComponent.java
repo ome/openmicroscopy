@@ -965,6 +965,8 @@ public class FileImportComponent
 		} else if (image instanceof ImportException) {
 			formatResult();
 		} else if (image instanceof Boolean) {
+			busyLabel.setBusy(false);
+			busyLabel.setVisible(false);
 			if (!statusLabel.isMarkedAsCancel()) {
 				cancelButton.setVisible(false);
 			}
