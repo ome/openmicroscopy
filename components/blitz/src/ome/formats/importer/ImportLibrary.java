@@ -326,7 +326,7 @@ public class ImportLibrary implements IObservable
             long offset = 0;
 
             // Fields used for timing measurements
-            long start, timeLeft = 0L;
+            long start, timeLeft;
             float alpha, chunkTime;
             int sampleSize = 5;
             Buffer samples = new CircularFifoBuffer(sampleSize);
@@ -339,7 +339,7 @@ public class ImportLibrary implements IObservable
             rawFileStore.write(new byte[0], offset, 0);
             notifyObservers(new ImportEvent.FILE_UPLOAD_BYTES(
                     file.getAbsolutePath(), index, srcFiles.length,
-                    offset, length, timeLeft, null));
+                    offset, length, null, null));
 
             while (true) {
                 // Due to weirdness with System.nanoTime() on multi-core
