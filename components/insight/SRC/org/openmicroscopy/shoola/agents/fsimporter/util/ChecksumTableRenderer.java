@@ -73,7 +73,7 @@ class ChecksumTableRenderer
 		this.success = success;
 		foreground = getForeground();
 		setOpaque(true);
-		setHorizontalAlignment(SwingConstants.CENTER);
+		setHorizontalAlignment(SwingConstants.LEFT);
 	}
 	
 	/**
