@@ -78,8 +78,10 @@ public class PreferenceContext extends PropertyPlaceholderConfigurer {
             while (names.hasMoreElements()) {
                 String key = names.nextElement().toString();
                 String value = properties.getProperty(key);
-                System.setProperty(key, value);
-                log.debug("Set property: {}={}", key, value);
+                if (System.getProperty(key) == null) {
+                    System.setProperty(key, value);
+                    log.debug("Set property: {}={}", key, value);
+                }
             }
         } catch (IOException ioe) {
             log.error("Error on mergeProperties()", ioe);
