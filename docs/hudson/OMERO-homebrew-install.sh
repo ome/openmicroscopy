@@ -7,8 +7,7 @@ set -x
 
 export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
 export OMERO_ALT=${OMERO_ALT:-ome/alt}
-export BREW_DIR=${BREW_DIR:-/usr/local}
-export VENV_DIR=${VENV_DIR:-$BREW_DIR/virtualenv}
+export VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
@@ -21,7 +20,7 @@ else
     CURL="curl ${CURL_OPTS-} -O"
 fi
 
-# Test wether this script is run in a job environment
+# Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
 if [[ -n $JOB_NAME ]]; then
     DEFAULT_TESTING_MODE=true
@@ -53,17 +52,17 @@ if [ $TESTING_MODE ]; then
     fi
 
     # Remove Homebrew installation
-    if [ -d "$BREW_DIR/.git" ]
+    if [ -d "/usr/local/.git" ]
     then
         echo "Uninstalling Homebrew"
-        rm -rf $BREW_DIR/Cellar && $BREW_DIR/bin/brew prune
-        rm -rf $BREW_DIR/.git && $BREW_DIR/bin/brew cleanup
+        rm -rf /usr/local/Cellar && /usr/local/bin/brew prune
+        rm -rf /usr/local/.git && /usr/local/bin/brew cleanup
     fi
 
-    if [ -d "$BREW_DIR/Library/Taps" ]
+    if [ -d "/usr/local/Library/Taps" ]
     then
         echo "Cleaning Homebrew taps"
-        rm -rf $BREW_DIR/Library/Taps
+        rm -rf /usr/local/Library/Taps
     fi
 fi
 ###################################################################
@@ -72,7 +71,7 @@ fi
 
 # Install Homebrew in /usr/local
 ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
-cd $BREW_DIR
+cd /usr/local
 
 # Install git if not already installed
 bin/brew list | grep "\bgit\b" || bin/brew install git
@@ -118,7 +117,7 @@ if [ $TESTING_MODE ]; then
     $VENV_DIR/bin/scc merge master
 fi
 
-cd $BREW_DIR
+cd /usr/local
 
 ###################################################################
 # Bio-Formats installation
