@@ -193,15 +193,30 @@ class ITest(unittest.TestCase):
         return pix_ids
 
     """
+    Creates a fake file with one image, imports
+    the file and then return the image.
+    """
+    def importSingleImage(self, name=None, client=None):
+        if client is None:
+            client = self.client
+        if name is None:
+            name = "importSingleImage"
+
+        images = self.importMIF(1, name=name, client=client)
+        return images[0]
+
+    """
     Creates a fake file with a seriesCount of images, imports
     the file and then return the list of images.
     """
-    def importMIF(self, seriesCount, client=None):
+    def importMIF(self, seriesCount, name=None, client=None):
         if client is None:
             client = self.client
+        if name is None:
+            name = "importMIF"
 
         query = client.sf.getQueryService()
-        fake = create_path("importMIF", "&series=%d.fake" % seriesCount)
+        fake = create_path(name, "&series=%d.fake" % seriesCount)
         pixelIds = self.import_image(filename=fake.abspath(), client=client)
         self.assertEqual(seriesCount, len(pixelIds))
 
