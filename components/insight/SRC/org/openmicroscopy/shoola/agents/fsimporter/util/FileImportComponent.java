@@ -1359,8 +1359,8 @@ public class FileImportComponent
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
-				busyLabel.setBusy(true);
-				busyLabel.setVisible(true);
+				busyLabel.setBusy(false);
+				busyLabel.setVisible(false);
 				cancelButton.setVisible(sl.isCancellable());
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
@@ -1373,27 +1373,6 @@ public class FileImportComponent
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			cancelButton.setVisible(sl.isCancellable());
-		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
-			//TODO review
-			Object[] results = (Object[]) evt.getNewValue();
-			File f = (File) results[0];
-			if (f.getAbsolutePath().equals(file.getAbsolutePath())) {
-				setStatus(results[1]);
-				firePropertyChange(StatusLabel.FILE_IMPORTED_PROPERTY, null,
-						results[1]);
-				if (f.isFile()) {
-					firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null,
-							this);
-					if (hasImportFailed())
-						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-								ImportStatus.FAILURE);
-					else if (isCancelled())
-						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-								ImportStatus.PARTIAL);
-					else firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
-								ImportStatus.SUCCESS);
-				}
-			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			file = (File) evt.getNewValue();
 			fileNameLabel.setText(file.getName());

@@ -104,10 +104,7 @@ public class StatusLabel
 	/** Bound property indicating that the import of the file has started. */
 	public static final String FILE_IMPORT_STARTED_PROPERTY =
 		"fileImportStarted";
-	
-	/** Bound property indicating that the file is imported. */
-	public static final String FILE_IMPORTED_PROPERTY = "fileImported";
-	
+
 	/** 
 	 * Bound property indicating that the container corresponding to the
 	 * folder has been created. 
@@ -368,23 +365,19 @@ public class StatusLabel
 		if (values.length > 1) units = values[1];
 	}
 
-	
+	/**
+	 * Sets the callback. This method should only be invoked when the 
+	 * file is imported from a folder.
+	 * 
+	 * @param cmd The object to handle.
+	 */
 	public void setCallback(Object cmd)
 	{
 		if (cmd instanceof ImportException) exception = (ImportException) cmd;
 		else if (cmd instanceof CmdCallback) callback = (CmdCallback) cmd;
 		firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
 	}
-	
-	public void close()
-	{
-		if (callback != null) {
-			try {
-				((CmdCallbackI) callback).close(true);
-			} catch (Exception e) {}
-		}
-	}
-	
+
 	/** Marks the import has cancelled. */
 	public void markedAsCancel()
 	{
@@ -536,21 +529,6 @@ public class StatusLabel
 	 * @return See above.
 	 */
 	public int getSeriesCount() { return seriesCount; }
-
-	/**
-	 * Fires a property indicating that the file has been imported.
-	 * 
-	 * @param file The file to import.
-	 * @param result The result.
-	 */
-	public void setFile(File file, Object result)
-	{
-		Object[] results = new Object[2];
-		results[0] = file;
-		results[1] = result;
-		cancellable = false;
-		firePropertyChange(FILE_IMPORTED_PROPERTY, null, results);
-	}
 
 	/**
 	 * Returns <code>true</code> if the import can be cancelled,
