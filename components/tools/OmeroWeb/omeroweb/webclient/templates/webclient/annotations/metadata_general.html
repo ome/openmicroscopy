@@ -420,36 +420,6 @@
                     }
                 });
 
-                // Fileset thumbnail actions
-                var $extra_fs_thumbs = $(".fileset_image.extra"),
-                    hide_txt = 'hide';
-                // Show/Hide thumbs - and save state to 'body'
-                $("#show_all_fileset_thumbs").click(function(){
-                    $extra_fs_thumbs.toggle();
-                    var vis = $extra_fs_thumbs.is(':visible');
-                    $("body").data('show_fileset_thumbs', vis);
-                    $(this).text(vis ? hide_txt : 'show all');
-                    return false;
-                });
-                if ($("body").data('show_fileset_thumbs')){
-                    $extra_fs_thumbs.show();       // show if previously shown
-                    $("#show_all_fileset_thumbs").text(hide_txt);
-                }
-                // Link to an image: IF it's in the jstree, select it.
-                $(".fileset_image_link").click(function(){
-                    var imgId = $(this).attr('data-iid');
-                    // if we're not on a jstree page (E.g. search)
-                    if (typeof $.jstree === "undefined") {
-                        return;
-                    }
-                    var datatree = $.jstree._focused();
-                    if (!datatree) return;
-                    // if selection was OK, we return false (don't follow link)
-                    var selected = datatree.select_node("#image-"+imgId, true);
-                    if (selected !== false) {
-                        return false;
-                    }
-                });
             {% endif %}
 
             });
@@ -525,34 +495,6 @@
                   
             <div style="clear:both"></div>
                   
-                  
-            {% with filesetImgs=manager.image.getFilesetImages MAX_SHOWN=5 %}
-                {% if filesetImgs|length > 1 %}
-                    <div style="float:left; margin-top: 6px">
-                        <h2 class="data_heading_id" style="margin-bottom: 0px">
-                        <strong>{{ filesetImgs|length }}</strong> Fileset Images:
-                    </h2>
-                    {% if filesetImgs|length > MAX_SHOWN %}
-                        <a id="show_all_fileset_thumbs" href="#" style="float:right">show all</a>
-                    {% endif %}
-                    </div>
-                    <div style="border: solid #87ABD2 1px; float:right">
-                        {% for fsImg in filesetImgs %}
-                        <a href="{% url webindex %}?show=image-{{ fsImg.id }}"
-                            class="fileset_image_link" data-iid="{{ fsImg.id }}">
-                            <img class="fileset_image{% if forloop.counter > MAX_SHOWN %} extra{% endif %}"
-                                src="{% url render_thumbnail_resize 96 fsImg.id %}"
-                                title="{{ fsImg.name }}"
-                                {% ifequal fsImg.id manager.obj_id %}style="border: solid 3px #87ABD2; margin:0px"{% endifequal %}
-                            />
-                        </a>
-                        {% endfor %}
-                        <div style="clear:both"></div>
-                    </div>
-                {% endif %}
-            {% endwith %}
-
-            <div style="clear:both"></div>
 
             <hr/><!-- Temporary Solution. Not the right way to add borders to elements! -->
                   
