@@ -932,6 +932,7 @@ public class FileImportComponent
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
+			formatResult();
 			formatResultTooltip();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
@@ -957,6 +958,7 @@ public class FileImportComponent
 					}
 				}
 			}
+			formatResult();
 		} else if (image instanceof ImportException) {
 			formatResult();
 		} else if (image instanceof Boolean) {
