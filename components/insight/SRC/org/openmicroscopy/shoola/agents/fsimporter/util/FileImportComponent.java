@@ -462,6 +462,7 @@ public class FileImportComponent
 		busyLabel.setBusy(false);
 		IconManager icons = IconManager.getInstance();
 		Object result = statusLabel.getImportResult();
+		if (image instanceof ImportException) result = image;
 		if (result instanceof ImportException) {
 			ImportException e = (ImportException) result;
 			resultLabel.setIcon(icons.getIcon(IconManager.DELETE));
@@ -1101,7 +1102,10 @@ public class FileImportComponent
 	 */
 	public ImportStatus getImportStatus()
 	{
-		if (file.isFile()) return resultIndex;
+		if (file.isFile()) {
+			if (hasImportFailed()) return ImportStatus.FAILURE;
+			return resultIndex;
+		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
 				if (file.isDirectory()) {

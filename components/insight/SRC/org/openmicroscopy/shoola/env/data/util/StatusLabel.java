@@ -614,8 +614,10 @@ public class StatusLabel
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
             checksumEvent = (ImportEvent.FILESET_UPLOAD_END) event;
-			processingBar.setValue(1);
-			processingBar.setString(STEPS.get(1));
+            if (exception == null) {
+    			processingBar.setValue(1);
+    			processingBar.setString(STEPS.get(1));
+            }
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
 			processingBar.setValue(2);
 			processingBar.setString(STEPS.get(2));

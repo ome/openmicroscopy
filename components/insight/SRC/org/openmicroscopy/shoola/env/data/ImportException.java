@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import ome.conditions.ResourceError;
+import omero.ChecksumValidationException;
 
 //Third-party libraries
 import loci.formats.FormatException;
@@ -63,14 +64,14 @@ public class ImportException
 	
 	/** Text to indicate a library is missing. */
 	public static final String MISSING_LIBRARY_TEXT = "Missing library";
-	
+
 	/** Text to indicate the file is on tape. */
 	private static final String NETWORK_NAME_TEXT =
 			"The specified network name is no longer available";
 	
 	/** Text to indicate the file is on tape. */
 	private static final String SPACE_TEXT = "No space left on device";
-	
+
 	/** Indicates that the compression is not supported.*/
 	public static int COMPRESSION = 0;
 	
@@ -192,7 +193,7 @@ public class ImportException
 			String message = cause.getMessage();
 			if (message.contains(SPACE_TEXT))
 				return NO_SPACE;
-		} else if (cause instanceof omero.ChecksumValidationException) {
+		} else if (cause instanceof ChecksumValidationException) {
 			return CHECKSUM_MISMATCH;
 		}
 		return status;

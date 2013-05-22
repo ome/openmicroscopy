@@ -6788,7 +6788,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-    CmdCallback importImageFile(SecurityContext ctx, ImportableObject object,
+    Object importImageFile(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
             boolean close, boolean hcs, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
@@ -6835,7 +6835,9 @@ class OMEROGateway
 	            handle = proc.verifyUpload(checksums);
 	        } catch (ChecksumValidationException cve) {
 	            failingChecksums = cve.failingChecksums;
-	            throw cve;
+	            ImportException ie = new ImportException(cve);
+	            status.setCallback(ie);
+	            return ie;
 	        } finally {
 	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
 	                    null, 0, srcFiles.length, null, null, srcFiles,
@@ -6852,7 +6854,9 @@ class OMEROGateway
 			
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
-			throw new ImportException(e);
+			ImportException ie = new ImportException(e);
+            status.setCallback(ie);
+            return ie;
 		} finally {
 			try {
 				if (reader != null) reader.close();
