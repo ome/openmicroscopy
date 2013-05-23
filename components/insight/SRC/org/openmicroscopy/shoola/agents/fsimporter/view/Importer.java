@@ -181,9 +181,6 @@ public interface Importer
 	 * @param id The identifier of the import element.
 	 */
 	public void cancelImport(int id);
-
-	/** Cancels the on-going import. */
-	public void cancelImport();
 	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>

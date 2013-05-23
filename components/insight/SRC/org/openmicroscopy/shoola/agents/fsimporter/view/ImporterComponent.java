@@ -440,26 +440,6 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#cancelImport()
-	 */
-	public void cancelImport()
-	{
-		if (model.getState() != DISCARDED) {
-			ImporterUIElement element = view.getSelectedPane();
-			if (element != null && !element.isDone() && !element.isLastImport())
-			{
-				MessageBox box = new MessageBox(view, CANCEL_TITLE,
-						CANCEL_SELECTED_TEXT);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
-					return;
-				element.cancelLoading();
-				model.cancel(element.getID());
-			}
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#hasFailuresToSend()
 	 */
 	public boolean hasFailuresToSend()
