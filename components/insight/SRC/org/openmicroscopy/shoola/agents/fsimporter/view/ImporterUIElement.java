@@ -160,7 +160,13 @@ class ImporterUIElement
 	/** The number of files/folder imported. */
 	private int countImported;
 	
-	/** The number of files imported. */
+	/** The number of files uploaded. */
+	private int countUploadFailure;
+	
+	/** 
+	 * The number of failures that occurred during scanning, uploading
+	 * or processing.
+	 */
 	private int countFailure;
 	
 	/** The total number of files or folder to import. */
@@ -274,7 +280,7 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
-		int n = countUploaded-countFailure-countCancelled;
+		int n = countUploaded-countUploadFailure-countCancelled;
 		if (n < 0) n = 0;
 		buffer.append(n);
 		buffer.append(" out of ");
@@ -335,6 +341,7 @@ class ImporterUIElement
 		busyLabel = new JXBusyLabel(ICON_SIZE);
 		numberOfImportLabel = UIUtilities.createComponent(null);
 		foldersName = new LinkedHashMap<JLabel, Object>();
+		countUploadFailure = 0;
 		countFailure = 0;
 		countUploaded = 0;
 		addPropertyChangeListener(controller);
@@ -489,13 +496,12 @@ class ImporterUIElement
 	 * @param textArea The component to handle.
 	 */
 	private void makeLabelStyle(JTextArea textArea)
-	{  
+	{
 		if (textArea == null) return;
-	    
-	    textArea.setEditable(false);
-	    textArea.setCursor(null);
-	    textArea.setOpaque(false);
-	    textArea.setFocusable(false);
+		textArea.setEditable(false);
+		textArea.setCursor(null);
+		textArea.setOpaque(false);
+		textArea.setFocusable(false);
 	}
 	
 	/** 
@@ -744,7 +750,8 @@ class ImporterUIElement
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
-			if (fc.hasUploadFailed()) countFailure++;
+			if (fc.hasUploadFailed()) countUploadFailure++;
+			if (fc.hasImportFailed()) countFailure++;
 			setNumberOfImport();
 			setClosable(isDone());
 			filterButton.setEnabled(countFailure > 0 &&
