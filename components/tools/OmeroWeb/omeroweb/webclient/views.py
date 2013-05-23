@@ -2115,7 +2115,7 @@ def activities(request, conn=None, **kwargs):
                             if isinstance(rsp, omero.cmd.ERR):
                                 request.session['callback'][cbString]['status'] = "failed"
                                 # If move has failed due to 'Filesets'
-                                if 'Fileset' in rsp.constraints:
+                                if hasattr(rsp, 'constraints') and 'Fileset' in rsp.constraints:
                                     failed_filesets = rsp.constraints['Fileset']
                                     # But, we don't know which of the Datasets / Images failed to move. Assume ALL?
                                     # We have this info from the job submission:
@@ -2177,7 +2177,7 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['status'] = "failed"
                                 failure+=1
                                 # Check if 'Fileset' returned...
-                                if 'Fileset' in rsp.constraints:
+                                if hasattr(rsp, 'constraints') and 'Fileset' in rsp.constraints:
                                     filesets = rsp.constraints['Fileset']   # list of Fileset IDs
                                     # We have this info from the job submission:
                                     callbackDict = request.session['callback'][cbString]
