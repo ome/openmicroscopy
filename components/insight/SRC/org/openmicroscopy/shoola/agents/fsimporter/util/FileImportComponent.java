@@ -934,7 +934,7 @@ public class FileImportComponent
 					label.setVisible(true);
 					label.setData(list.get(0));
 					list.remove(0);
-					int n = statusLabel.getSeriesCount()-m;
+					int n = statusLabel.getNumberOfImportedFiles()-m;
 					if (n > 0) {
 						label = imageLabels.get(2);
 						label.setVisible(true);

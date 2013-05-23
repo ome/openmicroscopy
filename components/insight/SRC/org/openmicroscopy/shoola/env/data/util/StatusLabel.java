@@ -559,6 +559,17 @@ public class StatusLabel
 	}
 
 	/**
+	 * Returns the number of pixels objects created or <code>0</code>.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfImportedFiles()
+	{
+		if (pixels != null) return pixels.size();
+		return 0;
+	}
+	
+	/**
 	 * Returns the size of the upload.
 	 * 
 	 * @return See above.
