@@ -74,11 +74,11 @@
                                             Show {{ j.dtype }}{{ j.obj_ids|pluralize }}
                                         </a>
                                     {% endifequal %}
-                                    {% if j.error %}
+                                    {% if j.report %}
                                         <div class="chgrp_error">
-                                            {{ j.error|truncateafter:"30" }}
+                                            {{ j.report|truncateafter:"30" }}
                                             <a href="#" title="Click to Open in new Window"> More...</a>
-                                            <div style="display:none">{{ j.error|linebreaksbr }}</div>
+                                            <div style="display:none">{{ j.report|linebreaksbr }}</div>
                                         </div>
                                     {% endif %}
                                 {% endifequal %}
@@ -214,7 +214,7 @@
                             {% endif %}
 
                             <div class="results">
-                                {% if j.dreport %}{{ j.error }} error(s) ({{ j.dreport }}){% endif %}
+                                {% if j.dreport %}Error: ({{ j.dreport }}){% endif %}
                             </div>
                         </td>
                     </tr>
