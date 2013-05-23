@@ -617,7 +617,9 @@ public class StatusLabel
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
 			long v = totalUploadedSize+e.uploadedBytes;
-			uploadBar.setValue((int) (v*MAX/sizeUpload));
+			if (sizeUpload != 0) {
+			    uploadBar.setValue((int) (v*MAX/sizeUpload));
+			}
 			StringBuffer buffer = new StringBuffer();
 			if (v != sizeUpload) buffer.append(formatUpload(v));
 			else  buffer.append(fileSize);
