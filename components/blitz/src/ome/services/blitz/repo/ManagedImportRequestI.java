@@ -17,18 +17,10 @@
 
 package ome.services.blitz.repo;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.sift.SiftingAppender;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import ch.qos.logback.core.FileAppender;
-import ch.qos.logback.core.sift.AppenderTracker;
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -59,7 +51,6 @@ import ome.io.nio.TileSizes;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.fire.Registry;
-import ome.util.SqlAction;
 import ome.util.Utils;
 
 import omero.ServerError;
@@ -68,7 +59,6 @@ import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
-import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.grid.ImportRequest;
 import omero.grid.ImportResponse;
@@ -80,7 +70,6 @@ import omero.model.Image;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
-import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
