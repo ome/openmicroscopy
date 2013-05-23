@@ -34,6 +34,7 @@ import loci.formats.UnknownFormatException;
 import loci.formats.UnsupportedCompressionException;
 import loci.formats.in.MIASReader;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -67,9 +68,11 @@ import omero.model.Fileset;
 import omero.model.FilesetJobLink;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.IndexingJob;
 import omero.model.Job;
 import omero.model.MetadataImportJob;
+import omero.model.OriginalFile;
 import omero.model.PixelDataJob;
 import omero.model.Pixels;
 import omero.model.Plate;
@@ -416,6 +419,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         pixList = (List) objects.get(Pixels.class.getSimpleName());
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
+        //TODO: below line has to be moved to store.saveToDB()
+        attachCompanionFilesToImage(imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 
@@ -743,6 +748,38 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         ome.model.core.OriginalFile of = iQuery
                 .get(ome.model.core.OriginalFile.class, logFile.getId().getValue());
         of.setSize(checkedPath.size());
+    }
+
+    /**
+     * Uses the {@link ManagedImportRequestI#reader reader} object to obtain
+     * a list of companion files from the current image. Resolves the name of
+     * the file into an OriginalFile and tries to link to the image in the DB.
+     * @param imageList A list of image to which companion files will be
+     *                  attached.
+     */
+    private void attachCompanionFilesToImage(List<Image> imageList) {
+        String[] companionFiles = reader.getUsedFiles(true);
+        if (companionFiles != null && companionFiles.length > 0) {
+            Fileset fs = activity.getParent();
+            if (fs.isLoaded() == true) {
+                for (int i = 0; i < fs.sizeOfUsedFiles(); i++) {
+                    OriginalFile of = fs.getFilesetEntry(i).getOriginalFile();
+                    String fileName = FilenameUtils.concat(
+                            of.getPath().getValue(), of.getName().getValue());
+                    for (String companionFile : companionFiles) {
+                        if (companionFile.endsWith(fileName)) {
+                            for (Image image : imageList) {
+                                ImageAnnotationLinkI iali =
+                                        new ImageAnnotationLinkI();
+                                FileAnnotation fa = new FileAnnotation(of.getId().getValue(), false);
+                                iali.setParent(image);
+                                iali.setChild(fa);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
