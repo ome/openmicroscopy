@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUIElement 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -485,10 +485,10 @@ class ImporterUIElement
 	
 	/**
 	 * Make the JTextArea represent a multiline label.
-	 * @param textArea
-	 * @return
+	 * 
+	 * @param textArea The component to handle.
 	 */
-	public static void makeLabelStyle(JTextArea textArea)
+	private void makeLabelStyle(JTextArea textArea)
 	{  
 		if (textArea == null) return;
 	    
@@ -509,15 +509,15 @@ class ImporterUIElement
 		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
     	
 		double[][] design = new double[][]{
-					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED}, 
+					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED},
 					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED}
 				};
     	TableLayout layout = new TableLayout(design);
 		JPanel detailsPanel = new JPanel(layout);
 		detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		detailsPanel.add(reportLabel, "0, 0, r, c");
+		detailsPanel.add(reportLabel, "0, 0, l, c");
 		detailsPanel.add(numberOfImportLabel, "2, 0");
-		detailsPanel.add(importSizeLabel, "0, 2, r, c");
+		detailsPanel.add(importSizeLabel, "0, 2, l, c");
 		detailsPanel.add(sizeLabel, "2, 2");
 		
 		JPanel middlePanel = new JPanel();
