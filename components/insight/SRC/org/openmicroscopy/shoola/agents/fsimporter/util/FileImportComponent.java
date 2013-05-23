@@ -94,6 +94,7 @@ import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+import pojos.TagAnnotationData;
 
 /** 
  * Component hosting the file to import and displaying the status of the 
@@ -268,6 +269,9 @@ public class FileImportComponent
 	/** The importable object.*/
 	private ImportableFile importable;
 	
+	/** The collection of tags added to the imported images.*/
+	private Collection<TagAnnotationData> tags;
+	
 	/** Retries to upload the file.*/
 	private void retry()
 	{
@@ -422,6 +426,14 @@ public class FileImportComponent
 			buf.append("<b>Dataset: </b>");
 			buf.append(dataset.getName());
 			buf.append("<br>");
+		}
+		if (!CollectionUtils.isEmpty(tags)) {
+			buf.append("<b>Tags: </b>");
+			Iterator<TagAnnotationData> i = tags.iterator();
+			while (i.hasNext()) {
+				buf.append(i.next().getTagValue());
+				buf.append(" ");
+			}
 		}
 		buf.append("</body></html>");
 		String tip = buf.toString();
@@ -700,7 +712,7 @@ public class FileImportComponent
 			copy = importable.copy();
 			copy.setFile(f);
 			c = new FileImportComponent(copy, browsable, singleGroup,
-					getIndex());
+					getIndex(), tags);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -736,15 +748,18 @@ public class FileImportComponent
 	 * @param singleGroup Passes <code>true</code> if the user is member of
 	 * only one group, <code>false</code> otherwise.
 	 * @param index The index of the parent.
+	 * @param tags The tags that will be linked to the objects.
 	 */
 	public FileImportComponent(ImportableFile importable, boolean
-			browsable, boolean singleGroup, int index)
+			browsable, boolean singleGroup, int index,
+			Collection<TagAnnotationData> tags)
 	{
 		if (importable == null)
 			throw new IllegalArgumentException("No file specified.");
 		if (importable.getGroup() == null)
 			throw new IllegalArgumentException("No group specified.");
 		this.index = index;
+		this.tags = tags;
 		this.importable = importable;
 		this.singleGroup = singleGroup;
 		this.browsable = browsable;
