@@ -5,8 +5,6 @@ set -e
 set -u
 set -x
 
-export ICE_VERSION=${ICE_VERSION:-zeroc-ice33}
-export OMERO_ALT=${OMERO_ALT:-ome/alt}
 export VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
@@ -106,14 +104,14 @@ source $VENV_DIR/bin/activate
 set -u
 
 # Tap ome-alt library
-bin/brew tap $OMERO_ALT || echo "Already tapped"
+bin/brew tap ome/alt || echo "Already tapped"
 
 if [ $TESTING_MODE ]; then
     # Install scc tools
     $VENV_DIR/bin/pip install -U scc || echo "scc installed"
 
     # Merge homebrew-alt PRs
-    cd Library/Taps/${OMERO_ALT/\//-}
+    cd Library/Taps/ome-alt
     $VENV_DIR/bin/scc merge master
 fi
 
@@ -139,8 +137,9 @@ bin/brew install postgres
 bash bin/omero_python_deps
 
 # Set environment variables
+ICE_VERSION=$(bin/brew deps omero $BREW_OPTS | grep ice)
 export ICE_CONFIG=$(bin/brew --prefix omero)/etc/ice.config
-export ICE_HOME=$(bin/brew --prefix $OMERO_ALT/$ICE_VERSION)
+export ICE_HOME=$(bin/brew --prefix $ICE_VERSION)
 export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
