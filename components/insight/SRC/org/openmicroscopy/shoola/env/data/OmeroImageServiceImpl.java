@@ -961,7 +961,7 @@ class OmeroImageServiceImpl
 				userName = exp.getUserName();
 		}
 		Collection<TagAnnotationData> tags = object.getTags();
-		List<Annotation> list = new ArrayList<Annotation>();
+		List<Annotation> customAnnotationList = new ArrayList<Annotation>();
 		List<IObject> l;
 		//Tags
 		Map<Object, Object> parameters = new HashMap<Object, Object>();
@@ -974,7 +974,7 @@ class OmeroImageServiceImpl
 				tag = i.next();
 				if (tag.getId() > 0) {
 					values.add(tag);
-					list.add((Annotation) tag.asIObject());
+					customAnnotationList.add((Annotation) tag.asIObject());
 				} else l.add(tag.asIObject());
 			}
 			//save the tag.
@@ -985,7 +985,7 @@ class OmeroImageServiceImpl
 				while (j.hasNext()) {
 					a = (Annotation) j.next();
 					values.add(new TagAnnotationData((TagAnnotation) a));
-					list.add(a);
+					customAnnotationList.add(a); // THIS!
 				}
 				object.setTags(values);
 			} catch (Exception e) {}
@@ -1140,7 +1140,7 @@ class OmeroImageServiceImpl
 						
 					status.setFiles(files);
 					Object v = importCandidates(ctx, files, status, object,
-							ioContainer, list, userID, close, hcs, userName);
+							ioContainer, customAnnotationList, userID, close, hcs, userName);
 					if (v != null) return v;
 				}
 			} else { //single file let's try to import it.
@@ -1153,6 +1153,7 @@ class OmeroImageServiceImpl
 							ImportException.FILE_NOT_VALID_TEXT);
 				}
 				importIc = icContainers.get(0);
+				importIc.setCustomAnnotationList(customAnnotationList);
 				status.setUsedFiles(importIc.getUsedFiles());
 				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc,
@@ -1219,7 +1220,7 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 			importCandidates(ctx, hcsFiles, status, object,
-					ioContainer, list, userID, close, true, userName);
+					ioContainer, customAnnotationList, userID, close, true, userName);
 		}
 		if (otherFiles.size() > 0) {
 			folder = object.createFolderAsContainer(importable);
@@ -1284,7 +1285,7 @@ class OmeroImageServiceImpl
 			}
 			//import the files that are not hcs files.
 			importCandidates(ctx, otherFiles, status, object,
-				ioContainer, list, userID, close, false, userName);
+				ioContainer, customAnnotationList, userID, close, false, userName);
 		}
 		return Boolean.valueOf(true);
 	}
