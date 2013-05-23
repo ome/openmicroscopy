@@ -713,7 +713,7 @@ class ImporterUIElement
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
-				if (fc.hasImportFailed()) {
+				if (fc.hasUploadFailed()) {
 					countFailure++;
 				}
 			}

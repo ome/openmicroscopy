@@ -457,7 +457,9 @@ public class FileImportComponent
 			actionMenuButton.setVisible(true);
 			actionMenuButton.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			actionMenuButton.setText("Failed");
-			if (e.getStatus() == ImportException.CHECKSUM_MISMATCH)
+			int status = e.getStatus();
+			if (status == ImportException.CHECKSUM_MISMATCH ||
+				status == ImportException.NOT_VALID)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
 			else resultIndex = ImportStatus.FAILURE;
 		} else if (result instanceof CmdCallback) {
@@ -995,6 +997,17 @@ public class FileImportComponent
 	{
 		return resultIndex == ImportStatus.FAILURE ||
 				resultIndex == ImportStatus.UPLOAD_FAILURE;
+	}
+	
+	/**
+	 * Returns <code>true</code> if it was a failure prior or during the
+	 * upload, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasUploadFailed()
+	{
+		return resultIndex == ImportStatus.UPLOAD_FAILURE;
 	}
 	
 	/**
