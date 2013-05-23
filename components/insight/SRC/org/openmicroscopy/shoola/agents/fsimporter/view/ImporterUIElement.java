@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -45,22 +48,18 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
-
-import info.clearthought.layout.TableLayout;
-import info.clearthought.layout.TableLayoutConstraints;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXBusyLabel;
-
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -78,7 +77,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
-import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.RotationIcon;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -139,8 +137,9 @@ class ImporterUIElement
 	}
 	
 	/** The message to display in the header.*/
-	private static final String MESSAGE = "When uplaod is complete, the " +
-			"import window and OMERO session can be closed." +
+	private static final String MESSAGE = 
+			"When upload is complete, the import\n" +
+			"window and OMERO session can be closed.\n" +
 			"Processing will continue on the server";
 	
 	/** The object hosting information about files to import. */
@@ -175,7 +174,15 @@ class ImporterUIElement
 	
 	/** The component displaying the number of files to import. */
 	private JLabel numberOfImportLabel;
-	
+
+	/** Label for report display */
+	private JLabel reportLabel = 
+			UIUtilities.setTextFont("Report:", Font.BOLD);
+
+	/** Label for import size display */
+	private JLabel importSizeLabel = 
+			UIUtilities.setTextFont("Import Size:", Font.BOLD);
+			
 	/** The identifier of the component. */
 	private int id;
 	
@@ -476,6 +483,21 @@ class ImporterUIElement
 		return p;
 	}
 	
+	/**
+	 * Make the JTextArea represent a multiline label.
+	 * @param textArea
+	 * @return
+	 */
+	public static void makeLabelStyle(JTextArea textArea)
+	{  
+		if (textArea == null) return;
+	    
+	    textArea.setEditable(false);
+	    textArea.setCursor(null);
+	    textArea.setOpaque(false);
+	    textArea.setFocusable(false);
+	}
+	
 	/** 
 	 * Builds and lays out the header.
 	 * 
@@ -483,35 +505,45 @@ class ImporterUIElement
 	 */
 	private JPanel buildHeader()
 	{
+		sizeLabel = UIUtilities.createComponent(null);
+		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+    	
+		double[][] design = new double[][]{
+					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED}, 
+					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED}
+				};
+    	TableLayout layout = new TableLayout(design);
+		JPanel detailsPanel = new JPanel(layout);
+		detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		detailsPanel.add(reportLabel, "0, 0, r, c");
+		detailsPanel.add(numberOfImportLabel, "2, 0");
+		detailsPanel.add(importSizeLabel, "0, 2, r, c");
+		detailsPanel.add(sizeLabel, "2, 2");
+		
+		JPanel middlePanel = new JPanel();
+		middlePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		middlePanel.add(filterButton);
+		
+    	JTextArea description = new JTextArea(MESSAGE);
+    	makeLabelStyle(description);
+    	description.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	
+		JPanel descriptionPanel = new JPanel();
+		descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		descriptionPanel.add(description);
+		
 		JPanel header = new JPanel();
 		header.setBackground(UIUtilities.BACKGROUND_COLOR);
 		header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+		header.setLayout(new BorderLayout());
 		
-		JLabel label = UIUtilities.setTextFont("Report:", Font.BOLD);
-		JPanel row = createRow();
-		row.add(label);
-		row.add(numberOfImportLabel);
-		header.add(row);
-		row = createRow();
-		label = UIUtilities.setTextFont("Import Size:", Font.BOLD);
-		sizeLabel = UIUtilities.createComponent(null);
-		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
-    	row.add(label);
-    	row.add(sizeLabel);
-    	JPanel p = createRow();
-    	p.add(filterButton);
-    	row.add(Box.createHorizontalStrut(40));
-    	row.add(p);
-    	header.add(row);
-    	
-    	MultilineLabel ml = new MultilineLabel(MESSAGE);
-    	ml.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	p = UIUtilities.buildComponentPanelRight(ml);
-    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		JPanel content = UIUtilities.buildComponentPanel(header);
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		return content;
+		header.add(Box.createVerticalStrut(10), BorderLayout.NORTH);
+		header.add(detailsPanel, BorderLayout.WEST);
+		header.add(middlePanel, BorderLayout.CENTER);
+		header.add(descriptionPanel, BorderLayout.EAST);
+		header.add(Box.createVerticalStrut(10), BorderLayout.SOUTH);
+		
+		return header;
 	}
 	
 	/** Builds and lays out the UI. */
