@@ -116,6 +116,12 @@
                                     {% endwith %}
                                     {% endfor %}
                                     <div style="float:right">
+                                        <a href="{{ j.objs_url }}">
+                                            <button class="btn silver" style="padding: 2px"
+                                                title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to move">
+                                                REFRESH
+                                            </button>
+                                        </a>
     <button class="btn silver chgrp_move_all" style="padding: 2px"
         title="Repeat the move, including ALL images from the Fileset"
         url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
@@ -210,6 +216,14 @@
                                     <div style="clear:both"></div>
                                 {% endwith %}
                                 {% endfor %}
+                                <div style="float:right">
+                                    <a href="{{ j.objs_url }}">
+                                        <button class="btn silver" style="padding: 2px"
+                                            title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to delete">
+                                            REFRESH
+                                        </button>
+                                    </a>
+                                </div>
                             </span>
                             {% endif %}
 

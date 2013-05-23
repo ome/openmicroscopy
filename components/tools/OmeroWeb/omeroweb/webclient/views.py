@@ -2082,6 +2082,10 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
+    def getObsUrl(dtype, obj_ids):
+        base_url = reverse(viewname="webindex")
+        obj_str = "|".join(["%s-%s" % (dtype.lower(), oid) for oid in obj_ids])
+        return base_url + "?show=" + obj_str
 
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
@@ -2134,6 +2138,7 @@ def activities(request, conn=None, **kwargs):
                                                 'attempted_iids':attempted_iids} )
                                     request.session['callback'][cbString]['split_filesets'] = split_filesets
                                     request.session['callback'][cbString]['fsIds'] = failed_filesets
+                                    request.session['callback'][cbString]['objs_url'] = getObsUrl(dtype, obj_ids)
                                 else:
                                     rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
                                     logger.error("chgrp failed with: %s" % rsp_params)
@@ -2200,6 +2205,7 @@ def activities(request, conn=None, **kwargs):
                                                 'blocking_iids': blocking_iids,
                                                 'attempted_iids':attempted_iids})
                                     request.session['callback'][cbString]['split_filesets'] = split_filesets
+                                    request.session['callback'][cbString]['objs_url'] = getObsUrl(dtype, obj_ids)
                                 else:
                                     request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             # no error...
