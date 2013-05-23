@@ -32,6 +32,9 @@ public enum ImportStatus {
 	/** Indicates that the import has not started */
 	QUEUED,
 	
+	/** Indicates that the import has started */
+	STARTED,
+	
 	/** Indicates that upload failed */
 	UPLOAD_FAILURE,
 	

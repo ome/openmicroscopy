@@ -493,22 +493,23 @@ public class FileImportComponent
 		bus.post(new BrowseContainer(d, null));
 	}
 	
-	/** Indicates that the file will not be imported. 
+	/**
+	 * Indicates that the file will not be imported. 
 	 * 
 	 * @param fire	Pass <code>true</code> to fire a property,
 	 * 				<code>false</code> otherwise.
 	 */
 	private void cancel(boolean fire)
 	{
-		if (busyLabel.isBusy() && !statusLabel.isCancellable())
-			return;
-		busyLabel.setBusy(false);
-		busyLabel.setVisible(false);
-		statusLabel.markedAsCancel();
-		cancelButton.setEnabled(false);
-		cancelButton.setVisible(false);
-		if (fire)
-			firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+		if (resultIndex == ImportStatus.QUEUED || statusLabel.isCancellable()) {
+			busyLabel.setBusy(false);
+			busyLabel.setVisible(false);
+			statusLabel.markedAsCancel();
+			cancelButton.setEnabled(false);
+			cancelButton.setVisible(false);
+			if (fire)
+				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
+		}
 	}
 	
 	/** Deletes the image that was imported but cannot be viewed. */
@@ -757,6 +758,7 @@ public class FileImportComponent
 		this.singleGroup = singleGroup;
 		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
+		resultIndex = ImportStatus.QUEUED;
 		initComponents();
 		buildGUI();
 	}
@@ -1023,6 +1025,17 @@ public class FileImportComponent
 				return true;
 		}
 		return false;
+	}
+	/**
+	 * Returns <code>true</code> if the import has failed, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasImportStarted()
+	{
+		return resultIndex == ImportStatus.FAILURE ||
+				resultIndex == ImportStatus.UPLOAD_FAILURE;
 	}
 	
 	/**
@@ -1378,6 +1391,7 @@ public class FileImportComponent
 			insertFiles(files);
 			firePropertyChange(IMPORT_FILES_NUMBER_PROPERTY, null,n);
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
+			resultIndex = ImportStatus.STARTED;
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
 				busyLabel.setBusy(false);

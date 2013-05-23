@@ -762,6 +762,27 @@ class ImporterUIElement
 	boolean hasStarted() { return busyLabel.isBusy(); }
 	
 	/**
+	 * Returns <code>true</code> if the component has imports in the queue that
+	 * have not yet started., <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasImportToCancel()
+	{
+		if (!hasStarted()) return true;
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (!fc.hasImportStarted()) return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the collection of files that could not be imported.
 	 * 
 	 * @return See above.
@@ -776,7 +797,7 @@ class ImporterUIElement
 		List<FileImportComponent> l;
 		while (i.hasNext()) {
 			entry = i.next();
-			fc = (FileImportComponent) entry.getValue();
+			fc = entry.getValue();
 			l = fc.getImportErrors();
 			if (l != null && l.size() > 0)
 				list.addAll(l);

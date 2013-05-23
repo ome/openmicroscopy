@@ -638,7 +638,7 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (!element.hasStarted())
+				if (element.hasImportToCancel())
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
@@ -649,9 +649,9 @@ class ImporterComponent
 				i = toImport.iterator();
 				while (i.hasNext()) {
 					element = i.next();
-					if (element.hasStarted()) {
+					if (element.hasImportToCancel()) {
 						element.cancelLoading();
-						model.cancel(element.getID());
+						//model.cancel(element.getID());
 					}
 				}
 			}
