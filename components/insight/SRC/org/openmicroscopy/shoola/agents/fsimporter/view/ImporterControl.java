@@ -346,7 +346,7 @@ class ImporterControl
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			submitFiles((FileImportComponent) evt.getNewValue());
 		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
-			//need to update the count
+			//model.onUploadComplete((FileImportComponent) evt.getNewValue());
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
 			model.refreshContainers((ImportLocationDetails) evt.getNewValue());
 		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
@@ -369,10 +369,26 @@ class ImporterControl
 		}
 	}
 
+	/** 
+	 * Re-uploads the file.
+	 * 
+	 * @param fc The file to upload.
+	 */
 	void retryUpload(FileImportComponent fc)
 	{
 		model.retryUpload(fc);
 	}
+	
+	/** 
+	 * Re-uploads the file.
+	 * 
+	 * @param fc The file to upload.
+	 */
+	void cancel(FileImportComponent fc)
+	{
+		model.onImportComplete(fc);
+	}
+	
 	/**
 	 * Handles group selection.
 	 * @see ActionListener#actionPerformed(ActionEvent)

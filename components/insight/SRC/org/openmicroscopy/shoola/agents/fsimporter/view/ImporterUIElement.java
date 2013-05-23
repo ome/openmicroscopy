@@ -436,7 +436,10 @@ class ImporterUIElement
 								(FileImportComponent) evt.getNewValue());
 					} else if (
 						FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
-						countCancelled++;
+						controller.cancel(
+								(FileImportComponent) evt.getNewValue());
+						//System.err.println("Cancel");
+						//countCancelled++;
 					}
 				}
 			});
@@ -723,9 +726,14 @@ class ImporterUIElement
 					r = new ImportErrorObject(file, (Exception) result);
 					setImportResult(c, result);
 				} else if (result instanceof Boolean) {
+					Boolean b = (Boolean) result;
+					if (!b && c.isCancelled()) countCancelled++;
 					setImportResult(c, result);
-				} else { //marked as cancelled to late
-					if (c.isCancelled()) countCancelled--;
+				} else {
+					if (c.isCancelled()) {
+						countCancelled--;
+						countUploaded--;
+					}
 				}
 			}
 		}
@@ -748,6 +756,8 @@ class ImporterUIElement
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
+			if (fc.isCancelled() && !(result instanceof Boolean))
+				countImported--;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (fc.hasUploadFailed()) countUploadFailure++;
