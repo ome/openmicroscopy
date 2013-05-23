@@ -2163,21 +2163,11 @@ def activities(request, conn=None, **kwargs):
                             in_progress+=1
                         else: # Response available
                             close_handle = True
-                            err = isinstance(cb.getResponse(), omero.cmd.ERR)
                             new_results.append(cbString)
-                            if err:
-                                request.session['callback'][cbString]['derror'] = 1
-                                request.session['callback'][cbString]['status'] = "failed"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                                failure+=1
-                            else:
-                                request.session['callback'][cbString]['derror'] = 0
-                                request.session['callback'][cbString]['status'] = "finished"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-
-                            # Somehow we check if 'Fileset' returned...
                             rsp = cb.getResponse()
-                            if 'Fileset' in rsp.constraints:
+                            err = isinstance(rsp, omero.cmd.ERR)
+                            # Check if 'Fileset' returned...
+                            if err and 'Fileset' in rsp.constraints:
                                 filesets = rsp.constraints['Fileset']   # list of Fileset IDs
                                 # We have this info from the job submission:
                                 callbackDict = request.session['callback'][cbString]
@@ -2187,8 +2177,9 @@ def activities(request, conn=None, **kwargs):
                                     obj_ids = callbackDict['did']
                                 else:
                                     obj_ids = [ callbackDict['did'] ]
+                                obj_ids = [int(iid) for iid in obj_ids]
                                 if dtype == 'Image':
-                                    attempted_imgIds = [int(iid) for iid in obj_ids]
+                                    attempted_imgIds = obj_ids
                                 elif dtype in ('Project', 'Dataset'):
                                     cs = conn.getContainerService()
                                     attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
@@ -2198,15 +2189,22 @@ def activities(request, conn=None, **kwargs):
                                     fsetImgs = fset.copyImages()
                                     attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
                                     blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                    fs_files = fset.listFiles()
-                                    totalSize = sum( [f.getSize() for f in fs_files] )
+                                    # fs_files = fset.listFiles()
+                                    # totalSize = sum( [f.getSize() for f in fs_files] )
                                     split_filesets.append( {'fsid':fset.id,
                                             'blocking_iids': blocking_iids,
-                                            'attempted_iids':attempted_iids,
-                                            'imageCount': len(fsetImgs),
-                                            'fileCount': len(fs_files),
-                                            'totalSize': totalSize})
+                                            'attempted_iids':attempted_iids})
                                 request.session['callback'][cbString]['split_filesets'] = split_filesets
+                            elif err:
+                                request.session['callback'][cbString]['derror'] = 1
+                                request.session['callback'][cbString]['status'] = "failed"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
+                                failure+=1
+                            # no error...
+                            else:
+                                request.session['callback'][cbString]['derror'] = 0
+                                request.session['callback'][cbString]['status'] = "finished"
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:
