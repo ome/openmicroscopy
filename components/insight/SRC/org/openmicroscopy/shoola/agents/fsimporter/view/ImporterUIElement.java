@@ -264,7 +264,9 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(countUploaded-countFailure);
+		int n = countUploaded-countFailure;
+		if (n < 0) n = 0;
+		buffer.append(n);
 		buffer.append(" out of ");
 		buffer.append(totalToImport);
 		buffer.append(" uploaded");
@@ -670,11 +672,14 @@ class ImporterUIElement
 			sizeImport += c.getImportSize();
 			sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
 			//handle error that occurred during the scanning or upload.
-			if (result instanceof Exception) {
-				r = new ImportErrorObject(file, (Exception) result);
-				setImportResult(c, result);
-			} else if (result instanceof Boolean) {
-				setImportResult(c, result);
+			//Check that the result has not been set.
+			if (!c.hasResult()) {
+				if (result instanceof Exception) {
+					r = new ImportErrorObject(file, (Exception) result);
+					setImportResult(c, result);
+				} else if (result instanceof Boolean) {
+					setImportResult(c, result);
+				}
 			}
 		}
 		setNumberOfImport();
@@ -705,7 +710,6 @@ class ImporterUIElement
 			}
 			setNumberOfImport();
 			setClosable(isDone());
-			System.err.println(countFailure);
 			filterButton.setEnabled(countFailure > 0 &&
 					countFailure != totalToImport);
 		}

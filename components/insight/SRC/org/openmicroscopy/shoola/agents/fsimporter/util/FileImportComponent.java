@@ -470,7 +470,7 @@ public class FileImportComponent
 			callback = (CmdCallback) result;
 		} else {
 			if (!statusLabel.isMarkedAsCancel() &&
-				statusLabel.isMarkedAsDuplicate()) {
+				!statusLabel.isMarkedAsDuplicate()) {
 				formatResultTooltip();
 				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
 				actionMenuButton.setVisible(true);
@@ -1362,6 +1362,14 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public long getImportSize() { return statusLabel.getFileSize(); }
+	
+	/**
+	 * Returns <code>true</code> if the result has already been set,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasResult() { return image != null; }
 	
 	/**
 	 * Overridden to make sure that all the components have the correct 

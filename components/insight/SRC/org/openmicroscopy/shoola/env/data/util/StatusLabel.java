@@ -303,12 +303,14 @@ public class StatusLabel
 	 * Handles error that occurred during the processing.
 	 * 
 	 * @param text The text to display if any.
+	 * @param fire Indicate to fire a property.
 	 */
-	private void handleProcessingError(String text)
+	private void handleProcessingError(String text, boolean fire)
 	{
 		generalLabel.setText(text);
 		cancellable = false;
-		firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
+		if (fire)
+			firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
 	}
 
 	/** Creates a new instance. */
@@ -584,22 +586,22 @@ public class StatusLabel
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError("");
+			handleProcessingError("", true);
 		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
 			ErrorHandler.INTERNAL_EXCEPTION e =
 					(ErrorHandler.INTERNAL_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError("");
+			handleProcessingError("", true);
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
-			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT);
+			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, false);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
 					((ErrorHandler.MISSING_LIBRARY) event).exception);
-			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT);
+			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT, true);
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;
