@@ -185,6 +185,7 @@ public class ManagedRepositoryTest
         final ImportRequest req = (ImportRequest) handle.getRequest();
         final ImportCallback cb = lib.createCallback(proc, handle, container);
         cb.loop(60*60, 1000); // Wait 1 hr per step.
+        assertNotNull(cb.getImportResponse());
         return req.location;
 	}
 
@@ -470,7 +471,7 @@ public class ManagedRepositoryTest
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location without uploading both files
-        ImportLocation data = importFileset(srcPaths, 1);
+        ImportLocation data = importFileset(srcPaths, 2);
 
         assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, 0));
         assertFileDoesNotExist("Something wrong. File does exist!: ", pathToUsedFile(data, 1));

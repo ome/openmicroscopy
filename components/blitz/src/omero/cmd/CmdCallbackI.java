@@ -45,8 +45,17 @@ import Ice.Current;
  *
  *      response = cb.loop(5, 500);
  * </pre>
+ *
+ * Subclasses which depend on the proper ordering of either initialization
+ * or calls to {@link #onFinished(Response, Status, Current)} should make
+ * use of the {@link #initializationDone()} and {@link #waitOnInitialization()},
+ * or the {@link #onFinishedDone()} and {@link #waitOnFinishedDone()} methods.
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.4
+ *
+ * @see #initializationDone()
+ * @see #onFinishedDone()
  */
 public class CmdCallbackI extends _CmdCallbackDisp {
 
@@ -71,6 +80,18 @@ public class CmdCallbackI extends _CmdCallbackDisp {
      * called. Other methods will block on this value.
      */
     private final CountDownLatch latch = new CountDownLatch(1);
+
+    /**
+     * @see #initializationDone()
+     * @see #waitOnInitialization()
+     */
+    private final CountDownLatch isInitialized = new CountDownLatch(1);
+
+    /**
+     * @see #onFinishedDone()
+     * @see #waitOnFinishedDone()
+     */
+    private final CountDownLatch isOnFinishedDone = new CountDownLatch(1);
 
     private final AtomicReference<State> state = new AtomicReference<State>(
             new State(null, null));
@@ -99,7 +120,50 @@ public class CmdCallbackI extends _CmdCallbackDisp {
         CmdCallbackPrx cb = CmdCallbackPrxHelper.uncheckedCast(prx);
         handle.addCallback(cb);
         // Now check just in case the process exited VERY quickly
-        poll();
+        new Thread() {
+            public void run() {
+                poll();
+            }
+        }.start();
+    }
+
+    //
+    // Subclass initialization
+    //
+
+    /**
+     * Subclasses which must perform their own initialization before
+     * {@link #onFinished(Response, Status, Current)} is called should
+     * call {@link #initializationDone()} once that setup is complete.
+     */
+    protected void initializationDone() {
+        isInitialized.countDown();
+    }
+
+    /**
+     * Subclasses which must perform their own initialization before
+     * {@link #onFinished(Response, Status, Current)} is called should
+     * call {@link #waitOnInitialization() before accessing any initialized
+     * state.
+     */
+    protected void waitOnInitialization() {
+        try {
+            isInitialized.await();
+        } catch (InterruptedException ie) {
+            // pass
+        }
+    }
+
+    protected void onFinishedDone() {
+        isOnFinishedDone.countDown();
+    }
+
+    protected void waitOnFinishedDone() {
+        try {
+            isOnFinishedDone.await();
+        } catch (InterruptedException ie) {
+            // pass
+        }
     }
 
     //

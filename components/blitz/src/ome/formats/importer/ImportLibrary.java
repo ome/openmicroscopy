@@ -476,12 +476,18 @@ public class ImportLibrary implements IObservable
 
         final ImportContainer container;
 
+        /**
+         * If null, then {@link #onFinished(Response, Status, Current)} has
+         * not yet been called with a non-error response. Field is volatile
+         * because a separate {@link Thread} will fill in the value.
+         */
         volatile ImportResponse importResponse = null;
 
         public ImportCallback(ImportProcessPrx proc, HandlePrx handle,
                 ImportContainer container) throws ServerError {
                 super(oa, category, handle);
                 this.container = container;
+                initializationDone();
         }
 
         @Override
@@ -516,6 +522,7 @@ public class ImportLibrary implements IObservable
         @Override
         public void onFinished(Response rsp, Status status, Current c)
         {
+            waitOnInitialization(); // Need non-null container
             ImportResponse rv = null;
             final ImportRequest req = (ImportRequest) handle.getRequest();
             final Fileset fs = req.activity.getParent();
@@ -531,19 +538,9 @@ public class ImportLibrary implements IObservable
                 notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
                         container.getFile().getAbsolutePath(), rt,
                         container.getUsedFiles(), container.getReader()));
-                return;
             } else if (rsp instanceof ImportResponse) {
                 rv = (ImportResponse) rsp;
-            }
-
-            if (rv == null) {
-                final RuntimeException rt
-                    = new RuntimeException("Unknown response: " + rsp);
-                notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
-                        container.getFile().getAbsolutePath(), rt,
-                        container.getUsedFiles(), container.getReader()));
-            } else {
-                if (this.importResponse != null)
+                if (this.importResponse == null)
                 {
                     // Only respond once.
                     notifyObservers(new ImportEvent.IMPORT_DONE(
@@ -551,23 +548,26 @@ public class ImportLibrary implements IObservable
                         null, null, 0, null, rv.pixels, fs, rv.objects));
                 }
                 this.importResponse = rv;
+            } else {
+                final RuntimeException rt
+                    = new RuntimeException("Unknown response: " + rsp);
+                notifyObservers(new ErrorHandler.INTERNAL_EXCEPTION(
+                        container.getFile().getAbsolutePath(), rt,
+                        container.getUsedFiles(), container.getReader()));
             }
+            onFinishedDone();
         }
 
         /**
          * Assumes that users have already waited on proper
          * completion, i.e. that {@link #onFinished(Response, Status, Current)}
-         * has been called, but will try calling {@link #poll()} if no
-         * response is present.
+         * has been called.
          *
          * @return may be null.
          */
         public ImportResponse getImportResponse()
         {
-            if (importResponse == null)
-            {
-                poll();
-            }
+            waitOnFinishedDone();
             return importResponse;
         }
     }
