@@ -938,7 +938,7 @@ public class FileImportComponent
 					if (n > 0) {
 						label = imageLabels.get(2);
 						label.setVisible(true);
-						StringBuffer buf = new StringBuffer( "... ");
+						StringBuffer buf = new StringBuffer("... ");
 						buf.append(n);
 						buf.append(" more");
 						label.setText(buf.toString());
