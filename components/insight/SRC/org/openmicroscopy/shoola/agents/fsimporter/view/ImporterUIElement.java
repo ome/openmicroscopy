@@ -674,7 +674,6 @@ class ImporterUIElement
 				r = new ImportErrorObject(file, (Exception) result);
 				setImportResult(c, result);
 			} else if (result instanceof Boolean) {
-				countFailure++;
 				setImportResult(c, result);
 			}
 		}
@@ -700,10 +699,13 @@ class ImporterUIElement
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
 			if (file.isFile()) {
-				if (fc.hasImportFailed()) countFailure++;
+				if (fc.hasImportFailed()) {
+					countFailure++;
+				}
 			}
 			setNumberOfImport();
 			setClosable(isDone());
+			System.err.println(countFailure);
 			filterButton.setEnabled(countFailure > 0 &&
 					countFailure != totalToImport);
 		}
@@ -961,10 +963,10 @@ class ImporterUIElement
 				if (v == ImportStatus.FAILURE) failure++;
 			}
 			if (failure == totalToImport) return IMPORT_FAIL;
-			else if (failure != 0) return IMPORT_PARTIAL;
+			else if (failure > 0) return IMPORT_PARTIAL;
 			return IMPORT_SUCCESS;
 		}
-		return busyLabel.getIcon(); 
+		return busyLabel.getIcon();
 	}
 	
 	/** Invokes when the import is finished. */

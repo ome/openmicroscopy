@@ -42,5 +42,8 @@ public enum ImportStatus {
 	SUCCESS,
 	
 	/** The value indicating that the import was not successful. */
-	FAILURE
+	FAILURE,
+	
+	/** The value indicating that the file has been ignored. */
+	IGNORED
 }

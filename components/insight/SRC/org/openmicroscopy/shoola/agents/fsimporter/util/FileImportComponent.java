@@ -469,7 +469,8 @@ public class FileImportComponent
 		} else if (result instanceof CmdCallback) {
 			callback = (CmdCallback) result;
 		} else {
-			if (!statusLabel.isMarkedAsCancel()) {
+			if (!statusLabel.isMarkedAsCancel() &&
+				statusLabel.isMarkedAsDuplicate()) {
 				formatResultTooltip();
 				resultLabel.setIcon(icons.getIcon(IconManager.APPLY));
 				actionMenuButton.setVisible(true);
@@ -950,8 +951,10 @@ public class FileImportComponent
 		} else if (image instanceof Boolean) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
-			if (!statusLabel.isMarkedAsCancel()) {
-				cancelButton.setVisible(false);
+			cancelButton.setVisible(false);
+			if (statusLabel.isMarkedAsCancel() ||
+					statusLabel.isMarkedAsDuplicate()) {
+				resultIndex = ImportStatus.IGNORED;
 			}
 		}
 		repaint();
@@ -1146,7 +1149,8 @@ public class FileImportComponent
 					if  (isCancelled()) return ImportStatus.SUCCESS;
 					return resultIndex;
 				} else {
-					if (!StatusLabel.DUPLICATE.equals(resultLabel.getText()))
+					if (!statusLabel.isMarkedAsCancel() &&
+						!statusLabel.isMarkedAsDuplicate())
 						return ImportStatus.FAILURE;
 				}
 			}
