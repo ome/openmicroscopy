@@ -735,26 +735,21 @@ class ImporterUIElement
 	 * @param result The result.
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object setImportResult(FileImportComponent fc, Object result)
+	void setImportResult(FileImportComponent fc, Object result)
 	{
+		if (fc == null) return;
 		File file = fc.getFile();
-		Object formattedResult = null;
-		if (fc != null) {
+		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
-			if (file.isFile()) {
-				if (fc.hasUploadFailed()) {
-					countFailure++;
-				}
-			}
+			if (fc.hasUploadFailed()) countFailure++;
 			setNumberOfImport();
 			setClosable(isDone());
 			filterButton.setEnabled(countFailure > 0 &&
 					countFailure != totalToImport);
 		}
-		return formattedResult;
 	}
 	
 	/**

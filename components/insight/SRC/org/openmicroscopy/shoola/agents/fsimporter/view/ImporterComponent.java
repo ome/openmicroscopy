@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -131,6 +132,7 @@ class ImporterComponent
 			boolean startUpload)
 	{
 		boolean refreshTree = false;
+		if (result instanceof Boolean) result = null;
 		List<DataObject> containers = null;
 		if (element != null) {
 			if (element.isDone()) {
@@ -828,11 +830,12 @@ class ImporterComponent
 		if (element == null) return;
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
+			ImportErrorObject r = new ImportErrorObject(component.getFile(),
+					(Exception) result);
 			element.setImportResult(component, result);
-			handleCompletion(element, result, !component.hasParent());
+			handleCompletion(element, r, !component.hasParent());
 			return;
 		}
-		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
 		if (CollectionUtils.isEmpty(pixels)) return;
 		Collection<DataObject> l = new ArrayList<DataObject>();
@@ -882,8 +885,8 @@ class ImporterComponent
 		FileImportComponent c = (FileImportComponent) component;
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
-		Object formattedResult = element.setImportResult(c, result);
-		handleCompletion(element, formattedResult, !c.hasParent());
+		element.setImportResult(c, result);
+		handleCompletion(element, result, !c.hasParent());
 	}
 
 }
