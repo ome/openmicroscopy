@@ -140,7 +140,7 @@ class ImporterUIElement
 	private static final String MESSAGE = 
 			"When upload is complete, the import\n" +
 			"window and OMERO session can be closed.\n" +
-			"Processing will continue on the server";
+			"Processing will continue on the server.";
 	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
@@ -172,7 +172,7 @@ class ImporterUIElement
 	/** The total number of files or folder to import. */
 	private int totalToImport;
 	
-	/** The size of the import.. */
+	/** The size of the import. */
 	private long sizeImport;
 	
 	/** The component displaying the size the import. */
@@ -182,12 +182,10 @@ class ImporterUIElement
 	private JLabel numberOfImportLabel;
 
 	/** Label for report display */
-	private JLabel reportLabel = 
-			UIUtilities.setTextFont("Report:", Font.BOLD);
+	private JLabel reportLabel;
 
 	/** Label for import size display */
-	private JLabel importSizeLabel = 
-			UIUtilities.setTextFont("Import Size:", Font.BOLD);
+	private JLabel importSizeLabel;
 			
 	/** The identifier of the component. */
 	private int id;
@@ -513,18 +511,23 @@ class ImporterUIElement
 	{
 		sizeLabel = UIUtilities.createComponent(null);
 		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
-    	
+		reportLabel = UIUtilities.setTextFont("Report:", Font.BOLD);
+		importSizeLabel = UIUtilities.setTextFont("Import Size:", Font.BOLD);
 		double[][] design = new double[][]{
-					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED},
-					{TableLayout.PREFERRED, 10.0, TableLayout.PREFERRED}
+					{TableLayout.PREFERRED},
+					{TableLayout.PREFERRED, TableLayout.PREFERRED}
 				};
-    	TableLayout layout = new TableLayout(design);
+		TableLayout layout = new TableLayout(design);
 		JPanel detailsPanel = new JPanel(layout);
 		detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
-		detailsPanel.add(reportLabel, "0, 0, l, c");
-		detailsPanel.add(numberOfImportLabel, "2, 0");
-		detailsPanel.add(importSizeLabel, "0, 2, l, c");
-		detailsPanel.add(sizeLabel, "2, 2");
+		JPanel p = createRow();
+		p.add(reportLabel);
+		p.add(numberOfImportLabel);
+		detailsPanel.add(p, "0, 0");
+		p = createRow();
+		p.add(importSizeLabel);
+		p.add(sizeLabel);
+		detailsPanel.add(p, "0, 1");
 		
 		JPanel middlePanel = new JPanel();
 		middlePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
