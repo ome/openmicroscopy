@@ -152,6 +152,9 @@ class ImporterUIElement
 	/** Component hosting the entries. */
 	private JPanel	entries;
 
+	/** The number of cancellation.*/
+	private int countCancelled;
+	
 	/** The number of uploaded files.*/
 	private int countUploaded;
 	
@@ -264,7 +267,7 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
-		int n = countUploaded-countFailure;
+		int n = countUploaded-countFailure-countCancelled;
 		if (n < 0) n = 0;
 		buffer.append(n);
 		buffer.append(" out of ");
@@ -419,9 +422,13 @@ class ImporterUIElement
 						StatusLabel label = (StatusLabel) evt.getNewValue();
 						CheckSumDialog d = new CheckSumDialog(view, label);
 						UIUtilities.centerAndShow(d);
-					} else if (FileImportComponent.RETRY_PROPERTY.equals(name))
+					} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
 						controller.retryUpload(
 								(FileImportComponent) evt.getNewValue());
+					} else if (
+						FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+						countCancelled++;
+					}
 				}
 			});
 			if (f.isDirectory()) {
@@ -679,6 +686,8 @@ class ImporterUIElement
 					setImportResult(c, result);
 				} else if (result instanceof Boolean) {
 					setImportResult(c, result);
+				} else { //marked as cancelled to late
+					if (c.isCancelled()) countCancelled--;
 				}
 			}
 		}
@@ -769,7 +778,7 @@ class ImporterUIElement
 	 */
 	boolean hasImportToCancel()
 	{
-		if (!hasStarted()) return true;
+		//if (!hasStarted()) return true;
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();

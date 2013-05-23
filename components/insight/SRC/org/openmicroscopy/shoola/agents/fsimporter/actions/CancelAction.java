@@ -63,10 +63,12 @@ public class CancelAction
 	 */
     protected void onStateChange()
     {
+    	/*
     	if (model.getState() == Importer.IMPORTING) {
     		setEnabled(!model.isLastImport());
     	} else setEnabled(false);
     	setEnabled(true);
+    	*/
     }
     
     /**
@@ -77,7 +79,7 @@ public class CancelAction
     public CancelAction(Importer model)
     {
         super(model);
-        setEnabled(false);
+        setEnabled(true);
         putValue(Action.NAME, NAME);
         putValue(Action.SHORT_DESCRIPTION,
                 UIUtilities.formatToolTipText(DESCRIPTION));

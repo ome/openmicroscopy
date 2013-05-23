@@ -649,10 +649,10 @@ class ImporterComponent
 				i = toImport.iterator();
 				while (i.hasNext()) {
 					element = i.next();
-					if (element.hasImportToCancel()) {
+					//if (element.hasImportToCancel()) {
 						element.cancelLoading();
 						//model.cancel(element.getID());
-					}
+					//}
 				}
 			}
 		}

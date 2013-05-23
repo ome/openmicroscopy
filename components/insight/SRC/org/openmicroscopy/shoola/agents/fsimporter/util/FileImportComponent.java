@@ -683,6 +683,7 @@ public class FileImportComponent
 	 */
 	private void insertFiles(Map<File, StatusLabel> files)
 	{
+		resultIndex = ImportStatus.SUCCESS;
 		if (files == null || files.size() == 0) return;
 		components = new HashMap<File, FileImportComponent>();
 		
@@ -1034,8 +1035,14 @@ public class FileImportComponent
 	 */
 	public boolean hasImportStarted()
 	{
-		return resultIndex == ImportStatus.FAILURE ||
-				resultIndex == ImportStatus.UPLOAD_FAILURE;
+		if (file.isFile()) return resultIndex != ImportStatus.QUEUED;
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		int count = 0;
+		while (i.hasNext()) {
+			if (i.next().hasImportStarted()) count++;
+		}
+		return count == components.size();
 	}
 	
 	/**
@@ -1214,7 +1221,7 @@ public class FileImportComponent
 	/** Indicates the import has been cancelled. */
 	public void cancelLoading()
 	{
-		cancel(false);
+		cancel(true);
 		if (components == null) return;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
