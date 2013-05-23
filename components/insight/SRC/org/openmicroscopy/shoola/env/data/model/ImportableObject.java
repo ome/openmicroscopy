@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -667,19 +668,12 @@ public class ImportableObject
 	/**
 	 * Resets the files to re-upload
 	 * 
-	 * @param list The list of files to handle.
+	 * @param files The files to reupload.
 	 */
-	public void reUpload(List<File> list)
+	public void reUpload(List<ImportableFile> files)
 	{
-		if (CollectionUtils.isEmpty(list)) return;
-		Iterator<File> i = list.iterator();
-		List<ImportableFile> values = new ArrayList<ImportableFile>();
-		ImportableFile v;
-		while (i.hasNext()) {
-			v = getImportableFile(i.next());
-			if (v != null) values.add(v);
-		}
-		this.files = values;
+		if (CollectionUtils.isEmpty(files)) return;
+		this.files = files;
 	}
 
 }

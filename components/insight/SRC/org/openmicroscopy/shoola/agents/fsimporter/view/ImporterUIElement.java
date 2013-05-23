@@ -377,11 +377,8 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
-			c = new FileImportComponent(f, importable.isFolderAsContainer(),
-					!controller.isMaster(), importable.getGroup(),
-					importable.getUser(), single, getID());
-			c.setLocation(importable.getParent(), importable.getDataset(), 
-					importable.getRefNode());
+			c = new FileImportComponent(importable,
+					!controller.isMaster(), single, getID());
 			c.setType(type);
 			c.addPropertyChangeListener(controller);
 			c.addPropertyChangeListener(new PropertyChangeListener() {

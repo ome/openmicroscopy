@@ -29,8 +29,10 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -539,13 +541,13 @@ class ImporterComponent
 		if (CollectionUtils.isEmpty(l)) return;
 		Iterator<FileImportComponent> i = l.iterator();
 		ImportableObject object = element.getData();
-		List<File> files = new ArrayList<File>();
+		List<ImportableFile> list = new ArrayList<ImportableFile>();
 		while (i.hasNext()) {
 			fc = i.next();
 			fc.setReimported(true);
-			files.add(fc.getFile());
+			list.add(fc.getImportableFile());
 		}
-		object.reUpload(files);
+		object.reUpload(list);
 		importData(object);
 	}
 

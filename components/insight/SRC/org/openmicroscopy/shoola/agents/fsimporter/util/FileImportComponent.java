@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -86,10 +87,8 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
@@ -181,10 +180,7 @@ public class FileImportComponent
 
 	/** One of the constants defined by this class. */
 	private int type;
-	
-	/** The file to import. */
-	private File file;
-	
+
 	/** The component indicating the progress of the import. */
 	private JXBusyLabel busyLabel;
 	
@@ -214,9 +210,6 @@ public class FileImportComponent
 	
 	/** The mouse adapter to view the image. */
 	private MouseAdapter adapter;
-
-	/** Flag indicating to use the folder as container. */
-	private boolean folderAsContainer;
 
 	/** The data object corresponding to the folder. */
 	private DataObject containerFromFolder;
@@ -251,12 +244,6 @@ public class FileImportComponent
 	/** Set to <code>true</code> if attempt to re-import.*/
 	private boolean reimported;
 	
-	/** The group in which to import the file.*/
-	private GroupData group;
-
-	/** The user that will own the data being imported */
-	private ExperimenterData user;
-	
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
@@ -277,6 +264,9 @@ public class FileImportComponent
 	
 	/** Reference to the callback.*/
 	private CmdCallback callback;
+	
+	/** The importable object.*/
+	private ImportableFile importable;
 	
 	/** Retries to upload the file.*/
 	private void retry()
@@ -411,10 +401,10 @@ public class FileImportComponent
 		buf.append(FileUtils.byteCountToDisplaySize(statusLabel.getFileSize()));
 		buf.append("<br>");
 		buf.append("<b>Group: </b>");
-		buf.append(group.getName());
+		buf.append(importable.getGroup().getName());
 		buf.append("<br>");
 		buf.append("<b>Owner: </b>");
-		buf.append(EditorUtil.formatExperimenter(user));
+		buf.append(EditorUtil.formatExperimenter(importable.getUser()));
 		buf.append("<br>");
 		if (containerObject instanceof ProjectData) {
 			buf.append("<b>Project: </b>");
@@ -556,7 +546,8 @@ public class FileImportComponent
 		if (ho instanceof ThumbnailData) {
 			ThumbnailData data = (ThumbnailData) ho;
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			evt = new ViewImage(new SecurityContext(group.getId()),
+			evt = new ViewImage(
+					new SecurityContext(importable.getGroup().getId()),
 					new ViewImageObject(data.getImageID()), null);
 			evt.setPlugin(plugin);
 			bus.post(evt);
@@ -564,7 +555,7 @@ public class FileImportComponent
 			PixelsData data = (PixelsData) image;
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			evt = new ViewImage(
-					new SecurityContext(group.getId()),
+					new SecurityContext(importable.getGroup().getId()),
 					new ViewImageObject(data.getImage().getId()), null);
 			evt.setPlugin(plugin);
 			bus.post(evt);
@@ -625,7 +616,7 @@ public class FileImportComponent
 		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		IconManager icons = IconManager.getInstance();
 		Icon icon;
-		if (file.isFile()) icon = icons.getIcon(IconManager.IMAGE);
+		if (getFile().isFile()) icon = icons.getIcon(IconManager.IMAGE);
 		else icon = icons.getIcon(IconManager.DIRECTORY);
 		imageLabel = new ThumbnailLabel(icon);
 		imageLabel.addPropertyChangeListener(this);
@@ -640,7 +631,7 @@ public class FileImportComponent
 			label.setVisible(false);
 			imageLabels.add(label);
 		}
-		fileNameLabel = new JLabel(file.getName());
+		fileNameLabel = new JLabel(getFile().getName());
 		namePane.add(imageLabel);
 		Iterator<ThumbnailLabel> j = imageLabels.iterator();
 		while (j.hasNext()) {
@@ -700,16 +691,19 @@ public class FileImportComponent
 		File f;
 		DatasetData d = dataset;
 		Object node = refNode;
-		if (folderAsContainer) {
+		if (importable.isFolderAsContainer()) {
 			node = null;
 			d = new DatasetData();
-			d.setName(file.getName());
+			d.setName(getFile().getName());
 		}
+		ImportableFile copy;
 		while (i.hasNext()) {
 			entry = i.next();
 			f = entry.getKey();
-			c = new FileImportComponent(f, folderAsContainer, browsable, group,
-					user, singleGroup, getIndex());
+			copy = importable.copy();
+			copy.setFile(f);
+			c = new FileImportComponent(copy, browsable, singleGroup,
+					getIndex());
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 				c.setParent(this);
@@ -722,7 +716,7 @@ public class FileImportComponent
 		}
 		
 		removeAll();
-		pane = EditorUtil.createTaskPane(file.getName());
+		pane = EditorUtil.createTaskPane(getFile().getName());
 		pane.setCollapsed(false);
 
 		IconManager icons = IconManager.getInstance();
@@ -740,35 +734,28 @@ public class FileImportComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param file The file to import.
-	 * @param folderAsContainer Pass <code>true</code> if the passed file
-	 * 							has to be used as a container, 
-	 * 							<code>false</code> otherwise.
+	 * @param importable The component hosting information about the file.
 	 * @param browsable Flag indicating that the container can be browsed or not.
-	 * @param group The group in which to import the file.
-	 * @param user The user that will own the data being imported
 	 * @param singleGroup Passes <code>true</code> if the user is member of
 	 * only one group, <code>false</code> otherwise.
 	 * @param index The index of the parent.
 	 */
-	public FileImportComponent(File file, boolean folderAsContainer, boolean
-			browsable, GroupData group, ExperimenterData user,
-			boolean singleGroup, int index)
+	public FileImportComponent(ImportableFile importable, boolean
+			browsable, boolean singleGroup, int index)
 	{
-		if (file == null)
+		if (importable == null)
 			throw new IllegalArgumentException("No file specified.");
-		if (group == null)
+		if (importable.getGroup() == null)
 			throw new IllegalArgumentException("No group specified.");
 		this.index = index;
-		this.file = file;
-		this.group = group;
-		this.user = user;
+		this.importable = importable;
 		this.singleGroup = singleGroup;
 		this.browsable = browsable;
-		this.folderAsContainer = folderAsContainer;
 		resultIndex = ImportStatus.QUEUED;
 		initComponents();
 		buildGUI();
+		setLocation(importable.getParent(), importable.getDataset(),
+				importable.getRefNode());
 	}
 	
 	/**
@@ -776,7 +763,7 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return file; }
+	public File getFile() { return importable.getFile(); }
 	
 	/**
 	 * Sets the location where to import the files.
@@ -950,7 +937,7 @@ public class FileImportComponent
 	public List<FileImportComponent> getImportErrors()
 	{
 		List<FileImportComponent> l = null;
-		if (file.isFile()) {
+		if (getFile().isFile()) {
 			Object r = statusLabel.getImportResult();
 			if (r instanceof Exception || image instanceof Exception) {
 				l = new ArrayList<FileImportComponent>();
@@ -986,7 +973,7 @@ public class FileImportComponent
 		if (r instanceof Exception) e = (Exception) r;
 		else if (image instanceof Exception) e = (Exception) image;
 		if (e == null) return null;
-		ImportErrorObject object = new ImportErrorObject(file, e);
+		ImportErrorObject object = new ImportErrorObject(getFile(), e);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		return object;
@@ -1034,7 +1021,7 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReimport()
 	{
-		if (file.isFile()) {
+		if (getFile().isFile()) {
 			return (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported);
 		}
 		if (components == null) return false;
@@ -1053,7 +1040,7 @@ public class FileImportComponent
 	 */
 	public boolean hasImportStarted()
 	{
-		if (file.isFile()) return resultIndex != ImportStatus.QUEUED;
+		if (getFile().isFile()) return resultIndex != ImportStatus.QUEUED;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		int count = 0;
@@ -1071,7 +1058,7 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToSend()
 	{
-		if (file.isFile()) return resultIndex == ImportStatus.FAILURE;
+		if (getFile().isFile()) return resultIndex == ImportStatus.FAILURE;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
@@ -1149,13 +1136,13 @@ public class FileImportComponent
 	 */
 	public ImportStatus getImportStatus()
 	{
-		if (file.isFile()) {
+		if (getFile().isFile()) {
 			if (hasImportFailed()) return ImportStatus.FAILURE;
 			return resultIndex;
 		}
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
-				if (file.isDirectory()) {
+				if (getFile().isDirectory()) {
 					if  (isCancelled()) return ImportStatus.SUCCESS;
 					return resultIndex;
 				} else {
@@ -1171,7 +1158,7 @@ public class FileImportComponent
 		int n = components.size();
 		int count = 0;
 		while (i.hasNext()) {
-			if (i.next().getImportStatus() == ImportStatus.FAILURE) 
+			if (i.next().hasImportFailed())
 				count++;
 		}
 		if (count == n) return ImportStatus.FAILURE;
@@ -1187,7 +1174,7 @@ public class FileImportComponent
 	 */
 	public boolean hasToRefreshTree()
 	{
-		if (file.isFile()) {
+		if (getFile().isFile()) {
 			if (hasImportFailed()) return false;
 			switch (type) {
 				case PROJECT_TYPE:
@@ -1198,7 +1185,7 @@ public class FileImportComponent
 			}
 		}
 		if (components == null) return false;
-		if (folderAsContainer && type != PROJECT_TYPE) {
+		if (importable.isFolderAsContainer() && type != PROJECT_TYPE) {
 			Iterator<FileImportComponent> i = components.values().iterator();
 			while (i.hasNext()) {
 				if (i.next().toRefresh()) 
@@ -1267,7 +1254,10 @@ public class FileImportComponent
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFolderAsContainer() { return folderAsContainer; }
+	public boolean isFolderAsContainer()
+	{
+		return importable.isFolderAsContainer();
+	}
 	
 	/**
 	 * Returns the object corresponding to the folder.
@@ -1286,7 +1276,7 @@ public class FileImportComponent
 	public boolean isHCSFile()
 	{
 		if (isFolderAsContainer()) return false;
-		return ImportableObject.isHCSFile(file);
+		return ImportableObject.isHCSFile(getFile());
 	}
 
 	/**
@@ -1298,7 +1288,7 @@ public class FileImportComponent
 	public List<FileImportComponent> getFilesToReupload()
 	{
 		List<FileImportComponent> l = null;
-		if (file.isFile()) {
+		if (getFile().isFile()) {
 			if (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported) {
 				return Arrays.asList(this);
 			}
@@ -1382,6 +1372,14 @@ public class FileImportComponent
 	public boolean hasResult() { return image != null; }
 	
 	/**
+	 * Returns the importable object associated to the parent,
+	 * <code>null</code> if no parent.
+	 * 
+	 * @return See above.
+	 */
+	public ImportableFile getImportableFile() { return importable; }
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)
@@ -1450,8 +1448,8 @@ public class FileImportComponent
 				//cancelButton.setVisible(sl.isCancellable());
 			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
-			file = (File) evt.getNewValue();
-			fileNameLabel.setText(file.getName());
+			importable.setFile((File) evt.getNewValue());
+			fileNameLabel.setText(getFile().getName());
 		} else if (ThumbnailLabel.BROWSE_PLATE_PROPERTY.equals(name)) {
 			firePropertyChange(BROWSE_PROPERTY, evt.getOldValue(), 
 					evt.getNewValue());
@@ -1466,7 +1464,8 @@ public class FileImportComponent
 			firePropertyChange(name, evt.getOldValue(), evt.getNewValue());
 		} else if (ThumbnailLabel.VIEW_IMAGE_PROPERTY.equals(name)) {
 			//use the group
-			SecurityContext ctx = new SecurityContext(group.getId());
+			SecurityContext ctx = new SecurityContext(
+					importable.getGroup().getId());
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			Long id = (Long) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(id), null));
@@ -1501,10 +1500,11 @@ public class FileImportComponent
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append(getFile().getAbsolutePath());
-		if (group != null)
-			buf.append("_"+group.getId());
-		if (user != null)
-			buf.append("_"+user.getId());
+		if (importable.getGroup() != null)
+			buf.append("_"+importable.getGroup().getId());
+		if (importable.getUser() != null)
+			buf.append("_"+importable.getUser().getId());
 		return buf.toString();
 	}
+
 }
