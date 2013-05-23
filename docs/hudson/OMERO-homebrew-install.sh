@@ -121,7 +121,7 @@ fi
 $VENV_DIR/bin/pip install -U genshi
 
 # Add Virtualenv site-packages path to PYTHONPATH
-export PYTHONPATH=$($VENV_DIR/bin/python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"):$PYTHONPATH
+export PYTHONPATH=$($VENV_DIR/bin/python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
 
 cd /usr/local
 
