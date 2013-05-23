@@ -198,6 +198,7 @@ class OmeroImageServiceImpl
 		int index = 0;
 		ImportCandidates ic;
 		List<ImportContainer> icContainers;
+		ImportContainer importIc;
 		while (jj.hasNext()) {
 			entry = jj.next();
 			file = (File) entry.getKey();
@@ -220,8 +221,10 @@ class OmeroImageServiceImpl
 						label.setCallback(new ImportException(
 								ImportException.FILE_NOT_VALID_TEXT));
 					} else {
+						importIc = icContainers.get(0);
+						importIc.setCustomAnnotationList(list);
 						label.setCallback(gateway.importImageFile(ctx, object,
-								ioContainer, icContainers.get(0),
+								ioContainer, importIc,
 								label, toClose, ImportableObject.isHCSFile(file),
 								userName));
 					}
