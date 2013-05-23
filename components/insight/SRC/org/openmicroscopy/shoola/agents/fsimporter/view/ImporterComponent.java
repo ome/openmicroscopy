@@ -345,8 +345,7 @@ class ImporterComponent
 	public void importData(ImportableObject data)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (data == null || data.getFiles() == null ||
-				data.getFiles().size() == 0) {
+		if (data == null || CollectionUtils.isEmpty(data.getFiles())) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "No Files to import.");
 			return;
@@ -354,7 +353,20 @@ class ImporterComponent
 		view.showRefreshMessage(chooser.isRefreshLocation());
 		if (data.hasNewTags()) model.setTags(null);
 		ImporterUIElement element = view.addImporterElement(data);
-		if (model.getState() == IMPORTING) return;
+		//if (model.getState() == IMPORTING) return;
+		//Can I start the upload
+		Collection<ImporterUIElement> list = view.getImportElements();
+		Iterator<ImporterUIElement> i = list.iterator();
+		ImporterUIElement e;
+		boolean canImport = true;
+		while (i.hasNext()) {
+			e = i.next();
+			if (e.hasStarted() && !e.isUploadComplete()) {
+				canImport = false;
+				break;
+			}
+		}
+		if (!canImport) return;
 		importData(element);
 		if (!controller.isMaster()) {
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
