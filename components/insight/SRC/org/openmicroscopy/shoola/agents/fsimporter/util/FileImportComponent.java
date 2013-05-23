@@ -236,12 +236,6 @@ public class FileImportComponent
 	
 	/** The parent of the node. */
 	private FileImportComponent parent;
-	
-	/** The total number of files to import. */
-	private int totalFiles;
-	
-	/** The value indicating the number of imports in the folder. */
-	private int importCount;
 
 	/** 
 	 * Flag indicating that the container hosting the imported image
@@ -488,17 +482,7 @@ public class FileImportComponent
 		if (o instanceof Exception)
 			firePropertyChange(SUBMIT_ERROR_PROPERTY, null, this);
 	}
-	
-	/** Sets the text indicating the number of import. */
-	private void setNumberOfImport()
-	{
-		if (pane == null) return;
-		String end = " file";
-		if (totalFiles > 1) end +="s";
-		String text = file.getName()+": "+importCount+" of "+totalFiles+end;
-		pane.setTitle(text);
-	}
-	
+
 	/** Browses the node or the data object. */
 	private void browse()
 	{
@@ -700,7 +684,6 @@ public class FileImportComponent
 	{
 		if (files == null || files.size() == 0) return;
 		components = new HashMap<File, FileImportComponent>();
-		totalFiles = files.size();
 		
 		Entry<File, StatusLabel> entry;
 		Iterator<Entry<File, StatusLabel>> i = files.entrySet().iterator();
@@ -730,9 +713,8 @@ public class FileImportComponent
 		}
 		
 		removeAll();
-		pane = EditorUtil.createTaskPane("");
+		pane = EditorUtil.createTaskPane(file.getName());
 		pane.setCollapsed(false);
-		setNumberOfImport();
 
 		IconManager icons = IconManager.getInstance();
 		pane.setIcon(icons.getIcon(IconManager.DIRECTORY));
@@ -773,7 +755,6 @@ public class FileImportComponent
 		this.group = group;
 		this.user = user;
 		this.singleGroup = singleGroup;
-		importCount = 0;
 		this.browsable = browsable;
 		this.folderAsContainer = folderAsContainer;
 		initComponents();
@@ -871,14 +852,7 @@ public class FileImportComponent
 		revalidate();
 		repaint();
 	}
-	
-	/** Increases the number of imports. */
-	void increaseNumberOfImport()
-	{
-		importCount++;
-		setNumberOfImport();
-	}
-	
+
 	/** 
 	 * Sets the parent of the component.
 	 * 
@@ -911,9 +885,7 @@ public class FileImportComponent
 	public void setStatus(Object image)
 	{
 		cancelButton.setVisible(false);
-		importCount++;
 		this.image = image;
-		if (parent != null) parent.increaseNumberOfImport();
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
@@ -1415,7 +1387,6 @@ public class FileImportComponent
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && hasParent()) {
-				importCount++;
 				formatResult();
 				firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null, this);
 			}
