@@ -117,6 +117,9 @@ if [ $TESTING_MODE ]; then
     $VENV_DIR/bin/scc merge master
 fi
 
+# Install Genshi (OMERO and Bio-Formats requirement)
+$VENV_DIR/bin/pip install -U genshi
+
 cd /usr/local
 
 ###################################################################
