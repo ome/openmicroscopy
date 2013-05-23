@@ -1030,7 +1030,7 @@ class ImporterUIElement
 					return IMPORT_PARTIAL;
 				if (v == ImportStatus.FAILURE) failure++;
 			}
-			if (failure == totalToImport) return IMPORT_FAIL;
+			if (failure == components.size()) return IMPORT_FAIL;
 			else if (failure > 0) return IMPORT_PARTIAL;
 			return IMPORT_SUCCESS;
 		}

@@ -1143,8 +1143,7 @@ public class FileImportComponent
 		if (components == null || components.size() == 0) {
 			if (image instanceof Boolean) {
 				if (getFile().isDirectory()) {
-					if  (isCancelled()) return ImportStatus.SUCCESS;
-					return resultIndex;
+					return ImportStatus.SUCCESS;
 				} else {
 					if (!statusLabel.isMarkedAsCancel() &&
 						!statusLabel.isMarkedAsDuplicate())
