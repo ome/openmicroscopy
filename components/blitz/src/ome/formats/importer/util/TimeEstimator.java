@@ -34,25 +34,23 @@ package ome.formats.importer.util;
 public interface TimeEstimator {
 
     /**
-     * Starts the measurement with a specific time value.
-     *
-     * @param startTime The start time.
+     * Starts the time sampling.
      */
-    void start(long mesurementStart);
+    void start();
 
     /**
-     * Stops the measurement at the provided stop time.
-     *
-     * @param stopTime The end time.
+     * Stops the time sampling.
      */
-    void stop(long measurementStop);
+    void stop();
 
     /**
      * Return the estimated time left based on the calls to
      * {@link TimeEstimator#start(long) start} and
      * {@link TimeEstimator#stop(long) stop} methods.
      *
+     * @param bytesUploaded Total size of uploaded resource bytes.
+     * @param bytesTotal Total size of resource.
      * @return The estimated time remaining.
      */
-    long getUploadTimeLeft();
+    long getUploadTimeLeft(long bytesUploaded, long bytesTotal);
 }
