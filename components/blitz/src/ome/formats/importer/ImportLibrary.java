@@ -25,9 +25,10 @@ import java.util.Map;
 
 import loci.formats.FormatException;
 import loci.formats.FormatReader;
-
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.util.ErrorHandler;
+import ome.formats.importer.util.TimeEstimator;
+import ome.formats.importer.util.TimeEstimatorImpl;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
 import ome.services.blitz.repo.path.FilePathRestrictions;
@@ -283,11 +284,13 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
         final List<String> checksums = new ArrayList<String>(fileTotal);
+        final TimeEstimator estimator = new TimeEstimatorImpl();
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
             try {
-                checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory, buf));
+                checksums.add(uploadFile(proc, srcFiles, i,
+                        checksumProviderFactory, estimator, buf));
             } catch (ServerError e) {
                 log.error("Server error uploading file.", e);
                 break;
@@ -300,15 +303,18 @@ public class ImportLibrary implements IObservable
     }
 
     public String uploadFile(final ImportProcessPrx proc,
-            final String[] srcFiles, int index) throws ServerError, IOException
+            final String[] srcFiles, int index, TimeEstimator estimator)
+                    throws ServerError, IOException
     {
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        return uploadFile(proc, srcFiles, index, checksumProviderFactory, buf);
+        return uploadFile(proc, srcFiles, index, checksumProviderFactory,
+                estimator, buf);
     }
 
     public String uploadFile(final ImportProcessPrx proc,
             final String[] srcFiles, final int index,
-            final ChecksumProviderFactory cpf, final byte[] buf)
+            final ChecksumProviderFactory cpf, TimeEstimator estimator,
+            final byte[] buf)
             throws ServerError, IOException {
 
         ChecksumProvider cp = cpf.getProvider(
@@ -446,6 +452,7 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
+        final TimeEstimator estimator = new TimeEstimatorImpl();
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
@@ -453,7 +460,7 @@ public class ImportLibrary implements IObservable
 
         for (int i = 0; i < srcFiles.length; i++) {
             checksums.add(uploadFile(proc, srcFiles, i, checksumProviderFactory,
-                    buf));
+                    estimator, buf));
         }
 
         try {
