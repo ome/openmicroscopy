@@ -27,6 +27,7 @@ import omero.api.AMD_RawFileStore_write;
 import omero.api.RawFileStorePrx;
 import omero.api._RawFileStoreOperations;
 import omero.api._RawFileStoreTie;
+import omero.constants.CLIENTUUID;
 import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.model.OriginalFile;
@@ -145,6 +146,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         // to be registered with
         Map<String, String> adjustedCtx = new HashMap<String, String>(current.ctx);
         adjustedCtx.put(omero.constants.SESSIONUUID.value, current.id.category);
+        adjustedCtx.put(omero.constants.CLIENTUUID.value, current.ctx.get(CLIENTUUID.value));
 
         final Ice.ObjectPrx prx = sf.getAdapter().createProxy(
                 Ice.Util.stringToIdentity("PublicRepository-" + repo));
