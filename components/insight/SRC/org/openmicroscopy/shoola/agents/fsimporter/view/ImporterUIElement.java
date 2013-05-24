@@ -438,8 +438,6 @@ class ImporterUIElement
 						FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
 						controller.cancel(
 								(FileImportComponent) evt.getNewValue());
-						//System.err.println("Cancel");
-						//countCancelled++;
 					}
 				}
 			});
@@ -721,21 +719,32 @@ class ImporterUIElement
 			sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
 			//handle error that occurred during the scanning or upload.
 			//Check that the result has not been set.
-			if (!c.hasResult()) {
-				if (result instanceof Exception) {
-					r = new ImportErrorObject(file, (Exception) result);
-					setImportResult(c, result);
-				} else if (result instanceof Boolean) {
-					Boolean b = (Boolean) result;
-					if (!b && c.isCancelled()) countCancelled++;
-					setImportResult(c, result);
-				} else {
-					if (c.isCancelled()) {
+			//if (!c.hasResult()) {
+			if (result instanceof Exception) {
+				r = new ImportErrorObject(file, (Exception) result);
+				setImportResult(c, result);
+			} else if (result instanceof Boolean) {
+				Boolean b = (Boolean) result;
+				if (!b && c.isCancelled()) {
+					countUploaded--;
+					if (isDone() && rotationIcon != null)
+						rotationIcon.stopRotation();
+				} else
+				setImportResult(c, result);
+			} else {
+				if (c.isCancelled()) {
+					if (result == null) {
+						countCancelled++;
+						countImported++;
+						if (isDone() && rotationIcon != null)
+							rotationIcon.stopRotation();
+					} else {
 						countCancelled--;
 						countUploaded--;
 					}
 				}
 			}
+			//}
 		} else { //empty folder
 			if (result instanceof Exception) {
 				countUploaded++;
@@ -761,7 +770,8 @@ class ImporterUIElement
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
-			if (fc.isCancelled() && !(result instanceof Boolean))
+			if (fc.isCancelled() && result != null &&
+				!(result instanceof Boolean))
 				countImported--;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
