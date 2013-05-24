@@ -337,4 +337,15 @@ class DataManagerViewImpl
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadPlateFromImage(SecurityContext, Collection,
+	 * AgentEventListener)
+	 */
+	public CallHandle loadPlateFromImage(SecurityContext ctx,
+			Collection<Long> ids, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new PlateWellsLoader(ctx, ids);
+		return cmd.exec(observer);
+	}
 }

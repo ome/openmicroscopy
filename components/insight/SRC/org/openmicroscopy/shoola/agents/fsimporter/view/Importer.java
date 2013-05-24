@@ -31,6 +31,7 @@ import java.util.Collection;
 import javax.swing.JFrame;
 
 import org.openmicroscopy.shoola.agents.events.treeviewer.BrowserSelectionEvent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
@@ -142,7 +143,7 @@ public interface Importer
 	 * @param result Depends on the result, it can be an image, an exception.
 	 * @param index The index of the UI components.
 	 */
-	public void setImportedFile(ImportableFile f, Object result, int index);
+	public void uploadComplete(ImportableFile f, Object result, int index);
 
 	/**
 	 * Sets the import log file.
@@ -180,9 +181,6 @@ public interface Importer
 	 * @param id The identifier of the import element.
 	 */
 	public void cancelImport(int id);
-
-	/** Cancels the on-going import. */
-	public void cancelImport();
 	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
@@ -198,7 +196,7 @@ public interface Importer
 	 * 
 	 * @return See above.
 	 */
-	public boolean hasFailuresToReimport();
+	public boolean hasFailuresToReupload();
 	
 	/** 
 	 * Sets the used and available disk space.
@@ -220,8 +218,12 @@ public interface Importer
 	 */
 	public void moveToFront();
 	
-	/** Tries to re-import failed import. */
-	public void retryImport();
+	/**
+	 * Tries to re-upload the failed upload(s).
+	 * 
+	 * @param fc The file to upload or <code>null</code>.
+	 */
+	public void retryUpload(FileImportComponent fc);
 
 	/**
 	 * Returns <code>true</code> if it is the last file to import,
@@ -324,4 +326,34 @@ public interface Importer
 	 */
 	int getDisplayMode();
 	
+	/**
+	 * Returns <code>true</code> if there are files to upload,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasOnGoingUpload();
+
+	/** 
+	 * Indicates that the import is complete for the specified component.
+	 * 
+	 * @param component The component to handle.
+	 */
+	void onImportComplete(FileImportComponent component);
+	
+	/**
+	 * Indicates that the import is complete for the specified component.
+	 * 
+	 * @param component The component to handle.
+	 */
+	void onUploadComplete(FileImportComponent component);
+	
+	/**
+	 * Sets the result e.g. thumbnails corresponding to the images imported.
+	 * 
+	 * @param result The result to set.
+	 * @param component The component hosting the result.
+	 */
+	void setImportResult(Object result, Object component);
+
 }

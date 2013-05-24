@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.DataLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+import org.openmicroscopy.shoola.agents.fsimporter.ImportResultLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.util.ObjectToCreate;
@@ -46,8 +47,11 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -463,5 +467,20 @@ class ImporterModel
 	 * @return See above.
 	 */
 	SecurityContext getSecurityContext() { return ctx; }
+
+	/**
+	 * Fires a call to load the thumbnails or the plate.
+	 * 
+	 * @param pixels The objects to load.
+	 * @param type The type of data to handle.
+	 * @param component The component the result is for.
+	 */
+	void fireImportResultLoading(Collection<DataObject> pixels, Class<?> type,
+			Object component)
+	{
+		ImportResultLoader loader = new ImportResultLoader(this.component, ctx,
+				pixels, type, component);
+		loader.load();
+	}
 
 }

@@ -200,14 +200,10 @@ public class DownloadActivity extends ActivityComponent {
 		OriginalFile f = parameters.getFile();
 		File folder = parameters.getFolder();
 
-		if (folder.isDirectory())
-			file = new File(folder + File.separator + fileName);
+		if (folder.isDirectory()) file = new File(folder, fileName);
 		else file = folder;
 
-		registry.getLogger().debug(
-				this,
-				String.format("Folder: %s Separator: %s Filename: %s", folder,
-						File.separator, fileName));
+		registry.getLogger().debug(this, file.getAbsolutePath());
 
 		boolean load = true;
 		if (file.exists())

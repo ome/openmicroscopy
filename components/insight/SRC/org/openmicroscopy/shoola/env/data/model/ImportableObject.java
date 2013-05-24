@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 //Third-party libraries
@@ -41,6 +42,8 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -72,7 +75,7 @@ public class ImportableObject
 	public static final String DEFAULT_DATASET_NAME;
 	
 	/** 
-	 * The collection of HCS files extensions to check before importing. 
+	 * The collection of HCS files extensions to check before importing.
 	 */
 	public static final Set<String> HCS_FILES_EXTENSION;
 
@@ -101,12 +104,13 @@ public class ImportableObject
 	
 	static {
 		FILTER = new TIFFFilter();
-		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
+		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null,
 				UIUtilities.D_M_Y_FORMAT);
 		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_DOMAIN = new ArrayList<String>();
 
-		IFormatReader[] allReaders = new ImageReader().getReaders();
+		ImageReader r = new ImageReader();
+		IFormatReader[] allReaders = r.getReaders();
 		try {
 			for (IFormatReader reader : allReaders) {
 				if (Arrays.asList(reader.getPossibleDomains("")).contains(
@@ -114,8 +118,14 @@ public class ImportableObject
 					populateExtensions(reader.getSuffixes());
 					HCS_DOMAIN.add(reader.getFormat());
 				}
+				reader.close();
 			}
 		} catch (Exception e) {}
+		finally {
+			try {
+				r.close();
+			} catch (Exception ex) {}
+		}
 		
 
 		IFormatReader reader = new OMEXMLReader();
@@ -164,7 +174,7 @@ public class ImportableObject
 		if (f == null) return false;
 		String name = f.getName();
 		if (!name.contains(".")) return false; 	
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		String ext = FilenameUtils.getExtension(name);
 		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
 	
@@ -172,21 +182,21 @@ public class ImportableObject
 	private List<ImportableFile> files;
 	
 	/** The depth when the name is overridden. */
-	private int			depthForName;
+	private int depthForName;
 	
 	/** The depth used when scanning a folder. */
-	private int			scanningDepth;
+	private int scanningDepth;
 	
 	/** 
 	 * Flag indicating to override the name set by B-F when importing the data. 
 	 */
-	private boolean		overrideName;
+	private boolean overrideName;
 	
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
 	
 	/** The array containing pixels size.*/
-	private double[]	pixelsSize;
+	private double[] pixelsSize;
 	
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
@@ -656,21 +666,14 @@ public class ImportableObject
 	}
 	
 	/**
-	 * Resets the files to reimport.
+	 * Resets the files to re-upload
 	 * 
-	 * @param list The list of files to handle.
+	 * @param files The files to reupload.
 	 */
-	public void reImport(List<File> list)
+	public void reUpload(List<ImportableFile> files)
 	{
-		if (list == null || list.size() == 0) return;
-		Iterator<File> i = list.iterator();
-		List<ImportableFile> values = new ArrayList<ImportableFile>();
-		ImportableFile v;
-		while (i.hasNext()) {
-			v = getImportableFile(i.next());
-			if (v != null) values.add(v);
-		}
-		this.files = values;
+		if (CollectionUtils.isEmpty(files)) return;
+		this.files = files;
 	}
 
 }
