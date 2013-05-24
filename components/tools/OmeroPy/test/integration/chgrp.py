@@ -495,5 +495,59 @@ class TestChgrp(lib.ITest):
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
 
+class TestChgrpTarget(lib.ITest):
+
+    def chgrpImagesToTargetDataset(self, imgCount):
+        """
+        Helper method to test chgrp of image(s) to target Dataset
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        images = self.importMIF(imgCount, client=client)
+
+        # create Dataset in target group
+        ctx = {'omero.group': str(target_gid)}
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrpImagesToDatasetOK")
+        ds = update.saveAndReturnObject(ds, ctx)
+
+        # each chgrp includes a 'save' link to target dataset
+        requests = []
+        for i in images:
+            chgrp = omero.cmd.Chgrp(type="/Image", id=i.id.val, grp=target_gid)
+            requests.append(chgrp)
+            link = omero.model.DatasetImageLinkI()
+            link.child = omero.model.ImageI(i.id.val, False)
+            link.parent = omero.model.DatasetI(ds.id.val, False)
+            save = Save()
+            save.obj = link
+            requests.append(save)
+
+        self.doAllSubmit(requests, client, omero_group=target_gid)
+
+        # Check Images moved to correct group
+        queryService = client.sf.getQueryService()
+        ctx = {'omero.group': '-1'}      # query across groups
+        for i in images:
+            image = queryService.get('Image', i.id.val, ctx)
+            img_gid = image.details.group.id.val
+            self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
+        # Check Dataset has images linked
+        dsImgs = client.sf.getContainerService().getImages('Dataset', [ds.id.val], None, ctx)
+        self.assertEqual(len(dsImgs), len(images), "All Images should be in target Dataset")
+
+    def testChgrpImageToTargetDataset(self):
+        """ Chgrp a single Image to target Dataset """
+        self.chgrpImagesToTargetDataset(1)
+
+    def testChgrpMifImagesToTargetDataset(self):
+        """ Chgrp 2 images in a MIF to target Dataset """
+        self.chgrpImagesToTargetDataset(2)
+
 if __name__ == '__main__':
     unittest.main()
