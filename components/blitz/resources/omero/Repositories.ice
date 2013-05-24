@@ -357,6 +357,12 @@ module omero {
         class ImportRequest extends omero::cmd::Request {
 
             /**
+             * Lookup value for the session that import is taking
+             * part in.
+             **/
+             string clientUuid;
+
+            /**
              * Repository which is responsible for this import.
              * All files which are uploaded will be available
              * from it.

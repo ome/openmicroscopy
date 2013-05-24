@@ -282,6 +282,8 @@ public class ManagedImportProcessI extends AbstractAmdServant
         final String reqId = ImportRequest.ice_staticId();
         final ImportRequest req = (ImportRequest)
                 repo.getFactory(reqId, this.current).create(reqId);
+        // TODO: Should eventually be from a new omero.client
+        req.clientUuid = UUID.randomUUID().toString();
         req.repoUuid = repo.getRepoUuid();
         req.activity = link;
         req.location = location;

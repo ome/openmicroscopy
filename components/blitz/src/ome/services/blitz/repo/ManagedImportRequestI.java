@@ -173,7 +173,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         final ImportConfig config = new ImportConfig();
         final String sessionUuid = helper.getEventContext().getCurrentSessionUuid();
-        final String clientUuid = UUID.randomUUID().toString();
 
         if (!(location instanceof ManagedImportLocationI)) {
             throw helper.cancel(new ERR(), null, "bad-location",
