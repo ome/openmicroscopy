@@ -248,9 +248,9 @@ class ImporterUI extends TopWindow
 		JPanel p = new JPanel();
 		p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
-		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
-		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
+		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
 		if (!model.isMaster()) {
 			p.add(new JButton(controller.getAction(
