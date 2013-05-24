@@ -452,6 +452,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
         if (saveSha1)
         {
+            for (Image image : imageList) {
+                image.unloadAnnotationLinks();
+            }
             store.updatePixels(pixList);
         }
 
