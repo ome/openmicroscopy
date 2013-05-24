@@ -747,6 +747,7 @@ class ImporterUIElement
 	 * 
 	 * @param fc The component hosting the file to import.
 	 * @param result The result.
+	 * @p
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
 	void setImportResult(FileImportComponent fc, Object result)
@@ -768,7 +769,7 @@ class ImporterUIElement
 					countFailure != totalToImport);
 		}
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the upload is finished, <code>false</code>
 	 * otherwise.

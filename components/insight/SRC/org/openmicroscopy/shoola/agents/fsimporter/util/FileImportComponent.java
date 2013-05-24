@@ -291,6 +291,7 @@ public class FileImportComponent
 		JMenuItem item;
 		String logText = "View Import Log";
 		String checksumText = "View Checksum";
+		Object result = statusLabel.getImportResult();
 		switch (resultIndex) {
 			case FAILURE:
 				menu.add(new JMenuItem(new AbstractAction("Submit") {
@@ -315,8 +316,9 @@ public class FileImportComponent
 					}
 				});
 				boolean b = false;
-				if (image instanceof List) b = ((List) image).size() == 1;
-				item.setEnabled(b);
+				if (result instanceof Collection)
+					b = ((Collection) result).size() == 1;
+				item.setEnabled(b && !statusLabel.isHCS());
 				menu.add(item);
 				item = new JMenuItem(new AbstractAction("In Data Browser") {
 					public void actionPerformed(ActionEvent e) {
@@ -546,10 +548,13 @@ public class FileImportComponent
 		int plugin = ImporterAgent.runAsPlugin();
 		if (image == null) image = statusLabel.getImportResult();
 		Object ho = image;
-		if (image instanceof List) {
-			List l = (List) image;
+		if (image instanceof Collection) {
+			Collection l = (Collection) image;
 			if (CollectionUtils.isEmpty(l) || l.size() > 1) return;
-			ho = l.get(0);
+			Iterator<Object> i = l.iterator();
+			while (i.hasNext()) {
+				ho = i.next();
+			}
 		}
 		if (ho instanceof ThumbnailData) {
 			ThumbnailData data = (ThumbnailData) ho;
@@ -560,7 +565,7 @@ public class FileImportComponent
 			evt.setPlugin(plugin);
 			bus.post(evt);
 		} else if (ho instanceof PixelsData) {
-			PixelsData data = (PixelsData) image;
+			PixelsData data = (PixelsData) ho;
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			evt = new ViewImage(
 					new SecurityContext(importable.getGroup().getId()),
@@ -888,8 +893,11 @@ public class FileImportComponent
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
-			formatResult();
 			formatResultTooltip();
+		} else if (image instanceof Set) {
+			//Result from the import itself
+			this.image = null;
+			formatResult();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
@@ -916,7 +924,6 @@ public class FileImportComponent
 					}
 				}
 			}
-			formatResult();
 		} else if (image instanceof ImportException) {
 			formatResult();
 		} else if (image instanceof Boolean) {
