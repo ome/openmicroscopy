@@ -216,7 +216,7 @@ public class FileImportComponent
 	private DataObject containerFromFolder;
 	
 	/** Button to cancel the import for that file. */
-	private JLabel cancelButton;
+	private JButton cancelButton;
 	
 	/** The node where to import the folder. */
 	private DataObject data;
@@ -602,20 +602,11 @@ public class FileImportComponent
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
 		
-		cancelButton = new JLabel("Cancel");
+		cancelButton = new JButton("Cancel");
 		cancelButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		cancelButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					cancel(true);
-				}
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				cancel(true);
 			}
 		});
 		cancelButton.setVisible(true);
