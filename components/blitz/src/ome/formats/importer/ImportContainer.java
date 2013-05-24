@@ -47,6 +47,7 @@ public class ImportContainer
 {
 	private String reader;
     private String[] usedFiles;
+    private long usedFilesTotalSize;
     private Boolean isSPW;
 	private File file;
     private Double[] userPixels;
@@ -173,6 +174,11 @@ public class ImportContainer
 	public void setUsedFiles(String[] usedFiles) {
 		this.usedFiles = usedFiles;
 	}
+	
+	
+	public long getUsedFilesTotalSize() {
+            return usedFilesTotalSize;
+        }
 
 	public Boolean getIsSPW() {
 		return isSPW;
@@ -256,6 +262,13 @@ public class ImportContainer
         upload.setVersionInfo(clientVersionInfo);
         fs.linkJob(upload);
 
+    }
+
+    public void updateUsedFilesTotalSize() {
+        usedFilesTotalSize = 0;
+        for (String filePath : usedFiles) {
+            usedFilesTotalSize += new File(filePath).length();
+        }
     }
 
 }

@@ -19,21 +19,42 @@
 
 package ome.formats.importer.util;
 
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
+
 public class TimeEstimatorImpl implements TimeEstimator {
 
-    public void start(long mesurementStart) {
-        // TODO Auto-generated method stub
+    private long start, stop, uploadTimeLeft;
 
+    private Buffer samples;
+
+    private float alpha, chunkTime;
+
+    public TimeEstimatorImpl(int sampleSize) {
+        samples = new CircularFifoBuffer(sampleSize);
     }
 
-    public void stop(long measurementStop) {
-        // TODO Auto-generated method stub
-
+    public void start() {
+        // Due to weirdness with System.nanoTime() on multi-core
+        // CPUs, falling back to currentTimeMillis()
+        start = System.currentTimeMillis();
     }
 
-    public long getUploadTimeLeft() {
-        // TODO Auto-generated method stub
-        return 0;
+    public void stop() {
+        if (start == 0) {
+            throw new IllegalStateException("Calling stop() before start().");
+        }
+        stop = System.currentTimeMillis();
+        samples.add(stop - start);
+        alpha = 2f / (samples.size() + 1);
+    }
+
+    public long getUploadTimeLeft(long bytesUploaded, long bytesTotal) {
+        for (int i = 0; i < samples.size(); i++) {
+            chunkTime = alpha * (Long) samples.get()
+                    + (1 - alpha) * chunkTime;
+        }
+        uploadTimeLeft = (long) chunkTime * ((bytesTotal-bytesUploaded)/rlen);
     }
 
 }
