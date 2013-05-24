@@ -45,6 +45,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * 
@@ -430,6 +431,16 @@ public class NullOmeroPojoService
 			List<DataObject> objects) throws DSOutOfServiceException,
 			DSAccessException, ProcessException
 	{
+		return null;
+	}
+
+	/**
+     * No-operation implementation
+     * @see OmeroDataService#loadPlateFromImage(SecurityContext, Collection)
+     */
+	public Map<Long, PlateData> loadPlateFromImage(SecurityContext ctx,
+			Collection<Long> ids) throws DSOutOfServiceException,
+			DSAccessException {
 		return null;
 	}
 

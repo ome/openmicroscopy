@@ -29,12 +29,15 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFrame;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
@@ -50,16 +53,19 @@ import org.openmicroscopy.shoola.env.data.events.LogOff;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.GroupData;
+import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -115,6 +121,60 @@ class ImporterComponent
 
 	/** Flag indicating that the window has been marked to be closed.*/
 	private boolean 		markToclose;
+	
+	/**
+	 * Posts event if required indicating the status of the import process.
+	 * 
+	 * @param element The UI element to handle.
+	 * @param result The formatted result.
+	 * @param startUpload Pass <code>true</code> to indicate to start the 
+	 * upload, <code>false</code> otherwise.
+	 */
+	private void handleCompletion(ImporterUIElement element, Object result,
+			boolean startUpload)
+	{
+		boolean refreshTree = false;
+		if (result instanceof Boolean) result = null;
+		List<DataObject> containers = null;
+		if (element != null) {
+			if (element.isDone()) {
+				refreshTree = element.hasToRefreshTree();
+				containers = element.getExistingContainers();
+				model.importCompleted(element.getID());
+				view.onImportEnded(element);
+			}
+			
+			if (markToclose) {
+				view.setVisible(false);
+			} else {
+				if (element.isUploadComplete()) {
+					element = view.getElementToStartImportFor();
+					if (element != null && startUpload) importData(element);
+				}
+			}
+			fireStateChange();
+		}
+
+		//post an event
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
+					containers, result);
+			e.setToRefresh(refreshTree);
+			bus.post(e);
+		}
+
+
+		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
+		{
+			//reload the hierarchies.
+			Class<?> rootType = ProjectData.class;
+			if (chooser != null && chooser.getType() == Importer.SCREEN_TYPE)
+				rootType = ScreenData.class;
+			model.fireContainerLoading(rootType, true, false, -1);
+			fireStateChange();
+		}
+	}
 	
 	/**
 	 * Imports the data for the specified import view.
@@ -285,8 +345,7 @@ class ImporterComponent
 	public void importData(ImportableObject data)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (data == null || data.getFiles() == null || 
-				data.getFiles().size() == 0) {
+		if (data == null || CollectionUtils.isEmpty(data.getFiles())) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "No Files to import.");
 			return;
@@ -294,7 +353,20 @@ class ImporterComponent
 		view.showRefreshMessage(chooser.isRefreshLocation());
 		if (data.hasNewTags()) model.setTags(null);
 		ImporterUIElement element = view.addImporterElement(data);
-		if (model.getState() == IMPORTING) return;
+		//if (model.getState() == IMPORTING) return;
+		//Can I start the upload
+		Collection<ImporterUIElement> list = view.getImportElements();
+		Iterator<ImporterUIElement> i = list.iterator();
+		ImporterUIElement e;
+		boolean canImport = true;
+		while (i.hasNext()) {
+			e = i.next();
+			if (e.hasStarted() && !e.isUploadComplete()) {
+				canImport = false;
+				break;
+			}
+		}
+		if (!canImport) return;
 		importData(element);
 		if (!controller.isMaster()) {
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
@@ -306,56 +378,18 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#setImportedFile(ImportableFile, Object, int)
+	 * @see Importer#uploadComplete(ImportableFile, Object, int)
 	 */
-	public void setImportedFile(ImportableFile f, Object result, int index)
+	public void uploadComplete(ImportableFile f, Object result, int index)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getUIElement(index);
-		List<DataObject> containers = null;
-		boolean refreshTree = false;
-		Object formattedResult = null;
 		if (element != null) {
-			formattedResult = element.setImportedFile(f, result);
-			//if (fileSetID >= 0) model.fireImportLogFileLoading(fileSetID, index);
-			if (element.isDone()) {
-				refreshTree = element.hasToRefreshTree();
-				containers = element.getExistingContainers();
-				model.importCompleted(element.getID());
-				view.onImportEnded(element);
-				if (markToclose) {
-					view.setVisible(false);
-				} else {
-					element = view.getElementToStartImportFor();
-					if (element != null) importData(element);
-				}
-				
-			}
-			fireStateChange();
-		}
-		//post an event
-		if (!controller.isMaster()) {
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			ImportStatusEvent event;
-			event = new ImportStatusEvent(hasOnGoingImport(), containers,
-					formattedResult);
-			event.setToRefresh(refreshTree);
-			bus.post(event);
-		}
-		
-		
-		if (!hasOnGoingImport() && chooser.reloadHierarchies() && !markToclose)
-		{
-			//reload the hierarchies.
-			Class rootType = ProjectData.class;
-			if (chooser != null && 
-					chooser.getType() == Importer.SCREEN_TYPE)
-				rootType = ScreenData.class;
-			model.fireContainerLoading(rootType, true, false, -1);
-			fireStateChange();
+			Object formattedResult = element.uploadComplete(f, result);
+			handleCompletion(element, formattedResult, true);
 		}
 	}
-	
+
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setExistingTags(Collection)
@@ -383,7 +417,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#submitFiles()
 	 */
-	public void submitFiles() { controller.submitFiles(); }
+	public void submitFiles() { controller.submitFiles(null); }
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
@@ -422,26 +456,6 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#cancelImport()
-	 */
-	public void cancelImport()
-	{
-		if (model.getState() != DISCARDED) {
-			ImporterUIElement element = view.getSelectedPane();
-			if (element != null && !element.isDone() && !element.isLastImport())
-			{
-				MessageBox box = new MessageBox(view, CANCEL_TITLE,
-						CANCEL_SELECTED_TEXT);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
-					return;
-				element.cancelLoading();
-				model.cancel(element.getID());
-			}
-		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#hasFailuresToSend()
 	 */
 	public boolean hasFailuresToSend()
@@ -455,7 +469,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#hasFailuresToSend()
 	 */
-	public boolean hasFailuresToReimport()
+	public boolean hasFailuresToReupload()
 	{
 		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
 			return false;
@@ -488,7 +502,7 @@ class ImporterComponent
 		Collection<ImporterUIElement> list = view.getImportElements();
 		List<ImporterUIElement> 
 		toImport = new ArrayList<ImporterUIElement>();
-		if (list == null || list.size() == 0) {
+		if (CollectionUtils.isEmpty(list)) {
 			 view.setVisible(false);
 			return;
 		}
@@ -498,14 +512,14 @@ class ImporterComponent
 		while (i.hasNext()) {
 			element = i.next();
 			if (element.hasStarted()) started = element;
-			if (!element.isDone())
+			if (!element.isUploadComplete())
 				toImport.add(element);
 		}
 		if (toImport.size() > 0) {
 			MessageBox box = new MessageBox(view, CANCEL_TITLE,
 					CANCEL_TEXT+"\n" +
 					"If Yes, the window will close when the on-going " +
-					"import is completed.");
+					"upload is completed.");
 			if (box.centerMsgBox() == MessageBox.NO_OPTION)
 				return;
 			markToclose = true;
@@ -513,10 +527,9 @@ class ImporterComponent
 			while (i.hasNext()) {
 				element = i.next();
 				element.cancelLoading();
-				//if (!element.hasStarted())
 				model.cancel(element.getID());
 			}
-			if (started != null && started.isDone()) {
+			if (started != null && started.isUploadComplete()) {
 				markToclose = false;
 			}
 		} else markToclose = false;
@@ -525,25 +538,28 @@ class ImporterComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#retryImport()
+	 * @see Importer#retryUpload(FileImportComponent)
 	 */
-	public void retryImport()
+	public void retryUpload(FileImportComponent fc)
 	{
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.getSelectedPane();
 		if (element == null) return;
-		List<FileImportComponent> l = element.getFilesToReimport();
-		if (l == null || l.size() == 0) return;
+		List<FileImportComponent> l;
+		if (fc != null) {
+			l = new ArrayList<FileImportComponent>(1);
+			l.add(fc);
+		} else l = element.getFilesToReupload();
+		if (CollectionUtils.isEmpty(l)) return;
 		Iterator<FileImportComponent> i = l.iterator();
-		FileImportComponent fc;
 		ImportableObject object = element.getData();
-		List<File> files = new ArrayList<File>();
+		List<ImportableFile> list = new ArrayList<ImportableFile>();
 		while (i.hasNext()) {
 			fc = i.next();
 			fc.setReimported(true);
-			files.add(fc.getFile());
+			list.add(fc.getImportableFile());
 		}
-		object.reImport(files);
+		object.reUpload(list);
 		importData(object);
 	}
 
@@ -638,7 +654,7 @@ class ImporterComponent
 			ImporterUIElement element;
 			while (i.hasNext()) {
 				element = i.next();
-				if (!element.isDone() && !element.isLastImport())
+				if (element.hasImportToCancel())
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
@@ -649,9 +665,10 @@ class ImporterComponent
 				i = toImport.iterator();
 				while (i.hasNext()) {
 					element = i.next();
-					element.cancelLoading();
-					//if (!element.hasStarted())
-					model.cancel(element.getID());
+					//if (element.hasImportToCancel()) {
+						element.cancelLoading();
+						//model.cancel(element.getID());
+					//}
 				}
 			}
 		}
@@ -762,7 +779,7 @@ class ImporterComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		}
 		Collection<ImporterUIElement> list = view.getImportElements();
-		if (list == null || list.size() == 0) {
+		if (CollectionUtils.isEmpty(list)) {
 			return;
 		}
 		Iterator<ImporterUIElement> i = list.iterator();
@@ -795,5 +812,95 @@ class ImporterComponent
 	 * @see Importer#getDisplayMode()
 	 */
 	public int getDisplayMode() { return model.getDisplayMode(); }
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#hasOnGoingUpload()
+	 */
+	public boolean hasOnGoingUpload()
+	{
+		if (model.getState() != DISCARDED) {
+			Collection<ImporterUIElement> list = view.getImportElements();
+			if (list == null || list.size() == 0) return false;
+			Iterator<ImporterUIElement> i = list.iterator();
+			ImporterUIElement element;
+			while (i.hasNext()) {
+				element = i.next();
+				if (!element.isUploadComplete())
+					return true;
+			}
+		}
+		return false;
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#onImportComplete(FileImportComponent)
+	 */
+	public void onImportComplete(FileImportComponent component)
+	{
+		if (component == null || model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getUIElement(component.getIndex());
+		if (element == null) return;
+		Object result = component.getImportResult();
+		if (result instanceof Exception) {
+			ImportErrorObject r = new ImportErrorObject(component.getFile(),
+					(Exception) result);
+			element.setImportResult(component, result);
+			handleCompletion(element, r, !component.hasParent());
+			return;
+		}
+		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
+		if (CollectionUtils.isEmpty(pixels)) return;
+		Collection<DataObject> l = new ArrayList<DataObject>();
+		Iterator<PixelsData> i = pixels.iterator();
+		Class<?> klass = ThumbnailData.class;
+		int n = FileImportComponent.MAX_THUMBNAILS;
+		if (component.isHCS()) {
+			n = 1;
+			klass = PlateData.class;
+		}
+		int index = 0;
+		while (i.hasNext()) {
+			if (index == n) break;
+			l.add(i.next());
+			index++;
+		}
+		model.fireImportResultLoading(l, klass, component);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#onUploadComplete(FileImportComponent)
+	 */
+	public void onUploadComplete(FileImportComponent component)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (component == null || model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getUIElement(component.getIndex());
+		if (element == null) return;
+		Object result = component.getImportResult();
+		Object formattedResult = element.uploadComplete(component, result);
+		if (!controller.isMaster()) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ImportStatusEvent e = new ImportStatusEvent(hasOnGoingImport(),
+					null, formattedResult);
+			bus.post(e);
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Importer#setImportResult(Object, Object)
+	 */
+	public void setImportResult(Object result, Object component)
+	{
+		if (component == null || model.getState() == DISCARDED) return;
+		FileImportComponent c = (FileImportComponent) component;
+		ImporterUIElement element = view.getUIElement(c.getIndex());
+		if (element == null) return;
+		element.setImportResult(c, result);
+		handleCompletion(element, result, !c.hasParent());
+	}
 
 }

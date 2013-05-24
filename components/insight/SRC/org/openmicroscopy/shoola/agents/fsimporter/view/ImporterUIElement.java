@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.view.ImporterUIElement 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -25,15 +25,15 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -47,21 +47,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+import javax.swing.Box;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
-import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.CheckSumDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.util.ImportStatus;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -82,7 +86,6 @@ import pojos.FileAnnotationData;
 import pojos.FilesetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TagAnnotationData;
 
 /** 
  * Component displaying an import.
@@ -104,6 +107,12 @@ class ImporterUIElement
 	/** Description of the component. */
 	private static final String DESCRIPTION = 
 		"Closing will cancel imports that have not yet started.";
+	
+	/** Text indicating to only show the failure.*/
+	private static final String SHOW_FAILURE = "Show Failed";
+	
+	/** Text indicating to show all the imports.*/
+	private static final String SHOW_ALL = "Show All";
 	
 	/** The columns for the layout of the {@link #entries}. */
 	private static final double[] COLUMNS = {TableLayout.FILL};
@@ -127,6 +136,12 @@ class ImporterUIElement
 		IMPORT_PARTIAL = icons.getIcon(IconManager.APPLY_CANCEL);
 	}
 	
+	/** The message to display in the header.*/
+	private static final String MESSAGE = 
+			"When upload is complete, the import\n" +
+			"window and OMERO session can be closed.\n" +
+			"Processing will continue on the server.";
+	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
 	
@@ -136,63 +151,57 @@ class ImporterUIElement
 	/** Component hosting the entries. */
 	private JPanel	entries;
 
+	/** The number of cancellation.*/
+	private int countCancelled;
+	
+	/** The number of uploaded files.*/
+	private int countUploaded;
+	
 	/** The number of files/folder imported. */
 	private int countImported;
 	
-	/** The number of files imported. */
-	private int countFilesImported;
+	/** The number of files uploaded. */
+	private int countUploadFailure;
 	
-	/** The number of files imported. */
-	private int countCancelled;
-	
-	/** The number of files imported. */
+	/** 
+	 * The number of failures that occurred during scanning, uploading
+	 * or processing.
+	 */
 	private int countFailure;
 	
 	/** The total number of files or folder to import. */
 	private int totalToImport;
 	
-	/** The total number of files to import.*/
-	private int totalFilesToImport;
+	/** The size of the import. */
+	private long sizeImport;
 	
-	/** The time when the import started. */
-	private long startImport;
-	
-	/** The component displaying the duration of the import. */
-	private JLabel timeLabel;
+	/** The component displaying the size the import. */
+	private JLabel sizeLabel;
 	
 	/** The component displaying the number of files to import. */
 	private JLabel numberOfImportLabel;
-	
+
+	/** Label for report display */
+	private JLabel reportLabel;
+
+	/** Label for import size display */
+	private JLabel importSizeLabel;
+			
 	/** The identifier of the component. */
 	private int id;
 	
 	/** The collection of folders' name used as dataset. */
 	private Map<JLabel, Object> foldersName;
-	
-	/** Flag indicating that the images will be added to the default dataset. */
-	private boolean orphanedFiles;
+
+	/** Reference to the view. */
+	private ImporterUI view;
 	
 	/** Reference to the controller. */
 	private ImporterControl controller;
 	
 	/** Reference to the controller. */
 	private ImporterModel model;
-	
-	/** The components displaying the components. */
-	private Map<JLabel, Object> containerComponents;
-	
-	/** The components displaying the components. */
-	private Map<JLabel, Object> topContainerComponents;
-	
-	/** Flag indicating to refresh the topContainer. */
-	private boolean topContainerToRefresh;
-	
-	/** The listener associated to the folder. */
-	private MouseAdapter folderListener;
-	
-	/** The listener associated to the container. */
-	private MouseAdapter containerListener;
-	
+
 	/** The type of container to handle. */
 	private int type;
 	
@@ -205,6 +214,9 @@ class ImporterUIElement
 	/**The icon used to indicate an on-going import.*/
 	private RotationIcon rotationIcon;
 	
+	/** Controls used to filter the result.*/
+	private JButton filterButton;
+	
 	/**
 	 * Returns the object found by identifier.
 	 * 
@@ -216,7 +228,6 @@ class ImporterUIElement
 	{
 		Iterator i = result.iterator();
 		DataObject object;
-		String n = "";
 		while (i.hasNext()) {
 			object = (DataObject) i.next();
 			if (object.getClass().equals(data.getClass()) 
@@ -267,13 +278,12 @@ class ImporterUIElement
 	private void setNumberOfImport()
 	{
 		StringBuffer buffer = new StringBuffer();
+		int n = countUploaded-countUploadFailure-countCancelled;
+		if (n < 0) n = 0;
+		buffer.append(n);
 		buffer.append(" out of ");
-		buffer.append(totalFilesToImport);
-		buffer.append(" imported: "+countFilesImported);
-		if (countCancelled > 0)
-			buffer.append(" cancelled: "+countCancelled);
-		if (countFailure > 0)
-			buffer.append(" failed: "+countFailure);
+		buffer.append(totalToImport);
+		buffer.append(" uploaded");
 		numberOfImportLabel.setText(buffer.toString());
 	}
 	
@@ -295,79 +305,43 @@ class ImporterUIElement
 						node));
 		}
 	}
-	
+
 	/**
-	 * Returns the label hosting the passed object.
-	 * 
-	 * @param data The object to handle.
-	 * @return See above.
+	 * Displays only the failures or all the results.
 	 */
-	private JLabel createNameLabel(Object data)
+	private void filterFailures()
 	{
-		JLabel label = new JLabel();
-		boolean browse = false;
-		String name = "";
-		if (data instanceof DatasetData) {
-			browse = true;
-			name = ((DatasetData) data).getName();
-		} else if (data instanceof ScreenData) {
-			browse = true;
-			name = ((ScreenData) data).getName();
-		} else if (data instanceof ProjectData) {
-			browse = true;
-			name = ((ProjectData) data).getName();
+		String v = filterButton.getText();
+		if (SHOW_FAILURE.equals(v)) {
+			filterButton.setText(SHOW_ALL);
+			layoutEntries(true);
+		} else {
+			filterButton.setText(SHOW_FAILURE);
+			layoutEntries(false);
 		}
-		label.setEnabled(browse);
-		if (browse) {
-			label.setBackground(UIUtilities.BACKGROUND_COLOR);
-			label.setToolTipText("Browse when import completed.");
-		}
-		label.setText(name);
-		return label;
 	}
 	
 	/** Initializes the components. */
 	private void initialize()
 	{
+		filterButton = new JButton(SHOW_FAILURE);
+		filterButton.setEnabled(false);
+		filterButton.addActionListener(new ActionListener() {
+			
+			/**
+			 * Filters or not the import that did not fail.
+			 */
+			public void actionPerformed(ActionEvent evt) {
+				filterFailures();
+			}
+		});
+		sizeImport = 0;
 		busyLabel = new JXBusyLabel(ICON_SIZE);
-		
 		numberOfImportLabel = UIUtilities.createComponent(null);
-		containerComponents = new LinkedHashMap<JLabel, Object>();
-		topContainerComponents = new LinkedHashMap<JLabel, Object>();
 		foldersName = new LinkedHashMap<JLabel, Object>();
-		folderListener = new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse(foldersName.get((JLabel) src), null);
-				}
-			}
-		};
-		containerListener = new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					browse(containerComponents.get((JLabel) src), null);
-				}
-			}
-		};
-		countImported = 0;
-		countCancelled = 0;
+		countUploadFailure = 0;
 		countFailure = 0;
-		countFilesImported = 0;
-		//setClosable(true);
+		countUploaded = 0;
 		addPropertyChangeListener(controller);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
@@ -376,7 +350,6 @@ class ImporterUIElement
 		FileImportComponent c;
 		File f;
 		Iterator<ImportableFile> i = files.iterator();
-		orphanedFiles = false;
 		ImportableFile importable;
 		type = -1;
 		List<Object> containers = object.getRefNodes();
@@ -400,16 +373,12 @@ class ImporterUIElement
 			type = FileImportComponent.NO_CONTAINER;
 		}
 		JLabel l;
-		int count = 0;
 		boolean single = model.isSingleGroup();
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
-			c = new FileImportComponent(f, importable.isFolderAsContainer(),
-					!controller.isMaster(), importable.getGroup(),
-					importable.getUser(), single);
-			c.setLocation(importable.getParent(), importable.getDataset(), 
-					importable.getRefNode());
+			c = new FileImportComponent(importable,
+					!controller.isMaster(), single, getID(), object.getTags());
 			c.setType(type);
 			c.addPropertyChangeListener(controller);
 			c.addPropertyChangeListener(new PropertyChangeListener() {
@@ -427,22 +396,7 @@ class ImporterUIElement
 								name)) {
 						//-1 to remove the entry for the folder.
 						Integer v = (Integer) evt.getNewValue()-1;
-						totalFilesToImport += v;
-						setNumberOfImport();
-					} else if (
-						FileImportComponent.IMPORT_STATUS_CHANGE_PROPERTY.equals(
-								name)) {
-						Integer v = (Integer) evt.getNewValue();
-						switch (v) {
-							case FileImportComponent.FAILURE:
-								countFailure++;
-								break;
-							case FileImportComponent.PARTIAL:
-								countCancelled++;
-								break;
-							default:
-								countFilesImported++;
-						}
+						totalToImport += v;
 						setNumberOfImport();
 					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
 							name)) {
@@ -455,16 +409,37 @@ class ImporterUIElement
 								ImporterAgent.getRegistry().lookup(
 										LookupNames.ENV);
 						String path = env.getOmeroFilesHome();
-						path += File.separator+v.getFileID();
-						File f = new File(path);
+						long id = v.getFileID();
+						if (id < 0) return;
+						File f = new File(path, "log_"+id);
 						DownloadAndLaunchActivityParam activity;
-						activity = new DownloadAndLaunchActivityParam(
-								v.getFileID(),
+						activity = new DownloadAndLaunchActivityParam(id,
 								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
 								f, null);
 						UserNotifier un =
 								ImporterAgent.getRegistry().getUserNotifier();
 						un.notifyActivity(model.getSecurityContext(), activity);
+					} else if (
+						FileImportComponent.RETRIEVE_LOGFILEPROPERTY.equals(
+							name)) {
+						FilesetData data = (FilesetData) evt.getNewValue();
+						if (data != null)
+							model.fireImportLogFileLoading(data.getId(), id);
+					} else if (
+						FileImportComponent.CHECKSUM_DISPLAY_PROPERTY.equals(
+							name)) {
+						StatusLabel label = (StatusLabel) evt.getNewValue();
+						CheckSumDialog d = new CheckSumDialog(view, label);
+						UIUtilities.centerAndShow(d);
+					} else if (FileImportComponent.RETRY_PROPERTY.equals(name)) {
+						controller.retryUpload(
+								(FileImportComponent) evt.getNewValue());
+					} else if (
+						FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+						controller.cancel(
+								(FileImportComponent) evt.getNewValue());
+						//System.err.println("Cancel");
+						//countCancelled++;
 					}
 				}
 			});
@@ -477,12 +452,13 @@ class ImporterUIElement
 				if (importable.isFolderAsContainer()) {
 					String name = f.getParentFile().getName();
 					//first check if the name is already there.
-					Entry entry;
-					Iterator k = foldersName.entrySet().iterator();
+					Entry<JLabel, Object> entry;
+					Iterator<Entry<JLabel, Object>>
+					k = foldersName.entrySet().iterator();
 					boolean exist = false;
 					while (k.hasNext()) {
-						entry = (Entry) k.next();
-						l = (JLabel) entry.getKey();
+						entry = k.next();
+						l = entry.getKey();
 						if (l.getText().equals(name)) {
 							exist = true;
 							break;
@@ -492,31 +468,11 @@ class ImporterUIElement
 						foldersName.put(new JLabel(name), c);
 					}
 				}
-				if (!c.isHCSFile()) count++;
 			}
 			importable.setStatus(c.getStatus());
-			//
 			components.put(c.toString(), c);
 		}
-		List<DataObject> objects = getExistingContainers();
-		int n = objects.size();
-		if (n == 1) {
-			DataObject o = objects.get(0);
-			containerComponents.put(createNameLabel(o), o);
-			Iterator<FileImportComponent> j = components.values().iterator();
-			while (j.hasNext()) {
-				j.next().showContainerLabel(false);
-			}
-		} else if (n == 0) {
-			if (foldersName.size() == 1) {
-				Iterator<FileImportComponent> j = components.values().iterator();
-				while (j.hasNext()) {
-					j.next().showContainerLabel(false);
-				}
-			}
-		}
 		totalToImport = files.size();
-		totalFilesToImport = files.size();
 	}
 	
 	/** 
@@ -532,6 +488,20 @@ class ImporterUIElement
 		return p;
 	}
 	
+	/**
+	 * Make the JTextArea represent a multiline label.
+	 * 
+	 * @param textArea The component to handle.
+	 */
+	private void makeLabelStyle(JTextArea textArea)
+	{
+		if (textArea == null) return;
+		textArea.setEditable(false);
+		textArea.setCursor(null);
+		textArea.setOpaque(false);
+		textArea.setFocusable(false);
+	}
+	
 	/** 
 	 * Builds and lays out the header.
 	 * 
@@ -539,52 +509,56 @@ class ImporterUIElement
 	 */
 	private JPanel buildHeader()
 	{
+		sizeLabel = UIUtilities.createComponent(null);
+		sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+		reportLabel = UIUtilities.setTextFont("Report:", Font.BOLD);
+		importSizeLabel = UIUtilities.setTextFont("Import Size:", Font.BOLD);
+		double[][] design = new double[][]{
+					{TableLayout.PREFERRED},
+					{TableLayout.PREFERRED, TableLayout.PREFERRED}
+				};
+		TableLayout layout = new TableLayout(design);
+		JPanel detailsPanel = new JPanel(layout);
+		detailsPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		JPanel p = createRow();
+		p.add(reportLabel);
+		p.add(numberOfImportLabel);
+		detailsPanel.add(p, "0, 0");
+		p = createRow();
+		p.add(importSizeLabel);
+		p.add(sizeLabel);
+		detailsPanel.add(p, "0, 1");
+		
+		JPanel middlePanel = new JPanel();
+		middlePanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		middlePanel.add(filterButton);
+		
+    	JTextArea description = new JTextArea(MESSAGE);
+    	makeLabelStyle(description);
+    	description.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	
+		JPanel descriptionPanel = new JPanel();
+		descriptionPanel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		descriptionPanel.add(description);
+		
 		JPanel header = new JPanel();
 		header.setBackground(UIUtilities.BACKGROUND_COLOR);
 		header.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+		header.setLayout(new BorderLayout());
 		
-		JLabel label = UIUtilities.setTextFont("Report:", Font.BOLD);
-		JPanel row = createRow();
-		row.add(label);
-		row.add(numberOfImportLabel);
-		header.add(row);
-		row = createRow();
-		label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
-		timeLabel = UIUtilities.createComponent(null);
-		timeLabel.setText(UIUtilities.formatShortDateTime(null));
-    	row.add(label);
-    	row.add(timeLabel);
-    	header.add(row);
-    	Collection<TagAnnotationData> tags = object.getTags();
-		if (tags != null && tags.size() > 0) {
-			row = createRow();
-			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
-			JLabel value = UIUtilities.createComponent(null);
-			StringBuffer buffer = new StringBuffer();
-			Iterator<TagAnnotationData> i = tags.iterator();
-			int index = 0;
-			int n = tags.size()-1;
-			while (i.hasNext()) {
-				buffer.append((i.next()).getTagValue());
-				if (index < n) buffer.append(", ");
-				index++;
-			}
-			value.setText(buffer.toString());
-			row.add(label);
-			row.add(value);
-			header.add(row);
-		}
-		topContainerToRefresh = topContainerToRefresh();
-		JPanel content = UIUtilities.buildComponentPanel(header);
-		content.setBackground(UIUtilities.BACKGROUND_COLOR);
-		return content;
+		header.add(Box.createVerticalStrut(10), BorderLayout.NORTH);
+		header.add(detailsPanel, BorderLayout.WEST);
+		header.add(middlePanel, BorderLayout.CENTER);
+		header.add(descriptionPanel, BorderLayout.EAST);
+		header.add(Box.createVerticalStrut(10), BorderLayout.SOUTH);
+		
+		return header;
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		layoutEntries();
+		layoutEntries(false);
 		JScrollPane pane = new JScrollPane(entries);
 		pane.setOpaque(false);
 		pane.setBorder(new LineBorder(Color.LIGHT_GRAY));
@@ -593,8 +567,13 @@ class ImporterUIElement
 		add(pane, BorderLayout.CENTER);
 	}
 	
-	/** Lays out the entries. */
-	private void layoutEntries()
+	/** 
+	 * Lays out the entries.
+	 * 
+	 * @param failure Pass <code>true</code> to display the failed import only,
+	 * <code>false</code> to display all the entries.
+	 */
+	private void layoutEntries(boolean failure)
 	{
 		entries.removeAll();
 		TableLayout layout = new TableLayout();
@@ -604,11 +583,32 @@ class ImporterUIElement
 		Entry<String, FileImportComponent> entry;
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = i.next();
-			addRow(layout, index, entry.getValue());
-			index++;
+		FileImportComponent fc;
+		if (failure) {
+			while (i.hasNext()) {
+				entry = i.next();
+				fc = entry.getValue();
+				if (fc.hasComponents()) {
+					addRow(layout, index, entry.getValue());
+					fc.layoutEntries(failure);
+					index++;
+				} else {
+					if (fc.hasImportFailed()) {
+						addRow(layout, index, entry.getValue());
+						index++;
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				entry = i.next();
+				fc = entry.getValue();
+				addRow(layout, index, fc);
+				fc.layoutEntries(failure);
+				index++;
+			}
 		}
+		
 		entries.revalidate();
 		repaint();
 		setNumberOfImport();
@@ -628,50 +628,7 @@ class ImporterUIElement
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
 		else 
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
-		entries.add(c, "0, "+index+"");
-	}
-	
-	/**
-	 * Returns <code>true</code> if some files were imported, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean toRefresh()
-	{
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (fc.toRefresh()) 
-				return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the top container has to be refreshed,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean topContainerToRefresh()
-	{
-		List<DataObject> l = getExistingContainers();
-		if (l == null || l.size() == 0) return false;
-		DataObject object = l.get(0);
-		if (!(object instanceof ProjectData)) return false;
-		Iterator<FileImportComponent> i = components.values().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			fc = i.next();
-			if (fc.isFolderAsContainer())
-				return true;
-		}
-		return false;
+		entries.add(c, new TableLayoutConstraints(0, index));
 	}
 	
 	/**
@@ -679,13 +636,15 @@ class ImporterUIElement
 	 * 
 	 * @param controller Reference to the control. Mustn't be <code>null</code>.
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the model. Mustn't be <code>null</code>.
 	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
 	 * @param object the object to handle. Mustn't be <code>null</code>.
 	 */
 	ImporterUIElement(ImporterControl controller, ImporterModel model,
-			int id, int index, String name, ImportableObject object)
+			ImporterUI view, int id, int index, String name,
+			ImportableObject object)
 	{
 		super(index, name, DESCRIPTION);
 		if (object == null) 
@@ -693,9 +652,12 @@ class ImporterUIElement
 		if (controller == null)
 			throw new IllegalArgumentException("No Control.");
 		if (model == null)
-			throw new IllegalArgumentException("No Model."); 
+			throw new IllegalArgumentException("No Model.");
+		if (view == null)
+			throw new IllegalArgumentException("No View.");
 		this.controller = controller;
 		this.model = model;
+		this.view = view;
 		this.id = id;
 		this.object = object;
 		initialize();
@@ -717,7 +679,6 @@ class ImporterUIElement
 	 */
 	Object getFormattedResult(ImportableFile f)
 	{
-		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
 		if (c == null) return null;
 		ImportErrorObject object = c.getImportErrorObject();
@@ -726,6 +687,7 @@ class ImporterUIElement
 		return null;
 	}
 	
+
 	/**
 	 * Sets the result of the import for the specified file.
 	 * 
@@ -733,74 +695,87 @@ class ImporterUIElement
 	 * @param result The result.
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
-	Object setImportedFile(ImportableFile f, Object result)
+	Object uploadComplete(ImportableFile f, Object result)
 	{
-		File file = f.getFile();
 		FileImportComponent c = components.get(f.toString());
-		Object formattedResult = null;
-		if (c != null) {
-			formattedResult = c.setStatus(false, result);
-			countImported++;
-			if (isDone() && rotationIcon != null)
-				rotationIcon.stopRotation();
-			if (file.isFile()) {
-				if (c.hasImportFailed()) countFailure++;
-				else if (!c.isCancelled()) countFilesImported++;
-			}
-			if (file.isDirectory() && !c.hasComponents() && 
-					c.isCancelled()) countCancelled++;
-			setNumberOfImport();
-			setClosable(isDone());
-			boolean toRefresh = toRefresh();
-			if (isDone()) {
-				Iterator<JLabel> i = containerComponents.keySet().iterator();
-				JLabel label;
-				if (toRefresh) {
-					while (i.hasNext()) {
-						label = i.next();
-						if (label.isEnabled()) {
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-							label.addMouseListener(containerListener);
-						}
+		return uploadComplete(c, result);
+	}
+	
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param f The imported file.
+	 * @param result The result.
+	 * @param index The index corresponding to the component
+	 * @result Returns the formatted result or <code>null</code>.
+	 */
+	Object uploadComplete(FileImportComponent c, Object result)
+	{
+		if (c == null) return null;
+		c.uploadComplete(result);
+		File file = c.getFile();
+		Object r = null;
+		if (file.isFile()) {
+			countUploaded++;
+			sizeImport += c.getImportSize();
+			sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+			//handle error that occurred during the scanning or upload.
+			//Check that the result has not been set.
+			if (!c.hasResult()) {
+				if (result instanceof Exception) {
+					r = new ImportErrorObject(file, (Exception) result);
+					setImportResult(c, result);
+				} else if (result instanceof Boolean) {
+					Boolean b = (Boolean) result;
+					if (!b && c.isCancelled()) countCancelled++;
+					setImportResult(c, result);
+				} else {
+					if (c.isCancelled()) {
+						countCancelled--;
+						countUploaded--;
 					}
 				}
-				if (topContainerToRefresh) {
-					i = topContainerComponents.keySet().iterator();
-					while (i.hasNext()) {
-						label = i.next();
-						if (label.isEnabled())
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-					}
-				}
-				if (foldersName.size() > 0) {
-					Entry entry;
-					Iterator k = foldersName.entrySet().iterator();
-					FileImportComponent fc;
-					Object value;
-					while (k.hasNext()) {
-						entry = (Entry) k.next();
-						label = (JLabel) entry.getKey();
-						value = entry.getValue();
-						if (value instanceof FileImportComponent) {
-							fc = (FileImportComponent) value;
-							if (fc.toRefresh()) {
-								label.setForeground(UIUtilities.HYPERLINK_COLOR);
-								label.addMouseListener(folderListener);
-							}
-						} else {
-							label.setForeground(UIUtilities.HYPERLINK_COLOR);
-							label.addMouseListener(folderListener);
-						}
-					}
-				}
-				long duration = System.currentTimeMillis()-startImport;
-				String text = timeLabel.getText();
-				String time = UIUtilities.calculateHMS((int) (duration/1000));
-				timeLabel.setText(text+" Duration: "+time);
 			}
 		}
-		return formattedResult;
+		setNumberOfImport();
+		setClosable(isUploadComplete());
+		return r;
 	}
+	
+	/**
+	 * Sets the result of the import for the specified file.
+	 * 
+	 * @param fc The component hosting the file to import.
+	 * @param result The result.
+	 * @result Returns the formatted result or <code>null</code>.
+	 */
+	void setImportResult(FileImportComponent fc, Object result)
+	{
+		if (fc == null) return;
+		File file = fc.getFile();
+		if (file.isFile()) {
+			fc.setStatus(result);
+			countImported++;
+			if (fc.isCancelled() && !(result instanceof Boolean))
+				countImported--;
+			if (isDone() && rotationIcon != null)
+				rotationIcon.stopRotation();
+			if (fc.hasUploadFailed()) countUploadFailure++;
+			if (fc.hasImportFailed()) countFailure++;
+			setNumberOfImport();
+			setClosable(isDone());
+			filterButton.setEnabled(countFailure > 0 &&
+					countFailure != totalToImport);
+		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the upload is finished, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUploadComplete() { return countUploaded == totalToImport; }
 	
 	/**
 	 * Returns <code>true</code> if the import is finished, <code>false</code>
@@ -825,7 +800,6 @@ class ImporterUIElement
 	 */
 	Icon startImport(JComponent component)
 	{ 
-		startImport = System.currentTimeMillis();
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
@@ -839,6 +813,27 @@ class ImporterUIElement
 	 * @return See above.
 	 */
 	boolean hasStarted() { return busyLabel.isBusy(); }
+	
+	/**
+	 * Returns <code>true</code> if the component has imports in the queue that
+	 * have not yet started., <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasImportToCancel()
+	{
+		//if (!hasStarted()) return true;
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (!fc.hasImportStarted()) return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * Returns the collection of files that could not be imported.
@@ -855,7 +850,7 @@ class ImporterUIElement
 		List<FileImportComponent> l;
 		while (i.hasNext()) {
 			entry = i.next();
-			fc = (FileImportComponent) entry.getValue();
+			fc = entry.getValue();
 			l = fc.getImportErrors();
 			if (l != null && l.size() > 0)
 				list.addAll(l);
@@ -868,7 +863,7 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	List<FileImportComponent> getFilesToReimport()
+	List<FileImportComponent> getFilesToReupload()
 	{
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		Entry<String, FileImportComponent> entry;
@@ -879,8 +874,8 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			l = fc.getReImport();
-			if (l != null && l.size() > 0)
+			l = fc.getFilesToReupload();
+			if (!CollectionUtils.isEmpty(l))
 				list.addAll(l);
 		}
 		return list;
@@ -930,27 +925,6 @@ class ImporterUIElement
 		existingContainers.addAll(screens.values());
 		return existingContainers;
 	}
-	
-	/**
-	 * Returns <code>true</code> if errors to send, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasFailuresToSend()
-	{
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (fc.hasFailuresToSend()) 
-				return true;
-		}
-		return false;
-	}
 
 	/**
 	 * Sets the import log file for each import component.
@@ -970,6 +944,28 @@ class ImporterUIElement
 			fc.setImportLogFile(data, id);
 		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToSend()
+	{
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (fc.hasFailuresToSend())
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns <code>true</code> if files to reimport, <code>false</code>
 	 * otherwise.
@@ -985,7 +981,7 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			if (fc.hasFailuresToReimport()) 
+			if (fc.hasFailuresToReimport())
 				return true;
 		}
 		return false;
@@ -1035,20 +1031,20 @@ class ImporterUIElement
 			FileImportComponent fc;
 			Entry<String, FileImportComponent> entry;
 			int failure = 0;
-			int v;
+			ImportStatus v;
 			while (i.hasNext()) {
 				entry = i.next();
 				fc = entry.getValue();
 				v = fc.getImportStatus();
-				if (v == FileImportComponent.PARTIAL)
+				if (v == ImportStatus.PARTIAL)
 					return IMPORT_PARTIAL;
-				if (v == FileImportComponent.FAILURE) failure++;
+				if (v == ImportStatus.FAILURE) failure++;
 			}
-			if (failure == totalToImport) return IMPORT_FAIL;
-			else if (failure != 0) return IMPORT_PARTIAL;
+			if (failure == components.size()) return IMPORT_FAIL;
+			else if (failure > 0) return IMPORT_PARTIAL;
 			return IMPORT_SUCCESS;
 		}
-		return busyLabel.getIcon(); 
+		return busyLabel.getIcon();
 	}
 	
 	/** Invokes when the import is finished. */

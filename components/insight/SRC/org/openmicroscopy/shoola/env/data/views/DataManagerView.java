@@ -352,4 +352,15 @@ public interface DataManagerView
 			List<ChannelData> channels, List<DataObject> objects,
 			AgentEventListener channelDataSaver);
 	
+	/**
+	 * Loads to the plate hosting the specified images.
+	 * 
+	 * 
+	 * @param ctx The security context.
+	 * @param ids The collection of image's ids.
+	 * @param observer Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadPlateFromImage(SecurityContext ctx,
+		Collection<Long> ids, AgentEventListener observer);
 }

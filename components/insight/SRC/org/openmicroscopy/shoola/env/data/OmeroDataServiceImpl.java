@@ -67,6 +67,7 @@ import omero.model.TagAnnotation;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -1008,6 +1009,26 @@ class OmeroDataServiceImpl
 		}
 		Map<String, String> options = new HashMap<String, String>();
 		return gateway.transfer(ctx, target, map, options);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadPlateFromImage(SecurityContext, Collection)
+	 */
+	public Map<Long, PlateData> loadPlateFromImage(SecurityContext ctx,
+		Collection<Long> ids)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		if (CollectionUtils.isEmpty(ids))
+			throw new IllegalArgumentException("No images specified.");
+		Map<Long, PlateData> r = new HashMap<Long, PlateData>();
+		Iterator<Long> i = ids.iterator();
+		Long id;
+		while (i.hasNext()) {
+			id = i.next();
+			r.put(id, gateway.getImportedPlate(ctx, id));
+		}
+		return r;
 	}
 
 }

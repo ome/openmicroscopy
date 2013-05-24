@@ -36,6 +36,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.ImportLibrary.ImportCallback;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.repo.path.ClientFilePathTransformer;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
@@ -44,7 +45,6 @@ import ome.services.blitz.repo.path.FsFile;
 import ome.services.blitz.repo.path.MakePathComponentSafe;
 import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
-
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.cmd.CmdCallbackI;
@@ -183,10 +183,9 @@ public class ManagedRepositoryTest
         // steps.
         final HandlePrx handle = proc.verifyUpload(checksums);
         final ImportRequest req = (ImportRequest) handle.getRequest();
-        final Fileset fs = req.activity.getParent();
-        final CmdCallbackI cb = lib.createCallback(proc, handle, container);
+        final ImportCallback cb = lib.createCallback(proc, handle, container);
         cb.loop(60*60, 1000); // Wait 1 hr per step.
-        final ImportResponse rsp = lib.getImportResponse(cb, container, fs);
+        assertNotNull(cb.getImportResponse());
         return req.location;
 	}
 
@@ -472,7 +471,7 @@ public class ManagedRepositoryTest
         srcPaths.add(file1.getAbsolutePath());
         srcPaths.add(file2.getAbsolutePath());
         // TODO: due to verifyUpload one cannot obtain the import location without uploading both files
-        ImportLocation data = importFileset(srcPaths, 1);
+        ImportLocation data = importFileset(srcPaths, 2);
 
         assertFileExists("Upload failed. File does not exist: ", pathToUsedFile(data, 0));
         assertFileDoesNotExist("Something wrong. File does exist!: ", pathToUsedFile(data, 1));

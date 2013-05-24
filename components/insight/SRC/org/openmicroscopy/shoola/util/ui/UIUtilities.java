@@ -50,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
 
@@ -85,6 +84,7 @@ import javax.swing.text.TabStop;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
@@ -1508,7 +1508,67 @@ public class UIUtilities
      */
     public static String calculateHMSFromMilliseconds(long timeInMilliSeconds)
     {
-    	return calculateHMS((int) (timeInMilliSeconds/1000));
+    	return calculateHMS((int) (timeInMilliSeconds/1000), false);
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
+     * @param timeInMilliSeconds The time in milliseconds to convert.
+     * @param shortUnit Pass <code>true</code> to use short units
+     * e.g. s for second, <code>false</code> otherwise.
+     * @return See above.
+     */
+    public static String calculateHMSFromMilliseconds(long timeInMilliSeconds,
+    		boolean shortUnit)
+    {
+    	return calculateHMS((int) (timeInMilliSeconds/1000), shortUnit);
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
+     * @param timeInSeconds The time in seconds to convert.
+     * @param shortUnit Pass <code>true</code> to use short units
+     * e.g. s for second, <code>false</code> otherwise.
+     * @return See above.
+     */
+    public static String calculateHMS(int timeInSeconds, boolean shortUnit)
+    {
+        int hours = timeInSeconds/3600;
+        timeInSeconds = timeInSeconds-(hours*3600);
+        int minutes = timeInSeconds/60;
+        timeInSeconds = timeInSeconds-(minutes*60);
+        int seconds = timeInSeconds;
+        StringBuffer text = new StringBuffer();
+        if (hours > 0) {
+        	text.append(hours);
+        	if (shortUnit) text.append("h");
+        	else {
+        		text.append(" hour");
+        		if (hours > 1) text.append("s");
+        	}
+        }
+       
+        if (minutes > 0) {
+        	text.append(" "); 
+        	text.append(minutes);
+        	if (shortUnit) text.append("min");
+        	else {
+        		text.append(" minute");
+            	if (minutes > 1) text.append("s");
+        	}
+        }
+        if (seconds > 0) {
+        	text.append(" "); 
+        	text.append(seconds);
+        	if (shortUnit) text.append("s");
+        	else {
+        		text.append(" second");
+            	if (seconds > 1) text.append("s");
+        	}
+        }
+        return text.toString();
     }
     
     /**
@@ -1519,30 +1579,7 @@ public class UIUtilities
      */
     public static String calculateHMS(int timeInSeconds)
     {
-        int hours = timeInSeconds/3600;
-        timeInSeconds = timeInSeconds-(hours*3600);
-        int minutes = timeInSeconds/60;
-        timeInSeconds = timeInSeconds-(minutes*60);
-        int seconds = timeInSeconds;
-        String text = "";
-        if (hours > 0) {
-        	text += hours;
-        	text += " hour";
-        }
-        if (hours > 1) text += "s";
-        if (minutes > 0) {
-        	text += " "; 
-        	text += minutes;
-        	text += " minute";
-        	if (minutes > 1) text += "s";
-        }
-        if (seconds > 0) {
-        	text += " "; 
-        	text += seconds;
-        	text += " second";
-        	if (seconds > 1) text += "s";
-        }
-        return text;
+        return calculateHMS(timeInSeconds, false);
     }
     
     /**
@@ -2107,7 +2144,7 @@ public class UIUtilities
 		if (alpha == 0) alpha = 255;
 		return ((alpha & 0xFF) << 24) |
     	((c.getRed() & 0xFF) << 16) |
-    	((c.getGreen() & 0xFF) << 8)  |
+    	((c.getGreen() & 0xFF) << 8) |
     	((c.getBlue() & 0xFF) << 0);
 	}
 	
@@ -2208,7 +2245,6 @@ public class UIUtilities
     {
     	if (ex == null) return "";
     	if (n <= 0) n = MAX_LINES_EXCEPTION;
-    	//ex.printStackTrace();
     	String s;
     	if (ex.getCause() != null) {
     		s = UIUtilities.printErrorText(ex.getCause());
@@ -2222,8 +2258,11 @@ public class UIUtilities
    			for (int i = 0; i < lines.length-1; i++) {
    				lines[i] = values[i];
    			}
-   			lines[lines.length-1] = 
-   				"... "+(values.length-MAX_LINES_EXCEPTION)+" more";
+   			StringBuffer buffer = new StringBuffer();
+   			buffer.append(DOTS);
+   			buffer.append(values.length-MAX_LINES_EXCEPTION);
+   			buffer.append(" more");
+   			lines[lines.length-1] = buffer.toString();
    		}
    		return formatToolTipText(lines);
     }
@@ -2298,8 +2337,7 @@ public class UIUtilities
     {
     	if (family == null) return "";
     	String value = FONTS.get(family);
-    	if (value == null || value.trim().length() == 0)
-    		return "";
+    	if (StringUtils.isBlank(value)) return "";
     	return value;
     }
     
@@ -2414,7 +2452,10 @@ public class UIUtilities
 		int n = DOTS.length()+numberOfCharacters;
 		int m = name.length();
 		if (m <= n) return name;
-		return DOTS+name.substring(m-n, m);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(DOTS);
+		buffer.append(name.substring(m-n, m));
+		return buffer.toString();
 	}
 	
 	/**
@@ -2493,13 +2534,22 @@ public class UIUtilities
     	int remainder = v%3600;
     	int minutes = remainder/60;
     	int seconds = remainder%60;
-    	String text = "";
-    	if (hours > 0) text += hours+"h";
+    	StringBuffer text = new StringBuffer();
+    	if (hours > 0) {
+    		text.append(hours);
+    		text.append("h");
+    	}
     	if (minutes > 0) {
-    		text += minutes+"min";
-    		if (seconds > 0) text += seconds+"s";
-    	} else text +=  seconds+"s";
-	
-		return text;
+    		text.append(minutes);
+    		text.append("min");
+    		if (seconds > 0) {
+    			text.append(seconds);
+        		text.append("s");
+    		}
+    	} else {
+    		text.append(seconds);
+    		text.append("s");
+    	}
+		return text.toString();
     }
 }

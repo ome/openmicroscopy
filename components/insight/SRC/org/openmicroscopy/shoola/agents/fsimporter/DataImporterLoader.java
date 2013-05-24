@@ -34,6 +34,7 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
+import org.openmicroscopy.shoola.env.data.views.HierarchyBrowsingView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
@@ -80,6 +81,9 @@ public abstract class DataImporterLoader
     /** Convenience reference for subclasses. */
     protected final DataManagerView dmView;
     
+    /** Convenience reference for subclasses. */
+    protected final HierarchyBrowsingView hiBrwView;
+    
     /** The id of the user or <code>-1</code>. */
     protected long userID;
     
@@ -119,6 +123,8 @@ public abstract class DataImporterLoader
 		adminView = (AdminView) registry.getDataServicesView(AdminView.class);
 		dmView = (DataManagerView) 
 			registry.getDataServicesView(DataManagerView.class);
+		hiBrwView = (HierarchyBrowsingView) 
+    			registry.getDataServicesView(HierarchyBrowsingView.class);
 	}
 
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

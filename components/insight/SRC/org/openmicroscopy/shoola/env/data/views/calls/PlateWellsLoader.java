@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -82,16 +82,34 @@ public class PlateWellsLoader
             {
             	OmeroDataService os = context.getDataService();
             	Map<Long, Collection> r = new HashMap<Long, Collection>();
-            	Entry entry;
-            	Iterator i = ids.entrySet().iterator();
+            	Entry<Long, Long> entry;
+            	Iterator<Entry<Long, Long>> i = ids.entrySet().iterator();
             	long key, value;
             	while (i.hasNext()) {
-					entry = (Entry) i.next();
-					key = (Long) entry.getKey();
-					value = (Long) entry.getValue();
+					entry = i.next();
+					key = entry.getKey();
+					value = entry.getValue();
 					r.put(key, os.loadPlateWells(ctx, key, value, userID));
 				}
             	result = r;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the plate(s) hosting the
+     * specified images.
+     * 
+     * @param ids The identifiers of the images linked to the plate.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadPlateFromImage(final Collection<Long> ids)
+    {
+        return new BatchCall("Loading Plate From Image") {
+            public void doCall() throws Exception
+            {
+            	OmeroDataService os = context.getDataService();
+            	result = os.loadPlateFromImage(ctx, ids);
             }
         };
     }
@@ -121,6 +139,18 @@ public class PlateWellsLoader
     {
     	this.ctx = ctx;
     	loadCall = loadPlateWells(ids, userID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     * @param imageIDs The identifiers of the images linked to the plate.
+     */
+    public PlateWellsLoader(SecurityContext ctx, Collection<Long> imageIDs)
+    {
+    	this.ctx = ctx;
+    	loadCall = loadPlateFromImage(imageIDs);
     }
     
 }

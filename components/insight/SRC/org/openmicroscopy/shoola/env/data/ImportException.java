@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import ome.conditions.ResourceError;
+import omero.ChecksumValidationException;
 
 //Third-party libraries
 import loci.formats.FormatException;
@@ -51,10 +52,26 @@ import loci.formats.UnsupportedCompressionException;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportException 
+public class ImportException
 	extends Exception
 {
 	
+	/** Text to indicate that the file, after scanning is not valid. */
+	public static final String FILE_NOT_VALID_TEXT = "File Not Valid";
+	
+	/** Text to indicate that the file format is not supported. */
+	public static final String UNKNOWN_FORMAT_TEXT = "Unknown format";
+	
+	/** Text to indicate a library is missing. */
+	public static final String MISSING_LIBRARY_TEXT = "Missing library";
+
+	/** Text to indicate the file is on tape. */
+	private static final String NETWORK_NAME_TEXT =
+			"The specified network name is no longer available";
+	
+	/** Text to indicate the file is on tape. */
+	private static final String SPACE_TEXT = "No space left on device";
+
 	/** Indicates that the compression is not supported.*/
 	public static int COMPRESSION = 0;
 	
@@ -69,6 +86,12 @@ public class ImportException
 
 	/** Indicates that there was a checksum mismatch.*/
 	public static int CHECKSUM_MISMATCH = 4;
+	
+	/** Indicates that the file is not valid.*/
+	public static int NOT_VALID = 5;
+	
+	/** Indicates that the file format is not supported.*/
+	public static int UNKNOWN_FORMAT = 6;
 
 	/** The status associated to the exception.*/
 	private int status;
@@ -110,6 +133,10 @@ public class ImportException
 	public ImportException(String message)
 	{
 		this(message, null);
+		if (FILE_NOT_VALID_TEXT.equals(message)) status = NOT_VALID;
+		else if (UNKNOWN_FORMAT_TEXT.equals(message)) status = UNKNOWN_FORMAT;
+		else if (MISSING_LIBRARY_TEXT.equals(message))
+			status = MISSING_LIBRARY;
 	}
 	
 	/**
@@ -120,7 +147,7 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(Throwable cause) 
+	public ImportException(Throwable cause)
 	{
 		this((String) getImportFailureMessage(cause), cause);
 	}
@@ -133,7 +160,7 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(String message, Throwable cause) 
+	public ImportException(String message, Throwable cause)
 	{
 		super(message, cause);
 		status = -1;
@@ -152,23 +179,21 @@ public class ImportException
 			return COMPRESSION;
 		} else if (cause instanceof FormatException) {
 			String message = cause.getMessage();
-			if (message.contains("missing libary"))
+			if (message.contains(MISSING_LIBRARY_TEXT.toLowerCase()))
 				return MISSING_LIBRARY;
 		} else if (cause instanceof IOException) {
 			String message = cause.getMessage();
-			if (message.contains(
-					"The specified network name is no longer available"))
+			if (message.contains(NETWORK_NAME_TEXT))
 				return FILE_ON_TAPE;
 		} else if (cause.getCause() instanceof IOException) {
 			String message = cause.getCause().getMessage();
-			if (message.contains(
-					"The specified network name is no longer available"))
+			if (message.contains(NETWORK_NAME_TEXT))
 				return FILE_ON_TAPE;
 		} else if (cause instanceof ResourceError) {
 			String message = cause.getMessage();
-			if (message.contains("No space left on device"))
+			if (message.contains(SPACE_TEXT))
 				return NO_SPACE;
-		} else if (cause instanceof omero.ChecksumValidationException) {
+		} else if (cause instanceof ChecksumValidationException) {
 			return CHECKSUM_MISMATCH;
 		}
 		return status;

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Try to re-import the failed import if any.
+ * Try to re-upload the failed uploads if any.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,11 +51,11 @@ public class RetryImportAction
 {
 
 	/** The name of the action. */
-	private static final String NAME = "Reimport";
+	private static final String NAME = "Retry All";
 	
     /** The description of the action. */
-    private static final String DESCRIPTION = "Reimport the files that " +
-    		"failed to import.";
+    private static final String DESCRIPTION = "Re-upload the files that " +
+    		"failed.";
 
     /**
      * Sets the <code>enabled</code> flag depending on the state.
@@ -66,7 +66,7 @@ public class RetryImportAction
     	if (model.getState() == Importer.IMPORTING) {
     		setEnabled(false);
     	} else {
-    		setEnabled(model.hasFailuresToReimport());
+    		setEnabled(model.hasFailuresToReupload());
     	}
     }
     
@@ -80,14 +80,14 @@ public class RetryImportAction
         super(model);
         setEnabled(false);
         putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+        putValue(Action.SHORT_DESCRIPTION,
+        		UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
     /**
-     * Tries to re-import failed imports.
+     * Tries to re-upload the failed uploads.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.retryImport(); }
-    
+    public void actionPerformed(ActionEvent e) { model.retryUpload(null); }
+
 }

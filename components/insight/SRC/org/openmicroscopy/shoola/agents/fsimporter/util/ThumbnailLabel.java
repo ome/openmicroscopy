@@ -87,11 +87,11 @@ class ThumbnailLabel
 	{
 		if (data instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) data;
-			if (thumbnail.getImage() != null)
-				firePropertyChange(VIEW_IMAGE_PROPERTY, null,
-						thumbnail.getImage());
+			firePropertyChange(VIEW_IMAGE_PROPERTY, null,
+					thumbnail.getImageID());
 		} else if (data instanceof ImageData) {
-			firePropertyChange(VIEW_IMAGE_PROPERTY, null, (ImageData) data);
+			firePropertyChange(VIEW_IMAGE_PROPERTY, null,
+					((ImageData) data).getId());
 		} else if (data instanceof PlateData) {
 			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
 		}

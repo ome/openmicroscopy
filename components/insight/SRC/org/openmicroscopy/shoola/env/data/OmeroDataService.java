@@ -39,8 +39,11 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.DataObject;
+import pojos.PlateData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -446,5 +449,21 @@ public interface OmeroDataService
 			SecurityContext target, List<DataObject> targetNode,
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
+	
+	/**
+	 * Loads to the plate hosting the specified images.
+	 * Returns a map whose keys are the image's id and the values are the
+	 * corresponding plate.
+	 * 
+	 * @param ctx The security context.
+	 * @param ids The collection of image's identifiers.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
+	 */
+	public Map<Long, PlateData> loadPlateFromImage(SecurityContext ctx,
+		Collection<Long> ids)
+		throws DSOutOfServiceException, DSAccessException;
 
 }

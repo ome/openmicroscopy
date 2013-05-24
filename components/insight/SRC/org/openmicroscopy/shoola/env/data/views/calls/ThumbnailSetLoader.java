@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -131,20 +131,15 @@ public class ThumbnailSetLoader
     private SecurityContext ctx;
     
     /**
-     * Creates a default thumbnail for the passed image.
+     * Creates a default thumbnail for the passed pixels set.
      * 
-     * @param data The image to handle.
+     * @param pxd The pixels set to handle.
      * @return See above.
      */
-    private BufferedImage createDefaultImage(ImageData data) 
+    private BufferedImage createDefaultImage(PixelsData pxd) 
     {
-    	PixelsData pxd = null;
-        try {
-        	pxd = data.getDefaultPixels();
-		} catch (Exception e) {} //something went wrong during import
-        if (pxd == null)
-        	return Factory.createDefaultImageThumbnail(-1);
-        Dimension d = Factory.computeThumbnailSize(maxLength, maxLength, 
+        if (pxd == null) return Factory.createDefaultImageThumbnail(-1);
+        Dimension d = Factory.computeThumbnailSize(maxLength, maxLength,
         		pxd.getSizeX(), pxd.getSizeY());
         return Factory.createDefaultImageThumbnail(d.width, d.height);
     }
@@ -208,16 +203,16 @@ public class ThumbnailSetLoader
 			long id = exp.getId();
     		Map<DataObject, BufferedImage> m = service.getFSThumbnailSet(ctx,
     				files, maxLength, id);
-    		Entry entry;
-        	Iterator i = m.entrySet().iterator();
+    		Entry<DataObject, BufferedImage> entry;
+        	Iterator<Entry<DataObject, BufferedImage>> i = m.entrySet().iterator();
         	BufferedImage thumb;
         	DataObject obj;
         	boolean valid = true;
         	FileData f;
         	while (i.hasNext()) {
-				entry = (Entry) i.next();
-				obj = (DataObject) entry.getKey();
-				thumb = (BufferedImage) entry.getValue();
+				entry = i.next();
+				obj = entry.getKey();
+				thumb = entry.getValue();
 				if (thumb == null) {
 					thumb = Factory.createDefaultImageThumbnail(
 							Factory.IMAGE_ICON);
@@ -248,16 +243,16 @@ public class ThumbnailSetLoader
     		Map<DataObject, BufferedImage> m = 
     			service.getExperimenterThumbnailSet(ctx, experimenters,
         			maxLength);
-    		Entry entry;
     		List result = new ArrayList();
-        	Iterator i = m.entrySet().iterator();
+    		Entry<DataObject, BufferedImage> entry;
+        	Iterator<Entry<DataObject, BufferedImage>> i = m.entrySet().iterator();
         	BufferedImage thumb;
         	DataObject obj;
         	boolean valid = true;
         	while (i.hasNext()) {
-				entry = (Entry) i.next();
+				entry = i.next();
 				obj = (DataObject) entry.getKey();
-				thumb = (BufferedImage) entry.getValue();
+				thumb = entry.getValue();
 				if (thumb == null) 
 					thumb = Factory.createDefaultImageThumbnail(
 							Factory.EXPERIMENTER_ICON);
@@ -282,27 +277,30 @@ public class ThumbnailSetLoader
     private void loadThumbails(List ids) 
     {
     	try {
-        	Map m = service.getThumbnailSet(ctx, ids, maxLength);
-        	List result = new ArrayList();
-        	Iterator i = m.keySet().iterator();
+        	Map<Long, BufferedImage>
+        		m = service.getThumbnailSet(ctx, ids, maxLength);
+        	List<Object> result = new ArrayList<Object>();
+        	Iterator<Long> i = m.keySet().iterator();
         	long pixelsID;
         	BufferedImage thumbPix;
-        	ImageData image;
         	DataObject obj;
         	boolean valid = true;
+        	long imageID = -1;
+        	PixelsData pxd = null;
         	while (i.hasNext()) {
-        		pixelsID = (Long) i.next();
+        		pixelsID = i.next();
         		obj = input.get(pixelsID);
         		if (obj instanceof ImageData) {
-        			image = (ImageData) obj;
+        			imageID = ((ImageData) obj).getId();
+        			pxd = ((ImageData) obj).getDefaultPixels();
+        		} else if (obj instanceof PixelsData) {
+        			pxd = (PixelsData) obj;
+        			imageID = pxd.getImage().getId();
+        		}
+        		if (pxd != null) {
         			thumbPix = (BufferedImage) m.get(pixelsID);
-        			if (thumbPix == null) {
-        				//valid = false;
-        				thumbPix = createDefaultImage(image);
-        			}
-
-        			result.add(new ThumbnailData(image.getId(), thumbPix, 
-        					valid));
+        			if (thumbPix == null) thumbPix = createDefaultImage(pxd);
+        			result.add(new ThumbnailData(imageID, thumbPix,  valid));
         		}
 			}
         	currentThumbs = result;
@@ -420,7 +418,7 @@ public class ThumbnailSetLoader
             			}
             		} catch (Exception e) {
             			notValid.add(new ThumbnailData(img.getId(), 
-        						createDefaultImage(img), false));
+        						createDefaultImage(pxd), false));
             		} //something went wrong during import
         		}
     		} else if (object instanceof FileData) {
@@ -449,8 +447,21 @@ public class ThumbnailSetLoader
     					l = null;
     				}
     			}
+    		} else if (object instanceof PixelsData) {
+    			pxd = (PixelsData) object;
+    			type = ImageData.class;
+            	input.put(pxd.getId(), pxd);
+    			if (index == 0) l = new ArrayList<Object>();
+    			if (index < fetchSize) {
+    				l.add(pxd.getId());
+    				index++;
+    				if (index == fetchSize) {
+    					toHandle.add(l);
+    					index = 0;
+    					l = null;
+    				}
+    			}
     		}
-    		
 		}
     	if (l != null && l.size() > 0) toHandle.add(l);
     }

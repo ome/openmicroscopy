@@ -48,7 +48,6 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
-import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -76,6 +75,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
+import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
@@ -85,6 +85,7 @@ import ome.util.checksum.ChecksumProviderFactoryImpl;
 import ome.util.checksum.ChecksumType;
 import omero.ApiUsageException;
 import omero.AuthenticationException;
+import omero.ChecksumValidationException;
 import omero.ConcurrencyException;
 import omero.InternalException;
 import omero.LockTimeout;
@@ -123,7 +124,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
-import omero.cmd.Delete;
+import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
 import omero.grid.BoolColumn;
@@ -131,6 +132,8 @@ import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.DoubleColumn;
 import omero.grid.ImageColumn;
+import omero.grid.ImportProcessPrx;
+import omero.grid.ImportRequest;
 import omero.grid.LongColumn;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
@@ -6766,8 +6769,8 @@ class OMEROGateway
 		}
 		return runScript(ctx, id, map);
 	}
-	
-	/**
+
+    /**
 	 * Imports the specified file. Returns the image.
 	 * 
 	 * @param ctx The security context.
@@ -6781,11 +6784,13 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-    Object importImage(SecurityContext ctx, ImportableObject object,
+    Object importImageFile(SecurityContext ctx, ImportableObject object,
             IObject container, ImportContainer ic, StatusLabel status,
             boolean close, boolean hcs, String userName)
         throws ImportException, DSAccessException, DSOutOfServiceException
 	{
+    	isSessionAlive(ctx);
+    	status.setHCS(hcs);
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
@@ -6796,16 +6801,6 @@ class OMEROGateway
         }
        
         ic.setUserPixels(object.getPixelsSize());
-        return importImageNew(ctx,
-                config, ic ,status, close, hcs, userName);
-	}
-
-    Object importImageNew(SecurityContext ctx,
-            ImportConfig config, ImportContainer ic, StatusLabel status,
-            boolean close, boolean hcs, String userName)
-        throws ImportException
-    {
-        isSessionAlive(ctx);
         OMEROMetadataStoreClient omsc = null;
         OMEROWrapper reader = null;
 		try {
@@ -6813,51 +6808,39 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
 			library.addObserver(status);
-			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
-			Iterator<Pixels> j;
-			Pixels p;
-			Image image;
-			reader.close();
-			if (pixels != null && pixels.size() > 0) {
-				int n = pixels.size();
-				long id;
-				List<Long> ids;
-				Parameters params = new Parameters();
-				p = pixels.get(0);
-				image = p.getImage();
-				id = image.getId().getValue();
+			
+			//TODO create the handler
+			//TMP Code to be moved to the import
+			final ImportProcessPrx proc = library.createImport(ic);
+	        final HandlePrx handle;
+	        final String[] srcFiles = ic.getUsedFiles();
+	        final List<String> checksums = new ArrayList<String>();
+	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
+	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
-				if (hcs) {
-					PlateData plate = getImportedPlate(ctx, id);
-					if (plate != null) return plate;
-					return getImage(ctx, id, params);
-				}
-				if (n == 1) {
-					return getImage(ctx, id, params);
-				} else if (n == 2) {
-					ids = new ArrayList<Long>();
-					ids.add(id);
-					p = pixels.get(1);
-					id = p.getImage().getId().getValue();
-					ids.add(id);
-					return getContainerImages(ctx, ImageData.class, ids,
-							params);
-				} else if (n >= 3) {
-					j = pixels.iterator();
-					int index = 0;
-					ids = new ArrayList<Long>();
-					while (j.hasNext()) {
-						p = j.next();
-						id = p.getImage().getId().getValue();
-						ids.add(id);
-						index++;
-						if (index == 3)
-							break;
-					}
-					return getContainerImages(ctx, ImageData.class, ids,
-							params);
-				}
-			}
+	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
+	                null, 0, srcFiles.length, null, null, null));
+
+	        for (int i = 0; i < srcFiles.length; i++) {
+	            checksums.add(library. uploadFile(proc, srcFiles, i,
+	            		checksumProviderFactory,
+	                    buf));
+	        }
+
+	        try {
+	            handle = proc.verifyUpload(checksums);
+	        } catch (ChecksumValidationException cve) {
+	            failingChecksums = cve.failingChecksums;
+	            return new ImportException(cve);
+	        } finally {
+	            library.notifyObservers(new ImportEvent.FILESET_UPLOAD_END(
+	                    null, 0, srcFiles.length, null, null, srcFiles,
+	                    checksums, failingChecksums, null));
+	        }
+	        final ImportRequest req = (ImportRequest) handle.getRequest();
+	        final Fileset fs = req.activity.getParent();
+	        status.setFilesetData(new FilesetData(fs));
+	        return library.createCallback(proc, handle, ic);
 		} catch (Throwable e) {
 			try {
 				if (reader != null) reader.close();
@@ -6865,7 +6848,7 @@ class OMEROGateway
 			
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
-			throw new ImportException(e);
+            return new ImportException(e);
 		} finally {
 			try {
 				if (reader != null) reader.close();
@@ -6873,9 +6856,8 @@ class OMEROGateway
 			if (omsc != null && close)
 				closeImport(ctx);
 		}
-		return null;
 	}
-	
+    
 	/**
 	 * Returns the import candidates.
 	 * 
@@ -6894,16 +6876,23 @@ class OMEROGateway
 		throws ImportException
 	{
 		isSessionAlive(ctx);
+		OMEROWrapper reader = null;
 		try {
 			ImportConfig config = new ImportConfig();
-			OMEROWrapper reader = new OMEROWrapper(config);
+			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			ImportCandidates candidates = new ImportCandidates(reader, 
+			ImportCandidates candidates = new ImportCandidates(reader,
 					paths, status);
 			return candidates;
 		} catch (Throwable e) {
 			throw new ImportException(e);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (Exception ex) {}
+			}
 		}
 	}
 	
