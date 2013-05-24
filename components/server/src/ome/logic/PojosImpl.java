@@ -15,13 +15,18 @@
 package ome.logic;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IContainer;
@@ -46,10 +51,14 @@ import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 
 /**
  * implementation of the Pojos service interface.
@@ -367,6 +376,146 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);
 
+    }
+
+    /**
+     * Split a collection into batches of the given size.
+     * @param batchSize the maximum batch size
+     * @param items some items
+     * @return the items split into batches
+     */
+    private static <X> List<List<X>> batchCollection(int batchSize, Collection<X> items) {
+        if (batchSize < 1) {
+            throw new IllegalArgumentException("batch size must be strictly positive");
+        }
+        final List<List<X>> batches = new ArrayList<List<X>>();
+        List<X> batch = new ArrayList<X>(batchSize);
+        for (final X item : items) {
+            batch.add(item);
+            if (batch.size() >= batchSize) {
+                batches.add(batch);
+                batch = new ArrayList<X>(batchSize);
+            }
+        }
+        if (!batch.isEmpty()) {
+            batches.add(batch);
+        }
+        return batches;
+    }
+
+    /**
+     * Implemented as specified by the {@link IContainer} I/F
+     * @see IContainer#getImagesBySplitFilesets(Map)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = true)
+    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<String, List<Long>> included) {
+        /* note which entities have been explicitly referenced */
+
+        final Set<Long> projectIds = new HashSet<Long>();
+        final Set<Long> datasetIds = new HashSet<Long>();
+        final Set<Long> screenIds  = new HashSet<Long>();
+        final Set<Long> plateIds   = new HashSet<Long>();
+        final Set<Long> wellIds    = new HashSet<Long>();
+        final Set<Long> filesetIds = new HashSet<Long>();
+        final Set<Long> imageIds   = new HashSet<Long>();
+
+       for (final Entry<String, List<Long>> typeAndIds : included.entrySet()) {
+           final String type = typeAndIds.getKey();
+           final List<Long> ids = typeAndIds.getValue();
+           if ("Project".equals(type)) {
+                projectIds.addAll(ids);
+            } else if ("Dataset".equals(type)) {
+                datasetIds.addAll(ids);
+            } else if ("Screen".equals(type)) {
+                screenIds.addAll(ids);
+            } else if ("Plate".equals(type)) {
+                plateIds.addAll(ids);
+            } else if ("Well".equals(type)) {
+                wellIds.addAll(ids);
+            } else if ("Image".equals(type)) {
+                imageIds.addAll(ids);
+            } else if ("Fileset".equals(type)) {
+                filesetIds.addAll(ids);
+            }
+        }
+
+        /* also note which entities have been implicitly referenced */
+
+        for (final long projectId : projectIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select child.id from ProjectDatasetLink where parent.id = :" + Parameters.ID,
+                    new Parameters().addId(projectId))) {
+                datasetIds.add((Long) result[0]);
+            }
+        }
+        for (final long datasetId : datasetIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select child.id from DatasetImageLink where parent.id = :" + Parameters.ID,
+                    new Parameters().addId(datasetId))) {
+                imageIds.add((Long) result[0]);
+            }
+        }
+        for (final long screenId : screenIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select child.id from ScreenPlateLink where parent.id = :" + Parameters.ID,
+                    new Parameters().addId(screenId))) {
+                plateIds.add((Long) result[0]);
+            }
+        }
+        for (final long plateId : plateIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select id from Well where plate.id = :" + Parameters.ID,
+                    new Parameters().addId(plateId))) {
+                wellIds.add((Long) result[0]);
+            }
+        }
+        for (final long wellId : wellIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select image.id from WellSample where well.id = :" + Parameters.ID,
+                    new Parameters().addId(wellId))) {
+                imageIds.add((Long) result[0]);
+            }
+        }
+        for (final long filesetId : filesetIds) {
+            for (final Object[] result : iQuery.projection(
+                    "select id from Image where fileset.id = :" + Parameters.ID,
+                    new Parameters().addId(filesetId))) {
+                imageIds.add((Long) result[0]);
+            }
+        }
+
+        /* note which filesets are associated with referenced images */
+
+        final SortedSet<Long> filesetIdsRequired = new TreeSet<Long>();
+        for (final List<Long> imageIdBatch : batchCollection(256, imageIds)) {
+            for (final Object[] result : iQuery.projection(
+                    "select distinct fileset.id from Image where id in (:" + Parameters.IDS + ")",
+                    new Parameters().addIds(imageIdBatch))) {
+                filesetIdsRequired.add((Long) result[0]);
+            }
+        }
+
+        /* make sure that associated filesets have all their images referenced */
+
+        final Map<Long, Map<Boolean, List<Long>>> imagesBySplitFilesets = new HashMap<Long, Map<Boolean, List<Long>>>();
+        for (final long filesetIdRequired : Sets.difference(filesetIdsRequired, filesetIds)) {
+            final SortedSet<Long> imageIdsRequired = new TreeSet<Long>();
+            for (final Object[] result : iQuery.projection(
+                    "select id from Image where fileset.id = :" + Parameters.ID,
+                    new Parameters().addId(filesetIdRequired))) {
+                imageIdsRequired.add((Long) result[0]);
+            }
+            final Set<Long> includedImageIds = Sets.intersection(imageIdsRequired, imageIds);
+            final Set<Long> excludedImageIds = Sets.difference(imageIdsRequired, includedImageIds);
+            if (!excludedImageIds.isEmpty()) {
+                final Map<Boolean, List<Long>> partitionedImages = new HashMap<Boolean, List<Long>>(2);
+                partitionedImages.put(true,  new ArrayList<Long>(includedImageIds));
+                partitionedImages.put(false, new ArrayList<Long>(excludedImageIds));
+                imagesBySplitFilesets.put(filesetIdRequired, partitionedImages);
+            }
+        }
+        return imagesBySplitFilesets;
     }
 
     /**

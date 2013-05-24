@@ -47,7 +47,6 @@ module omero {
         // Object lists
         //
 
-
         ["java:type:java.util.ArrayList"]
             sequence<SearchMetadata> SearchMetadataList;
 
@@ -145,6 +144,8 @@ module omero {
         // Multimaps (dictionaries with sequence values)
 
         dictionary<string, Ice::LongSeq>               IdListMap;
+        dictionary<string, LongList>                   StringLongListMap;
+        dictionary<bool,   LongList>                   BooleanLongListMap;
         dictionary<bool,   omero::sys::LongList>       BooleanIdListMap;
         dictionary<string, IObjectList>                IObjectListMap;
         dictionary<long,   IObjectList>                LongIObjectListMap;
@@ -152,6 +153,7 @@ module omero {
         dictionary<long,   ShapeList>                  LongShapeListMap;
         dictionary<int,    ShapeList>                  IntShapeListMap;
         dictionary<long,   AnnotationList>             LongAnnotationListMap;
+        dictionary<long,   BooleanLongListMap>         IdBooleanLongListMapMap;
 
     };
 

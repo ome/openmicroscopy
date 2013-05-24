@@ -8,6 +8,7 @@
 package ome.api;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -293,6 +294,16 @@ public interface IContainer extends ServiceInterface {
     public Map getCollectionCount(@NotNull String type, 
     		@NotNull String property, 
     		@NotNull @Validate(Long.class) Set<Long> ids, Parameters options);
+
+    /**
+     * Given a list of IDs of certain entity types, calculates which filesets are split such that
+     * a non-empty proper subset of their images are referenced, directly or indirectly, as being
+     * included. The return value lists both the fileset IDs and the image IDs in ascending order,
+     * the image ID lists separated by if they were included.
+     * @param included the entities included
+     * @return the partially included filesets
+     */
+    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<String, List<Long>> included);
 
     /**
      * Retrieves a collection with all members initialized ("loaded"). This is
