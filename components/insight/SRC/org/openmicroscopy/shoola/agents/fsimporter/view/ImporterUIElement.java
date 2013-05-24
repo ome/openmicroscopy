@@ -736,6 +736,11 @@ class ImporterUIElement
 					}
 				}
 			}
+		} else { //empty folder
+			if (result instanceof Exception) {
+				countUploaded++;
+				setImportResult(c, result);
+			}
 		}
 		setNumberOfImport();
 		setClosable(isUploadComplete());
@@ -747,7 +752,6 @@ class ImporterUIElement
 	 * 
 	 * @param fc The component hosting the file to import.
 	 * @param result The result.
-	 * @p
 	 * @result Returns the formatted result or <code>null</code>.
 	 */
 	void setImportResult(FileImportComponent fc, Object result)
@@ -767,6 +771,17 @@ class ImporterUIElement
 			setClosable(isDone());
 			filterButton.setEnabled(countFailure > 0 &&
 					countFailure != totalToImport);
+		} else { //empty folder
+			if (result instanceof Exception) {
+				fc.setStatus(result);
+				countImported++;
+				countFailure++;
+				countUploadFailure++;
+				if (isDone() && rotationIcon != null)
+					rotationIcon.stopRotation();
+				setNumberOfImport();
+				setClosable(isDone());
+			}
 		}
 	}
 

@@ -385,6 +385,16 @@ public class StatusLabel
 		firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
 	}
 
+	/**
+	 * Sets the text of {@link #generalLabel}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setText(String text)
+	{
+		generalLabel.setText(text);
+	}
+	
 	/** Marks the import has cancelled. */
 	public void markedAsCancel()
 	{

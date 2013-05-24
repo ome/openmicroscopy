@@ -179,6 +179,11 @@ public class FileImportComponent
 	/** Action id to cancel the import before it starts. */
 	private static final int CANCEL_ID = 1;
 
+	/** Text indicating that the folder does not contain importable files.*/
+	private static final String EMPTY_FOLDER = "No data to import";
+	/** 
+	private static final String EMPTY_DIRECTORY = "No data to import";
+	
 	/** One of the constants defined by this class. */
 	private int type;
 
@@ -888,6 +893,8 @@ public class FileImportComponent
 	 */
 	public void setStatus(Object image)
 	{
+		busyLabel.setVisible(false);
+		busyLabel.setBusy(false);
 		cancelButton.setVisible(false);
 		this.image = image;
 		if (image instanceof PlateData) {
@@ -925,7 +932,10 @@ public class FileImportComponent
 				}
 			}
 		} else if (image instanceof ImportException) {
-			formatResult();
+			if (getFile().isDirectory()) {
+				this.image = null;
+				statusLabel.setText(EMPTY_FOLDER);
+			} else formatResult();
 		} else if (image instanceof Boolean) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
