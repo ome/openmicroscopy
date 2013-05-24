@@ -111,9 +111,9 @@ import pojos.TagAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class FileImportComponent 
+public class FileImportComponent
 	extends JPanel
-	implements ActionListener, PropertyChangeListener
+	implements PropertyChangeListener
 {
 	/** Indicates that the container is of type <code>Project</code>. */
 	public static final int PROJECT_TYPE = 0;
@@ -172,12 +172,6 @@ public class FileImportComponent
 
 	/** The number of extra labels for images to add. */
 	public static final int MAX_THUMBNAILS = 3;
-
-	/** Action id to delete the image. */
-	private static final int DELETE_ID = 0;
-	
-	/** Action id to cancel the import before it starts. */
-	private static final int CANCEL_ID = 1;
 
 	/** Text indicating that the folder does not contain importable files.*/
 	private static final String EMPTY_FOLDER = "No data to import";
@@ -513,7 +507,9 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		if (!isCancelled() && statusLabel.isCancellable()) {
+		boolean b = statusLabel.isCancellable();
+		if (!b) b = getFile().isDirectory();
+		if (!isCancelled() && b) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
@@ -523,27 +519,7 @@ public class FileImportComponent
 				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
-	
-	/** Deletes the image that was imported but cannot be viewed. */
-	private void deleteImage()
-	{
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		
-		if (image instanceof ThumbnailData) {
-			l.add(new DeletableObject(((ThumbnailData) image).getImage()));
-		} else if (image instanceof ImageData) {
-			l.add(new DeletableObject((DataObject) image));
-		}
-		if (l.size() == 0) return;
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		fileNameLabel.setEnabled(false);
-		resultLabel.setEnabled(false);
-		imageLabel.setEnabled(false);
-	}
-	
+
 	/**
 	 * Launches the full viewer for the selected item.
 	 */
@@ -616,7 +592,7 @@ public class FileImportComponent
 		cancelButton.setForeground(UIUtilities.HYPERLINK_COLOR);
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ev) {
-				cancel(true);
+				cancelLoading();
 			}
 		});
 		cancelButton.setVisible(true);
@@ -1262,8 +1238,8 @@ public class FileImportComponent
 	/** Indicates the import has been cancelled. */
 	public void cancelLoading()
 	{
-		if (components == null) {
-			cancel(true);
+		if (components == null || components.isEmpty()) {
+			cancel(getFile().isFile());
 			return;
 		}
 		Iterator<FileImportComponent> i = components.values().iterator();
@@ -1479,11 +1455,10 @@ public class FileImportComponent
 		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel)) {
-				if (busyLabel != null) {
+				if (busyLabel != null && !isCancelled()) {
 					busyLabel.setBusy(true);
 					busyLabel.setVisible(true);
 				}
-				//cancelButton.setVisible(sl.isCancellable());
 			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			importable.setFile((File) evt.getNewValue());
@@ -1514,22 +1489,6 @@ public class FileImportComponent
 		}
 	}
 
-	/**
-	 * Deletes the image if the image cannot be viewed.
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{ 
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case DELETE_ID:
-				deleteImage();
-				break;
-			case CANCEL_ID:
-				cancel(true);
-		}
-	}
-	
 	/**
 	 * Returns the name of the file and group's id and user's id.
 	 * @see #toString();

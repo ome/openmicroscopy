@@ -745,10 +745,21 @@ class ImporterUIElement
 				}
 			}
 			//}
-		} else { //empty folder
+		} else {//empty folder
 			if (result instanceof Exception) {
 				countUploaded++;
+				countCancelled++;
+				countImported++;
 				setImportResult(c, result);
+			} else if (result instanceof Boolean) {
+				Boolean b = (Boolean) result;
+				if (!b && c.isCancelled()) {
+					countUploaded++;
+					countCancelled++;
+					countImported++;
+					if (isDone() && rotationIcon != null)
+						rotationIcon.stopRotation();
+				}
 			}
 		}
 		setNumberOfImport();

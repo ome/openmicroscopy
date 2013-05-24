@@ -307,6 +307,7 @@ public class StatusLabel
 	 */
 	private void handleProcessingError(String text, boolean fire)
 	{
+		if (isMarkedAsCancel()) return;
 		generalLabel.setText(text);
 		cancellable = false;
 		if (fire)
@@ -497,6 +498,7 @@ public class StatusLabel
 	 */
 	public void setFiles(Map<File, StatusLabel> files)
 	{
+		if (isMarkedAsCancel()) return;
 		generalLabel.setText(NO_FILES_TEXT);
 		if (!CollectionUtils.isEmpty(files.entrySet())) {
 			StringBuffer buffer = new StringBuffer();

@@ -1181,6 +1181,9 @@ class OmeroImageServiceImpl
 		if (lic.size() == 0)
 			return new ImportException(
 				ImportException.FILE_NOT_VALID_TEXT);
+		if (status.isMarkedAsCancel()) {
+			return Boolean.valueOf(false);
+		}
 		Map<File, StatusLabel> hcsFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> otherFiles = new HashMap<File, StatusLabel>();
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
