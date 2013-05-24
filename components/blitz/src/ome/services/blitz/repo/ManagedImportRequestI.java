@@ -108,6 +108,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private final RepositoryDao dao;
 
+    private CheckedPath logPath;
+
     private String logFilename;
 
     //
@@ -179,7 +181,9 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     "location-type", location.getClass().getName());
         }
 
-        logFilename = ((ManagedImportLocationI) location).getLogFile().getFullFsPath();
+        ManagedImportLocationI managedLocation = (ManagedImportLocationI) location;
+        logPath = managedLocation.getLogFile();
+        logFilename = logPath.getFullFsPath();
         MDC.put("fileset", logFilename);
 
         file = ((ManagedImportLocationI) location).getTarget();
@@ -333,7 +337,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw helper.cancel(new ERR(), t, "import-request-failure");
         } finally {
             try {
-                store.updateLogFileSize(logFile.getId().getValue(), clientUuid);
+                long size = logPath.size();
+                store.updateFileSize(logFile, size);
             } catch (Throwable t) {
                 throw helper.cancel(new ERR(), t, "update-log-file-size");
             }

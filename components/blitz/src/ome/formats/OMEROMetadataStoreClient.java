@@ -729,18 +729,10 @@ public class OMEROMetadataStoreClient
     // SERVER-SIDE API
     //
 
-    public long updateLogFileSize(long id, String clientUuid) throws ServerError {
-        RawFileStorePrx rfs = serviceFactory.createRawFileStore();
-        try {
-            Map<String, String> rfsCtx = new HashMap<String, String>();
-            rfsCtx.put(CLIENTUUID.value, clientUuid);
-            rfsCtx.put("omero.rfs.write", "true");
-            rfs.setFileId(id, rfsCtx);
-            rfs.write(new byte[0], 0, 0); // touch
-            return rfs.save().getSize().getValue();
-        } finally {
-            rfs.close();
-        }
+    public void updateFileSize(OriginalFile file, long size) throws ServerError {
+        file = (OriginalFile) iQuery.get("OriginalFile", file.getId().getValue());
+        file.setSize(rlong(size));
+        iUpdate.saveObject(file);
     }
 
     /**
