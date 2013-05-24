@@ -178,17 +178,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             throw helper.cancel(new ERR(), null, "bad-location",
                     "location-type", location.getClass().getName());
         }
+
         logFilename = ((ManagedImportLocationI) location).getLogFile().getFullFsPath();
         MDC.put("fileset", logFilename);
 
         file = ((ManagedImportLocationI) location).getTarget();
-
-        try {
-            registerLogFile();
-        } catch (Throwable e) {
-            // Do we need to do more than this?
-            log.error("Failed to register log file:", e);
-        }
 
         try {
             sf = reg.getInternalServiceFactory(
@@ -292,13 +286,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
             if (step == 0) {
                 return importMetadata((MetadataImportJob) j);
             } else if (step == 1) {
-                try {
-                    // This should be attached earlier.
-                    attachLogFile();
-                } catch (Throwable e) {
-                    // and if this fails what does it mean?
-                    log.error("Failed to attach log file", e);
-                }
                 return pixelData(null);//(ThumbnailGenerationJob) j);
             } else if (step == 2) {
                 return generateThumbnails(null);//(PixelDataJob) j); Nulls image
@@ -307,7 +294,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                 store.launchProcessing();
                 return null;
             } else if (step == 4) {
-                updateLogFileSize();
                 return objects;
             } else {
                 throw helper.cancel(new ERR(), null, "bad-step",
@@ -346,6 +332,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     fileName, new RuntimeException(t), usedFiles, format));
             throw helper.cancel(new ERR(), t, "import-request-failure");
         } finally {
+            try {
+                store.updateLogFileSize(logFile.getId().getValue(), clientUuid);
+            } catch (Throwable t) {
+                throw helper.cancel(new ERR(), t, "update-log-file-size");
+            }
             MDC.clear();
         }
     }
@@ -419,7 +410,7 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         imageList = (List) objects.get(Image.class.getSimpleName());
         plateList = (List) objects.get(Plate.class.getSimpleName());
         //TODO: below line has to be moved to store.saveToDB()
-        attachCompanionFilesToImage(imageList);
+        store.attachCompanionFilesToImage(activity.getParent(), imageList);
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
                 0, null, userSpecifiedTarget, null, 0, null));
 
@@ -707,78 +698,6 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
 
     private void notifyObservers(Object...args) {
         // TEMPORARY REPLACEMENT. FIXME
-    }
-
-    private void registerLogFile() throws Exception {
-
-        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
-        ome.model.core.OriginalFile _logFile =
-                dao.register(repoUuid, checkedPath,
-                        "text/plain", helper.getServiceFactory(),
-                        helper.getSql());
-        logFile = new omero.model.OriginalFileI(_logFile.getId(), false);
-    }
-
-    private void attachLogFile() throws Exception {
-
-        final String LOG_FILE_NS =
-                omero.constants.namespaces.NSLOGFILE.value;
-
-        IUpdate iUpdate = helper.getServiceFactory().getUpdateService();
-
-        // use sf to get the services to link Fileset and the OriginalFile
-        FileAnnotation fa = new FileAnnotation();
-        fa.setNs(LOG_FILE_NS);
-        fa.setFile(new ome.model.core.OriginalFile(logFile.getId().getValue(), false));
-        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        long faid = fa.getId();
-
-        Fileset fs = activity.getParent();
-        FilesetAnnotationLink fsl = new FilesetAnnotationLink();
-        fsl.setChild(new FileAnnotation(faid, false));
-        fsl.setParent(new ome.model.fs.Fileset(fs.getId().getValue(), false));
-        ome.model.IObject[] links = {fsl};
-        iUpdate.saveAndReturnArray(links);
-    }
-
-    private void updateLogFileSize() throws Exception {
-        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
-        IQuery iQuery = helper.getServiceFactory().getQueryService();
-        ome.model.core.OriginalFile of = iQuery
-                .get(ome.model.core.OriginalFile.class, logFile.getId().getValue());
-        of.setSize(checkedPath.size());
-    }
-
-    /**
-     * Uses the {@link ManagedImportRequestI#reader reader} object to obtain
-     * a list of companion files from the current image. Resolves the name of
-     * the file into an OriginalFile and tries to link to the image in the DB.
-     * @param imageList A list of image to which companion files will be
-     *                  attached.
-     */
-    private void attachCompanionFilesToImage(List<Image> imageList) {
-        String[] companionFiles = reader.getUsedFiles(true);
-        if (companionFiles != null && companionFiles.length > 0) {
-            Fileset fs = activity.getParent();
-            if (fs.isLoaded() == true) {
-                for (int i = 0; i < fs.sizeOfUsedFiles(); i++) {
-                    OriginalFile of = fs.getFilesetEntry(i).getOriginalFile();
-                    String fileName = FilenameUtils.concat(
-                            of.getPath().getValue(), of.getName().getValue());
-                    for (String companionFile : companionFiles) {
-                        if (companionFile.endsWith(fileName)) {
-                            for (Image image : imageList) {
-                                ImageAnnotationLinkI iali =
-                                        new ImageAnnotationLinkI();
-                                FileAnnotation fa = new FileAnnotation(of.getId().getValue(), false);
-                                iali.setParent(image);
-                                iali.setChild(fa);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
 }

@@ -20,6 +20,7 @@ package ome.services.blitz.repo;
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -36,6 +37,7 @@ import ome.services.blitz.util.ServiceFactoryAware;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.cmd.HandlePrx;
+import omero.constants.CLIENTUUID;
 import omero.grid.ImportLocation;
 import omero.grid.ImportProcessPrx;
 import omero.grid.ImportProcessPrxHelper;
@@ -241,7 +243,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         }
     }
 
-    public HandlePrx verifyUpload(List<String> hashes, Current ignore)
+    public HandlePrx verifyUpload(List<String> hashes, Current __current)
             throws ServerError {
 
         final int size = fs.sizeOfUsedFiles();
@@ -278,6 +280,9 @@ public class ManagedImportProcessI extends AbstractAmdServant
 
         // Now move on to the metadata import.
         link = fs.getFilesetJobLink(1);
+        CheckedPath checkedPath = ((ManagedImportLocationI) location).getLogFile();
+        omero.model.OriginalFile logFile =
+                repo.registerLogFile(repo.getRepoUuid(),  fs.getId().getValue(), checkedPath,__current);
 
         final String reqId = ImportRequest.ice_staticId();
         final ImportRequest req = (ImportRequest)
@@ -288,6 +293,7 @@ public class ManagedImportProcessI extends AbstractAmdServant
         req.activity = link;
         req.location = location;
         req.settings = settings;
+        req.logFile = logFile;
         final AMD_submit submit = repo.submitRequest(sf, req, this.current);
         this.handle = submit.ret;
         return submit.ret;
