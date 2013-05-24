@@ -1463,6 +1463,7 @@
             }
 
             #dataIcons .ui-selected { 
+                color: white;
                 background-color:#3875d7;
                 border:solid 1px #3875d7;
                 -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.2); 
