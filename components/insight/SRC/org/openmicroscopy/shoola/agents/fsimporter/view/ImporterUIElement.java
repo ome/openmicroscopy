@@ -987,6 +987,27 @@ class ImporterUIElement
 		return false;
 	}
 	
+	/**
+	 * Returns <code>true</code> if files to re-upload, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReupload()
+	{
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (fc.hasFailuresToReupload())
+				return true;
+		}
+		return false;
+	}
+	
 	/** Indicates that the import has been cancel. */
 	void cancelLoading()
 	{

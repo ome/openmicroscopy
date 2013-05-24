@@ -697,6 +697,19 @@ class ImporterUI extends TopWindow
 		if (element == null) return false;
 		return element.hasFailuresToReimport();
 	}
+	
+	/**
+	 * Returns <code>true</code> if file to re-upload, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReupload()
+	{
+		ImporterUIElement element = getSelectedPane();
+		if (element == null) return false;
+		return element.hasFailuresToReupload();
+	}
 
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.

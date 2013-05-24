@@ -1033,9 +1033,7 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReimport()
 	{
-		if (getFile().isFile()) {
-			return (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported);
-		}
+		if (getFile().isFile()) return hasImportFailed() && !reimported;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
@@ -1044,6 +1042,25 @@ public class FileImportComponent
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the file can be re-imported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReupload()
+	{
+		if (getFile().isFile()) return hasUploadFailed() && !reimported;
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReupload())
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns <code>true</code> if the import has failed, <code>false</code>
 	 * otherwise.
