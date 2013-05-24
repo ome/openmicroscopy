@@ -221,6 +221,9 @@ class OmeroImageServiceImpl
 						label.setCallback(new ImportException(
 								ImportException.FILE_NOT_VALID_TEXT));
 					} else {
+						//Check after scanning
+						if (label.isMarkedAsCancel())
+							return Boolean.valueOf(false);
 						importIc = icContainers.get(0);
 						importIc.setCustomAnnotationList(list);
 						label.setCallback(gateway.importImageFile(ctx, object,
@@ -231,6 +234,8 @@ class OmeroImageServiceImpl
 				} catch (Exception e) {
 					label.setCallback(e);
 				}
+			} else {
+				return Boolean.valueOf(false);
 			}
 		}
 		if (close) gateway.closeImport(ctx);
@@ -1123,6 +1128,9 @@ class OmeroImageServiceImpl
 					if (ioContainer == null) status.setNoContainer();
 					importIc = ic.getContainers().get(0);
 					status.setUsedFiles(importIc.getUsedFiles());
+					//Check after scanning
+					if (status.isMarkedAsCancel())
+						return Boolean.valueOf(false);
 					return gateway.importImageFile(ctx, object, ioContainer,
 							importIc, status, close,
 							ImportableObject.isHCSFile(f),userName);
@@ -1143,7 +1151,8 @@ class OmeroImageServiceImpl
 						
 					status.setFiles(files);
 					Object v = importCandidates(ctx, files, status, object,
-							ioContainer, customAnnotationList, userID, close, hcs, userName);
+							ioContainer, customAnnotationList, userID, close,
+							hcs, userName);
 					if (v != null) return v;
 				}
 			} else { //single file let's try to import it.
@@ -1158,6 +1167,9 @@ class OmeroImageServiceImpl
 				importIc = icContainers.get(0);
 				importIc.setCustomAnnotationList(customAnnotationList);
 				status.setUsedFiles(importIc.getUsedFiles());
+				//Check after scanning
+				if (status.isMarkedAsCancel())
+					return Boolean.valueOf(false);
 				return gateway.importImageFile(ctx, object, ioContainer,
 						importIc,
 					status, close, ImportableObject.isHCSFile(file), userName);
