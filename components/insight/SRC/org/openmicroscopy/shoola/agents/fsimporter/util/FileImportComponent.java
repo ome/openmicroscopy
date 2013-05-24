@@ -465,8 +465,7 @@ public class FileImportComponent
 			actionMenuButton.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			actionMenuButton.setText("Failed");
 			int status = e.getStatus();
-			if (status == ImportException.CHECKSUM_MISMATCH ||
-				status == ImportException.NOT_VALID)
+			if (status == ImportException.CHECKSUM_MISMATCH)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
 			else resultIndex = ImportStatus.FAILURE;
 		} else if (result instanceof CmdCallback) {
