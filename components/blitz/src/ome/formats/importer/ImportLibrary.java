@@ -284,7 +284,7 @@ public class ImportLibrary implements IObservable
         final byte[] buf = new byte[store.getDefaultBlockSize()];
         final int fileTotal = srcFiles.length;
         final List<String> checksums = new ArrayList<String>(fileTotal);
-        final TimeEstimator estimator = new TimeEstimatorImpl();
+        final TimeEstimator estimator = new TimeEstimatorImpl(5);
 
         log.debug("Used files created:");
         for (int i = 0; i < fileTotal; i++) {
@@ -348,8 +348,6 @@ public class ImportLibrary implements IObservable
                     offset, length, null, null));
 
             while (true) {
-                // Due to weirdness with System.nanoTime() on multi-core
-                // CPUs, falling back to currentTimeMillis()
                 chunkTime = 0;
                 start = System.currentTimeMillis();
                 rlen = stream.read(buf);
@@ -452,7 +450,7 @@ public class ImportLibrary implements IObservable
         final String[] srcFiles = container.getUsedFiles();
         final List<String> checksums = new ArrayList<String>();
         final byte[] buf = new byte[store.getDefaultBlockSize()];
-        final TimeEstimator estimator = new TimeEstimatorImpl();
+        final TimeEstimator estimator = new TimeEstimatorImpl(5);
         Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
         notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
