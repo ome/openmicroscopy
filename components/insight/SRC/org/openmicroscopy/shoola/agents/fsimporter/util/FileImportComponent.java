@@ -1449,9 +1449,9 @@ public class FileImportComponent
 			resultIndex = ImportStatus.STARTED;
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
-				busyLabel.setBusy(false);
-				busyLabel.setVisible(false);
-				cancelButton.setVisible(sl.isCancellable());
+				//busyLabel.setBusy(false);
+				//busyLabel.setVisible(false);
+				cancelButton.setEnabled(sl.isCancellable());
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
