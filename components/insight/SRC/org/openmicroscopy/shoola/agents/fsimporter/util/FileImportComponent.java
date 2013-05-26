@@ -1011,6 +1011,7 @@ public class FileImportComponent
 		ImportErrorObject object = new ImportErrorObject(getFile(), e);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
+		object.setLogFileID(-1);//to be modified
 		return object;
 	}
 	
@@ -1431,7 +1432,6 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public ImportableFile getImportableFile() { return importable; }
-	
 	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.

@@ -58,6 +58,9 @@ public class ImportErrorObject
 	/** The type of reader used. */
 	private String readerType;
 	
+	/** The id of the log file.*/
+	private long logFileID;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -70,6 +73,20 @@ public class ImportErrorObject
 		this.exception = exception;
 	}
 	
+	/**
+	 * Sets the identifier of the log file.
+	 * 
+	 * @param logFileID The value to set.
+	 */
+	public void setLogFileID(long logFileID) { this.logFileID = logFileID; }
+
+	/**
+	 * Returns the id of the log file.
+	 * 
+	 * @return See above.
+	 */
+	public long getLogFileID() { return logFileID; }
+
 	/**
 	 * Sets the type of reader.
 	 * 
