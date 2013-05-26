@@ -237,9 +237,6 @@ public class MessengerDialog
 	/** Component indicating to submit the files or not. */
 	private JCheckBox		submitFile;
 	
-	/** Component indicating to submit the log file or not. */
-	private JCheckBox		submitLogFile;
-	
 	/** Indicates the progress of the files submission.*/
 	private JXBusyLabel		progress;
 	
@@ -339,8 +336,7 @@ public class MessengerDialog
 				submitStatus.setVisible(true);
 				submitStatus.setBusy(true);
 				details.setExceptionOnly(!submitFile.isSelected());
-				if (submitLogFile.isSelected())
-					details.setLogFile(logFile);
+				details.setLogFile(logFile);
 				firePropertyChange(propertyName, null, details);
 			}
 		} else {
@@ -392,8 +388,6 @@ public class MessengerDialog
         submitFile.setSelected(true);
         submitFile.addActionListener(this);
         submitFile.setActionCommand(""+SUBMIT);
-        submitLogFile = new JCheckBox("Log");
-        //submitLogFile.setSelected(true);
 	}
 
 	/**
@@ -601,7 +595,6 @@ public class MessengerDialog
     		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     		row.add(new JLabel("Submit Exceptions and: "));
     		row.add(UIUtilities.buildComponentPanel(submitFile));
-    		row.add(UIUtilities.buildComponentPanel(submitLogFile));
     		JPanel p = new JPanel();
     		p.setBorder(null);
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -672,19 +665,7 @@ public class MessengerDialog
 	{
 		setTitle(title);
 		initComponents();
-		//Determine log file.
-		List<ImportErrorObject> files = null;
-		if (toSubmit != null) {
-			Iterator<ImportErrorObject> i = toSubmit.iterator();
-			ImportErrorObject o;
-			files = new ArrayList<ImportErrorObject>();
-			while (i.hasNext()) {
-				o = i.next();
-				if (o.getException() == null) logFile = o.getFile();
-				else files.add(o);
-			}
-		}
-		buildGUI(files);
+		buildGUI(toSubmit);
 		setSize(DEFAULT_SIZE);
 	}
 	
