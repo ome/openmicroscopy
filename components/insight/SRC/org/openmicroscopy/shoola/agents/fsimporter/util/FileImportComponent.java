@@ -175,6 +175,10 @@ public class FileImportComponent
 
 	/** Text indicating that the folder does not contain importable files.*/
 	private static final String EMPTY_FOLDER = "No data to import";
+	
+	/** The maximum width used for the component.*/
+	private static final int LENGTH = 350;
+	
 	/** 
 	private static final String EMPTY_DIRECTORY = "No data to import";
 	
@@ -450,7 +454,9 @@ public class FileImportComponent
 				((CmdCallbackI) callback).close(true);
 			} catch (Exception e) {}
 		}
-		
+		if (namePane.getPreferredSize().width > LENGTH)
+			fileNameLabel.setText(EditorUtil.getPartialName(
+					getFile().getName()));
 		resultLabel.setVisible(true);
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
@@ -634,14 +640,26 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		double[][] design = new double[][]
+				{{LENGTH, TableLayout.FILL,
+					TableLayout.PREFERRED, TableLayout.PREFERRED,
+					TableLayout.PREFERRED, TableLayout.PREFERRED},
+					{TableLayout.PREFERRED}};
+		setLayout(new TableLayout(design));
 		removeAll();
-		add(namePane);
-		add(statusLabel);
+		if (namePane.getPreferredSize().width > LENGTH)
+			fileNameLabel.setText(EditorUtil.getPartialName(
+					getFile().getName()));
+		add(UIUtilities.buildComponentPanel(namePane, false),
+				"0, 0, l, c");
+		add(statusLabel, "1, 0, l, c");
 		
-		add(busyLabel);
-		add(resultLabel);
-		add(cancelButton);
-		add(actionMenuButton);
+		add(busyLabel, "2, 0, l, c");
+		add(resultLabel, "3, 0, l, c");
+		add(UIUtilities.buildComponentPanel(cancelButton, false),
+				"4, 0, l, c");
+		add(UIUtilities.buildComponentPanel(actionMenuButton, false),
+				"5, 0, l, c");
 	}
 
 	/** 
