@@ -2,7 +2,7 @@ function fa = writeFileAnnotation(session, filePath, varargin)
 % WRITEFILEANNOTATION Upload a file and create a file annotation on the OMERO server
 %
 %    fa = writeFileAnnotation(session, filePath) uploads the file specified
-%    by filePath and create a file annotation owned by the session user.
+%    by filePath and creates a file annotation owned by the session user.
 %
 %    fa = writeFileAnnotation(session, filePath, 'mimetype', mimetype) also
 %    specifies the mimetype of the file.
@@ -59,7 +59,10 @@ originalFile.setName(rstring([name ext]));
 originalFile.setPath(rstring(path));
 originalFile.setSize(rlong(fileLength));
 originalFile.setSha1(rstring(''));
-originalFile.setMimetype(rstring('application/zip'));
+
+if ~isempty(ip.Results.mimetype),
+    originalFile.setMimetype(rstring(ip.Results.mimetype));
+end
 
 % now we save the originalFile object
 updateService = session.getUpdateService();
