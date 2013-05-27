@@ -117,17 +117,16 @@ if [ $TESTING_MODE ]; then
     $VENV_DIR/bin/scc merge master
 fi
 
-# Install Genshi (OMERO and Bio-Formats requirement)
-$VENV_DIR/bin/pip install -U genshi
-
-# Add Virtualenv site-packages path to PYTHONPATH
-export PYTHONPATH=$($VENV_DIR/bin/python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
-
 cd /usr/local
+
+# Install Genshi (OMERO and Bio-Formats requirement)
+bin/brew install python
+bin/pip install -U genshi
 
 ###################################################################
 # Bio-Formats installation
 ###################################################################
+
 
 # Install Bio-Formats
 bin/brew install bioformats $BREW_OPTS
