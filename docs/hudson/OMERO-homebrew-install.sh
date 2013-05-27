@@ -29,42 +29,6 @@ else
 fi
 TESTING_MODE=${TESTING_MODE:-$DEFAULT_TESTING_MODE}
 
-if [ $TESTING_MODE ]; then
-    ###################################################################
-    # Homebrew & pip uninstallation
-    ###################################################################
-
-    # Remove existing PIP virtualenvironment
-    if [ -f "$VENV_DIR/bin/pip" ]
-    then
-        echo "Removing pip-installed packages IN $VENV_DIR"
-        # Solve Cython uninstallation error exit
-        ($VENV_DIR/bin/pip freeze -l | grep Cython && $VENV_DIR/bin/pip freeze uninstall -y Cython) || echo "Cython uninstalled"
-
-        for plugin in $($VENV_DIR/bin/pip freeze -l); do
-            packagename=$(echo "$plugin" | awk -F == '{print $1}')
-            echo "Uninstalling $packagename..."
-            $VENV_DIR/bin/pip uninstall -y $packagename
-        done
-
-        echo "Deleting $VENV_DIR"
-        rm -rf $VENV_DIR
-    fi
-
-    # Remove Homebrew installation
-    if [ -d "/usr/local/.git" ]
-    then
-        echo "Uninstalling Homebrew"
-        rm -rf /usr/local/Cellar && /usr/local/bin/brew prune
-        rm -rf /usr/local/.git && /usr/local/bin/brew cleanup
-    fi
-
-    if [ -d "/usr/local/Library/Taps" ]
-    then
-        echo "Cleaning Homebrew taps"
-        rm -rf /usr/local/Library/Taps
-    fi
-fi
 ###################################################################
 # Homebrew installation
 ###################################################################
@@ -78,14 +42,6 @@ bin/brew list | grep "\bgit\b" || bin/brew install git
 
 # Update Homebrew
 bin/brew update
-
-if [ $TESTING_MODE ]; then
-    # Clean cache before any operation to test full installation
-    rm -rf $(bin/brew --cache)
-
-    # Clean the Git repository
-    git clean -df
-fi
 
 # Run brew doctor
 export PATH=$(bin/brew --prefix)/bin:$PATH
