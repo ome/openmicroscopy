@@ -60,8 +60,6 @@
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType in model and uses enum PixelTypes -->
 			<optional name="significantBits" type="PositiveInteger"/>
-			<optional name="interleaved" type="boolean"/>
-			<optional name="bigEndian" type="boolean"/>
 			<required name="sizeX" type="PositiveInteger"/>
 			<required name="sizeY" type="PositiveInteger"/>
 			<required name="sizeZ" type="PositiveInteger"/>

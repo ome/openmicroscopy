@@ -1449,9 +1449,7 @@
 
     create table pixels (
         id int8 not null,
-        bigEndian bool,
         permissions int8 not null,
-        interleaved bool,
         methodology varchar(255),
         physicalSizeX float8,
         physicalSizeY float8,
