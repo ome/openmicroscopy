@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.util.file;
 //Java imports
 import java.io.File;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Object information about files that cannot be imported.
@@ -61,6 +63,9 @@ public class ImportErrorObject
 	/** The id of the log file.*/
 	private long logFileID;
 	
+	/** The security context.*/
+	private SecurityContext ctx;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -73,6 +78,20 @@ public class ImportErrorObject
 		this.exception = exception;
 	}
 	
+	/**
+	 * Sets the security context.
+	 * 
+	 * @param ctx The value to set.
+	 */
+	public void setSecurityContext(SecurityContext ctx) { this.ctx = ctx; }
+
+	/**
+	 * Returns the security context.
+	 * 
+	 * @return See above.
+	 */
+	public SecurityContext getSecurityContext() { return ctx; }
+
 	/**
 	 * Sets the identifier of the log file.
 	 * 

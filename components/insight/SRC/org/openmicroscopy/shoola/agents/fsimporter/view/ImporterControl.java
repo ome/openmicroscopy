@@ -278,6 +278,7 @@ class ImporterControl
 		while (i.hasNext()) {
 			fc = i.next();
 			object = fc.getImportErrorObject();
+			object.setSecurityContext(view.getSecurityContext());
 			if (object != null)
 				toSubmit.add(object);
 		}

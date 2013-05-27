@@ -33,8 +33,10 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
@@ -107,19 +109,6 @@ public class FileUploader
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version, token);
 			} else {
-				/*
-				File f = null;
-				if (details.isSubmitMainFile())
-					f = object.getFile();
-				String[] usedFiles = object.getUsedFiles();
-				List<File> additionalFiles = null;
-				if (usedFiles != null && usedFiles.length > 0) {
-					additionalFiles = new ArrayList<File>();
-					for (int i = 0; i < usedFiles.length; i++) {
-						additionalFiles.add(new File(usedFiles[i]));
-					}
-				}
-				*/
 				//Create a zip
 				File f = object.getFile();
 				File directory = Files.createTempDir();
@@ -133,6 +122,28 @@ public class FileUploader
 								directory, true);
 					}
 				}
+				
+				//Load the log file
+				long id = object.getLogFileID();
+				if (id >= 0) {
+					StringBuffer buf = new StringBuffer();
+					buf.append("importLog_");
+					buf.append(id);
+					buf.append(".log");
+					File log = new File(directory, buf.toString());
+					try {
+						OmeroMetadataService svc = context.getMetadataService();
+						svc.downloadFile(object.getSecurityContext(), log, id);
+					} catch (Exception ex) {
+						//Not possible to load the log file:
+						LogMessage msg = new LogMessage();
+						msg.print("Loading of Import log");
+						msg.print(e);
+						context.getLogger().error(this, msg);
+					}
+					
+				}
+				
 				//zip the directory.
 				f = IOUtil.zipDirectory(directory);
 				
@@ -152,7 +163,10 @@ public class FileUploader
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogMessage msg = new LogMessage();
+			msg.print("Submit to QA");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
 	}
 	
