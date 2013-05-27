@@ -24,13 +24,13 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
-
 import org.apache.commons.io.FileUtils;
+import com.google.common.io.Files;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
-import com.google.common.io.Files;
+
 
 /**
  * Uploads files to the QA system.
@@ -109,44 +109,45 @@ public class FileUploader
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version, token);
 			} else {
-				//Create a zip
+				//Create a zip if required
 				File f = object.getFile();
-				File directory = Files.createTempDir();
-				//Add the file to the directory.
-				if (f != null)
-					FileUtils.copyFileToDirectory(f, directory, true);
 				String[] usedFiles = object.getUsedFiles();
-				if (usedFiles != null) {
-					for (int i = 0; i < usedFiles.length; i++) {
-						FileUtils.copyFileToDirectory(new File(usedFiles[i]),
-								directory, true);
-					}
-				}
-				
-				//Load the log file
 				long id = object.getLogFileID();
-				if (id >= 0) {
-					StringBuffer buf = new StringBuffer();
-					buf.append("importLog_");
-					buf.append(id);
-					buf.append(".log");
-					File log = new File(directory, buf.toString());
-					try {
-						OmeroMetadataService svc = context.getMetadataService();
-						svc.downloadFile(object.getSecurityContext(), log, id);
-					} catch (Exception ex) {
-						//Not possible to load the log file:
-						LogMessage msg = new LogMessage();
-						msg.print("Loading of Import log");
-						msg.print(e);
-						context.getLogger().error(this, msg);
+				File directory = null;
+				if (usedFiles != null || id >= 0) {
+					directory = Files.createTempDir();
+					//Add the file to the directory.
+					if (f != null)
+						FileUtils.copyFileToDirectory(f, directory, true);
+					usedFiles = object.getUsedFiles();
+					if (usedFiles != null) {
+						for (int i = 0; i < usedFiles.length; i++) {
+							FileUtils.copyFileToDirectory(new File(usedFiles[i]),
+									directory, true);
+						}
 					}
-					
+					if (id >= 0) {
+						StringBuffer buf = new StringBuffer();
+						buf.append("importLog_");
+						buf.append(id);
+						buf.append(".log");
+						File log = new File(directory, buf.toString());
+						try {
+							OmeroMetadataService svc =
+									context.getMetadataService();
+							svc.downloadFile(object.getSecurityContext(), log,
+									id);
+						} catch (Exception ex) {
+							//Not possible to load the log file:
+							LogMessage msg = new LogMessage();
+							msg.print("Loading of Import log");
+							msg.print(e);
+							context.getLogger().error(this, msg);
+						}
+					}
+					//zip the directory.
+					f = IOUtil.zipDirectory(directory);
 				}
-				
-				//zip the directory.
-				f = IOUtil.zipDirectory(directory);
-				
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
@@ -158,7 +159,7 @@ public class FileUploader
 				c = SvcRegistry.getCommunicator(desc);
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
-				directory.delete();
+				if (directory != null) directory.delete();
 				f.delete();
 			}
 			uploadedFile = object;
