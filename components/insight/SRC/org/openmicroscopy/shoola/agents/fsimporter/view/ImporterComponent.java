@@ -840,7 +840,7 @@ class ImporterComponent
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
 			ImportErrorObject r = new ImportErrorObject(component.getFile(),
-					(Exception) result);
+					(Exception) result, component.getGroupID());
 			element.setImportResult(component, result);
 			handleCompletion(element, r, !component.hasParent());
 			return;

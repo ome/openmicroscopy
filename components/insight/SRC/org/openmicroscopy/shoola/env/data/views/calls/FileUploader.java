@@ -38,6 +38,7 @@ import com.google.common.io.Files;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -146,9 +147,10 @@ public class FileUploader
 							//To be modified need other PR.
 							List<String> nsInclude = new ArrayList<String>();
 							nsInclude.add(FileAnnotationData.LOG_FILE_NS);
-							
+							SecurityContext ctx = new SecurityContext(
+									object.getSecurityContext());
 							Map<Long, Collection<AnnotationData>> map =
-								svc.loadAnnotations(object.getSecurityContext(),
+								svc.loadAnnotations(ctx,
 									FilesetData.class, Arrays.asList(id),
 									FileAnnotationData.class, nsInclude, null);
 							Collection<AnnotationData> l = map.get(id);
@@ -162,8 +164,7 @@ public class FileUploader
 								}
 							}
 							
-							svc.downloadFile(object.getSecurityContext(), log,
-									id);
+							svc.downloadFile(ctx, log, id);
 						} catch (Exception ex) {
 							//Not possible to load the log file:
 							LogMessage msg = new LogMessage();

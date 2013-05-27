@@ -30,7 +30,6 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 /** 
  * Object information about files that cannot be imported.
@@ -63,34 +62,29 @@ public class ImportErrorObject
 	/** The id of the log file.*/
 	private long logFileID;
 	
-	/** The security context.*/
-	private SecurityContext ctx;
+	/** The group indicating the security context.*/
+	private long groupID;
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param file The file that could not be imported.
 	 * @param exception The exception.
+	 * @param groupID The id of the group.
 	 */
-	public ImportErrorObject(File file, Exception exception)
+	public ImportErrorObject(File file, Exception exception, long groupID)
 	{
 		this.file = file;
 		this.exception = exception;
+		this.groupID = groupID;
 	}
-	
-	/**
-	 * Sets the security context.
-	 * 
-	 * @param ctx The value to set.
-	 */
-	public void setSecurityContext(SecurityContext ctx) { this.ctx = ctx; }
 
 	/**
 	 * Returns the security context.
 	 * 
 	 * @return See above.
 	 */
-	public SecurityContext getSecurityContext() { return ctx; }
+	public long getSecurityContext() { return groupID; }
 
 	/**
 	 * Sets the identifier of the log file.

@@ -712,13 +712,6 @@ class ImporterUI extends TopWindow
 		return element.hasFailuresToReupload();
 	}
 
-	/**
-	 * Returns the security context.
-	 * 
-	 * @return See above.
-	 */
-	SecurityContext getSecurityContext() { return model.getSecurityContext(); }
-
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

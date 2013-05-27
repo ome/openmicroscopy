@@ -997,6 +997,13 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns the id of the group.
+	 * 
+	 * @return See above.
+	 */
+	public long getGroupID() { return importable.getGroup().getId(); }
+	
+	/**
 	 * Returns the import error object.
 	 * 
 	 * @return See above.
@@ -1008,7 +1015,8 @@ public class FileImportComponent
 		if (r instanceof Exception) e = (Exception) r;
 		else if (image instanceof Exception) e = (Exception) image;
 		if (e == null) return null;
-		ImportErrorObject object = new ImportErrorObject(getFile(), e);
+		ImportErrorObject object = new ImportErrorObject(getFile(), e,
+				getGroupID());
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		object.setLogFileID(statusLabel.getLogFileID());
