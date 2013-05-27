@@ -36,8 +36,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -62,9 +60,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 import info.clearthought.layout.TableLayout;
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -325,7 +325,7 @@ public class MessengerDialog
 		if (dialogType == SUBMIT_ERROR_TYPE) {
 			List<FileTableNode> files = null;
 			if (table != null) files = table.getSelectedFiles();
-			if (files == null || files.size() == 0) {
+			if (CollectionUtils.isEmpty(files)) {
 				sendError(propertyName);
 			} else {
 				String email = emailArea.getText().trim();
@@ -366,8 +366,6 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
-        //commentArea.setBorder(
-        //		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
         commentArea.setOpaque(true);
         if (exception != null) {
