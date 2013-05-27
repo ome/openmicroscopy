@@ -242,10 +242,7 @@ public class MessengerDialog
 	
 	/** Indicates the progress of the files submission.*/
 	private JLabel			progressLabel;
-	
-	/** The log file.*/
-	private File logFile;
-	
+
 	/** 
 	 * Displays the dialog indicating the consequence of not submitting
 	 * the files.
@@ -336,7 +333,6 @@ public class MessengerDialog
 				submitStatus.setVisible(true);
 				submitStatus.setBusy(true);
 				details.setExceptionOnly(!submitFile.isSelected());
-				details.setLogFile(logFile);
 				firePropertyChange(propertyName, null, details);
 			}
 		} else {

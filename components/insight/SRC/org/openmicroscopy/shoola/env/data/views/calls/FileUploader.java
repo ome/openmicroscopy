@@ -30,6 +30,7 @@ import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.io.FileUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -38,9 +39,12 @@ import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
+
+import com.google.common.io.Files;
 
 /**
  * Uploads files to the QA system.
@@ -103,6 +107,7 @@ public class FileUploader
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version, token);
 			} else {
+				/*
 				File f = null;
 				if (details.isSubmitMainFile())
 					f = object.getFile();
@@ -114,34 +119,40 @@ public class FileUploader
 						additionalFiles.add(new File(usedFiles[i]));
 					}
 				}
+				*/
+				//Create a zip
+				File f = object.getFile();
+				File directory = Files.createTempDir();
+				//Add the file to the directory.
+				if (f != null)
+					FileUtils.copyFileToDirectory(f, directory, true);
+				String[] usedFiles = object.getUsedFiles();
+				if (usedFiles != null) {
+					for (int i = 0; i < usedFiles.length; i++) {
+						FileUtils.copyFileToDirectory(new File(usedFiles[i]),
+								directory, true);
+					}
+				}
+				//zip the directory.
+				f = IOUtil.zipDirectory(directory);
 				
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
-						f, additionalFiles, token);
+						f, null, token);
+				
 				desc = new CommunicatorDescriptor(
 						HttpChannel.CONNECTION_PER_REQUEST, processURL,
 						timeout);
 				c = SvcRegistry.getCommunicator(desc);
-				StringBuilder reply = new StringBuilder();
-				String reader = object.getReaderType();
-				if (f != null)
-					c.submitFile(token.toString(), f, reader, reply);
-				if (additionalFiles != null) {
-					Iterator<File> i = additionalFiles.iterator();
-					File log = details.getLogFile();
-					String logs = "";
-					if (log != null) logs = log.getAbsolutePath();
-					while (i.hasNext()) {
-						f = i.next();
-						if (f.getAbsolutePath().equals(logs))
-							c.submitFile(token.toString(), f, null, reply);
-						else c.submitFile(token.toString(), f, null, reply);
-					}
-				}
+				c.submitFile(token.toString(), f, object.getReaderType(),
+						new StringBuilder());
+				directory.delete();
+				f.delete();
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
