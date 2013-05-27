@@ -42,6 +42,7 @@ objectType = objectTypes(strcmp(parentType, objectNames));
 % Get the parent object
 if isnumeric(parentId),
     parent = getObjects(session, parentType, parentId);
+    assert(~isempty(parent), 'No %s with id %g found', parentType, parentId);
 else
     parent = parentId;
 end
