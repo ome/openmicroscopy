@@ -749,7 +749,6 @@ class ImporterUIElement
 			if (result instanceof Exception) {
 				countUploaded++;
 				countCancelled++;
-				countImported++;
 				setImportResult(c, result);
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;
