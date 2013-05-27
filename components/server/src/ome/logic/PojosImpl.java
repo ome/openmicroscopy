@@ -16,7 +16,6 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,13 +50,11 @@ import ome.tools.HierarchyTransformations;
 import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 /**
@@ -404,6 +401,20 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
     }
 
     /**
+     * Perform the given HQL query in batches, adding the results to the given collection.
+     * @param queryString a HQL query that includes {@link Parameters.IDS}
+     * @param queryIds the IDs to use as a query parameter
+     * @param resultIds the set to which to add the results
+     */
+    private void addResultIds(String queryString, Collection<Long> queryIds, Set<Long> resultIds) {
+        for (final List<Long> idBatch : batchCollection(256, queryIds)) {
+            for (final Object[] result : iQuery.projection(queryString, new Parameters().addIds(idBatch))) {
+                resultIds.add((Long) result[0]);
+            }
+        }
+    }
+
+    /**
      * Implemented as specified by the {@link IContainer} I/F
      * @see IContainer#getImagesBySplitFilesets(Map)
      */
@@ -420,10 +431,10 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         final Set<Long> filesetIds = new HashSet<Long>();
         final Set<Long> imageIds   = new HashSet<Long>();
 
-       for (final Entry<String, List<Long>> typeAndIds : included.entrySet()) {
-           final String type = typeAndIds.getKey();
-           final List<Long> ids = typeAndIds.getValue();
-           if ("Project".equals(type)) {
+        for (final Entry<String, List<Long>> typeAndIds : included.entrySet()) {
+            final String type = typeAndIds.getKey();
+            final List<Long> ids = typeAndIds.getValue();
+            if ("Project".equals(type)) {
                 projectIds.addAll(ids);
             } else if ("Dataset".equals(type)) {
                 datasetIds.addAll(ids);
@@ -442,59 +453,19 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
 
         /* also note which entities have been implicitly referenced */
 
-        for (final long projectId : projectIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select child.id from ProjectDatasetLink where parent.id = :" + Parameters.ID,
-                    new Parameters().addId(projectId))) {
-                datasetIds.add((Long) result[0]);
-            }
-        }
-        for (final long datasetId : datasetIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select child.id from DatasetImageLink where parent.id = :" + Parameters.ID,
-                    new Parameters().addId(datasetId))) {
-                imageIds.add((Long) result[0]);
-            }
-        }
-        for (final long screenId : screenIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select child.id from ScreenPlateLink where parent.id = :" + Parameters.ID,
-                    new Parameters().addId(screenId))) {
-                plateIds.add((Long) result[0]);
-            }
-        }
-        for (final long plateId : plateIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select id from Well where plate.id = :" + Parameters.ID,
-                    new Parameters().addId(plateId))) {
-                wellIds.add((Long) result[0]);
-            }
-        }
-        for (final long wellId : wellIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select image.id from WellSample where well.id = :" + Parameters.ID,
-                    new Parameters().addId(wellId))) {
-                imageIds.add((Long) result[0]);
-            }
-        }
-        for (final long filesetId : filesetIds) {
-            for (final Object[] result : iQuery.projection(
-                    "select id from Image where fileset.id = :" + Parameters.ID,
-                    new Parameters().addId(filesetId))) {
-                imageIds.add((Long) result[0]);
-            }
-        }
+        final String inIds = " in (:" + Parameters.IDS + ")";
+
+        addResultIds("select child.id from ProjectDatasetLink where parent.id" + inIds, projectIds, datasetIds);
+        addResultIds("select child.id from DatasetImageLink where parent.id" + inIds, datasetIds, imageIds);
+        addResultIds("select child.id from ScreenPlateLink where parent.id" + inIds, screenIds, plateIds);
+        addResultIds("select id from Well where plate.id" + inIds, plateIds, wellIds);
+        addResultIds("select image.id from WellSample where well.id" + inIds, wellIds, imageIds);
+        addResultIds("select id from Image where fileset.id" + inIds, filesetIds, imageIds);
 
         /* note which filesets are associated with referenced images */
 
         final SortedSet<Long> filesetIdsRequired = new TreeSet<Long>();
-        for (final List<Long> imageIdBatch : batchCollection(256, imageIds)) {
-            for (final Object[] result : iQuery.projection(
-                    "select distinct fileset.id from Image where id in (:" + Parameters.IDS + ")",
-                    new Parameters().addIds(imageIdBatch))) {
-                filesetIdsRequired.add((Long) result[0]);
-            }
-        }
+        addResultIds("select distinct fileset.id from Image where id" + inIds, imageIds, filesetIdsRequired);
 
         /* make sure that associated filesets have all their images referenced */
 
