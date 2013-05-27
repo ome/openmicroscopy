@@ -1011,7 +1011,7 @@ public class FileImportComponent
 		ImportErrorObject object = new ImportErrorObject(getFile(), e);
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
-		object.setLogFileID(-1);//to be modified
+		object.setLogFileID(statusLabel.getLogFileID());
 		return object;
 	}
 	

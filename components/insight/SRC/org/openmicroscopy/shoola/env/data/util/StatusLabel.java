@@ -590,6 +590,19 @@ public class StatusLabel
 	public long getFileSize() { return sizeUpload; }
 
 	/**
+	 * Returns the ID associated to the log file.
+	 * 
+	 * @return See above.
+	 */
+	public long getLogFileID()
+	{
+		//TO be modified
+		FilesetData data = getFileset();
+		if (data == null) return -1;
+		return data.getId();
+	}
+
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
