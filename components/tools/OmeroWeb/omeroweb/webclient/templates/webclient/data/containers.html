@@ -167,6 +167,25 @@
                     });
                 }
             });
+
+            // Check if delete will attempt to partially delete a Fileset.
+            var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
+                $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
+            $.get("{% url fileset_check 'delete' %}?" + OME.get_tree_selection(), function(html){
+                if($('div.split_fileset', html).length > 0) {
+                    var $del_form_content = del_form.children().hide();
+                    del_form.append(html);
+                    $deleteYesBtn.hide();
+                    $deleteNoBtn.text("Cancel");
+                    // On dialog close, clean-up what we changed above
+                    del_form.bind("dialogclose", function(event, ui) {
+                        $deleteYesBtn.show();
+                        $deleteNoBtn.text("No");
+                        $("#chgrp_split_filesets", del_form).remove();
+                        $del_form_content.show();
+                    });
+                }
+            });
         }
 
         // Getting text from jsTree nodes shouldn't be this hard, but it is!
@@ -510,6 +529,7 @@
                 });
                 
                 $("#delete-dialog-form").dialog({
+                    dialogClass: 'delete_confirm_dialog',
                     autoOpen: false,
                     resizable: true,
                     height: 210,

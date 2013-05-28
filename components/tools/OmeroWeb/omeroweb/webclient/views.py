@@ -2632,8 +2632,10 @@ def fileset_check(request, action, conn=None, **kwargs):
                 'blocking_iids':splitIds[False]})
 
     context = {"split_filesets": splits}
-    if action == "chgrp":
-        context['template'] = "webclient/activities/fileset_check_chgrp.html"
+    context['action'] = action
+    if action == 'chgrp':
+        context['action'] = 'move'
+    context['template'] = "webclient/activities/fileset_check_dialog_content.html"
 
     return context
 
