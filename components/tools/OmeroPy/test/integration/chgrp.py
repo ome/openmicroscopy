@@ -518,6 +518,7 @@ class TestChgrpTarget(lib.ITest):
 
         # each chgrp includes a 'save' link to target dataset
         requests = []
+        saves = []
         for i in images:
             chgrp = omero.cmd.Chgrp(type="/Image", id=i.id.val, grp=target_gid)
             requests.append(chgrp)
@@ -526,8 +527,9 @@ class TestChgrpTarget(lib.ITest):
             link.parent = omero.model.DatasetI(ds.id.val, False)
             save = Save()
             save.obj = link
-            requests.append(save)
+            saves.append(save)
 
+        requests.extend(saves)
         self.doAllSubmit(requests, client, omero_group=target_gid)
 
         # Check Images moved to correct group
