@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,7 @@ import ome.util.checksum.ChecksumProviderFactory;
 import ome.util.checksum.ChecksumProviderFactoryImpl;
 import omero.ChecksumValidationException;
 import omero.ServerError;
+import omero.api.IMetadataPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.cmd.CmdCallbackI;
@@ -52,12 +54,17 @@ import omero.grid.ManagedRepositoryPrx;
 import omero.grid.ManagedRepositoryPrxHelper;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Annotation;
 import omero.model.Dataset;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.Screen;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
@@ -99,6 +106,8 @@ public class ImportLibrary implements IObservable
 
     private final ManagedRepositoryPrx repo;
 
+    private final ServiceFactoryPrx sf;
+
     /**
      * Adapter for use with any callbacks created by the library.
      */
@@ -130,7 +139,7 @@ public class ImportLibrary implements IObservable
         // complicated than it needs to be at the moment. We're only sure that
         // the OMSClient has a ServiceFactory (and not necessarily a client)
         // so we have to inspect various fields to get the adapter.
-        final ServiceFactoryPrx sf = store.getServiceFactory();
+        sf = store.getServiceFactory();
         oa = sf.ice_getConnection().getAdapter();
         final Ice.Communicator ic = oa.getCommunicator();
         category = omero.client.getRouter(ic).getCategoryForClient();
@@ -469,12 +478,14 @@ public class ImportLibrary implements IObservable
     public ImportCallback createCallback(ImportProcessPrx proc,
         HandlePrx handle, ImportContainer container) throws ServerError {
         return new ImportCallback(proc, handle, container);
-	}
+    }
 
     @SuppressWarnings("serial")
     public class ImportCallback extends CmdCallbackI {
 
         final ImportContainer container;
+
+        final Long logFileId;
 
         /**
          * If null, then {@link #onFinished(Response, Status, Current)} has
@@ -487,7 +498,37 @@ public class ImportLibrary implements IObservable
                 ImportContainer container) throws ServerError {
                 super(oa, category, handle);
                 this.container = container;
+                this.logFileId = loadLogFile();
                 initializationDone();
+        }
+
+        protected Long loadLogFile() throws ServerError {
+            final ImportRequest req = (ImportRequest) handle.getRequest();
+            final Long fsId = req.activity.getParent().getId().getValue();
+            final IMetadataPrx metadataService = sf.getMetadataService();
+            final List<String> nsToInclude = new ArrayList<String>(
+                    Arrays.asList(omero.constants.namespaces.NSLOGFILE.value));
+            final List<String> nsToExclude = new ArrayList<String>();
+            final List<Long> rootIds = new ArrayList<Long>(Arrays.asList(fsId));
+            final Parameters param = new ParametersI();
+            Map<Long,List<Annotation>> annotationMap = new HashMap<Long,List<Annotation>>();
+            List<Annotation> annotations = new ArrayList<Annotation>();
+            Long ofId = null;
+            try {
+                annotationMap = metadataService.loadSpecifiedAnnotationsLinkedTo(
+                        FileAnnotation.class.getName(), nsToInclude, nsToExclude,
+                        Fileset.class.getName(), rootIds, param);
+                if (annotationMap.containsKey(fsId)) {
+                    annotations = annotationMap.get(fsId);
+                    if (annotations.size() != 0) {
+                        FileAnnotation fa = (FileAnnotationI) annotations.get(0);
+                        ofId = fa.getFile().getId().getValue();
+                    }
+                }
+            } catch (ServerError e) {
+                ofId = null;
+            }
+            return ofId;
         }
 
         @Override
@@ -495,23 +536,23 @@ public class ImportLibrary implements IObservable
             if (step == 1) {
                 notifyObservers(new ImportEvent.METADATA_IMPORTED(
                         0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                        null, null, 0, null, step, total, logFileId));
             } else if (step == 2) {
                 notifyObservers(new ImportEvent.PIXELDATA_PROCESSED(
                         0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                        null, null, 0, null, step, total, logFileId));
             } else if (step == 3) {
                 notifyObservers(new ImportEvent.THUMBNAILS_GENERATED(
                         0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                        null, null, 0, null, step, total, logFileId));
             } else if (step == 4) {
                 notifyObservers(new ImportEvent.METADATA_PROCESSED(
                         0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                        null, null, 0, null, step, total, logFileId));
             } else if (step == 5) {
                 notifyObservers(new ImportEvent.OBJECTS_RETURNED(
                         0, container.getFile().getAbsolutePath(),
-                        null, null, 0, null, step, total));
+                        null, null, 0, null, step, total, logFileId));
             }
         }
 

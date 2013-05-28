@@ -52,6 +52,8 @@ import ome.api.IQuery;
 import ome.api.RawFileStore;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
+import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.FilesetAnnotationLink;
 import ome.services.blitz.impl.AbstractAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.path.FilePathRestrictionInstance;
@@ -91,7 +93,9 @@ import omero.cmd.Request;
 import omero.grid._RepositoryOperations;
 import omero.grid._RepositoryTie;
 import omero.model.ChecksumAlgorithm;
+import omero.model.Fileset;
 import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
 import omero.model.enums.ChecksumAlgorithmSHA1160;
 import omero.util.IceMapper;
 
@@ -453,8 +457,62 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
             }
         }
 
+    /**
+     * Should be refactored elsewhere.
+     * @param checkedPath 
+     * @param current
+     */
+    @Deprecated
+    protected OriginalFile registerLogFile(final String repoUuid, final long filesetId,
+            final CheckedPath checkedPath, Ice.Current current)
+                throws ServerError {
+
+        final Executor executor = this.context.getBean("executor", Executor.class);
+        final Map<String, String> ctx = current.ctx;
+        final String session = ctx.get(omero.constants.SESSIONUUID.value);
+        final String group = ctx.get(omero.constants.GROUP.value);
+        final Principal principal = new Principal(session, group, null);
+        final String LOG_FILE_NS =
+                omero.constants.namespaces.NSLOGFILE.value;
+
+        try {
+            FilesetAnnotationLink link = (FilesetAnnotationLink)
+                    executor.execute(ctx, principal, new Executor.SimpleWork(this, "setOriginalFileHasherToSHA1", id) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+
+                    ome.model.core.OriginalFile logFile = null;
+                    try {
+                         logFile = repositoryDao.register(repoUuid,
+                            checkedPath, "text/plain", sf, getSqlAction());
+                    } catch (ServerError se) {
+                        throw new RuntimeException("Failed to register log file", se);
+                    }
+
+                    // use sf to get the services to link Fileset and the OriginalFile
+                    ome.api.IUpdate iUpdate = sf.getUpdateService();
+                    ome.model.annotations.FileAnnotation fa = new ome.model.annotations.FileAnnotation();
+                    fa.setNs(LOG_FILE_NS);
+                    fa.setFile(logFile.proxy());
+                    FilesetAnnotationLink fsl = new FilesetAnnotationLink();
+                    fsl.link(new ome.model.fs.Fileset(filesetId, false), fa);
+                    return iUpdate.saveAndReturnObject(fsl);
+                }
+            });
+            FileAnnotation fs = (FileAnnotation) link.child();
+            return new OriginalFileI(fs.getFile().getId(), false);
+        } catch (Exception e) {
+            throw (ServerError) new IceMapper().handleException(e, executor.getContext());
+        }
+}
+
     protected OriginalFile findOrCreateInDb(CheckedPath checked, String mode,
             Ice.Current curr) throws ServerError {
+        return findOrCreateInDb(checked, mode, null, curr);
+    }
+
+    protected OriginalFile findOrCreateInDb(CheckedPath checked, String mode,
+            String mimetype, Ice.Current curr) throws ServerError {
 
         OriginalFile ofile = findInDb(checked, mode, curr);
         if (ofile != null) {
@@ -464,7 +522,7 @@ public class PublicRepositoryI implements _RepositoryOperations, ApplicationCont
         if (checked.exists()) {
             omero.grid.UnregisteredFileException ufe
                 = new omero.grid.UnregisteredFileException();
-            ofile = (OriginalFile) new IceMapper().map(checked.asOriginalFile(null));
+            ofile = (OriginalFile) new IceMapper().map(checked.asOriginalFile(mimetype));
             ufe.file = ofile;
             throw ufe;
         }
