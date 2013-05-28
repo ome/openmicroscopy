@@ -59,6 +59,7 @@
 			<!-- Note: relatedTo is not used in model-->
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType in model and uses enum PixelTypes -->
+			<optional name="significantBits" type="PositiveInteger"/>
 			<required name="sizeX" type="PositiveInteger"/>
 			<required name="sizeY" type="PositiveInteger"/>
 			<required name="sizeZ" type="PositiveInteger"/>
@@ -237,6 +238,8 @@
 			<!-- Note: offsetValue is called Offset in model-->
 			<optional name="readOutRate" type="double"/>
 			<optional name="binning" type="ome.model.enums.Binning"/>
+			<optional name="integration" type="PositiveInteger"/>
+			<optional name="zoom" type="double"/>
 			<required name="detector" type="ome.model.acquisition.Detector"/>
 			<!-- Note: detector is ID in model-->
 		</properties>
@@ -343,7 +346,7 @@
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
-			<optional name="nominalMagnification" type="PositiveInteger"/>
+			<optional name="nominalMagnification" type="double"/>
 			<optional name="calibratedMagnification" type="double"/>
 			<optional name="lensNA" type="double"/>
 			<required name="immersion" type="ome.model.enums.Immersion"/>
@@ -871,6 +874,7 @@
 		<entry name="MultiPass"/>
 		<entry name="Dichroic"/>
 		<entry name="NeutralDensity"/>
+		<entry name="Tuneable"/>
 		<entry name="Other"/>
 		<entry name="Unknown"/>
 	</enum>

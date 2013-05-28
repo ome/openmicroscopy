@@ -1397,13 +1397,13 @@ public class EditorUtil
 		if (s == null || s.trim().length() == 0) 
 			notSet.add(LOT_NUMBER);
 		details.put(LOT_NUMBER, s);
-		int i = data.getNominalMagnification();
-		if (i < 0) {
-			i = 0;
+		double f = data.getNominalMagnification();
+		if (f < 0) {
+			f = 0;
 			notSet.add(NOMINAL_MAGNIFICATION);
 		}
-		details.put(NOMINAL_MAGNIFICATION, i);
-		double f = data.getCalibratedMagnification();
+		details.put(NOMINAL_MAGNIFICATION, f);
+		f = data.getCalibratedMagnification();
  		if (f < 0) {
  			f = 0;
  			notSet.add(CALIBRATED_MAGNIFICATION);

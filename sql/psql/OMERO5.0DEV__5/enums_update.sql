@@ -494,6 +494,10 @@ insert into filtertype (id,permissions,value)
         select 1 from filtertype where value = 'NeutralDensity') limit 1;
 
 insert into filtertype (id,permissions,value)
+    select ome_nextval('seq_filtertype'),-35,'Tuneable' from filtertype where not exists(
+        select 1 from filtertype where value = 'Tuneable') limit 1;
+
+insert into filtertype (id,permissions,value)
     select ome_nextval('seq_filtertype'),-35,'Other' from filtertype where not exists(
         select 1 from filtertype where value = 'Other') limit 1;
 
