@@ -2303,7 +2303,7 @@ def activities(request, conn=None, **kwargs):
         rv[key]['key'] = key
         if key in new_results:
             rv[key]['new'] = True
-            if 'error' in data:
+            if 'error' in data and data['error'] > 0:
                 new_errors = True
         jobs.append(rv[key])
 
