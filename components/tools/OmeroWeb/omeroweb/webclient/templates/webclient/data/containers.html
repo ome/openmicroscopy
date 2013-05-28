@@ -82,6 +82,13 @@
                     $("#move_group_tree ins").click(node_click);
                 });
             }
+
+            // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
+            $.get("{% url fileset_check 'chgrp' %}?" + OME.get_tree_selection(), function(html){
+                if($('div.split_fileset', html).length > 0) {
+                    $(html).appendTo($chgrpform).hide();
+                }
+            });
         }
 
         OME.handleNewContainer = function(container_type) {
@@ -353,6 +360,13 @@
                     });
                 }
 
+                // After we edit the chgrp dialog to handle Filesets, we need to clean-up
+                var resetChgrpForm = function() {
+                    $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("OK");
+                    $("#move_group_tree").show();
+                    $("#chgrp_split_filesets").remove();
+                }
+
                 var $chgrpform = $("#chgrp-form");
                 $chgrpform.dialog({
                     dialogClass: 'chgrp_confirm_dialog',
@@ -363,9 +377,21 @@
                     modal: true,
                     buttons: {
                         "OK": function() {
+                            var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span');
+                            // If we have split filesets, on the first click 'OK', we ask 'Move All'?
+                            if ($("#chgrp_split_filesets .split_fileset").length > 0) {
+                                if ($thisBtn.text() == 'OK') {
+                                    $("#move_group_tree").hide();
+                                    $("#chgrp_split_filesets").show();
+                                    $thisBtn.text('Move All');
+                                    return false;
+                                }
+                            }
                             $("#chgrp-form").submit();
+                            resetChgrpForm();
                         },
                         "Cancel": function() {
+                            resetChgrpForm();
                             $( this ).dialog( "close" );
                         }
                     }
