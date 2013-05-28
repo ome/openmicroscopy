@@ -231,6 +231,9 @@ public class StatusLabel
 	
 	/** Indicates that the file scanned is a directory.*/
 	private boolean directory;
+
+	/** The id of the log file.*/
+	private long logFileID;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -594,13 +597,7 @@ public class StatusLabel
 	 * 
 	 * @return See above.
 	 */
-	public long getLogFileID()
-	{
-		//TO be modified
-		FilesetData data = getFileset();
-		if (data == null) return -1;
-		return data.getId();
-	}
+	public long getLogFileID() { return logFileID; }
 
 	/**
 	 * Displays the status of an on-going import.
@@ -672,6 +669,9 @@ public class StatusLabel
     			processingBar.setString(STEPS.get(1));
             }
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
+			ImportEvent.METADATA_IMPORTED e =
+					(ImportEvent.METADATA_IMPORTED) event;
+			logFileID = e.logFileId;
 			processingBar.setValue(2);
 			processingBar.setString(STEPS.get(2));
 		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {

@@ -24,12 +24,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 import org.apache.commons.io.FileUtils;
@@ -50,12 +46,6 @@ import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
-
-import pojos.AnnotationData;
-import pojos.FileAnnotationData;
-import pojos.FilesetData;
-
-
 
 /**
  * Uploads files to the QA system.
@@ -144,26 +134,8 @@ public class FileUploader
 						try {
 							OmeroMetadataService svc =
 									context.getMetadataService();
-							//To be modified need other PR.
-							List<String> nsInclude = new ArrayList<String>();
-							nsInclude.add(FileAnnotationData.LOG_FILE_NS);
 							SecurityContext ctx = new SecurityContext(
 									object.getSecurityContext());
-							Map<Long, Collection<AnnotationData>> map =
-								svc.loadAnnotations(ctx,
-									FilesetData.class, Arrays.asList(id),
-									FileAnnotationData.class, nsInclude, null);
-							Collection<AnnotationData> l = map.get(id);
-							Iterator<AnnotationData> i = l.iterator();
-							while (i.hasNext()) {
-								AnnotationData data = i.next();
-								String ns = data.getNameSpace();
-								if (FileAnnotationData.LOG_FILE_NS.equals(ns)) {
-									id = ((FileAnnotationData) data).getFileID();
-									break;
-								}
-							}
-							
 							svc.downloadFile(ctx, log, id);
 						} catch (Exception ex) {
 							//Not possible to load the log file:
