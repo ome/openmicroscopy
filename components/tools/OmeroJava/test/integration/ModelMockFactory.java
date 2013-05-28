@@ -462,7 +462,7 @@ public class ModelMockFactory
     	
     	objective.setIris(omero.rtypes.rbool(true));
     	objective.setLensNA(omero.rtypes.rdouble(0.5));
-    	objective.setNominalMagnification(omero.rtypes.rint(1));
+    	objective.setNominalMagnification(omero.rtypes.rdouble(1));
     	objective.setWorkingDistance(omero.rtypes.rdouble(1));
     	return objective;
     }
