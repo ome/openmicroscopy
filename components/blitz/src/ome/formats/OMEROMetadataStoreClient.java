@@ -58,6 +58,7 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
+import loci.formats.meta.MetadataRoot;
 import ome.formats.enums.EnumerationProvider;
 import ome.formats.enums.IQueryEnumProvider;
 import ome.formats.importer.ImportEvent;
@@ -271,7 +272,7 @@ public class OMEROMetadataStoreClient
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
 
-    private List<Pixels> pixelsList;
+    private OMEROMetadataStoreClientRoot pixelsList;
 
     private boolean encryptedConnection = false;
 
@@ -1149,9 +1150,9 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#getRoot()
+     * @see loci.formats.meta.MetadataStore#getRoot(loci.formats.meta.MetadataRoot)
      */
-    public Object getRoot()
+    public MetadataRoot getRoot()
     {
         return pixelsList;
     }
@@ -1767,7 +1768,7 @@ public class OMEROMetadataStoreClient
             delegate.updateObjects(containerArray);
             delegate.updateReferences(referenceStringCache);
             Map<String, List<IObject>> rv = delegate.saveToDB(link);
-            pixelsList = (List) rv.get("Pixels");
+            pixelsList = new OMEROMetadataStoreClientRoot((List) rv.get("Pixels"));
 
             if (log.isDebugEnabled())
             {
@@ -6366,12 +6367,20 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setRoot(java.lang.Object)
+     * @see loci.formats.meta.MetadataStore#setRoot(MetadataRoot)
      */
+    public void setRoot(MetadataRoot root)
+    {
+        // TODO Auto-generated method stub
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setRoot(MetadataRoot)
+     */
+    @Deprecated
     public void setRoot(Object root)
     {
         // TODO Auto-generated method stub
-
     }
 
     //////// Screen /////////

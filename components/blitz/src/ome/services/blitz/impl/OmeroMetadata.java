@@ -132,12 +132,6 @@ public class OmeroMetadata extends DummyMetadata {
         this.db = db;
     }
 
-    @Override
-    public Object getRoot()
-    {
-        return "";
-    }
-
     public void addImage(Image image) {
         if (log.isDebugEnabled()) {
             log.debug(String.format("Adding image for retrieval:", image));
