@@ -409,7 +409,7 @@ class ImporterUIElement
 								ImporterAgent.getRegistry().lookup(
 										LookupNames.ENV);
 						String path = env.getOmeroFilesHome();
-						File f = new File(path, "log_"+logFileID);
+						File f = new File(path, "importLog_"+logFileID);
 						DownloadAndLaunchActivityParam
 						activity = new DownloadAndLaunchActivityParam(logFileID,
 								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
