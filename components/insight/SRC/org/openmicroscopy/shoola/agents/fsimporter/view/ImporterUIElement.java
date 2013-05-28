@@ -403,20 +403,15 @@ class ImporterUIElement
 						setNumberOfImport();
 					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
 							name)) {
-						// TODO: can be changed to using the model
-						// to query for the log file
-						FileAnnotationData v = (FileAnnotationData)
-								evt.getNewValue();
-						if (v == null) return;
+						long logFileID = (Long) evt.getNewValue();
+						if (logFileID < 0) return;
 						Environment env = (Environment) 
 								ImporterAgent.getRegistry().lookup(
 										LookupNames.ENV);
 						String path = env.getOmeroFilesHome();
-						long id = v.getFileID();
-						if (id < 0) return;
-						File f = new File(path, "log_"+id);
-						DownloadAndLaunchActivityParam activity;
-						activity = new DownloadAndLaunchActivityParam(id,
+						File f = new File(path, "log_"+logFileID);
+						DownloadAndLaunchActivityParam
+						activity = new DownloadAndLaunchActivityParam(logFileID,
 								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
 								f, null);
 						UserNotifier un =

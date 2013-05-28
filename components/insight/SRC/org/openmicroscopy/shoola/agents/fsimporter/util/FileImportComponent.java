@@ -86,7 +86,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
-import pojos.FilesetData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -248,9 +247,6 @@ public class FileImportComponent
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
-	/** The log file if any to load.*/
-	private FileAnnotationData logFile;
-
 	/** The button displayed the various options post if the import worked.*/
 	private JButton actionMenuButton;
 	
@@ -339,8 +335,7 @@ public class FileImportComponent
             	displayLogFile();
             }
         });
-		Object o = statusLabel.getImportResult();
-		item.setEnabled(callback != null || o instanceof CmdCallback);
+		item.setEnabled(statusLabel.getLogFileID() >= 0);
 		menu.add(item);
         
 		item = new JMenuItem(new AbstractAction(checksumText) {
@@ -356,12 +351,8 @@ public class FileImportComponent
 	/** Displays or loads the log file.*/
 	private void displayLogFile()
 	{
-		if (logFile != null)
-    		firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
-    	else {
-    		firePropertyChange(RETRIEVE_LOGFILEPROPERTY, null,
-    				statusLabel.getFileset());
-    	}
+		firePropertyChange(LOAD_LOGFILEPROPERTY, null,
+				statusLabel.getLogFileID());
 	}
 
 	/**
@@ -829,22 +820,6 @@ public class FileImportComponent
 	 */
 	public void setImportLogFile(Collection<FileAnnotationData> data, long id)
 	{
-		FilesetData fs = statusLabel.getFileset();
-		if (fs == null) return;
-		if (id != fs.getId() || data == null) return;
-		Iterator<FileAnnotationData> i = data.iterator();
-		FileAnnotationData fa;
-		while (i.hasNext()) {
-			fa = i.next();
-			//Check name space
-			if (FileAnnotationData.LOG_FILE_NS.equals(fa.getNameSpace())) {
-				logFile = fa;
-				break;
-			}
-		}
-		if (logFile != null) {
-			firePropertyChange(LOAD_LOGFILEPROPERTY, null, logFile);
-		}
 	}
 
 	/**
