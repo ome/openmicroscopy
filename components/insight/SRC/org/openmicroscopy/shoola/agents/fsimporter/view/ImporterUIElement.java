@@ -438,8 +438,6 @@ class ImporterUIElement
 						FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
 						controller.cancel(
 								(FileImportComponent) evt.getNewValue());
-						//System.err.println("Cancel");
-						//countCancelled++;
 					}
 				}
 			});
@@ -721,19 +719,45 @@ class ImporterUIElement
 			sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
 			//handle error that occurred during the scanning or upload.
 			//Check that the result has not been set.
-			if (!c.hasResult()) {
-				if (result instanceof Exception) {
-					r = new ImportErrorObject(file, (Exception) result);
-					setImportResult(c, result);
-				} else if (result instanceof Boolean) {
-					Boolean b = (Boolean) result;
-					if (!b && c.isCancelled()) countCancelled++;
-					setImportResult(c, result);
-				} else {
-					if (c.isCancelled()) {
+			//if (!c.hasResult()) {
+			if (result instanceof Exception) {
+				r = new ImportErrorObject(file, (Exception) result);
+				setImportResult(c, result);
+			} else if (result instanceof Boolean) {
+				Boolean b = (Boolean) result;
+				if (!b && c.isCancelled()) {
+					countUploaded--;
+					if (isDone() && rotationIcon != null)
+						rotationIcon.stopRotation();
+				} else
+				setImportResult(c, result);
+			} else {
+				if (c.isCancelled()) {
+					if (result == null) {
+						countCancelled++;
+						countImported++;
+						if (isDone() && rotationIcon != null)
+							rotationIcon.stopRotation();
+					} else {
 						countCancelled--;
 						countUploaded--;
 					}
+				}
+			}
+			//}
+		} else {//empty folder
+			if (result instanceof Exception) {
+				countUploaded++;
+				countCancelled++;
+				setImportResult(c, result);
+			} else if (result instanceof Boolean) {
+				Boolean b = (Boolean) result;
+				if (!b && c.isCancelled()) {
+					countUploaded++;
+					countCancelled++;
+					countImported++;
+					if (isDone() && rotationIcon != null)
+						rotationIcon.stopRotation();
 				}
 			}
 		}
@@ -756,7 +780,8 @@ class ImporterUIElement
 		if (file.isFile()) {
 			fc.setStatus(result);
 			countImported++;
-			if (fc.isCancelled() && !(result instanceof Boolean))
+			if (fc.isCancelled() && result != null &&
+				!(result instanceof Boolean))
 				countImported--;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
@@ -766,9 +791,20 @@ class ImporterUIElement
 			setClosable(isDone());
 			filterButton.setEnabled(countFailure > 0 &&
 					countFailure != totalToImport);
+		} else { //empty folder
+			if (result instanceof Exception) {
+				fc.setStatus(result);
+				countImported++;
+				countFailure++;
+				countUploadFailure++;
+				if (isDone() && rotationIcon != null)
+					rotationIcon.stopRotation();
+				setNumberOfImport();
+				setClosable(isDone());
+			}
 		}
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the upload is finished, <code>false</code>
 	 * otherwise.
@@ -982,6 +1018,27 @@ class ImporterUIElement
 			entry = i.next();
 			fc = entry.getValue();
 			if (fc.hasFailuresToReimport())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if files to re-upload, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToReupload()
+	{
+		Entry<String, FileImportComponent> entry;
+		Iterator<Entry<String, FileImportComponent>>
+		i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = i.next();
+			fc = entry.getValue();
+			if (fc.hasFailuresToReupload())
 				return true;
 		}
 		return false;

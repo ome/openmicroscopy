@@ -771,8 +771,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		bar.add(closeButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(refreshFilesButton);
-		bar.add(Box.createHorizontalStrut(5));
-		bar.add(showThumbnails);
+		//bar.add(Box.createHorizontalStrut(5));
+		//bar.add(showThumbnails);
 		return bar;
 	}
 

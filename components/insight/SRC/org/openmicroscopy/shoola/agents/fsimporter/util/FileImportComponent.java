@@ -75,8 +75,6 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.ImportException;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
-import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -89,7 +87,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
 import pojos.FilesetData;
-import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -111,9 +108,9 @@ import pojos.TagAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class FileImportComponent 
+public class FileImportComponent
 	extends JPanel
-	implements ActionListener, PropertyChangeListener
+	implements PropertyChangeListener
 {
 	/** Indicates that the container is of type <code>Project</code>. */
 	public static final int PROJECT_TYPE = 0;
@@ -173,12 +170,15 @@ public class FileImportComponent
 	/** The number of extra labels for images to add. */
 	public static final int MAX_THUMBNAILS = 3;
 
-	/** Action id to delete the image. */
-	private static final int DELETE_ID = 0;
+	/** Text indicating that the folder does not contain importable files.*/
+	private static final String EMPTY_FOLDER = "No data to import";
 	
-	/** Action id to cancel the import before it starts. */
-	private static final int CANCEL_ID = 1;
-
+	/** The maximum width used for the component.*/
+	private static final int LENGTH = 350;
+	
+	/** 
+	private static final String EMPTY_DIRECTORY = "No data to import";
+	
 	/** One of the constants defined by this class. */
 	private int type;
 
@@ -216,7 +216,7 @@ public class FileImportComponent
 	private DataObject containerFromFolder;
 	
 	/** Button to cancel the import for that file. */
-	private JLabel cancelButton;
+	private JButton cancelButton;
 	
 	/** The node where to import the folder. */
 	private DataObject data;
@@ -291,6 +291,7 @@ public class FileImportComponent
 		JMenuItem item;
 		String logText = "View Import Log";
 		String checksumText = "View Checksum";
+		Object result = statusLabel.getImportResult();
 		switch (resultIndex) {
 			case FAILURE:
 				menu.add(new JMenuItem(new AbstractAction("Submit") {
@@ -315,8 +316,9 @@ public class FileImportComponent
 					}
 				});
 				boolean b = false;
-				if (image instanceof List) b = ((List) image).size() == 1;
-				item.setEnabled(b);
+				if (result instanceof Collection)
+					b = ((Collection) result).size() == 1;
+				item.setEnabled(b && !statusLabel.isHCS());
 				menu.add(item);
 				item = new JMenuItem(new AbstractAction("In Data Browser") {
 					public void actionPerformed(ActionEvent e) {
@@ -449,7 +451,9 @@ public class FileImportComponent
 				((CmdCallbackI) callback).close(true);
 			} catch (Exception e) {}
 		}
-		
+		if (namePane.getPreferredSize().width > LENGTH)
+			fileNameLabel.setText(EditorUtil.getPartialName(
+					getFile().getName()));
 		resultLabel.setVisible(true);
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
@@ -465,8 +469,7 @@ public class FileImportComponent
 			actionMenuButton.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
 			actionMenuButton.setText("Failed");
 			int status = e.getStatus();
-			if (status == ImportException.CHECKSUM_MISMATCH ||
-				status == ImportException.NOT_VALID)
+			if (status == ImportException.CHECKSUM_MISMATCH)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
 			else resultIndex = ImportStatus.FAILURE;
 		} else if (result instanceof CmdCallback) {
@@ -507,7 +510,9 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		if (!isCancelled() && statusLabel.isCancellable()) {
+		boolean b = statusLabel.isCancellable();
+		if (!b) b = getFile().isDirectory();
+		if (!isCancelled() && b) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
@@ -517,27 +522,7 @@ public class FileImportComponent
 				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
-	
-	/** Deletes the image that was imported but cannot be viewed. */
-	private void deleteImage()
-	{
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		
-		if (image instanceof ThumbnailData) {
-			l.add(new DeletableObject(((ThumbnailData) image).getImage()));
-		} else if (image instanceof ImageData) {
-			l.add(new DeletableObject((DataObject) image));
-		}
-		if (l.size() == 0) return;
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		fileNameLabel.setEnabled(false);
-		resultLabel.setEnabled(false);
-		imageLabel.setEnabled(false);
-	}
-	
+
 	/**
 	 * Launches the full viewer for the selected item.
 	 */
@@ -547,10 +532,13 @@ public class FileImportComponent
 		int plugin = ImporterAgent.runAsPlugin();
 		if (image == null) image = statusLabel.getImportResult();
 		Object ho = image;
-		if (image instanceof List) {
-			List l = (List) image;
+		if (image instanceof Collection) {
+			Collection l = (Collection) image;
 			if (CollectionUtils.isEmpty(l) || l.size() > 1) return;
-			ho = l.get(0);
+			Iterator<Object> i = l.iterator();
+			while (i.hasNext()) {
+				ho = i.next();
+			}
 		}
 		if (ho instanceof ThumbnailData) {
 			ThumbnailData data = (ThumbnailData) ho;
@@ -561,7 +549,7 @@ public class FileImportComponent
 			evt.setPlugin(plugin);
 			bus.post(evt);
 		} else if (ho instanceof PixelsData) {
-			PixelsData data = (PixelsData) image;
+			PixelsData data = (PixelsData) ho;
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			evt = new ViewImage(
 					new SecurityContext(importable.getGroup().getId()),
@@ -603,20 +591,11 @@ public class FileImportComponent
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
 		
-		cancelButton = new JLabel("Cancel");
+		cancelButton = new JButton("Cancel");
 		cancelButton.setForeground(UIUtilities.HYPERLINK_COLOR);
-		cancelButton.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Browses the object the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				if (e.getClickCount() == 1 && src instanceof JLabel) {
-					cancel(true);
-				}
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ev) {
+				cancelLoading();
 			}
 		});
 		cancelButton.setVisible(true);
@@ -658,14 +637,26 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		double[][] design = new double[][]
+				{{LENGTH, TableLayout.FILL,
+					TableLayout.PREFERRED, TableLayout.PREFERRED,
+					TableLayout.PREFERRED, TableLayout.PREFERRED},
+					{TableLayout.PREFERRED}};
+		setLayout(new TableLayout(design));
 		removeAll();
-		add(namePane);
-		add(statusLabel);
+		if (namePane.getPreferredSize().width > LENGTH)
+			fileNameLabel.setText(EditorUtil.getPartialName(
+					getFile().getName()));
+		add(UIUtilities.buildComponentPanel(namePane, false),
+				"0, 0, l, c");
+		add(statusLabel, "1, 0, l, c");
 		
-		add(busyLabel);
-		add(resultLabel);
-		add(cancelButton);
-		add(actionMenuButton);
+		add(busyLabel, "2, 0, l, c");
+		add(resultLabel, "3, 0, l, c");
+		add(UIUtilities.buildComponentPanel(cancelButton, false),
+				"4, 0, l, c");
+		add(UIUtilities.buildComponentPanel(actionMenuButton, false),
+				"5, 0, l, c");
 	}
 
 	/** 
@@ -893,13 +884,18 @@ public class FileImportComponent
 	 */
 	public void setStatus(Object image)
 	{
+		busyLabel.setVisible(false);
+		busyLabel.setBusy(false);
 		cancelButton.setVisible(false);
 		this.image = image;
 		if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
-			formatResult();
 			formatResultTooltip();
+		} else if (image instanceof Set) {
+			//Result from the import itself
+			this.image = null;
+			formatResult();
 		} else if (image instanceof List) {
 			List<ThumbnailData> list = new ArrayList<ThumbnailData>((List) image);
 			int m = list.size();
@@ -926,9 +922,11 @@ public class FileImportComponent
 					}
 				}
 			}
-			formatResult();
 		} else if (image instanceof ImportException) {
-			formatResult();
+			if (getFile().isDirectory()) {
+				this.image = null;
+				statusLabel.setText(EMPTY_FOLDER);
+			} else formatResult();
 		} else if (image instanceof Boolean) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
@@ -1034,9 +1032,7 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReimport()
 	{
-		if (getFile().isFile()) {
-			return (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported);
-		}
+		if (getFile().isFile()) return hasImportFailed() && !reimported;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
@@ -1045,6 +1041,25 @@ public class FileImportComponent
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns <code>true</code> if the file can be re-imported,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToReupload()
+	{
+		if (getFile().isFile()) return hasUploadFailed() && !reimported;
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToReupload())
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns <code>true</code> if the import has failed, <code>false</code>
 	 * otherwise.
@@ -1238,8 +1253,8 @@ public class FileImportComponent
 	/** Indicates the import has been cancelled. */
 	public void cancelLoading()
 	{
-		if (components == null) {
-			cancel(true);
+		if (components == null || components.isEmpty()) {
+			cancel(getFile().isFile());
 			return;
 		}
 		Iterator<FileImportComponent> i = components.values().iterator();
@@ -1431,9 +1446,9 @@ public class FileImportComponent
 			resultIndex = ImportStatus.STARTED;
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
-				busyLabel.setBusy(false);
-				busyLabel.setVisible(false);
-				cancelButton.setVisible(sl.isCancellable());
+				//busyLabel.setBusy(false);
+				//busyLabel.setVisible(false);
+				cancelButton.setEnabled(sl.isCancellable());
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
@@ -1455,11 +1470,10 @@ public class FileImportComponent
 		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel)) {
-				if (busyLabel != null) {
+				if (busyLabel != null && !isCancelled()) {
 					busyLabel.setBusy(true);
 					busyLabel.setVisible(true);
 				}
-				//cancelButton.setVisible(sl.isCancellable());
 			}
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			importable.setFile((File) evt.getNewValue());
@@ -1490,22 +1504,6 @@ public class FileImportComponent
 		}
 	}
 
-	/**
-	 * Deletes the image if the image cannot be viewed.
-	 * @see ActionListener#actionPerformed(ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e)
-	{ 
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case DELETE_ID:
-				deleteImage();
-				break;
-			case CANCEL_ID:
-				cancel(true);
-		}
-	}
-	
 	/**
 	 * Returns the name of the file and group's id and user's id.
 	 * @see #toString();
