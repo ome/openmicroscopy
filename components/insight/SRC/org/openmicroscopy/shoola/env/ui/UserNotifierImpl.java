@@ -35,6 +35,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
@@ -275,6 +276,10 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 		d.addPropertyChangeListener(manager);
 		if (listener != null)
 			d.addPropertyChangeListener(listener);
+		if (!CollectionUtils.isEmpty(toSubmit)) {
+			d.setModal(false);
+			d.setAlwaysOnTop(false);
+		}
 		UIUtilities.centerAndShow(d);
 	}
 
