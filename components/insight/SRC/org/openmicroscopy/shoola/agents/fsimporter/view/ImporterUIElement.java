@@ -414,6 +414,7 @@ class ImporterUIElement
 						activity = new DownloadAndLaunchActivityParam(logFileID,
 								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
 								f, null);
+						activity.setUIRegister(false);
 						UserNotifier un =
 								ImporterAgent.getRegistry().getUserNotifier();
 						un.notifyActivity(model.getSecurityContext(), activity);
