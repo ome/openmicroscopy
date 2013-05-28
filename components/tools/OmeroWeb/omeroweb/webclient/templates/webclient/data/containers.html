@@ -41,9 +41,21 @@
 
         if (typeof OME === "undefined") { OME={}; }
         OME.handleChgrp = function(gid, gname, oid) {
-            $("#chgrp-form").dialog( "option" , "title" ,"Move to Group: "+ gname);
-            $("#chgrp-form").data('group_id', gid);
-            $("#chgrp-form").dialog('open');
+            var $chgrpform = $("#chgrp-form");
+            $chgrpform.dialog( "option" , "title" ,"Move to Group: "+ gname);
+            $chgrpform.dialog('open');
+            // Add group & selected items to chgrp form
+            $('input.removeMe', $chgrpform).remove();   // cleanup (horrible!)
+            $("<input name='group_id' value='"+ gid +"'/>")
+                .appendTo($chgrpform).addClass('removeMe').hide();
+            var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
+            for (var i=0;i<selobjs.length;i++) {
+                var dtype = selobjs[i].split("=")[0],
+                    dids = selobjs[i].split("=")[1];
+                $("<input name='"+ dtype +"' value='"+ dids +"'/>")
+                    .appendTo($chgrpform).addClass('removeMe').hide();
+            }
+
             var chgrp_target_url = "{% url webindex %}load_chgrp_target/"+gid;
             var chgrp_type = oid.split("-")[0];
             var target_type;
@@ -341,8 +353,9 @@
                     });
                 }
 
-
-                $("#chgrp-form").dialog({
+                var $chgrpform = $("#chgrp-form");
+                $chgrpform.dialog({
+                    dialogClass: 'chgrp_confirm_dialog',
                     autoOpen: false,
                     resizable: true,
                     height: 310,
@@ -358,22 +371,19 @@
                     }
                 });
                 // handle chgrp 
-                $("#chgrp-form").submit(function(e){
-                    var selected = $.jstree._focused().get_selected();
-                    var group_id = $("#chgrp-form").data('group_id');
-                    $("#chgrp-form").dialog("close");
-                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + OME.get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
-                    var chgrp_target = $("#move_group_tree a.jstree-clicked");
-                    if (chgrp_target.length == 1){
-                        actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
-                    }
-                    $.post(actionUrl, function(data){
+                $("#chgrp-form").ajaxForm({
+                    beforeSubmit: function(data){
+                        $("#chgrp-form").dialog("close");
+                        var chgrp_target = $("#move_group_tree a.jstree-clicked");
+                        if (chgrp_target.length == 1){
+                            data.push({'name':'target_id', 'value': chgrp_target.parent().attr('id')});
+                        }
+                    },
+                    success: function() {
                         OME.showActivities();
+                        var selected = $.jstree._focused().get_selected();
                         $("#dataTree").jstree('remove', selected);
-                        
-                    });
-                    
-                    return false
+                    }
                 });
                 // chgrp form behavior
                 $("#chgrp-form .group_option").click(function(){
@@ -1225,7 +1235,7 @@
         </form>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none">
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none" method="POST">
             <div id="move_group_tree" class="gray_border">
             </div>
         </form>
