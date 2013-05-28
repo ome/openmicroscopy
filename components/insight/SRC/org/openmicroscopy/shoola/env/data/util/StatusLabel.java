@@ -232,6 +232,9 @@ public class StatusLabel
 	/** The callback. This should only be set when importing a directory.*/
 	private CmdCallback callback;
 	
+	/** Indicates that the file scanned is a directory.*/
+	private boolean directory;
+	
 	/** 
 	 * Formats the size of the uploaded data.
 	 * 
@@ -307,6 +310,7 @@ public class StatusLabel
 	 */
 	private void handleProcessingError(String text, boolean fire)
 	{
+		if (isMarkedAsCancel()) return;
 		generalLabel.setText(text);
 		cancellable = false;
 		if (fire)
@@ -385,6 +389,16 @@ public class StatusLabel
 		firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
 	}
 
+	/**
+	 * Sets the text of {@link #generalLabel}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setText(String text)
+	{
+		generalLabel.setText(text);
+	}
+	
 	/** Marks the import has cancelled. */
 	public void markedAsCancel()
 	{
@@ -487,6 +501,7 @@ public class StatusLabel
 	 */
 	public void setFiles(Map<File, StatusLabel> files)
 	{
+		if (isMarkedAsCancel()) return;
 		generalLabel.setText(NO_FILES_TEXT);
 		if (!CollectionUtils.isEmpty(files.entrySet())) {
 			StringBuffer buffer = new StringBuffer();
@@ -591,6 +606,8 @@ public class StatusLabel
 		} else if (event instanceof ImportCandidates.SCANNING) {
 			if (!markedAsCancel && exception == null)
 				generalLabel.setText(SCANNING_TEXT);
+			ImportCandidates.SCANNING evt = (ImportCandidates.SCANNING) event;
+			directory = evt.file.isDirectory();
 			firePropertyChange(SCANNING_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
@@ -608,6 +625,7 @@ public class StatusLabel
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
+			if (!directory)
 			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, false);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,

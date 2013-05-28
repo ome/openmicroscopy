@@ -345,8 +345,6 @@ class ImporterControl
 			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			submitFiles((FileImportComponent) evt.getNewValue());
-		} else if (FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
-			//model.onUploadComplete((FileImportComponent) evt.getNewValue());
 		} else if (ImportDialog.REFRESH_LOCATION_PROPERTY.equals(name)) {
 			model.refreshContainers((ImportLocationDetails) evt.getNewValue());
 		} else if (ImportDialog.CREATE_OBJECT_PROPERTY.equals(name)) {
@@ -386,7 +384,7 @@ class ImporterControl
 	 */
 	void cancel(FileImportComponent fc)
 	{
-		model.onImportComplete(fc);
+		model.onUploadComplete(fc);
 	}
 	
 	/**
