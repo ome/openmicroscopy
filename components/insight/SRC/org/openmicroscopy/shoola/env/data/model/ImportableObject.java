@@ -41,6 +41,7 @@ import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import loci.formats.in.OMEXMLReader;
 
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
@@ -72,7 +73,7 @@ public class ImportableObject
 	public static final String DEFAULT_DATASET_NAME;
 	
 	/** 
-	 * The collection of HCS files extensions to check before importing. 
+	 * The collection of HCS files extensions to check before importing.
 	 */
 	public static final Set<String> HCS_FILES_EXTENSION;
 
@@ -101,12 +102,13 @@ public class ImportableObject
 	
 	static {
 		FILTER = new TIFFFilter();
-		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
+		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null,
 				UIUtilities.D_M_Y_FORMAT);
 		HCS_FILES_EXTENSION = new HashSet<String>();
 		HCS_DOMAIN = new ArrayList<String>();
 
-		IFormatReader[] allReaders = new ImageReader().getReaders();
+		ImageReader r = new ImageReader();
+		IFormatReader[] allReaders = r.getReaders();
 		try {
 			for (IFormatReader reader : allReaders) {
 				if (Arrays.asList(reader.getPossibleDomains("")).contains(
@@ -114,8 +116,14 @@ public class ImportableObject
 					populateExtensions(reader.getSuffixes());
 					HCS_DOMAIN.add(reader.getFormat());
 				}
+				reader.close();
 			}
 		} catch (Exception e) {}
+		finally {
+			try {
+				r.close();
+			} catch (Exception ex) {}
+		}
 		
 
 		IFormatReader reader = new OMEXMLReader();
@@ -164,7 +172,7 @@ public class ImportableObject
 		if (f == null) return false;
 		String name = f.getName();
 		if (!name.contains(".")) return false; 	
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		String ext = FilenameUtils.getExtension(name);
 		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
 	
@@ -172,21 +180,21 @@ public class ImportableObject
 	private List<ImportableFile> files;
 	
 	/** The depth when the name is overridden. */
-	private int			depthForName;
+	private int depthForName;
 	
 	/** The depth used when scanning a folder. */
-	private int			scanningDepth;
+	private int scanningDepth;
 	
 	/** 
 	 * Flag indicating to override the name set by B-F when importing the data. 
 	 */
-	private boolean		overrideName;
+	private boolean overrideName;
 	
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
 	
 	/** The array containing pixels size.*/
-	private double[]	pixelsSize;
+	private double[] pixelsSize;
 	
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
