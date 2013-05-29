@@ -1292,18 +1292,23 @@ class CmdControl(BaseControl):
             return None
         else:
             sb = "failed: '%s'\n" % rsp.name
-            if rsp.parameters:
-                for k in sorted(rsp.parameters):
-                    v = rsp.parameters.get(k, "")
-                    sb += "\t%s=%s\n" % (k, v)
+            sb += self.create_error_report(rsp)
             return sb
 
+    def create_error_report(self, rsp):
+        """
+        Generate default error report aggregating the response parameters
+        """
+        sb = ""
+        if rsp.parameters:
+            for k in sorted(rsp.parameters):
+                v = rsp.parameters.get(k, "")
+                sb += "\t%s=%s\n" % (k, v)
+        return sb
+
     def print_report(self, req, rsp, status, detailed):
-        ### Note: this should be in the GraphControl subclass
-        ### due to the use of req.type
         import omero
-        type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
-        self.ctx.out(("%s %s %s... " % (type, req.type, req.id)), newline = False)
+        self.ctx.out(self.print_request_description(req), newline = False)
         err = self.get_error(rsp)
         if err:
             self.ctx.err(err)
@@ -1469,6 +1474,11 @@ class GraphControl(CmdControl):
             if optkey in specmap:
                 start_text += self.append_options(optkey, specmap, indent+1)
         return start_text
+
+    def print_request_description(self, req):
+
+        cmd_type = self.cmd_type().ice_staticId()[2:].replace("::", ".")
+        return "%s %s %s... " % (cmd_type, req.type, req.id)
 
 class UserGroupControl(BaseControl):
 
