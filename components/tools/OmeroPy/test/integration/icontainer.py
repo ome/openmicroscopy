@@ -145,7 +145,7 @@ class TestSplitFilesets(lib.ITest):
         the specified dict.
         """
         container = client.sf.getContainerService()
-        result = container.getImagesBySplitFilesets(dtypeIdsMap)
+        result = container.getImagesBySplitFilesets(dtypeIdsMap, None)
 
         def cmpLists(listOne, listTwo):
             """ Returns True if both lists have the same items """

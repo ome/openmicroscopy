@@ -396,7 +396,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             k = _class("omero.model." + className);
         }
 
-        // If either of those attempts worked, map it with IceMap unles
+        // If either of those attempts worked, map it with IceMap unless
         // it's already in the key of OMEtoOMERO
         if (k != null) {
             if (IceMap.OMEtoOMERO.containsKey(k)) {

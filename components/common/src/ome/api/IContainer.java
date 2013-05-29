@@ -301,9 +301,11 @@ public interface IContainer extends ServiceInterface {
      * included. The return value lists both the fileset IDs and the image IDs in ascending order,
      * the image ID lists separated by if they were included.
      * @param included the entities included
+     * @param options parameters, presently ignored
      * @return the partially included filesets
      */
-    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<String, List<Long>> included);
+    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<Class<? extends IObject>, List<Long>> included,
+            Parameters options);
 
     /**
      * Retrieves a collection with all members initialized ("loaded"). This is

@@ -37,8 +37,10 @@ import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.model.fs.Fileset;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
+import ome.model.screen.Well;
 import ome.parameters.Parameters;
 import ome.services.query.PojosFindHierarchiesQueryDefinition;
 import ome.services.query.PojosGetImagesByOptionsQueryDefinition;
@@ -420,7 +422,9 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<String, List<Long>> included) {
+    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<Class<? extends IObject>, List<Long>> included,
+            Parameters options) {
+
         /* note which entities have been explicitly referenced */
 
         final Set<Long> projectIds = new HashSet<Long>();
@@ -431,22 +435,22 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         final Set<Long> filesetIds = new HashSet<Long>();
         final Set<Long> imageIds   = new HashSet<Long>();
 
-        for (final Entry<String, List<Long>> typeAndIds : included.entrySet()) {
-            final String type = typeAndIds.getKey();
+        for (final Entry<Class<? extends IObject>, List<Long>> typeAndIds : included.entrySet()) {
+            final Class<? extends IObject> type = typeAndIds.getKey();
             final List<Long> ids = typeAndIds.getValue();
-            if ("Project".equals(type)) {
+            if (Project.class.isAssignableFrom(type)) {
                 projectIds.addAll(ids);
-            } else if ("Dataset".equals(type)) {
+            } else if (Dataset.class.isAssignableFrom(type)) {
                 datasetIds.addAll(ids);
-            } else if ("Screen".equals(type)) {
+            } else if (Screen.class.isAssignableFrom(type)) {
                 screenIds.addAll(ids);
-            } else if ("Plate".equals(type)) {
+            } else if (Plate.class.isAssignableFrom(type)) {
                 plateIds.addAll(ids);
-            } else if ("Well".equals(type)) {
+            } else if (Well.class.isAssignableFrom(type)) {
                 wellIds.addAll(ids);
-            } else if ("Image".equals(type)) {
+            } else if (Image.class.isAssignableFrom(type)) {
                 imageIds.addAll(ids);
-            } else if ("Fileset".equals(type)) {
+            } else if (Fileset.class.isAssignableFrom(type)) {
                 filesetIds.addAll(ids);
             }
         }

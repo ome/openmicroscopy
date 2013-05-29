@@ -16,7 +16,9 @@ import java.util.Set;
 import ome.api.IContainer;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ApiUsageException;
+import omero.RClass;
 import omero.ServerError;
+import omero.rtypes;
 import omero.api.AMD_IContainer_createDataObject;
 import omero.api.AMD_IContainer_createDataObjects;
 import omero.api.AMD_IContainer_deleteDataObject;
@@ -146,8 +148,14 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
 
     public void getImagesBySplitFilesets_async(
             AMD_IContainer_getImagesBySplitFilesets __cb,
-            Map<java.lang.String, List<Long>> included, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, included);
+            Map<java.lang.String, List<Long>> included, Parameters options,
+            Current __current) throws ServerError {
+        final Map<RClass, List<Long>> includedWithClasses =
+                new HashMap<RClass, List<Long>>(included.size());
+        for (final Map.Entry<String, List<Long>> entry : included.entrySet()) {
+            includedWithClasses.put(rtypes.rclass(entry.getKey()), entry.getValue());
+        }
+        callInvokerOnRawArgs(__cb, __current, includedWithClasses, options);
     }
 
     public void getUserImages_async(AMD_IContainer_getUserImages __cb,
