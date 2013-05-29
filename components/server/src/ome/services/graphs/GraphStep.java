@@ -16,6 +16,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import ome.model.IObject;
+import ome.services.messages.EventLogMessage;
+import ome.system.EventContext;
+import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
@@ -25,12 +32,7 @@ import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ome.model.IObject;
-import ome.services.messages.EventLogMessage;
-import ome.system.EventContext;
-import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.QueryBuilder;
-import ome.util.SqlAction;
+import com.google.common.collect.HashMultimap;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -364,8 +366,7 @@ public abstract class GraphStep {
 
         int total = 0;
         Class<? extends IObject> x = iObjectType;
-        final Map<String, List<Long>> constraints =
-                new HashMap<String, List<Long>>();
+        final HashMultimap<String, Long> constraints = HashMultimap.create();
         while (true) {
 
             final String[][] locks = em.getLockChecks(x);
@@ -377,21 +378,12 @@ public abstract class GraphStep {
                             iObjectType.getSimpleName(), id, lock[0], lock[1],
                             bad.size()));
                     total += bad.size();
-                    if (constraints.containsKey(lock[0])) {
-                        constraints.get(lock[0]).addAll(bad);
-                    } else {
-                        constraints.put(lock[0], bad);
-                    }
+
                     // TODO: Have both the source and the target IDs as a
                     // workaround even though iObjectType hasn't done anything
                     // "wrong".
-                    if (constraints.containsKey(iObjectType.getSimpleName())) {
-                        constraints.get(iObjectType.getSimpleName()).add(id);
-                    } else {
-                        List<Long> list = new ArrayList<Long>();
-                        constraints.put(iObjectType.getSimpleName(), list);
-                        list.add(id);
-                    }
+                    constraints.putAll(lock[0], bad);
+                    constraints.put(iObjectType.getSimpleName(), id);
                 }
             }
 
