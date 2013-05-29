@@ -444,4 +444,14 @@ public class NullOmeroPojoService
 		return null;
 	}
 
+	/**
+     * No-operation implementation
+     * @see OmeroDataService#getImagesBySplitFilesets(SecurityContext, Class, List)
+     */
+	public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+			throws DSOutOfServiceException, DSAccessException {
+		return null;
+	}
+
 }
