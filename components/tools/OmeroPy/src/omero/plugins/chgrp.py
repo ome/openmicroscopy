@@ -57,7 +57,7 @@ class ChgrpControl(GraphControl):
         if isinstance(rsp, omero.cmd.GraphConstraintERR):
             if "Fileset" in rsp.constraints:
                 fileset = rsp.constraints.get("Fileset")
-                return "Fileset %s can not be split into 2 groups\n" % ", ".join(str(x) for x in fileset)
+                return "You cannot move part of fileset %s; only complete filesets can be moved to another group.\n" % ", ".join(str(x) for x in fileset)
             else:
                 return super(ChgrpControl, self).create_error_report(rsp)
         else:

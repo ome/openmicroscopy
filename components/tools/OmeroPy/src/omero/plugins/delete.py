@@ -56,7 +56,7 @@ class DeleteControl(GraphControl):
         if isinstance(rsp, omero.cmd.GraphConstraintERR):
             if "Fileset" in rsp.constraints:
                 fileset = rsp.constraints.get("Fileset")
-                return "Individual images can not be deleted from fileset %s\n" % ", ".join(str(x) for x in fileset)
+                return "You cannot delete part of fileset %s; only complete filesets can be deleted.\n" % ", ".join(str(x) for x in fileset)
             else:
                 return super(DeleteControl, self).create_error_report(rsp)
         else:
