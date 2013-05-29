@@ -444,7 +444,7 @@ public abstract class GraphStep {
      *
      * @param reapTableIds
      */
-    public void handleReap(Map<String, Set<Long>> reapTableIds) {
+    public void handleReap(HashMultimap<String, Long> reapTableIds) {
 
         if (ids == null) {
             // FIXME: subspecs should be supported.
@@ -455,18 +455,12 @@ public abstract class GraphStep {
             return; // EARLY EXIT.
         }
 
-        Set<Long> reapIds = reapTableIds.get(table);
-        if (reapIds == null) {
-            reapIds = new HashSet<Long>();
-            reapTableIds.put(table, reapIds);
-        }
-
         Long reapId = ids[ids.length-1];
-        if (reapIds.contains(id)) {
+        if (reapTableIds.containsEntry(table, id)) {
             logPhase("softOnReap");
             softOnReap = true;
         } else {
-            reapIds.add(reapId);
+            reapTableIds.put(table, reapId);
         }
     }
 
