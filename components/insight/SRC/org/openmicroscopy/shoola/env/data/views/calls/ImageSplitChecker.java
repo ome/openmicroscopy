@@ -79,7 +79,7 @@ public class ImageSplitChecker
 				Entry<SecurityContext, List<DataObject>> e;
 				Iterator<Entry<SecurityContext, List<DataObject>>> i =
 						objects.entrySet().iterator();
-				Map<Long, Map<Boolean, List<Long>>> result =
+				Map<Long, Map<Boolean, List<Long>>> map =
 						new HashMap<Long, Map<Boolean, List<Long>>>();
 				Iterator<DataObject> j;
 				List<Long> ids;
@@ -95,9 +95,10 @@ public class ImageSplitChecker
 						klass = uo.getClass();
 						ids.add(uo.getId());
 					}
-					result.putAll(svc.getImagesBySplitFilesets(e.getKey(),
+					map.putAll(svc.getImagesBySplitFilesets(e.getKey(),
 							klass, ids));
 				}
+				result = map;
 			}
 		};
 	} 
