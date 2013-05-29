@@ -465,7 +465,8 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
         /* note which filesets are associated with referenced images */
 
         final SortedSet<Long> filesetIdsRequired = new TreeSet<Long>();
-        addResultIds("select distinct fileset.id from Image where id" + inIds, imageIds, filesetIdsRequired);
+        addResultIds("select distinct fileset.id from Image where fileset.id is not null and id" + inIds,
+                imageIds, filesetIdsRequired);
 
         /* make sure that associated filesets have all their images referenced */
 
