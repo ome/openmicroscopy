@@ -447,13 +447,15 @@ public abstract class GraphStep {
     public void handleReap(HashMultimap<String, Long> reapTableIds) {
 
         if (ids == null) {
-            // FIXME: subspecs should be supported.
+            // This is a superspec and therefore doesn't contain a concrete
+            // id that should be added to the table.
             return; //EARLY EXIT
         }
 
-        if (!entry.isReap()) {
-            return; // EARLY EXIT.
-        }
+        // Attempting to turn on reaping for all items.
+        // if (!entry.isReap()) {
+        //    return; // EARLY EXIT.
+        // }
 
         Long reapId = ids[ids.length-1];
         if (reapTableIds.containsEntry(table, id)) {
