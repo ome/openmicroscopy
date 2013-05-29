@@ -72,16 +72,27 @@ originalFile = updateService.saveAndReturnObject(originalFile);
 rawFileStore = session.createRawFileStore();
 rawFileStore.setFileId(originalFile.getId().getValue());
 
+% Initialize provider to compute client-side checksum
+checksumProviderFactory = ome.util.checksum.ChecksumProviderFactoryImpl;
+sha1= ome.util.checksum.ChecksumType.SHA1;
+hasher = checksumProviderFactory.getProvider(sha1);
+
 %code for small file.
 fid = fopen(f.Name);
 byteArray = fread(fid,[1, fileLength], 'uint8');
 rawFileStore.write(byteArray, 0, fileLength);
+hasher.putBytes(byteArray);
 fclose(fid);
 
+% Save and close the service
 originalFile = rawFileStore.save();
-
-% Close the service
 rawFileStore.close();
+
+% Compare checksums client-side and server-sid
+clientHash = char(hasher.checksumAsString());
+serverHash = char(originalFile.getSha1().getValue());
+msg = 'File checksum mismatch on upload: %s (client has %s, server has %s)';
+assert(isequal(clientHash, serverHash), msg, f.Name, clientHash, serverHash);
 
 % Create a file annotation
 fa = omero.model.FileAnnotationI;
@@ -96,4 +107,4 @@ if ~isempty(ip.Results.namespace),
 end
 
 % Save the file annotation
-fa = updateService.saveAndReturnObject(fa); 
+fa = updateService.saveAndReturnObject(fa);
