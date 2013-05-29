@@ -494,6 +494,49 @@ class TestChgrp(lib.ITest):
             img_gid = image.details.group.id.val
             self.assertEqual(target_gid, img_gid, "Image should be in group: %s, NOT %s" % (target_gid, img_gid))
 
+    def testChgrp11000(self):
+        """
+        Move a Dataset of MIF images *with a companion file* into a new group.
+        Note: once FakeReader supports companion files this logic can be simplified.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring("testChgrp11000")
+        ds = update.saveAndReturnObject(ds)
+        images = self.importMIF(2, client=client)
+        for i in range(2):
+            link = omero.model.DatasetImageLinkI()
+            link.setParent(ds.proxy())
+            link.setChild(images[i].proxy())
+            link = update.saveAndReturnObject(link)
+
+        # Perform the extra companion file logic
+        fs = client.sf.getQueryService().findByQuery("""
+            select fs from Image i
+              join i.fileset fs
+              join fetch fs.usedFiles as uf
+              join fetch uf.originalFile
+            where i.id = %s
+        """ % images[0].id.val, None)
+        entry1 = fs.getFilesetEntry(0)
+        ofile = entry1.getOriginalFile()
+        for i in range(2):
+            link = omero.model.ImageAnnotationLinkI()
+            ann = omero.model.FileAnnotationI()
+            ann.file = ofile.proxy()
+            link.setParent(images[i].proxy())
+            link.setChild(ann)
+            link = update.saveAndReturnObject(link)
+
+        # Now chgrp, should succeed
+        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        self.doSubmit(chgrp, client)
 
 if __name__ == '__main__':
     unittest.main()
