@@ -37,6 +37,7 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -79,12 +80,11 @@ public class ImageSplitChecker
 				Entry<SecurityContext, List<DataObject>> e;
 				Iterator<Entry<SecurityContext, List<DataObject>>> i =
 						objects.entrySet().iterator();
-				Map<Long, Map<Boolean, List<Long>>> map =
-						new HashMap<Long, Map<Boolean, List<Long>>>();
+				List<MIFResultObject> list = new ArrayList<MIFResultObject>();
 				Iterator<DataObject> j;
 				List<Long> ids;
 				DataObject uo;
-				
+				Map<Long, Map<Boolean, List<Long>>> r;
 				while (i.hasNext()) {
 					e = i.next();
 					j = e.getValue().iterator();
@@ -95,10 +95,12 @@ public class ImageSplitChecker
 						klass = uo.getClass();
 						ids.add(uo.getId());
 					}
-					map.putAll(svc.getImagesBySplitFilesets(e.getKey(),
-							klass, ids));
+					r = svc.getImagesBySplitFilesets(e.getKey(),
+							klass, ids);
+					if (r != null && r.size() > 0)
+						list.add(new MIFResultObject(e.getKey(), r));
 				}
-				result = map;
+				result = list;
 			}
 		};
 	} 

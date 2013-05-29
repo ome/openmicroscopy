@@ -32,6 +32,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
@@ -115,7 +116,7 @@ public class ImageChecker
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-    	viewer.handleSplitImage((Map<Long, Map<Boolean, List<Long>>>) result,
+    	viewer.handleSplitImage((List<MIFResultObject>) result,
     			action, index);
     }
 }

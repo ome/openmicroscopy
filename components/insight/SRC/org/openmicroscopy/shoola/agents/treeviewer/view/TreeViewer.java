@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
@@ -1163,7 +1164,7 @@ public interface TreeViewer
 	 * @param action The action to do after the check.
 	 * @param index The type of action.
 	 */
-	void handleSplitImage(Map<Long, Map<Boolean, List<Long>>> result,
-			Object action, int index);
+	void handleSplitImage(List<MIFResultObject> result, Object action,
+			int index);
 
 }
