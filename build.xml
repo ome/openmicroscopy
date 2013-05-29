@@ -304,7 +304,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <antcall target="update-version" inheritRefs="true" inheritAll="true"/>
     </target>
 
-    <target name="build-vm" description="Build a virtual image" depends="init">
+    <target name="build-vm" description="Build a virtual image">
         <gitdescribe select="\2"> </gitdescribe>
 
         <exec executable="bash">
