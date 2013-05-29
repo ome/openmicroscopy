@@ -1155,4 +1155,15 @@ public interface TreeViewer
 	 * @param index The mode to set.
 	 */
 	void setDisplayMode(int index);
+
+	/**
+	 * Handles the result checking if images to delete/move are split or not
+	 * 
+	 * @param result The result to handle.
+	 * @param action The action to do after the check.
+	 * @param index The type of action.
+	 */
+	void handleSplitImage(Map<Long, Map<Boolean, List<Long>>> result,
+			Object action, int index);
+
 }

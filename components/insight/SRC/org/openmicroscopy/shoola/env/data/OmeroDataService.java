@@ -466,4 +466,25 @@ public interface OmeroDataService
 		Collection<Long> ids)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Given a list of IDs of a given type. Determines the filesets that will be
+	 * split. Returns the a Map with fileset's ids as keys and the
+	 * values if the map:
+	 * Key = <code>True</code> value: List of image's ids that are contained.
+	 * Key = <code>True</code> value: List of image's ids that are missing
+	 * so the delete or change group cannot happen.
+	 * 
+	 * @param ctx The security context, necessary to determine the service.
+	 * @param rootType The top-most type which will be searched
+	 *                  Mustn't be <code>null</code>.
+	 * @param rootIDs A set of the IDs of objects.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+		throws DSOutOfServiceException, DSAccessException;
+
 }

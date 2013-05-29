@@ -1031,4 +1031,19 @@ class OmeroDataServiceImpl
 		return r;
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesBySplitFilesets(SecurityContext, Class,
+	 * List)
+	 */
+	public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (CollectionUtils.isEmpty(rootIDs) || rootType == null)
+			throw new IllegalArgumentException("No objects specified.");
+		ParametersI param = new ParametersI();
+		return gateway.getImagesBySplitFilesets(ctx, rootType, rootIDs, param);
+	}
+	
 }
