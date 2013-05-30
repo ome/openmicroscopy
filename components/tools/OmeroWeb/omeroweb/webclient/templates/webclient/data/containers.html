@@ -84,9 +84,13 @@
             }
 
             // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
+            $("#move_group_tree").hide();       // hide tree while we wait...
             $.get("{% url fileset_check 'chgrp' %}?" + OME.get_tree_selection(), function(html){
                 if($('div.split_fileset', html).length > 0) {
-                    $(html).appendTo($chgrpform).hide();
+                    $(html).appendTo($chgrpform)
+                    $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
+                } else {
+                    $("#move_group_tree").show();
                 }
             });
         }
@@ -399,10 +403,10 @@
                             var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span');
                             // If we have split filesets, on the first click 'OK', we ask 'Move All'?
                             if ($("#chgrp_split_filesets .split_fileset").length > 0) {
-                                if ($thisBtn.text() == 'OK') {
-                                    $("#move_group_tree").hide();
-                                    $("#chgrp_split_filesets").show();
-                                    $thisBtn.text('Move All');
+                                if ($thisBtn.text() == 'Move All') {
+                                    $("#move_group_tree").show();
+                                    $("#chgrp_split_filesets").hide();
+                                    $thisBtn.text('OK');
                                     return false;
                                 }
                             }
