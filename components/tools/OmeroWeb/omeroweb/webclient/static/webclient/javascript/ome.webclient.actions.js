@@ -132,6 +132,14 @@ OME.field_selection_changed = function(field) {
         .trigger("selection_change.ome", $(this).attr('id'));
 };
 
+// select all images from the specified fileset (if currently visible)
+OME.select_fileset_images = function(filesetId) {
+    var datatree = $.jstree._focused();
+    $("#dataTree li[data-fileset="+filesetId+"]").each(function(){
+        datatree.select_node(this);
+    });
+}
+
 // actually called when share is edited, to refresh right-hand panel
 OME.share_selection_changed = function(share_id) {
     $("body")
