@@ -4636,7 +4636,8 @@ class TreeViewerComponent
 		if (!CollectionUtils.isEmpty(result)) {
 			//Indicate what do depending on the index.
 			MIFNotificationDialog dialog = new MIFNotificationDialog(view,
-					result, action, index);
+					result, action, index,
+					TreeViewerAgent.getAvailableUserGroups());
 			UIUtilities.centerAndShow(dialog);
 			return;
 		}

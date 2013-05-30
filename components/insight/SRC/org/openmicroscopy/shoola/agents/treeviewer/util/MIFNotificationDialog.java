@@ -31,6 +31,7 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,9 @@ public class MIFNotificationDialog
 	
 	/** The action to do if the action continues.*/
 	private Object action;
+	
+	/** The available groups.*/
+	private Collection groups;
 	
 	/** Closes and disposes.*/
 	private void close()
@@ -233,11 +237,30 @@ public class MIFNotificationDialog
 			
 		}
 		if (n == 1) return new JScrollPane(p);
-		JXTaskPane pane = EditorUtil.createTaskPane("NAME");
+		long id = object.getContext().getGroupID();
+		GroupData group = getGroup(id);
+		if (group != null) text = group.getName();
+		else {
+			buf = new StringBuffer();
+			buf.append("Group ");
+			buf.append(id);
+			text = buf.toString();
+		}
+		JXTaskPane pane = EditorUtil.createTaskPane(text);
 		pane.add(new JScrollPane(p));
 		return pane;
 	}
 	
+	private GroupData getGroup(long groupID)
+	{
+		Iterator<Object> i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == groupID) return g;
+		}
+		return null;
+	}
 	/**
 	 * Lays out the thumbnails.
 	 * 
@@ -278,9 +301,10 @@ public class MIFNotificationDialog
 	 * @param result The images that cannot be deleted or moved.
 	 * @param action The action to take post check.
 	 * @param index Either <code>Delete</code> or <code>Change Group</code>.
+	 * @param groups the available groups.
 	 */
 	public MIFNotificationDialog(JFrame owner, List<MIFResultObject> result,
-			Object action, int index)
+			Object action, int index, Collection groups)
 	{
 		super(owner);
 		if (CollectionUtils.isEmpty(result))
@@ -288,6 +312,7 @@ public class MIFNotificationDialog
 		this.index = index;
 		this.result = result;
 		this.action = action;
+		this.groups = groups;
 		initialize();
 		buildGUI();
 		pack();
