@@ -52,12 +52,6 @@ public class ChgrpStepFactory extends AbstractStepFactory {
                     step.spec, step.entry, step.getIds(), grp));
         }
 
-        // Handle REAP for validation steps
-        for (int i = originalSize + originalSize - 1; i >= originalSize; i--) {
-            GraphStep step = steps.get(i);
-            step.handleReap(reapTableIds);
-        }
-
     }
 
     /**

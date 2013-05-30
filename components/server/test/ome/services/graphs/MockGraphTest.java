@@ -11,9 +11,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.BasicAnnotation;
@@ -44,9 +47,11 @@ import ome.model.internal.Permissions;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.security.basic.CurrentDetails;
+import ome.services.graphs.GraphStep.Callback;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.util.SqlAction;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
 import omero.model.Reagent;
@@ -60,6 +65,9 @@ import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 
+import org.hibernate.Session;
+import org.hibernate.engine.LoadQueryInfluencers;
+import org.hibernate.engine.SessionImplementor;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Invocation;
@@ -72,6 +80,19 @@ import org.testng.annotations.Test;
 
 @Test
 public class MockGraphTest extends MockObjectTestCase {
+
+    /**
+     * Required to mock 2 interfaces at the same time. This is related to
+     * the use of {@link MockGraphTest#prepareLoadQueryInfluencers()}
+     */
+    protected interface CombinedSession extends Session, SessionImplementor {
+
+    }
+
+    protected void prepareLoadQueryInfluencers(Mock sessionMock) {
+        sessionMock.expects(once()).method("getLoadQueryInfluencers").will(
+                returnValue(new LoadQueryInfluencers()));
+    }
 
     public static class MockCurrentDetails extends CurrentDetails {
         @Override
@@ -135,6 +156,41 @@ public class MockGraphTest extends MockObjectTestCase {
     //
     // Helpers
     //
+
+    protected ExtendedMetadata em() {
+        ExtendedMetadata em = specXml.getBean(ExtendedMetadata.class);
+        assertNotNull(em);
+        return em;
+    }
+
+    protected GraphStep step(String type, Class<? extends IObject> k, long id) {
+        return step(type, k, id, new long[0]);
+    }
+
+    protected GraphStep step(String type, Class<? extends IObject> k, long id, long[] ids) {
+        ExtendedMetadata em = em();
+        BaseGraphSpec spec = new BaseGraphSpec("/"+type, "/"+type);
+        spec.setExtendedMetadata(em);
+        GraphStep step = new GraphStep(em, 0, new LinkedList<GraphStep>(),
+                spec, spec.entries.get(0), ids) {
+
+                    @Override
+                    public void action(Callback cb, Session session,
+                            SqlAction sql, GraphOpts opts) throws GraphException {
+                        // no-op
+                    }
+
+                    @Override
+                    public void onRelease(Class<IObject> k, Set<Long> ids)
+                            throws GraphException {
+
+                        // no-op
+
+                    }
+
+        };
+        return step;
+    }
 
     protected Object getOp(GraphEntry de) throws Exception {
         Field field = GraphEntry.class.getDeclaredField("operation");

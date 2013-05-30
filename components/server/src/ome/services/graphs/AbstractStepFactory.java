@@ -19,8 +19,6 @@ package ome.services.graphs;
 
 import java.util.List;
 
-import com.google.common.collect.HashMultimap;
-
 /**
  * Base {@link GraphStepFactory} which guarantees that
  * {@link GraphOpts.Op.REAP} processing takes place.
@@ -30,23 +28,11 @@ import com.google.common.collect.HashMultimap;
  */
 public abstract class AbstractStepFactory implements GraphStepFactory {
 
-    protected HashMultimap<String, Long> reapTableIds = HashMultimap.create();
-
     protected int originalSize;
 
-    public final List<GraphStep> postProcess(List<GraphStep> steps) {
-
-        originalSize = steps.size();
-
-        // Handle REAP
-        for (int i = originalSize - 1; i >= 0; i--) {
-            GraphStep step = steps.get(i);
-            step.handleReap(reapTableIds);
-        }
-
+    public final GraphSteps postProcess(List<GraphStep> steps) {
         onPostProcess(steps);
-
-        return steps;
+        return new GraphSteps(steps);
     }
 
     protected void onPostProcess(List<GraphStep> steps) {

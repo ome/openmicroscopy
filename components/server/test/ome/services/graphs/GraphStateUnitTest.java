@@ -29,7 +29,6 @@ import ome.util.SqlAction;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.engine.LoadQueryInfluencers;
-import org.hibernate.engine.SessionImplementor;
 import org.jmock.Mock;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
@@ -66,10 +65,6 @@ public class GraphStateUnitTest extends MockGraphTest {
     private List<List<Long>> table;
 
     ExperimenterGroup group;
-
-    interface CombinedSession extends Session, SessionImplementor {
-        
-    }
     
     @BeforeMethod
     public void makeMocks() {
@@ -538,8 +533,8 @@ public class GraphStateUnitTest extends MockGraphTest {
                 };
             }
 
-            public List<GraphStep> postProcess(List<GraphStep> steps) {
-                return steps;
+            public GraphSteps postProcess(List<GraphStep> steps) {
+                return new GraphSteps(steps);
             }
         };
 
@@ -707,7 +702,6 @@ public class GraphStateUnitTest extends MockGraphTest {
 
 
     private void prepareLoadQueryInfluencers() {
-        sessionMock.expects(once()).method("getLoadQueryInfluencers").will(
-                returnValue(new LoadQueryInfluencers()));
+        prepareLoadQueryInfluencers(sessionMock);
     }
 }
