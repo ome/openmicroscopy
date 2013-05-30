@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ChgrpObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.MIFNotificationDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.MoveGroupSelectionDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
@@ -4634,6 +4635,10 @@ class TreeViewerComponent
 	{
 		if (!CollectionUtils.isEmpty(result)) {
 			//Indicate what do depending on the index.
+			MIFNotificationDialog dialog = new MIFNotificationDialog(view,
+					result, action, index);
+			UIUtilities.centerAndShow(dialog);
+			return;
 		}
 		switch (index) {
 			case ImageChecker.DELETE:

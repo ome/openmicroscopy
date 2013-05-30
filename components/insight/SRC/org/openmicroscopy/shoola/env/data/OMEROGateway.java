@@ -8766,8 +8766,8 @@ class OMEROGateway
 		try {
 			Map<Long, Map<Boolean, List<Long>>> map = new HashMap<Long, Map<Boolean, List<Long>>>();
 			Map<Boolean, List<Long>> m = new HashMap<Boolean, List<Long>>();
-			m.put(Boolean.valueOf(true), Arrays.asList(1L));
-			m.put(Boolean.valueOf(false), Arrays.asList(51L));
+			m.put(Boolean.valueOf(true), Arrays.asList(555L));
+			m.put(Boolean.valueOf(false), Arrays.asList(556L));
 			map.put(1L, m);
 			return map;
 		} catch (Throwable t) {
