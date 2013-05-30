@@ -183,5 +183,4 @@ fi
 echo "Network up after $ATTEMPTS tries"
 installvm
 
-EXPORTVMNAME="${VMNAME}-latest-build"
-bash export_ova.sh ${VMNAME} ${EXPORTVMNAME}
+bash export_ova.sh ${VMNAME}
