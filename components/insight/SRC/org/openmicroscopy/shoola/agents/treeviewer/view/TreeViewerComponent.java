@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,6 +183,47 @@ class TreeViewerComponent
 	/** The dialog displaying the selected script.*/
 	private ScriptingDialog     scriptDialog;
 
+	/**
+	 * Moves the object.
+	 * 
+	 * @param object The object to move.
+	 */
+	private void moveObject(ChgrpObject object)
+	{
+		GroupData group = object.getGroupData();
+		SecurityContext ctx = new SecurityContext(group.getId());
+		long userID = object.getUserID();
+		if (userID < 0) {
+			ExperimenterData exp = model.getExperimenter();
+			if (userID == exp.getId()) {
+				MoveGroupSelectionDialog dialog =
+				new MoveGroupSelectionDialog(view, userID, object, true);
+				dialog.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					/**
+					 * Transfers the data.
+					 */
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (MoveGroupSelectionDialog.TRANSFER_PROPERTY.equals(
+								name)) {
+							ChgrpObject v = (ChgrpObject) evt.getNewValue();
+							GroupData group = v.getGroupData();
+							SecurityContext ctx = new SecurityContext(
+									group.getId());
+							moveData(ctx, v.getTarget(), v.getTransferable());
+						}
+					}
+				});
+				UIUtilities.centerAndShow(dialog);
+			} else
+				moveData(ctx, object.getTarget(),
+						object.getTransferable());
+		} else {
+			moveData(ctx, object.getTarget(), object.getTransferable());
+		}
+	}
+	
 	/**
 	 * Deletes the specified nodes.
 	 * 
@@ -4638,6 +4681,18 @@ class TreeViewerComponent
 			MIFNotificationDialog dialog = new MIFNotificationDialog(view,
 					result, action, index,
 					TreeViewerAgent.getAvailableUserGroups());
+			dialog.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				/** 
+				 * Moves the data.
+				 */
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (MIFNotificationDialog.MOVE_ALL_PROPERTY.equals(name)) {
+						moveObject((ChgrpObject) evt.getNewValue());
+					}
+				}
+			});
 			UIUtilities.centerAndShow(dialog);
 			return;
 		}
@@ -4646,23 +4701,7 @@ class TreeViewerComponent
 				delete((List) action);
 				break;
 			case ImageChecker.CHGRP:
-				ChgrpObject object = (ChgrpObject) action;
-				GroupData group = object.getGroupData();
-				SecurityContext ctx = new SecurityContext(group.getId());
-				long userID = object.getUserID();
-				if (userID < 0) {
-					ExperimenterData exp = model.getExperimenter();
-					if (userID == exp.getId()) {
-						MoveGroupSelectionDialog dialog = 
-						new MoveGroupSelectionDialog(view, userID, group,
-								object.getTransferable(), true);
-							UIUtilities.centerAndShow(dialog);
-					} else
-						moveData(ctx, object.getTarget(),
-								object.getTransferable());
-				} else {
-					moveData(ctx, object.getTarget(), object.getTransferable());
-				}
+				moveObject((ChgrpObject) action);
 		}
 	}
 

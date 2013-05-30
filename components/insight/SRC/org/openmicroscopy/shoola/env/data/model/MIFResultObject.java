@@ -79,6 +79,24 @@ public class MIFResultObject
 		this.result = result;
 	}
 	
+	/** 
+	 * Returns the images that failed to be moved or deleted.
+	 * 
+	 * @return See above.
+	 */
+	public List<ImageData> getFailures()
+	{
+		List<ImageData> failures = new ArrayList<ImageData>();
+		Entry<Long, Map<Boolean, List<ImageData>>> e;
+		Iterator<Entry<Long, Map<Boolean, List<ImageData>>>> i =
+				result.entrySet().iterator();
+		while (i.hasNext()) {
+			e = i.next();
+			failures.addAll(e.getValue().get(Boolean.valueOf(false)));
+		}
+		return failures;
+	}
+	
 	/**
 	 * Returns the security context.
 	 * 

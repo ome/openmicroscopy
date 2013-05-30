@@ -59,9 +59,11 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
 import pojos.GroupData;
 import pojos.ImageData;
 
@@ -76,6 +78,9 @@ public class MIFNotificationDialog
 	extends JDialog
 {
 
+	/** Bound property indicating to move all the objects.*/
+	public static final String MOVE_ALL_PROPERTY = "moveAll";
+	
 	/** The title of the dialog if it is a <code>Delete</code> action.*/
 	private static final String TITLE_DELETE = "Delete";
 	
@@ -110,7 +115,16 @@ public class MIFNotificationDialog
 	/** Closes and disposes.*/
 	private void move()
 	{
-		//Fire property
+		ChgrpObject object = (ChgrpObject) action;
+		Map<SecurityContext, List<DataObject>> map = object.getTransferable();
+		Iterator<MIFResultObject> i = result.iterator();
+		MIFResultObject mif;
+		List<DataObject> values;
+		while (i.hasNext()) {
+			mif = i.next();
+			values = map.get(mif.getContext());
+			values.addAll(mif.getFailures());
+		}
 		close();
 	}
 	
