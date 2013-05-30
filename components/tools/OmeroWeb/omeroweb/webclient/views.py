@@ -2623,7 +2623,7 @@ def fileset_check(request, action, conn=None, **kwargs):
         ids = request.REQUEST.get(dtype, None)
         if ids is not None:
             dtypeIds[dtype] = [int(i) for i in ids.split(",")]
-    splitFilesets = conn.getContainerService().getImagesBySplitFilesets(dtypeIds, conn.SERVICE_OPTS)
+    splitFilesets = conn.getContainerService().getImagesBySplitFilesets(dtypeIds, None, conn.SERVICE_OPTS)
 
     splits = []
     for fsId, splitIds in splitFilesets.items():
