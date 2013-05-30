@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.PlateData;
 
 /** 
@@ -483,7 +484,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
 			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException;
 

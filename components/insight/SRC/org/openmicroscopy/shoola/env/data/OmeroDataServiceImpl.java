@@ -1036,14 +1036,60 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getImagesBySplitFilesets(SecurityContext, Class,
 	 * List)
 	 */
-	public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
 			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (CollectionUtils.isEmpty(rootIDs) || rootType == null)
 			throw new IllegalArgumentException("No objects specified.");
 		ParametersI param = new ParametersI();
-		return gateway.getImagesBySplitFilesets(ctx, rootType, rootIDs, param);
+		Map<Long, Map<Boolean, List<Long>>> m =
+				gateway.getImagesBySplitFilesets(ctx, rootType, rootIDs, param);
+		
+		Map<Long, Map<Boolean, List<ImageData>>> 
+		r = new HashMap<Long, Map<Boolean, List<ImageData>>>();
+		if (m == null || m.size() == 0) return r;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<Map<Boolean, List<Long>>> i = m.values().iterator();
+		while (i.hasNext()) {
+			Map<Boolean, List<Long>> map = i.next();
+			Iterator<List<Long>> j = map.values().iterator();
+			while (j.hasNext()) {
+				ids.addAll(j.next());
+			}
+		}
+		Set<ImageData> imgs = getImages(ctx, ImageData.class, ids, -1);
+		Map<Long, ImageData> idMap = new HashMap<Long, ImageData>(imgs.size());
+		Iterator<ImageData> k = imgs.iterator();
+		ImageData img;
+		while (k.hasNext()) {
+			img = k.next();
+			idMap.put(img.getId(), img);
+		}
+		Entry<Long, Map<Boolean, List<Long>>> e;
+		Iterator<Entry<Long, Map<Boolean, List<Long>>>> ii =
+				m.entrySet().iterator();
+		List<Long> l;
+		Entry<Boolean, List<Long>> entry;
+		Iterator<Entry<Boolean, List<Long>>> j;
+		while (ii.hasNext()) {
+			e = ii.next();
+			j = e.getValue().entrySet().iterator();
+			Map<Boolean, List<ImageData>> converted =
+					new HashMap<Boolean, List<ImageData>>();
+			while (j.hasNext()) {
+				entry = j.next();
+				l = entry.getValue();
+				Iterator<Long> kk = l.iterator();
+				List<ImageData> convertedList = new ArrayList<ImageData>();
+				while (kk.hasNext()) {
+					convertedList.add(idMap.get(kk.next()));
+				}
+				converted.put(entry.getKey(), convertedList);
+			}
+			r.put(e.getKey(), converted);
+		}
+		return r;
 	}
-	
+
 }

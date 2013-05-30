@@ -76,9 +76,7 @@ public class ImageChecker
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param nodeType The top-most type which will be searched
-	 *                  Mustn't be <code>null</code>.
-	 * @param ids A set of the IDs of objects.
+     * @param objects The objects to handle.
 	 * @param action The object to handle after the check.
 	 * @param index The type of action.
      */

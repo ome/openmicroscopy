@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -37,13 +38,18 @@ import java.util.Map.Entry;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
 import pojos.DataObject;
+import pojos.ImageData;
+import pojos.PixelsData;
 
 /**
  * Checks if the images in the specified containers are split between
@@ -61,7 +67,53 @@ public class ImageSplitChecker
 
 	/** Loads the specified tree. */
 	private BatchCall loadCall;
+
+	/** The service used to load the thumbnails.*/
+	private OmeroImageService service;
 	
+	/**
+     * Loads the thumbnails for passed collection of images.
+     * 
+     * @param ctx The security context to use.
+     * @param images The collection of images to handle.
+     */
+    private List<ThumbnailData> loadThumbails(SecurityContext ctx,
+    		List<ImageData> images)
+    {
+    	List<ThumbnailData> thumbnails = new ArrayList<ThumbnailData>();
+    	try {
+    		Map<Long, ImageData> map = new HashMap<Long, ImageData>();
+    		Iterator<ImageData> i = images.iterator();
+    		ImageData img;
+    		while (i.hasNext()) {
+    			img = i.next();
+				map.put(img.getDefaultPixels().getId(), img);
+
+			}
+        	Map<Long, BufferedImage>
+        		m = service.getThumbnailSet(ctx, map.keySet(), 96); //to be modified
+        	Iterator<Long> j = m.keySet().iterator();
+        	long pixelsID;
+        	BufferedImage thumbPix;
+        	ImageData obj;
+        	long imageID = -1;
+        	PixelsData pxd = null;
+        	while (j.hasNext()) {
+        		pixelsID = j.next();
+        		obj = map.get(pixelsID);
+        		imageID = ((ImageData) obj).getId();
+    			pxd = ((ImageData) obj).getDefaultPixels();
+    			thumbPix = (BufferedImage) m.get(pixelsID);
+    			if (thumbPix != null)
+    				thumbnails.add(new ThumbnailData(imageID, thumbPix, true));
+			}
+        } catch (RenderingServiceException e) {
+        	context.getLogger().error(this, 
+        			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
+        }
+    	return thumbnails;
+    }
+    
 	/**
 	 * Creates a {@link BatchCall} to retrieve rendering control.
 	 * 
@@ -84,7 +136,9 @@ public class ImageSplitChecker
 				Iterator<DataObject> j;
 				List<Long> ids;
 				DataObject uo;
-				Map<Long, Map<Boolean, List<Long>>> r;
+				Map<Long, Map<Boolean, List<ImageData>>> r;
+				MIFResultObject mif;
+				List<ImageData> images;
 				while (i.hasNext()) {
 					e = i.next();
 					j = e.getValue().iterator();
@@ -97,8 +151,14 @@ public class ImageSplitChecker
 					}
 					r = svc.getImagesBySplitFilesets(e.getKey(),
 							klass, ids);
-					if (r != null && r.size() > 0)
-						list.add(new MIFResultObject(e.getKey(), r));
+					if (r != null && r.size() > 0) {
+						mif = new MIFResultObject(e.getKey(), r);
+						//load the thumbnails for a limited number of images.
+						images = mif.getImages();
+						mif.setThumbnails(loadThumbails(e.getKey(), images));
+						list.add(mif);
+					}
+						
 				}
 				result = list;
 			}
@@ -130,6 +190,7 @@ public class ImageSplitChecker
 	{
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No object to check.");
+		service = context.getImageService();
 		loadCall = makeBatchCall(objects);
 	}
 }
