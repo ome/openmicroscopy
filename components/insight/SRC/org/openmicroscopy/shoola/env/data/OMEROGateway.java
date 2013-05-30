@@ -8769,6 +8769,7 @@ class OMEROGateway
 			m.put(Boolean.valueOf(true), Arrays.asList(555L));
 			m.put(Boolean.valueOf(false), Arrays.asList(556L));
 			map.put(1L, m);
+			map.put(2L, m);
 			return map;
 		} catch (Throwable t) {
 			handleException(t, "Cannot find split images.");

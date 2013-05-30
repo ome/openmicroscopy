@@ -45,6 +45,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 
 //Third-party libraries
@@ -231,8 +232,9 @@ public class MIFNotificationDialog
 			p.add(row);
 			
 		}
-		if (n == 1) return p;
+		if (n == 1) return new JScrollPane(p);
 		JXTaskPane pane = EditorUtil.createTaskPane("NAME");
+		pane.add(new JScrollPane(p));
 		return pane;
 	}
 	
