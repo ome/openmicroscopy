@@ -1855,4 +1855,140 @@ public class PojosServiceTest
 			}
 		}
     }
+    
+    /**
+     * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
+     * One image is not part of a file set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetImagesBytSplitFilesetsDatasetAsRootWithNonFSdata()
+    	throws Exception 
+    {
+    	//first create a project
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i3 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	
+    	Fileset fileset = new FilesetI();
+    	fileset.addImage(i1);
+    	fileset.addImage(i2);
+    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+    	assertEquals(fileset.copyImages().size(), 2);
+    	
+    	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
+    					mmFactory.simpleDatasetData().asIObject());
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d1);
+    	link.setChild((Image) i1.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	link = new DatasetImageLinkI();
+    	link.setParent((Dataset) d1.proxy());
+    	link.setChild((Image) i2.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	link = new DatasetImageLinkI();
+    	link.setParent((Dataset) d1.proxy());
+    	link.setChild((Image) i3.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d1.getId().getValue());
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Dataset.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>>
+        results = iContainer.getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
+    }
+    
+    /**
+     * Test the <code>getImagesBySplitFilesets</code> Dataset as root.
+     * One image is not part of a file set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetImagesBytSplitFilesetsImageAsRootWithNonFSdata()
+    	throws Exception 
+    {
+    	//first create a project
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i3 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	
+    	Fileset fileset = new FilesetI();
+    	fileset.addImage(i1);
+    	fileset.addImage(i2);
+    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+    	assertEquals(fileset.copyImages().size(), 2);
+    	Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
+        Map<Long, Map<Boolean, List<Long>>>
+        results = iContainer.getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 0);
+    }
+    
+    /**
+     * Test the <code>getImagesBySplitFilesets</code> Image as root.
+     * One image is not part of a file set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetImagesBytSplitFilesetsImageAsRootMixFSNonFSdata()
+    	throws Exception 
+    {
+    	//first create a project
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image i3 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	
+    	Fileset fileset = new FilesetI();
+    	fileset.addImage(i1);
+    	fileset.addImage(i2);
+    	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
+    	assertEquals(fileset.copyImages().size(), 2);
+    	Parameters param = new ParametersI();
+        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(i1.getId().getValue());
+        ids.add(i3.getId().getValue());
+        map.put(Image.class.getName(), ids);
+        Map<Long, Map<Boolean, List<Long>>>
+        results = iContainer.getImagesBySplitFilesets(map, param);
+        assertEquals(results.size(), 1);
+        Entry<Long, Map<Boolean, List<Long>>> e;
+        Entry<Boolean, List<Long>> entry;
+        Iterator< Entry<Boolean, List<Long>>> j;
+        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
+        i = results.entrySet().iterator();
+        while (i.hasNext()) {
+			e = i.next();
+			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+			j = e.getValue().entrySet().iterator();
+			List<Long> l;
+			while (i.hasNext()) {
+				entry = j.next();
+				assertEquals(entry.getValue().size(), 1);
+				l = entry.getValue();
+				assertEquals(l.size(), 1);
+				if (entry.getKey().booleanValue()) {
+					assertTrue(l.contains(i1.getId().getValue()));
+				} else {
+					assertTrue(l.contains(i2.getId().getValue()));
+				}
+			}
+		}
+    }
 }
