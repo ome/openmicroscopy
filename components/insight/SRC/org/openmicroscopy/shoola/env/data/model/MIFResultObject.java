@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.hql.CollectionSubqueryFactory;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
@@ -130,4 +133,32 @@ public class MIFResultObject
 	{
 		this.thumbnails = thumbnails;
 	}
+
+	/**
+	 * Returns the list of thumbnails corresponding to the images.
+	 * 
+	 * @param images The images to handle.
+	 * @return See above.
+	 */
+	public List<ThumbnailData> getThumbnailsFromList(List<ImageData> images)
+	{
+		List<ThumbnailData> l = new ArrayList<ThumbnailData>();
+		if (CollectionUtils.isEmpty(thumbnails)) return l;
+		Map<Long, ThumbnailData> map = new HashMap<Long, ThumbnailData>();
+		Iterator<ThumbnailData> i = thumbnails.iterator();
+		ThumbnailData data;
+		while (i.hasNext()) {
+			data = i.next();
+			map.put(data.getImageID(), data);
+		}
+		Iterator<ImageData> j = images.iterator();
+		ImageData img;
+		while (j.hasNext()) {
+			img = j.next();
+			if (map.containsKey(img.getId()))
+				l.add(map.get(img.getId()));
+		}
+		return l;
+	}
+	
 }
