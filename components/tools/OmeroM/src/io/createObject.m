@@ -3,7 +3,7 @@ function newobject = createObject(session, type, name)
 %
 %   newobject = createObject(session, type, name) create a new object of
 %   input type with the input name, uploads it onto the server and returns
-%   the object.
+%   the loaded object.
 %
 %   Examples:
 %
