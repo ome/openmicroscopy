@@ -189,7 +189,7 @@ public class Preprocessor {
             return; // EARLY EXIT
         }
 
-        helper.debug("Loading fileset for Image: " + imageId1);
+        helper.debug("Loading filesets for Image:" + imageId1);
         List<Object[]> rv =
         helper.getServiceFactory().getQueryService().projection(
                 "select i.fileset.id, i2.id from Image i, Image i2 " +

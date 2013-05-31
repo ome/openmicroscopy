@@ -123,8 +123,8 @@ public class PreprocessorTest extends MockObjectTestCase {
     }
 
     private void assertMixed(Delete fs1, Delete fs2, Delete... deletes) {
-        projection(new Object[] { 100L, 1L }, new Object[] { 100L, 2L });
-        projection(new Object[] { 200L, 3L }, new Object[] { 200L, 4L });
+        projection(new Object[] { 100L, 1L}, new Object[]{100L, 2L});
+        projection(new Object[] { 200L, 3L}, new Object[]{200L, 4L });
         Preprocessor proc = proc(deletes);
         assertProc(proc, 4, 2);
         assertReqs(proc, fs1, fs2);
