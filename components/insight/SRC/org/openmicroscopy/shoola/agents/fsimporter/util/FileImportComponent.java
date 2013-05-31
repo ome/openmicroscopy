@@ -911,6 +911,7 @@ public class FileImportComponent
 		cancelButton.setVisible(false);
 		this.image = image;
 		if (image instanceof PlateData) {
+			menu = null;
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
 			formatResultTooltip();
