@@ -1146,6 +1146,11 @@ class ToolBar
 	/** Invokes when import is going on or finished.*/
 	void onImport()
 	{
+		//Clear first
+		importFailureLabel.setText("");
+		importFailureLabel.setVisible(false);
+		importSuccessLabel.setText("");
+		importSuccessLabel.setVisible(false);
 		importLabel.setBusy(model.isImporting());
 		importLabel.setVisible(model.isImporting());
 		int n = model.getImportFailureCount();
