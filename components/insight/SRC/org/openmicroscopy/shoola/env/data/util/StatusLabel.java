@@ -134,7 +134,7 @@ public class StatusLabel
 	private static final String DEFAULT_TEXT = "Pending...";
 
 	/** Text to indicate that the import is cancelled. */
-	private static final String CANCEL_TEXT = "cancelled";
+	private static final String CANCEL_TEXT = "Cancelled";
 
 	/** Text to indicate that no files to import. */
 	private static final String NO_FILES_TEXT = "No Files to Import.";
