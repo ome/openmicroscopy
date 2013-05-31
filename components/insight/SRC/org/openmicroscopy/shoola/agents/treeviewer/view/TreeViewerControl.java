@@ -829,9 +829,6 @@ class TreeViewerControl
 		
 		ViewerSorter sorter = new ViewerSorter();
 		List values = sorter.sort(l);
-		if (moveActions == null)
-			moveActions = new ArrayList<MoveToAction>(l.size());
-		moveActions.clear();
 		GroupData group;
 		Iterator i = values.iterator();
 		while (i.hasNext()) {

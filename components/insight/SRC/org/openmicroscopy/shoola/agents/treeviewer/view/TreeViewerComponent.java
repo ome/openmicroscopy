@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.UpdateVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewInPluginCmd;
@@ -175,6 +176,24 @@ class TreeViewerComponent
 	/** The dialog displaying the selected script.*/
 	private ScriptingDialog     scriptDialog;
 
+	/**
+	 * Returns <code>true</code> if the image is contained in the list of
+	 * elements to exclude, <code>false</code> otherwise.
+	 * 
+	 * @param data The image to handle
+	 * @param toExclude The list hosting the images to exclude.
+	 * @return See above.
+	 */
+	private boolean isInList(ImageData data, List<ImageData> toExclude)
+	{
+		Iterator<ImageData> i = toExclude.iterator();
+		while (i.hasNext()) {
+			if (i.next().getId() == data.getId())
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Returns the name of the group.
 	 * 
@@ -1910,7 +1929,7 @@ class TreeViewerComponent
 		TreeImageDisplay[] nodes = model.getNodesToCopy();
 		if (nodes == null || nodes.length == 0) return;
 		//check to transfer data.
-		Map<Long, List<DataObject>> elements = 
+		Map<Long, List<DataObject>> elements =
 			new HashMap<Long, List<DataObject>>();
 		long gid;
 		List<DataObject> l = new ArrayList<DataObject>();
@@ -1921,10 +1940,12 @@ class TreeViewerComponent
 		if (browser != null) {
 			admin = browser.getBrowserType() == Browser.ADMIN_EXPLORER;
 		}
+		Class<?> type = null;
 		for (int j = 0; j < nodes.length; j++) {
 			n = nodes[j];
 			os = n.getUserObject();
 			if (os instanceof DataObject) {
+				type = os.getClass();
 				if (!(os instanceof ExperimenterData ||
 					os instanceof GroupData)) {
 					gid = ((DataObject) os).getGroupId();
@@ -1947,6 +1968,12 @@ class TreeViewerComponent
 			return;
 		}
 		if (elements.size() == 0) return;
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
+		
+		DataObject data;
 		Iterator<Long> i;
 		List<Long> ids = new ArrayList<Long>();
 		Map<Long, List<DataObject>> 
@@ -1977,6 +2004,17 @@ class TreeViewerComponent
 						list.add((DataObject) os);
 					if (!ids.contains(gid))
 						ids.add(gid);
+					data = (DataObject) os;
+					if (data instanceof ImageData) {
+						img = (ImageData) data;
+						if (!selection.containsKey(
+								img.getFilesetId())) {
+							selection.put(img.getFilesetId(),
+									new HashSet<ImageData>());
+						}
+						set = selection.get(img.getFilesetId());
+						set.add(img);
+					}
 				}
 			}
 			if (ids.size() == 1) { //check if it is a Paste in the group
@@ -1994,16 +2032,58 @@ class TreeViewerComponent
 				}
 			}
 		}
-		MessageBox box = new MessageBox(view, "Change group", "Are you " +
-		"sure you want to move the selected items to another group?");
-		if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
+		List<ImageData> toExclude = new ArrayList<ImageData>();
+		if (selection.size() > 0) { //moving images.
+			
+			Browser b = model.getSelectedBrowser();
+			if (b != null) {
+				LeavesVisitor visitor = new LeavesVisitor(b);
+				b.accept(visitor);
+				Map<Long, Set<ImageData>> filesetMap =
+						visitor.getFilesetMap();
+				Entry<Long, Set<ImageData>> e;
+				Iterator<Entry<Long, Set<ImageData>>> j =
+						selection.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					set = filesetMap.get(e.getKey());
+					if (set.size() != e.getValue().size())
+						toExclude.addAll(e.getValue());
+				}
+			}
+		}
+		int size = nodes.length-toExclude.size();
+		DeleteBox box = new DeleteBox(view, type, false, size, null, true,
+				toExclude, DeleteBox.MOVE);
+		if (box.centerMsgBox() != MessageBox.YES_OPTION || size == 0) return;
 		//if we are here moving data.
 		i = elements.keySet().iterator();
 		Map<SecurityContext, List<DataObject>> trans = 
 			new HashMap<SecurityContext, List<DataObject>>();
+		List<DataObject> objects;
+		List<DataObject> selectionNew;
+		Iterator<DataObject> kk;
 		while (i.hasNext()) {
 			gid = i.next();
-			trans.put(new SecurityContext(gid), elements.get(gid));
+			//Exclude the nodes first.
+			if (toExclude.size() > 0) {
+				objects = elements.get(gid);
+				kk = objects.iterator();
+				selectionNew = new ArrayList<DataObject>();
+				while (kk.hasNext()) {
+					img = (ImageData) kk.next();
+					if (!isInList(img, toExclude))
+						selectionNew.add(img);
+				}
+				if (selectionNew.size() > 0)
+					trans.put(new SecurityContext(gid), selectionNew);
+			} else {
+				trans.put(new SecurityContext(gid), elements.get(gid));
+			}
+			
+			selectionNew = new ArrayList<DataObject>();
+			
+			
 		}
 		IconManager icons = IconManager.getInstance();
 		TransferableActivityParam param;
@@ -3186,10 +3266,10 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#deleteObjects(List)
 	 */
-	public void deleteObjects(List nodes)
+	public void deleteObjects(List<TreeImageDisplay> nodes)
 	{
 		if (nodes == null) return;
-		Iterator i = nodes.iterator();
+		Iterator<TreeImageDisplay> i = nodes.iterator();
 		TreeImageDisplay node;
 		Class type = null;
 		Boolean ann = null;
@@ -3197,8 +3277,12 @@ class TreeViewerComponent
 		String ns = null;
 		GroupData group;
 		long userID = model.getExperimenter().getId();
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
 		while (i.hasNext()) {
-			node = (TreeImageDisplay) i.next();
+			node = i.next();
 			if (node.isAnnotated() && ann == null) ann = true;
 			Object uo = node.getUserObject();
 			type = uo.getClass();
@@ -3210,12 +3294,44 @@ class TreeViewerComponent
 			}
 			if (uo instanceof TagAnnotationData) 
 				ns = ((TagAnnotationData) uo).getNameSpace();
+			if (ImageData.class.equals(type)) {
+				img = (ImageData) uo;
+				set = selection.get(img.getFilesetId());
+				if (!selection.containsKey(
+						img.getFilesetId())) {
+					selection.put(img.getFilesetId(),
+							new HashSet<ImageData>());
+				}
+				set = selection.get(img.getFilesetId());
+				set.add(img);
+			}
+		}
+		List<ImageData> toExclude = new ArrayList<ImageData>();
+		if (ImageData.class.equals(type)) {
+			//scan all the images node
+			Browser b = model.getSelectedBrowser();
+			if (b != null) {
+				LeavesVisitor visitor = new LeavesVisitor(b);
+				b.accept(visitor);
+				Map<Long, Set<ImageData>> filesetMap = visitor.getFilesetMap();
+				Entry<Long, Set<ImageData>> e;
+				Iterator<Entry<Long, Set<ImageData>>> j =
+						selection.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					set = filesetMap.get(e.getKey());
+					if (set.size() != e.getValue().size())
+						toExclude.addAll(e.getValue());
+				}
+			}
 		}
 		boolean b = false;
 		if (ann != null) b = ann.booleanValue();
 		boolean le = false;
 		if (leader != null) le = leader.booleanValue();
-		DeleteBox dialog = new DeleteBox(view, type, b, nodes.size(), ns, le);
+		DeleteBox dialog = new DeleteBox(view, type, b,
+				nodes.size()-toExclude.size(), ns, le, toExclude,
+				DeleteBox.DELETE);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
 			boolean content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
@@ -3228,24 +3344,26 @@ class TreeViewerComponent
 			List<Long> ids = new ArrayList<Long>();
 			Class klass = null;
 			while (i.hasNext()) {
-				node = (TreeImageDisplay) i.next();
+				node = i.next();
 				obj = node.getUserObject();
-				if (obj instanceof GroupData || 
+				if (obj instanceof GroupData ||
 						obj instanceof ExperimenterData) {
 					if (values == null)
-						values = new ArrayList<DataObject>(); 
+						values = new ArrayList<DataObject>();
 					values.add((DataObject) obj);
-					//toRemove.add(node);
+					ids.add(((DataObject) obj).getId());
 				} else if (obj instanceof DataObject) {
-					d = new DeletableObject((DataObject) obj, content);
-					if (!(obj instanceof TagAnnotationData || 
-							obj instanceof FileAnnotationData)) 
-						d.setAttachmentTypes(types);
-					checkForImages(node, objects, content);
-					l.add(d);
+					if (!toExclude.contains(obj)) {
+						d = new DeletableObject((DataObject) obj, content);
+						if (!(obj instanceof TagAnnotationData ||
+								obj instanceof FileAnnotationData))
+							d.setAttachmentTypes(types);
+						checkForImages(node, objects, content);
+						l.add(d);
+						ids.add(((DataObject) obj).getId());
+					}
 				}
 				klass = obj.getClass();
-				ids.add(((DataObject) obj).getId());
 			}
 			if (l.size() > 0) {
 				model.setNodesToCopy(null, -1);
@@ -4243,11 +4361,12 @@ class TreeViewerComponent
 		}
 		if (!canLink(ot) && !(ot instanceof ExperimenterData ||
 				ot instanceof GroupData)) {
-			un.notifyInfo("DnD", 
-					"You must be the owner of the container.");
+			un.notifyInfo("DnD",
+					"You must be authorized to add to the container.");
 			browser.rejectTransfer();
 			return;
 		}
+
 		TreeImageDisplay p = target.getParentDisplay();
 		List<TreeImageDisplay> list = new ArrayList<TreeImageDisplay>();
 		Iterator<TreeImageDisplay> i = nodes.iterator();
@@ -4258,15 +4377,21 @@ class TreeViewerComponent
 		String parent;
 		os = null;
 		int childCount = 0;
-		long userID = TreeViewerAgent.getUserDetails().getId();
+		long userID = model.getExperimenter().getId();
 		boolean administrator = TreeViewerAgent.isAdministrator();
 		ExperimenterData exp;
 		long gId;
 		List<Long> groupIds = new ArrayList<Long>();
 		DataObject data;
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
+		Class<?> type = null;
 		while (i.hasNext()) {
 			n = i.next();
 			os = n.getUserObject();
+			type = os.getClass();
 			if (target.contains(n)) {
 				childCount++;
 			} else {
@@ -4297,6 +4422,16 @@ class TreeViewerComponent
 								data = (DataObject) os;
 								if (!groupIds.contains(data.getGroupId()))
 									groupIds.add(data.getGroupId());
+								if (data instanceof ImageData) {
+									img = (ImageData) data;
+									if (!selection.containsKey(
+											img.getFilesetId())) {
+										selection.put(img.getFilesetId(),
+												new HashSet<ImageData>());
+									}
+									set = selection.get(img.getFilesetId());
+									set.add(img);
+								}
 							}
 						}
 					}
@@ -4307,17 +4442,24 @@ class TreeViewerComponent
 			browser.rejectTransfer();
 			return;
 		}
-		
-		
+
 		if (list.size() == 0) {
-			String s = "";
-			if (nodes.size() > 1) s = "s";
-			un.notifyInfo("DnD", 
-			"The "+getObjectType(os)+s+" cannot be moved to the selected "+
-				getObjectType(ot)+".");
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("The ");
+			//The object to move e.g. image(s)
+			buffer.append(getObjectType(os));
+			if (nodes.size() > 1) buffer.append("s");
+			buffer.append(" cannot be moved to the selected ");
+			buffer.append(getObjectType(ot));
+			buffer.append(".");
+			
+			un.notifyInfo("DnD", buffer.toString());
 			browser.rejectTransfer();
 			return;
 		}
+		
+		
+		
 		DataObject otData = (DataObject) ot;
 		long groupID = -1;
 		if (ot instanceof ExperimenterData) {
@@ -4333,9 +4475,31 @@ class TreeViewerComponent
 			model.transfer(target, list);
 		else {
 			if (groupID == -1) return;
-			MessageBox box = new MessageBox(view, "Change group", "Are you " +
-					"sure you want to move the selected items to another group?");
-			if (box.centerMsgBox() != MessageBox.YES_OPTION) return;
+			List<ImageData> toExclude = new ArrayList<ImageData>();
+			if (selection.size() > 0) { //moving images.
+				
+				Browser b = model.getSelectedBrowser();
+				if (b != null) {
+					LeavesVisitor visitor = new LeavesVisitor(b);
+					b.accept(visitor);
+					Map<Long, Set<ImageData>> filesetMap =
+							visitor.getFilesetMap();
+					Entry<Long, Set<ImageData>> e;
+					Iterator<Entry<Long, Set<ImageData>>> j =
+							selection.entrySet().iterator();
+					while (j.hasNext()) {
+						e = j.next();
+						set = filesetMap.get(e.getKey());
+						if (set.size() != e.getValue().size())
+							toExclude.addAll(e.getValue());
+					}
+				}
+			}
+			int size = list.size()-toExclude.size();
+			DeleteBox box = new DeleteBox(view, type, false, size, null, true,
+					toExclude, DeleteBox.MOVE);
+			if (box.centerMsgBox() != MessageBox.YES_OPTION || size == 0)
+				return;
 			SecurityContext ctx = new SecurityContext(groupID);
 			otData = null;
 			if (target != null && !(ot instanceof GroupData)) {
@@ -4358,7 +4522,10 @@ class TreeViewerComponent
 						elements.put(gid, new ArrayList<DataObject>());
 					}
 					l = elements.get(gid);
-					l.add((DataObject) os);
+					if (toExclude.size() > 0) {
+						if (!isInList((ImageData) os, toExclude))
+							l.add((DataObject) os);
+					} else l.add((DataObject) os);
 				}
 			}
 			if (elements.size() == 0) return;
@@ -4458,8 +4625,15 @@ class TreeViewerComponent
 		List<DataObject> l;
 		long refgid = group.getId();
 		List<Long> userIDs = new ArrayList<Long>();
+		Map<Long, Set<ImageData>> selection =
+				new HashMap<Long, Set<ImageData>>();
+		Set<ImageData> set;
+		ImageData img;
+		Class<?> type = null;
+		int count = 0;
 		while (i.hasNext()) {
 			data = i.next();
+			type = data.getClass();
 		    if (canChgrp(data)) {
 		    	if (data instanceof ProjectData || data instanceof ScreenData)
 					b = data.getClass();
@@ -4475,6 +4649,17 @@ class TreeViewerComponent
 					}
 					l = map.get(ctx);
 					l.add(data);
+					count++;
+					if (data instanceof ImageData) {
+						img = (ImageData) data;
+						if (!selection.containsKey(
+								img.getFilesetId())) {
+							selection.put(img.getFilesetId(),
+									new HashSet<ImageData>());
+						}
+						set = selection.get(img.getFilesetId());
+						set.add(img);
+					}
 				}
 		    }
 		}
@@ -4489,7 +4674,54 @@ class TreeViewerComponent
 			un.notifyInfo("Move Data ", "No data to move to "+group.getName());
 			return;
 		}
+		List<ImageData> toExclude = new ArrayList<ImageData>();
+		if (selection.size() > 0) { //moving images.
+			
+			Browser browser = model.getSelectedBrowser();
+			if (browser != null) {
+				LeavesVisitor visitor = new LeavesVisitor(browser);
+				browser.accept(visitor);
+				Map<Long, Set<ImageData>> filesetMap =
+						visitor.getFilesetMap();
+				Entry<Long, Set<ImageData>> e;
+				Iterator<Entry<Long, Set<ImageData>>> j =
+						selection.entrySet().iterator();
+				while (j.hasNext()) {
+					e = j.next();
+					set = filesetMap.get(e.getKey());
+					if (set.size() != e.getValue().size())
+						toExclude.addAll(e.getValue());
+				}
+			}
+			int n = count-toExclude.size();
+			DeleteBox box = new DeleteBox(view, type, false, n, null, true,
+					toExclude, DeleteBox.MOVE);
+			if (box.centerMsgBox() != MessageBox.YES_OPTION || n == 0) return;
+		}
+		
 		ctx = new SecurityContext(refgid);
+		//Exclude the objects
+		if (toExclude.size() > 0) {
+			Entry<SecurityContext, List<DataObject>> e;
+			Iterator<Entry<SecurityContext, List<DataObject>>> k;
+			k = map.entrySet().iterator();
+			List<DataObject> objects;
+			List<DataObject> selectionNew;
+			Iterator<DataObject> kk;
+			while (k.hasNext()) {
+				e = k.next();
+				objects = e.getValue();
+				selectionNew = new ArrayList<DataObject>();
+				kk = objects.iterator();
+				DataObject d;
+				while (kk.hasNext()) {
+					d =  kk.next();
+					if (!isInList((ImageData) d, toExclude))
+						selectionNew.add(d);
+				}
+				map.put(e.getKey(), selectionNew);
+			}
+		}
 		if (b != null) { //move The data
 			moveData(ctx, null, map);
 		} else { //load the collection for the specified group

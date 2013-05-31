@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ExperimenterVisitor;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.LeavesVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ParentVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -1863,7 +1864,7 @@ class BrowserComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#deleteObjects(List)
 	 */
-	public void deleteObjects(List nodes)
+	public void deleteObjects(List<TreeImageDisplay> nodes)
 	{
 		model.getParentModel().deleteObjects(nodes);
 	}
@@ -2270,6 +2271,18 @@ class BrowserComponent
 			case LookupNames.GROUP_DISPLAY:
 				view.setUserGroup(groups);
 		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getImageNodes(TreeImageDisplay)
+	 */
+	public Set<TreeImageDisplay> getImageNodes(TreeImageDisplay node)
+	{
+		LeavesVisitor visitor = new LeavesVisitor(this);
+		if (node != null) node.accept(visitor);
+		else accept(visitor);
+		return visitor.getNodes();
 	}
 	
 }

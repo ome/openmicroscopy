@@ -837,7 +837,7 @@ public interface TreeViewer
 	 * 
 	 * @param nodes The nodes hosting the {@link DataObject}s to delete.
 	 */
-	public void deleteObjects(List nodes);
+	public void deleteObjects(List<TreeImageDisplay> nodes);
 
 	/**
 	 * Returns the objects to copy or <code>null</code>.
