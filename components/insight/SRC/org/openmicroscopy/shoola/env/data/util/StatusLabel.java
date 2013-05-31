@@ -622,7 +622,6 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		cancellable = false;
-		System.err.println(event);
 		if (event instanceof ImportEvent.IMPORT_DONE) {
 			pixels = (Set<PixelsData>) PojoMapper.asDataObjects(
 					((ImportEvent.IMPORT_DONE) event).pixels);

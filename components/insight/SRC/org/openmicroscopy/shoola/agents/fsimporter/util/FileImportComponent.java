@@ -157,11 +157,6 @@ public class FileImportComponent
 	 * Bound property indicating to show the checksums,
 	 */
 	public static final String CHECKSUM_DISPLAY_PROPERTY = "checksumDisplay";
-	
-	/**
-	 * Bound property indicating that the import is complete for that file.
-	 */
-	public static final String IMPORT_COMPLETE_PROPERTY = "importComplete";
 
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
@@ -1469,13 +1464,6 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel))
 				cancelButton.setVisible(sl.isCancellable());
-		} else if (StatusLabel.PROCESSING_ERROR_PROPERTY.equals(name)) {
-			StatusLabel sl = (StatusLabel) evt.getNewValue();
-			if (sl.equals(statusLabel)) {
-				firePropertyChange(
-						FileImportComponent.IMPORT_COMPLETE_PROPERTY, null,
-						this);
-			}
 		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel)) {
@@ -1506,10 +1494,12 @@ public class FileImportComponent
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			Long id = (Long) evt.getNewValue();
 			bus.post(new ViewImage(ctx, new ViewImageObject(id), null));
-		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
+		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name) ||
+				StatusLabel.PROCESSING_ERROR_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel))
-				firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null, this);
+				firePropertyChange(StatusLabel.IMPORT_DONE_PROPERTY, null,
+						this);
 		}
 	}
 
