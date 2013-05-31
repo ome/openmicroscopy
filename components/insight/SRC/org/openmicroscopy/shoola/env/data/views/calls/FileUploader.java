@@ -24,8 +24,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 import org.apache.commons.io.FileUtils;
@@ -47,6 +50,10 @@ import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 
+import pojos.AnnotationData;
+import pojos.FileAnnotationData;
+import pojos.FilesetData;
+
 /**
  * Uploads files to the QA system.
  *
@@ -67,7 +74,7 @@ public class FileUploader
 	/** 
 	 * Object containing information about the files to upload to the server.
 	 */
-	private MessengerDetails	details;
+	private MessengerDetails details;
 	
 	/** Partial result. Returns the uploaded file. */
 	private Object uploadedFile;
@@ -95,7 +102,7 @@ public class FileUploader
 	private void uploadFile(ImportErrorObject object)
 	{
 		try {
-			Communicator c; 
+			Communicator c;
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
@@ -112,8 +119,43 @@ public class FileUploader
 				File f = object.getFile();
 				String[] usedFiles = object.getUsedFiles();
 				long id = object.getLogFileID();
+				OmeroMetadataService svc = context.getMetadataService();
+				SecurityContext ctx = new SecurityContext(
+						object.getSecurityContext());
+				try {
+					if (object.isRetrieveFromAnnotation()) {
+						Map<Long, Collection<AnnotationData>> map =
+						svc.loadAnnotations(ctx, FilesetData.class,
+							Arrays.asList(id), FileAnnotationData.class,
+							Arrays.asList(FileAnnotationData.LOG_FILE_NS),
+							null);
+						if (map.size() == 0) id = -1;
+						else {
+							Collection<AnnotationData> l = map.get(id);
+							id = -1; //reset
+							Iterator<AnnotationData> k = l.iterator();
+							AnnotationData data;
+							while (k.hasNext()) {
+								data = k.next();
+								if (FileAnnotationData.LOG_FILE_NS.equals(
+										data.getNameSpace())) {
+									id = ((FileAnnotationData) data).getFileID();
+									break;
+								}
+							}
+						}
+					}
+				} catch (Exception ex) {
+					id = -1;
+					//Not possible to load the log file:
+					LogMessage msg = new LogMessage();
+					msg.print("Loading of Import log");
+					msg.print(e);
+					context.getLogger().error(this, msg);
+				}
+				
 				File directory = null;
-				if (usedFiles != null || id >= 0) {
+				if (usedFiles != null || id > 0) {
 					directory = Files.createTempDir();
 					//Add the file to the directory.
 					if (f != null)
@@ -125,17 +167,13 @@ public class FileUploader
 									directory, true);
 						}
 					}
-					if (id >= 0) {
+					if (id > 0) {
 						StringBuffer buf = new StringBuffer();
 						buf.append("importLog_");
 						buf.append(id);
 						buf.append(".log");
 						File log = new File(directory, buf.toString());
 						try {
-							OmeroMetadataService svc =
-									context.getMetadataService();
-							SecurityContext ctx = new SecurityContext(
-									object.getSecurityContext());
 							svc.downloadFile(ctx, log, id);
 						} catch (Exception ex) {
 							//Not possible to load the log file:
