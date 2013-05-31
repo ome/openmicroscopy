@@ -91,7 +91,9 @@
                     $(html).appendTo($chgrpform)
                     $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
                     var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
-                    OME.select_fileset_images(filesetId);
+                    if (chgrp_type == "image") {
+                        OME.select_fileset_images(filesetId);
+                    }
                 } else {
                     $("#move_group_tree").show();
                 }
