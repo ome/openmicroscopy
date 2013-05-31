@@ -56,8 +56,12 @@ $(function () {
                 if (typeof selected[i]['class'] != 'undefined' && selected[i]['class'].indexOf("canAnnotate") < 0) {
                     return;
                 }
-                productListQuery[i] = remove_id_suffix(selected[i]["id"])
-                    .replace("-","=");
+
+                sid = remove_id_suffix(selected[i]["id"]).replace("-","=")
+                if ($.inArray(sid, productListQuery) < 0) {
+                    productListQuery.push(sid);
+                }
+
                 well_index = well_index || selected[i]["index"];
             }
             var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&");
@@ -73,8 +77,10 @@ $(function () {
                     var selected_ids = [], i,
                         selected_data = $("body").data("selected_objects.ome");
                     for(i=0; i<selected_data.length; i++) {
-                        selected_ids.push(remove_id_suffix(
-                            selected_data[i].id));
+                        sid = remove_id_suffix(selected_data[i].id);
+                        if ($.inArray(sid, selected_ids) < 0) {
+                            selected_ids.push(sid);
+                        }
                     }
                     var oids = $(data).filter("#object-ids").text().split("|");
                     // need to compare two arrays of strings...
