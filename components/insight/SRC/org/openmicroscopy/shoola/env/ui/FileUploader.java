@@ -159,6 +159,7 @@ class FileUploader
         	buf.append("The ");
         	buf.append(term);
     		buf.append(s);
+    		buf.append(" ");
     		buf.append(verb);
     		buf.append(" been successfully submitted.");
     		viewer.notifyInfo("Submit", buf.toString());
