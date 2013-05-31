@@ -362,34 +362,39 @@ class TestSplitFilesets(lib.ITest):
 
         # create test entities named in test case input values
 
-        for project_index in set(all_inputs['Project']):
+        parents  = lambda hierarchy:     [ from_index for from_index, to_indices in hierarchy ]
+        children = lambda hierarchy: sum([ to_indices for from_index, to_indices in hierarchy ], [])
+
+        for project_index in set(all_inputs['Project'] + parents(project_dataset_hierarchy)):
             project = omero.model.ProjectI()
             project.name = rstring('Project #%i' % project_index)
             project.id = update.saveAndReturnObject(project).id
             projects.append(query.get('Project', project.id.val))
-        for dataset_index in set(all_inputs['Dataset']):
+        for dataset_index in set(all_inputs['Dataset'] + children(project_dataset_hierarchy) + parents(dataset_image_hierarchy)):
             dataset = omero.model.DatasetI()
             dataset.name = rstring('Dataset #%i' % dataset_index)
             dataset.id = update.saveAndReturnObject(dataset).id
             datasets.append(query.get('Dataset', dataset.id.val))
-        for screen_index in set(all_inputs['Screen']):
+        for screen_index in set(all_inputs['Screen'] + parents(screen_plate_hierarchy)):
             screen = omero.model.ScreenI()
             screen.name = rstring('Screen #%i' % screen_index)
             screen.id = update.saveAndReturnObject(screen).id
             screens.append(query.get('Screen', screen.id.val))
-        for plate_index in set(all_inputs['Plate']):
+        for plate_index in set(all_inputs['Plate'] + children(screen_plate_hierarchy) + parents(plate_well_hierarchy)):
             plate = omero.model.PlateI()
             plate.name = rstring('Plate #%i' % plate_index)
             plate.id = update.saveAndReturnObject(plate).id
             plates.append(query.get('Plate', plate.id.val))
-        for well_index in set(all_inputs['Well']):
+        for well_index in set(all_inputs['Well'] + children(plate_well_hierarchy) + parents(well_image_hierarchy)):
             well = omero.model.WellI()
             wells.append(well)  # cannot save until attached to plate
-        for fileset_index in set(all_inputs['Fileset']):
+        for fileset_index in set(all_inputs['Fileset'] + parents(fileset_image_hierarchy)):
             fileset = omero.model.FilesetI()
             fileset.id = update.saveAndReturnObject(fileset).id
             filesets.append(query.get('Fileset', fileset.id.val))
-        for image_index in set(all_inputs['Image']):
+        for image_index in set(all_inputs['Image'] + children(dataset_image_hierarchy)
+                                                   + children(well_image_hierarchy)
+                                                   + children(fileset_image_hierarchy)):
             image = omero.model.ImageI()
             image.name = rstring('Image #%i' % image_index)
             image.acquisitionDate = rtime(0L)
