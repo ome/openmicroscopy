@@ -1418,31 +1418,31 @@ public class PojosServiceTest
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	//Check that 2 images are linked
     	assertEquals(fileset.copyImages().size(), 2);
-    	
+
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
-        Entry<Long, Map<Boolean, List<Long>>> e;
-        Entry<Boolean, List<Long>> entry;
-        Iterator< Entry<Boolean, List<Long>>> j;
-        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-        i = results.entrySet().iterator();
-        while (i.hasNext()) {
-			e = i.next();
-			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-			j = e.getValue().entrySet().iterator();
-			while (i.hasNext()) {
-				entry = j.next();
-				assertEquals(entry.getValue().size(), 1);
-				if (entry.getKey().booleanValue()) {
-					assertTrue(entry.getValue().contains(i1.getId().getValue()));
-				} else 
-					assertTrue(entry.getValue().contains(i2.getId().getValue()));
-			}
-		}
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Image.class.getName(), Arrays.asList(i1.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 1);
+    	Entry<Long, Map<Boolean, List<Long>>> e;
+    	Entry<Boolean, List<Long>> entry;
+    	Iterator< Entry<Boolean, List<Long>>> j;
+    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
+    	i = results.entrySet().iterator();
+    	while (i.hasNext()) {
+    		e = i.next();
+    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+    		j = e.getValue().entrySet().iterator();
+    		while (i.hasNext()) {
+    			entry = j.next();
+    			assertEquals(entry.getValue().size(), 1);
+    			if (entry.getKey().booleanValue()) {
+    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
+    			} else 
+    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
+    		}
+    	}
     }
     
     /**
@@ -1464,16 +1464,16 @@ public class PojosServiceTest
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	//Check that 2 images are linked
     	assertEquals(fileset.copyImages().size(), 2);
-    	
+
     	Parameters param = new ParametersI();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(i1.getId().getValue());
-        ids.add(i2.getId().getValue());
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Image.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(i1.getId().getValue());
+    	ids.add(i2.getId().getValue());
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Image.class.getName(), ids);
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
     
     /**
@@ -1494,39 +1494,39 @@ public class PojosServiceTest
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
-    	
+
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
-        Entry<Long, Map<Boolean, List<Long>>> e;
-        Entry<Boolean, List<Long>> entry;
-        Iterator< Entry<Boolean, List<Long>>> j;
-        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-        i = results.entrySet().iterator();
-        while (i.hasNext()) {
-			e = i.next();
-			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-			j = e.getValue().entrySet().iterator();
-			while (i.hasNext()) {
-				entry = j.next();
-				assertEquals(entry.getValue().size(), 1);
-				if (entry.getKey().booleanValue()) {
-					assertTrue(entry.getValue().contains(i1.getId().getValue()));
-				} else 
-					assertTrue(entry.getValue().contains(i2.getId().getValue()));
-			}
-		}
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Dataset.class.getName(), Arrays.asList(d.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 1);
+    	Entry<Long, Map<Boolean, List<Long>>> e;
+    	Entry<Boolean, List<Long>> entry;
+    	Iterator< Entry<Boolean, List<Long>>> j;
+    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
+    	i = results.entrySet().iterator();
+    	while (i.hasNext()) {
+    		e = i.next();
+    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+    		j = e.getValue().entrySet().iterator();
+    		while (i.hasNext()) {
+    			entry = j.next();
+    			assertEquals(entry.getValue().size(), 1);
+    			if (entry.getKey().booleanValue()) {
+    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
+    			} else 
+    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
+    		}
+    	}
     }
 
     /**
@@ -1547,49 +1547,49 @@ public class PojosServiceTest
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
-    	
-    	
+
+
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	Project p = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
-    	
+
     	ProjectDatasetLink lp = new ProjectDatasetLinkI();
     	lp.setParent(p);
     	lp.setChild((Dataset) d.proxy());
-    	
+
     	iUpdate.saveAndReturnObject(lp);
-    	
+
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
-        Entry<Long, Map<Boolean, List<Long>>> e;
-        Entry<Boolean, List<Long>> entry;
-        Iterator< Entry<Boolean, List<Long>>> j;
-        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-        i = results.entrySet().iterator();
-        while (i.hasNext()) {
-			e = i.next();
-			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-			j = e.getValue().entrySet().iterator();
-			while (i.hasNext()) {
-				entry = j.next();
-				assertEquals(entry.getValue().size(), 1);
-				if (entry.getKey().booleanValue()) {
-					assertTrue(entry.getValue().contains(i1.getId().getValue()));
-				} else 
-					assertTrue(entry.getValue().contains(i2.getId().getValue()));
-			}
-		}
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Project.class.getName(), Arrays.asList(p.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 1);
+    	Entry<Long, Map<Boolean, List<Long>>> e;
+    	Entry<Boolean, List<Long>> entry;
+    	Iterator< Entry<Boolean, List<Long>>> j;
+    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
+    	i = results.entrySet().iterator();
+    	while (i.hasNext()) {
+    		e = i.next();
+    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+    		j = e.getValue().entrySet().iterator();
+    		while (i.hasNext()) {
+    			entry = j.next();
+    			assertEquals(entry.getValue().size(), 1);
+    			if (entry.getKey().booleanValue()) {
+    				assertTrue(entry.getValue().contains(i1.getId().getValue()));
+    			} else 
+    				assertTrue(entry.getValue().contains(i2.getId().getValue()));
+    		}
+    	}
     }
     
     /**
@@ -1611,17 +1611,17 @@ public class PojosServiceTest
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
-    	
+
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-				mmFactory.simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	//link the 2
     	link = new DatasetImageLinkI();
     	link.setParent(d2);
@@ -1629,14 +1629,14 @@ public class PojosServiceTest
     	iUpdate.saveAndReturnObject(link);
 
     	Parameters param = new ParametersI();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(d1.getId().getValue());
-        ids.add(d2.getId().getValue());
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Dataset.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(d1.getId().getValue());
+    	ids.add(d2.getId().getValue());
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Dataset.class.getName(), ids);
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
     
     /**
@@ -1659,54 +1659,54 @@ public class PojosServiceTest
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
-    	
-    	
+
+
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-				mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	link = new DatasetImageLinkI();
     	link.setParent(d2);
     	link.setChild((Image) i2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
-    	
+
+
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
-    	
+
     	ProjectDatasetLink lp = new ProjectDatasetLinkI();
     	lp.setParent(p1);
     	lp.setChild((Dataset) d1.proxy());
-    	
+
     	iUpdate.saveAndReturnObject(lp);
-    	
+
     	Project p2 = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
-    	
+
     	lp = new ProjectDatasetLinkI();
     	lp.setParent(p2);
     	lp.setChild((Dataset) d2.proxy());
-    	
+
     	iUpdate.saveAndReturnObject(lp);
-    	
-    	
+
+
     	Parameters param = new ParametersI();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(p1.getId().getValue());
-        ids.add(p2.getId().getValue());
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Project.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(p1.getId().getValue());
+    	ids.add(p2.getId().getValue());
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Project.class.getName(), ids);
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
 
     /**
@@ -1725,50 +1725,50 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	
+
     	Fileset fileset = new FilesetI();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset.addImage(i3);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 3);
-    	
-    	
+
+
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-				mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	link = new DatasetImageLinkI();
     	link.setParent(d2);
     	link.setChild((Image) i2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
-    	
+
+
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
-    	
+
     	ProjectDatasetLink lp = new ProjectDatasetLinkI();
     	lp.setParent(p1);
     	lp.setChild((Dataset) d1.proxy());
-    	
+
     	iUpdate.saveAndReturnObject(lp);
 
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>();
-        map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
-        map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
-        map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>();
+    	map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
+    	map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
+    	map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
     
     /**
@@ -1787,73 +1787,73 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	
+
     	Fileset fileset = new FilesetI();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset.addImage(i3);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 3);
-    	
-    	
+
+
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-				mmFactory.simpleDatasetData().asIObject());
-    	
+    			mmFactory.simpleDatasetData().asIObject());
+
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	link = new DatasetImageLinkI();
     	link.setParent(d2);
     	link.setChild((Image) i2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
-    	
+
+
     	Project p1 = (Project) iUpdate.saveAndReturnObject(
     			mmFactory.simpleProjectData().asIObject());
-    	
+
     	ProjectDatasetLink lp = new ProjectDatasetLinkI();
     	lp.setParent(p1);
     	lp.setChild((Dataset) d1.proxy());
-    	
+
     	iUpdate.saveAndReturnObject(lp);
 
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>();
-        map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
-        map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
-        Entry<Long, Map<Boolean, List<Long>>> e;
-        Entry<Boolean, List<Long>> entry;
-        Iterator< Entry<Boolean, List<Long>>> j;
-        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-        i = results.entrySet().iterator();
-        while (i.hasNext()) {
-			e = i.next();
-			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-			j = e.getValue().entrySet().iterator();
-			List<Long> l;
-			while (i.hasNext()) {
-				entry = j.next();
-				assertEquals(entry.getValue().size(), 1);
-				l = entry.getValue();
-				if (entry.getKey().booleanValue()) {
-					assertEquals(l.size(), 2);
-					assertTrue(l.contains(i1.getId().getValue()));
-					assertTrue(l.contains(i2.getId().getValue()));
-				} else {
-					assertEquals(l.size(), 1);
-					assertTrue(l.contains(i3.getId().getValue()));
-				}
-			}
-		}
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>();
+    	map.put(Project.class.getName(), Arrays.asList(p1.getId().getValue()));
+    	map.put(Dataset.class.getName(), Arrays.asList(d2.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 1);
+    	Entry<Long, Map<Boolean, List<Long>>> e;
+    	Entry<Boolean, List<Long>> entry;
+    	Iterator< Entry<Boolean, List<Long>>> j;
+    	Iterator<Entry<Long, Map<Boolean, List<Long>>>>
+    	i = results.entrySet().iterator();
+    	while (i.hasNext()) {
+    		e = i.next();
+    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+    		j = e.getValue().entrySet().iterator();
+    		List<Long> l;
+    		while (i.hasNext()) {
+    			entry = j.next();
+    			assertEquals(entry.getValue().size(), 1);
+    			l = entry.getValue();
+    			if (entry.getKey().booleanValue()) {
+    				assertEquals(l.size(), 2);
+    				assertTrue(l.contains(i1.getId().getValue()));
+    				assertTrue(l.contains(i2.getId().getValue()));
+    			} else {
+    				assertEquals(l.size(), 1);
+    				assertTrue(l.contains(i3.getId().getValue()));
+    			}
+    		}
+    	}
     }
     
     /**
@@ -1872,39 +1872,39 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	
+
     	Fileset fileset = new FilesetI();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
-    	
+
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    					mmFactory.simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
     	link.setChild((Image) i1.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	link = new DatasetImageLinkI();
     	link.setParent((Dataset) d1.proxy());
     	link.setChild((Image) i2.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	link = new DatasetImageLinkI();
     	link.setParent((Dataset) d1.proxy());
     	link.setChild((Image) i3.proxy());
     	iUpdate.saveAndReturnObject(link);
-    	
+
     	Parameters param = new ParametersI();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(d1.getId().getValue());
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Dataset.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(d1.getId().getValue());
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Dataset.class.getName(), ids);
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
     
     /**
@@ -1923,18 +1923,18 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	
+
     	Fileset fileset = new FilesetI();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 0);
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	map.put(Image.class.getName(), Arrays.asList(i3.getId().getValue()));
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 0);
     }
     
     /**
@@ -1953,42 +1953,42 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	
+
     	Fileset fileset = new FilesetI();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
     	assertEquals(fileset.copyImages().size(), 2);
     	Parameters param = new ParametersI();
-        Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(i1.getId().getValue());
-        ids.add(i3.getId().getValue());
-        map.put(Image.class.getName(), ids);
-        Map<Long, Map<Boolean, List<Long>>>
-        results = iContainer.getImagesBySplitFilesets(map, param);
-        assertEquals(results.size(), 1);
-        Entry<Long, Map<Boolean, List<Long>>> e;
-        Entry<Boolean, List<Long>> entry;
-        Iterator< Entry<Boolean, List<Long>>> j;
-        Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
-        i = results.entrySet().iterator();
-        while (i.hasNext()) {
-			e = i.next();
-			assertEquals(e.getKey().longValue(), fileset.getId().getValue());
-			j = e.getValue().entrySet().iterator();
-			List<Long> l;
-			while (i.hasNext()) {
-				entry = j.next();
-				assertEquals(entry.getValue().size(), 1);
-				l = entry.getValue();
-				assertEquals(l.size(), 1);
-				if (entry.getKey().booleanValue()) {
-					assertTrue(l.contains(i1.getId().getValue()));
-				} else {
-					assertTrue(l.contains(i2.getId().getValue()));
-				}
-			}
-		}
+    	Map<String, List<Long>> map = new HashMap<String, List<Long>>(1);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(i1.getId().getValue());
+    	ids.add(i3.getId().getValue());
+    	map.put(Image.class.getName(), ids);
+    	Map<Long, Map<Boolean, List<Long>>>
+    	results = iContainer.getImagesBySplitFilesets(map, param);
+    	assertEquals(results.size(), 1);
+    	Entry<Long, Map<Boolean, List<Long>>> e;
+    	Entry<Boolean, List<Long>> entry;
+    	Iterator< Entry<Boolean, List<Long>>> j;
+    	Iterator<Entry<Long, Map<Boolean, List<Long>>>> 
+    	i = results.entrySet().iterator();
+    	while (i.hasNext()) {
+    		e = i.next();
+    		assertEquals(e.getKey().longValue(), fileset.getId().getValue());
+    		j = e.getValue().entrySet().iterator();
+    		List<Long> l;
+    		while (i.hasNext()) {
+    			entry = j.next();
+    			assertEquals(entry.getValue().size(), 1);
+    			l = entry.getValue();
+    			assertEquals(l.size(), 1);
+    			if (entry.getKey().booleanValue()) {
+    				assertTrue(l.contains(i1.getId().getValue()));
+    			} else {
+    				assertTrue(l.contains(i2.getId().getValue()));
+    			}
+    		}
+    	}
     }
 }
