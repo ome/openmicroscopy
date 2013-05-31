@@ -115,9 +115,6 @@ public class StatusLabel
 	public static final String CANCELLABLE_IMPORT_PROPERTY =
 		"cancellableImport";
 	
-	/** Bound property indicating that the status has changed.*/
-	public static final String CANCELLED_IMPORT_PROPERTY = "cancelledImport";
-	
 	/** Bound property indicating that the debug text has been sent.*/
 	public static final String DEBUG_TEXT_PROPERTY = "debugText";
 	
@@ -230,7 +227,7 @@ public class StatusLabel
 	private boolean hcs;
 	
 	/** The callback. This should only be set when importing a directory.*/
-	private CmdCallback callback;
+	private Object callback;
 	
 	/** Indicates that the file scanned is a directory.*/
 	private boolean directory;
@@ -385,7 +382,8 @@ public class StatusLabel
 	public void setCallback(Object cmd)
 	{
 		if (cmd instanceof ImportException) exception = (ImportException) cmd;
-		else if (cmd instanceof CmdCallback) callback = (CmdCallback) cmd;
+		else if (cmd instanceof CmdCallback || cmd instanceof Boolean)
+			callback = cmd;
 		firePropertyChange(UPLOAD_DONE_PROPERTY, null, this);
 	}
 

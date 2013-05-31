@@ -1474,8 +1474,12 @@ public class FileImportComponent
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && hasParent()) {
-				formatResult();
-				firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null, this);
+				if (sl.isMarkedAsCancel()) cancel(true);
+				else {
+					formatResult();
+					firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null,
+							this);
+				}
 			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
