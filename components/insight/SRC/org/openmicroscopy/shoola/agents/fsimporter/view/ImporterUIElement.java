@@ -403,21 +403,16 @@ class ImporterUIElement
 						setNumberOfImport();
 					} else if (FileImportComponent.LOAD_LOGFILEPROPERTY.equals(
 							name)) {
-						long logFileID = (Long) evt.getNewValue();
-						if (logFileID < 0) return;
-						Environment env = (Environment) 
-								ImporterAgent.getRegistry().lookup(
-										LookupNames.ENV);
-						String path = env.getOmeroFilesHome();
-						File f = new File(path, "importLog_"+logFileID);
-						DownloadAndLaunchActivityParam
-						activity = new DownloadAndLaunchActivityParam(logFileID,
-								DownloadAndLaunchActivityParam.ORIGINAL_FILE,
-								f, null);
-						activity.setUIRegister(false);
-						UserNotifier un =
-								ImporterAgent.getRegistry().getUserNotifier();
-						un.notifyActivity(model.getSecurityContext(), activity);
+						FileImportComponent fc = (FileImportComponent)
+								evt.getNewValue();
+						if (fc == null) return;
+						long logFileID = fc.getStatus().getLogFileID();
+						if (logFileID <= 0) {
+							FilesetData data = fc.getStatus().getFileset();
+							if (data == null) return;
+							model.fireImportLogFileLoading(data.getId(),
+									fc.getIndex());
+						} else downloadLogFile(logFileID);
 					} else if (
 						FileImportComponent.RETRIEVE_LOGFILEPROPERTY.equals(
 							name)) {
@@ -470,6 +465,29 @@ class ImporterUIElement
 			components.put(c.toString(), c);
 		}
 		totalToImport = files.size();
+	}
+	
+	/**
+	 * Downloads the log file.
+	 * 
+	 * @param logFileID
+	 */
+	void downloadLogFile(long logFileID)
+	{
+		if (logFileID < 0) return;
+		Environment env = (Environment) 
+				ImporterAgent.getRegistry().lookup(
+						LookupNames.ENV);
+		String path = env.getOmeroFilesHome();
+		File f = new File(path, "importLog_"+logFileID);
+		DownloadAndLaunchActivityParam
+		activity = new DownloadAndLaunchActivityParam(logFileID,
+				DownloadAndLaunchActivityParam.ORIGINAL_FILE,
+				f, null);
+		activity.setUIRegister(false);
+		UserNotifier un =
+				ImporterAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(model.getSecurityContext(), activity);
 	}
 	
 	/** 
@@ -975,10 +993,22 @@ class ImporterUIElement
 		Iterator<Entry<String, FileImportComponent>>
 		i = components.entrySet().iterator();
 		FileImportComponent fc;
+		Iterator<FileAnnotationData> j;
+		FileAnnotationData fa;
 		while (i.hasNext()) {
 			entry = i.next();
 			fc = entry.getValue();
-			fc.setImportLogFile(data, id);
+			if (fc.getIndex() == id) {
+				j = data.iterator();
+				while (j.hasNext()) {
+					fa = j.next();
+					if (FileAnnotationData.LOG_FILE_NS.equals(
+							fa.getNameSpace())) {
+						downloadLogFile(fa.getFileID());
+						break;
+					}
+				}
+			}
 		}
 	}
 	

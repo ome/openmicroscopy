@@ -65,6 +65,9 @@ public class ImportErrorObject
 	/** The group indicating the security context.*/
 	private long groupID;
 	
+	/** Retrieve the log file from the annotation.*/
+	private boolean retrieveFromAnnotation;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -77,8 +80,32 @@ public class ImportErrorObject
 		this.file = file;
 		this.exception = exception;
 		this.groupID = groupID;
+		retrieveFromAnnotation = false;
 	}
 
+	/**
+	 * Sets to <code>true</code> if the log file needs to be retrieved
+	 * from the annotation, <code>false</code> otherwise.
+	 * If <code>true</code>, the {@link #logFileID} is the id of the 
+	 * annotation.
+	 * 
+	 * @param retrieveFromAnnotation The value to set.
+	 */
+	public void setRetrieveFromAnnotation(boolean retrieveFromAnnotation)
+	{
+		this.retrieveFromAnnotation = retrieveFromAnnotation;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the log file needs to be retrieved
+	 * from the annotation, <code>false</code> otherwise.
+	 * If <code>true</code>, the {@link #logFileID} is the id of the 
+	 * annotation.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isRetrieveFromAnnotation() { return retrieveFromAnnotation; }
+	
 	/**
 	 * Returns the security context.
 	 * 

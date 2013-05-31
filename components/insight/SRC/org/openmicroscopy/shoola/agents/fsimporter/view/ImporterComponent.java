@@ -781,7 +781,10 @@ class ImporterComponent
 		ImporterUIElement element;
 		while (i.hasNext()) {
 			element = i.next();
-			element.setImportLogFile(collection, fileSetID);
+			if (element.getID() == index) {
+				element.setImportLogFile(collection, index);
+				break;
+			}
 		}
 	}
 

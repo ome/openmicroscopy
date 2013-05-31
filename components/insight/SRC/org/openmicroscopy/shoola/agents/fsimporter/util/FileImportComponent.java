@@ -330,7 +330,8 @@ public class FileImportComponent
             	displayLogFile();
             }
         });
-		item.setEnabled(statusLabel.getLogFileID() >= 0);
+		item.setEnabled(statusLabel.getLogFileID() > 0 ||
+				statusLabel.getFileset() != null);
 		menu.add(item);
         
 		item = new JMenuItem(new AbstractAction(checksumText) {
@@ -346,8 +347,7 @@ public class FileImportComponent
 	/** Displays or loads the log file.*/
 	private void displayLogFile()
 	{
-		firePropertyChange(LOAD_LOGFILEPROPERTY, null,
-				statusLabel.getLogFileID());
+		firePropertyChange(LOAD_LOGFILEPROPERTY, null, this);
 	}
 
 	/**
@@ -989,7 +989,12 @@ public class FileImportComponent
 				getGroupID());
 		object.setReaderType(statusLabel.getReaderType());
 		object.setUsedFiles(statusLabel.getUsedFiles());
-		object.setLogFileID(statusLabel.getLogFileID());
+		long id = statusLabel.getLogFileID();
+		if (id <= 0) {
+			id = statusLabel.getFileset().getId();
+			object.setRetrieveFromAnnotation(true);
+		}
+		object.setLogFileID(id);
 		return object;
 	}
 	
