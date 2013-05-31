@@ -268,17 +268,31 @@ public class Preprocessor {
     }
 
     /**
-     * @return the size of the Image ID cache
+     * @return how many images have had any of their containers looked up
      */
     public long getImageCount() {
-        return containerByContained.asMap().size();
+        final Set<GraphModifyTarget> images = new HashSet<GraphModifyTarget>();
+        for (final Entry<TargetType, GraphModifyTarget> containerLookup : lookupContainerDone) {
+            final GraphModifyTarget contained = containerLookup.getValue();
+            if (contained.targetType == TargetType.IMAGE) {
+                images.add(contained);
+            }
+        }
+        return images.size();
     }
 
     /**
-     * @return the size of the container ID cache
+     * @return how many filesets have had any of their contents looked up
      */
     public long getFilesetCount() {
-        return containedByContainer.asMap().size();
+        final Set<GraphModifyTarget> filesets = new HashSet<GraphModifyTarget>();
+        for (final Entry<TargetType, GraphModifyTarget> containedLookup : lookupContainedDone) {
+            final GraphModifyTarget container = containedLookup.getValue();
+            if (container.targetType == TargetType.FILESET) {
+                filesets.add(container);
+            }
+        }
+        return filesets.size();
     }
 
     /**
@@ -292,7 +306,7 @@ public class Preprocessor {
     }
 
     /**
-     * Add to the cached lookups the given target's container, if any.
+     * Look up the containers of a target.
      * @param containerType the container type to add
      * @param contained the target that may be contained
      */
@@ -308,12 +322,12 @@ public class Preprocessor {
         final List<Object[]> containerIds = queryService.projection(queryString, new Parameters().addId(contained.targetId));
         for (final Object[] containerId : containerIds) {
             final GraphModifyTarget container = new GraphModifyTarget(containerType, (Long) containerId[0]);
-            lookupContained(contained.targetType, container);
+            containerByContained.put(contained, container);
         }
     }
 
     /**
-     * Add to the cached lookups the given container.
+     * Look up what a target contains.
      * @param containedType the contained type to add
      * @param container the container
      */
@@ -330,12 +344,11 @@ public class Preprocessor {
          for (final Object[] containedId : containedIds) {
             final GraphModifyTarget contained = new GraphModifyTarget(containedType, (Long) containedId[0]);
             containedByContainer.put(container, contained);
-            containerByContained.put(contained, container);
         }
     }
 
     /**
-     * Assuming that the relevant lookups are cached, recursively find all the direct and indirect containers of the given target.
+     * Recursively find all the direct and indirect containers of the given target.
      * @param contained a target
      * @return all the target's containers
      */
@@ -347,6 +360,11 @@ public class Preprocessor {
             final Iterator<GraphModifyTarget> pendingContainedsIterator = pendingContained.iterator();
             final GraphModifyTarget nextContained = pendingContainedsIterator.next();
             pendingContainedsIterator.remove();
+            for (final Entry<TargetType, TargetType> relationship : targetTypeHierarchy) {
+                if (relationship.getValue() == nextContained.targetType) {
+                    lookupContainer(relationship.getKey(), nextContained);
+                }
+            }
             final Set<GraphModifyTarget> nextContainers = this.containerByContained.get(nextContained);
             allContainers.addAll(nextContainers);
             pendingContained.addAll(nextContainers);
@@ -388,17 +406,12 @@ public class Preprocessor {
                 }
             }
 
-            /* look up the filesets that contain referenced images */
-
-            for (final GraphModifyTarget image : targets.get(TargetType.IMAGE)) {
-                lookupContainer(TargetType.FILESET, image);
-            }
-
             /* review the referenced FS images */
 
             while (!targets.get(TargetType.IMAGE).isEmpty()) {
                 final GraphModifyTarget image = targets.get(TargetType.IMAGE).iterator().next();
                 /* find the image's fileset */
+                lookupContainer(TargetType.FILESET, image);
                 final Set<GraphModifyTarget> containers = this.containerByContained.get(image);
                 final Iterator<GraphModifyTarget> filesetIterator = 
                         GraphModifyTarget.filterByType(containers, TargetType.FILESET).iterator();
@@ -413,6 +426,7 @@ public class Preprocessor {
                     throw new IllegalStateException("image is contained in multiple filesets");
                 }
                 /* check that all the fileset's images are referenced */
+                lookupContained(TargetType.IMAGE, fileset);
                 final Set<GraphModifyTarget> filesetImages = this.containedByContainer.get(fileset);
                 for (final GraphModifyTarget filesetImage : filesetImages) {
                     if (filesetImage.targetType != TargetType.IMAGE) {
