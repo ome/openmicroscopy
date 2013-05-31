@@ -1404,7 +1404,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsImageAsRoot()
+    public void testGetImagesBySplitFilesetsImageAsRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1450,7 +1450,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsImageAsRootAll()
+    public void testGetImagesBySplitFilesetsImageAsRootAll()
     	throws Exception 
     {
     	//first create a project
@@ -1481,7 +1481,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsDatasetAsRoot()
+    public void testGetImagesBySplitFilesetsDatasetAsRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1534,7 +1534,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsProjectAsRoot()
+    public void testGetImagesBySplitFilesetsProjectAsRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1598,7 +1598,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsMixedDatasetAsRoot()
+    public void testGetImagesBySplitFilesetsMixedDatasetAsRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1646,7 +1646,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsMixedProjectAsRoot()
+    public void testGetImagesBySplitFilesetsMixedProjectAsRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1715,7 +1715,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsMixedRoot()
+    public void testGetImagesBySplitFilesetsMixedRoot()
     	throws Exception 
     {
     	//first create a project
@@ -1777,7 +1777,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsMixedRootMissingImage()
+    public void testGetImagesBySplitFilesetsMixedRootMissingImage()
     	throws Exception 
     {
     	//first create a project
@@ -1862,7 +1862,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsDatasetAsRootWithNonFSdata()
+    public void testGetImagesBySplitFilesetsDatasetAsRootWithNonFSdata()
     	throws Exception 
     {
     	//first create a project
@@ -1913,7 +1913,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsImageAsRootWithNonFSdata()
+    public void testGetImagesBySplitFilesetsImageAsRootWithNonFSdata()
     	throws Exception 
     {
     	//first create a project
@@ -1943,7 +1943,7 @@ public class PojosServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testGetImagesBytSplitFilesetsImageAsRootMixFSNonFSdata()
+    public void testGetImagesBySplitFilesetsImageAsRootMixFSNonFSdata()
     	throws Exception 
     {
     	//first create a project
