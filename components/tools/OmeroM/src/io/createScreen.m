@@ -2,7 +2,7 @@ function screen = createScreen(session, name)
 % CREATESCREEN Create a new screen and uploads it onto the OMERO server
 %
 %   screen = createScreen(session, name) creates a new screen with the
-%   input name, uploads it onto the server and returns it.
+%   input name, uploads it onto the server and returns the loaded screen.
 %
 %   Examples:
 %

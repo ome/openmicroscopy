@@ -2,7 +2,7 @@ function dataset = createDataset(session, name, varargin)
 % CREATEDATASET Create a new dataset and uploads it onto the OMERO server
 %
 %   dataset = createDataset(session, name) create a new dataset with the
-%   input name, uploads it onto the server and returns it.
+%   input name, uploads it onto the server and returns the loaded dataset.
 %
 %   dataset = createDataset(session, name, project) also links the dataset
 %   to the input project.

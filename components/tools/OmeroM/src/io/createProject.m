@@ -2,7 +2,7 @@ function project = createProject(session, name)
 % CREATEPROJECT Create a new project and uploads it onto the OMERO server
 %
 %   project = createProject(session, name) creates a new project with the
-%   input name, uploads it onto the server and returns it.
+%   input name, uploads it onto the server and returns the loaded project.
 %
 %   Examples:
 %

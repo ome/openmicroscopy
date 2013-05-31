@@ -2,7 +2,7 @@ function plate = createPlate(session, name, varargin)
 % CREATEPLATE Create a new plate and uploads it onto the OMERO server
 %
 %   plate = createPlate(session, name) create a new plate with the
-%   input name, uploads it onto the server and returns it.
+%   input name, uploads it onto the server and returns the loaded plate.
 %
 %   plate = createPlate(session, name, screen) also links the plate
 %   to the input screen.
