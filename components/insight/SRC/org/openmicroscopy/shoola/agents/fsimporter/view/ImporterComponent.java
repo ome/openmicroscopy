@@ -142,7 +142,9 @@ class ImporterComponent
 			} else {
 				if (element.isUploadComplete()) {
 					element = view.getElementToStartImportFor();
-					if (element != null && startUpload) importData(element);
+					if (element != null && startUpload) {
+						importData(element);
+					}
 				}
 			}
 			fireStateChange();
