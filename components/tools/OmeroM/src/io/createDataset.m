@@ -59,6 +59,9 @@ if ~isempty(ip.Results.project)
     link.setParent(project);
     link.setChild(dataset);
     session.getUpdateService().saveAndReturnObject(link);
+    
+    % Retrieve fully loaded dataset
+    dataset = getDatasets(session, dataset.getId().getValue());
 end
 
 end

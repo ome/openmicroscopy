@@ -59,6 +59,9 @@ if ~isempty(ip.Results.screen)
     link.setParent(screen);
     link.setChild(plate);
     session.getUpdateService().saveAndReturnObject(link);
+    
+    % Retrieve fully loaded plate
+    plate = getPlates(session, plate.getId().getValue());
 end
 
 end
