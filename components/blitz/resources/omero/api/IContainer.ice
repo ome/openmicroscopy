@@ -29,6 +29,7 @@ module omero {
                 idempotent ImageList getImages(string rootType, omero::sys::LongList rootIds, omero::sys::Parameters options) throws ServerError;
                 idempotent ImageList getUserImages(omero::sys::Parameters options) throws ServerError;
                 idempotent ImageList getImagesByOptions(omero::sys::Parameters options) throws ServerError;
+                /* Warning: following discussion in trac ticket 11019 the return type of getImagesBySplitFilesets may be changed. */
                 idempotent IdBooleanLongListMapMap getImagesBySplitFilesets(StringLongListMap included, omero::sys::Parameters options) throws ServerError;
                 idempotent omero::sys::CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::Parameters options) throws ServerError;
                 idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::Parameters options) throws ServerError;

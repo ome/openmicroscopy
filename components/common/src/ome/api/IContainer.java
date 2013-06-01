@@ -300,6 +300,7 @@ public interface IContainer extends ServiceInterface {
      * a non-empty proper subset of their images are referenced, directly or indirectly, as being
      * included. The return value lists both the fileset IDs and the image IDs in ascending order,
      * the image ID lists separated by if they were included.
+     * Warning: following discussion in trac ticket 11019 the return type may be changed.
      * @param included the entities included
      * @param options parameters, presently ignored
      * @return the partially included filesets
