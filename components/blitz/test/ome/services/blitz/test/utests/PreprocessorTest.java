@@ -43,6 +43,21 @@ public class PreprocessorTest extends Preprocessor {
         super(new ArrayList<Request>(), null);
     }
 
+    /**
+     * Test that the target type hierarchy is indeed ordered from higher to lower.
+     */
+    @Test
+    public void testTargetTypeHierarchyOrdering() {
+        final Set<TargetType> prohibitedValues = new HashSet<TargetType>();
+        for (final Entry<TargetType, TargetType> relationship : targetTypeHierarchy) {
+            prohibitedValues.add(relationship.getKey());
+            Assert.assertFalse(prohibitedValues.contains(relationship.getValue()));
+        }
+    }
+
+    /**
+     * Test that the HQL query strings match what is needed to navigate the target type hierarchy.
+     */
     @Test
     public void testHqlStrings() {
         final Set<Entry<TargetType, TargetType>> expectedKeys = new HashSet<Entry<TargetType, TargetType>>();

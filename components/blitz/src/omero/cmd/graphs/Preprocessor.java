@@ -149,6 +149,7 @@ public class Preprocessor {
 
     private static final ImmutableList<Class<? extends GraphModify>> graphOperations = ImmutableList.of(Chgrp.class, Delete.class);
 
+    /** the target type hierarchy, an ordered list descending from higher to lower */
     protected static final ImmutableList<Entry<TargetType, TargetType>> targetTypeHierarchy;
 
     static {
@@ -164,6 +165,7 @@ public class Preprocessor {
 
     /* TODO: batch querying on multiple IDs at once as in ome.logic.PojosImpl.getImagesBySplitFilesets */
 
+    /** HQL queries to map from ID of first target type to that of the second */
     protected static final ImmutableMap<Entry<TargetType, TargetType>, String> hqlFromTo;
 
     static {
