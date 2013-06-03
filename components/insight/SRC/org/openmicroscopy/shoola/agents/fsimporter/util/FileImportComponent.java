@@ -86,6 +86,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
+import pojos.FilesetData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -991,8 +992,11 @@ public class FileImportComponent
 		object.setUsedFiles(statusLabel.getUsedFiles());
 		long id = statusLabel.getLogFileID();
 		if (id <= 0) {
-			id = statusLabel.getFileset().getId();
-			object.setRetrieveFromAnnotation(true);
+			FilesetData data = statusLabel.getFileset();
+			if (data != null) {
+				id = data.getId();
+				object.setRetrieveFromAnnotation(true);
+			}
 		}
 		object.setLogFileID(id);
 		return object;
