@@ -31,6 +31,7 @@
     <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
     <div id="inprogress" style="display:none">{{ inprogress }}</div>
     <div id="new_results" style="display:none">{{ new_results }}</div>
+    {% if new_errors %}<div id="new_errors" style="display:none">True</div>{% endif %}
     <div id="failure" style="display:none">{{ failure }}</div>
 
     <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
@@ -52,7 +53,7 @@
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.error or j.split_filesets %}
+                                {% if j.error %}
                                     <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
                                 {% else %}
                                     <img class="icon" src="{% static "webgateway/img/success.png" %}" />
@@ -73,11 +74,11 @@
                                             Show {{ j.dtype }}{{ j.obj_ids|pluralize }}
                                         </a>
                                     {% endifequal %}
-                                    {% if j.error %}
+                                    {% if j.report %}
                                         <div class="chgrp_error">
-                                            {{ j.error|truncateafter:"30" }}
+                                            {{ j.report|truncateafter:"30" }}
                                             <a href="#" title="Click to Open in new Window"> More...</a>
-                                            <div style="display:none">{{ j.error|linebreaksbr }}</div>
+                                            <div style="display:none">{{ j.report|linebreaksbr }}</div>
                                         </div>
                                     {% endif %}
                                 {% endifequal %}
@@ -115,6 +116,12 @@
                                     {% endwith %}
                                     {% endfor %}
                                     <div style="float:right">
+                                        <a href="{{ j.objs_url }}">
+                                            <button class="btn silver" style="padding: 2px"
+                                                title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to move">
+                                                REFRESH
+                                            </button>
+                                        </a>
     <button class="btn silver chgrp_move_all" style="padding: 2px"
         title="Repeat the move, including ALL images from the Fileset"
         url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
@@ -136,7 +143,7 @@
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.derror %}
+                                {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
                                         <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
@@ -209,11 +216,19 @@
                                     <div style="clear:both"></div>
                                 {% endwith %}
                                 {% endfor %}
+                                <div style="float:right">
+                                    <a href="{{ j.objs_url }}">
+                                        <button class="btn silver" style="padding: 2px"
+                                            title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to delete">
+                                            REFRESH
+                                        </button>
+                                    </a>
+                                </div>
                             </span>
                             {% endif %}
 
                             <div class="results">
-                                {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                                {% if j.dreport %}Error: ({{ j.dreport }}){% endif %}
                             </div>
                         </td>
                     </tr>
