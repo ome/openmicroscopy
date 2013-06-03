@@ -255,6 +255,9 @@ import pojos.XMLAnnotationData;
 class OMEROGateway
 {
 	
+	/** Identifies the plate as root. */
+	private static final String REF_FILESET = "/Fileset";
+	
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
 	
@@ -2272,6 +2275,7 @@ class OMEROGateway
 		else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
 		else if (PlateData.class.getName().equals(data)) return REF_PLATE;
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
+		else if (FilesetData.class.getName().equals(data)) return REF_FILESET;
 		else if (PlateAcquisitionData.class.getName().equals(data)) 
 			return REF_PLATE_ACQUISITION;
 		else if (WellData.class.getName().equals(data)) 

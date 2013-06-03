@@ -887,7 +887,7 @@ class OmeroDataServiceImpl
 				if (imageIds.size() > 0) {
 					imageId = imageIds.get(0);
 					cmd = new Delete(gateway.createDeleteCommand(
-							ImageData.class.getName()), imageId,
+							FilesetData.class.getName()), fs.getId(),
 							images.get(imageId));
 					commands.add(cmd);
 					all.addAll(imageIds);
