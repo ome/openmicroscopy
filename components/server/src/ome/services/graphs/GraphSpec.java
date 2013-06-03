@@ -67,7 +67,7 @@ public interface GraphSpec {
      *            current graph. In many cases, this value will be null so that
      *            the current object is taken to be the root, but if this is a
      *            subspec, or a non-standard naming is being used, then the
-     *            supersec will be used.
+     *            superspec will be used.
      * @param options
      *            possibly null or empty map of options which can override the
      *            operations provided in the definition of the specification.
