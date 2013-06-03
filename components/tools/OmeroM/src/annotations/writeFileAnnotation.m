@@ -58,7 +58,8 @@ originalFile = omero.model.OriginalFileI;
 originalFile.setName(rstring([name ext]));
 originalFile.setPath(rstring(path));
 originalFile.setSize(rlong(fileLength));
-originalFile.setSha1(rstring(''));
+originalFile.setHasher(omero.model.ChecksumAlgorithmI());
+originalFile.getHasher.setValue(rstring('SHA1-160'));
 
 if ~isempty(ip.Results.mimetype),
     originalFile.setMimetype(rstring(ip.Results.mimetype));
@@ -90,7 +91,7 @@ rawFileStore.close();
 
 % Compare checksums client-side and server-sid
 clientHash = char(hasher.checksumAsString());
-serverHash = char(originalFile.getSha1().getValue());
+serverHash = char(originalFile.getHash().getValue());
 msg = 'File checksum mismatch on upload: %s (client has %s, server has %s)';
 assert(isequal(clientHash, serverHash), msg, f.Name, clientHash, serverHash);
 
