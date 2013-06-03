@@ -3369,7 +3369,7 @@ class TreeViewerComponent
 		if (objects.size() == 0) delete(nodes);
 		else model.fireImageChecking(objects, nodes, ImageChecker.DELETE);
 	}
-	
+
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getDataToCopy()
