@@ -611,13 +611,16 @@ class ITest(unittest.TestCase):
         finally:
             c.__del__()
 
-    def doSubmit(self, request, client, test_should_pass=True):
+    def doSubmit(self, request, client, test_should_pass=True, omero_group=None):
         """
         Performs the request waits on completion and checks that the
         result is not an error.
         """
         sf = client.sf
-        prx = sf.submit(request)
+        if omero_group is not None:
+            prx = sf.submit(request, {'omero.group': str(omero_group)})
+        else:
+            prx = sf.submit(request)
 
         self.assertFalse(State.FAILURE in prx.getStatus().flags)
 
@@ -640,10 +643,10 @@ class ITest(unittest.TestCase):
 
         return rsp
 
-    def doAllSubmit(self, requests, client, test_should_pass=True):
+    def doAllSubmit(self, requests, client, test_should_pass=True, omero_group=None):
         da = DoAll()
         da.requests = requests
-        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass)
+        rsp = self.doSubmit(da, client, test_should_pass=test_should_pass, omero_group=omero_group)
         return rsp
 
     def tearDown(self):
