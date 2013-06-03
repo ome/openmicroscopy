@@ -215,7 +215,12 @@ class TreeViewerComponent
 						}
 					}
 				});
+				model.fireMoveDataLoading(ctx, dialog, object.getDataType(),
+						userID);
 				UIUtilities.centerAndShow(dialog);
+				//Load the data
+				
+				
 			} else
 				moveData(ctx, object.getTarget(),
 						object.getTransferable());

@@ -24,11 +24,14 @@
 package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import pojos.DataObject;
@@ -110,4 +113,24 @@ public class ChgrpObject
 		return trans;
 	}
 
+	/** 
+	 * Returns the type of data to move.
+	 * 
+	 * @return See above.
+	 */
+	public Class<?> getDataType()
+	{
+		if (trans == null) return null;
+		Entry<SecurityContext, List<DataObject>> e;
+		Iterator<Entry<SecurityContext, List<DataObject>>> i =
+				trans.entrySet().iterator();
+		List<DataObject> l;
+		while (i.hasNext()) {
+			e = i.next();
+			l = e.getValue();
+			if (!CollectionUtils.isEmpty(l))
+				return l.get(0).getClass();
+		}
+		return null;
+	}
 }
