@@ -33,9 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 //Third-party libraries
-
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.hql.CollectionSubqueryFactory;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
