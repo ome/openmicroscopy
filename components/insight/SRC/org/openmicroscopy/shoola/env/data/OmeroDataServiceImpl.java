@@ -979,10 +979,9 @@ class OmeroDataServiceImpl
 			}
 			if (toCreate.size() > 0) {
 				toCreate = gateway.saveAndReturnObject(target, toCreate,
-						new HashMap(), userName);
+						new HashMap<Object, Object>(), userName);
 				targets.addAll(toCreate);
 			}
-			
 		}
 		i = objects.iterator();
 		Iterator<IObject> k;

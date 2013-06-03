@@ -124,6 +124,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
+import omero.cmd.Delete;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -8496,20 +8497,72 @@ class OMEROGateway
 			Chgrp cmd;
 			long id;
 			Save save;
+			Map<Long, List<IObject>> images = new HashMap<Long, List<IObject>>();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
-				id = data.getId();
-				cmd = new Chgrp(createDeleteCommand(
-					data.getClass().getName()), id, options,
-					target.getGroupID());
-				commands.add(cmd);
-				j = l.iterator();
-				while (j.hasNext()) {
-					save = new Save();
-					save.obj = j.next();
-					commands.add(save);
+				if (data instanceof ImageData) {
+					images.put(data.getId(), l);
+				} else {
+					cmd = new Chgrp(createDeleteCommand(
+						data.getClass().getName()), data.getId(), options,
+						target.getGroupID());
+					commands.add(cmd);
+					j = l.iterator();
+					while (j.hasNext()) {
+						save = new Save();
+						save.obj = j.next();
+						commands.add(save);
+					}
+				}
+			}
+			if (images.size() > 0) {
+				Set<DataObject> fsList = getFileSet(ctx, images.keySet());
+				List<Long> all = new ArrayList<Long>();
+				Iterator<DataObject> kk = fsList.iterator();
+				FilesetData fs;
+				long imageId;
+				List<Long> imageIds;
+				while (kk.hasNext()) {
+					fs = (FilesetData) kk.next();
+					imageIds = fs.getImageIds();
+					if (imageIds.size() > 0) {
+						imageId = imageIds.get(0);
+						cmd = new Chgrp(createDeleteCommand(
+								FilesetData.class.getName()), fs.getId(),
+								options, target.getGroupID());
+						commands.add(cmd);
+						all.addAll(imageIds);
+						l = images.get(imageId);
+						j = l.iterator();
+						while (j.hasNext()) {
+							save = new Save();
+							save.obj = j.next();
+							commands.add(save);
+						}
+					}
+				}
+				
+				//Now check that all the ids are covered.
+				Entry<Long, List<IObject>> ee;
+				Iterator<Entry<Long, List<IObject>>> e =
+						images.entrySet().iterator();
+				while (e.hasNext()) {
+					ee = e.next();
+					if (!all.contains(ee.getKey())) { //pre-fs data.
+						cmd = new Chgrp(createDeleteCommand(
+								ImageData.class.getName()), ee.getKey(),
+								options, target.getGroupID());
+						commands.add(cmd);
+						l = images.get(ee.getKey());
+						j = l.iterator();
+						while (j.hasNext()) {
+							save = new Save();
+							save.obj = j.next();
+							commands.add(save);
+						}
+					}
 				}
 			}
 			return c.submit(commands, target);
