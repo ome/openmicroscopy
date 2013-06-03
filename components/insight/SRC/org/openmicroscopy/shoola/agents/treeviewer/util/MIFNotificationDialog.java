@@ -243,6 +243,7 @@ public class MIFNotificationDialog
 			
 			images = e.getValue().get(Boolean.valueOf(false));
 			buf.append(images.size());
+			buf.append(".");
 			thumbnails = object.getThumbnailsFromList(images);
 			row.add(layoutThumbnails(images.size()-thumbnails.size(),
 					thumbnails));
@@ -265,6 +266,12 @@ public class MIFNotificationDialog
 		return pane;
 	}
 	
+	/**
+	 * Returns the group corresponding to the specified identifier.
+	 * 
+	 * @param groupID The identifier of the group.
+	 * @return See above.
+	 */
 	private GroupData getGroup(long groupID)
 	{
 		Iterator<Object> i = groups.iterator();
@@ -275,6 +282,7 @@ public class MIFNotificationDialog
 		}
 		return null;
 	}
+	
 	/**
 	 * Lays out the thumbnails.
 	 * 
@@ -290,6 +298,7 @@ public class MIFNotificationDialog
 		while (i.hasNext()) {
 			label = new ThumbnailLabel();
 			label.setData(i.next());
+			label.setToolTipText("");
 			row.add(label);
 		}
 		if (n > 0) row.add(new JLabel("..."));
