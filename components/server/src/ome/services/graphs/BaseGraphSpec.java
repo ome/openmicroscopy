@@ -21,7 +21,6 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.ExperimenterGroup;
-import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
@@ -49,7 +48,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     private final static Logger log = LoggerFactory.getLogger(BaseGraphSpec.class);
 
     //
-    // Bean-creation time values
+    // Bean-creation-time values
     //
 
     /**
@@ -207,7 +206,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     /*
      * See interface documentation.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public IObject load(Session session) throws GraphException {
 
         final GraphEntry subpath = new GraphEntry(this, this.beanName);
@@ -496,7 +494,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         }
 
         public boolean hasNext() {
-            // If we curerntly have a sub, then we test it.
+            // If we currently have a sub, then we test it.
             if (sub != null) {
                 return true;
             } else if (step < entries.size() - 1) {

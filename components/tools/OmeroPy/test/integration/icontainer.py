@@ -145,7 +145,7 @@ class TestSplitFilesets(lib.ITest):
         the specified dict.
         """
         container = client.sf.getContainerService()
-        result = container.getImagesBySplitFilesets(dtypeIdsMap)
+        result = container.getImagesBySplitFilesets(dtypeIdsMap, None)
 
         def cmpLists(listOne, listTwo):
             """ Returns True if both lists have the same items """
@@ -280,6 +280,183 @@ class TestSplitFilesets(lib.ITest):
         expected = {filesetId: {True: [imgId], False: [images[1].id.val]}}
         self.checkSplitFilesets(client, {'Dataset': [datasets[0].id.val]}, expected)
 
+    def testGetImagesBySplitFilesetsManyCases(self):
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        ipojo = self.client.sf.getContainerService()
+
+        # entity hierarchy
+
+        project_dataset_hierarchy = [(0, [0,1])]
+        dataset_image_hierarchy = [(0, [0,1]), (1, [2,6]), (2, [3,4,5])]
+        screen_plate_hierarchy = [(0, [0,1])]
+        plate_well_hierarchy = [(0, [0,1]), (1, [2,6]), (2, [3,4,5])]
+        well_image_hierarchy = [(0, [0]), (1, [1]), (2, [2]), (3, [3]), (4, [4]), (5, [5])]
+        fileset_image_hierarchy = [(0, [0]), (1, [1,2]), (2, [3,4,5])]
+
+        # test data, input and expected output value, is by list index
+
+        test_cases = [({'Image': [0,1,2,3,4,5]}, {}),
+                      ({'Image': [6]}, {}),
+                      ({'Image': [0,1]}, {1: {True: [1], False: [2]}}),
+                      ({'Image': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Image': [5]}, {2: {True: [5], False: [3,4]}}),
+                      ({'Image': [3,4]}, {2: {True: [3,4], False: [5]}}),
+                      ({'Image': [0,1,5,6]}, {1: {True: [1], False: [2]}, 2: {True: [5], False: [3,4]}}),
+                      ({'Fileset': [0], 'Image': [0,3,4,5,6]}, {}),
+                      ({'Fileset': [0,1,2], 'Image': [0]}, {}),
+                      ({'Well': [0,1,2,3,4,5]}, {}),
+                      ({'Well': [6]}, {}),
+                      ({'Well': [0,1]}, {1: {True: [1], False: [2]}}),
+                      ({'Well': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Well': [5]}, {2: {True: [5], False: [3,4]}}),
+                      ({'Well': [3,4]}, {2: {True: [3,4], False: [5]}}),
+                      ({'Well': [0,1,5,6]}, {1: {True: [1], False: [2]}, 2: {True: [5], False: [3,4]}}),
+                      ({'Image': [0,1], 'Well': [5,6]}, {1: {True: [1], False: [2]}, 2: {True: [5], False: [3,4]}}),
+                      ({'Fileset': [0], 'Well': [0,3,4,5,6]}, {}),
+                      ({'Fileset': [0,1,2], 'Well': [0]}, {}),
+                      ({'Fileset': [2]}, {}),
+                      ({'Dataset': [0]}, {1: {True: [1], False: [2]}}),
+                      ({'Dataset': [1]}, {1: {True: [2], False: [1]}}),
+                      ({'Dataset': [2]}, {}),
+                      ({'Dataset': [1], 'Image': [0,1]}, {}),
+                      ({'Project': [0]}, {}),
+                      ({'Project': [0], 'Image': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Dataset': [0], 'Fileset': [1]}, {}),
+                      ({'Plate': [0]}, {1: {True: [1], False: [2]}}),
+                      ({'Plate': [1]}, {1: {True: [2], False: [1]}}),
+                      ({'Plate': [2]}, {}),
+                      ({'Plate': [1], 'Image': [0,1]}, {}),
+                      ({'Plate': [1], 'Well': [0,1]}, {}),
+                      ({'Plate': [1], 'Image': [0], 'Well': [1]}, {}),
+                      ({'Screen': [0]}, {}),
+                      ({'Screen': [0], 'Image': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Screen': [0], 'Well': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Screen': [0], 'Image': [3], 'Well': [3]}, {2: {True: [3], False: [4,5]}}),
+                      ({'Plate': [0], 'Fileset': [1]}, {})]
+
+        # TODO: consider factoring some of the below out into library functions for use by other tests
+
+        # name entity lists
+
+        projects = []
+        datasets = []
+        screens  = []
+        plates   = []
+        wells    = []
+        filesets = []
+        images   = []
+
+        named_entities = {'Project': projects, 'Dataset': datasets, 'Screen': screens, 'Plate': plates,
+                          'Well': wells, 'Fileset': filesets, 'Image': images}
+
+        # note all test case input values
+
+        all_inputs = {}
+        for name in named_entities.keys():
+            all_inputs[name] = []
+
+        for input, expected in test_cases:
+            for name, ids in input.items():
+                all_inputs[name] += ids
+
+        # create test entities named in test case input values
+
+        parents  = lambda hierarchy:     [ from_index for from_index, to_indices in hierarchy ]
+        children = lambda hierarchy: sum([ to_indices for from_index, to_indices in hierarchy ], [])
+
+        for project_index in set(all_inputs['Project'] + parents(project_dataset_hierarchy)):
+            project = omero.model.ProjectI()
+            project.name = rstring('Project #%i' % project_index)
+            project.id = update.saveAndReturnObject(project).id
+            projects.append(query.get('Project', project.id.val))
+        for dataset_index in set(all_inputs['Dataset'] + children(project_dataset_hierarchy) + parents(dataset_image_hierarchy)):
+            dataset = omero.model.DatasetI()
+            dataset.name = rstring('Dataset #%i' % dataset_index)
+            dataset.id = update.saveAndReturnObject(dataset).id
+            datasets.append(query.get('Dataset', dataset.id.val))
+        for screen_index in set(all_inputs['Screen'] + parents(screen_plate_hierarchy)):
+            screen = omero.model.ScreenI()
+            screen.name = rstring('Screen #%i' % screen_index)
+            screen.id = update.saveAndReturnObject(screen).id
+            screens.append(query.get('Screen', screen.id.val))
+        for plate_index in set(all_inputs['Plate'] + children(screen_plate_hierarchy) + parents(plate_well_hierarchy)):
+            plate = omero.model.PlateI()
+            plate.name = rstring('Plate #%i' % plate_index)
+            plate.id = update.saveAndReturnObject(plate).id
+            plates.append(query.get('Plate', plate.id.val))
+        for well_index in set(all_inputs['Well'] + children(plate_well_hierarchy) + parents(well_image_hierarchy)):
+            well = omero.model.WellI()
+            wells.append(well)  # cannot save until attached to plate
+        for fileset_index in set(all_inputs['Fileset'] + parents(fileset_image_hierarchy)):
+            fileset = omero.model.FilesetI()
+            fileset.id = update.saveAndReturnObject(fileset).id
+            filesets.append(query.get('Fileset', fileset.id.val))
+        for image_index in set(all_inputs['Image'] + children(dataset_image_hierarchy)
+                                                   + children(well_image_hierarchy)
+                                                   + children(fileset_image_hierarchy)):
+            image = omero.model.ImageI()
+            image.name = rstring('Image #%i' % image_index)
+            image.acquisitionDate = rtime(0L)
+            image.id = update.saveAndReturnObject(image).id
+            images.append(query.get('Image', image.id.val))
+
+        # associate test entities
+
+        for project_index, dataset_indices in project_dataset_hierarchy:
+            for dataset_index in dataset_indices:
+                project_dataset = omero.model.ProjectDatasetLinkI()
+                project_dataset.parent = projects[project_index]
+                project_dataset.child = datasets[dataset_index]
+                update.saveAndReturnObject(project_dataset)
+
+        for dataset_index, image_indices in dataset_image_hierarchy:
+            for image_index in image_indices:
+                dataset_image = omero.model.DatasetImageLinkI()
+                dataset_image.parent = datasets[dataset_index]
+                dataset_image.child = images[image_index]
+                update.saveAndReturnObject(dataset_image)
+
+        for screen_index, plate_indices in screen_plate_hierarchy:
+            for plate_index in plate_indices:
+                screen_plate = omero.model.ScreenPlateLinkI()
+                screen_plate.parent = screens[screen_index]
+                screen_plate.child = plates[plate_index]
+                update.saveAndReturnObject(screen_plate)
+
+        for plate_index, well_indices in plate_well_hierarchy:
+            for well_index in well_indices:
+                wells[well_index].plate = plates[plate_index]
+
+        for well_index, image_indices in well_image_hierarchy:
+            for image_index in image_indices:
+                well_sample = omero.model.WellSampleI()
+                well_sample.well = wells[well_index]
+                well_sample.image = images[image_index]
+                wells[well_index].addWellSample(well_sample)
+
+        for well in named_entities['Well']:
+            well.id = update.saveAndReturnObject(well).id
+
+        for fileset_index, image_indices in fileset_image_hierarchy:
+            for image_index in image_indices:
+                images[image_index].fileset = filesets[fileset_index]
+                update.saveAndReturnObject(images[image_index])
+
+        # translate list indices into database IDs and check that test cases run as expected
+
+        for named_indices, fileset_split in test_cases:
+            referenced = {}
+            for name, indices in named_indices.items():
+                referenced[name] = [ named_entities[name][index].id.val for index in indices ]
+            expected = {}
+            for fileset_index, image_indices in fileset_split.items():
+                fileset_id = filesets[fileset_index].id.val
+                expected[fileset_id] = {}
+                for included in [False, True]:
+                    expected[fileset_id][included] = [ images[image_index].id.val for image_index in image_indices[included] ]
+            if ipojo.getImagesBySplitFilesets(referenced, None) != expected:
+                raise Exception('for referenced ' + str(named_indices) + ' expected ' + str(fileset_split))
 
 if __name__ == '__main__':
     unittest.main()

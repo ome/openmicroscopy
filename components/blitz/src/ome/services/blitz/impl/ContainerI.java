@@ -16,8 +16,9 @@ import java.util.Set;
 import ome.api.IContainer;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ApiUsageException;
-import omero.RType;
+import omero.RClass;
 import omero.ServerError;
+import omero.rtypes;
 import omero.api.AMD_IContainer_createDataObject;
 import omero.api.AMD_IContainer_createDataObjects;
 import omero.api.AMD_IContainer_deleteDataObject;
@@ -27,6 +28,7 @@ import omero.api.AMD_IContainer_findContainerHierarchies;
 import omero.api.AMD_IContainer_getCollectionCount;
 import omero.api.AMD_IContainer_getImages;
 import omero.api.AMD_IContainer_getImagesByOptions;
+import omero.api.AMD_IContainer_getImagesBySplitFilesets;
 import omero.api.AMD_IContainer_getUserImages;
 import omero.api.AMD_IContainer_link;
 import omero.api.AMD_IContainer_loadContainerHierarchy;
@@ -124,7 +126,7 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
                 return rv;
             }});
 
-        Class omeroType = mapper.omeroClass(type, false);
+        Class<?> omeroType = IceMapper.omeroClass(type, false);
         String omeroStr = omeroType == null ? null : omeroType.getName();
         Set<Long> _ids = new HashSet<Long>(ids);
         callInvokerOnMappedArgs(mapper, __cb, __current, omeroStr, property, _ids, null);
@@ -142,6 +144,18 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
             throws ServerError {
         callInvokerOnRawArgs(__cb, __current, rootType, rootIds, options);
 
+    }
+
+    public void getImagesBySplitFilesets_async(
+            AMD_IContainer_getImagesBySplitFilesets __cb,
+            Map<java.lang.String, List<Long>> included, Parameters options,
+            Current __current) throws ServerError {
+        final Map<RClass, List<Long>> includedWithClasses =
+                new HashMap<RClass, List<Long>>(included.size());
+        for (final Map.Entry<String, List<Long>> entry : included.entrySet()) {
+            includedWithClasses.put(rtypes.rclass(entry.getKey()), entry.getValue());
+        }
+        callInvokerOnRawArgs(__cb, __current, includedWithClasses, options);
     }
 
     public void getUserImages_async(AMD_IContainer_getUserImages __cb,
@@ -232,10 +246,9 @@ public class ContainerI extends AbstractAmdServant implements _IContainerOperati
             array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
         } catch (ClassCastException cce) {
             omero.ApiUsageException aue = new omero.ApiUsageException();
-            mapper.fillServerError(aue, cce);
+            IceMapper.fillServerError(aue, cce);
             aue.message = "ClassCastException: " + cce.getMessage();
             throw aue;
         }
     }
-    
 }
