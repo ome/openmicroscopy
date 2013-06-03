@@ -183,7 +183,7 @@ public class MIFNotificationDialog
 		} else {
 			buf.append("Multi-image filesets cannot be partially deleted.");
 		}
-		
+		setTitle(title);
 		
 		TitlePanel tp = new TitlePanel(title, buf.toString(), null);
 		Container c = getContentPane();
