@@ -8757,20 +8757,16 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
-			SecurityContext ctx, Class<?> rootType,
-			List<Long> rootIDs, Parameters options)
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs,
+			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
 		IContainerPrx service = getPojosService(ctx);
 		try {
-			Map<Long, Map<Boolean, List<Long>>> map = new HashMap<Long, Map<Boolean, List<Long>>>();
-			Map<Boolean, List<Long>> m = new HashMap<Boolean, List<Long>>();
-			m.put(Boolean.valueOf(true), Arrays.asList(555L));
-			m.put(Boolean.valueOf(false), Arrays.asList(556L));
-			map.put(1L, m);
-			map.put(2L, m);
-			return map;
+			Map<String, List<Long>> m = new HashMap<String, List<Long>>();
+			m.put(convertPojos(rootType).getName(),rootIDs);
+			return service.getImagesBySplitFilesets(m, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot find split images.");
 		}
