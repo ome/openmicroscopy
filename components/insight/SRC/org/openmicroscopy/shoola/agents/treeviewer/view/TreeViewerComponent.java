@@ -196,29 +196,40 @@ class TreeViewerComponent
 		if (userID >= 0) {
 			ExperimenterData exp = model.getExperimenter();
 			if (userID == exp.getId()) {
-				MoveGroupSelectionDialog dialog =
-				new MoveGroupSelectionDialog(view, userID, object, true);
-				dialog.addPropertyChangeListener(new PropertyChangeListener() {
-					
-					/**
-					 * Transfers the data.
-					 */
-					public void propertyChange(PropertyChangeEvent evt) {
-						String name = evt.getPropertyName();
-						if (MoveGroupSelectionDialog.TRANSFER_PROPERTY.equals(
-								name)) {
-							ChgrpObject v = (ChgrpObject) evt.getNewValue();
-							GroupData group = v.getGroupData();
-							SecurityContext ctx = new SecurityContext(
-									group.getId());
-							moveData(ctx, v.getTarget(), v.getTransferable());
+				Class<?> type = object.getDataType();
+				if (ImageData.class.equals(type) ||
+					DatasetData.class.equals(type)) type = ProjectData.class;
+				else if (ProjectData.class.equals(type)) type = null;
+				else if (PlateData.class.equals(type)) type = ScreenData.class;
+				else if (ScreenData.class.equals(type)) type = null;
+				else if (GroupData.class.equals(type) ||
+						ExperimenterData.class.equals(type)) type = null;
+				if (type != null) {
+					MoveGroupSelectionDialog dialog =
+							new MoveGroupSelectionDialog(view, userID, object,
+									true);
+					dialog.addPropertyChangeListener(
+							new PropertyChangeListener() {
+
+						/**
+						 * Transfers the data.
+						 */
+						public void propertyChange(PropertyChangeEvent evt) {
+							String name = evt.getPropertyName();
+							if (MoveGroupSelectionDialog.TRANSFER_PROPERTY.equals(
+									name)) {
+								ChgrpObject v = (ChgrpObject) evt.getNewValue();
+								GroupData group = v.getGroupData();
+								SecurityContext ctx = new SecurityContext(
+										group.getId());
+								moveData(ctx, v.getTarget(),
+										v.getTransferable());
+							}
 						}
-					}
-				});
-				model.fireMoveDataLoading(ctx, dialog, object.getDataType(),
-						userID);
-				UIUtilities.centerAndShow(dialog);
-				//Load the data
+					});
+					model.fireMoveDataLoading(ctx, dialog, type, userID);
+					UIUtilities.centerAndShow(dialog);
+				}
 				
 				
 			} else
