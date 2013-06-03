@@ -106,7 +106,7 @@ public class MoveGroupSelectionDialog
 	private static final int CREATE = 3;
 	
 	/** Text displayed in the header.*/
-	private static final String TEXT = "Select where to move the data into ";
+	private static final String TEXT = "Select where to move the data.";
 	
 	/** The default size of the busy image.*/
 	private static final Dimension SIZE = new Dimension(32, 32);
@@ -338,13 +338,9 @@ public class MoveGroupSelectionDialog
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		StringBuffer buf = new StringBuffer();
-		buf.append(TEXT);
-		buf.append(object.getGroupData().getName());
-		TitlePanel tp = new TitlePanel(getTitle(), buf.toString(),
+		TitlePanel tp = new TitlePanel(getTitle(), TEXT,
 				icons.getIcon(IconManager.MOVE_48));
 		Container c = getContentPane();
-		//c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 		c.add(tp, BorderLayout.NORTH);
 		JXBusyLabel label = new JXBusyLabel(SIZE);
 		label.setBusy(true);

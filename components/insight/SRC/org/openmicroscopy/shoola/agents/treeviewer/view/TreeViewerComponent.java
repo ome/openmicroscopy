@@ -193,7 +193,7 @@ class TreeViewerComponent
 		GroupData group = object.getGroupData();
 		SecurityContext ctx = new SecurityContext(group.getId());
 		long userID = object.getUserID();
-		if (userID < 0) {
+		if (userID >= 0) {
 			ExperimenterData exp = model.getExperimenter();
 			if (userID == exp.getId()) {
 				MoveGroupSelectionDialog dialog =
