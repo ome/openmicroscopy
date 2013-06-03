@@ -49,7 +49,7 @@ if ~isempty(ip.Results.project)
     % Check project object
     if isnumeric(ip.Results.project)
         project = getProjects(session, ip.Results.project);
-        assert(~isempty(project), 'Cannot find dataset %g', ip.Results.project);
+        assert(~isempty(project), 'Cannot find project %g', ip.Results.project);
     else
         project = ip.Results.project;
     end
