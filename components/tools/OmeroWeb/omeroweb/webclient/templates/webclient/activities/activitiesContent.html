@@ -82,54 +82,6 @@
                                         </div>
                                     {% endif %}
                                 {% endifequal %}
-                                {% if j.split_filesets %}
-                                    Multi-image filesets cannot be split into 2 groups.
-
-                                    {% for fs in j.split_filesets %}
-                                    <div>
-                                        You tried to move <strong>{{ fs.attempted_iids|length }}</strong>
-                                        image{{ fs.attempted_iids|pluralize}} from a fileset,
-                                        leaving <strong>{{ fs.blocking_iids|length }}</strong>.
-                                    </div>
-                                    {% with MAX_SHOWN=3 %}
-                                    <div style="border: 1px solid #87ABD2; float: left">
-                                        {% for iid in fs.attempted_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.attempted_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
-                                        {% for iid in fs.blocking_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.blocking_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="clear:both"></div>
-                                    {% endwith %}
-                                    {% endfor %}
-                                    <div style="float:right">
-                                        <a href="{{ j.objs_url }}">
-                                            <button class="btn silver" style="padding: 2px"
-                                                title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to move">
-                                                REFRESH
-                                            </button>
-                                        </a>
-    <button class="btn silver chgrp_move_all" style="padding: 2px"
-        title="Repeat the move, including ALL images from the Fileset"
-        url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
-        >
-        MOVE ALL
-    </button>
-                                    </div>
-                                {% endif %}
                             </span>
                         </td>
                     </tr>
@@ -148,11 +100,7 @@
                                         <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
                                 {% else %}
-                                    {% if j.split_filesets %}
-                                        <img title="Fileset Delete Failed" src="{% static "webgateway/img/failed.png" %}" />
-                                    {% else %}
-                                        <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
-                                    {% endif %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
                                 {% endif %}
                             {% endifequal %}
                         </td>
@@ -182,51 +130,6 @@
                                 {% endifequal %}
                                 </span>
                             {% endif %}
-
-                            {% if j.split_filesets %}
-                            <span class="message">
-                                Deleting part of a multi-image fileset is not allowed.<br/>
-                                Delete ALL or None of the images in a fileset.
-                                {% for fs in j.split_filesets %}
-                                <div>
-                                    You tried to delete <strong>{{ fs.attempted_iids|length }}</strong> image{{ fs.attempted_iids|pluralize}}
-                                    in a fileset, leaving <strong>{{ fs.blocking_iids|length }}</strong>.
-                                </div>
-                                {% with MAX_SHOWN=3 %}
-                                    <div style="border: 1px solid #87ABD2; float: left">
-                                        {% for iid in fs.attempted_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.attempted_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
-                                        {% for iid in fs.blocking_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.blocking_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="clear:both"></div>
-                                {% endwith %}
-                                {% endfor %}
-                                <div style="float:right">
-                                    <a href="{{ j.objs_url }}">
-                                        <button class="btn silver" style="padding: 2px"
-                                            title="Browse to the {{ j.dtype }}{{ j.obj_ids|pluralize }} you tried to delete">
-                                            REFRESH
-                                        </button>
-                                    </a>
-                                </div>
-                            </span>
-                            {% endif %}
-
                             <div class="results">
                                 {% if j.dreport %}Error: ({{ j.dreport }}){% endif %}
                             </div>

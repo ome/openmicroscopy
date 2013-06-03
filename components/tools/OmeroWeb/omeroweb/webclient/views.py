@@ -2082,10 +2082,6 @@ def activities(request, conn=None, **kwargs):
     new_results = []
     _purgeCallback(request)
 
-    def getObsUrl(dtype, obj_ids):
-        base_url = reverse(viewname="webindex")
-        obj_str = "|".join(["%s-%s" % (dtype.lower(), oid) for oid in obj_ids])
-        return base_url + "?show=" + obj_str
 
     # test each callback for failure, errors, completion, results etc
     for cbString in request.session.get('callback').keys():
@@ -2106,7 +2102,6 @@ def activities(request, conn=None, **kwargs):
                     prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
                     close_handle = False
-
                     try:
                         # if response is None, then we're still in progress, otherwise...
                         if rsp is not None:
@@ -2114,35 +2109,9 @@ def activities(request, conn=None, **kwargs):
                             new_results.append(cbString)
                             if isinstance(rsp, omero.cmd.ERR):
                                 request.session['callback'][cbString]['status'] = "failed"
-                                # If move has failed due to 'Filesets'
-                                if hasattr(rsp, 'constraints') and 'Fileset' in rsp.constraints:
-                                    failed_filesets = rsp.constraints['Fileset']
-                                    # But, we don't know which of the Datasets / Images failed to move. Assume ALL?
-                                    # We have this info from the job submission:
-                                    dtype = callbackDict['dtype']
-                                    obj_ids = callbackDict['obj_ids']
-                                    to_group_id =  callbackDict['to_group_id']
-                                    if dtype == 'Image':
-                                        attempted_imgIds = [int(iid) for iid in obj_ids]
-                                    elif dtype in ('Project', 'Dataset'):
-                                        cs = conn.getContainerService()
-                                        attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
-                                    # Want to find all images within each fileset that's causing a problem, so we can notify user
-                                    split_filesets = []
-                                    for fset in conn.getObjects("Fileset", failed_filesets):
-                                        fsetImgs = fset.copyImages()
-                                        attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
-                                        blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                        split_filesets.append( {'fsid':fset.id, 
-                                                'blocking_iids': blocking_iids,
-                                                'attempted_iids':attempted_iids} )
-                                    request.session['callback'][cbString]['split_filesets'] = split_filesets
-                                    request.session['callback'][cbString]['fsIds'] = failed_filesets
-                                    request.session['callback'][cbString]['objs_url'] = getObsUrl(dtype, obj_ids)
-                                else:
-                                    rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                                    logger.error("chgrp failed with: %s" % rsp_params)
-                                    request.session['callback'][cbString]['report'] = "%s %s" % (rsp.name, rsp_params)
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("chgrp failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['report'] = "%s %s" % (rsp.name, rsp_params)
                                 request.session['callback'][cbString]['error'] = 1
                             elif isinstance(rsp, omero.cmd.OK):
                                 request.session['callback'][cbString]['status'] = "finished"
@@ -2176,39 +2145,7 @@ def activities(request, conn=None, **kwargs):
                                 request.session['callback'][cbString]['error'] = 1
                                 request.session['callback'][cbString]['status'] = "failed"
                                 failure+=1
-                                # Check if 'Fileset' returned...
-                                if hasattr(rsp, 'constraints') and 'Fileset' in rsp.constraints:
-                                    filesets = rsp.constraints['Fileset']   # list of Fileset IDs
-                                    # We have this info from the job submission:
-                                    callbackDict = request.session['callback'][cbString]
-                                    dtype = callbackDict['dtype']
-                                    obj_ids = callbackDict['did']
-                                    if callbackDict['delmany']:
-                                        obj_ids = callbackDict['did']
-                                    else:
-                                        obj_ids = [ callbackDict['did'] ]
-                                    obj_ids = [int(iid) for iid in obj_ids]
-                                    if dtype == 'Image':
-                                        attempted_imgIds = obj_ids
-                                    elif dtype in ('Project', 'Dataset'):
-                                        cs = conn.getContainerService()
-                                        attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
-                                    # Want to find all images within each fileset that's causing a problem, so we can notify user
-                                    split_filesets = []
-                                    for fset in conn.getObjects("Fileset", filesets):
-                                        fsetImgs = fset.copyImages()
-                                        attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
-                                        blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                        # fs_files = fset.listFiles()
-                                        # totalSize = sum( [f.getSize() for f in fs_files] )
-                                        split_filesets.append( {'fsid':fset.id,
-                                                'blocking_iids': blocking_iids,
-                                                'attempted_iids':attempted_iids})
-                                    request.session['callback'][cbString]['split_filesets'] = split_filesets
-                                    request.session['callback'][cbString]['objs_url'] = getObsUrl(dtype, obj_ids)
-                                else:
-                                    request.session['callback'][cbString]['dreport'] = _formatReport(handle)
-                            # no error...
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             else:
                                 request.session['callback'][cbString]['error'] = 0
                                 request.session['callback'][cbString]['status'] = "finished"
