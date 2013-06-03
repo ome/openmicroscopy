@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+import info.clearthought.layout.TableLayoutConstraints;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -189,12 +192,19 @@ public class MIFNotificationDialog
 		Container c = getContentPane();
 		c.add(tp, BorderLayout.NORTH);
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		double[] size = {TableLayout.FILL};
+		TableLayout layout = new TableLayout();
+		layout.setColumn(size);
+		p.setLayout(layout);
 		Iterator<MIFResultObject> i = result.iterator();
 		int n = result.size();
-		while (i.hasNext())
-			p.add(layoutMIFResult(i.next(), n));
-		
+		int index = 0;
+		while (i.hasNext()) {
+			layout.insertRow(index, TableLayout.PREFERRED);
+			p.add(layoutMIFResult(i.next(), n),
+					new TableLayoutConstraints(0, index));
+			index++;
+		}
 		c.add(p, BorderLayout.CENTER);
 		c.add(buildToolBar(), BorderLayout.SOUTH);
 	}
