@@ -1,5 +1,10 @@
 language: java
 
+env:
+    - BUILD="build-all" TEST="-p"
+    - BUILD="test-compile" TEST="-py test -Dtest.with.fail=true"
+    - BUILD="test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
+
 jdk:
   - openjdk7
 
@@ -14,9 +19,8 @@ before_install:
     - sudo pip install scc --use-mirrors
     - scc travis-merge
 
-install: python build.py build-all test-compile-all
+install: python build.py $BUILD
 
 # Running python tests as script, since there's no compile step.
 script:
-    - python build.py -py test -Dtest.with.fail=true
-    - python build.py -cpp test -Dtest.with.fail=true
+    - python build.py $TEST
