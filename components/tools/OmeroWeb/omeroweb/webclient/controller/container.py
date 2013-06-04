@@ -598,7 +598,7 @@ class BaseContainer(BaseController):
     ####################################################################
     # Creation
     
-    def createDataset(self, name, description=None):
+    def createDataset(self, name, description=None, img_ids=None):
         ds = omero.model.DatasetI()
         ds.name = rstring(str(name))
         if description is not None and description != "" :
@@ -608,7 +608,17 @@ class BaseContainer(BaseController):
             l_ds.setParent(self.project._obj)
             l_ds.setChild(ds)
             ds.addProjectDatasetLink(l_ds)
-        return self.conn.saveAndReturnId(ds)
+        dsid = self.conn.saveAndReturnId(ds)
+        if img_ids is not None:
+            iids = [int(i) for i in img_ids.split(",")]
+            links = []
+            for iid in iids:
+                link = omero.model.DatasetImageLinkI()
+                link.setParent(omero.model.DatasetI(dsid, False))
+                link.setChild(omero.model.ImageI(iid, False))
+                links.append(link)
+            self.conn.saveArray(links)
+        return dsid
         
     def createProject(self, name, description=None):
         pr = omero.model.ProjectI()

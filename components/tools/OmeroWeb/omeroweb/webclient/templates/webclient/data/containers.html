@@ -354,27 +354,34 @@
                     }
                     // if "project" is selected, createDataset under it
                     var selected = $.jstree._focused().get_selected();
-                    var url;
+                    var img_ids = [];
+                    selected.each(function(){
+                        if (this.id.split("-")[0] == "image"){
+                            img_ids.push(this.id.split("-")[1]);
+                        }
+                    });
+                    var url, position = 0;
                     if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
                     // otherwise create an orphan of "folder_type" ('project', 'dataset', 'screen' etc. )
-                    } else { url = '{% url manage_action_containers "addnewcontainer" %}'; }
-
-                    var position = 0;
-                    // Make sure top level objects get added to jsTree root (current selected may be project or screen)
-                    if (($.inArray(cont_type, ['project', 'screen'])> -1) ||
-                            (selected.attr("rel").replace("-locked","") === 'experimenter')) {
+                    } else {
+                        url = '{% url manage_action_containers "addnewcontainer" %}';
+                        // Make sure top level objects get added to jsTree root (current selected may be project, dataset, image or screen)
                         position = OME.findTreeIndexForNode($.jstree._focused(), cont_type, new_container_name);
                         selected = "#experimenter-0";   // Ensure we add node to root
+                    }
+                    var ajax_data = {
+                            "name" : new_container_name,
+                            "folder_type" : cont_type,
+                            "description" : new_container_desc
+                        }
+                    if (img_ids.length > 0){
+                        ajax_data['img_ids'] = img_ids.join(",");
                     }
                     $.ajax({
                         url: url,
                         //data: $new_cont_form.serialize();
-                        data: {
-                            "name" : new_container_name,
-                            "folder_type" : cont_type,
-                            "description" : new_container_desc
-                        },
+                        data: ajax_data,
                         dataType: "json",
                         type: "POST",
                         success: function(r){
@@ -466,19 +473,15 @@
                     var userId = {{ ome.user_id }},
                         canCreate = (userId === {{ ome.user.id }} || userId === -1);
                     var to_paste = inst.data.crrm.cp_nodes || inst.data.crrm.ct_nodes || false;
+                    // These nodes can be Orphans, so creation is not selection-specific
+                    if (canCreate) {
+                        toolbar_config["addproject"] = true;
+                        toolbar_config["adddataset"] = true;
+                        toolbar_config['addscreen'] = true;
+                    }
                     if(selected.length > 0) {
                         if(selected.hasClass('canDelete')) {
                             toolbar_config['delete'] = true;
-                        }
-                        // if top level nodes are selected and we can create...
-                        if($.inArray(selected.attr("id").split("-")[0], ["experimenter", "project", "screen"]) > -1) {
-                            if (canCreate) {
-                                toolbar_config["addproject"] = true;
-                                toolbar_config['addscreen'] = true;
-                                if (selected.attr("id").split("-")[0] === "experimenter") {
-                                    toolbar_config["adddataset"] = true;
-                                }
-                            }
                         }
                         if(selected.hasClass('canLink')) {
                             if(selected.attr("id").indexOf("project")>=0) {
@@ -944,19 +947,12 @@
                                     }
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["basket"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("image")>=0) {
                                     if (obj.parent().parent().attr('rel').indexOf('orphaned')>=0) {
                                         config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                         config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                     }
                                     config["ccp"]["submenu"]["paste"]["_disabled"] = true;
-                                    // see #8879 config["create"]["_disabled"] = true;
-                                    config["create"]["submenu"]["project"]["_disabled"] = true;
-                                    config["create"]["submenu"]["dataset"]["_disabled"] = true;
-                                    config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 } else if(obj.attr("id").indexOf("screen")>=0) {
                                     config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                     config["ccp"]["submenu"]["copy"]["_disabled"] = true;
