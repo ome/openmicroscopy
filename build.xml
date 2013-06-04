@@ -305,11 +305,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     </target>
 
     <target name="build-vm" description="Build a virtual image">
-        <gitdescribe select="\2"> </gitdescribe>
-
         <exec executable="bash" dir="docs/install/VM">
             <arg line="omerovm.sh"/>
-            <arg line="omero-vm-${version.describe}"/>
+            <arg line="omero-vm-${omero.version}"/>
         </exec>
     </target>
 
