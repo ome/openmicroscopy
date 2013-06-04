@@ -1621,7 +1621,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'job_type': 'delete', 'delmany':False,'did':o_id, 'dtype':o_type, 'status':'in progress',
-                'derror':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
+                'error':0, 'dreport':_formatReport(handle), 'start_time': datetime.datetime.now()}
             request.session.modified = True
         except Exception, x:
             logger.error('Failed to delete: %r' % {'did':o_id, 'dtype':o_type}, exc_info=True)
@@ -1640,7 +1640,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
             for key,ids in object_ids.iteritems():
                 if ids is not None and len(ids) > 0:
                     handle = manager.deleteObjects(key, ids, child, anns)
-                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'derrors':0,
+                    dMap = {'job_type': 'delete', 'start_time': datetime.datetime.now(),'status':'in progress', 'error':0,
                         'dreport':_formatReport(handle), 'dtype':key}
                     if len(ids) > 1:
                         dMap['delmany'] = len(ids)
@@ -2102,7 +2102,6 @@ def activities(request, conn=None, **kwargs):
                     prx = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
                     rsp = prx.getResponse()
                     close_handle = False
-
                     try:
                         # if response is None, then we're still in progress, otherwise...
                         if rsp is not None:
@@ -2110,34 +2109,10 @@ def activities(request, conn=None, **kwargs):
                             new_results.append(cbString)
                             if isinstance(rsp, omero.cmd.ERR):
                                 request.session['callback'][cbString]['status'] = "failed"
-                                # If move has failed due to 'Filesets'
-                                if 'Fileset' in rsp.constraints:
-                                    failed_filesets = rsp.constraints['Fileset']
-                                    # But, we don't know which of the Datasets / Images failed to move. Assume ALL?
-                                    # We have this info from the job submission:
-                                    dtype = callbackDict['dtype']
-                                    obj_ids = callbackDict['obj_ids']
-                                    to_group_id =  callbackDict['to_group_id']
-                                    if dtype == 'Image':
-                                        attempted_imgIds = [int(iid) for iid in obj_ids]
-                                    elif dtype in ('Project', 'Dataset'):
-                                        cs = conn.getContainerService()
-                                        attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
-                                    # Want to find all images within each fileset that's causing a problem, so we can notify user
-                                    split_filesets = []
-                                    for fset in conn.getObjects("Fileset", failed_filesets):
-                                        fsetImgs = fset.copyImages()
-                                        attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
-                                        blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                        split_filesets.append( {'fsid':fset.id, 
-                                                'blocking_iids': blocking_iids,
-                                                'attempted_iids':attempted_iids} )
-                                    request.session['callback'][cbString]['split_filesets'] = split_filesets
-                                    request.session['callback'][cbString]['fsIds'] = failed_filesets
-                                else:
-                                    rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
-                                    logger.error("chgrp failed with: %s" % rsp_params)
-                                    request.session['callback'][cbString]['error'] = "%s %s" % (rsp.name, rsp_params)
+                                rsp_params = ", ".join(["%s: %s" % (k,v) for k,v in rsp.parameters.items()])
+                                logger.error("chgrp failed with: %s" % rsp_params)
+                                request.session['callback'][cbString]['report'] = "%s %s" % (rsp.name, rsp_params)
+                                request.session['callback'][cbString]['error'] = 1
                             elif isinstance(rsp, omero.cmd.OK):
                                 request.session['callback'][cbString]['status'] = "finished"
                         else:
@@ -2157,7 +2132,7 @@ def activities(request, conn=None, **kwargs):
                     close_handle = False
                     try:
                         if not cb.block(0): # Response not available
-                            request.session['callback'][cbString]['derror'] = 0
+                            request.session['callback'][cbString]['error'] = 0
                             request.session['callback'][cbString]['status'] = "in progress"
                             request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             in_progress+=1
@@ -2166,55 +2141,25 @@ def activities(request, conn=None, **kwargs):
                             new_results.append(cbString)
                             rsp = cb.getResponse()
                             err = isinstance(rsp, omero.cmd.ERR)
-                            # Check if 'Fileset' returned...
-                            if err and 'Fileset' in rsp.constraints:
-                                filesets = rsp.constraints['Fileset']   # list of Fileset IDs
-                                # We have this info from the job submission:
-                                callbackDict = request.session['callback'][cbString]
-                                dtype = callbackDict['dtype']
-                                obj_ids = callbackDict['did']
-                                if callbackDict['delmany']:
-                                    obj_ids = callbackDict['did']
-                                else:
-                                    obj_ids = [ callbackDict['did'] ]
-                                obj_ids = [int(iid) for iid in obj_ids]
-                                if dtype == 'Image':
-                                    attempted_imgIds = obj_ids
-                                elif dtype in ('Project', 'Dataset'):
-                                    cs = conn.getContainerService()
-                                    attempted_imgIds = [i.id.val for i in cs.getImages(dtype, obj_ids, None, conn.SERVICE_OPTS)]
-                                # Want to find all images within each fileset that's causing a problem, so we can notify user
-                                split_filesets = []
-                                for fset in conn.getObjects("Fileset", filesets):
-                                    fsetImgs = fset.copyImages()
-                                    attempted_iids = [i.id for i in fsetImgs if i.id in attempted_imgIds]
-                                    blocking_iids = [i.id for i in fsetImgs if i.id not in attempted_imgIds]
-                                    # fs_files = fset.listFiles()
-                                    # totalSize = sum( [f.getSize() for f in fs_files] )
-                                    split_filesets.append( {'fsid':fset.id,
-                                            'blocking_iids': blocking_iids,
-                                            'attempted_iids':attempted_iids})
-                                request.session['callback'][cbString]['split_filesets'] = split_filesets
-                            elif err:
-                                request.session['callback'][cbString]['derror'] = 1
+                            if err:
+                                request.session['callback'][cbString]['error'] = 1
                                 request.session['callback'][cbString]['status'] = "failed"
-                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                                 failure+=1
-                            # no error...
+                                request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                             else:
-                                request.session['callback'][cbString]['derror'] = 0
+                                request.session['callback'][cbString]['error'] = 0
                                 request.session['callback'][cbString]['status'] = "finished"
                                 request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                     finally:
                         cb.close(close_handle)
                 except Ice.ObjectNotExistException, e:
-                    request.session['callback'][cbString]['derror'] = 0
+                    request.session['callback'][cbString]['error'] = 0
                     request.session['callback'][cbString]['status'] = "finished"
                     request.session['callback'][cbString]['dreport'] = None
                 except Exception, x:
                     logger.error(traceback.format_exc())
                     logger.error("Status job '%s'error:" % cbString)
-                    request.session['callback'][cbString]['derror'] = 1
+                    request.session['callback'][cbString]['error'] = 1
                     request.session['callback'][cbString]['status'] = "failed"
                     request.session['callback'][cbString]['dreport'] = str(x)
                     failure+=1
@@ -2283,6 +2228,7 @@ def activities(request, conn=None, **kwargs):
         return HttpResponse(simplejson.dumps(rv),mimetype='application/javascript') # json
         
     jobs = []
+    new_errors = False
     for key, data in rv.items():
         # E.g. key: ProcessCallback/39f77932-c447-40d8-8f99-910b5a531a25 -t:tcp -h 10.211.55.2 -p 54727:tcp -h 10.37.129.2 -p 54727:tcp -h 10.12.2.21 -p 54727
         # create id we can use as html id, E.g. 39f77932-c447-40d8-8f99-910b5a531a25
@@ -2294,6 +2240,8 @@ def activities(request, conn=None, **kwargs):
         rv[key]['key'] = key
         if key in new_results:
             rv[key]['new'] = True
+            if 'error' in data and data['error'] > 0:
+                new_errors = True
         jobs.append(rv[key])
 
     jobs.sort(key=lambda x:x['start_time'], reverse=True)
@@ -2301,6 +2249,7 @@ def activities(request, conn=None, **kwargs):
             'jobs':jobs,
             'inprogress':in_progress,
             'new_results':len(new_results),
+            'new_errors': new_errors,
             'failure':failure}
 
     context['template'] = "webclient/activities/activitiesContent.html"

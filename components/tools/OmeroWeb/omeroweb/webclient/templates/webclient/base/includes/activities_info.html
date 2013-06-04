@@ -51,7 +51,6 @@
             }
             
             // display what we recieved, bind events etc
-            OME.displayStatus(new_results, inprogress);
             $("#activities_content").empty();
             $("#activities_content").append( $("#jobsTable", $(data)) );
             $("#jobsTable").alternateRowColors();
@@ -71,6 +70,13 @@
                 newWindow.document.close();
                 return false;
             });
+
+            // If we've got new errors - show Activities
+            if ($("#new_errors", data).length > 0) {
+                $("#activities_panel").show();
+                new_results = -1;   // hide notification number
+            }
+            OME.displayStatus(new_results, inprogress);
 
         }).error(function() {
             // this requires jQuery 1.5 or later

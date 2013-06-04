@@ -308,7 +308,7 @@
                 <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
-                <value>/Image+WS;;/Well/WellSample</value>
+                <value>/Image;;/Well/WellSample</value>
                 <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink;FORCE</value>

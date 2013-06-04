@@ -3342,6 +3342,7 @@ class _BlitzGateway (object):
                         "/Plate": (omero.model.ScreenPlateLinkI, omero.model.PlateI, omero.model.ScreenI)}
         da = DoAll()
         requests = []
+        saves = []
         for obj_id in obj_ids:
             obj_id = long(obj_id)
             logger.debug('DoAll Chgrp: type: %s, id: %s, grp: %s' % (graph_spec, obj_id, group_id))
@@ -3355,8 +3356,9 @@ class _BlitzGateway (object):
                 link.parent = parentLinkClasses[graph_spec][2](container_id, False)
                 save = Save()
                 save.obj = link
-                requests.append(save)
+                saves.append(save)
 
+        requests.extend(saves)
         da.requests = requests
         ctx = self.SERVICE_OPTS.copy()
         ctx.setOmeroGroup(group_id)         # NB: For Save to work, we need to be in target group

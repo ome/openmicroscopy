@@ -8,7 +8,6 @@
 package ome.api;
 
 import java.util.List;
-import java.util.Map;
 
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
@@ -189,7 +188,7 @@ public interface IQuery extends ServiceInterface {
      * executes the stored query with the given name. If a query with the name
      * cannot be found, an exception will be thrown.
      * 
-     * The queryName parameter can be an actualy query String if the
+     * The queryName parameter can be an actual query String if the
      * StringQuerySource is configured on the server and the user running the
      * query has proper permissions.
      * 

@@ -37,7 +37,7 @@ import org.springframework.beans.FatalBeanException;
 
 /**
  * {@link GraphSpec} specialized for processing hierarchies of
- * other typces. Adds options for which classes to process.
+ * other types. Adds options for which classes to process.
  *
  *
  * @author Josh Moore, josh at glencoesoftware.com
@@ -110,7 +110,7 @@ public abstract class AbstractHierarchyGraphSpec extends BaseGraphSpec {
     protected abstract Class getRoot();
 
     /**
-     * Returns all the types that are known for this hierarcy.
+     * Returns all the types that are known for this hierarchy.
      */
     protected abstract <T> Set<Class<T>> getTypes(ExtendedMetadata em);
 

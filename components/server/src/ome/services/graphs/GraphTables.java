@@ -88,7 +88,7 @@ public class GraphTables {
              * to found. On starting through a loop, "matched" is false, meaning
              * that all values are to be tested. As soon as "matched" is true,
              * however, then once a match fails no further values need to be
-             * checked (since all entries are orderd).
+             * checked (since all entries are ordered).
              */
             private boolean matched = false;
 

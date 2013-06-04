@@ -40,6 +40,7 @@ import javax.swing.JScrollPane;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
@@ -582,9 +583,9 @@ class BrowserModel
 		NodesFinder finder = new NodesFinder(nodes);
 		accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
-		if (found.size() == 0) {
+		if (CollectionUtils.isEmpty(found)) {
 			Collection<ImageDisplay> selected = getSelectedDisplays();
-			if (selected == null || selected.size() == 0) {
+			if (CollectionUtils.isEmpty(selected)) {
 				setNodesColor(null, getRootNodes());
 			}
 			setSelectedDisplay(null, false, false);

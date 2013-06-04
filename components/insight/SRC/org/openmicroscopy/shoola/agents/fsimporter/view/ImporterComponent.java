@@ -26,13 +26,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -99,10 +96,6 @@ class ImporterComponent
 	/** Text displayed in dialog box when cancelling import.*/
 	private static final String CANCEL_TEXT = "Are you sure you want to " +
 			"cancel all imports that have not yet started?";
-	
-	/** Text displayed in dialog box when cancelling import.*/
-	private static final String CANCEL_SELECTED_TEXT = 
-		"Are you sure you want to cancel the import that have not yet started?";
 	
 	/** Title displayed in dialog box when cancelling import.*/
 	private static final String CANCEL_TITLE = "Cancel Import";
@@ -292,7 +285,7 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
-			chooser = new ImportDialog(view, model.getSupportedFormats(), 
+			chooser = new ImportDialog(view, model.getSupportedFormats(),
 					selectedContainer, objects, type,
 					ImporterAgent.getAvailableUserGroups());
 			chooser.addPropertyChangeListener(controller);
@@ -471,9 +464,9 @@ class ImporterComponent
 	 */
 	public boolean hasFailuresToReupload()
 	{
-		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
+		if (model.getState() == DISCARDED)
 			return false;
-		return view.hasFailuresToReimport();
+		return view.hasFailuresToReupload();
 	}
 	
 	/** 
@@ -850,6 +843,8 @@ class ImporterComponent
 			handleCompletion(element, r, !component.hasParent());
 			return;
 		}
+		element.setImportResult(component, result);
+		handleCompletion(element, result, !component.hasParent());
 		Collection<PixelsData> pixels = (Collection<PixelsData>) result;
 		if (CollectionUtils.isEmpty(pixels)) return;
 		Collection<DataObject> l = new ArrayList<DataObject>();
@@ -899,8 +894,7 @@ class ImporterComponent
 		FileImportComponent c = (FileImportComponent) component;
 		ImporterUIElement element = view.getUIElement(c.getIndex());
 		if (element == null) return;
-		element.setImportResult(c, result);
-		handleCompletion(element, result, !c.hasParent());
+		c.setStatus(result);
 	}
 
 }

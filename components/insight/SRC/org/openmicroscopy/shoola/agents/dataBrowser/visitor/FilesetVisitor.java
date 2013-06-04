@@ -26,11 +26,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
 //Java imports
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -81,8 +79,11 @@ public class FilesetVisitor
 		filesetIds = new HashSet<Long>();
 		if (selected != null) {
 			Iterator<ImageData> i = selected.iterator();
+			ImageData img;
 			while (i.hasNext()) {
-				filesetIds.add(i.next().getFilesetId());
+				img = i.next();
+				if (img.isFSImage())
+					filesetIds.add(img.getFilesetId());
 			}
 		}
 	}
@@ -102,8 +103,8 @@ public class FilesetVisitor
 			i = selected.iterator();
 			while (i.hasNext()) {
 				ref = i.next();
-				if (data.getId() != ref.getId() && data.getFilesetId() ==
-					ref.getFilesetId())
+				if (ref.isFSImage() && data.getId() != ref.getId()
+					&& data.getFilesetId() == ref.getFilesetId())
 					node.setBorderColor(borderColor);
 			}
 		}
@@ -111,9 +112,11 @@ public class FilesetVisitor
 			i = deselected.iterator();
 			while (i.hasNext()) {
 				ref = i.next();
-				if (data.getFilesetId() == ref.getFilesetId() &&
-					!filesetIds.contains(data.getFilesetId()))
-					node.setBorderColor(null);
+				if (ref.isFSImage()) {
+					if (data.getFilesetId() == ref.getFilesetId() &&
+							!filesetIds.contains(data.getFilesetId()))
+							node.setBorderColor(null);
+				}
 			}
 		}
 	}

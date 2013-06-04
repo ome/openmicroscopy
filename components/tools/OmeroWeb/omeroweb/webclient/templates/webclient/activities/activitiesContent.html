@@ -31,6 +31,7 @@
     <div id="sizeOfJobs" style="display:none">{{ sizeOfJobs }}</div>
     <div id="inprogress" style="display:none">{{ inprogress }}</div>
     <div id="new_results" style="display:none">{{ new_results }}</div>
+    {% if new_errors %}<div id="new_errors" style="display:none">True</div>{% endif %}
     <div id="failure" style="display:none">{{ failure }}</div>
 
     <table id="jobsTable" width="100%" cellpadding="6" cellspacing="0" border="0">
@@ -52,7 +53,7 @@
                         <td width="25px">
                             {% ifequal j.status "in progress" %}<img class="icon" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.error or j.split_filesets %}
+                                {% if j.error %}
                                     <img alt="Failed to run script properly" src="{% static "webgateway/img/failed.png" %}" />
                                 {% else %}
                                     <img class="icon" src="{% static "webgateway/img/success.png" %}" />
@@ -73,56 +74,14 @@
                                             Show {{ j.dtype }}{{ j.obj_ids|pluralize }}
                                         </a>
                                     {% endifequal %}
-                                    {% if j.error %}
+                                    {% if j.report %}
                                         <div class="chgrp_error">
-                                            {{ j.error|truncateafter:"30" }}
+                                            {{ j.report|truncateafter:"30" }}
                                             <a href="#" title="Click to Open in new Window"> More...</a>
-                                            <div style="display:none">{{ j.error|linebreaksbr }}</div>
+                                            <div style="display:none">{{ j.report|linebreaksbr }}</div>
                                         </div>
                                     {% endif %}
                                 {% endifequal %}
-                                {% if j.split_filesets %}
-                                    Multi-image filesets cannot be split into 2 groups.
-
-                                    {% for fs in j.split_filesets %}
-                                    <div>
-                                        You tried to move <strong>{{ fs.attempted_iids|length }}</strong>
-                                        image{{ fs.attempted_iids|pluralize}} from a fileset,
-                                        leaving <strong>{{ fs.blocking_iids|length }}</strong>.
-                                    </div>
-                                    {% with MAX_SHOWN=3 %}
-                                    <div style="border: 1px solid #87ABD2; float: left">
-                                        {% for iid in fs.attempted_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.attempted_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
-                                        {% for iid in fs.blocking_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.blocking_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="clear:both"></div>
-                                    {% endwith %}
-                                    {% endfor %}
-                                    <div style="float:right">
-    <button class="btn silver chgrp_move_all" style="padding: 2px"
-        title="Repeat the move, including ALL images from the Fileset"
-        url="{% url chgrp %}?group_id={{ j.to_group_id }}&{{ j.dtype }}={{ j.obj_ids|join:',' }}&fileset={{ j.fsIds|join:'&fileset='}}"
-        >
-        MOVE ALL
-    </button>
-                                    </div>
-                                {% endif %}
                             </span>
                         </td>
                     </tr>
@@ -136,16 +95,12 @@
                             {% ifequal j.status "in progress" %}
                                 <img alt="Deleting" src="{% static "webgateway/img/spinner.gif" %}" />
                             {% else %}
-                                {% if j.derror %}
+                                {% if j.error %}
                                     <div class='script_error' title="{{ j.error }}">
                                         <img src="{% static "webgateway/img/failed.png" %}" />
                                     </div>
                                 {% else %}
-                                    {% if j.split_filesets %}
-                                        <img title="Fileset Delete Failed" src="{% static "webgateway/img/failed.png" %}" />
-                                    {% else %}
-                                        <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
-                                    {% endif %}
+                                    <img alt="Success" src="{% static "webgateway/img/success.png" %}" />
                                 {% endif %}
                             {% endifequal %}
                         </td>
@@ -175,45 +130,8 @@
                                 {% endifequal %}
                                 </span>
                             {% endif %}
-
-                            {% if j.split_filesets %}
-                            <span class="message">
-                                Deleting part of a multi-image fileset is not allowed.<br/>
-                                Delete ALL or None of the images in a fileset.
-                                {% for fs in j.split_filesets %}
-                                <div>
-                                    You tried to delete <strong>{{ fs.attempted_iids|length }}</strong> image{{ fs.attempted_iids|pluralize}}
-                                    in a fileset, leaving <strong>{{ fs.blocking_iids|length }}</strong>.
-                                </div>
-                                {% with MAX_SHOWN=3 %}
-                                    <div style="border: 1px solid #87ABD2; float: left">
-                                        {% for iid in fs.attempted_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.attempted_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="border: 1px solid #87ABD2; float: left; margin-left:35px">
-                                        {% for iid in fs.blocking_iids|slice:":3" %}
-                                            <a href="{% url webindex %}?show=image-{{ iid }}">
-                                                <img src="{% url render_thumbnail_resize 96 iid %}" class="fileset_image"/>
-                                            </a>
-                                        {% endfor %}
-                                        {% if fs.blocking_iids|length > MAX_SHOWN %}
-                                            <div style="height:35px; float: left; line-height:65px"> ... </div>
-                                        {% endif %}
-                                    </div>
-                                    <div style="clear:both"></div>
-                                {% endwith %}
-                                {% endfor %}
-                            </span>
-                            {% endif %}
-
                             <div class="results">
-                                {% if j.dreport %}{{ j.derror }} error(s) ({{ j.dreport }}){% endif %}
+                                {% if j.dreport %}Error: ({{ j.dreport }}){% endif %}
                             </div>
                         </td>
                     </tr>

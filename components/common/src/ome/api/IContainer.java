@@ -8,6 +8,7 @@
 package ome.api;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,7 +67,7 @@ import ome.parameters.Parameters;
  * rules:
  * <ol>
  * <li>IObject-valued fields for which <code>isLoaded()</code> returns false
- * are assumed filterd</li>
+ * are assumed filtered</li>
  * <li>Collection-valued fields that are null are assumed filtered</li>
  * <li>Collection-valued fields for which
  * <code>getDetails().isFiltered(String collectionName)</code> returns true
@@ -293,6 +294,19 @@ public interface IContainer extends ServiceInterface {
     public Map getCollectionCount(@NotNull String type, 
     		@NotNull String property, 
     		@NotNull @Validate(Long.class) Set<Long> ids, Parameters options);
+
+    /**
+     * Given a list of IDs of certain entity types, calculates which filesets are split such that
+     * a non-empty proper subset of their images are referenced, directly or indirectly, as being
+     * included. The return value lists both the fileset IDs and the image IDs in ascending order,
+     * the image ID lists separated by if they were included.
+     * Warning: following discussion in trac ticket 11019 the return type may be changed.
+     * @param included the entities included
+     * @param options parameters, presently ignored
+     * @return the partially included filesets
+     */
+    public Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(Map<Class<? extends IObject>, List<Long>> included,
+            Parameters options);
 
     /**
      * Retrieves a collection with all members initialized ("loaded"). This is

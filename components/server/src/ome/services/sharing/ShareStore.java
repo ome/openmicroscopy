@@ -48,7 +48,7 @@ public abstract class ShareStore {
     // =========================================================================
 
     /**
-     * Loads share and checks it's owner and member data against the current
+     * Loads share and checks its owner and member data against the current
      * context (owner/member/admin). This method must be kept in sync with
      * {@link #applyIfShareAccessible(QueryBuilder)} which does the same check
      * at the database rather than binary data level.
