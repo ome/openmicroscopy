@@ -101,6 +101,8 @@ urlpatterns = patterns('django.views.generic.simple',
     url(r'^resetImgRDef/(?P<iid>[^/]+)/$', webgateway.reset_image_rdef_json, name="web_reset_image_rdef_json"),
 
 
+    # Fileset query (for delete or chgrp dialogs) obj-types and ids in REQUEST data
+    url( r'^fileset_check/(?P<action>((?i)delete|chgrp))/$', views.fileset_check, name="fileset_check"),
 
     # chgrp - 'group_id', obj-types and ids in POST data
     url( r'^chgrp/$', views.chgrp, name="chgrp"),

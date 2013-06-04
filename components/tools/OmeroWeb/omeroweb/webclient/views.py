@@ -2561,6 +2561,35 @@ def figure_script(request, scriptName, conn=None, **kwargs):
 
 
 @login_required()
+@render_response()
+def fileset_check(request, action, conn=None, **kwargs):
+    """
+    Check whether Images / Datasets etc contain partial Multi-image filesets.
+    Used by chgrp or delete dialogs to test whether we can perform this 'action'.
+    """
+    dtypeIds = {}
+    for dtype in ("Image", "Dataset", "Project"):
+        ids = request.REQUEST.get(dtype, None)
+        if ids is not None:
+            dtypeIds[dtype] = [int(i) for i in ids.split(",")]
+    splitFilesets = conn.getContainerService().getImagesBySplitFilesets(dtypeIds, None, conn.SERVICE_OPTS)
+
+    splits = []
+    for fsId, splitIds in splitFilesets.items():
+        splits.append({'id':fsId,
+                'attempted_iids':splitIds[True],
+                'blocking_iids':splitIds[False]})
+
+    context = {"split_filesets": splits}
+    context['action'] = action
+    if action == 'chgrp':
+        context['action'] = 'move'
+    context['template'] = "webclient/activities/fileset_check_dialog_content.html"
+
+    return context
+
+
+@login_required()
 def chgrp(request, conn=None, **kwargs):
     """
     Moves data to a new group, using the chgrp queue.

@@ -643,6 +643,10 @@
 	        color:hsl(210,10%,30%);
 	    }
 
+        #chgrp_split_filesets .split_fileset {
+            font-size: 13px;
+            line-height: 15px;
+        }
         .fileset_image {
             max-width:35px;
             margin:3px;

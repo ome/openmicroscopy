@@ -41,9 +41,21 @@
 
         if (typeof OME === "undefined") { OME={}; }
         OME.handleChgrp = function(gid, gname, oid) {
-            $("#chgrp-form").dialog( "option" , "title" ,"Move to Group: "+ gname);
-            $("#chgrp-form").data('group_id', gid);
-            $("#chgrp-form").dialog('open');
+            var $chgrpform = $("#chgrp-form");
+            $chgrpform.dialog( "option" , "title" ,"Move to Group: "+ gname);
+            $chgrpform.dialog('open');
+            // Add group & selected items to chgrp form
+            $('input.removeMe', $chgrpform).remove();   // cleanup (horrible!)
+            $("<input name='group_id' value='"+ gid +"'/>")
+                .appendTo($chgrpform).addClass('removeMe').hide();
+            var selobjs = OME.get_tree_selection().split("&");  // E.g. Image=1,2&Dataset=3
+            for (var i=0;i<selobjs.length;i++) {
+                var dtype = selobjs[i].split("=")[0],
+                    dids = selobjs[i].split("=")[1];
+                $("<input name='"+ dtype +"' value='"+ dids +"'/>")
+                    .appendTo($chgrpform).addClass('removeMe').hide();
+            }
+
             var chgrp_target_url = "{% url webindex %}load_chgrp_target/"+gid;
             var chgrp_type = oid.split("-")[0];
             var target_type;
@@ -70,6 +82,22 @@
                     $("#move_group_tree ins").click(node_click);
                 });
             }
+
+            // Check if chgrp will attempt to Split a Fileset. Hidden until user hits 'OK'
+            $("#move_group_tree").hide();               // hide tree while we wait...
+            $.jstree._focused().save_selected();        // 'Cancel' will roll back to this
+            $.get("{% url fileset_check 'chgrp' %}?" + OME.get_tree_selection(), function(html){
+                if($('div.split_fileset', html).length > 0) {
+                    $(html).appendTo($chgrpform)
+                    $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("Move All");
+                    var filesetId = $('input[name="fileset"]', html).val();     // TODO - handle > 1 filesetId
+                    if (chgrp_type == "image") {
+                        OME.select_fileset_images(filesetId);
+                    }
+                } else {
+                    $("#move_group_tree").show();
+                }
+            });
         }
 
         OME.handleNewContainer = function(container_type) {
@@ -145,6 +173,25 @@
                             $.jstree.rollback(data.rlbk);
                             alert("Internal server error. Cannot remove object.");
                         }
+                    });
+                }
+            });
+
+            // Check if delete will attempt to partially delete a Fileset.
+            var $deleteYesBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(1)'),
+                $deleteNoBtn = $('.delete_confirm_dialog .ui-dialog-buttonset button:nth-child(2) span');
+            $.get("{% url fileset_check 'delete' %}?" + OME.get_tree_selection(), function(html){
+                if($('div.split_fileset', html).length > 0) {
+                    var $del_form_content = del_form.children().hide();
+                    del_form.append(html);
+                    $deleteYesBtn.hide();
+                    $deleteNoBtn.text("Cancel");
+                    // On dialog close, clean-up what we changed above
+                    del_form.bind("dialogclose", function(event, ui) {
+                        $deleteYesBtn.show();
+                        $deleteNoBtn.text("No");
+                        $("#chgrp_split_filesets", del_form).remove();
+                        $del_form_content.show();
                     });
                 }
             });
@@ -341,8 +388,16 @@
                     });
                 }
 
+                // After we edit the chgrp dialog to handle Filesets, we need to clean-up
+                var resetChgrpForm = function() {
+                    $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span').text("OK");
+                    $("#move_group_tree").show();
+                    $("#chgrp_split_filesets").remove();
+                }
 
-                $("#chgrp-form").dialog({
+                var $chgrpform = $("#chgrp-form");
+                $chgrpform.dialog({
+                    dialogClass: 'chgrp_confirm_dialog',
                     autoOpen: false,
                     resizable: true,
                     height: 310,
@@ -350,30 +405,42 @@
                     modal: true,
                     buttons: {
                         "OK": function() {
+                            var $thisBtn = $('.chgrp_confirm_dialog .ui-dialog-buttonset button:nth-child(1) span');
+                            // If we have split filesets, on the first click 'OK', we ask 'Move All'?
+                            if ($("#chgrp_split_filesets .split_fileset").length > 0) {
+                                if ($thisBtn.text() == 'Move All') {
+                                    $("#move_group_tree").show();
+                                    $("#chgrp_split_filesets").hide();
+                                    $thisBtn.text('OK');
+                                    return false;
+                                }
+                            }
                             $("#chgrp-form").submit();
+                            resetChgrpForm();
                         },
                         "Cancel": function() {
+                            resetChgrpForm();
+                            var datatree = $.jstree._focused();
+                            datatree.deselect_all();
+                            datatree.reselect();        // revert to previous selection
                             $( this ).dialog( "close" );
                         }
                     }
                 });
                 // handle chgrp 
-                $("#chgrp-form").submit(function(e){
-                    var selected = $.jstree._focused().get_selected();
-                    var group_id = $("#chgrp-form").data('group_id');
-                    $("#chgrp-form").dialog("close");
-                    var actionUrl= $(this).attr('action') + "?group_id="+group_id+ "&" + OME.get_tree_selection(); // E.g. ?Dataset=34,56$Image=12
-                    var chgrp_target = $("#move_group_tree a.jstree-clicked");
-                    if (chgrp_target.length == 1){
-                        actionUrl += "&target_id=" + chgrp_target.parent().attr('id');
-                    }
-                    $.post(actionUrl, function(data){
+                $("#chgrp-form").ajaxForm({
+                    beforeSubmit: function(data){
+                        $("#chgrp-form").dialog("close");
+                        var chgrp_target = $("#move_group_tree a.jstree-clicked");
+                        if (chgrp_target.length == 1){
+                            data.push({'name':'target_id', 'value': chgrp_target.parent().attr('id')});
+                        }
+                    },
+                    success: function() {
                         OME.showActivities();
+                        var selected = $.jstree._focused().get_selected();
                         $("#dataTree").jstree('remove', selected);
-                        
-                    });
-                    
-                    return false
+                    }
                 });
                 // chgrp form behavior
                 $("#chgrp-form .group_option").click(function(){
@@ -474,6 +541,7 @@
                 });
                 
                 $("#delete-dialog-form").dialog({
+                    dialogClass: 'delete_confirm_dialog',
                     autoOpen: false,
                     resizable: true,
                     height: 210,
@@ -1225,7 +1293,7 @@
         </form>
 
         <!-- hidden form for chgrp -->
-        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none">
+        <form id="chgrp-form" title="Move to Group" action="{% url chgrp %}" style="display:none" method="POST">
             <div id="move_group_tree" class="gray_border">
             </div>
         </form>
