@@ -155,7 +155,14 @@ public class FileUploader
 				}
 				
 				File directory = null;
-				if (usedFiles != null || id > 0) {
+				boolean b = false;
+				if (usedFiles != null) {
+					if (usedFiles.length > 1) b = true;
+					if (usedFiles.length == 1) {
+						b = !f.getAbsolutePath().equals(usedFiles[0]);
+					}
+				}
+				if (b || id > 0) {
 					directory = Files.createTempDir();
 					//Add the file to the directory.
 					if (f != null)
