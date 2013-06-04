@@ -217,6 +217,9 @@ class ImporterUIElement
 	/** Controls used to filter the result.*/
 	private JButton filterButton;
 	
+	/** Flag indicating if the upload has started or not.*/
+	private boolean uploadStarted;
+	
 	/**
 	 * Returns the object found by identifier.
 	 * 
@@ -835,7 +838,8 @@ class ImporterUIElement
 	 * @param component The component of reference of the rotation icon.
 	 */
 	Icon startImport(JComponent component)
-	{ 
+	{
+		uploadStarted = true;
 		setClosable(false);
 		busyLabel.setBusy(true);
 		repaint();
@@ -848,7 +852,7 @@ class ImporterUIElement
 	 * 
 	 * @return See above.
 	 */
-	boolean hasStarted() { return busyLabel.isBusy(); }
+	boolean hasStarted() { return uploadStarted; }
 	
 	/**
 	 * Returns <code>true</code> if the component has imports in the queue that

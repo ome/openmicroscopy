@@ -272,6 +272,12 @@ public class FileImportComponent
 	/** The collection of tags added to the imported images.*/
 	private Collection<TagAnnotationData> tags;
 	
+	/** The label indicating the status of the import.*/
+	private JLabel refLabel;
+	
+	/** The button displaying the available action.*/
+	private JButton refButton;
+	
 	/** Retries to upload the file.*/
 	private void retry()
 	{
@@ -457,6 +463,11 @@ public class FileImportComponent
 		resultLabel.setVisible(true);
 		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
+		remove(refLabel);
+		remove(refButton);
+		refLabel = resultLabel;
+		refButton = actionMenuButton;
+		addControlsToDisplay();
 		IconManager icons = IconManager.getInstance();
 		Object result = statusLabel.getImportResult();
 		if (image instanceof ImportException) result = image;
@@ -632,6 +643,8 @@ public class FileImportComponent
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
 		image = null;
+		refButton = cancelButton;
+		refLabel = busyLabel;
 	}
 
 	/** Builds and lays out the UI. */
@@ -651,14 +664,23 @@ public class FileImportComponent
 				"0, 0, l, c");
 		add(statusLabel, "1, 0, l, c");
 		
+		/*
 		add(busyLabel, "2, 0, l, c");
 		add(resultLabel, "3, 0, l, c");
 		add(UIUtilities.buildComponentPanel(cancelButton, false),
 				"4, 0, l, c");
 		add(UIUtilities.buildComponentPanel(actionMenuButton, false),
 				"5, 0, l, c");
+				*/
+		addControlsToDisplay();
 	}
 
+	private void addControlsToDisplay()
+	{
+		add(refLabel, "2, 0, l, c");
+		add(UIUtilities.buildComponentPanel(refButton, false), "3, 0, l, c");
+	}
+	
 	/** 
 	 * Attaches the listeners to the newly created component.
 	 * 
@@ -889,6 +911,7 @@ public class FileImportComponent
 		cancelButton.setVisible(false);
 		this.image = image;
 		if (image instanceof PlateData) {
+			menu = null;
 			imageLabel.setData((PlateData) image);
 			fileNameLabel.addMouseListener(adapter);
 			formatResultTooltip();
@@ -937,6 +960,7 @@ public class FileImportComponent
 				this.image = null;
 			}
 		}
+		revalidate();
 		repaint();
 	}
 
@@ -1446,15 +1470,17 @@ public class FileImportComponent
 			resultIndex = ImportStatus.STARTED;
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
-				//busyLabel.setBusy(false);
-				//busyLabel.setVisible(false);
 				cancelButton.setEnabled(sl.isCancellable());
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && hasParent()) {
-				formatResult();
-				firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null, this);
+				if (sl.isMarkedAsCancel()) cancel(true);
+				else {
+					formatResult();
+					firePropertyChange(StatusLabel.UPLOAD_DONE_PROPERTY, null,
+							this);
+				}
 			}
 		} else if (StatusLabel.CANCELLABLE_IMPORT_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();

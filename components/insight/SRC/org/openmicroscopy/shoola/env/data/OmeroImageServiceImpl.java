@@ -223,19 +223,22 @@ class OmeroImageServiceImpl
 					} else {
 						//Check after scanning
 						if (label.isMarkedAsCancel())
-							return Boolean.valueOf(false);
-						importIc = icContainers.get(0);
-						importIc.setCustomAnnotationList(list);
-						label.setCallback(gateway.importImageFile(ctx, object,
-								ioContainer, importIc,
-								label, toClose, ImportableObject.isHCSFile(file),
-								userName));
+							label.setCallback(Boolean.valueOf(false));
+						else {
+							importIc = icContainers.get(0);
+							importIc.setCustomAnnotationList(list);
+							label.setCallback(gateway.importImageFile(ctx,
+									object, ioContainer, importIc,
+									label, toClose,
+									ImportableObject.isHCSFile(file),
+									userName));
+						}
 					}
 				} catch (Exception e) {
 					label.setCallback(e);
 				}
 			} else {
-				return Boolean.valueOf(false);
+				label.setCallback(Boolean.valueOf(false));
 			}
 		}
 		if (close) gateway.closeImport(ctx);
