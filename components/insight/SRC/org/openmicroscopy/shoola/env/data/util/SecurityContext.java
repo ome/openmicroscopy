@@ -188,6 +188,7 @@ public class SecurityContext
 	 */
 	public boolean equals(Object obj)
 	{
+		if (obj == null) return false;
 		return Objects.equal(((SecurityContext) obj).getGroupID(),
 				this.getGroupID()) &&
 				Objects.equal(((SecurityContext) obj).getHostName(),
