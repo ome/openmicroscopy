@@ -469,7 +469,7 @@ public interface OmeroDataService
 	 * split. Returns the a Map with fileset's ids as keys and the
 	 * values if the map:
 	 * Key = <code>True</code> value: List of image's ids that are contained.
-	 * Key = <code>True</code> value: List of image's ids that are missing
+	 * Key = <code>False</code> value: List of image's ids that are missing
 	 * so the delete or change group cannot happen.
 	 * 
 	 * @param ctx The security context, necessary to determine the service.
