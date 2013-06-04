@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 import pojos.DataObject;
 import pojos.ImageData;
@@ -87,30 +88,29 @@ public class ImageSplitChecker
     		ImageData img;
     		while (i.hasNext()) {
     			img = i.next();
-				map.put(img.getDefaultPixels().getId(), img);
+    			map.put(img.getDefaultPixels().getId(), img);
 
-			}
-        	Map<Long, BufferedImage>
-        		m = service.getThumbnailSet(ctx, map.keySet(), 96); //to be modified
-        	Iterator<Long> j = m.keySet().iterator();
-        	long pixelsID;
-        	BufferedImage thumbPix;
-        	ImageData obj;
-        	long imageID = -1;
-        	PixelsData pxd = null;
-        	while (j.hasNext()) {
-        		pixelsID = j.next();
-        		obj = map.get(pixelsID);
-        		imageID = ((ImageData) obj).getId();
-    			pxd = ((ImageData) obj).getDefaultPixels();
+    		}
+    		Map<Long, BufferedImage>
+    		m = service.getThumbnailSet(ctx, map.keySet(),
+    				Factory.THUMB_DEFAULT_WIDTH);
+    		Iterator<Long> j = m.keySet().iterator();
+    		long pixelsID;
+    		BufferedImage thumbPix;
+    		ImageData obj;
+    		long imageID = -1;
+    		while (j.hasNext()) {
+    			pixelsID = j.next();
+    			obj = map.get(pixelsID);
+    			imageID = ((ImageData) obj).getId();
     			thumbPix = (BufferedImage) m.get(pixelsID);
     			if (thumbPix != null)
     				thumbnails.add(new ThumbnailData(imageID, thumbPix, true));
-			}
-        } catch (RenderingServiceException e) {
-        	context.getLogger().error(this, 
-        			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
-        }
+    		}
+    	} catch (RenderingServiceException e) {
+    		context.getLogger().error(this, 
+    				"Cannot retrieve thumbnail: "+e.getExtendedMessage());
+    	}
     	return thumbnails;
     }
     
