@@ -219,6 +219,7 @@ import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8302,6 +8303,12 @@ public class OMEROMetadataStoreClient
     public void  setRightsRightsHolder(String value)
     {
         throw new org.apache.commons.lang.NotImplementedException("TODO");
+    }
+
+    public void setLogFilename(String logFilename) {
+        if (!logFilename.isEmpty()) {
+            MDC.put("fileset", logFilename);
+        }
     }
 
 }
