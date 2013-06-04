@@ -39,9 +39,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
