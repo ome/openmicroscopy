@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 //Third-party libraries
 import org.apache.commons.collections.CollectionUtils;
@@ -86,12 +85,12 @@ public class MIFResultObject
 	public List<ImageData> getFailures()
 	{
 		List<ImageData> failures = new ArrayList<ImageData>();
-		Entry<Long, Map<Boolean, List<ImageData>>> e;
-		Iterator<Entry<Long, Map<Boolean, List<ImageData>>>> i =
-				result.entrySet().iterator();
+		Map<Boolean, List<ImageData>> e;
+		Iterator<Map<Boolean, List<ImageData>>> i =
+				result.values().iterator();
 		while (i.hasNext()) {
 			e = i.next();
-			failures.addAll(e.getValue().get(Boolean.valueOf(false)));
+			failures.addAll(e.get(Boolean.valueOf(false)));
 		}
 		return failures;
 	}
@@ -121,18 +120,17 @@ public class MIFResultObject
 	public List<ImageData> getImages()
 	{
 		List<ImageData> ids = new ArrayList<ImageData>();
-		Entry<Long, Map<Boolean, List<ImageData>>> e;
-		Iterator<Entry<Long, Map<Boolean, List<ImageData>>>> i =
-				result.entrySet().iterator();
+		Map<Boolean, List<ImageData>> e;
+		Iterator<Map<Boolean, List<ImageData>>> i =
+				result.values().iterator();
+		
 		List<ImageData> l;
-		Entry<Boolean, List<ImageData>> entry;
-		Iterator<Entry<Boolean, List<ImageData>>> j;
+		Iterator<List<ImageData>> j;
 		while (i.hasNext()) {
 			e = i.next();
-			j = e.getValue().entrySet().iterator();
+			j = e.values().iterator();
 			while (j.hasNext()) {
-				entry = j.next();
-				l = entry.getValue();
+				l = j.next();
 				if (l.size() > MAX)
 					ids.addAll(l.subList(0, MAX-1));
 				else ids.addAll(l);
