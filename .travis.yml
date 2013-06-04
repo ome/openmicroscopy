@@ -3,7 +3,7 @@ language: java
 env:
     - BUILD="build-all" TEST="-p"
     - BUILD="build-default test-compile" TEST="-py test -Dtest.with.fail=true"
-    - BUILD="build-default build-cpp test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
+    - BUILD="build-all test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
 
 jdk:
   - openjdk7
