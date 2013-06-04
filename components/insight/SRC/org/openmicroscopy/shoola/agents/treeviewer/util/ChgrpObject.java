@@ -83,7 +83,7 @@ public class ChgrpObject
 	public void setUserID(long userID) { this.userID = userID; }
 	
 	/**
-	 * Returns the id of one owner the data.
+	 * Returns the id of one owner of the data.
 	 * 
 	 * @return See above.
 	 */
