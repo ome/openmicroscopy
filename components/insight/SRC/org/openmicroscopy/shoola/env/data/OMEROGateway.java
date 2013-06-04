@@ -256,7 +256,7 @@ import pojos.XMLAnnotationData;
 class OMEROGateway
 {
 	
-	/** Identifies the plate as root. */
+	/** Identifies the fileset as root. */
 	private static final String REF_FILESET = "/Fileset";
 	
 	/** Identifies the image as root. */
