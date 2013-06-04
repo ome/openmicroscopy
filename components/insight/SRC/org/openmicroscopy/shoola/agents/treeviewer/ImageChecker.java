@@ -77,8 +77,8 @@ public class ImageChecker
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
      * @param objects The objects to handle.
-	 * @param action The object to handle after the check.
-	 * @param index The type of action.
+     * @param action The object to handle after the check.
+     * @param index The type of action.
      */
 	public ImageChecker(TreeViewer viewer, SecurityContext ctx,
 			Map<SecurityContext, List<DataObject>> objects,
