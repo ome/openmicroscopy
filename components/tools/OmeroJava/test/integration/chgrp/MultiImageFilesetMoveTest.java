@@ -33,6 +33,7 @@ import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
 import omero.cmd.GraphConstraintERR;
+import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.model.Dataset;
 import omero.model.DatasetI;
@@ -155,4 +156,20 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         assertDoesNotExist(new FilesetI(fs0, false));
     }
 
+    /**
+     * Creates a MIF images. Moves the fileset.
+     */
+    @Test(groups = {"fs", "integration"})
+    public void testMoveFilesetAsRoot() throws Throwable {
+    	int imageCount = 15;
+    	List<Image> images = importMIF(imageCount);
+        long fs0 = images.get(0).getFileset().getId().getValue();
+
+        Chgrp command = new Chgrp("/Fileset", fs0,
+                null, secondGroup.getId().getValue());
+
+        Response rsp = doChange(client, factory, command, true);
+        OK err = (OK) rsp;
+        assertNotNull(err);
+    }
 }
