@@ -2,8 +2,8 @@ language: java
 
 env:
     - BUILD="build-all" TEST="-p"
-    - BUILD="test-compile" TEST="-py test -Dtest.with.fail=true"
-    - BUILD="test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
+    - BUILD="build-default test-compile" TEST="-py test -Dtest.with.fail=true"
+    - BUILD="build-default build-cpp test-compile-all" TEST="-cpp test -Dtest.with.fail=true"
 
 jdk:
   - openjdk7
