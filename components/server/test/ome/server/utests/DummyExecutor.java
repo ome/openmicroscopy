@@ -60,6 +60,15 @@ public class DummyExecutor implements Executor {
         throw new UnsupportedOperationException();
     }
 
+    public <T> Future<T> submit(Priority prio, Callable<T> callable) {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> Future<T> submit(Priority prio, Map<String, String> callContext,
+            Callable<T> callable) {
+        throw new UnsupportedOperationException();
+    }
+
     public <T> T get(Future<T> future) {
         throw new UnsupportedOperationException();
     }
