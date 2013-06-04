@@ -166,25 +166,11 @@
     <property name="allowLocalTransactions" value="true"/>
     <property name="testQuery" value="select 1"/>
     <property name="driverProperties" ref="dataSourceProperties"/>
+    <property name="preparedStatementCacheSize" value="${omero.db.prepared_statement_cache_size}"/>
   </bean>
-
-  <!--
-  <bean id="nonXaDataSource" class="com.atomikos.jdbc.nonxa.AtomikosNonXADataSourceBean">
-    <property name="uniqueResourceName" ref="uuid"/>
-    <property name="driverClassName" value="org.postgresql.Driver"/>
-    <property name="url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
-    <property name="user" value="${omero.db.user}"/>
-    <property name="password" value="${omero.db.pass}"/>
-    <property name="maxPoolSize" value="${omero.db.poolsize}"/>
-    <property name="reapTimeout" value="3000"/>
-    <property name="loginTimeout" value="5"/>
-    <property name="borrowConnectionTimeout" value="5"/>
-  </bean>
-  -->
 
   <alias alias="lobHandler" name="${omero.db.lob_handler}"/>
 
   <bean id="org.springframework.jdbc.support.lob.DefaultLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
 
 </beans>
-
