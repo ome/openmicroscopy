@@ -65,7 +65,7 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DisplayModeEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
@@ -3378,7 +3378,7 @@ class TreeViewerComponent
 			}
 		}
 		if (objects.size() == 0) delete(nodes);
-		else model.fireImageChecking(objects, nodes, ImageChecker.DELETE);
+		else model.fireImageChecking(objects, nodes, ImageCheckerType.DELETE);
 	}
 
 	/**
@@ -4473,7 +4473,7 @@ class TreeViewerComponent
 			}
 			if (target == null) otData = null;
 			ChgrpObject object = new ChgrpObject(group, otData, trans);
-			model.fireImageChecking(trans, object, ImageChecker.CHGRP);
+			model.fireImageChecking(trans, object, ImageCheckerType.CHGRP);
 		}
 	}
 
@@ -4596,7 +4596,7 @@ class TreeViewerComponent
 		if (b == null) userID = userIDs.get(0);
 		ChgrpObject object = new ChgrpObject(group, null, map);
 		object.setUserID(userID);
-		model.fireImageChecking(map, object, ImageChecker.CHGRP);
+		model.fireImageChecking(map, object, ImageCheckerType.CHGRP);
 	}
 	
 	/**
@@ -4690,7 +4690,7 @@ class TreeViewerComponent
 	 * @see TreeViewer#handleSplitImage(Map, Object, int)
 	 */
 	public void handleSplitImage(List<MIFResultObject> result,
-			Object action, int index)
+			Object action, ImageCheckerType index)
 	{
 		if (!CollectionUtils.isEmpty(result)) {
 			//Indicate what do depending on the index.
@@ -4712,12 +4712,10 @@ class TreeViewerComponent
 			UIUtilities.centerAndShow(dialog);
 			return;
 		}
-		switch (index) {
-			case ImageChecker.DELETE:
-				delete((List) action);
-				break;
-			case ImageChecker.CHGRP:
-				moveObject((ChgrpObject) action);
+		if (ImageCheckerType.DELETE.equals(index)) {
+			delete((List) action);
+		} else if (ImageCheckerType.CHGRP.equals(index)) {
+			moveObject((ChgrpObject) action);
 		}
 	}
 

@@ -57,7 +57,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.ThumbnailLabel;
 import org.openmicroscopy.shoola.env.data.model.MIFResultObject;
@@ -97,7 +97,7 @@ public class MIFNotificationDialog
 	private JButton moveButton;
 	
 	/** The index indicating the type of dialog to bring up.*/
-	private int index;
+	private ImageCheckerType index;
 	
 	/** The result to display.*/
 	private List<MIFResultObject> result;
@@ -160,7 +160,7 @@ public class MIFNotificationDialog
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
-		if (index == ImageChecker.CHGRP) {
+		if (ImageCheckerType.CHGRP.equals(index)) {
 			bar.add(moveButton);
 			bar.add(Box.createRigidArea(UIUtilities.H_SPACER_SIZE));
 		}
@@ -175,7 +175,7 @@ public class MIFNotificationDialog
 		String title = TITLE_DELETE;
 		StringBuffer buf = new StringBuffer();
 		
-		if (index == ImageChecker.CHGRP) {
+		if (ImageCheckerType.CHGRP.equals(index)) {
 			ChgrpObject object = (ChgrpObject) action;
 			GroupData group = object.getGroupData();
 			StringBuffer buffer = new StringBuffer();
@@ -230,7 +230,7 @@ public class MIFNotificationDialog
 		List<ImageData> images;
 		StringBuffer buf;
 		String text = "You tried to move ";
-		if (index == ImageChecker.DELETE)
+		if (ImageCheckerType.DELETE.equals(index))
 			text = "You tried to delete ";
 		int size;
 		while (i.hasNext()) {
@@ -337,7 +337,7 @@ public class MIFNotificationDialog
 	 * @param groups the available groups.
 	 */
 	public MIFNotificationDialog(JFrame owner, List<MIFResultObject> result,
-			Object action, int index, Collection groups)
+			Object action, ImageCheckerType index, Collection groups)
 	{
 		super(owner);
 		if (CollectionUtils.isEmpty(result))

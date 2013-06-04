@@ -49,14 +49,15 @@ public class ImageChecker
 	extends DataTreeViewerLoader
 {
 
-	/** Indicates that the following action is a <code>Delete</code> action.*/
-	public static final int DELETE = 0;
-	
-	/** 
-	 * Indicates that the following action is a <code>Change group</code>
-	 * action.
-	 */
-	public static final int CHGRP = 1;
+	public enum ImageCheckerType {
+		/** Indicates that the action is a <code>Delete</code> action.*/
+		DELETE,
+		
+		/** 
+		 * Indicates that the action is a <code>Change group</code> action.
+		 */
+		CHGRP;
+	}
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle handle;
@@ -68,7 +69,7 @@ public class ImageChecker
     private Object action;
     
     /** One of the constants defined but this class.*/
-    private int index;
+    private ImageCheckerType index;
 
     /**
      * Creates a new instance.
@@ -82,7 +83,7 @@ public class ImageChecker
      */
 	public ImageChecker(TreeViewer viewer, SecurityContext ctx,
 			Map<SecurityContext, List<DataObject>> objects,
-			Object action, int index)
+			Object action, ImageCheckerType index)
 	{
 		super(viewer, ctx);
 		if (objects == null || objects.size() == 0)

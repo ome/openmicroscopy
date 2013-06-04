@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TagHierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
@@ -1502,7 +1503,7 @@ class TreeViewerModel
 	 * @param index The type of action.
 	 */
 	void fireImageChecking(Map<SecurityContext, List<DataObject>> objects,
-			Object action, int index)
+			Object action, ImageCheckerType index)
 	{
 		ImageChecker loader = new ImageChecker(component, getSecurityContext(),
 				objects, action, index);

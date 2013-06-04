@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 
 //Third-party libraries
 
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
@@ -1165,6 +1166,6 @@ public interface TreeViewer
 	 * @param index The type of action.
 	 */
 	void handleSplitImage(List<MIFResultObject> result, Object action,
-			int index);
+			ImageCheckerType index);
 
 }
