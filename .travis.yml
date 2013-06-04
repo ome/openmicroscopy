@@ -9,6 +9,8 @@ before_install:
     - sudo apt-get install -qq zeroc-ice34
     - sudo apt-get install -qq python-imaging python-numpy python-tables
     - git config github.token 3bc7fc530b01081559eb911f59ccfec7f4fb2592
+    - git config —global user.email snoopycrimecop@gmail.com
+    - git config —global user.name 'Snoopy Crime Cop'
     - sudo pip install scc --use-mirrors
     - scc travis-merge
 
