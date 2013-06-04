@@ -294,7 +294,6 @@ class TreeViewerComponent
 					if (values == null)
 						values = new ArrayList<DataObject>(); 
 					values.add((DataObject) obj);
-					//toRemove.add(node);
 				} else if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
 					if (!(obj instanceof TagAnnotationData || 
@@ -360,15 +359,6 @@ class TreeViewerComponent
 			objects.add(ho);
 		} else if (ho instanceof DatasetData && content) {
 			if (object.isChildrenLoaded()) {
-				/*
-				i = list.iterator();
-				while (i.hasNext()) {
-					child = (TreeImageDisplay) i.next();
-					if (child.getUserObject() instanceof ImageData) {
-						objects.add((DataObject) child.getUserObject());
-					}
-				}
-				*/
 				objects.add(ho);
 			}
 			
@@ -379,15 +369,6 @@ class TreeViewerComponent
 					child = (TreeImageDisplay) i.next();
 					if (child.getUserObject() instanceof DatasetData) {
 						if (child.isChildrenLoaded()) {
-							/*
-							children = child.getChildrenDisplay();
-							j = children.iterator();
-							while (j.hasNext()) {
-								child2 =  (TreeImageDisplay) j.next();
-								objects.add(
-										(DataObject) child2.getUserObject());
-							}
-							*/
 							objects.add((DataObject) child.getUserObject());
 						}
 					}
@@ -405,15 +386,6 @@ class TreeViewerComponent
 					child = (TreeImageDisplay) i.next();
 					if (child.getUserObject() instanceof PlateData) {
 						if (child.isChildrenLoaded()) {
-							/*
-							children = child.getChildrenDisplay();
-							j = children.iterator();
-							while (j.hasNext()) {
-								child2 =  (TreeImageDisplay) j.next();
-								objects.add(
-										(DataObject) child2.getUserObject());
-							}
-							*/
 							objects.add((DataObject) child.getUserObject());
 						}
 					}
