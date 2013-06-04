@@ -357,7 +357,9 @@
                     var img_ids = [];
                     selected.each(function(){
                         if (this.id.split("-")[0] == "image"){
-                            img_ids.push(this.id.split("-")[1]);
+                            if ($(this).hasClass("canLink")) {
+                                img_ids.push(this.id.split("-")[1]);
+                            }
                         }
                     });
                     var url, position = 0;
