@@ -1887,6 +1887,8 @@ class TreeViewerComponent
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
 		}
+		//Do not have enough information about the group.
+		if (group.getPermissions() == null) return false;
 		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
 			case GroupData.PERMISSIONS_PUBLIC_READ_WRITE:
