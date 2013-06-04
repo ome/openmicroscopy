@@ -579,7 +579,7 @@ class ImporterUI extends TopWindow
 		ImporterUIElement element;
 		while (i.hasNext()) {
 			element = i.next();
-			if (!element.isUploadComplete())
+			if (!element.hasStarted())
 				return element;
 		}
 		return null;

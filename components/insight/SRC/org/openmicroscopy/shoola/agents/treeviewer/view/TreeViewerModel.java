@@ -1186,6 +1186,13 @@ class TreeViewerModel
 		}
 	}
 	
+	/** Clears the result.*/
+	void clearImportResult()
+	{
+		importFailureCount = 0;
+		importSuccessCount = 0;
+	}
+	
 	/**
 	 * Returns the number of import failures.
 	 * 

@@ -1218,7 +1218,6 @@ class OmeroMetadataServiceImpl
 		if (data == null)
 			throw new IllegalArgumentException("No data to save");
 		OmeroDataService service = context.getDataService();
-		System.err.println(data);
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object, child;

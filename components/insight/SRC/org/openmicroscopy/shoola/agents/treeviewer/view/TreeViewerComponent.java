@@ -3840,6 +3840,8 @@ class TreeViewerComponent
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		
+		model.clearImportResult();
+		view.onImport();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);
