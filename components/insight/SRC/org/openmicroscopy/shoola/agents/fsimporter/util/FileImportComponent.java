@@ -470,6 +470,7 @@ public class FileImportComponent
 			if (status == ImportException.CHECKSUM_MISMATCH)
 				resultIndex = ImportStatus.UPLOAD_FAILURE;
 			else resultIndex = ImportStatus.FAILURE;
+			statusLabel.setText("");
 		} else if (result instanceof CmdCallback) {
 			callback = (CmdCallback) result;
 		} else {
@@ -1022,7 +1023,9 @@ public class FileImportComponent
 	 */
 	public boolean hasUploadFailed()
 	{
-		return resultIndex == ImportStatus.UPLOAD_FAILURE;
+		return resultIndex == ImportStatus.UPLOAD_FAILURE ||
+				(resultIndex == ImportStatus.FAILURE &&
+				!statusLabel.didUploadStart());
 	}
 	
 	/**

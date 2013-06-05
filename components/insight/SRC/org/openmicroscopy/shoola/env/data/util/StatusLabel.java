@@ -80,9 +80,6 @@ public class StatusLabel
 	/** The text displayed when the file is already selected.*/
 	public static final String DUPLICATE = "Already processed, skipping";
 	
-	/** The text displayed when loading the image to import. */
-	public static final String PREPPING_TEXT = "prepping";
-	
 	/** The text indicating the scanning steps. */
 	public static final String SCANNING_TEXT = "Scanning...";
 	
@@ -131,7 +128,7 @@ public class StatusLabel
 	public static final String PROCESSING_ERROR_PROPERTY = "processingError";
 
 	/** The default text of the component.*/
-	private static final String DEFAULT_TEXT = "Pending...";
+	public static final String DEFAULT_TEXT = "Pending...";
 
 	/** Text to indicate that the import is cancelled. */
 	private static final String CANCEL_TEXT = "Cancelled";
@@ -246,6 +243,9 @@ public class StatusLabel
 	
 	/** The processing step.*/
 	private int step;
+	
+	/** Indicates if the upload ever started.*/
+	private boolean uploadStarted;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -412,7 +412,11 @@ public class StatusLabel
 	 */
 	public void setText(String text)
 	{
-		generalLabel.setText(text);
+		if (StringUtils.isEmpty(text)) {
+			String value = generalLabel.getText();
+			if (DEFAULT_TEXT.equals(value) || SCANNING_TEXT.equals(value))
+				generalLabel.setText(text);
+		} else generalLabel.setText(text);
 	}
 	
 	/** Marks the import has cancelled. */
@@ -615,6 +619,14 @@ public class StatusLabel
 	public long getLogFileID() { return logFileID; }
 
 	/**
+	 * Returns <code>true</code> if the upload ever started, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean didUploadStart() { return uploadStarted; }
+
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
@@ -708,6 +720,7 @@ public class StatusLabel
 			processingBar.setValue(step);
 			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
+			uploadStarted = true;
 			Iterator<JLabel> i = labels.iterator();
 			while (i.hasNext()) {
 				i.next().setVisible(true);

@@ -803,7 +803,11 @@ class ImporterUIElement
 				countImported--;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
-			if (fc.hasUploadFailed()) countUploadFailure++;
+			if (fc.hasUploadFailed()) {
+				countUploadFailure++;
+				sizeImport -= fc.getImportSize();
+				sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+			}
 			if (fc.hasImportFailed()) countFailure++;
 			setNumberOfImport();
 			setClosable(isDone());
