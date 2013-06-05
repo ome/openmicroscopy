@@ -147,8 +147,6 @@ public class Preprocessor {
         }
     }
 
-    private static final ImmutableList<Class<? extends GraphModify>> graphOperations = ImmutableList.of(Chgrp.class, Delete.class);
-
     /** the target type hierarchy, an ordered list descending from higher to lower */
     protected static final ImmutableList<Entry<TargetType, TargetType>> targetTypeHierarchy;
 
@@ -374,19 +372,44 @@ public class Preprocessor {
         return allContainers;
     }
 
-    protected void process() {
-        for (final Class<? extends GraphModify> op : graphOperations) {
+    /**
+     * Generate predicates where each identifies a distinct group of requests that should be processed together.
+     * @return the predicates to guide request list processing
+     */
+    private Collection<Predicate<Request>> predicatesForRequests() {
+        final Set<Long> chgrpRequestGroups = new HashSet<Long>();
+        boolean deleteRequest = false;
 
-            /* note which targets are somehow referenced by the current operation's requests,
-             * also make sure that relevant container relationships are cached */
-
-            final Predicate<Request> isRelevant = new Predicate<Request>() {
-                public boolean apply(Request request) {
-                    return op.isAssignableFrom(request.getClass()) &&
-                            TargetType.byName.get(((GraphModify) request).type) != null;
+        final List<Predicate<Request>> predicates = new ArrayList<Predicate<Request>>();
+        for (final Request request : this.requests) {
+            if (!(request instanceof GraphModify) || ((GraphModify) request).type == null) {
+                // do nothing
+            } else if (request instanceof Delete && !deleteRequest) {
+                deleteRequest = true;
+                predicates.add(new Predicate<Request>() {
+                    public boolean apply(Request request) {
+                        return Delete.class.isAssignableFrom(request.getClass()) &&
+                                TargetType.byName.get(((GraphModify) request).type) != null;
+                    }
+                });
+            } else if (request instanceof Chgrp) {
+                final long targetGroup = ((Chgrp) request).grp;
+                if (chgrpRequestGroups.add(targetGroup)) {
+                    predicates.add(new Predicate<Request>() {
+                        public boolean apply(Request request) {
+                            return Chgrp.class.isAssignableFrom(request.getClass()) &&
+                                    ((Chgrp) request).grp == targetGroup &&
+                                    TargetType.byName.get(((GraphModify) request).type) != null;
+                        }
+                    });
                 }
-            };
+            }
+        }
+        return predicates;
+    }
 
+    protected void process() {
+        for (final Predicate<Request> isRelevant : predicatesForRequests()) {
             final SetMultimap<TargetType, GraphModifyTarget> targets = HashMultimap.create();
 
             /* direct references */
