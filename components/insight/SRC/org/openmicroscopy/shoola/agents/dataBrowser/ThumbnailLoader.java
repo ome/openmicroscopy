@@ -193,6 +193,7 @@ public class ThumbnailLoader
                 status = (percDone == 100) ? "Done" :  //Else
                                          ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
+            /*
             List l = (List) fe.getPartialResult();
             if (l != null && l.size()  > 0) {
             	Iterator i = l.iterator();
@@ -205,6 +206,13 @@ public class ThumbnailLoader
             		viewer.setThumbnail(ref, td.getThumbnail(), 
             				td.isValidImage(), max);
 				}
+            }*/
+            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null) {
+            	Object ref = td.getRefObject();
+            	if (ref == null) ref = td.getImageID();
+            	viewer.setThumbnail(ref, td.getThumbnail(),
+            			td.isValidImage(), max);
             }
         } else {
         	if (status == null) 

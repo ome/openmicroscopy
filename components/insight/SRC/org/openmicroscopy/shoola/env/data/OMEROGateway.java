@@ -3339,7 +3339,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized byte[] retrieveThumbnail(SecurityContext ctx,
+	private byte[] retrieveThumbnail(SecurityContext ctx,
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3457,7 +3457,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized Map retrieveThumbnailSet(SecurityContext ctx,
+	private Map retrieveThumbnailSet(SecurityContext ctx,
 			List<Long> pixelsID, int maxLength, boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
