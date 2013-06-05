@@ -204,8 +204,10 @@ public class FileUploader
 				c = SvcRegistry.getCommunicator(desc);
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
-				if (directory != null) directory.delete();
-				f.delete();
+				if (directory != null) {
+					directory.delete();
+					f.delete();
+				}
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
