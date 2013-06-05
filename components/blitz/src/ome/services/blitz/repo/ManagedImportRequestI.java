@@ -193,8 +193,8 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
                     sessionUuid, "unused", 3, 1, clientUuid);
             reader = new OMEROWrapper(config);
             store = new OMEROMetadataStoreClient();
+            store.setCurrentLogFile(logFilename);
             store.initialize(sf);
-            store.setLogFilename(logFilename);
 
             userSpecifiedTarget = settings.userSpecifiedTarget;
             userSpecifiedName = settings.userSpecifiedName == null ? null :
