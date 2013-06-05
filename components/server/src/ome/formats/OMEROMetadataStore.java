@@ -539,6 +539,15 @@ public class OMEROMetadataStore
               continue;
             }
           }
+					else if (targetObject instanceof MicrobeamManipulation)
+					{
+						if (referenceObject instanceof Roi)
+						{
+							handleReference((MicrobeamManipulation) targetObject,
+								(Roi) referenceObject);
+							continue;
+						}
+					}
 
     			throw new ApiUsageException(String.format(
     					"Missing reference handler for %s(%s) --> %s(%s) reference.",
@@ -1445,6 +1454,17 @@ public class OMEROMetadataStore
     private void handleReference(Annotation target, Annotation reference)
     {
         target.linkAnnotation(reference);
+    }
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(MicrobeamManipulation target, Roi reference)
+    {
+			// no-op as the ROIRef cannot be set on a MicrobeamManipulation
     }
 
     /**
