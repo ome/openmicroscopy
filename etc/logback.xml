@@ -40,6 +40,11 @@
         </encoder>
       </appender>
     </sift>
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>DEBUG</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
   </appender>
 
 
@@ -57,22 +62,6 @@
   <logger name="org.perf4j.TimingLogger">
     <level value="INFO"/>
     <appender-ref ref="CoalescingStatistics"/>
-  </logger>
-
-  <!-- Import logs //////////////////////////////////////////////////////////// -->
-  <logger name="ome.services.blitz.repo.ManagedImportRequestI">
-    <level value="DEBUG"/>
-    <appender-ref ref="SIFT"/>
-  </logger>
-
-  <logger name="loci.formats">
-    <level value="DEBUG"/>
-    <appender-ref ref="SIFT"/>
-  </logger>
-
-  <logger name="ome.formats.OMEROMetadataStoreClient">
-    <level value="DEBUG"/>
-    <appender-ref ref="SIFT"/>
   </logger>
 
   <!-- All below are ROOT loggers -->
@@ -142,6 +131,22 @@
   <logger name="org.hibernate.pretty" level="ERROR"/>
   <logger name="org.hibernate.type" level="ERROR"/>
   <logger name="org.hibernate.validator" level="ERROR"/>
+
+    <!-- Import logs //////////////////////////////////////////////////////////// -->
+  <logger name="ome">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="omero">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="loci">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
 
   <root level="OFF">
     <appender-ref ref="FILE"/>
