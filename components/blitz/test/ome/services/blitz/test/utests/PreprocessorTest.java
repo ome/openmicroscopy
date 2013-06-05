@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.HashMultimap;
@@ -79,7 +80,7 @@ public class PreprocessorTest extends Preprocessor {
     /* named for their values */
     private static final SetMultimap<Entry<TargetType, GraphModifyTarget>, Long> containers;
     private static final SetMultimap<Entry<TargetType, GraphModifyTarget>, Long> containeds;
-    
+
     static {
         /* set up the hierarchy for the test cases, from containers to contained ... */
 
@@ -133,6 +134,16 @@ public class PreprocessorTest extends Preprocessor {
             final GraphModifyTarget contained = new GraphModifyTarget(containedType, containedId);
             containedByContainer.put(container, contained);
         }
+    }
+
+    /**
+     * Clear the lookup caches and the list of requests ready for a new unit test.
+     */
+    @BeforeMethod
+    public void clearCacheAndRequests() {
+        containerByContained.clear();
+        containedByContainer.clear();
+        requests.clear();
     }
 
     /**
@@ -198,7 +209,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImagesOfFilesets() {
-        requests.clear();
         for (long imageId = 1; imageId < 6; imageId++) {
             addDeleteRequest("/Image", imageId);
         }
@@ -214,7 +224,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testFilesets() {
-        requests.clear();
         addDeleteRequest("/Fileset", 1);
         addDeleteRequest("/Fileset", 2);
 
@@ -228,7 +237,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImagesFilesets() {
-        requests.clear();
         for (long imageId = 1; imageId < 6; imageId++) {
             addDeleteRequest("/Image", imageId);
         }
@@ -246,7 +254,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testFilesetsImages() {
-        requests.clear();
         addDeleteRequest("/Fileset", 1);
         addDeleteRequest("/Fileset", 2);
         for (long imageId = 1; imageId < 6; imageId++) {
@@ -263,7 +270,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testFilesetImageFilesets() {
-        requests.clear();
         for (long filesetId = 1; filesetId < 3; filesetId++) {
             addChgrpRequest("/Fileset", filesetId, 8);
         }
@@ -282,7 +288,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImageFilesetFilesets() {
-        requests.clear();
         for (long imageId = 0; imageId < 7; imageId++) {
             addChgrpRequest("/Image", imageId, 8);
         }
@@ -301,7 +306,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImageFilesets() {
-        requests.clear();
         for (long imageId = 0; imageId < 7; imageId++) {
             addChgrpRequest("/Image", imageId, 8);
         }
@@ -317,7 +321,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImageFilesetsChgrpDifferentGroups() {
-        requests.clear();
         addChgrpRequest("/Image", 1, 1);
         addChgrpRequest("/Image", 2, 2);
 
@@ -331,7 +334,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testImageFilesetsChgrpSameGroup() {
-        requests.clear();
         addChgrpRequest("/Image", 1, 1);
         addChgrpRequest("/Image", 2, 1);
 
@@ -345,7 +347,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testProjectFilesets() {
-        requests.clear();
         addDeleteRequest("/Project", 0);
 
         final ImmutableList<String> expected = ImmutableList.of(
@@ -358,7 +359,6 @@ public class PreprocessorTest extends Preprocessor {
 
     @Test
     public void testScreenFilesets() {
-        requests.clear();
         addDeleteRequest("/Screen", 0);
 
         final ImmutableList<String> expected = ImmutableList.of(
