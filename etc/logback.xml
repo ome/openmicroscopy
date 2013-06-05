@@ -65,6 +65,16 @@
     <appender-ref ref="SIFT"/>
   </logger>
 
+  <logger name="loci.formats">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.formats.OMEROMetadataStoreClient">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
   <!-- All below are ROOT loggers -->
 
   <!-- INTERNAL /////////////////////////////////////////////////////////////// -->
