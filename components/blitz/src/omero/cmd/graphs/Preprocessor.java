@@ -63,7 +63,7 @@ public class Preprocessor {
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.0
      */
-    protected static enum TargetType {
+    public static enum TargetType {
         IMAGE, FILESET, DATASET, PROJECT, WELL, PLATE, SCREEN;
 
         /** lookup from initial-capital name to type, e.g. "/Image" to {@link TargetType#IMAGE} */
@@ -90,7 +90,7 @@ public class Preprocessor {
      * @author m.t.b.carroll@dundee.ac.uk
      * @since 5.0
      */
-    protected static class GraphModifyTarget {
+    public static class GraphModifyTarget {
         public final TargetType targetType;
         public final long targetId;
 
@@ -195,7 +195,7 @@ public class Preprocessor {
         hqlFromTo = builder.build();
     }
 
-    private final List<Request> requests;
+    protected final List<Request> requests;
 
     private final Helper helper;
 
@@ -310,7 +310,7 @@ public class Preprocessor {
      * @param containerType the container type to add
      * @param contained the target that may be contained
      */
-    private void lookupContainer(TargetType containerType, GraphModifyTarget contained) {
+    protected void lookupContainer(TargetType containerType, GraphModifyTarget contained) {
         if (!lookupContainerDone.add(Maps.immutableEntry(containerType, contained))) {
             return;
         }
@@ -331,7 +331,7 @@ public class Preprocessor {
      * @param containedType the contained type to add
      * @param container the container
      */
-    private void lookupContained(TargetType containedType, GraphModifyTarget container) {
+    protected void lookupContained(TargetType containedType, GraphModifyTarget container) {
         if (!lookupContainedDone.add(Maps.immutableEntry(containedType, container))) {
             return;
         }
@@ -341,7 +341,7 @@ public class Preprocessor {
         }
         final IQuery queryService = helper.getServiceFactory().getQueryService();
         final List<Object[]> containedIds = queryService.projection(queryString, new Parameters().addId(container.targetId));
-         for (final Object[] containedId : containedIds) {
+        for (final Object[] containedId : containedIds) {
             final GraphModifyTarget contained = new GraphModifyTarget(containedType, (Long) containedId[0]);
             containedByContainer.put(container, contained);
         }
@@ -408,6 +408,9 @@ public class Preprocessor {
         return predicates;
     }
 
+    /**
+     * Preprocess the list of requests.
+     */
     protected void process() {
         for (final Predicate<Request> isRelevant : predicatesForRequests()) {
             final SetMultimap<TargetType, GraphModifyTarget> targets = HashMultimap.create();
