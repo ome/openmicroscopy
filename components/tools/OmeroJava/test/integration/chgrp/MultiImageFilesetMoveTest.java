@@ -18,9 +18,13 @@
 package integration.chgrp;
 
 import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +32,11 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
+import ome.specification.XMLMockObjects;
+import ome.specification.XMLWriter;
+import ome.xml.model.OME;
 import omero.RString;
+import omero.api.IContainerPrx;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
@@ -40,12 +48,18 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.Fileset;
 import omero.model.FilesetI;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.Pixels;
 import omero.sys.EventContext;
+import omero.sys.Parameters;
+import omero.sys.ParametersI;
 import omero.util.TempFileManager;
+import pojos.ImageData;
 
 /**
  */
@@ -137,7 +151,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         long fs1 = f.images.get(1).getFileset().getId().getValue();
         assertEquals(fs0, fs1);
 
-        Chgrp command = new Chgrp("/Image", img0,
+        Chgrp command = new Chgrp(DeleteServiceTest.REF_IMAGE, img0,
                 null, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, command, false); // Don't pass
@@ -149,7 +163,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
 
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
-        delete(true, client, new Delete("/Image", img0, null),
+        delete(true, client, new Delete(DeleteServiceTest.REF_IMAGE, img0, null),
                 new Delete("/Image", img1, null));
 
         // FIXME: This needs to be worked on. The fileset still exists.
@@ -161,15 +175,110 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
      */
     @Test(groups = {"fs", "integration"})
     public void testMoveFilesetAsRoot() throws Throwable {
-    	int imageCount = 15;
+    	int imageCount = 2;
     	List<Image> images = importMIF(imageCount);
         long fs0 = images.get(0).getFileset().getId().getValue();
 
-        Chgrp command = new Chgrp("/Fileset", fs0,
+        Chgrp command = new Chgrp(DeleteServiceTest.REF_FILESET, fs0,
                 null, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, command, true);
         OK err = (OK) rsp;
         assertNotNull(err);
+    }
+    
+    
+    /**
+     * Creates a MIF images with acquisition data. Moves the fileSet
+     */
+    @Test(groups = {"fs", "integration"})
+    public void testMoveMIFWithAcquisitionData() throws Throwable {
+    	int imageCount = 10;
+    	List<File> files = new ArrayList<File>();
+    	Fileset set = new FilesetI();
+    	List<Long> ids = new ArrayList<Long>();
+    	for (int i = 0; i < imageCount; i++) {
+    		File f = File.createTempFile("testMoveMIFWithAcquisitioData "+i,
+    				"."+OME_FORMAT);
+    		files.add(f);
+    		XMLMockObjects xml = new XMLMockObjects();
+    		XMLWriter writer = new XMLWriter();
+    		OME ome = xml.createImageWithAcquisitionData();
+    		writer.writeFile(f, ome, true);
+    		List<Pixels> pixels = null;
+    		try {
+    			pixels = importFile(f, OME_FORMAT);
+    		} catch (Throwable e) {
+    			throw new Exception("cannot import image", e);
+    		}
+    		Pixels p = pixels.get(0);
+    		ids.add(p.getImage().getId().getValue());
+    	}
+    	//Load the image
+    	IContainerPrx iContainer = factory.getContainerService();
+    	List<Image> images = iContainer.getImages(Image.class.getName(),
+    			ids, new Parameters());
+    	Iterator<Image> j = images.iterator();
+    	while (j.hasNext()) {
+    		set.addImage(j.next());
+		}
+    	set = (Fileset) iUpdate.saveAndReturnObject(set);
+    	Chgrp command = new Chgrp(DeleteServiceTest.REF_FILESET,
+    			set.getId().getValue(),
+    			null, secondGroup.getId().getValue());
+
+    	Response rsp = doChange(client, factory, command, true);
+    	OK err = (OK) rsp;
+    	assertNotNull(err);
+    	Iterator<File> k = files.iterator();
+    	while (k.hasNext()) {
+    		k.next().delete();
+    	}
+    	files.clear();
+    }
+    
+    /**
+     * Creates a MIF images and link to a dataset
+     */
+    @Test(groups = {"fs", "integration"})
+    public void testMoveDatasetWithMIF() throws Throwable {
+    	int imageCount = 100;
+    	List<Image> images = importMIF(imageCount);
+    	Dataset dataset = new DatasetI();
+        dataset.setName(omero.rtypes.rstring("testMoveDatasetWithMIF"));
+        dataset = (Dataset) iUpdate.saveAndReturnObject(dataset);
+        Iterator<Image> i = images.iterator();
+        List<IObject> links = new ArrayList<IObject>();
+        while (i.hasNext()) {
+        	DatasetImageLink link = new DatasetImageLinkI();
+        	link.setChild(i.next());
+        	link.setParent((Dataset) dataset.proxy());
+			links.add(link);
+		}
+        long filesetID = images.get(0).getFileset().getId().getValue();
+        iUpdate.saveAndReturnArray(links);
+        Chgrp command = new Chgrp(DeleteServiceTest.REF_DATASET,
+        		dataset.getId().getValue(),
+    			null, secondGroup.getId().getValue());
+
+    	doChange(client, factory, command, true);
+    	disconnect();
+    	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
+    			false));
+    	//load the dataset
+    	IContainerPrx iContainer = factory.getContainerService();
+    	ParametersI param = new ParametersI();
+    	param.leaves();
+    	List<IObject> values = iContainer.loadContainerHierarchy(
+        		Dataset.class.getName(),
+        		Arrays.asList(dataset.getId().getValue()), param);
+    	assertEquals(1, values.size());
+    	dataset = (Dataset) values.get(0);
+    	assertEquals(imageCount, dataset.sizeOfImageLinks());
+    	List<DatasetImageLink> imageLinks = dataset.copyImageLinks();
+    	for (DatasetImageLink link : imageLinks) {
+    		Image img = link.getChild();
+    		assertEquals(img.getFileset().getId().getValue(), filesetID);
+    	}
     }
 }
