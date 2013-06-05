@@ -19,6 +19,12 @@
       <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>
     </encoder>
 
+    <filter class="ch.qos.logback.classic.filter.LevelFilter">
+      <level>INFO</level>
+      <onMatch>ACCEPT</onMatch>
+      <onMismatch>DENY</onMismatch>
+    </filter>
+
   </appender>
 
 
