@@ -308,6 +308,9 @@ public class OMEROMetadataStoreClient
     /** Image/Plate description the user specified for use by model processors. */
     private String userSpecifiedDescription;
 
+    /** Filename of the log file where services will save logging output. */
+    private String logFilename;
+
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
 
@@ -406,6 +409,11 @@ public class OMEROMetadataStoreClient
         if (groupID != null) {
             callCtx.put("omero.group", groupID.toString());
             log.info(String.format("Call context: {omero.group:%s}", groupID));
+        }
+        if (logFilename != null) {
+            callCtx.put("omero.logfilename", logFilename);
+            log.info(String.format("Call context: {omero.logfilename:%s}",
+                    logFilename));
         }
 
         // Blitz services
@@ -8305,10 +8313,8 @@ public class OMEROMetadataStoreClient
         throw new org.apache.commons.lang.NotImplementedException("TODO");
     }
 
-    public void setLogFilename(String logFilename) {
-        if (!logFilename.isEmpty()) {
-            MDC.put("fileset", logFilename);
-        }
+    public void setCurrentLogFile(String logFilename) {
+        this.logFilename = logFilename;
     }
 
 }
