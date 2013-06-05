@@ -37,35 +37,53 @@ import ome.specification.XMLWriter;
 import ome.xml.model.OME;
 import omero.RString;
 import omero.api.IContainerPrx;
+import omero.api.IMetadataPrx;
 import omero.api.IUpdatePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Delete;
 import omero.cmd.GraphConstraintERR;
 import omero.cmd.OK;
 import omero.cmd.Response;
+import omero.model.Arc;
+import omero.model.Channel;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
+import omero.model.Detector;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.Filament;
 import omero.model.Fileset;
 import omero.model.FilesetI;
+import omero.model.Filter;
+import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Instrument;
+import omero.model.Laser;
+import omero.model.LightSource;
+import omero.model.LogicalChannel;
+import omero.model.OTF;
+import omero.model.Objective;
 import omero.model.Pixels;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.util.TempFileManager;
+import pojos.ChannelAcquisitionData;
 import pojos.ImageData;
+import pojos.InstrumentData;
+import pojos.LightSourceData;
 
 /**
  */
 public class MultiImageFilesetMoveTest extends AbstractServerTest {
 
     ExperimenterGroup secondGroup;
+    
+    private IMetadataPrx iMetadata;
 
     @BeforeClass
     public void setupSecondGroup() throws Exception {
@@ -193,7 +211,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
      */
     @Test(groups = {"fs", "integration"})
     public void testMoveMIFWithAcquisitionData() throws Throwable {
-    	int imageCount = 10;
+    	int imageCount = 1;
     	List<File> files = new ArrayList<File>();
     	Fileset set = new FilesetI();
     	List<Long> ids = new ArrayList<Long>();
@@ -230,11 +248,168 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	Response rsp = doChange(client, factory, command, true);
     	OK err = (OK) rsp;
     	assertNotNull(err);
-    	Iterator<File> k = files.iterator();
-    	while (k.hasNext()) {
-    		k.next().delete();
+    	disconnect();
+    	
+    	// Reconnect in second group to check group.id for all objects in graph
+    	long gid2 = secondGroup.getId().getValue();
+    	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
+    			false));
+    	iContainer = factory.getContainerService();
+    	images = iContainer.getImages(Image.class.getName(),
+    			ids, new Parameters());
+    	
+    	//for each image
+    	Iterator<Image> i = images.iterator();
+    	while (i.hasNext()) {
+    		Image img = i.next();
+    		assertEquals(img.getDetails().getGroup().getId().getValue(), gid2);
+    		Pixels pixels = img.getPrimaryPixels();
+        	long pixId = pixels.getId().getValue();
+        	//method already tested in PixelsServiceTest
+        	//make sure objects are loaded.
+        	pixels = factory.getPixelsService().retrievePixDescription(pixId);
+        	List<Long> lcIds = new ArrayList<Long>();
+        	LogicalChannel lc;
+        	Channel channel;
+        	for (int i1 = 0; i1 < pixels.getSizeC().getValue(); i1++) {
+    			channel = pixels.getChannel(i1);
+    			lc = channel.getLogicalChannel();
+    			lcIds.add(lc.getId().getValue());
+        	}
+        	iMetadata = factory.getMetadataService();
+        	List<LogicalChannel> channels = iMetadata.loadChannelAcquisitionData(
+        			lcIds);
+        	assertEquals(channels.size(), pixels.getSizeC().getValue());
+        	LogicalChannel loaded;
+        	Iterator<LogicalChannel> lci = channels.iterator();
+        	LightSourceData l;
+        	while (lci.hasNext()) {
+        		loaded = lci.next();
+        		assertNotNull(loaded);
+        		assertEquals(loaded.getDetails().getGroup().getId().getValue(), gid2);
+            	ChannelAcquisitionData data = new ChannelAcquisitionData(loaded);
+            	assertEquals(data.getDetector().asIObject().getDetails().getGroup().getId().getValue(), gid2);
+//            	assertEquals(data.getFilterSet().asIObject().getDetails().getGroup().getId().getValue(), gid2);		// getFilterSet() is null
+            	l = (LightSourceData) data.getLightSource();
+            	assertEquals(l.asIObject().getDetails().getGroup().getId().getValue(), gid2);
+            	assertEquals(loaded.getDetectorSettings().getDetails().getGroup().getId().getValue(), gid2);
+            	assertEquals(loaded.getLightSourceSettings().getDetails().getGroup().getId().getValue(), gid2);
+            	assertNotNull(loaded.getDetectorSettings().getBinning());	// No Group on Binning
+            	assertEquals(loaded.getDetectorSettings().getDetector().getDetails().getGroup().getId().getValue(), gid2);
+            	assertNotNull(loaded.getDetectorSettings().getDetector().getType());
+            	assertEquals(loaded.getLightPath().getDetails().getGroup().getId().getValue(), gid2);
+            	assertEquals(data.getLightPath().getDichroic().asIObject().getDetails().getGroup().getId().getValue(), gid2);
+            	assertNotNull(data.getContrastMethod());
+            	assertNotNull(data.getIllumination());
+            	assertNotNull(data.getMode());
+
+//            	//OTF support            	
+//            	assertNotNull(loaded.getOtf());		// null
+//            	assertNotNull(loaded.getOtf().getFilterSet());
+//            	assertEquals(loaded.getOtf().getObjective().getDetails().getGroup().getId().getValue(), gid2);
+//            	assertEquals(loaded.getOtf().getFilterSet().getDetails().getGroup().getId().getValue(), gid2);
+//            	assertNotNull(loaded.getOtf().getPixelsType());
+
+    		}
+        	
+        	
+        	Instrument instrument = iMetadata.loadInstrument(
+        			img.getInstrument().getId().getValue());
+        	InstrumentData data = new InstrumentData(instrument);
+        	assertEquals(data.asIObject().getDetails().getGroup().getId().getValue(), gid2);
+    		assertTrue(instrument.sizeOfDetector() > 0);
+    		assertTrue(instrument.sizeOfDichroic() > 0);
+    		assertTrue(instrument.sizeOfFilter() > 0);
+    		assertTrue(instrument.sizeOfFilterSet() > 0);
+    		assertEquals(instrument.sizeOfLightSource(), 5);
+    		assertTrue(instrument.sizeOfObjective() > 0);
+//    		assertTrue(instrument.sizeOfOtf() > 0);
+    		
+    		assertEquals(instrument.sizeOfDetector(),
+    			data.getDetectors().size());
+    		assertEquals(instrument.sizeOfDichroic(),
+    			data.getDichroics().size());
+    		assertEquals(instrument.sizeOfFilter(),
+    			data.getFilters().size());
+    		assertEquals(instrument.sizeOfFilterSet(),
+    			data.getFilterSets().size());
+    		assertEquals(instrument.sizeOfLightSource(),
+    			data.getLightSources().size());
+    		assertEquals(instrument.sizeOfObjective(),
+    			data.getObjectives().size());
+    		assertEquals(instrument.sizeOfOtf(),
+    			data.getOTF().size());
+    		
+    		List<Detector> detectors;
+        	List<Filter> filters;
+        	List<FilterSet> filterSets;
+        	List<Objective> objectives;
+        	List<LightSource> lights;
+        	List<OTF> otfs;
+        	Detector detector;
+        	Filter filter;
+        	FilterSet fs;
+        	Objective objective;
+        	OTF otf;
+        	LightSource light;
+        	Laser laser;
+        	
+        	Iterator j1;
+    		detectors = instrument.copyDetector();
+    		j1 = detectors.iterator();
+    		while (j1.hasNext()) {
+    			detector = (Detector) j1.next();
+    			assertEquals(detector.getDetails().getGroup().getId().getValue(), gid2);
+			}
+    		filters = instrument.copyFilter();
+    		j1 = filters.iterator();
+    		while (j1.hasNext()) {
+				filter = (Filter) j1.next();
+				assertEquals(filter.getTransmittanceRange().getDetails().getGroup().getId().getValue(), gid2);
+			}
+    		filterSets = instrument.copyFilterSet();
+    		j1 = filterSets.iterator();
+    		while (j1.hasNext()) {
+				fs = (FilterSet) j1.next();
+				assertEquals(fs.getDetails().getGroup().getId().getValue(), gid2);
+			}
+    		objectives = instrument.copyObjective();
+    		j1 = objectives.iterator();
+    		while (j1.hasNext()) {
+				objective = (Objective) j1.next();
+				assertEquals(objective.getDetails().getGroup().getId().getValue(), gid2);
+				assertNotNull(objective.getCorrection());
+				System.out.println( objective.getImmersion().isLoaded() );
+				assertNotNull(objective.getImmersion());
+//				assertEquals(objective.getImmersion().getDetails().getGroup().getId().getValue(), gid2);
+			}
+//    		otfs = instrument.copyOtf();
+//    		j1 = otfs.iterator();
+//    		while (j1.hasNext()) {
+//				otf = (OTF) j1.next();
+//				objective = otf.getObjective();
+//				assertNotNull(otf.getPixelsType());
+//				assertNotNull(otf.getFilterSet());
+//				assertNotNull(objective);
+//				assertNotNull(objective.getCorrection());
+//				assertNotNull(objective.getImmersion());
+//			}
+    		lights = instrument.copyLightSource();
+    		j1 = lights.iterator();
+    		while (j1.hasNext()) {
+    			light = (LightSource) j1.next();
+				if (light instanceof Laser) {
+					laser = (Laser) light;
+					System.out.println(laser);
+					assertNotNull(laser.getType());
+					assertNotNull(laser.getLaserMedium());
+//					assertNotNull(laser.getPulse());
+				}
+			}
+    	
+    	
     	}
-    	files.clear();
+       files.clear();
     }
     
     /**
@@ -242,7 +417,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
      */
     @Test(groups = {"fs", "integration"})
     public void testMoveDatasetWithMIF() throws Throwable {
-    	int imageCount = 100;
+    	int imageCount = 2;
     	List<Image> images = importMIF(imageCount);
     	Dataset dataset = new DatasetI();
         dataset.setName(omero.rtypes.rstring("testMoveDatasetWithMIF"));
