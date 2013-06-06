@@ -1967,8 +1967,8 @@ class OMEROGateway
 			if (prx instanceof ThumbnailStorePrx) {
 				ThumbnailStorePrx service = (ThumbnailStorePrx) prx;
 				if (!(service.setPixelsId(pixelsID))) {
-					service.resetDefaults();
-					service.setPixelsId(pixelsID);
+					//service.resetDefaults();
+					//service.setPixelsId(pixelsID);
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
@@ -3339,7 +3339,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private byte[] retrieveThumbnail(SecurityContext ctx,
+	private synchronized byte[] retrieveThumbnail(SecurityContext ctx,
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3399,7 +3399,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized byte[] retrieveThumbnailByLongestSide(
+	private byte[] retrieveThumbnailByLongestSide(
 			SecurityContext ctx, long pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3417,6 +3417,10 @@ class OMEROGateway
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
+		} finally {
+			try {
+				if (service != null) service.close();
+			} catch (Exception e) {}
 		}
 	}
 	
@@ -3476,6 +3480,10 @@ class OMEROGateway
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
+		} finally {
+			try {
+				if (service != null) service.close();
+			} catch (Exception e) {}
 		}
 	}
 	
@@ -6799,7 +6807,8 @@ class OMEROGateway
              config.targetId.set(container.getId().getValue());
              ic.setTarget(container);
         }
-       
+        
+
         ic.setUserPixels(object.getPixelsSize());
         OMEROMetadataStoreClient omsc = null;
         OMEROWrapper reader = null;
