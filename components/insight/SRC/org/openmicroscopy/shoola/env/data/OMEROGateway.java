@@ -6814,6 +6814,7 @@ class OMEROGateway
 	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
 	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
+	        if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
 	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
 	                null, 0, srcFiles.length, null, null, null));
 
