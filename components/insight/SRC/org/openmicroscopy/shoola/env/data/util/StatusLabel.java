@@ -153,8 +153,11 @@ public class StatusLabel
 	 * 4. Processing Metadata
 	 * 5. Generating Objects
 	 */
-	/** Map hosting the description of each steps.*/
+	/** Map hosting the description of each step.*/
 	private static final Map<Integer, String> STEPS;
+	
+	/** Map hosting the description of the failure at a each step.*/
+	private static final Map<Integer, String> STEP_FAILURES;
 	
 	static {
 		STEPS = new HashMap<Integer, String>();
@@ -164,6 +167,12 @@ public class StatusLabel
 		STEPS.put(4, "Processing Metadata");
 		STEPS.put(5, "Generating Objects");
 		STEPS.put(6, "Complete");
+		STEP_FAILURES = new HashMap<Integer, String>();
+		STEP_FAILURES.put(1, "Failed to Import Metadata");
+		STEP_FAILURES.put(2, "Failed to Process Pixels");
+		STEP_FAILURES.put(3, "Failed to Generate Thumbnails");
+		STEP_FAILURES.put(4, "Failed to Process Metadata");
+		STEP_FAILURES.put(5, "Failed to Generate Objects");
 	}
 	
 	/** The number of images in a series. */
@@ -231,6 +240,12 @@ public class StatusLabel
 	
 	/** Indicates that the file scanned is a directory.*/
 	private boolean directory;
+
+	/** The id of the log file.*/
+	private long logFileID;
+	
+	/** The processing step.*/
+	private int step;
 	
 	/** 
 	 * Formats the size of the uploaded data.
@@ -276,6 +291,7 @@ public class StatusLabel
 	/** Initializes the components.*/
 	private void initiliaze()
 	{
+		step = 0;
 		sizeUpload = 0;
 		fileSize = "";
 		seriesCount = 0;
@@ -310,6 +326,8 @@ public class StatusLabel
 		if (isMarkedAsCancel()) return;
 		generalLabel.setText(text);
 		cancellable = false;
+		if (step > 0)
+			processingBar.setString(STEP_FAILURES.get(step));
 		if (fire)
 			firePropertyChange(PROCESSING_ERROR_PROPERTY, null, this);
 	}
@@ -590,6 +608,13 @@ public class StatusLabel
 	public long getFileSize() { return sizeUpload; }
 
 	/**
+	 * Returns the ID associated to the log file.
+	 * 
+	 * @return See above.
+	 */
+	public long getLogFileID() { return logFileID; }
+
+	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
 	 */
@@ -653,26 +678,35 @@ public class StatusLabel
 				(ImportEvent.FILE_UPLOAD_COMPLETE) event;
 			totalUploadedSize += e.uploadedBytes;
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_END) {
-            checksumEvent = (ImportEvent.FILESET_UPLOAD_END) event;
-            if (exception == null) {
-    			processingBar.setValue(1);
-    			processingBar.setString(STEPS.get(1));
-            }
+			checksumEvent = (ImportEvent.FILESET_UPLOAD_END) event;
+			if (exception == null) {
+				step = 1;
+				processingBar.setValue(step);
+				processingBar.setString(STEPS.get(step));
+			}
 		} else if (event instanceof ImportEvent.METADATA_IMPORTED) {
-			processingBar.setValue(2);
-			processingBar.setString(STEPS.get(2));
+			ImportEvent.METADATA_IMPORTED e =
+					(ImportEvent.METADATA_IMPORTED) event;
+			logFileID = e.logFileId;
+			step = 2;
+			processingBar.setValue(step);
+			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.PIXELDATA_PROCESSED) {
-			processingBar.setValue(3);
-			processingBar.setString(STEPS.get(3));
+			step = 3;
+			processingBar.setValue(step);
+			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.THUMBNAILS_GENERATED) {
-			processingBar.setValue(4);
-			processingBar.setString(STEPS.get(4));
+			step = 4;
+			processingBar.setValue(step);
+			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.METADATA_PROCESSED) {
-			processingBar.setValue(5);
-			processingBar.setString(STEPS.get(5));
+			step = 5;
+			processingBar.setValue(step);
+			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.OBJECTS_RETURNED) {
-			processingBar.setValue(6);
-			processingBar.setString(STEPS.get(6));
+			step = 6;
+			processingBar.setValue(step);
+			processingBar.setString(STEPS.get(step));
 		} else if (event instanceof ImportEvent.FILESET_UPLOAD_START) {
 			Iterator<JLabel> i = labels.iterator();
 			while (i.hasNext()) {

@@ -781,7 +781,10 @@ class ImporterComponent
 		ImporterUIElement element;
 		while (i.hasNext()) {
 			element = i.next();
-			element.setImportLogFile(collection, fileSetID);
+			if (element.getID() == index) {
+				element.setImportLogFile(collection, index);
+				break;
+			}
 		}
 	}
 
@@ -840,7 +843,7 @@ class ImporterComponent
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
 			ImportErrorObject r = new ImportErrorObject(component.getFile(),
-					(Exception) result);
+					(Exception) result, component.getGroupID());
 			element.setImportResult(component, result);
 			handleCompletion(element, r, !component.hasParent());
 			return;

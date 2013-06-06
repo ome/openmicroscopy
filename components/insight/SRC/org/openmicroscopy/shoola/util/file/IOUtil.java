@@ -296,17 +296,17 @@ public class IOUtil
 	    int bytesRead;
 
 	    String name = zip.getName()+ZIP_EXTENSION;
-	    File f;
+	    File file;
 		try {
-			f = new File(zip.getParentFile(), name);
+			file = new File(zip.getParentFile(), name);
 			ZipOutputStream out = new ZipOutputStream(
-					new FileOutputStream(f));
+					new FileOutputStream(file));
 
 		    FileInputStream in;
-		    
+		    File f;
 		    for (int i = 0; i < entries.length; i++) {
 		    	f = entries[i];
-		    	if (f.isDirectory())
+		    	if (f.isDirectory() && f.isHidden())
 		    		continue;//Ignore directory TODO
 		    	in = new FileInputStream(f); // Stream to read file
 		    	out.putNextEntry(new ZipEntry(f.getName())); // Store entry
@@ -316,7 +316,7 @@ public class IOUtil
 		    	in.close(); 
 		    }
 		    out.close();
-			return zip;
+			return file;
 		} catch (Exception e) {
 			throw new Exception("Cannot create the zip.", e);
 		}
