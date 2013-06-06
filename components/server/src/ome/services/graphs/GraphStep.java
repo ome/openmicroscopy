@@ -482,4 +482,42 @@ public abstract class GraphStep {
         return softOnReap;
     }
 
+
+    protected QueryBuilder optionalNullBuilder() {
+        QueryBuilder nullOp = null;
+        if (entry.isNull()) { // WORKAROUND see #2776, #2966
+            // If this is a null operation, we don't want to modify the source
+            // row,
+            // but modify a second row pointing at the source row via a FK.
+            //
+            // NB: below we also prevent this from
+            // being raised as an event. TODO: refactor out to Op
+            //
+            nullOp = new QueryBuilder();
+            if (table.contains("Job")) {
+                nullOp.update("UploadJob");
+                nullOp.append("set versionInfo = null ");
+                nullOp.where();
+                nullOp.and("id = :id");
+            } else {
+                nullOp.update(table);
+                nullOp.append("set relatedTo = null ");
+                nullOp.where();
+                nullOp.and("relatedTo.id = :id");
+            }
+        }
+        return nullOp;
+    }
+
+    protected void optionallyNullField(Session session, Long id) {
+        final QueryBuilder nullOp = optionalNullBuilder();
+        if (nullOp != null) {
+            nullOp.param("id", id);
+            Query q = nullOp.query(session);
+            int updated = q.executeUpdate();
+            if (log.isDebugEnabled()) {// FIXME: logging.
+                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
+            }
+        }
+    }
 }

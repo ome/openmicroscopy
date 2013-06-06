@@ -77,6 +77,10 @@ public class ChgrpStep extends GraphStep {
             }
         }
 
+        // Phase 2: NULL
+        optionallyNullField(session, id);
+
+        // Phase 3: Actual chgrp.
         final QueryBuilder qb = spec.chgrpQuery(ec, table, opts);
         qb.param("id", id);
         qb.param("grp", grp);
