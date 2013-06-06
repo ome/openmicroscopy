@@ -197,6 +197,7 @@ public class FileUploader
 					//zip the directory.
 					f = IOUtil.zipDirectory(directory);
 				}
+				/*
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
@@ -208,9 +209,12 @@ public class FileUploader
 				c = SvcRegistry.getCommunicator(desc);
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
+						*/
 				if (directory != null) {
-					directory.delete();
+					FileUtils.deleteDirectory(directory);
 					f.delete();
+					System.err.println(f.exists());
+					System.err.println(directory.exists());
 				}
 			}
 			uploadedFile = object;
