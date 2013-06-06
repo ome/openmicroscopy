@@ -183,8 +183,17 @@ public class GraphState implements GraphStep.Callback {
             }
 
             final GraphSpec subSpec = entry.getSubSpec();
+            long[][] results = spec.queryBackupIds(session, i, entry, null);
 
-            final long[][] results = spec.queryBackupIds(session, i, entry, null);
+            // FIXME: at the moment, queryBackupIds is being called
+            // on the superspec. In order to permit specialization, it will
+            // need to be reworked to use subSpec.
+            if (subSpec instanceof FilesetGraphSpec) {
+                final FilesetGraphSpec fgs = (FilesetGraphSpec) subSpec;
+                final int pathSize = entry.splitPath().length;
+                results = fgs.hideNonDistinct(results, pathSize);
+            }
+
             tables.add(entry, results);
             if (subSpec != null) {
                 if (results.length != 0) { // ticket:2823

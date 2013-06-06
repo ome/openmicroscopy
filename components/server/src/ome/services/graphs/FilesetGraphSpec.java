@@ -129,9 +129,18 @@ public class FilesetGraphSpec extends BaseGraphSpec {
 
         final int size = subpath.ownParts();
         final int upto = sub.length - size;
+        return hideNonDistinct(rv, upto);
+    }
+
+    /**
+     * Workaround to take from the second element upto the beginning of
+     * "distinct ()" and set all values to -2.
+     *
+     * @param rv
+     * @return
+     */
+    public long[][] hideNonDistinct(long[][] rv, int upto) {
         for (long[] row : rv) {
-            // From the second element upto the beginning of "distinct ()"
-            // set all values to -2.
             for (int i = 1; i < upto; i++) {
                 row[i] = -2;
             }
