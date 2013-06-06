@@ -47,7 +47,8 @@ public class GraphTables {
                     return cmp;
                 }
             }
-            return 0; // FIXME: shouldn't return two identical items
+            throw new IllegalStateException(
+                    "Should never return two identical items! " + o1);
         }
     };
 

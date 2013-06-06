@@ -181,10 +181,6 @@ public class GraphEntry {
         return parts.length + split(path).length;
     }
 
-    public String[] splitPath() {
-        return split(path);
-    }
-
     //
     // Helpers
     //
