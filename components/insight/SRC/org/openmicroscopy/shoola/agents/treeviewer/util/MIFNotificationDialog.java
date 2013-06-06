@@ -128,6 +128,7 @@ public class MIFNotificationDialog
 			values = map.get(mif.getContext());
 			values.addAll(mif.getFailures());
 		}
+		firePropertyChange(MOVE_ALL_PROPERTY, null, object);
 		close();
 	}
 	
