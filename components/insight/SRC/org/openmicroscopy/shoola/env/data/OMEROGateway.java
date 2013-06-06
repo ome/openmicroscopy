@@ -1514,8 +1514,8 @@ class OMEROGateway
 			if (prx instanceof ThumbnailStorePrx) {
 				ThumbnailStorePrx service = (ThumbnailStorePrx) prx;
 				if (!(service.setPixelsId(pixelsID))) {
-					service.resetDefaults();
-					service.setPixelsId(pixelsID);
+					//service.resetDefaults();
+					//service.setPixelsId(pixelsID);
 				}
 			} else if (prx instanceof RenderingEnginePrx) {
 				RenderingEnginePrx re = (RenderingEnginePrx) prx;
@@ -2875,7 +2875,7 @@ class OMEROGateway
 	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private byte[] retrieveThumbnail(SecurityContext ctx,
+	private synchronized byte[] retrieveThumbnail(SecurityContext ctx,
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
