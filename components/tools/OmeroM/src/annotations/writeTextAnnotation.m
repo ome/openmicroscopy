@@ -1,4 +1,4 @@
-function ann = writeTextAnnotation(session, text, varargin)
+function ann = writeTextAnnotation(session, type, text, varargin)
 % WRITETEXTANNOTATION Create and upload a text annotation onto the OMERO server
 %
 %    ann = writeTextAnnotation(session, type, text) creates and uploads an
