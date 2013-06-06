@@ -6259,7 +6259,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv.getvalue()
 
     #@setsessiongroup
-    def getThumbnail (self, size=(64,64), z=None, t=None):
+    def getThumbnail (self, size=(64,64), z=None, t=None, direct=True):
         """
         Returns a string holding a rendered JPEG of the thumbnail.
 
@@ -6273,6 +6273,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param z: the Z position to use for rendering the thumbnail. If not provided default is used.
         @type t: number
         @param t: the T position to use for rendering the thumbnail. If not provided default is used.
+        @param direct:      If true, force creation of new thumbnail (don't use cached)
         @rtype: string or None
         @return: the rendered JPEG, or None if there was an error.
         """
@@ -6306,12 +6307,18 @@ class _ImageWrapper (BlitzObjectWrapper):
                 return self._getProjectedThumbnail(size, pos)
             if len(size) == 1:
                 if pos is None:
-                    thumb = tb.getThumbnailByLongestSide
+                    if direct:
+                        thumb = tb.getThumbnailByLongestSideDirect
+                    else:
+                        thumb = tb.getThumbnailByLongestSide
                 else:
                     thumb = tb.getThumbnailForSectionByLongestSideDirect
             else:
                 if pos is None:
-                    thumb = tb.getThumbnail
+                    if direct:
+                        thumb = tb.getThumbnailDirect
+                    else:
+                        thumb = tb.getThumbnail
                 else:
                     thumb = tb.getThumbnailForSectionDirect
             args = map(lambda x: rint(x), size)
