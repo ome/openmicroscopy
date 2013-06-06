@@ -94,9 +94,9 @@ public class PreprocessorTest extends Preprocessor {
 
         containeds.putAll(Maps.immutableEntry(TargetType.DATASET, new GraphModifyTarget(TargetType.PROJECT, 0)), ImmutableList.of(0L, 1L));
 
-        containeds.putAll(Maps.immutableEntry(TargetType.IMAGE, new GraphModifyTarget(TargetType.WELL, 0)), ImmutableList.of(0L));
-        containeds.putAll(Maps.immutableEntry(TargetType.IMAGE, new GraphModifyTarget(TargetType.WELL, 1)), ImmutableList.of(1L));
-        containeds.putAll(Maps.immutableEntry(TargetType.IMAGE, new GraphModifyTarget(TargetType.WELL, 2)), ImmutableList.of(2L));
+        for (long id = 0; id < 7; id++) {
+            containeds.putAll(Maps.immutableEntry(TargetType.IMAGE, new GraphModifyTarget(TargetType.WELL, id)), ImmutableList.of(id));
+        }
 
         containeds.putAll(Maps.immutableEntry(TargetType.WELL, new GraphModifyTarget(TargetType.PLATE, 0)), ImmutableList.of(0L, 1L));
         containeds.putAll(Maps.immutableEntry(TargetType.WELL, new GraphModifyTarget(TargetType.PLATE, 1)), ImmutableList.of(2L, 3L));
@@ -205,167 +205,572 @@ public class PreprocessorTest extends Preprocessor {
         return requestStrings.toString();
     }
 
-    /* TODO: review, rename, expand, comment the unit tests below */
-
+    /**
+     * Test conversion of image requests to fileset requests.
+     */
     @Test
-    public void testImagesOfFilesets() {
+    public void testImagesToFilesets() {
         for (long imageId = 1; imageId < 6; imageId++) {
             addDeleteRequest("/Image", imageId);
         }
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2]",
-                "DELETE[/Fileset:2], DELETE[/Fileset:1]");
-
         process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image requests to image and fileset requests.
+     */
     @Test
-    public void testFilesets() {
+    public void testImagesToImagesFilesets() {
+        for (long imageId = 0; imageId < 7; imageId++) {
+            addDeleteRequest("/Image", imageId);
+        }
+
+        process();
+
+        final String expected = "DELETE[/Image:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of fileset requests to fileset requests.
+     */
+    @Test
+    public void testFilesetsToFilesets() {
         addDeleteRequest("/Fileset", 1);
         addDeleteRequest("/Fileset", 2);
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2]");
-
         process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image and fileset requests to fileset requests.
+     */
     @Test
-    public void testImagesFilesets() {
+    public void testImagesFilesetsToFilesets() {
         for (long imageId = 1; imageId < 6; imageId++) {
             addDeleteRequest("/Image", imageId);
         }
         addDeleteRequest("/Fileset", 1);
         addDeleteRequest("/Fileset", 2);
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2]",
-                "DELETE[/Fileset:2], DELETE[/Fileset:1]");
-
         process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of fileset and image requests to fileset requests.
+     */
     @Test
-    public void testFilesetsImages() {
+    public void testFilesetsImagesToFilesets() {
         addDeleteRequest("/Fileset", 1);
         addDeleteRequest("/Fileset", 2);
         for (long imageId = 1; imageId < 6; imageId++) {
             addDeleteRequest("/Image", imageId);
         }
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2]");
-
         process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of fileset and image requests to fileset and image requests.
+     */
     @Test
-    public void testFilesetImageFilesets() {
-        for (long filesetId = 1; filesetId < 3; filesetId++) {
-            addChgrpRequest("/Fileset", filesetId, 8);
-        }
+    public void testFilesetsImagesToFilesetsImages() {
+        addChgrpRequest("/Fileset", 1, 8);
+        addChgrpRequest("/Fileset", 2, 8);
         for (long imageId = 0; imageId < 7; imageId++) {
             addChgrpRequest("/Image", imageId, 8);
         }
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:0], CHGRP(8)[/Image:6]",
-                "CHGRP(8)[/Fileset:2], CHGRP(8)[/Fileset:1], CHGRP(8)[/Image:0], CHGRP(8)[/Image:6]");
-
         process();
+
+        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:0], CHGRP(8)[/Image:6]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image and fileset requests to image and fileset requests.
+     */
     @Test
-    public void testImageFilesetFilesets() {
+    public void testImagesFilesetsToImagesFilesets() {
         for (long imageId = 0; imageId < 7; imageId++) {
             addChgrpRequest("/Image", imageId, 8);
         }
-        for (long filesetId = 1; filesetId < 3; filesetId++) {
-            addChgrpRequest("/Fileset", filesetId, 8);
-        }
-
-        final ImmutableList<String> expected = ImmutableList.of(
-                "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:6]",
-                "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:2], CHGRP(8)[/Fileset:1], CHGRP(8)[/Image:6]");
+        addChgrpRequest("/Fileset", 1, 8);
+        addChgrpRequest("/Fileset", 2, 8);
 
         process();
+
+        final String expected = "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:6]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image requests to image requests.
+     */
     @Test
-    public void testImageFilesets() {
-        for (long imageId = 0; imageId < 7; imageId++) {
-            addChgrpRequest("/Image", imageId, 8);
-        }
-
-        final ImmutableList<String> expected = ImmutableList.of(
-                "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:6]",
-                "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:2], CHGRP(8)[/Fileset:1], CHGRP(8)[/Image:6]");
-
-        process();
-        final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
-    }
-
-    @Test
-    public void testImageFilesetsChgrpDifferentGroups() {
+    public void testImagesToImagesChgrp() {
         addChgrpRequest("/Image", 1, 1);
         addChgrpRequest("/Image", 2, 2);
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "CHGRP(1)[/Image:1], CHGRP(2)[/Image:2]");
-
         process();
+
+        final String expected = "CHGRP(1)[/Image:1], CHGRP(2)[/Image:2]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image requests to fileset requests.
+     */
     @Test
-    public void testImageFilesetsChgrpSameGroup() {
+    public void testImagesToFilesetsChgrp() {
         addChgrpRequest("/Image", 1, 1);
         addChgrpRequest("/Image", 2, 1);
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "CHGRP(1)[/Fileset:1]");
-
         process();
+
+        final String expected = "CHGRP(1)[/Fileset:1]";
         final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        Assert.assertEquals(actual, expected);
     }
 
+    /**
+     * Test conversion of image requests to fileset requests in different groups.
+     */
     @Test
-    public void testProjectFilesets() {
+    public void testImagesToFilesetsChgrpDifferent() {
+        addChgrpRequest("/Image", 3, 8);
+        addChgrpRequest("/Image", 1, 9);
+        addChgrpRequest("/Image", 4, 8);
+        addChgrpRequest("/Image", 2, 9);
+        addChgrpRequest("/Image", 5, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Fileset:2], CHGRP(9)[/Fileset:1]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of dataset requests to dataset requests.
+     */
+    @Test
+    public void testDatasetsToDatasets() {
+        addDeleteRequest("/Dataset", 0);
+
+        process();
+
+        final String expected = "DELETE[/Dataset:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of dataset requests to fileset and dataset requests.
+     */
+    @Test
+    public void testDatasetsToFilesetsDatasets() {
+        addDeleteRequest("/Dataset", 0);
+        addDeleteRequest("/Dataset", 1);
+
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Dataset:0], DELETE[/Dataset:1]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of dataset and image requests to fileset, dataset and image requests.
+     */
+    @Test
+    public void testDatasetsImagesToFilesetsDatasetsImages() {
+        addDeleteRequest("/Dataset", 0);
+        addDeleteRequest("/Dataset", 1);
+        addDeleteRequest("/Image", 4);
+        addDeleteRequest("/Image", 5);
+        addDeleteRequest("/Image", 6);
+
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Dataset:0], DELETE[/Fileset:2], DELETE[/Dataset:1], DELETE[/Image:6]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of project requests to fileset and project requests.
+     */
+    @Test
+    public void testProjectsToFilesetsProjects() {
         addDeleteRequest("/Project", 0);
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Project:0]");
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Project:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of project and image requests to fileset, project and image requests.
+     */
+    @Test
+    public void testProjectsImagesToFilesetsProjectsImages() {
+        addDeleteRequest("/Project", 0);
+        addDeleteRequest("/Image", 4);
+        addDeleteRequest("/Image", 5);
+        addDeleteRequest("/Image", 6);
 
         process();
+
+        final ImmutableList<String> expected = ImmutableList.of(
+                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Project:0], DELETE[/Image:6]",
+                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Project:0], DELETE[/Image:6]");
         final String actual = requestsToString();
         Assert.assertTrue(expected.contains(actual));
     }
 
+    /**
+     * Test conversion of image, dataset and project requests to image, fileset, dataset and project requests.
+     */
     @Test
-    public void testScreenFilesets() {
-        addDeleteRequest("/Screen", 0);
-
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Screen:0]");
+    public void testImagesDatasetsProjectsToImagesFilesetsDatasetsProjects() {
+        for (long imageId = 0; imageId < 7; imageId++) {
+            addDeleteRequest("/Image", imageId);
+        }
+        addDeleteRequest("/Dataset", 0);
+        addDeleteRequest("/Dataset", 1);
+        addDeleteRequest("/Project", 0);
 
         process();
+
+        final String expected =
+                "DELETE[/Image:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6], " +
+                "DELETE[/Dataset:0], DELETE[/Dataset:1], DELETE[/Project:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well requests to well requests.
+     */
+    @Test
+    public void testWellsToWells() {
+        addChgrpRequest("/Well", 0, 8);
+        addChgrpRequest("/Well", 1, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Well:0], CHGRP(8)[/Well:1]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well requests to fileset and well requests.
+     */
+    @Test
+    public void testWellsToFilesetsWells() {
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well requests to well and fileset requests.
+     */
+    @Test
+    public void testWellsImagesToWellsFilesets() {
+        addChgrpRequest("/Well", 0, 8);
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Well:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+        
+    }
+
+    /**
+     * Test conversion of image and well requests to fileset and well requests.
+     */
+    @Test
+    public void testImagesWellsToFilesetsWells() {
+        addChgrpRequest("/Image", 1, 8);
+        addChgrpRequest("/Image", 2, 8);
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well and image requests to fileset and well requests.
+     */
+    @Test
+    public void testWellsImagesToFilesetsWells() {
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+        addChgrpRequest("/Image", 1, 8);
+        addChgrpRequest("/Image", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of image and well requests to image, fileset and well requests.
+     */
+    @Test
+    public void testImagesWellsToImagesFilesetsWells() {
+        addChgrpRequest("/Image", 0, 8);
+        addChgrpRequest("/Image", 1, 8);
+        addChgrpRequest("/Image", 2, 8);
+        addChgrpRequest("/Well", 0, 8);
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Image:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:0], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well and image requests to well, fileset and image requests.
+     */
+    @Test
+    public void testWellsImagesToWellsFilesetsImages() {
+        addChgrpRequest("/Well", 0, 8);
+        addChgrpRequest("/Well", 1, 8);
+        addChgrpRequest("/Well", 2, 8);
+        addChgrpRequest("/Image", 0, 8);
+        addChgrpRequest("/Image", 1, 8);
+        addChgrpRequest("/Image", 2, 8);
+
+        process();
+
+        final String expected = "CHGRP(8)[/Well:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2], CHGRP(8)[/Image:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of well requests to fileset and well requests in different groups.
+     */
+    @Test
+    public void testWellsToFilesetsChgrpDifferent() {
+        addChgrpRequest("/Well", 3, 8);
+        addChgrpRequest("/Well", 1, 9);
+        addChgrpRequest("/Well", 4, 8);
+        addChgrpRequest("/Well", 2, 9);
+        addChgrpRequest("/Well", 5, 8);
+
+        process();
+
+        final String expected =
+                "CHGRP(8)[/Fileset:2], CHGRP(8)[/Well:3], CHGRP(9)[/Fileset:1], CHGRP(9)[/Well:1], " +
+                "CHGRP(8)[/Well:4], CHGRP(9)[/Well:2], CHGRP(8)[/Well:5]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of plate requests to plate requests.
+     */
+    @Test
+    public void testPlatesToPlates() {
+        addDeleteRequest("/Plate", 0);
+
+        process();
+
+        final String expected = "DELETE[/Plate:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of plate requests to fileset and plate requests.
+     */
+    @Test
+    public void testPlatesToFilesetsPlates() {
+        addDeleteRequest("/Plate", 0);
+        addDeleteRequest("/Plate", 1);
+
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Plate:0], DELETE[/Plate:1]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of plate and image requests to fileset, plate and image requests.
+     */
+    @Test
+    public void testPlatesImagesToFilesetsPlatesImages() {
+        addDeleteRequest("/Plate", 0);
+        addDeleteRequest("/Plate", 1);
+        addDeleteRequest("/Image", 4);
+        addDeleteRequest("/Image", 5);
+        addDeleteRequest("/Image", 6);
+
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Plate:0], DELETE[/Fileset:2], DELETE[/Plate:1], DELETE[/Image:6]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of screen requests to fileset and screen requests.
+     */
+    @Test
+    public void testScreensToFilesetsScreens() {
+        addDeleteRequest("/Screen", 0);
+
+        process();
+
+        final String expected = "DELETE[/Fileset:1], DELETE[/Screen:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of screen and image requests to fileset, screen and image requests.
+     */
+    @Test
+    public void testScreensImagesToFilesetsScreensImages() {
+        addDeleteRequest("/Screen", 0);
+        addDeleteRequest("/Image", 4);
+        addDeleteRequest("/Image", 5);
+        addDeleteRequest("/Image", 6);
+
+        process();
+
+        final ImmutableList<String> expected = ImmutableList.of(
+                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Screen:0], DELETE[/Image:6]",
+                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Screen:0], DELETE[/Image:6]");
         final String actual = requestsToString();
         Assert.assertTrue(expected.contains(actual));
+    }
+
+    /**
+     * Test conversion of image, plate and screen requests to image, fileset, plate and screen requests.
+     */
+    @Test
+    public void testImagesPlatesScreensToImagesFilesetsPlatesScreens() {
+        for (long imageId = 0; imageId < 7; imageId++) {
+            addDeleteRequest("/Image", imageId);
+        }
+        addDeleteRequest("/Plate", 0);
+        addDeleteRequest("/Plate", 1);
+        addDeleteRequest("/Screen", 0);
+
+        process();
+
+        final String expected =
+                "DELETE[/Image:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6], " +
+                "DELETE[/Plate:0], DELETE[/Plate:1], DELETE[/Screen:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of plate and well requests to fileset, plate and well requests.
+     */
+    @Test
+    public void testPlatesWellsToFilesetsPlatesWells() {
+        addDeleteRequest("/Plate", 0);
+        addDeleteRequest("/Plate", 1);
+        addDeleteRequest("/Well", 4);
+        addDeleteRequest("/Well", 5);
+        addDeleteRequest("/Well", 6);
+
+        process();
+
+        final String expected =
+                "DELETE[/Fileset:1], DELETE[/Plate:0], DELETE[/Fileset:2], DELETE[/Plate:1], " +
+                "DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
+    }
+
+    /**
+     * Test conversion of screen and well requests to fileset, screen and well requests.
+     */
+    @Test
+    public void testScreensWellsToFilesetsScreensWells() {
+        addDeleteRequest("/Screen", 0);
+        addDeleteRequest("/Well", 4);
+        addDeleteRequest("/Well", 5);
+        addDeleteRequest("/Well", 6);
+
+        process();
+
+        final ImmutableList<String> expected = ImmutableList.of(
+                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Screen:0], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]",
+                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Screen:0], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]");
+        final String actual = requestsToString();
+        Assert.assertTrue(expected.contains(actual));
+    }
+
+    /**
+     * Test conversion of well, plate and screen requests to well, fileset, plate and screen requests.
+     */
+    @Test
+    public void testWellsPlatesScreensToWellsFilesetsPlatesScreens() {
+        for (long wellId = 0; wellId < 7; wellId++) {
+            addDeleteRequest("/Well", wellId);
+        }
+        addDeleteRequest("/Plate", 0);
+        addDeleteRequest("/Plate", 1);
+        addDeleteRequest("/Screen", 0);
+
+        process();
+
+        final String expected =
+                "DELETE[/Well:0], DELETE[/Fileset:1], DELETE[/Well:1], DELETE[/Well:2], " +
+                "DELETE[/Fileset:2], DELETE[/Well:3], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6], " +
+                "DELETE[/Plate:0], DELETE[/Plate:1], DELETE[/Screen:0]";
+        final String actual = requestsToString();
+        Assert.assertEquals(actual, expected);
     }
 }
