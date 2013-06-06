@@ -248,8 +248,9 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         walk(qb, subpath);
 
         qb.where();
-        qb.and("ROOT0.id = :id");
-        qb.param("id", id);
+        // Moving to seqParams due to SQL weirdness.
+        qb.and("ROOT0.id = ?");
+        qb.param(0, id);
         if (and != null) {
             qb.and("");
             qb.subselect(and);
