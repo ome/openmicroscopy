@@ -33,11 +33,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -62,9 +59,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyledDocument;
 
+
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 import info.clearthought.layout.TableLayout;
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
@@ -237,18 +236,12 @@ public class MessengerDialog
 	/** Component indicating to submit the files or not. */
 	private JCheckBox		submitFile;
 	
-	/** Component indicating to submit the log file or not. */
-	private JCheckBox		submitLogFile;
-	
 	/** Indicates the progress of the files submission.*/
 	private JXBusyLabel		progress;
 	
 	/** Indicates the progress of the files submission.*/
 	private JLabel			progressLabel;
-	
-	/** The log file.*/
-	private File logFile;
-	
+
 	/** 
 	 * Displays the dialog indicating the consequence of not submitting
 	 * the files.
@@ -328,7 +321,7 @@ public class MessengerDialog
 		if (dialogType == SUBMIT_ERROR_TYPE) {
 			List<FileTableNode> files = null;
 			if (table != null) files = table.getSelectedFiles();
-			if (files == null || files.size() == 0) {
+			if (CollectionUtils.isEmpty(files)) {
 				sendError(propertyName);
 			} else {
 				String email = emailArea.getText().trim();
@@ -339,8 +332,6 @@ public class MessengerDialog
 				submitStatus.setVisible(true);
 				submitStatus.setBusy(true);
 				details.setExceptionOnly(!submitFile.isSelected());
-				if (submitLogFile.isSelected())
-					details.setLogFile(logFile);
 				firePropertyChange(propertyName, null, details);
 			}
 		} else {
@@ -370,8 +361,6 @@ public class MessengerDialog
         emailArea.setText(emailAddress);
         commentArea = new MultilineLabel();
         commentArea.setEditable(true);
-        //commentArea.setBorder(
-        //		BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         commentArea.setBackground(UIUtilities.BACKGROUND_COLOR);
         commentArea.setOpaque(true);
         if (exception != null) {
@@ -392,8 +381,6 @@ public class MessengerDialog
         submitFile.setSelected(true);
         submitFile.addActionListener(this);
         submitFile.setActionCommand(""+SUBMIT);
-        submitLogFile = new JCheckBox("Log");
-        //submitLogFile.setSelected(true);
 	}
 
 	/**
@@ -601,7 +588,6 @@ public class MessengerDialog
     		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
     		row.add(new JLabel("Submit Exceptions and: "));
     		row.add(UIUtilities.buildComponentPanel(submitFile));
-    		row.add(UIUtilities.buildComponentPanel(submitLogFile));
     		JPanel p = new JPanel();
     		p.setBorder(null);
     		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -672,19 +658,7 @@ public class MessengerDialog
 	{
 		setTitle(title);
 		initComponents();
-		//Determine log file.
-		List<ImportErrorObject> files = null;
-		if (toSubmit != null) {
-			Iterator<ImportErrorObject> i = toSubmit.iterator();
-			ImportErrorObject o;
-			files = new ArrayList<ImportErrorObject>();
-			while (i.hasNext()) {
-				o = i.next();
-				if (o.getException() == null) logFile = o.getFile();
-				else files.add(o);
-			}
-		}
-		buildGUI(files);
+		buildGUI(toSubmit);
 		setSize(DEFAULT_SIZE);
 	}
 	

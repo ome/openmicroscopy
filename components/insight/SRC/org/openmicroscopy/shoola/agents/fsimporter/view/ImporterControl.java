@@ -263,7 +263,7 @@ class ImporterControl
 	 */
 	void submitFiles(FileImportComponent fc)
 	{
-		List<ImportErrorObject> toSubmit = new ArrayList<ImportErrorObject>();
+		
 		List<FileImportComponent> list;
 		if (fc != null) {
 			list = new ArrayList<FileImportComponent>();
@@ -275,6 +275,7 @@ class ImporterControl
 		//Now prepare the list of object to send.
 		Iterator<FileImportComponent> i = list.iterator();
 		ImportErrorObject object;
+		List<ImportErrorObject> toSubmit = new ArrayList<ImportErrorObject>();
 		while (i.hasNext()) {
 			fc = i.next();
 			object = fc.getImportErrorObject();

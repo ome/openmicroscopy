@@ -24,23 +24,37 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+
+import com.google.common.io.Files;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
+
+import pojos.AnnotationData;
+import pojos.FileAnnotationData;
+import pojos.FilesetData;
 
 /**
  * Uploads files to the QA system.
@@ -62,7 +76,7 @@ public class FileUploader
 	/** 
 	 * Object containing information about the files to upload to the server.
 	 */
-	private MessengerDetails	details;
+	private MessengerDetails details;
 	
 	/** Partial result. Returns the uploaded file. */
 	private Object uploadedFile;
@@ -90,7 +104,7 @@ public class FileUploader
 	private void uploadFile(ImportErrorObject object)
 	{
 		try {
-			Communicator c; 
+			Communicator c;
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
@@ -103,45 +117,108 @@ public class FileUploader
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version, token);
 			} else {
-				File f = null;
-				if (details.isSubmitMainFile())
-					f = object.getFile();
+				//Create a zip if required
+				File f = object.getFile();
 				String[] usedFiles = object.getUsedFiles();
-				List<File> additionalFiles = null;
-				if (usedFiles != null && usedFiles.length > 0) {
-					additionalFiles = new ArrayList<File>();
-					for (int i = 0; i < usedFiles.length; i++) {
-						additionalFiles.add(new File(usedFiles[i]));
+				long id = object.getLogFileID();
+				OmeroMetadataService svc = context.getMetadataService();
+				SecurityContext ctx = new SecurityContext(
+						object.getSecurityContext());
+				try {
+					if (object.isRetrieveFromAnnotation()) {
+						Map<Long, Collection<AnnotationData>> map =
+						svc.loadAnnotations(ctx, FilesetData.class,
+							Arrays.asList(id), FileAnnotationData.class,
+							Arrays.asList(FileAnnotationData.LOG_FILE_NS),
+							null);
+						if (map.size() == 0) id = -1;
+						else {
+							Collection<AnnotationData> l = map.get(id);
+							id = -1; //reset
+							Iterator<AnnotationData> k = l.iterator();
+							AnnotationData data;
+							while (k.hasNext()) {
+								data = k.next();
+								if (FileAnnotationData.LOG_FILE_NS.equals(
+										data.getNameSpace())) {
+									id = ((FileAnnotationData) data).getFileID();
+									break;
+								}
+							}
+						}
 					}
+				} catch (Exception ex) {
+					id = -1;
+					//Not possible to load the log file:
+					LogMessage msg = new LogMessage();
+					msg.print("Loading of Import log");
+					msg.print(e);
+					context.getLogger().error(this, msg);
 				}
 				
+				File directory = null;
+				boolean b = false;
+				if (usedFiles != null) {
+					if (usedFiles.length > 1) b = true;
+					if (usedFiles.length == 1) {
+						b = !f.getAbsolutePath().equals(usedFiles[0]);
+					}
+				}
+				if (b || id > 0) {
+					directory = Files.createTempDir();
+					//Add the file to the directory.
+					directory = new File(directory.getParentFile(),
+							FilenameUtils.removeExtension(f.getName()));
+					if (f != null)
+						FileUtils.copyFileToDirectory(f, directory, true);
+					usedFiles = object.getUsedFiles();
+					if (usedFiles != null) {
+						for (int i = 0; i < usedFiles.length; i++) {
+							FileUtils.copyFileToDirectory(new File(usedFiles[i]),
+									directory, true);
+						}
+					}
+					if (id > 0) {
+						StringBuffer buf = new StringBuffer();
+						buf.append("importLog_");
+						buf.append(id);
+						buf.append(".log");
+						File log = new File(directory, buf.toString());
+						try {
+							svc.downloadFile(ctx, log, id);
+						} catch (Exception ex) {
+							//Not possible to load the log file:
+							LogMessage msg = new LogMessage();
+							msg.print("Loading of Import log");
+							msg.print(e);
+							context.getLogger().error(this, msg);
+						}
+					}
+					//zip the directory.
+					f = IOUtil.zipDirectory(directory);
+				}
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
-						f, additionalFiles, token);
+						null, null, token);
+				
 				desc = new CommunicatorDescriptor(
 						HttpChannel.CONNECTION_PER_REQUEST, processURL,
 						timeout);
 				c = SvcRegistry.getCommunicator(desc);
-				StringBuilder reply = new StringBuilder();
-				String reader = object.getReaderType();
-				if (f != null)
-					c.submitFile(token.toString(), f, reader, reply);
-				if (additionalFiles != null) {
-					Iterator<File> i = additionalFiles.iterator();
-					File log = details.getLogFile();
-					String logs = "";
-					if (log != null) logs = log.getAbsolutePath();
-					while (i.hasNext()) {
-						f = i.next();
-						if (f.getAbsolutePath().equals(logs))
-							c.submitFile(token.toString(), f, null, reply);
-						else c.submitFile(token.toString(), f, null, reply);
-					}
+				c.submitFile(token.toString(), f, object.getReaderType(),
+						new StringBuilder());
+				if (directory != null) {
+					directory.delete();
+					f.delete();
 				}
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Submit to QA");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
 	}
 	
