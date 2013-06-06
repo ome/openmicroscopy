@@ -301,10 +301,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         return rv;
     }
 
-    protected long parseLong(Object obj) {
-        return (Long) obj;
-    }
-
     /*
      * See interface documentation.
      */

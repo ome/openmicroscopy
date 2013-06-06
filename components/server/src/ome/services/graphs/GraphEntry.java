@@ -172,6 +172,15 @@ public class GraphEntry {
         return prepend(superspec, path, parts);
     }
 
+    /**
+     * Returns the size of {@link #parts} and {@link #path} combined.
+     * This value plus the {@link #split(String)} size of superspec is
+     * the full size of the {@link #path(String)} return value.
+     */
+    public int ownParts() {
+        return parts.length + split(path).length;
+    }
+
     //
     // Helpers
     //
