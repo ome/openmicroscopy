@@ -32,6 +32,8 @@ import java.util.Map;
 
 //Third-party libraries
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+
 import com.google.common.io.Files;
 
 //Application-internal dependencies
@@ -165,6 +167,8 @@ public class FileUploader
 				if (b || id > 0) {
 					directory = Files.createTempDir();
 					//Add the file to the directory.
+					directory = new File(directory.getParentFile(),
+							FilenameUtils.removeExtension(f.getName()));
 					if (f != null)
 						FileUtils.copyFileToDirectory(f, directory, true);
 					usedFiles = object.getUsedFiles();
