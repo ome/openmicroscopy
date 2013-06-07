@@ -78,7 +78,8 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
         if (id == null) {
             throw new PasswordChangeException("Couldn't find id: " + user);
         }
-        util.changeUserPasswordById(id, password, salt);
+        util.changeUserPasswordById(id, password,
+                salt ? PasswordUtil.METHOD.ALL : PasswordUtil.METHOD.LEGACY);
     }
 
 }
