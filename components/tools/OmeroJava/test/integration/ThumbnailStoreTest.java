@@ -33,6 +33,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import ome.formats.OMEROMetadataStoreClient;
+import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
 
@@ -173,4 +174,76 @@ public class ThumbnailStoreTest
 		svc.close();
 	}
     
+	/**
+     * Test to retrieve the thumbnails for images.
+     * Load the thumbnails, reset the rendering settings then reload the
+     * rendering settings again.
+     * Tests thumbnailService methods: getThumbnail(rint, rint) 
+     * and getThumbnailByLongestSide(rint)
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetThumbnailAfterReset() 
+    	throws Exception
+    {
+    	ThumbnailStorePrx svc = factory.createThumbnailStore();
+    	//first import an image already tested see ImporterTest
+    	String format = ModelMockFactory.FORMATS[0];
+    	File f = File.createTempFile("testImportGraphicsImages"+format,
+				"."+format);
+    	mmFactory.createImageFile(f, format);
+    	List<Pixels> all = new ArrayList<Pixels>();
+    	List<Pixels> pixels = null;
+		try {
+			pixels = importFile(importer, f, format, false);
+			all.addAll(pixels);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		f.delete();
+		//Import the second image.
+		f = File.createTempFile("testImportGraphicsImages"+format,
+				"."+format);
+    	mmFactory.createImageFile(f, format);
+		try {
+			pixels = importFile(importer, f, format, false);
+			all.addAll(pixels);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		f.delete();
+		
+		Iterator<Pixels> i = all.iterator();
+		long id;
+		int sizeX = 96;
+		int sizeY = 96;
+		List<Long> ids = new ArrayList<Long>(pixels.size());
+		while (i.hasNext()) {
+			id = i.next().getId().getValue();
+			ids.add(id);
+			if (!(svc.setPixelsId(id))) {
+				svc.resetDefaults();
+				svc.setPixelsId(id);
+			}
+			byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+					omero.rtypes.rint(sizeY));
+			assertNotNull(values);
+			assertTrue(values.length > 0);
+		}
+		//Reset the rendering settings.
+		IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
+		proxy.resetDefaultsInSet(Pixels.class.getName(), ids);
+		i = all.iterator();
+		id = i.next().getId().getValue();
+		ids.add(id);
+		if (!(svc.setPixelsId(id))) {
+			svc.resetDefaults();
+			svc.setPixelsId(id);
+		}
+		byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+				omero.rtypes.rint(sizeY));
+		assertNotNull(values);
+		assertTrue(values.length > 0);
+		svc.close();
+    }
 }
