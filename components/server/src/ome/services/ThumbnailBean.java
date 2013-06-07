@@ -875,8 +875,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         ctx.loadAndPrepareRenderingSettings(pixelsIds);
         ctx.createAndPrepareMissingRenderingSettings(pixelsIds);
         ctx.loadAndPrepareMetadata(pixelsIds, checkedDimensions);
-
-        return retrieveThumbnailSet(pixelsIds);
+        Map<Long, byte[]> values = retrieveThumbnailSet(pixelsIds);
+        iQuery.clear();
+        return values;
     }
 
     @RolesAllowed("user")
@@ -893,8 +894,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         ctx.loadAndPrepareRenderingSettings(pixelsIds);
         ctx.createAndPrepareMissingRenderingSettings(pixelsIds);
         ctx.loadAndPrepareMetadata(pixelsIds, size);
-
-        return retrieveThumbnailSet(pixelsIds);
+        Map<Long, byte[]> values = retrieveThumbnailSet(pixelsIds);
+        iQuery.clear();
+        return values;
     }
 
     /**
@@ -980,9 +982,6 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnail(Integer sizeX, Integer sizeY) {
         errorIfNullPixelsAndRenderingDef();
         Dimension dimensions = sanityCheckThumbnailSizes(sizeX, sizeY);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
-        // left around in the Hibernate session cache.
-        iQuery.clear();
         // Reloading thumbnail metadata because we don't know what may have
         // happened in the database since our last method call.
         Set<Long> pixelsIds = new HashSet<Long>();
@@ -1071,10 +1070,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Set defaults and sanity check thumbnail sizes
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
         size = (int) dimensions.getWidth();
-
-        // Ensure that we do not have "dirty" pixels or rendering settings left
-        // around in the Hibernate session cache.
-        iQuery.clear();
         // Resetting thumbnail metadata because we don't know what may have
         // happened in the database since or if sizeX and sizeY have changed.
         Set<Long> pixelsIds = new HashSet<Long>();
@@ -1165,8 +1160,10 @@ public class ThumbnailBean extends AbstractLevel2Service
         Dimension dimensions = sanityCheckThumbnailSizes(size, size);
 
         dimensions = ctx.calculateXYWidths(pixels, (int) dimensions.getWidth());
-        return retrieveThumbnailDirect((int) dimensions.getWidth(),
+        byte[] value = retrieveThumbnailDirect((int) dimensions.getWidth(),
                 (int) dimensions.getHeight(), theZ, theT);
+        iQuery.clear();
+        return value;
     }
 
     /*
