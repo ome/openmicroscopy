@@ -464,8 +464,8 @@ public class Preprocessor {
                 final boolean completeFileset = targets.get(TargetType.IMAGE).containsAll(filesetImages);
                 /* this iteration will handle this fileset sufficiently, so do not revisit it */
                 targets.get(TargetType.IMAGE).removeAll(filesetImages);
-                /* this preprocessing is only needed for when a fileset all of whose images are referenced */
-                if (!completeFileset) {
+                /* this preprocessing is applied only when all of a fileset's images are referenced */
+                if (!(completeFileset)) {
                     continue;
                 }
                 /* okay, list the fileset as a target among the requests, before any of its images or their containers */
