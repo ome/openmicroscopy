@@ -247,7 +247,7 @@
         </constructor-arg>
     </bean>
 
-    <bean parent="graphSpec" name="/Fileset" class="ome.services.graphs.FilesetGraphSpec">
+    <bean parent="graphSpec" name="/Fileset">
         <constructor-arg>
             <list>
                 <value>/Fileset/FilesetEntry</value>

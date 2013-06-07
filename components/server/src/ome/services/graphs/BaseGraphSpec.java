@@ -239,11 +239,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     protected Query buildQuery(String[] sub, GraphEntry subpath,
             QueryBuilder qb, QueryBuilder and, Session session) throws GraphException {
 
-        Query workaround = optionalFilesetWorkaround(sub, qb, session);
-        if (workaround != null) {
-            return workaround;
-        }
-
         final List<String> which = new ArrayList<String>();
         for (int i = 0; i < sub.length; i++) {
             which.add("ROOT" + i + ".id as ROOT" + i);
@@ -260,56 +255,6 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
             qb.subselect(and);
         }
         return qb.query(session);
-    }
-
-    /**
-     * This method is called when a FilesetGraphSpec is encountered as subspec.
-     * Execution should actually happen on the subspec itself, but that is not
-     * yet implemented.
-     *
-     * @param sub
-     * @param qb
-     * @param session
-     * @return
-     */
-    protected Query optionalFilesetWorkaround(String[] sub,
-            QueryBuilder qb, Session session) {
-
-        if (sub.length != 2 || !"Fileset".equals(sub[1])) {
-            return null; // EARLY EXIT
-        }
-
-        if ("Dataset".equals(sub[0])) {
-            qb.select("dataset.id", "fileset.id");
-            qb.from("Dataset", "dataset");
-            joinDataset(qb, "dataset", "fileset");
-            qb.where();
-            qb.and("dataset.id = :id");
-            qb.param("id", id);
-            return qb.query(session);
-        } else if ("Plate".equals(sub[0])) {
-            qb.select("plate.id", "fileset.id");
-            qb.from("Plate", "plate");
-            joinPlate(qb, "plate", "fileset");
-            qb.where();
-            qb.and("plate.id = :id");
-            qb.param("id", id);
-            return qb.query(session);
-        }
-        return null;
-    }
-
-    protected void joinDataset(QueryBuilder qb, String dataset, String fileset) {
-        qb.join(dataset + ".imageLinks", "links", false, false);
-        qb.join("links.child", "image", false, false);
-        qb.join("image.fileset", fileset, false, false);
-    }
-
-    protected void joinPlate(QueryBuilder qb, String plate, String fileset) {
-        qb.join(plate + ".wells", "well", false, false);
-        qb.join("well.wellSamples", "wellSample", false, false);
-        qb.join("wellSample.image", "image", false, false);
-        qb.join("image.fileset", fileset, false, false);
     }
 
     protected List<List<Long>> runQuery(String[] sub, GraphEntry subpath, Query q, Session session) {
@@ -457,16 +402,55 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     }
 
     /**
-     * Walks the parts given adding a new relationship between each.
+     * Walks the parts given adding a new relationship between each. If this
+     * is a synthetic "Fileset" relationship, use the workaround methods
+     * {@link #joinDataset(QueryBuilder, String, String)} and
+     * {@link #joinPlate(QueryBuilder, String, String)}.
      */
     protected void walk(String[] sub, final GraphEntry entry, final QueryBuilder qb)
             throws GraphException {
+
+        boolean done = false;
         qb.from(sub[0], "ROOT0");
-        for (int p = 1; p < sub.length; p++) {
-            String p_1 = sub[p - 1];
-            String p_0 = sub[p];
-            join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT" + p);
+
+        if (sub.length > 1) {
+
+            if ("Fileset".equals(sub[1])) {
+                if ("Dataset".equals(sub[0])) {
+                    joinDataset(qb, "ROOT0", "ROOT1");
+                    done = true;
+                } else if ("Plate".equals(sub[0])) {
+                    joinPlate(qb, "ROOT0", "ROOT1");
+                    done = true;
+                }
+            }
+
+            if (!done) {
+                join(qb, sub[0], "ROOT0", sub[1], "ROOT1");
+            }
+
+            // Start at ROOT2 since 0 & 1 have been handled.
+            for (int p = 2; p < sub.length; p++) {
+                String p_1 = sub[p - 1];
+                String p_0 = sub[p];
+                join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT" + p);
+            }
+
         }
+
+    }
+
+    protected void joinDataset(QueryBuilder qb, String dataset, String fileset) {
+        qb.join(dataset + ".imageLinks", "links", false, false);
+        qb.join("links.child", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
+    }
+
+    protected void joinPlate(QueryBuilder qb, String plate, String fileset) {
+        qb.join(plate + ".wells", "well", false, false);
+        qb.join("well.wellSamples", "wellSample", false, false);
+        qb.join("wellSample.image", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
     }
 
     /**
