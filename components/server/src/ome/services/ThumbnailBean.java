@@ -1096,10 +1096,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
     {
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+    	byte[] value = retrieveThumbnailDirect(sizeX, sizeY, null, null);
+    	// Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
-        iQuery.clear();
-        return retrieveThumbnailDirect(sizeX, sizeY, null, null);
+    	iQuery.clear();
+        return value;
     }
 
     /**
