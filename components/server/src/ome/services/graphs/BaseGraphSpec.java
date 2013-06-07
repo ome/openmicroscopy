@@ -410,31 +410,27 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     protected void walk(String[] sub, final GraphEntry entry, final QueryBuilder qb)
             throws GraphException {
 
-        boolean done = false;
         qb.from(sub[0], "ROOT0");
 
-        if (sub.length > 1) {
+        for (int p = 1; p < sub.length; p++) {
+            String p_1 = sub[p - 1];
+            String p_0 = sub[p];
 
-            if ("Fileset".equals(sub[1])) {
-                if ("Dataset".equals(sub[0])) {
-                    joinDataset(qb, "ROOT0", "ROOT1");
-                    done = true;
-                } else if ("Plate".equals(sub[0])) {
-                    joinPlate(qb, "ROOT0", "ROOT1");
-                    done = true;
+            String r_1 = "ROOT" + (p-1);
+            String r_0 = "ROOT" + (p);
+
+            if ("Fileset".equals(p_0)) {
+                if ("Dataset".equals(p_1)) {
+                    joinDataset(qb, r_1, r_0);
+                    continue;
+                } else if ("Plate".equals(p_1)) {
+                    joinPlate(qb, r_1, r_0);
+                    continue;
                 }
             }
 
-            if (!done) {
-                join(qb, sub[0], "ROOT0", sub[1], "ROOT1");
-            }
-
-            // Start at ROOT2 since 0 & 1 have been handled.
-            for (int p = 2; p < sub.length; p++) {
-                String p_1 = sub[p - 1];
-                String p_0 = sub[p];
-                join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT" + p);
-            }
+            // Default operation
+            join(qb, p_1, r_1, p_0, r_0);
 
         }
 
