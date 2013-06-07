@@ -291,9 +291,10 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
                     arr[j] = (Long) objs[j];
                 }
             } else if (v instanceof List) {
-                List<?> l = (List<?>) v;
+                @SuppressWarnings("unchecked")
+                List<Long> l = (List<Long>) v;
                 for (int j = 0; j < arr.length; j++) {
-                    arr[j] = (Long) l.get(j);
+                    arr[j] = l.get(j);
                 }
             } else {
                 throw new IllegalArgumentException("Unknown type:" + v);
