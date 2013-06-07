@@ -643,13 +643,14 @@ public class StatusLabel
 				generalLabel.setText(SCANNING_TEXT);
 			ImportCandidates.SCANNING evt = (ImportCandidates.SCANNING) event;
 			directory = evt.file.isDirectory();
-			firePropertyChange(SCANNING_PROPERTY, null, this);
+			if (exception == null)
+				firePropertyChange(SCANNING_PROPERTY, null, this);
 		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError("", true);
+			handleProcessingError(ImportException.FILE_NOT_VALID_TEXT, false);
 		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
 			ErrorHandler.INTERNAL_EXCEPTION e =
 					(ErrorHandler.INTERNAL_EXCEPTION) event;
@@ -661,11 +662,11 @@ public class StatusLabel
 			exception = new ImportException(ImportException.UNKNOWN_FORMAT_TEXT,
 					((ErrorHandler.UNKNOWN_FORMAT) event).exception);
 			if (!directory)
-			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, false);
+			handleProcessingError(ImportException.UNKNOWN_FORMAT_TEXT, true);
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
 			exception = new ImportException(ImportException.MISSING_LIBRARY_TEXT,
 					((ErrorHandler.MISSING_LIBRARY) event).exception);
-			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT, true);
+			handleProcessingError(ImportException.MISSING_LIBRARY_TEXT, false);
 		} else if (event instanceof ImportEvent.FILE_UPLOAD_BYTES) {
 			ImportEvent.FILE_UPLOAD_BYTES e =
 				(ImportEvent.FILE_UPLOAD_BYTES) event;

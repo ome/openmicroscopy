@@ -842,11 +842,12 @@ class ImporterComponent
 		if (element == null) return;
 		Object result = component.getImportResult();
 		if (result instanceof Exception) {
-			ImportErrorObject r = new ImportErrorObject(component.getFile(),
-					(Exception) result, component.getGroupID());
-			element.setImportResult(component, result);
-			if (component.getFile().isFile())
+			if (component.getFile().isFile()) {
+				ImportErrorObject r = new ImportErrorObject(component.getFile(),
+						(Exception) result, component.getGroupID());
+				element.setImportResult(component, result);
 				handleCompletion(element, r, !component.hasParent());
+			}
 			return;
 		}
 		element.setImportResult(component, result);

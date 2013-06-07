@@ -740,6 +740,7 @@ class ImporterUIElement
 			if (result instanceof Exception) {
 				r = new ImportErrorObject(file, (Exception) result,
 						c.getGroupID());
+				if (c.hasResult()) return null;
 				setImportResult(c, result);
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;

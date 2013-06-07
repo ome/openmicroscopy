@@ -1479,8 +1479,7 @@ public class FileImportComponent
 		} else if (StatusLabel.SCANNING_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel)) {
-				if (busyLabel != null && !isCancelled() &&
-						!(sl.getImportResult() instanceof Exception)) {
+				if (busyLabel != null && !isCancelled()) {
 					busyLabel.setBusy(true);
 					busyLabel.setVisible(true);
 				}
