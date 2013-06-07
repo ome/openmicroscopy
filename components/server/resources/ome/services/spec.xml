@@ -276,8 +276,9 @@
     <bean parent="graphSpec" name="/Dataset+Only">
         <constructor-arg>
             <list>
-                <!-- Similar to the preprocessing step of DoAll -->
-                <value>/Fileset;HARD;/Dataset/DatasetImageLink/Image</value>
+                <!-- Similar to the preprocessing step of DoAll.
+                Note the use of a synthetic relationship between the two -->
+                <value>/Fileset;HARD;/Dataset</value>
 
                 <value>/Dataset/DatasetImageLink;FORCE</value>
                 <value>/Image;HARD;/Dataset/DatasetImageLink</value>
@@ -327,8 +328,9 @@
     <bean parent="graphSpec" name="/Plate+Only">
         <constructor-arg>
             <list>
-                <!-- Similar to the preprocessing step of DoAll -->
-                <value>/Fileset;HARD;/Dataset/DatasetImageLink/Image</value>
+                <!-- Similar to the preprocessing step of DoAll.
+                Note the use of a synthetic relationship between the two -->
+                <value>/Fileset;HARD;/Plate</value>
 
                 <value>/Well;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>

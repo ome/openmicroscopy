@@ -27,12 +27,12 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -231,11 +231,18 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     }
 
     protected QueryBuilder createQueryBuilder(String[] sub, GraphEntry subpath) {
-        return new QueryBuilder();
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("distinct");
+        return qb;
     }
 
     protected Query buildQuery(String[] sub, GraphEntry subpath,
             QueryBuilder qb, QueryBuilder and, Session session) throws GraphException {
+
+        Query workaround = optionalFilesetWorkaround(sub, qb, session);
+        if (workaround != null) {
+            return workaround;
+        }
 
         final List<String> which = new ArrayList<String>();
         for (int i = 0; i < sub.length; i++) {
@@ -253,6 +260,56 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
             qb.subselect(and);
         }
         return qb.query(session);
+    }
+
+    /**
+     * This method is called when a FilesetGraphSpec is encountered as subspec.
+     * Execution should actually happen on the subspec itself, but that is not
+     * yet implemented.
+     *
+     * @param sub
+     * @param qb
+     * @param session
+     * @return
+     */
+    protected Query optionalFilesetWorkaround(String[] sub,
+            QueryBuilder qb, Session session) {
+
+        if (sub.length != 2 || !"Fileset".equals(sub[1])) {
+            return null; // EARLY EXIT
+        }
+
+        if ("Dataset".equals(sub[0])) {
+            qb.select("dataset.id", "fileset.id");
+            qb.from("Dataset", "dataset");
+            joinDataset(qb, "dataset", "fileset");
+            qb.where();
+            qb.and("dataset.id = :id");
+            qb.param("id", id);
+            return qb.query(session);
+        } else if ("Plate".equals(sub[0])) {
+            qb.select("plate.id", "fileset.id");
+            qb.from("Plate", "plate");
+            joinPlate(qb, "plate", "fileset");
+            qb.where();
+            qb.and("plate.id = :id");
+            qb.param("id", id);
+            return qb.query(session);
+        }
+        return null;
+    }
+
+    protected void joinDataset(QueryBuilder qb, String dataset, String fileset) {
+        qb.join(dataset + ".imageLinks", "links", false, false);
+        qb.join("links.child", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
+    }
+
+    protected void joinPlate(QueryBuilder qb, String plate, String fileset) {
+        qb.join(plate + ".wells", "well", false, false);
+        qb.join("well.wellSamples", "wellSample", false, false);
+        qb.join("wellSample.image", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
     }
 
     protected List<List<Long>> runQuery(String[] sub, GraphEntry subpath, Query q, Session session) {
