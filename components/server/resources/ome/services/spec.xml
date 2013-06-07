@@ -250,6 +250,15 @@
     <bean parent="graphSpec" name="/Fileset">
         <constructor-arg>
             <list>
+                <value>/Image;HARD;/Fileset</value>
+                <value>/Fileset+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Fileset+Only">
+        <constructor-arg>
+            <list>
                 <value>/Fileset/FilesetEntry</value>
                 <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
                 <value>/Fileset/FilesetJobLink</value>
@@ -259,7 +268,7 @@
                 -->
                 <value>/Fileset/FilesetAnnotationLink</value>
                 <value>/Annotation;SOFT;/Fileset/FilesetAnnotationLink</value>
-                <value>/Fileset</value>
+                <value>/Fileset+Only</value>
            </list>
         </constructor-arg>
     </bean>
@@ -276,15 +285,15 @@
     <bean parent="graphSpec" name="/Dataset+Only">
         <constructor-arg>
             <list>
-                <!-- Similar to the preprocessing step of DoAll.
-                Note the use of a synthetic relationship between the two -->
-                <value>/Fileset;HARD;/Dataset</value>
-
                 <value>/Dataset/DatasetImageLink;FORCE</value>
                 <value>/Image;HARD;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
+
+                <!-- Similar to the preprocessing step of DoAll.
+                Note the use of a synthetic relationship between the two -->
+                <value>/Fileset+Only;HARD;/Dataset</value>
             </list>
         </constructor-arg>
     </bean>
@@ -328,10 +337,6 @@
     <bean parent="graphSpec" name="/Plate+Only">
         <constructor-arg>
             <list>
-                <!-- Similar to the preprocessing step of DoAll.
-                Note the use of a synthetic relationship between the two -->
-                <value>/Fileset;HARD;/Plate</value>
-
                 <value>/Well;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
@@ -340,6 +345,9 @@
                 <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
                 <value>/Plate+Only</value>
 
+                <!-- Similar to the preprocessing step of DoAll.
+                Note the use of a synthetic relationship between the two -->
+                <value>/Fileset+Only;HARD;/Plate</value>
             </list>
         </constructor-arg>
     </bean>
