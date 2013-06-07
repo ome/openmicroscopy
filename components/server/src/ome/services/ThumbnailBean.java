@@ -993,7 +993,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
         thumbnailMetadata = ctx.getMetadata(pixelsId);
-        return retrieveThumbnailAndUpdateMetadata(); 
+        byte[] value = retrieveThumbnailAndUpdateMetadata();
+        iQuery.clear();//see #11072
+        return value;
     }
 
     /**
@@ -1083,7 +1085,9 @@ public class ThumbnailBean extends AbstractLevel2Service
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, size);
         thumbnailMetadata = ctx.getMetadata(pixelsId);
-        return retrieveThumbnailAndUpdateMetadata();
+        byte[] value = retrieveThumbnailAndUpdateMetadata();
+        iQuery.clear();//see #11072
+        return value;
     }
 
     /*
@@ -1149,10 +1153,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailForSectionDirect(int theZ, int theT,
             Integer sizeX, Integer sizeY)
     {
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+        byte[] value = retrieveThumbnailDirect(sizeX, sizeY, theZ, theT);
+     // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
-        return retrieveThumbnailDirect(sizeX, sizeY, theZ, theT);
+        return value;
     }
 
     /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
@@ -1176,10 +1181,11 @@ public class ThumbnailBean extends AbstractLevel2Service
     @RolesAllowed("user")
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
         errorIfNullPixelsAndRenderingDef();
+        byte[] value = _getThumbnailByLongestSideDirect(size, null, null);
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
-        iQuery.clear();
-        return _getThumbnailByLongestSideDirect(size, null, null);
+        iQuery.clear();//see #11072
+        return value;
     }
 
     /* (non-Javadoc)
@@ -1193,7 +1199,11 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we do not have "dirty" pixels or rendering settings 
         // left around in the Hibernate session cache.
         iQuery.clear();
-        return _getThumbnailByLongestSideDirect(size, theZ, theT);
+        byte[] value = _getThumbnailByLongestSideDirect(size, theZ, theT);
+        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // left around in the Hibernate session cache.
+        iQuery.clear();
+        return value;
     }
 
     /*
