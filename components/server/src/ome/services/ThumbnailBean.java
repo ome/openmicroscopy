@@ -277,11 +277,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         pixels = ctx.getPixels(id);
         pixelsId = pixels.getId();
         settings = ctx.getSettings(id);
-        if (ctx.hasSettings(id))
-        {
-            return true;
-        }
-        return false;
+        return (ctx.hasSettings(id));
     }
 
     /*
