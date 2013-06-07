@@ -15,6 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package omero.cmd.graphs;
 
 import java.util.ArrayList;
@@ -94,21 +95,34 @@ public class PreprocessorTest extends MockObjectTestCase {
     @Test
     public void testNothing() {
         Preprocessor proc = proc();
-        assertProc(proc, -1, -1);
+        assertProc(proc, 0, 0);
     }
 
     @Test
     public void testDeleteOneImageInFileset() {
-        projection(new Object[] { 100L, 1L });
+        // look up images of fileset 100
+        projection(new Object[] { 1L });
+        // look up fileset of image 1
+        projection(new Object[] { 100L });
         Preprocessor proc = proc(delImg(1));
-        assertProc(proc, 0, 0);
+        assertProc(proc, 1, 1);
         // Nothing is done if there's just one GraphModify
         assertReqs(proc, delImg(1));
     }
 
     @Test
     public void testDeleteTwoImagesInFileset() {
-        projection(new Object[] { 100L, 1L }, new Object[] { 100L, 2L });
+        // look up filesets, datasets and wells of other image
+        projection();
+        projection();
+        projection();
+        // look up datasets and wells of one image
+        projection();
+        projection();
+        // look up images of fileset 100
+        projection(new Object[] { 1L }, new Object[] { 2L });
+        // look up fileset of one image
+        projection(new Object[] { 100L });
         Preprocessor proc = proc(delImg(1), delImg(2));
         assertProc(proc, 2, 1);
         assertReqs(proc, delFs(100));
@@ -116,25 +130,14 @@ public class PreprocessorTest extends MockObjectTestCase {
 
     @Test
     public void testDeleteChgrpTwoImagesInFileset() {
-        projection(new Object[] { 100L, 1L }, new Object[] { 100L, 2L });
+        // look up fileset of image 1
+        projection(new Object[] { 100L });
+        // look up images of fileset 100
+        projection(new Object[] { 1L }, new Object[] { 2L });
+        // look up fileset of image 2
+        projection(new Object[] { 100L });
         Preprocessor proc = proc(delImg(1), chgrpImg(2));
         assertProc(proc, 2, 1);
         assertReqs(proc, delImg(1), chgrpImg(2));
-    }
-
-    private void assertMixed(Delete fs1, Delete fs2, Delete... deletes) {
-        projection(new Object[] { 100L, 1L}, new Object[]{100L, 2L});
-        projection(new Object[] { 200L, 3L}, new Object[]{200L, 4L });
-        Preprocessor proc = proc(deletes);
-        assertProc(proc, 4, 2);
-        assertReqs(proc, fs1, fs2);
-    }
-
-    @Test
-    public void testTwoFilesetsMixed() {
-        assertMixed(delFs(100), delFs(200), delImg(1), delImg(2), delImg(3), delImg(4));
-        assertMixed(delFs(100), delFs(200), delImg(1), delImg(3), delImg(2), delImg(4));
-        assertMixed(delFs(200), delFs(100), delImg(1), delImg(4), delImg(3), delImg(2));
-        assertMixed(delFs(200), delFs(100), delImg(1), delImg(3), delImg(4), delImg(2));
     }
 }
