@@ -48,6 +48,23 @@ public class PasswordUtil {
 
     private final static Log log = LogFactory.getLog(PasswordUtil.class);
 
+    public static enum METHOD {
+
+       CLEAR(false, false),
+       LEGACY(true, false),
+       ALL(true, true);
+
+       private final boolean hash;
+       private final boolean salt;
+
+       METHOD(boolean hash, boolean salt) {
+           this.hash = hash;
+           this.salt = salt;
+       }
+    }
+
+    private final static Logger log = LoggerFactory.getLogger(PasswordUtil.class);
+
     private final SqlAction sql;
 
     public PasswordUtil(SqlAction sql) {
@@ -99,7 +116,7 @@ public class PasswordUtil {
      * compatibility.
      */
     public void changeUserPasswordById(Long id, String password) {
-        changeUserPasswordById(id, password, false);
+        changeUserPasswordById(id, password, METHOD.LEGACY);
     }
 
     /**
@@ -109,10 +126,13 @@ public class PasswordUtil {
      * An {@link InternalException} is thrown if the modification is not
      * successful, which should only occur if the user has been deleted.
      */
-    public void changeUserPasswordById(Long id, String password, boolean salt) {
-        String prepared = salt ?
+    public void changeUserPasswordById(Long id, String password, METHOD meth) {
+        String prepared = password;
+        if (meth.hash){
+            prepared = meth.salt ?
                 prepareSaltedPassword(id, password) :
                     preparePassword(password);
+        }
         if (! sql.setUserPassword(id, prepared)) {
             throw new InternalException("0 results for password insert.");
         }

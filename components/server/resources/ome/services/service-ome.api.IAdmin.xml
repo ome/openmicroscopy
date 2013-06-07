@@ -83,6 +83,14 @@
     <constructor-arg ref="passwordUtil"/>
   </bean>
 
+  <bean id="jdbcHashedPasswordProvider" class="ome.security.auth.JdbcHashedPasswordProvider">
+    <description>
+      Subclass of jdbcPasswordProvider which does not hash passwords when
+      setting them, so an already hashed password can be passed in.
+    </description>
+    <constructor-arg ref="passwordUtil"/>
+  </bean>
+
   <bean id="chainedPasswordProvider431" class="ome.security.auth.PasswordProviders">
     <constructor-arg>
       <list>
