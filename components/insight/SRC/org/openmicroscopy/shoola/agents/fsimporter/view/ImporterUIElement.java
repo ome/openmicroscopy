@@ -766,8 +766,8 @@ class ImporterUIElement
 		} else {//empty folder
 			if (result instanceof Exception) {
 				countUploaded++;
-				countCancelled++;
-				setImportResult(c, result);
+				//countCancelled++;
+				//setImportResult(c, result);
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;
 				if (!b && c.isCancelled()) {

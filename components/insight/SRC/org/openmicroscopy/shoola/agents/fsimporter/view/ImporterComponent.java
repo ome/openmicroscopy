@@ -845,7 +845,8 @@ class ImporterComponent
 			ImportErrorObject r = new ImportErrorObject(component.getFile(),
 					(Exception) result, component.getGroupID());
 			element.setImportResult(component, result);
-			handleCompletion(element, r, !component.hasParent());
+			if (component.getFile().isFile())
+				handleCompletion(element, r, !component.hasParent());
 			return;
 		}
 		element.setImportResult(component, result);
