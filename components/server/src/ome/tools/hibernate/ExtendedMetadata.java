@@ -183,7 +183,7 @@ public interface ExtendedMetadata {
     String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias);
 
 /**
- * Sole implementatino of ExtendedMetadata. The separation is intended to make
+ * Sole implementation of ExtendedMetadata. The separation is intended to make
  * unit testing without a full {@link ExtendedMetadata} possible.
  */
 public static class Impl extends OnContextRefreshedEventListener implements ExtendedMetadata {
