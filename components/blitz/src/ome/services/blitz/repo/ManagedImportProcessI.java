@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import Ice.Current;
 
-import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.repo.PublicRepositoryI.AMD_submit;
 import ome.services.blitz.repo.path.FsFile;
@@ -56,7 +56,7 @@ import omero.model.FilesetJobLink;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.5
  */
-public class ManagedImportProcessI extends AbstractAmdServant
+public class ManagedImportProcessI extends AbstractCloseableAmdServant
     implements _ImportProcessOperations, ServiceFactoryAware,
                 ProcessContainer.Process {
 
@@ -338,4 +338,17 @@ public class ManagedImportProcessI extends AbstractAmdServant
         }
     }
 
+    //
+    // CLOSE LOGIC
+    //
+
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
+    }
 }

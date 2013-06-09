@@ -30,17 +30,13 @@ import java.util.Map;
 import ome.services.blitz.gateway.services.DataService;
 import ome.services.blitz.gateway.services.GatewayFactory;
 import ome.services.blitz.gateway.services.ImageService;
-import ome.services.blitz.impl.AbstractAmdServant;
+import ome.services.blitz.impl.AbstractCloseableAmdServant;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import omero.RInt;
 import omero.ServerError;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.ContainerClass;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
@@ -66,7 +62,7 @@ import Ice.Current;
  * </small>
  * @since OME3.0
  */
-public class OmeroGateway extends AbstractAmdServant
+public class OmeroGateway extends AbstractCloseableAmdServant
 	implements ServiceFactoryAware, _GatewayOperations, BlitzOnly
 {
 	
@@ -439,5 +435,10 @@ public class OmeroGateway extends AbstractAmdServant
 	@Override
 	protected void preClose(Ice.Current current) throws Throwable {
             close();
+	}
+
+	@Override
+	protected void postClose(Current current) {
+	    // no-op
 	}
 }

@@ -36,7 +36,7 @@ import omero.cmd.graphs.DeleteI;
  * @since 4.2.1
  * @see ome.api.IDelete
  */
-public class DeleteHandleI extends AbstractAmdServant implements
+public class DeleteHandleI extends AbstractCloseableAmdServant implements
         _DeleteHandleOperations, Runnable {
 
     private static final long serialVersionUID = 159204352095939345L;
@@ -164,6 +164,11 @@ public class DeleteHandleI extends AbstractAmdServant implements
         if (!finished(current)) {
             log.warn("Handle closed before finished!");
         }
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
     }
 
     //
