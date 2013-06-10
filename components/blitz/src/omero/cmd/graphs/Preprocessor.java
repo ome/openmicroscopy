@@ -221,6 +221,7 @@ public class Preprocessor {
      */
     protected final void transform(Predicate<Request> isRelevant, GraphModifyTarget newRequestTarget,
             Set<GraphModifyTarget> prohibitedPrefixes, Set<GraphModifyTarget> prohibitedSuffixes) {
+        List<Request> toAdd = new ArrayList<Request>();
         boolean added = false;
         int index = 0;
         while (index < this.requests.size()) {
@@ -243,7 +244,7 @@ public class Preprocessor {
                 final GraphModify newRequest = (GraphModify) request.clone();
                 newRequest.type = TargetType.byType.get(newRequestTarget.targetType);
                 newRequest.id = newRequestTarget.targetId;
-                this.requests.add(index++, newRequest);
+                toAdd.add(newRequest);
             }
             /* must we remove it? */
             if (prohibitedSuffixes.contains(requestTarget)) {
@@ -257,6 +258,8 @@ public class Preprocessor {
         }
         if (!added) {
             throw new IllegalArgumentException("no prohibited prefix is among the requests");
+        } else {
+            this.requests.addAll(toAdd);
         }
     }
 

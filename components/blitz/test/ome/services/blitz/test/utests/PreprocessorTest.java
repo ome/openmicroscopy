@@ -97,7 +97,8 @@ public class PreprocessorTest extends Preprocessor {
             Request request = requests.get(idx);
             String requestString = requestToString(request);
             Assert.assertTrue(expected.contains(requestString),
-                String.format("Expected %s at index %s", expected, idx));
+                String.format("index %s: %s not in %s", idx, requestString,
+                        expected));
         }
     }
 
@@ -260,7 +261,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
+        assertRequests(
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]");
     }
 
     /**
@@ -274,7 +277,11 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]", "DELETE[/Image:6]");
+        assertRequests(
+                "DELETE[/Image:6]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -287,7 +294,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
+        assertRequests(
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]");
     }
 
     /**
@@ -303,7 +312,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
+        assertRequests(
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]");
     }
 
     /**
@@ -319,7 +330,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
+        assertRequests(
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]");
     }
 
     /**
@@ -335,8 +348,12 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Fileset:2]",
-                "CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Image:6]");
+        assertRequests(
+                "CHGRP(8)[/Image:6]",
+                "CHGRP(8)[/Fileset:2]",
+                "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:0]"
+                );
     }
 
     /**
@@ -352,8 +369,11 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Fileset:1]",
-                "CHGRP(8)[/Fileset:2]", "CHGRP(8)[/Image:6]");
+        assertRequests(
+                "CHGRP(8)[/Image:6]",
+                "CHGRP(8)[/Fileset:2]",
+                "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:0]");
     }
 
     /**
@@ -366,7 +386,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(1)[/Image:1]", "CHGRP(2)[/Image:2]");
+        assertRequests(
+                "CHGRP(1)[/Image:1]",
+                "CHGRP(2)[/Image:2]");
     }
 
     /**
@@ -379,7 +401,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(1)[/Fileset:1]");
+        assertRequests(
+                "CHGRP(1)[/Fileset:1]");
     }
 
     /**
@@ -395,7 +418,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:2]", "CHGRP(9)[/Fileset:1]");
+        assertRequests(
+                "CHGRP(8)[/Fileset:2]",
+                "CHGRP(9)[/Fileset:1]");
     }
 
     /**
@@ -410,7 +435,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:0]", "DELETE[/Dataset:0]");
+        assertRequests(
+                "DELETE[/Dataset:0]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -423,8 +450,11 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
-                "DELETE[/Dataset:0]", "DELETE[/Dataset:1]");
+        assertRequests(
+                "DELETE[/Dataset:0]",
+                "DELETE[/Dataset:1]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -440,9 +470,13 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
-                "DELETE[/Dataset:0]", "DELETE[/Fileset:2]",
-                "DELETE[/Dataset:1]", "DELETE[/Image:6]");
+        assertRequests(
+                "DELETE[/Dataset:0]",
+                "DELETE[/Dataset:1]",
+                "DELETE[/Image:6]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -454,7 +488,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]", "DELETE[/Project:0]");
+        assertRequests(
+                "DELETE[/Project:0]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -469,8 +506,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests(FS012, FS012, FS012,
-                _("DELETE[/Project:0]"), _("DELETE[/Image:6]"));
+        assertRequests(
+                _("DELETE[/Project:0]"),
+                _("DELETE[/Image:6]"),
+                FS012, FS012, FS012);
     }
 
     /**
@@ -488,10 +527,13 @@ public class PreprocessorTest extends Preprocessor {
         process();
 
         assertRequests(
-                "DELETE[/Fileset:0]", "DELETE[/Fileset:1]",
-                "DELETE[/Fileset:2]", "DELETE[/Image:6]",
-                "DELETE[/Dataset:0]", "DELETE[/Dataset:1]",
-                "DELETE[/Project:0]");
+                "DELETE[/Image:6]",
+                "DELETE[/Dataset:0]",
+                "DELETE[/Dataset:1]",
+                "DELETE[/Project:0]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -508,7 +550,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]", "CHGRP(8)[/Well:1]");
+        assertRequests(
+                "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Fileset:0]");
     }
 
     /**
@@ -524,7 +569,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Well:4]", "CHGRP(8)[/Well:5]");
+        assertRequests(
+                "CHGRP(8)[/Well:4]",
+                "CHGRP(8)[/Well:5]");
     }
 
     /**
@@ -537,7 +584,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]");
     }
 
     /**
@@ -551,8 +601,12 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]",
-                "CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:0]");
     }
 
     /**
@@ -567,7 +621,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]");
     }
 
     /**
@@ -582,7 +639,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]");
     }
 
     /**
@@ -599,8 +659,12 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Fileset:1]",
-                "CHGRP(8)[/Well:0]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:0]");
     }
 
     /**
@@ -617,8 +681,12 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]",
-                "CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
+        assertRequests(
+                "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Well:1]",
+                "CHGRP(8)[/Well:2]",
+                "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:0]");
     }
 
     /**
@@ -635,9 +703,13 @@ public class PreprocessorTest extends Preprocessor {
         process();
 
         assertRequests(
-                "CHGRP(8)[/Fileset:2]", "CHGRP(8)[/Well:3]",
-                "CHGRP(9)[/Fileset:1]", "CHGRP(9)[/Well:1]",
-                "CHGRP(8)[/Well:4]", "CHGRP(9)[/Well:2]", "CHGRP(8)[/Well:5]");
+                "CHGRP(8)[/Well:3]",
+                "CHGRP(9)[/Well:1]",
+                "CHGRP(8)[/Well:4]",
+                "CHGRP(9)[/Well:2]",
+                "CHGRP(8)[/Well:5]",
+                "CHGRP(8)[/Fileset:2]",
+                "CHGRP(9)[/Fileset:1]");
     }
 
     /**
@@ -649,7 +721,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:0]", "DELETE[/Plate:0]");
+        assertRequests(
+                "DELETE[/Plate:0]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -662,8 +736,11 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
-                "DELETE[/Plate:0]", "DELETE[/Plate:1]");
+        assertRequests(
+                "DELETE[/Plate:0]",
+                "DELETE[/Plate:1]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -679,9 +756,13 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
-                "DELETE[/Plate:0]", "DELETE[/Fileset:2]", "DELETE[/Plate:1]",
-                "DELETE[/Image:6]");
+        assertRequests(
+                "DELETE[/Plate:0]",
+                "DELETE[/Plate:1]",
+                "DELETE[/Image:6]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -693,8 +774,12 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests("DELETE[/Fileset:2]", "DELETE[/Fileset:1]",
-                "DELETE[/Fileset:0]", "DELETE[/Screen:0]");
+        assertRequests(
+                "DELETE[/Screen:0]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
+
     }
 
     /**
@@ -709,8 +794,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests(FS012, FS012, FS012,
-                _("DELETE[/Screen:0]"), _("DELETE[/Image:6]"));
+        assertRequests(
+                _("DELETE[/Screen:0]"),
+                _("DELETE[/Image:6]"),
+                FS012, FS012, FS012);
     }
 
     /**
@@ -728,9 +815,13 @@ public class PreprocessorTest extends Preprocessor {
         process();
 
         assertRequests(
-                "DELETE[/Fileset:0]", "DELETE[/Fileset:1]",
-                "DELETE[/Fileset:2]", "DELETE[/Image:6]",
-                "DELETE[/Plate:0]", "DELETE[/Plate:1]", "DELETE[/Screen:0]");
+                "DELETE[/Image:6]",
+                "DELETE[/Plate:0]",
+                "DELETE[/Plate:1]",
+                "DELETE[/Screen:0]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -747,9 +838,14 @@ public class PreprocessorTest extends Preprocessor {
         process();
 
         assertRequests(
-                "DELETE[/Fileset:1]", "DELETE[/Fileset:0]", "DELETE[/Plate:0]",
-                "DELETE[/Fileset:2]", "DELETE[/Plate:1]",
-                "DELETE[/Well:4]", "DELETE[/Well:5]", "DELETE[/Well:6]");
+                "DELETE[/Plate:0]",
+                "DELETE[/Plate:1]",
+                "DELETE[/Well:4]",
+                "DELETE[/Well:5]",
+                "DELETE[/Well:6]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
     }
 
     /**
@@ -764,9 +860,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        assertRequests(FS012, FS012, FS012,
+        assertRequests(
                 _("DELETE[/Screen:0]"), _("DELETE[/Well:4]"),
-                _("DELETE[/Well:5]"), _("DELETE[/Well:6]"));
+                _("DELETE[/Well:5]"), _("DELETE[/Well:6]"),
+                FS012, FS012, FS012);
 
     }
 
@@ -785,8 +882,19 @@ public class PreprocessorTest extends Preprocessor {
         process();
 
         assertRequests(
-                "DELETE[/Fileset:0]", "DELETE[/Well:0]", "DELETE[/Fileset:1]", "DELETE[/Well:1]", "DELETE[/Well:2]", "" +
-                "DELETE[/Fileset:2]", "DELETE[/Well:3]", "DELETE[/Well:4]", "DELETE[/Well:5]", "DELETE[/Well:6]", "" +
-                "DELETE[/Plate:0]", "DELETE[/Plate:1]", "DELETE[/Screen:0]");
+                "DELETE[/Well:0]",
+                "DELETE[/Well:1]",
+                "DELETE[/Well:2]",
+                "DELETE[/Well:3]",
+                "DELETE[/Well:4]",
+                "DELETE[/Well:5]",
+                "DELETE[/Well:6]",
+                "DELETE[/Plate:0]",
+                "DELETE[/Plate:1]",
+                "DELETE[/Screen:0]",
+                "DELETE[/Fileset:2]",
+                "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]");
+
     }
 }
