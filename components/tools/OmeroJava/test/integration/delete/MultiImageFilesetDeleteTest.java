@@ -80,12 +80,11 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	link.setParent((Dataset) d2.proxy());
     	iUpdate.saveAndReturnObject(link);
     	Delete[] commands = new Delete[2];
-    	commands[0] = new Delete(DeleteServiceTest.REF_IMAGE,
+    	commands[0] = new Delete(DeleteServiceTest.REF_DATASET,
     			d1.getId().getValue(), null);
-    	commands[1] = new Delete(DeleteServiceTest.REF_IMAGE,
+    	commands[1] = new Delete(DeleteServiceTest.REF_DATASET,
     			d2.getId().getValue(), null);
     	delete(client, commands);
     }
-
 
 }
