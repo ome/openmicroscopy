@@ -83,7 +83,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	commands[0] = new Delete(DeleteServiceTest.REF_IMAGE,
     			d1.getId().getValue(), null);
     	commands[1] = new Delete(DeleteServiceTest.REF_IMAGE,
-    			d1.getId().getValue(), null);
+    			d2.getId().getValue(), null);
     	delete(client, commands);
     }
 
