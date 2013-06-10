@@ -185,34 +185,27 @@ public class ThumbnailStoreTest
     	ThumbnailStorePrx svc = factory.createThumbnailStore();
     	//first import an image already tested see ImporterTest
     	String format = ModelMockFactory.FORMATS[0];
-    	File f = File.createTempFile("testImportGraphicsImages"+format,
-    			"."+format);
-    	mmFactory.createImageFile(f, format);
     	List<Pixels> all = new ArrayList<Pixels>();
     	List<Pixels> pixels = null;
-    	try {
-    		pixels = importFile(importer, f, format, false);
-    		all.addAll(pixels);
-    	} catch (Throwable e) {
-    		throw new Exception("cannot import image", e);
-    	}
-    	f.delete();
-    	//Import the second image.
-    	f = File.createTempFile("testImportGraphicsImages"+format,
-    			"."+format);
-    	mmFactory.createImageFile(f, format);
-    	try {
-    		pixels = importFile(importer, f, format, false);
-    		all.addAll(pixels);
-    	} catch (Throwable e) {
-    		throw new Exception("cannot import image", e);
-    	}
-    	f.delete();
-
+    	int n = 2;
+    	File f;
+    	for (int i = 0; i < n; i++) {
+    		f = File.createTempFile("testImportGraphicsImages_"+i+format,
+        			"."+format);
+        	mmFactory.createImageFile(f, format);
+        	try {
+        		pixels = importFile(importer, f, format, false);
+        		all.addAll(pixels);
+        	} catch (Throwable e) {
+        		throw new Exception("cannot import image", e);
+        	}
+        	f.delete();
+		}
     	Iterator<Pixels> i = all.iterator();
     	long id;
     	int sizeX = 96;
     	int sizeY = 96;
+    	byte[] values;
     	List<Long> ids = new ArrayList<Long>(pixels.size());
     	while (i.hasNext()) {
     		id = i.next().getId().getValue();
@@ -221,7 +214,7 @@ public class ThumbnailStoreTest
     			svc.resetDefaults();
     			svc.setPixelsId(id);
     		}
-    		byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+    		values = svc.getThumbnail(omero.rtypes.rint(sizeX),
     				omero.rtypes.rint(sizeY));
     		assertNotNull(values);
     		assertTrue(values.length > 0);
@@ -230,16 +223,19 @@ public class ThumbnailStoreTest
     	IRenderingSettingsPrx proxy = factory.getRenderingSettingsService();
     	proxy.resetDefaultsInSet(Pixels.class.getName(), ids);
     	i = all.iterator();
-    	id = i.next().getId().getValue();
-    	ids.add(id);
-    	if (!(svc.setPixelsId(id))) {
-    		svc.resetDefaults();
-    		svc.setPixelsId(id);
+    	//Retrieve the thumbnails. They need to be created again.
+    	while (i.hasNext()) {
+    		id = i.next().getId().getValue();
+    		ids.add(id);
+    		if (!(svc.setPixelsId(id))) {
+    			svc.resetDefaults();
+    			svc.setPixelsId(id);
+    		}
+    		values = svc.getThumbnail(omero.rtypes.rint(sizeX),
+    				omero.rtypes.rint(sizeY));
+    		assertNotNull(values);
+    		assertTrue(values.length > 0);
     	}
-    	byte[] values = svc.getThumbnail(omero.rtypes.rint(sizeX),
-    			omero.rtypes.rint(sizeY));
-    	assertNotNull(values);
-    	assertTrue(values.length > 0);
     	svc.close();
     }
 }
