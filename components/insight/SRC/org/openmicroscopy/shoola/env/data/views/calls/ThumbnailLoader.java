@@ -184,7 +184,7 @@ public class ThumbnailLoader
     	DataObject image;
     	PixelsData pxd;
     	while (j.hasNext()) {
-    		id = (Long) j.next();
+    		id = j.next();
     		final long userID = id;
     		i = images.iterator();
     		while (i.hasNext()) {
