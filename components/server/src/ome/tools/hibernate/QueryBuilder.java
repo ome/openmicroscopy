@@ -356,9 +356,7 @@ public class QueryBuilder {
                 // SQL we will unwrap the session. This is the only
                 // location that is doing such unwrapping.
                 // Also see ticket:9496 about deleting rdefs.
-                if (s.startsWith("update") || s.startsWith("delete")
-                        || s.startsWith("select  distinct on")) {
-                    // FIXME: distinct on is not yet provided by HQL
+                if (s.startsWith("update") || s.startsWith("delete")) {
                     if (session instanceof Advised) {
                         Advised proxy = (Advised) session;
                         try {
