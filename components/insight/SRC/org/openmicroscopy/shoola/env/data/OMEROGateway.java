@@ -8788,7 +8788,7 @@ class OMEROGateway
 		try {
 			Connector c = getConnector(ctx);
 			if (c == null) return null;
-			return c.submit(commands, ctx);
+			return c.submit(commands, null);
 		} catch (Throwable e) {
 			handleException(e, "Cannot execute the command.");
 			// Never reached
