@@ -122,11 +122,6 @@ public class ThumbnailFieldsLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        /*
-        List l = (List) fe.getPartialResult();
-        if (l != null) 
-        	viewer.setThumbnailsFieldsFor(l, row, column);
-        	*/
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
     	if (td != null) {
     		if (result == null) result = new ArrayList<Object>();
