@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.FileUploader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -209,7 +209,7 @@ public class FileUploader
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
 				if (directory != null) {
-					directory.delete();
+					FileUtils.deleteDirectory(directory);
 					f.delete();
 				}
 			}
