@@ -767,8 +767,14 @@ class ImporterUIElement
 		} else {//empty folder
 			if (result instanceof Exception) {
 				countUploaded++;
-				//countCancelled++;
-				//setImportResult(c, result);
+				//Check if no files
+				if (!c.hasComponents()) {
+					countImported++;
+					countUploadFailure++;
+					c.setStatus(result);
+				}
+				if (isDone() && rotationIcon != null)
+					rotationIcon.stopRotation();
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;
 				if (!b && c.isCancelled()) {
