@@ -780,10 +780,10 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#delete(SecurityContext, Collection)
 	 */
 	public RequestCallback delete(SecurityContext ctx,
-			Collection<DeletableObject> objects) 
+			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		if (objects == null || objects.size() == 0 || ctx == null) return null;
+		if (CollectionUtils.isEmpty(objects) || ctx == null) return null;
 		Iterator<DeletableObject> i = objects.iterator();
 		DeletableObject object;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
@@ -812,11 +812,11 @@ class OmeroDataServiceImpl
 			data = object.getObjectToDelete();
 			annotations = object.getAnnotations();
 			options = null;
-			if (annotations != null && annotations.size() > 0) {
+			if (!CollectionUtils.isEmpty(annotations)) {
 				options = new HashMap<String, String>();
 				j = annotations.iterator();
 				while (j.hasNext()) {
-					options.put(gateway.createDeleteOption(j.next().getName()), 
+					options.put(gateway.createDeleteOption(j.next().getName()),
 							OMEROGateway.KEEP);
 				}
 			}
@@ -825,27 +825,27 @@ class OmeroDataServiceImpl
 					options = new HashMap<String, String>();
 				if (data instanceof DatasetData) {
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof ProjectData) {
 					options.put(gateway.createDeleteCommand(
-							DatasetData.class.getName()), 
+							DatasetData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof ScreenData) {
 					options.put(gateway.createDeleteCommand(
-							PlateData.class.getName()), 
+							PlateData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							WellData.class.getName()), 
+							WellData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							PlateAcquisitionData.class.getName()), 
+							PlateAcquisitionData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof TagAnnotationData) {
 					options = null;
