@@ -20,7 +20,9 @@
 package ome.services.blitz.test.utests;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -48,8 +50,55 @@ import omero.cmd.graphs.Preprocessor;
  */
 @Test(groups = {"fs"})
 public class PreprocessorTest extends Preprocessor {
+
+    /**
+     * Array of DELETEs for the first three filesets.
+     */
+    private static String[] FS012 =
+            new String[] {"DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]" };
+
+
     public PreprocessorTest() {
         super(new ArrayList<Request>(), null);
+    }
+
+    /**
+     * For the case where there are no choices, this method wraps each passed
+     * parameter in a new String[] for use with {@link #assertRequests(String[]...)}
+     */
+    private void assertRequests(String...requests) {
+        String[][] choices = new String[requests.length][];
+        for (int i = 0; i < choices.length; i++) {
+            choices[i] = new String[]{ requests[i] };
+        }
+        assertRequests(choices);
+    }
+
+    /**
+     * Wrap a string in a string array.
+     */
+    private String[] _(String s) {
+        return new String[]{s};
+    }
+
+    /**
+     * Choices per location are passed as an array and checked against the
+     * current contents. For example, if the first element may be /Fileset:1
+     * or /Fileset:2, but the second must be /Plate:1, then this method should
+     * be called with "new String[]{"/Fileset:1", "/Fileset:2"}, new String[] {
+     * "/Plate:1"}.
+     */
+    private void assertRequests(String[]...choices) {
+
+        Assert.assertEquals(requests.size(), choices.length);
+
+        for (int idx = 0; idx < choices.length; idx++) {
+            List<String> expected = Arrays.asList(choices[idx]);
+            Request request = requests.get(idx);
+            String requestString = requestToString(request);
+            Assert.assertTrue(expected.contains(requestString),
+                String.format("Expected %s at index %s", expected, idx));
+        }
     }
 
     /**
@@ -175,36 +224,29 @@ public class PreprocessorTest extends Preprocessor {
     }
 
     /**
-     * Convert the list of requests to a pretty string.
-     * @return the request string
+     * Convert a single request to a pretty string.
      */
-    private String requestsToString() {
-        final StringBuffer requestStrings = new StringBuffer();
-        for (final Request request : this.requests) {
-            if (request instanceof Delete) {
-                requestStrings.append("DELETE");
-            } else if (request instanceof Chgrp) {
-                requestStrings.append("CHGRP");
-                requestStrings.append('(');
-                requestStrings.append(((Chgrp) request).grp);
-                requestStrings.append(')');
-            } else {
-                requestStrings.append('?');
-            }
-            if (request instanceof GraphModify) {
-                final GraphModify graphModify = (GraphModify) request;
-                requestStrings.append('[');
-                requestStrings.append(graphModify.type);
-                requestStrings.append(':');
-                requestStrings.append(graphModify.id);
-                requestStrings.append(']');
-            }
-            requestStrings.append(", ");
+    private String requestToString(final Request request) {
+        StringBuilder requestString = new StringBuilder();
+        if (request instanceof Delete) {
+            requestString.append("DELETE");
+        } else if (request instanceof Chgrp) {
+            requestString.append("CHGRP");
+            requestString.append('(');
+            requestString.append(((Chgrp) request).grp);
+            requestString.append(')');
+        } else {
+            requestString.append('?');
         }
-        if (requestStrings.length() > 1) {
-            requestStrings.setLength(requestStrings.length() - 2);
+        if (request instanceof GraphModify) {
+            final GraphModify graphModify = (GraphModify) request;
+            requestString.append('[');
+            requestString.append(graphModify.type);
+            requestString.append(':');
+            requestString.append(graphModify.id);
+            requestString.append(']');
         }
-        return requestStrings.toString();
+        return requestString.toString();
     }
 
     /**
@@ -218,9 +260,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
     }
 
     /**
@@ -234,9 +274,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]", "DELETE[/Image:6]");
     }
 
     /**
@@ -249,9 +287,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
     }
 
     /**
@@ -267,9 +303,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
     }
 
     /**
@@ -285,9 +319,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:2]");
     }
 
     /**
@@ -303,9 +335,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Fileset:0], CHGRP(8)[/Image:6]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Fileset:2]",
+                "CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Image:6]");
     }
 
     /**
@@ -321,9 +352,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Fileset:2], CHGRP(8)[/Image:6]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Fileset:2]", "CHGRP(8)[/Image:6]");
     }
 
     /**
@@ -336,9 +366,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(1)[/Image:1], CHGRP(2)[/Image:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(1)[/Image:1]", "CHGRP(2)[/Image:2]");
     }
 
     /**
@@ -351,9 +379,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(1)[/Fileset:1]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(1)[/Fileset:1]");
     }
 
     /**
@@ -369,9 +395,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:2], CHGRP(9)[/Fileset:1]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:2]", "CHGRP(9)[/Fileset:1]");
     }
 
     /**
@@ -386,9 +410,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:0], DELETE[/Dataset:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:0]", "DELETE[/Dataset:0]");
     }
 
     /**
@@ -401,9 +423,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Dataset:0], DELETE[/Dataset:1]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
+                "DELETE[/Dataset:0]", "DELETE[/Dataset:1]");
     }
 
     /**
@@ -419,9 +440,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Dataset:0], DELETE[/Fileset:2], DELETE[/Dataset:1], DELETE[/Image:6]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
+                "DELETE[/Dataset:0]", "DELETE[/Fileset:2]",
+                "DELETE[/Dataset:1]", "DELETE[/Image:6]");
     }
 
     /**
@@ -433,9 +454,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Project:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]", "DELETE[/Project:0]");
     }
 
     /**
@@ -450,11 +469,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Fileset:0], DELETE[/Project:0], DELETE[/Image:6]",
-                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Project:0], DELETE[/Image:6]");
-        final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual));
+        assertRequests(FS012, FS012, FS012,
+                _("DELETE[/Project:0]"), _("DELETE[/Image:6]"));
     }
 
     /**
@@ -471,11 +487,11 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected =
-                "DELETE[/Fileset:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6], " +
-                "DELETE[/Dataset:0], DELETE[/Dataset:1], DELETE[/Project:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests(
+                "DELETE[/Fileset:0]", "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:2]", "DELETE[/Image:6]",
+                "DELETE[/Dataset:0]", "DELETE[/Dataset:1]",
+                "DELETE[/Project:0]");
     }
 
     /**
@@ -492,9 +508,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:0], CHGRP(8)[/Well:0], CHGRP(8)[/Well:1]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]", "CHGRP(8)[/Well:1]");
     }
 
     /**
@@ -510,9 +524,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Well:4], CHGRP(8)[/Well:5]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Well:4]", "CHGRP(8)[/Well:5]");
     }
 
     /**
@@ -525,9 +537,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -541,10 +551,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:0], CHGRP(8)[/Well:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
-        
+        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -559,9 +567,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -576,9 +582,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -595,9 +599,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:0], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Fileset:1]",
+                "CHGRP(8)[/Well:0]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -614,9 +617,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "CHGRP(8)[/Fileset:0], CHGRP(8)[/Well:0], CHGRP(8)[/Fileset:1], CHGRP(8)[/Well:1], CHGRP(8)[/Well:2]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("CHGRP(8)[/Fileset:0]", "CHGRP(8)[/Well:0]",
+                "CHGRP(8)[/Fileset:1]", "CHGRP(8)[/Well:1]", "CHGRP(8)[/Well:2]");
     }
 
     /**
@@ -632,11 +634,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected =
-                "CHGRP(8)[/Fileset:2], CHGRP(8)[/Well:3], CHGRP(9)[/Fileset:1], CHGRP(9)[/Well:1], " +
-                "CHGRP(8)[/Well:4], CHGRP(9)[/Well:2], CHGRP(8)[/Well:5]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests(
+                "CHGRP(8)[/Fileset:2]", "CHGRP(8)[/Well:3]",
+                "CHGRP(9)[/Fileset:1]", "CHGRP(9)[/Well:1]",
+                "CHGRP(8)[/Well:4]", "CHGRP(9)[/Well:2]", "CHGRP(8)[/Well:5]");
     }
 
     /**
@@ -648,9 +649,7 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:0], DELETE[/Plate:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:0]", "DELETE[/Plate:0]");
     }
 
     /**
@@ -663,9 +662,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Plate:0], DELETE[/Plate:1]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
+                "DELETE[/Plate:0]", "DELETE[/Plate:1]");
     }
 
     /**
@@ -681,9 +679,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Plate:0], DELETE[/Fileset:2], DELETE[/Plate:1], DELETE[/Image:6]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:1]", "DELETE[/Fileset:0]",
+                "DELETE[/Plate:0]", "DELETE[/Fileset:2]", "DELETE[/Plate:1]",
+                "DELETE[/Image:6]");
     }
 
     /**
@@ -695,9 +693,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected = "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Screen:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests("DELETE[/Fileset:2]", "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:0]", "DELETE[/Screen:0]");
     }
 
     /**
@@ -712,11 +709,8 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Fileset:0], DELETE[/Screen:0], DELETE[/Image:6]",
-                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Screen:0], DELETE[/Image:6]");
-        final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual), actual);
+        assertRequests(FS012, FS012, FS012,
+                _("DELETE[/Screen:0]"), _("DELETE[/Image:6]"));
     }
 
     /**
@@ -733,12 +727,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected =
-                "DELETE[/Fileset:0], DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Image:6], " +
-                "DELETE[/Plate:0], DELETE[/Plate:1], DELETE[/Screen:0]";
-
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests(
+                "DELETE[/Fileset:0]", "DELETE[/Fileset:1]",
+                "DELETE[/Fileset:2]", "DELETE[/Image:6]",
+                "DELETE[/Plate:0]", "DELETE[/Plate:1]", "DELETE[/Screen:0]");
     }
 
     /**
@@ -754,12 +746,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected =
-                "DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Plate:0], DELETE[/Fileset:2], DELETE[/Plate:1], " +
-                "DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]";
-
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests(
+                "DELETE[/Fileset:1]", "DELETE[/Fileset:0]", "DELETE[/Plate:0]",
+                "DELETE[/Fileset:2]", "DELETE[/Plate:1]",
+                "DELETE[/Well:4]", "DELETE[/Well:5]", "DELETE[/Well:6]");
     }
 
     /**
@@ -774,11 +764,10 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final ImmutableList<String> expected = ImmutableList.of(
-                "DELETE[/Fileset:1], DELETE[/Fileset:2], DELETE[/Fileset:0], DELETE[/Screen:0], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]",
-                "DELETE[/Fileset:2], DELETE[/Fileset:1], DELETE[/Fileset:0], DELETE[/Screen:0], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6]");
-        final String actual = requestsToString();
-        Assert.assertTrue(expected.contains(actual), actual);
+        assertRequests(FS012, FS012, FS012,
+                _("DELETE[/Screen:0]"), _("DELETE[/Well:4]"),
+                _("DELETE[/Well:5]"), _("DELETE[/Well:6]"));
+
     }
 
     /**
@@ -795,11 +784,9 @@ public class PreprocessorTest extends Preprocessor {
 
         process();
 
-        final String expected =
-                "DELETE[/Fileset:0], DELETE[/Well:0], DELETE[/Fileset:1], DELETE[/Well:1], DELETE[/Well:2], " +
-                "DELETE[/Fileset:2], DELETE[/Well:3], DELETE[/Well:4], DELETE[/Well:5], DELETE[/Well:6], " +
-                "DELETE[/Plate:0], DELETE[/Plate:1], DELETE[/Screen:0]";
-        final String actual = requestsToString();
-        Assert.assertEquals(actual, expected);
+        assertRequests(
+                "DELETE[/Fileset:0]", "DELETE[/Well:0]", "DELETE[/Fileset:1]", "DELETE[/Well:1]", "DELETE[/Well:2]", "" +
+                "DELETE[/Fileset:2]", "DELETE[/Well:3]", "DELETE[/Well:4]", "DELETE[/Well:5]", "DELETE[/Well:6]", "" +
+                "DELETE[/Plate:0]", "DELETE[/Plate:1]", "DELETE[/Screen:0]");
     }
 }
