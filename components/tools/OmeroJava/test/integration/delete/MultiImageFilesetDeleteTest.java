@@ -37,6 +37,7 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+import org.testng.Assert;
 
 /**
  * Tests for deleting hierarchies and the effects that that should have under
@@ -66,7 +67,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
-    	assertEquals(fileset.copyImages().size(), 2);
+    	Assert.assertEquals(fileset.copyImages().size(), 2);
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
     			mmFactory.simpleDatasetData().asIObject());
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
