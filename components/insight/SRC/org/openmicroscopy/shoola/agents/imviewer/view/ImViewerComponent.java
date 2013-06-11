@@ -3144,6 +3144,8 @@ class ImViewerComponent
 				}
 				
 		}
+		view.setVisible(false);
+		view.dispose();
 		discard();
 	}
 
