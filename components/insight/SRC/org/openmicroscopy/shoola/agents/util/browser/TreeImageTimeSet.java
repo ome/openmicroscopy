@@ -328,14 +328,14 @@ public class TreeImageTimeSet
     			group = (GroupData) gp.getUserObject();
     			path = "gid"+group.getId()+TEXT+"eid"+exp.getId()+TEXT+path;
     		}
-    		
+
     		return path;
     	}
     	if (ho instanceof GroupData) {
-			group = (GroupData) ho;
-			path = "gid"+group.getId()+TEXT+path;
-			return path;
-		}
+    		group = (GroupData) ho;
+    		path = "gid"+group.getId()+TEXT+path;
+    		return path;
+    	}
     	path = ho.toString()+TEXT+path;
     	return createPath(parent, path);
     }
