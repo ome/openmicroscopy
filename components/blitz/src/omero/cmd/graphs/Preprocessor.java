@@ -195,6 +195,8 @@ public class Preprocessor {
         hqlFromTo = builder.build();
     }
 
+    private final Ice.Communicator ic;
+
     protected final List<Request> requests;
 
     private final Helper helper;
@@ -242,7 +244,7 @@ public class Preprocessor {
             if (!added && prohibitedPrefixes.contains(requestTarget)) {
                 added = true;
                 /* FIXME: this does not modify user-set options */
-                final GraphModify newRequest = (GraphModify) request.clone();
+                final GraphModify newRequest = createClone(request);
                 newRequest.type = TargetType.byType.get(newRequestTarget.targetType);
                 newRequest.id = newRequestTarget.targetId;
                 this.requests.add(index+1, newRequest);
@@ -260,7 +262,30 @@ public class Preprocessor {
         }
     }
 
+    /**
+     * If a {@ #ic} instance is available, use it to clone the another version
+     * of the {@link Request} so that unintended fields like the
+     * ome.services.delete.Deletion object are not unintentionally shared.
+     *
+     * @param request
+     * @return
+     */
+    private GraphModify createClone(GraphModify request) {
+        if (ic == null) {
+            return (GraphModify) request.clone();
+        } else {
+            String id = request.ice_id();
+            Ice.ObjectFactory of = ic.findObjectFactory(id);
+            return (GraphModify) of.create("");
+        }
+    }
+
     public Preprocessor(List<Request> requests, Helper helper) {
+        this(null, requests, helper);
+    }
+
+    public Preprocessor(Ice.Communicator ic, List<Request> requests, Helper helper) {
+        this.ic = ic;
         this.requests = requests;
         this.helper = helper;
 
