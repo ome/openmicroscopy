@@ -290,10 +290,6 @@
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
-
-                <!-- Similar to the preprocessing step of DoAll.
-                Note the use of a synthetic relationship between the two -->
-                <value>/Fileset+Only;HARD;/Dataset</value>
             </list>
         </constructor-arg>
     </bean>
@@ -344,10 +340,6 @@
                 <value>/Plate/PlateAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
                 <value>/Plate+Only</value>
-
-                <!-- Similar to the preprocessing step of DoAll.
-                Note the use of a synthetic relationship between the two -->
-                <value>/Fileset+Only;HARD;/Plate</value>
             </list>
         </constructor-arg>
     </bean>

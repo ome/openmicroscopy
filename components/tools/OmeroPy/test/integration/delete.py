@@ -439,7 +439,7 @@ class TestDelete(lib.ITest):
 
         # Now delete one dataset
         delete = omero.cmd.Delete("/Dataset", datasets[0].id.val, None)
-        rsp = self.doSubmit(delete, client, test_should_pass=False)
+        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
 
         # The delete should fail due to the fileset
         self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
@@ -469,7 +469,7 @@ class TestDelete(lib.ITest):
 
         # Now delete one image
         delete = omero.cmd.Delete("/Image", images[0].id.val, None)
-        rsp = self.doSubmit(delete, client, test_should_pass=False)
+        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
 
         # The delete should fail due to the fileset
         self.assertTrue('Fileset' in rsp.constraints, "delete should fail due to 'Fileset' constraints")
@@ -503,7 +503,7 @@ class TestDelete(lib.ITest):
 
         # Now delete the dataset, should succeed
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        self.doSubmit(delete, client)
+        self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
         self.assertEquals(None, query.find("Dataset", ds.id.val))
@@ -576,7 +576,7 @@ class TestDelete(lib.ITest):
 
         # Now delete the fileset, should succeed
         delete = omero.cmd.Delete("/Fileset", fsId, None)
-        self.doSubmit(delete, client)
+        self.doAllSubmit([delete], client)
 
         # The dataset, fileset and both images should be deleted.
         self.assertEquals(None, query.find("Fileset", fsId))
@@ -639,7 +639,7 @@ class TestDelete(lib.ITest):
 
         # delete should fail...
         delete = omero.cmd.Delete("/Dataset", ds.id.val, None)
-        rsp = self.doSubmit(delete, client, test_should_pass=False)
+        rsp = self.doAllSubmit([delete], client, test_should_pass=False)
 
         # ...due to the filesets
         self.assertTrue('Fileset' in rsp.constraints, "Delete should fail due to 'Fileset' constraints")

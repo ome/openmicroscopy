@@ -36,9 +36,7 @@ class TestChgrp(lib.ITest):
 
         # Chgrp
         chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, options=None, grp=gid)
-        doall = omero.cmd.DoAll()
-        doall.requests = [chgrp]
-        self.doSubmit(doall, client)
+        self.doAllSubmit([chgrp], client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -138,7 +136,7 @@ class TestChgrp(lib.ITest):
 
         # Move Project to new group
         chgrp = omero.cmd.Chgrp(type="/Project", id=project.id.val, options=None, grp=gid)
-        self.doSubmit(chgrp, client)
+        self.doAllSubmit([chgrp], client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()
@@ -180,7 +178,7 @@ class TestChgrp(lib.ITest):
 
         # Now chgrp and try to delete
         chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, grp=target_gid)
-        self.doSubmit(chgrp, owner)
+        self.doAllSubmit([chgrp], owner)
 
         # Shouldn't be necessary to change group, but we're gonna
         owner_g.SERVICE_OPTS.setOmeroGroup("-1")
@@ -209,7 +207,7 @@ class TestChgrp(lib.ITest):
 
         # Now chgrp
         chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=target_gid)
-        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+        rsp = self.doAllSubmit([chgrp], client, test_should_pass=False)
 
         # The chgrp should fail due to the fileset
         self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
@@ -274,7 +272,7 @@ class TestChgrp(lib.ITest):
 
         # chgrp should fail...
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=datasets[0].id.val, grp=target_gid)
-        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+        rsp = self.doAllSubmit([chgrp], client, test_should_pass=False)
 
         # ...due to the fileset
         self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
@@ -344,7 +342,7 @@ class TestChgrp(lib.ITest):
 
         # Now chgrp, should succeed
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doSubmit(chgrp, client)
+        self.doAllSubmit([chgrp], client)
 
         # Check Dataset and both Images moved
         queryService = client.sf.getQueryService()
@@ -421,7 +419,7 @@ class TestChgrp(lib.ITest):
 
         # chgrp should fail...
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        rsp = self.doSubmit(chgrp, client, test_should_pass=False)
+        rsp = self.doAllSubmit([chgrp], client, test_should_pass=False)
 
         # ...due to the filesets
         self.assertTrue('Fileset' in rsp.constraints, "chgrp should fail due to 'Fileset' constraints")
@@ -456,7 +454,7 @@ class TestChgrp(lib.ITest):
 
         # Now chgrp, should succeed
         chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
-        self.doSubmit(chgrp, client)
+        self.doAllSubmit([chgrp], client)
 
         # Check the group of the fileset is in sync with image.
         ctx = {'omero.group': '-1'}
@@ -485,7 +483,7 @@ class TestChgrp(lib.ITest):
 
         # Now chgrp, should succeed
         chgrp = omero.cmd.Chgrp(type="/Fileset", id=fsId, grp=target_gid)
-        self.doSubmit(chgrp, client)
+        self.doAllSubmit([chgrp], client)
 
         # Check Fileset and both Images moved and thus the Fileset is in sync with Images.
         ctx = {'omero.group': '-1'}      # query across groups
