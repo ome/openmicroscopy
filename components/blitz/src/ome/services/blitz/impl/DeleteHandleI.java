@@ -97,7 +97,8 @@ public class DeleteHandleI extends AbstractAmdServant implements
                     if (command != null) {
                         DeleteStepFactory dsf = new DeleteStepFactory(sf.context, em);
                         Deletion d = new Deletion(ctx, dsf, afs, this.ctx);
-                        req = new DeleteI(d);
+                        Ice.Communicator ic = this.ctx.getBean(Ice.Communicator.class);
+                        req = new DeleteI(ic, d);
                         req.type = command.type;
                         req.id = command.id;
                         req.options = command.options;

@@ -7,17 +7,7 @@
 
 package omero.cmd.graphs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
 
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
@@ -28,24 +18,24 @@ import ome.services.graphs.GraphState;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
-import ome.util.SqlAction;
-
 import omero.cmd.Chown;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
-import omero.cmd.State;
-import omero.cmd.Status;
 import omero.cmd.Unknown;
+
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.3.2
  */
-public class ChownI extends Chown implements IRequest {
+public class ChownI extends Chown implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -3653063048111039L;
 
@@ -59,10 +49,29 @@ public class ChownI extends Chown implements IRequest {
 
     private Helper helper;
 
-    public ChownI(ChownStepFactory factory, ApplicationContext specs) {
+    private final Ice.Communicator ic;
+
+    public ChownI(Ice.Communicator ic, ChownStepFactory factory, ApplicationContext specs) {
+        this.ic = ic;
         this.factory = factory;
         this.specs = specs;
     }
+
+    //
+    // IGraphModifyRequest
+    //
+
+    @Override
+    public IGraphModifyRequest copy() {
+        ChownI copy = (ChownI) ic.findObjectFactory(ice_id()).create(ChownI.ice_staticId());
+        copy.type = type;
+        copy.id = id;
+        return copy;
+    }
+
+    //
+    // IRequest
+    //
 
     public Map<String, String> getCallContext() {
         return null;

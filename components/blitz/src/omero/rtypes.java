@@ -940,7 +940,7 @@ public abstract class rtypes {
     public static class RTypeObjectFactoryRegistry extends ObjectFactoryRegistry {
 
         @Override
-        public Map<String, ObjectFactory> createFactories() {
+        public Map<String, ObjectFactory> createFactories(Ice.Communicator ic) {
             Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
             factories.put(RBool.ice_staticId(), new ObjectFactory(RBool.ice_staticId()) {
 

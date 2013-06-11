@@ -49,12 +49,13 @@ public class ListRequestsI extends ListRequests implements IRequest {
     public Object step(int i) {
         helper.assertStep(0, i);
 
+        final Ice.Communicator ic = ctx.getBean(Ice.Communicator.class);
         final List<Request> requestTypes = new ArrayList<Request>();
         final Map<String, ObjectFactoryRegistry> registries = ctx
                 .getBeansOfType(ObjectFactoryRegistry.class);
         final ListRequestsRsp rsp = new ListRequestsRsp();
         for (ObjectFactoryRegistry registry : registries.values()) {
-            Map<String, ObjectFactory> factories = registry.createFactories();
+            Map<String, ObjectFactory> factories = registry.createFactories(ic);
             for (Map.Entry<String, ObjectFactory> entry : factories.entrySet()) {
                 String key = entry.getKey();
                 ObjectFactory factory = entry.getValue();

@@ -25,13 +25,10 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.meta.ExperimenterGroup;
 import ome.security.ChmodStrategy;
-import ome.services.graphs.GraphException;
-
 import omero.cmd.Chmod;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
 
@@ -43,7 +40,7 @@ import omero.cmd.Response;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.4.0
  */
-public class ChmodI extends Chmod implements IRequest {
+public class ChmodI extends Chmod implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -33294230498203989L;
 
@@ -55,9 +52,29 @@ public class ChmodI extends Chmod implements IRequest {
 
     private Object[] checks;
 
-    public ChmodI(ChmodStrategy strategy) {
+    private final Ice.Communicator ic;
+
+    public ChmodI(Ice.Communicator ic, ChmodStrategy strategy) {
+        this.ic = ic;
         this.strategy = strategy;
     }
+
+    //
+    // IGraphModifyRequest
+    //
+
+    @Override
+    public IGraphModifyRequest copy() {
+        ChmodI copy = (ChmodI) ic.findObjectFactory(ice_id()).create(ChmodI.ice_staticId());
+        copy.type = type;
+        copy.id = id;
+        copy.permissions = permissions;
+        return copy;
+    }
+
+    //
+    // IRequest
+    //
 
     public Map<String, String> getCallContext() {
         return null;

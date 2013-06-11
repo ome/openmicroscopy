@@ -31,6 +31,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import Ice.Object;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
@@ -57,9 +59,31 @@ public class PreprocessorTest extends Preprocessor {
     private static String[] FS012 =
             new String[] {"DELETE[/Fileset:0]", "DELETE[/Fileset:1]", "DELETE[/Fileset:2]" };
 
+    private final Ice.Communicator ic = Ice.Util.initialize();
+
+    private final class Factory implements Ice.ObjectFactory {
+        @Override
+        public Object create(String type) {
+            if (ChgrpI.ice_staticId().equals(type)) {
+                return new ChgrpI(ic, null, null);
+            } else if (DeleteI.ice_staticId().equals(type)) {
+                return new DeleteI(ic, null);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void destroy() {
+            // no-op
+        }
+        
+    }
 
     public PreprocessorTest() {
         super(new ArrayList<Request>(), null);
+        ic.addObjectFactory(new Factory(), ChgrpI.ice_staticId());
+        ic.addObjectFactory(new Factory(), DeleteI.ice_staticId());
     }
 
     /**
@@ -204,7 +228,7 @@ public class PreprocessorTest extends Preprocessor {
      * @param id the target ID
      */
     private void addDeleteRequest(String type, long id) {
-        final Delete delete = new DeleteI(null);
+        final Delete delete = new DeleteI(ic, null);
         delete.type = type;
         delete.id = id;
         this.requests.add(delete);
@@ -217,7 +241,7 @@ public class PreprocessorTest extends Preprocessor {
      * @param group the destination group
      */
     private void addChgrpRequest(String type, long id, long group) {
-        final Chgrp chgrp = new ChgrpI(null, null);
+        final Chgrp chgrp = new ChgrpI(ic, null, null);
         chgrp.type = type;
         chgrp.id = id;
         chgrp.grp = group;

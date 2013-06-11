@@ -10,38 +10,34 @@ package omero.cmd.graphs;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.hibernate.Session;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
-
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
 import ome.services.chgrp.ChgrpStepFactory;
-import ome.services.graphs.GraphConstraintException;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
 import ome.system.EventContext;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.HibernateUtils;
-
 import omero.cmd.Chgrp;
 import omero.cmd.ERR;
-import omero.cmd.GraphConstraintERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.Unknown;
+
+import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.3.2
  */
-public class ChgrpI extends Chgrp implements IRequest {
+public class ChgrpI extends Chgrp implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;
 
@@ -55,10 +51,30 @@ public class ChgrpI extends Chgrp implements IRequest {
     
     private/* final */Helper helper;
 
-    public ChgrpI(ChgrpStepFactory factory, ApplicationContext specs) {
+    private final Ice.Communicator ic;
+
+    public ChgrpI(Ice.Communicator ic, ChgrpStepFactory factory, ApplicationContext specs) {
+        this.ic = ic;
         this.factory = factory;
         this.specs = specs;
     }
+
+    //
+    // IGraphModifyRequest
+    //
+
+    @Override
+    public IGraphModifyRequest copy() {
+        ChgrpI copy = (ChgrpI) ic.findObjectFactory(ice_id()).create(ChgrpI.ice_staticId());
+        copy.type = type;
+        copy.id = id;
+        copy.grp = grp;
+        return copy;
+    }
+
+    //
+    // IRequest
+    //
 
     public Map<String, String> getCallContext() {
         Map<String, String> negOne = new HashMap<String, String>();

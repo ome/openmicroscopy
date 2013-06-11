@@ -45,6 +45,7 @@ import omero.cmd.Delete;
 import omero.cmd.DoAll;
 import omero.cmd.GraphModify;
 import omero.cmd.Helper;
+import omero.cmd.IRequest;
 import omero.cmd.Request;
 
 /**
@@ -244,7 +245,8 @@ public class Preprocessor {
             if (!added && prohibitedPrefixes.contains(requestTarget)) {
                 added = true;
                 /* FIXME: this does not modify user-set options */
-                final GraphModify newRequest = createClone(request);
+                final GraphModify newRequest = 
+                        (GraphModify) ((IGraphModifyRequest) request).copy();
                 newRequest.type = TargetType.byType.get(newRequestTarget.targetType);
                 newRequest.id = newRequestTarget.targetId;
                 this.requests.add(index+1, newRequest);
@@ -259,24 +261,6 @@ public class Preprocessor {
         }
         if (!added) {
             throw new IllegalArgumentException("no prohibited prefix is among the requests");
-        }
-    }
-
-    /**
-     * If a {@ #ic} instance is available, use it to clone the another version
-     * of the {@link Request} so that unintended fields like the
-     * ome.services.delete.Deletion object are not unintentionally shared.
-     *
-     * @param request
-     * @return
-     */
-    private GraphModify createClone(GraphModify request) {
-        if (ic == null) {
-            return (GraphModify) request.clone();
-        } else {
-            String id = request.ice_id();
-            Ice.ObjectFactory of = ic.findObjectFactory(id);
-            return (GraphModify) of.create("");
         }
     }
 
