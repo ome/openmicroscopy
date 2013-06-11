@@ -249,32 +249,6 @@ public class PreprocessorTest extends Preprocessor {
     }
 
     /**
-     * Convert a single request to a pretty string.
-     */
-    private String requestToString(final Request request) {
-        StringBuilder requestString = new StringBuilder();
-        if (request instanceof Delete) {
-            requestString.append("DELETE");
-        } else if (request instanceof Chgrp) {
-            requestString.append("CHGRP");
-            requestString.append('(');
-            requestString.append(((Chgrp) request).grp);
-            requestString.append(')');
-        } else {
-            requestString.append('?');
-        }
-        if (request instanceof GraphModify) {
-            final GraphModify graphModify = (GraphModify) request;
-            requestString.append('[');
-            requestString.append(graphModify.type);
-            requestString.append(':');
-            requestString.append(graphModify.id);
-            requestString.append(']');
-        }
-        return requestString.toString();
-    }
-
-    /**
      * Test conversion of image requests to fileset requests.
      */
     @Test

@@ -27,6 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -45,7 +47,6 @@ import omero.cmd.Delete;
 import omero.cmd.DoAll;
 import omero.cmd.GraphModify;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.Request;
 
 /**
@@ -59,6 +60,8 @@ import omero.cmd.Request;
  * @since 5.0
  */
 public class Preprocessor {
+
+    private final static Logger log = LoggerFactory.getLogger(Preprocessor.class);
     /**
      * The types of target for which we care about adjusting graph operation requests.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -421,6 +424,7 @@ public class Preprocessor {
      * Preprocess the list of requests.
      */
     protected void process() {
+        boolean modified = false;
         for (final Predicate<Request> isRelevant : predicatesForRequests()) {
             final SetMultimap<TargetType, GraphModifyTarget> targets = HashMultimap.create();
 
@@ -444,7 +448,6 @@ public class Preprocessor {
             }
 
             /* review the referenced FS images */
-
             while (!targets.get(TargetType.IMAGE).isEmpty()) {
                 final GraphModifyTarget image = targets.get(TargetType.IMAGE).iterator().next();
                 /* find the image's fileset */
@@ -487,7 +490,45 @@ public class Preprocessor {
                 prohibitedSuffixes.add(fileset);
                 /* adjust the list of requests accordingly */
                 transform(isRelevant, fileset, prohibitedPrefixes, prohibitedSuffixes);
+                modified = true;
             }
         }
+
+        if (modified) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(requestToString(requests.get(0)));
+            for (int i = 1; i < requests.size(); i++) {
+                sb.append(",");
+                sb.append(requestToString(requests.get(i)));
+            }
+            log.debug("transformed to: {}", sb);
+        }
+    }
+
+
+    /**
+     * Convert a single request to a pretty string.
+     */
+    protected String requestToString(final Request request) {
+        StringBuilder requestString = new StringBuilder();
+        if (request instanceof Delete) {
+            requestString.append("DELETE");
+        } else if (request instanceof Chgrp) {
+            requestString.append("CHGRP");
+            requestString.append('(');
+            requestString.append(((Chgrp) request).grp);
+            requestString.append(')');
+        } else {
+            requestString.append('?');
+        }
+        if (request instanceof GraphModify) {
+            final GraphModify graphModify = (GraphModify) request;
+            requestString.append('[');
+            requestString.append(graphModify.type);
+            requestString.append(':');
+            requestString.append(graphModify.id);
+            requestString.append(']');
+        }
+        return requestString.toString();
     }
 }
