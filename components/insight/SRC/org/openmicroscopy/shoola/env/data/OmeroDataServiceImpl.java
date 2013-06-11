@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -781,10 +780,10 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#delete(SecurityContext, Collection)
 	 */
 	public RequestCallback delete(SecurityContext ctx,
-			Collection<DeletableObject> objects) 
+			Collection<DeletableObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		if (objects == null || objects.size() == 0 || ctx == null) return null;
+		if (CollectionUtils.isEmpty(objects) || ctx == null) return null;
 		Iterator<DeletableObject> i = objects.iterator();
 		DeletableObject object;
 		List<DeletableObject> l = new ArrayList<DeletableObject>();
@@ -813,11 +812,11 @@ class OmeroDataServiceImpl
 			data = object.getObjectToDelete();
 			annotations = object.getAnnotations();
 			options = null;
-			if (annotations != null && annotations.size() > 0) {
+			if (!CollectionUtils.isEmpty(annotations)) {
 				options = new HashMap<String, String>();
 				j = annotations.iterator();
 				while (j.hasNext()) {
-					options.put(gateway.createDeleteOption(j.next().getName()), 
+					options.put(gateway.createDeleteOption(j.next().getName()),
 							OMEROGateway.KEEP);
 				}
 			}
@@ -826,27 +825,27 @@ class OmeroDataServiceImpl
 					options = new HashMap<String, String>();
 				if (data instanceof DatasetData) {
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof ProjectData) {
 					options.put(gateway.createDeleteCommand(
-							DatasetData.class.getName()), 
+							DatasetData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof ScreenData) {
 					options.put(gateway.createDeleteCommand(
-							PlateData.class.getName()), 
+							PlateData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							WellData.class.getName()), 
+							WellData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							PlateAcquisitionData.class.getName()), 
+							PlateAcquisitionData.class.getName()),
 							OMEROGateway.KEEP);
 					options.put(gateway.createDeleteCommand(
-							ImageData.class.getName()), 
+							ImageData.class.getName()),
 							OMEROGateway.KEEP);
 				} else if (data instanceof TagAnnotationData) {
 					options = null;
@@ -887,7 +886,7 @@ class OmeroDataServiceImpl
 				if (imageIds.size() > 0) {
 					imageId = imageIds.get(0);
 					cmd = new Delete(gateway.createDeleteCommand(
-							ImageData.class.getName()), imageId,
+							FilesetData.class.getName()), fs.getId(),
 							images.get(imageId));
 					commands.add(cmd);
 					all.addAll(imageIds);
@@ -979,10 +978,9 @@ class OmeroDataServiceImpl
 			}
 			if (toCreate.size() > 0) {
 				toCreate = gateway.saveAndReturnObject(target, toCreate,
-						new HashMap(), userName);
+						new HashMap<Object, Object>(), userName);
 				targets.addAll(toCreate);
 			}
-			
 		}
 		i = objects.iterator();
 		Iterator<IObject> k;
@@ -1027,6 +1025,67 @@ class OmeroDataServiceImpl
 		while (i.hasNext()) {
 			id = i.next();
 			r.put(id, gateway.getImportedPlate(ctx, id));
+		}
+		return r;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getImagesBySplitFilesets(SecurityContext, Class,
+	 * List)
+	 */
+	public Map<Long, Map<Boolean, List<ImageData>>> getImagesBySplitFilesets(
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (CollectionUtils.isEmpty(rootIDs) || rootType == null)
+			throw new IllegalArgumentException("No objects specified.");
+		ParametersI param = new ParametersI();
+		Map<Long, Map<Boolean, List<Long>>> m =
+				gateway.getImagesBySplitFilesets(ctx, rootType, rootIDs, param);
+		
+		Map<Long, Map<Boolean, List<ImageData>>> 
+		r = new HashMap<Long, Map<Boolean, List<ImageData>>>();
+		if (m == null || m.size() == 0) return r;
+		List<Long> ids = new ArrayList<Long>();
+		Iterator<Map<Boolean, List<Long>>> i = m.values().iterator();
+		while (i.hasNext()) {
+			Map<Boolean, List<Long>> map = i.next();
+			Iterator<List<Long>> j = map.values().iterator();
+			while (j.hasNext()) {
+				ids.addAll(j.next());
+			}
+		}
+		Set<ImageData> imgs = getImages(ctx, ImageData.class, ids, -1);
+		Map<Long, ImageData> idMap = new HashMap<Long, ImageData>(imgs.size());
+		Iterator<ImageData> k = imgs.iterator();
+		ImageData img;
+		while (k.hasNext()) {
+			img = k.next();
+			idMap.put(img.getId(), img);
+		}
+		Entry<Long, Map<Boolean, List<Long>>> e;
+		Iterator<Entry<Long, Map<Boolean, List<Long>>>> ii =
+				m.entrySet().iterator();
+		List<Long> l;
+		Entry<Boolean, List<Long>> entry;
+		Iterator<Entry<Boolean, List<Long>>> j;
+		while (ii.hasNext()) {
+			e = ii.next();
+			j = e.getValue().entrySet().iterator();
+			Map<Boolean, List<ImageData>> converted =
+					new HashMap<Boolean, List<ImageData>>();
+			while (j.hasNext()) {
+				entry = j.next();
+				l = entry.getValue();
+				Iterator<Long> kk = l.iterator();
+				List<ImageData> convertedList = new ArrayList<ImageData>();
+				while (kk.hasNext()) {
+					convertedList.add(idMap.get(kk.next()));
+				}
+				converted.put(entry.getKey(), convertedList);
+			}
+			r.put(e.getKey(), converted);
 		}
 		return r;
 	}

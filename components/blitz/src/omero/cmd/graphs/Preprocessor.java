@@ -221,19 +221,21 @@ public class Preprocessor {
      */
     protected final void transform(Predicate<Request> isRelevant, GraphModifyTarget newRequestTarget,
             Set<GraphModifyTarget> prohibitedPrefixes, Set<GraphModifyTarget> prohibitedSuffixes) {
+
         boolean added = false;
-        int index = 0;
-        while (index < this.requests.size()) {
+
+        for (int index = this.requests.size() - 1; index >= 0; index--) {
+
             if (!isRelevant.apply(requests.get(index))) {
-                index++;
                 continue;
             }
+
             final GraphModify request = (GraphModify) this.requests.get(index);
             final TargetType targetType = TargetType.byName.get(request.type);
             if (targetType == null) {
-                index++;
                 continue;
             }
+
             /* it is a relevant request with an understood target type */
             final GraphModifyTarget requestTarget = new GraphModifyTarget(targetType, request.id);
             /* must we now prefix it? */
@@ -243,7 +245,7 @@ public class Preprocessor {
                 final GraphModify newRequest = (GraphModify) request.clone();
                 newRequest.type = TargetType.byType.get(newRequestTarget.targetType);
                 newRequest.id = newRequestTarget.targetId;
-                this.requests.add(index++, newRequest);
+                this.requests.add(index+1, newRequest);
             }
             /* must we remove it? */
             if (prohibitedSuffixes.contains(requestTarget)) {
@@ -251,8 +253,6 @@ public class Preprocessor {
                     throw new IllegalArgumentException("some prohibited prefix must occur before any prohibited suffixes");
                 }
                 this.requests.remove(index);
-            } else {
-                index++;
             }
         }
         if (!added) {
@@ -464,11 +464,11 @@ public class Preprocessor {
                 final boolean completeFileset = targets.get(TargetType.IMAGE).containsAll(filesetImages);
                 /* this iteration will handle this fileset sufficiently, so do not revisit it */
                 targets.get(TargetType.IMAGE).removeAll(filesetImages);
-                /* this preprocessing is only needed for when a fileset has multiple images all of which are referenced */
-                if (!(filesetImages.size() > 1 && completeFileset)) {
+                /* this preprocessing is applied only when all of a fileset's images are referenced */
+                if (!(completeFileset)) {
                     continue;
                 }
-                /* okay, list the fileset as a target among the requests, before any of its images or their containers */
+                /* okay, list the fileset as a target among the requests, after all of its images and their containers */
                 final Set<GraphModifyTarget> prohibitedPrefixes = new HashSet<GraphModifyTarget>(filesetImages);
                 for (final GraphModifyTarget filesetImage : filesetImages) {
                     prohibitedPrefixes.addAll(getAllContainers(filesetImage));

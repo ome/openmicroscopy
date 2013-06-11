@@ -36,7 +36,9 @@ class TestChgrp(lib.ITest):
 
         # Chgrp
         chgrp = omero.cmd.Chgrp(type="/Image", id=image.id.val, options=None, grp=gid)
-        self.doSubmit(chgrp, client)
+        doall = omero.cmd.DoAll()
+        doall.requests = [chgrp]
+        self.doSubmit(doall, client)
 
         # Change our context to new group...
         admin = client.sf.getAdminService()

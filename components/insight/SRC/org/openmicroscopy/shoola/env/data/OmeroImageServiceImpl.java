@@ -557,7 +557,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getThumbnailSet(SecurityContext, List, int)
 	 */
 	public Map<Long, BufferedImage> getThumbnailSet(SecurityContext ctx,
-		List pixelsID, int max)
+		Collection<Long> pixelsID, int max)
 		throws RenderingServiceException
 	{
 		Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();

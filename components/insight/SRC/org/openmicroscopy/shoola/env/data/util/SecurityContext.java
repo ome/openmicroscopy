@@ -23,13 +23,15 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
-import pojos.ExperimenterData;
+
 
 //Java imports
+import com.google.common.base.Objects;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ExperimenterData;
 
 /** 
  * Hosts information required to access correct connector.
@@ -168,5 +170,30 @@ public class SecurityContext
 		ctx.setExperimenter(this.experimenter);
 		ctx.setServerInformation(this.host, this.port);
 		return ctx;
+	}
+	
+	/**
+	 * Calculate the hashCode for the data.
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode()
+	{
+		return Objects.hashCode(this.getGroupID(), this.getHostName(),
+				this.getPort());
+	}
+
+	/**
+	 * Overridden to control if the passed object equals the current one.
+	 * @see java.lang.Object#equals(Object)
+	 */
+	public boolean equals(Object obj)
+	{
+		if (obj == null) return false;
+		return Objects.equal(((SecurityContext) obj).getGroupID(),
+				this.getGroupID()) &&
+				Objects.equal(((SecurityContext) obj).getHostName(),
+						this.getHostName()) &&
+			 Objects.equal(((SecurityContext) obj).getPort(),
+								this.getPort());
 	}
 }
