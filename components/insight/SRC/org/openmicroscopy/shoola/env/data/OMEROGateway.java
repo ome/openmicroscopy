@@ -5922,8 +5922,8 @@ class OMEROGateway
 			StringBuilder sb = new StringBuilder();
 			ParametersI param = new ParametersI();
 			param.addLong("imageID", imageID);
-			sb.append("select well from Well as well ");
-			sb.append("left outer join fetch well.plate as pt ");
+			sb.append("select plate from Plate as plate ");
+			sb.append("left outer join fetch plate.wells as well ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
 			sb.append("left outer join fetch ws.image as img ");
 			sb.append("left outer join fetch img.pixels as pix ");
@@ -5931,12 +5931,8 @@ class OMEROGateway
             sb.append("where img.id = :imageID");
             results = service.findAllByQuery(sb.toString(), param);
             if (results.size() > 0) {
-            	Well well = (Well) results.get(0);
-            	if (well.getPlate() != null)
-            		return new PlateData(well.getPlate());
-            	return null;
+            	return new PlateData((Plate) results.get(0));
             }
-			return null;
 		} catch (Exception e) {
 			handleException(e, "Cannot load plate");
 		}
@@ -6818,6 +6814,7 @@ class OMEROGateway
 	        final byte[] buf = new byte[omsc.getDefaultBlockSize()];
 	        Map<Integer, String> failingChecksums = new HashMap<Integer, String>();
 
+	        if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
 	        library.notifyObservers(new ImportEvent.FILESET_UPLOAD_START(
 	                null, 0, srcFiles.length, null, null, null));
 

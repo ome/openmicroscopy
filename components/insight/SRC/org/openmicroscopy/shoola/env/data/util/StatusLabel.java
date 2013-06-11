@@ -627,6 +627,7 @@ public class StatusLabel
 					((ImportEvent.IMPORT_DONE) event).pixels);
 			firePropertyChange(IMPORT_DONE_PROPERTY, null, this);
 		} else if (event instanceof ImportCandidates.SCANNING) {
+			if (!markedAsCancel) cancellable = true;
 			if (!markedAsCancel && exception == null)
 				generalLabel.setText(SCANNING_TEXT);
 			ImportCandidates.SCANNING evt = (ImportCandidates.SCANNING) event;
