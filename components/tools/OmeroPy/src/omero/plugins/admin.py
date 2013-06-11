@@ -641,10 +641,9 @@ Examples:
         from omero.util.temp_files import gettempdir
         # gettempdir returns ~/omero/tmp/omero_%NAME/%PROCESS
         # To find something more generally useful for calculating
-        # size, we go up to directories
+        # size, we go up two directories
         omero_temp_dir = gettempdir()
-        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir))
-        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir))
+        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
 
         self.ctx.out("""
 %s
