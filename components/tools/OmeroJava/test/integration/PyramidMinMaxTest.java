@@ -41,6 +41,7 @@ import omero.sys.ParametersI;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /** 
  * Collection of tests to import "big" images and check min/max values.

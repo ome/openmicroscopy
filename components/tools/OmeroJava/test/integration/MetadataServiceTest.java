@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;

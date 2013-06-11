@@ -25,6 +25,7 @@ import omero.model.Screen;
 import omero.model.WellSample;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import ome.specification.XMLMockObjects;
 import ome.specification.XMLWriter;

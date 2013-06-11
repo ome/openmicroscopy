@@ -12,6 +12,7 @@ package integration;
 //Third-party libraries
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 //Application-internal dependencies
 import omero.api.IConfigPrx;

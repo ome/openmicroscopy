@@ -6,6 +6,7 @@ package integration;
 
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;

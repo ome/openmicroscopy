@@ -34,6 +34,7 @@ import omero.cmd.Timing;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import Ice.Current;
 

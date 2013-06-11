@@ -22,6 +22,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import ome.xml.model.OME;
 import ome.xml.model.primitives.Color;
