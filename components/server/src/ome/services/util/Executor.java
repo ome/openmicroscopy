@@ -58,6 +58,20 @@ import org.springframework.transaction.support.TransactionCallback;
  */
 public interface Executor extends ApplicationContextAware {
 
+    public enum Priority {
+
+        /**
+         * Uses a non-limited thread pool.
+         */
+        SYSTEM,
+
+        /**
+         * Uses the limited {@link ThreadPool} configured via etc/omero.properties
+         * with omero.threads.max_threads, etc.
+         */
+        USER;
+    }
+
     /**
      * Provides access to the context for Work-API consumers who need to publish
      * events, etc.
@@ -120,6 +134,30 @@ public interface Executor extends ApplicationContextAware {
      */
 
     public <T> Future<T> submit(final Map<String, String> callContext,
+            final Callable<T> callable);
+
+
+    /**
+     * Simple submission method with a {@link Priority}.
+     *
+     * @param prio Possibly null. See {@link #submit(Priority, Map, Callable)}
+     * @param callable. Not null. Action to be taken.
+     */
+
+    public <T> Future<T> submit(final Priority prio,
+            final Callable<T> callable);
+
+    /**
+     * Like {@link #submit(Map, Callable)} but provide info to which priority
+     * queue should be used.
+     *
+     * @param prio Possibly null. Priority for execution. Default: {@link Priority#USER}
+     * @param callContext Possibly null. See {@link CurrentDetails#setContext(Map)}
+     * @param callable. Not null. Action to be taken.
+     */
+
+    public <T> Future<T> submit(Priority prio,
+            final Map<String, String> callContext,
             final Callable<T> callable);
 
     /**
@@ -312,6 +350,7 @@ public interface Executor extends ApplicationContextAware {
         final protected SessionFactory factory;
         final protected SqlAction sqlAction;
         final protected ExecutorService service;
+        final protected ExecutorService systemService;
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
                 SqlAction sqlAction, String[] proxyNames) {
@@ -327,6 +366,8 @@ public interface Executor extends ApplicationContextAware {
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
             this.service = service;
+            // Allowed to create more threads.
+            this.systemService = Executors.newCachedThreadPool();
         }
 
         public void setApplicationContext(ApplicationContext applicationContext)
@@ -431,16 +472,26 @@ public interface Executor extends ApplicationContextAware {
         }
 
         public <T> Future<T> submit(final Callable<T> callable) {
-            return submit(null, callable);
+            return submit(null, null, callable);
         }
 
         public <T> Future<T> submit(final Map<String, String> callContext,
-            final Callable<T> callable) {
+                final Callable<T> callable) {
+            return submit(null, callContext, callable);
+        }
 
-            if (callContext == null) {
-                return service.submit(callable); // Early exit.
-            } else {
-                Callable<T> wrapper = new Callable<T>() {
+        public <T> Future<T> submit(final Priority prio,
+                final Callable<T> callable) {
+            return submit(prio, null, callable);
+        }
+
+        public <T> Future<T> submit(final Priority prio,
+                final Map<String, String> callContext,
+                final Callable<T> callable) {
+
+            Callable<T> wrapper = callable;
+            if (callContext != null) {
+                wrapper = new Callable<T>() {
                     public T call() throws Exception {
                         principalHolder.setContext(callContext);
                         try {
@@ -450,7 +501,14 @@ public interface Executor extends ApplicationContextAware {
                         }
                     }
                 };
+            }
+
+            if (prio == null || prio == Priority.USER) {
                 return service.submit(wrapper);
+            } else if (prio == Priority.SYSTEM) {
+                return systemService.submit(wrapper);
+            } else {
+                throw new InternalException("Unknown priority: " + prio);
             }
         }
 
