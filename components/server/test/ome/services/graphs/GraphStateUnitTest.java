@@ -533,7 +533,7 @@ public class GraphStateUnitTest extends MockGraphTest {
                 };
             }
 
-            public GraphSteps postProcess(List<GraphStep> steps, SqlAction sql, Session session) {
+            public GraphSteps postProcess(List<GraphStep> steps) {
                 return new GraphSteps(steps);
             }
         };

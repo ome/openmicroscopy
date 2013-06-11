@@ -17,10 +17,6 @@ import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.QueryBuilder;
-import ome.util.SqlAction;
-
-import org.hibernate.Session;
 
 /**
  * Single action performed by {@link DeleteState}.
@@ -45,29 +41,4 @@ public class DeleteStepFactory extends AbstractStepFactory {
         return new DeleteStep(em, ctx, idx, stack, spec, entry, ids);
     }
 
-    @Override
-    public void onPostProcess(List<GraphStep> steps, SqlAction sql, Session session) {
-        for (int i = 0; i < originalSize; i++) {
-            GraphStep step = steps.get(i);
-            if ("Image".equals(step.table)) {
-                long[] ids = step.getIds();
-                if (ids == null || ids.length == 0) {
-                    continue;
-                }
-                QueryBuilder qb = new QueryBuilder();
-                qb.select("i.fileset.id").from("Image", "i");
-                qb.where().and("i.id = :id");
-                qb.param("id", ids[ids.length-1]);
-                Long rv = (Long) qb.query(session).uniqueResult();
-
-                Long filesetId = null;
-                if (rv != null) {
-                    filesetId = rv;
-                }
-                
-                steps.add(new DeleteValidation(ctx, em, step.idx, step.stack,
-                        step.spec, step.entry, step.getIds(), "Fileset", filesetId));                
-            }
-        }
-    }
 }

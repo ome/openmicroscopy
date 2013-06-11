@@ -24,7 +24,6 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
@@ -75,7 +74,7 @@ public class ExporterStepFactory implements GraphStepFactory {
         return step;
     }
 
-    public GraphSteps postProcess(List<GraphStep> steps, SqlAction sql, Session session) {
+    public GraphSteps postProcess(List<GraphStep> steps) {
         return new GraphSteps(steps);
     }
 

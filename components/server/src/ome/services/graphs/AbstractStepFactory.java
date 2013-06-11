@@ -19,10 +19,6 @@ package ome.services.graphs;
 
 import java.util.List;
 
-import org.hibernate.Session;
-
-import ome.util.SqlAction;
-
 /**
  * Base {@link GraphStepFactory} which guarantees that
  * {@link GraphOpts.Op.REAP} processing takes place.
@@ -34,13 +30,12 @@ public abstract class AbstractStepFactory implements GraphStepFactory {
 
     protected int originalSize;
 
-    public final GraphSteps postProcess(List<GraphStep> steps, SqlAction sql, Session session) {
-        originalSize = steps.size();
-        onPostProcess(steps, sql, session);
+    public final GraphSteps postProcess(List<GraphStep> steps) {
+        onPostProcess(steps);
         return new GraphSteps(steps);
     }
 
-    protected void onPostProcess(List<GraphStep> steps, SqlAction sql, Session session) {
+    protected void onPostProcess(List<GraphStep> steps) {
         // no-op
     }
 

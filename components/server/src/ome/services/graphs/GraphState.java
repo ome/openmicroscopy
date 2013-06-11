@@ -61,7 +61,7 @@ public class GraphState implements GraphStep.Callback {
      * first by making calls to
      * {@link GraphStepFactory#create(int, List, GraphSpec, GraphEntry, long[])}
      * and then by giving the factory a chance to insert elements via
-     * {@link GraphStepFactory#postProcess(List, SqlAction, Session)}.
+     * {@link GraphStepFactory#postProcess(List)}.
      *
      *  The instance once set is {@link Collections#unmodifiableList(List) unmodifiable}.
      */
@@ -148,7 +148,7 @@ public class GraphState implements GraphStep.Callback {
         };
 
         // Post-process and lock.
-        this.steps = factory.postProcess(steps, sql, session);
+        this.steps = factory.postProcess(steps);
         for (GraphStep step : this.steps) {
             step.setEventContext(gec);
         }

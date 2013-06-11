@@ -17,9 +17,6 @@ import ome.services.graphs.GraphStep;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
-import ome.util.SqlAction;
-
-import org.hibernate.Session;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -46,8 +43,7 @@ public class ChgrpStepFactory extends AbstractStepFactory {
         return new ChgrpStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    @Override
-    public void onPostProcess(List<GraphStep> steps, SqlAction sql, Session session) {
+    public void onPostProcess(List<GraphStep> steps) {
 
         // Schedule validation steps
         for (int i = 0; i < originalSize; i++) {
