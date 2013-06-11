@@ -96,6 +96,16 @@ class CommentRule(Rule):
             block[i] = block[i].lstrip('%s ' % self.comment_char)
         return True
 
+
+class SphinxCommentRule(CommentRule):
+    """ Need this action to feed without indent) """
+    def action(self, block, handler):
+        handler.start(self.type)
+        handler.feed(block, indent="")
+        handler.end(self.type)
+        return True
+
+
 class CodeRule(Rule):
     """
     A code block is simply a block that isn't covered by any of the
@@ -165,10 +175,10 @@ class SphinxRenderer(Handler):
         return '[%s]' % (match.group(1))
     def sub_mail(self, match):
         return '<a href="mailto:%s">%s</a>' % (match.group(1), match.group(1))
-    def feed(self, block):
+    def feed(self, block, indent="    "):
         for i in range(len(block)-1):
-            print "    " + block[i]
-        print "    " + block[-1],
+            print indent + block[i]
+        print indent + block[-1],
 
 
 
@@ -251,7 +261,7 @@ class PythonParser(Parser):
     def __init__(self, handler):
         Parser.__init__(self, handler)
         self.addRule(SphinxSubtitleRule('#'))
-        self.addRule(CommentRule('#'))
+        self.addRule(SphinxCommentRule('#'))
         self.addRule(CodeRule())
 
         #self.addFilter(r'\*(.+?)\*', 'emphasis')
@@ -264,8 +274,8 @@ class MatlabParser(Parser):
     """
     def __init__(self, handler):
         Parser.__init__(self, handler)
-        self.addRule(SubtitleRule('%'))
-        self.addRule(CommentRule('%'))
+        self.addRule(SphinxSubtitleRule('%'))
+        self.addRule(SphinxCommentRule('%'))
         self.addRule(CodeRule())
 
         #self.addFilter(r'\*(.+?)\*', 'emphasis')
