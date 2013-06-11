@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Node used for smart folders.
@@ -301,20 +302,40 @@ public class TreeImageTimeSet
     	if (node == null) return path;
     	TreeImageDisplay parent = node.getParentDisplay();
     	Object ho;
+    	ExperimenterData exp;
+    	GroupData group;
     	if (parent == null) {
     		ho = node.getUserObject();
     		if (ho instanceof ExperimenterData) {
-    			path = ((ExperimenterData) ho).getId()+TEXT+path;
+    			exp = (ExperimenterData) ho;
+    			path = "gid"+exp.getGroupId()+TEXT+"eid"+exp.getId()+TEXT+path;
     			return path;
-    		} 
+    		}
+    		if (ho instanceof GroupData) {
+    			group = (GroupData) ho;
+    			path = "gid"+group.getId()+TEXT+path;
+    			return path;
+    		}
     		path = ho.toString()+TEXT+path;
     		return path;
     	}
     	ho = parent.getUserObject();
     	if (ho instanceof ExperimenterData) {
-    		path = ((ExperimenterData) ho).getId()+TEXT+path;
+    		exp = (ExperimenterData) ho;
+    		//check if we have grand parent
+    		TreeImageDisplay gp = parent.getParentDisplay();
+    		if (gp != null && gp.getUserObject() instanceof GroupData) {
+    			group = (GroupData) gp.getUserObject();
+    			path = "gid"+group.getId()+TEXT+"eid"+exp.getId()+TEXT+path;
+    		}
+    		
     		return path;
     	}
+    	if (ho instanceof GroupData) {
+			group = (GroupData) ho;
+			path = "gid"+group.getId()+TEXT+path;
+			return path;
+		}
     	path = ho.toString()+TEXT+path;
     	return createPath(parent, path);
     }
