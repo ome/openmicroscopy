@@ -655,6 +655,8 @@
 	</enum>
 	<enum id="ome.model.enums.ChecksumAlgorithm">
 		<!-- names suffixed by bit width for clarity -->
+		<!-- these are listed in both etc/omero.properties and
+		     ome-documentation/omero/sysadmins/fs-upload-configuration.txt -->
 		<entry name="Adler-32"/>
 		<entry name="CRC-32"/>
 		<entry name="MD5-128"/>
