@@ -17,6 +17,9 @@ import ome.services.graphs.GraphStep;
 import ome.system.OmeroContext;
 import ome.system.Roles;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.util.SqlAction;
+
+import org.hibernate.Session;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -43,7 +46,8 @@ public class ChownStepFactory extends AbstractStepFactory {
         return new ChownStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    public void onPostProcess(List<GraphStep> steps) {
+    @Override
+    public void onPostProcess(List<GraphStep> steps, SqlAction sql, Session session) {
         for (int i = 0; i < originalSize; i++) {
             GraphStep step = steps.get(i);
             steps.add(new ChownValidation(ctx, em, roles, step.idx, step.stack,

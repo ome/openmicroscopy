@@ -9,6 +9,10 @@ package ome.services.graphs;
 
 import java.util.List;
 
+import org.hibernate.Session;
+
+import ome.util.SqlAction;
+
 /**
  * strategy interface which can be passed to {@link GraphState} to create the {@link GraphStep} instances needed.
  *
@@ -49,5 +53,5 @@ public interface GraphStepFactory {
      * @return Either the original unmodified list, possibly with additions or
      *         deletions, or a new list entirely.
      */
-    GraphSteps postProcess(List<GraphStep> steps);
+    GraphSteps postProcess(List<GraphStep> steps, SqlAction sql, Session session);
 }
