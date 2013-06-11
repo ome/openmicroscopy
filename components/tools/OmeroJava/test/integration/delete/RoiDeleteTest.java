@@ -41,6 +41,7 @@ import omero.model.Well;
 import omero.sys.EventContext;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import pojos.FileAnnotationData;
 

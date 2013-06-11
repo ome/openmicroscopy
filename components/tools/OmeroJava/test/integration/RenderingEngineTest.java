@@ -25,6 +25,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;

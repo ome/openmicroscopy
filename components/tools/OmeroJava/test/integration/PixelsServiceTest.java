@@ -15,6 +15,7 @@ import java.util.List;
 
 //Third-party libraries
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 //Application-internal dependencies
 import omero.RLong;

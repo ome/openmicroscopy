@@ -44,6 +44,7 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * 

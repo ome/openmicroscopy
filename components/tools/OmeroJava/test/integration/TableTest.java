@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 //Application-internal dependencies
 import omero.ApiUsageException;

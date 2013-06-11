@@ -14,6 +14,7 @@ import omero.model.Pixels;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 /**
  * Collections of tests for the <code>Delete</code> service. This carries on

@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.*;
 
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.ThumbnailStorePrx;
