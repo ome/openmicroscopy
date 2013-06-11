@@ -75,7 +75,9 @@ conn.getUpdateService().saveAndReturnObject(link)
 # Table API
 # =================================================================
 # .. seealso:: :jenkins:`javadoc <job/OMERO/javadoc/slice2html/omero/grid/Table.html>`
+
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
+
 print "Table Columns:"
 for col in openTable.getHeaders():
     print "   ", col.name
