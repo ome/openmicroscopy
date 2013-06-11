@@ -286,7 +286,7 @@
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image;HARD;/Dataset/DatasetImageLink</value>
+                <value>/Image+Only;HARD;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>

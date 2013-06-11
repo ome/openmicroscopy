@@ -37,10 +37,6 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
     private final static Op DEFAULT = Op.HARD;
 
-    ExtendedMetadata em() {
-        return specXml.getBean(ExtendedMetadata.class);
-    }
-    
     /**
      * Test that various entry strings will be properly parsed. These are the
      * values passed in as a list to the {@link GraphSpec} constructors in
@@ -107,8 +103,9 @@ public class GraphSpecUnitTest extends MockGraphTest {
     public void testUsage() throws Exception {
 
         // Setup
-        Mock sessionMock = mock(Session.class);
+        Mock sessionMock = mock(CombinedSession.class);
         Session session = (Session) sessionMock.proxy();
+        prepareLoadQueryInfluencers(sessionMock);
 
         Mock queryMock = mock(Query.class);
         queryMock.setDefaultStub(new DefaultResultStub());
@@ -299,8 +296,9 @@ public class GraphSpecUnitTest extends MockGraphTest {
     public void testGraphStateTransactionalIdCounting() throws Exception {
 
         String savepoint = null;
-        Mock sMock = mock(Session.class);
+        Mock sMock = mock(CombinedSession.class);
         Session session = (Session) sMock.proxy();
+        prepareLoadQueryInfluencers(sMock);
 
         Mock qMock = mock(Query.class);
         Query q = (Query) qMock.proxy();
@@ -357,27 +355,4 @@ public class GraphSpecUnitTest extends MockGraphTest {
 
     }
 
-    GraphStep step(String type, Class<IObject> k, long id) {
-
-        BaseGraphSpec spec = new BaseGraphSpec("/"+type, "/"+type);
-        GraphStep step = new GraphStep(em(), 0, new LinkedList<GraphStep>(),
-                spec, spec.entries.get(0), new long[0]) {
-
-                    @Override
-                    public void action(Callback cb, Session session,
-                            SqlAction sql, GraphOpts opts) throws GraphException {
-                        // no-op
-                    }
-
-                    @Override
-                    public void onRelease(Class<IObject> k, Set<Long> ids)
-                            throws GraphException {
-
-                        // no-op
-
-                    }
-
-        };
-        return step;
-    }
 }
