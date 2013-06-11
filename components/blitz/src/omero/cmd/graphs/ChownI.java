@@ -11,6 +11,7 @@ import java.util.Map;
 
 import ome.api.local.LocalAdmin;
 import ome.model.IObject;
+import ome.services.chown.ChownStep;
 import ome.services.chown.ChownStepFactory;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphSpec;
@@ -153,7 +154,16 @@ public class ChownI extends Chown implements IGraphModifyRequest {
 
     @Override
     public void finish() throws Cancel {
-        // no-op
+        // Replaces ChownValidation
+        int steps = state.getTotalFoundCount();
+        for (int i = 0; i < steps; i++) {
+            ChownStep step = (ChownStep) state.getStep(i);
+            try {
+                step.validate(helper.getSession(), state.getOpts());
+            } catch (GraphException ge) {
+                throw helper.graphException(ge, i, id);
+            }
+        }
     }
 
     public void buildResponse(int step, Object object) {

@@ -43,14 +43,6 @@ public class ChownStepFactory extends AbstractStepFactory {
         return new ChownStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    public void onPostProcess(List<GraphStep> steps) {
-        for (int i = 0; i < originalSize; i++) {
-            GraphStep step = steps.get(i);
-            steps.add(new ChownValidation(ctx, em, roles, step.idx, step.stack,
-                    step.spec, step.entry, step.getIds(), grp));
-        }
-    }
-
     /**
      * Set the group id which will be passed to all new {@link ChownStep}
      * instances. Since a new {@link ChownStepFactory} is created for every
