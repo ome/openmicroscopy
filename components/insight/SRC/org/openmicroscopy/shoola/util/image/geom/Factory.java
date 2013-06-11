@@ -52,6 +52,7 @@ import java.awt.image.Kernel;
 import java.awt.image.LookupOp;
 import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
+import java.awt.image.SampleModel;
 import java.awt.image.ShortLookupTable;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
@@ -62,7 +63,6 @@ import javax.swing.ImageIcon;
 
 
 //Third-party libraries
-import sun.awt.image.IntegerInterleavedRaster;
 import com.mortennobel.imagescaling.ResampleOp;
 
 //Application-internal dependencies
@@ -533,15 +533,13 @@ public class Factory
 			int[] masks, int sizeX,  int sizeY)
 	{
 		if (buf instanceof DataBufferInt) {
-			DataBufferInt j2DBuf = (DataBufferInt) buf;
-			SinglePixelPackedSampleModel sampleModel =
-					new SinglePixelPackedSampleModel(
+			DataBufferInt db = (DataBufferInt) buf;
+			final SampleModel sm = new SinglePixelPackedSampleModel(
 							DataBuffer.TYPE_INT, sizeX, sizeY, sizeX, masks);
-			WritableRaster raster = 
-					new IntegerInterleavedRaster(sampleModel, j2DBuf,
+			final WritableRaster raster = Raster.createWritableRaster(sm, db,
 							new Point(0, 0));
 
-			ColorModel colorModel = new DirectColorModel(bits, masks[0],
+			final ColorModel colorModel = new DirectColorModel(bits, masks[0],
 					masks[1], masks[2]);
 			BufferedImage image =
 					new BufferedImage(colorModel, raster, false, null);
