@@ -18,6 +18,7 @@ import omero.cmd.ListRequests;
 import omero.cmd.ListRequestsRsp;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.cmd.HandleI.Cancel;
 import omero.util.ObjectFactoryRegistry;
 import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
@@ -68,6 +69,11 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
         rsp.list = requestTypes;
         return rsp;
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        // no-op
     }
 
     public void buildResponse(int step, Object object) {

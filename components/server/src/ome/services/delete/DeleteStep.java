@@ -44,10 +44,20 @@ public class DeleteStep extends GraphStep {
 
     final private OmeroContext ctx;
 
+    /**
+     * IDs of fileset a related fileset which must be guaranteed to have also
+     * been deleted later in the transaction.
+     */
+    private Long filesetId = null;
+
     public DeleteStep(ExtendedMetadata em, OmeroContext ctx, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
         super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
+    }
+
+    public Long getFilesetId() {
+        return filesetId;
     }
 
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
@@ -70,6 +80,15 @@ public class DeleteStep extends GraphStep {
 
         // Phase 3: validation (duplicates constraint violation logic)
         graphValidation(session);
+        // also record any fileset ID for later deletion check.
+        // this replaces a "pre-commit" trigger. TODO needs better
+        // integration
+        if ("Image".equals(table)) {
+            QueryBuilder fsQb = new QueryBuilder();
+            fsQb.select("i.fileset.id").from("Image", "i");
+            fsQb.where().and("i.id = :id").param("id", id);
+            filesetId = (Long) fsQb.query(session).uniqueResult();
+        }
 
         // Phase 4: primary action
         StopWatch swStep = new Slf4JStopWatch();

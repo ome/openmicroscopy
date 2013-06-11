@@ -324,6 +324,16 @@ public class DoAllI extends DoAll implements IRequest {
         }
     }
 
+    public void finish() {
+        for (X x : substeps) {
+            try {
+                x.r.finish();
+            } catch (Cancel c) {
+                throw subcancel(c, x);
+            }
+        }
+    }
+
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         final X x = substep(step, false);

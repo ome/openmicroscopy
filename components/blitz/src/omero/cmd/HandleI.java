@@ -463,6 +463,7 @@ public class HandleI implements _HandleOperations, IHandle,
                 }
 
             }
+            req.finish();
             return rv;
         } catch (Cancel cancel) {
             throw cancel;

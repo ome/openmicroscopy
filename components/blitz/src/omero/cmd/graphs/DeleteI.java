@@ -34,7 +34,6 @@ import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
@@ -128,6 +127,17 @@ public class DeleteI extends Delete implements IGraphModifyRequest {
                     cve.getConstraintName());
         } catch (Throwable t) {
             throw helper.cancel(err(), t, "failure");
+        }
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        try {
+            delegate.finish();
+        } catch (GraphException ge) {
+            throw helper.graphException(ge, helper.getSteps()+1, id);
+        } catch (Throwable t) {
+            throw helper.cancel(err(), t, "on-finish");
         }
     }
 

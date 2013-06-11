@@ -115,6 +115,11 @@ public class ChmodI extends Chmod implements IGraphModifyRequest {
         return null; // Nothing to return
     }
 
+    @Override
+    public void finish() throws Cancel {
+        // no-op
+    }
+
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (helper.isLast(step)) {

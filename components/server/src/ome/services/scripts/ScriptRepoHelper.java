@@ -545,6 +545,7 @@ public class ScriptRepoHelper {
                                 for (int i = 0; i < steps; i++) {
                                     d.execute(i);
                                 }
+                                d.finish();
                                 return d;
                             }
                         } catch (ome.conditions.ValidationException ve) {

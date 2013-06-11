@@ -346,6 +346,11 @@ public class ManagedImportRequestI extends ImportRequest implements IRequest {
         }
     }
 
+    @Override
+    public void finish() throws Cancel {
+        // no-op
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);

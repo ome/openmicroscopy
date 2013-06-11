@@ -151,6 +151,11 @@ public class ChownI extends Chown implements IGraphModifyRequest {
         }
     }
 
+    @Override
+    public void finish() throws Cancel {
+        // no-op
+    }
+
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         if (helper.isLast(step)) {
