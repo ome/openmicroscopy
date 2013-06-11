@@ -327,6 +327,22 @@ class ImporterControl
 	 */
 	boolean isMaster() { return view.isMaster(); }
 
+    /**
+     * Disable the Cancel All button if there are no cancellable imports.
+     */
+    private void checkDisableCancelAllButtons() {
+        final ImporterAction cancelAction = actionsMap.get(CANCEL_BUTTON);
+        if (!cancelAction.isEnabled()) {
+            return;
+        }
+        for (final ImporterUIElement importerUIElement : view.getImportElements()) {
+            if (importerUIElement.hasImportToCancel()) {
+                return;
+            }
+        }
+        cancelAction.setEnabled(false);
+	}
+
 	/**
 	 * Reacts to property changes.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -335,13 +351,12 @@ class ImporterControl
 	{
 		String name = evt.getPropertyName();
 		if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
-			model.importData((ImportableObject) evt.getNewValue());
+		    actionsMap.get(CANCEL_BUTTON).setEnabled(true);
+		    model.importData((ImportableObject) evt.getNewValue());
 		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
 			model.loadExistingTags();
 		} else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
 			model.close();
-		} else if (ImportDialog.CANCEL_ALL_IMPORT_PROPERTY.equals(name)) {
-			model.cancelAllImports();
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			model.removeImportElement(evt.getNewValue());
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
@@ -361,6 +376,9 @@ class ImporterControl
 		} else if (ImportDialog.PROPERTY_GROUP_CHANGED.equals(name)) {
 			GroupData newGroup = (GroupData) evt.getNewValue();
 			model.setUserGroup(newGroup);
+		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name) ||
+		        FileImportComponent.CANCEL_IMPORT_PROPERTY.equals(name)) {
+		    checkDisableCancelAllButtons();
 		} else if (StatusLabel.IMPORT_DONE_PROPERTY.equals(name)) {
 			model.onImportComplete((FileImportComponent) evt.getNewValue());
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {

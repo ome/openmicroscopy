@@ -1461,6 +1461,8 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
 				cancelButton.setEnabled(sl.isCancellable());
+				firePropertyChange(StatusLabel.FILE_IMPORT_STARTED_PROPERTY,
+				        null, this);
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();

@@ -882,25 +882,20 @@ class ImporterUIElement
 	
 	/**
 	 * Returns <code>true</code> if the component has imports in the queue that
-	 * have not yet started., <code>false</code> otherwise.
+	 * have not yet started or been cancelled, <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
 	boolean hasImportToCancel()
 	{
-		//if (!hasStarted()) return true;
-		Entry<String, FileImportComponent> entry;
-		Iterator<Entry<String, FileImportComponent>>
-		i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = i.next();
-			fc = entry.getValue();
-			if (!fc.hasImportStarted()) return true;
-		}
-		return false;
+	    for (final FileImportComponent fic : components.values()) {
+	        if (!(fic.hasImportStarted() || fic.isCancelled())) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
-	
+
 	/**
 	 * Returns the collection of files that could not be imported.
 	 * 
