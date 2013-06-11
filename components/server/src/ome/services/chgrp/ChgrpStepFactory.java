@@ -43,17 +43,6 @@ public class ChgrpStepFactory extends AbstractStepFactory {
         return new ChgrpStep(ctx, em, roles, idx, stack, spec, entry, ids, grp);
     }
 
-    public void onPostProcess(List<GraphStep> steps) {
-
-        // Schedule validation steps
-        for (int i = 0; i < originalSize; i++) {
-            GraphStep step = steps.get(i);
-            steps.add(new ChgrpValidation(ctx, em, roles, step.idx, step.stack,
-                    step.spec, step.entry, step.getIds(), grp));
-        }
-
-    }
-
     /**
      * Set the group id which will be passed to all new {@link ChgrpStep}
      * instances. Since a new {@link ChgrpStepFactory} is created for every

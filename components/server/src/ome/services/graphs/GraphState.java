@@ -259,6 +259,10 @@ public class GraphState implements GraphStep.Callback {
         return steps.get(i);
     }
 
+    public GraphOpts getOpts() {
+        return opts;
+    }
+
     /**
      * Return the total number of ids which were processed. This is calculated by
      * taking the only the completed savepoints into account.
