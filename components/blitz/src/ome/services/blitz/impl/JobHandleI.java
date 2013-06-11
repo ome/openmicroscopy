@@ -120,4 +120,5 @@ public class JobHandleI extends AbstractCloseableAmdServant implements
     @Override
     protected void postClose(Current current) {
         // no-op
-    }}
+    }
+}

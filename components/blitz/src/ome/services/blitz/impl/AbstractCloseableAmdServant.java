@@ -80,9 +80,6 @@ public abstract class AbstractCloseableAmdServant extends AbstractAmdServant
     public final void close_async(AMD_StatefulServiceInterface_close __cb,
             Ice.Current __current) {
 
-        // Special call logic:
-        // callInvokerOnRawArgs(__cb, __current);
-
         Throwable t = null;
 
         // First we call close on the object
@@ -130,7 +127,7 @@ public abstract class AbstractCloseableAmdServant extends AbstractAmdServant
 
     /**
      * Should not throw any exceptions which should be detected by clients
-     * since it is  called in a finally block after the client thread has been
+     * since it is called in a finally block after the client thread has been
      * released.
      */
     protected abstract void postClose(Ice.Current current);
