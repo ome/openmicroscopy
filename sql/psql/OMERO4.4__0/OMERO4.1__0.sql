@@ -803,7 +803,7 @@ BEGIN
 
     INSERT INTO plateacquisitionannotationlink (id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent)
     SELECT id, permissions, version, child, creation_id, external_id, group_id, owner_id, update_id, parent FROM screenacquisitionannotationlink
-     WHERE id IN (SELECT id FROM plateacquisition);
+     WHERE parent IN (SELECT id FROM plateacquisition);
 
     PERFORM setval(''seq_plateacquisition'', nextval(''seq_plateacquisition''));
     PERFORM setval(''seq_plateacquisitionannotationlink'', nextval(''seq_plateacquisitionannotationlink''));
