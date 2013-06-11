@@ -54,7 +54,7 @@ if __name__ == '__main__':
     # Current session details
     # =============================================================
     # By default, you will have logged into your 'current' group in OMERO. This
-    # can be changed by switching group in the OMERO insight or web clients.
+    # can be changed by switching group in the OMERO.insight or OMERO.web clients.
 
     user = conn.getUser()
     print "Current user:"
