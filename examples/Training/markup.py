@@ -74,6 +74,14 @@ class SubtitleRule(Rule):
                 break
         return False
 
+
+class SphinxSubtitleRule(SubtitleRule):
+    """ Need this action to only start (all on one line - no feed) """
+    def action(self, block, handler):
+        handler.start(self.type, block)
+        return True
+
+
 class CommentRule(Rule):
     """
     A comment block is a block where every line starts with a comment character
@@ -116,6 +124,53 @@ class Handler:
         self.callback('end_', name)
     def sub(self, name):
         return lambda match: self.callback('sub_', name, match) or match.group(0)
+
+
+class SphinxRenderer(Handler):
+    """
+    A specific handler used for rendering reStrunctured Text (sphinx Docs).
+    """
+    def start_document(self, title):
+        print title
+        print "^" * len(title)
+    def end_document(self):
+        print ''
+    def start_code(self):
+        print '\n::\n'
+    def end_code(self):
+        print ''
+    def start_subtitle(self, block):
+        print "\n-  **%s**" % block[0]
+    def end_subtitle(self):
+        print ""
+    def start_comment(self):
+        print '\n'
+    def end_comment(self):
+        print '\n'
+    def start_list(self):
+        print '\n'
+    def end_list(self):
+        print '\n'
+    def start_listitem(self):
+        print ' * '
+    def end_listitem(self):
+        print ''
+    def start_title(self):
+        print '='
+    def end_title(self):
+        print '='
+    def sub_emphasis(self, match):
+        return '**%s**' % match.group(1)
+    def sub_url(self, match):
+        return '[%s]' % (match.group(1))
+    def sub_mail(self, match):
+        return '<a href="mailto:%s">%s</a>' % (match.group(1), match.group(1))
+    def feed(self, block):
+        for i in range(len(block)-1):
+            print "    " + block[i]
+        print "    " + block[-1],
+
+
 
 class WikiRenderer(Handler):
     """
@@ -195,7 +250,7 @@ class PythonParser(Parser):
     """
     def __init__(self, handler):
         Parser.__init__(self, handler)
-        self.addRule(SubtitleRule('#'))
+        self.addRule(SphinxSubtitleRule('#'))
         self.addRule(CommentRule('#'))
         self.addRule(CodeRule())
 
@@ -256,8 +311,8 @@ if __name__ == "__main__":
     pythonFiles = ['python/Connect_To_OMERO.py', 'python/Read_Data.py', 'python/Groups_Permissions.py', 'python/Raw_Data_Access.py', 
         'python/Write_Data.py', 'python/Tables.py', 'python/ROIs.py', 'python/Delete.py', 'python/Render_Images.py', 
         'python/Create_Image.py']
-    titles = ['Connect to OMERO', 'Read Data', 'Groups & Permissions', 'Raw Data Access', 'Write Data', 
-        'OMERO tables', 'ROIs', 'Delete Data', 'Render Images', 'Create Image']
+    titles = ['Connect to OMERO', 'Read data', 'Groups and permissions', 'Raw data access', 'Write data', 
+        'OMERO tables', 'ROIs', 'Delete data', 'Render Images', 'Create Image']
 
     if "--check_header" in sys.argv:
         for py in pythonFiles:
@@ -267,7 +322,7 @@ if __name__ == "__main__":
     else:
 
         #handler = HTMLRenderer()
-        handler = WikiRenderer()
+        handler = SphinxRenderer()
 
         #parser.parse(sys.stdin)
 
@@ -281,8 +336,8 @@ if __name__ == "__main__":
 
         matlabFiles = [ 'matlab/ConnectToOMERO.m', 'matlab/ReadData.m', 'matlab/RawDataAccess.m', \
                         'matlab/WriteData.m', 'matlab/ROIs.m', 'matlab/DeleteData.m', 'matlab/RenderImages.m']
-        mTitles = ['Connect to OMERO', 'Read Data', 'Raw Data Access', 'Write Data', \
-                        'ROIs', 'Delete Data', 'Render Images']
+        mTitles = ['Connect to OMERO', 'Read data', 'Raw data access', 'Write data', \
+                        'ROIs', 'Delete data', 'Render Images']
         print "\n\n------------------------------------------------MATLAB-------------------------------------------------------------\n\n"
         parser = MatlabParser(handler)
         for f, name in zip(matlabFiles, mTitles):
