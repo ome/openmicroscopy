@@ -31,6 +31,7 @@ public abstract class AbstractStepFactory implements GraphStepFactory {
     protected int originalSize;
 
     public final GraphSteps postProcess(List<GraphStep> steps) {
+        originalSize = steps.size();
         onPostProcess(steps);
         return new GraphSteps(steps);
     }
