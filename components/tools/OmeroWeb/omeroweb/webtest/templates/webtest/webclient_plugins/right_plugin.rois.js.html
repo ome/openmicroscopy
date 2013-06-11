@@ -21,66 +21,15 @@
 <script>
 
 $(document).ready(function() {
-    
-    // this script is an 'include' within a django for-loop, so we can get our index:
-    var rois_tab_index = {{ forloop.counter }};
 
-    var update_rois_tab = function() {
-        
-        // get the selected id etc
-        var selected = $("body").data("selected_objects.ome");
-        if (selected.length == 0) {
-            return;
-        }
-        var obj_id = selected[0]['id'];     // E.g. image-123
-        var orel = obj_id.split("-")[0];    // E.g. 'image'
-        if (orel!="image") return;
-        
-        // if the tab is visible and not loaded yet...
-        $image_roi_tab = $("#image_roi_tab");
-        if ($image_roi_tab.is(":visible") && $image_roi_tab.is(":empty")) {
-            var roi_url = '{% url webtest_index %}image_rois/'+obj_id.split("-")[1]+'/';
-            $image_roi_tab.load(roi_url);
-        };
-    };
-    
-    // update tabs when tree selection changes or tabs switch
-    $("#annotation_tabs").bind( "tabsshow", update_rois_tab);
-
-    // on change of selection in tree, update which tabs are enabled
-    $("body").bind("selection_change.ome", function(event) {
-
-        // clear contents of panel
-        $("#image_roi_tab").empty();
-
-        // get selected objects
-        var selected = $("body").data("selected_objects.ome");
-        if (selected.length == 0) {
-            $("#annotation_tabs").tabs("disable", rois_tab_index);
-            return;
-        }
-        var obj_id = selected[0]['id'];     // E.g. image-123
-        var orel = obj_id.split("-")[0];    // E.g. 'image'
-
-        // we only care about changing selection if this tab is selected...
-        var select_tab = $("#annotation_tabs").tabs( "option", "selected" );
-        if (rois_tab_index == select_tab) {
-            // we don't want to select this tab if multiple selected
-            if ((orel!="image") || (selected.length > 1)) {
-                $("#annotation_tabs").tabs("select", 0);
-            }
-        }
-
-        // update enabled state
-        if((orel!="image") || (selected.length > 1)) {
-            $("#annotation_tabs").tabs("disable", rois_tab_index);
-        } else {
-            $("#annotation_tabs").tabs("enable", rois_tab_index);
-        }
-
-        // update tab content
-        update_rois_tab();
+    $("#image_roi_tab").omeroweb_right_plugin({
+        plugin_index:{{ forloop.counter }},
+        load_tab_content: function(selected, obj_dtype, obj_id) {    // Url based on selected object(s)
+            var url = '{% url webtest_index %}image_rois/'+obj_id +'/';
+            $(this).load(url);
+        },
+        supported_obj_types: ['image']
     });
-});
 
+});
 </script>
