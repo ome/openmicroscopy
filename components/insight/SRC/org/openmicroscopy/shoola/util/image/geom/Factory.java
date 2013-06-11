@@ -529,7 +529,7 @@ public class Factory
 	 * 				described.
 	 * @return See above.
 	 */
-	public static BufferedImage createImage(DataBuffer buf, int bits, 
+	public static BufferedImage createImage(DataBuffer buf, int bits,
 			int[] masks, int sizeX,  int sizeY)
 	{
 		if (buf instanceof DataBufferInt) {
@@ -541,10 +541,7 @@ public class Factory
 
 			final ColorModel colorModel = new DirectColorModel(bits, masks[0],
 					masks[1], masks[2]);
-			BufferedImage image =
-					new BufferedImage(colorModel, raster, false, null);
-			image.setAccelerationPriority(1f);
-			return image;
+			return new BufferedImage(colorModel, raster, false, null);
 		}
 		return null;
 	}
