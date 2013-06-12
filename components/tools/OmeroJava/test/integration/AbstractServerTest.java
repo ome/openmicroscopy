@@ -1524,6 +1524,14 @@ public class AbstractServerTest
 		return doChange(c, f, change, pass, null);
 	}
 
+	protected Response doAllChanges(omero.client c, ServiceFactoryPrx f,
+	        boolean pass, Request...changes) throws Exception {
+	    DoAll all = new DoAll();
+	    all.requests = new ArrayList<Request>();
+	    all.requests.addAll(Arrays.asList(changes));
+	    return doChange(c, f, all, pass);
+	}
+
 	/**
 	 * 
 	 * @param c

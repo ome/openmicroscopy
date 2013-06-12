@@ -64,6 +64,7 @@ public class MultiImageFilesetDeleteTest extends AbstractServerTest {
     			mmFactory.simpleImage(0));
 
     	Fileset fileset = new FilesetI();
+    	fileset.setTemplatePrefix(omero.rtypes.rstring("fake"));
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);

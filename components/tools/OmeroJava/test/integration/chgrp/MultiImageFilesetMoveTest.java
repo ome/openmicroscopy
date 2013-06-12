@@ -173,11 +173,15 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
                 null, secondGroup.getId().getValue());
 
         Response rsp = doChange(client, factory, command, false); // Don't pass
+        // See ticket:10846 This is no longer true, since the exception
+        // is being thrown elsewhere.
+        /*
         GraphConstraintERR err = (GraphConstraintERR) rsp;
         Map<String, long[]> constraints = err.constraints;
         long[] filesetIds = constraints.get("Fileset");
         assertEquals(1, filesetIds.length);
         assertEquals(fs0, filesetIds[0]);
+        */
 
         // However, it should still be possible to delete the 2 images
         // and have the fileset cleaned up.
@@ -214,6 +218,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
     	int imageCount = 1;
     	List<File> files = new ArrayList<File>();
     	Fileset set = new FilesetI();
+    	set.setTemplatePrefix(omero.rtypes.rstring("fake"));
     	List<Long> ids = new ArrayList<Long>();
     	for (int i = 0; i < imageCount; i++) {
     		File f = File.createTempFile("testMoveMIFWithAcquisitioData "+i,
@@ -436,7 +441,7 @@ public class MultiImageFilesetMoveTest extends AbstractServerTest {
         		dataset.getId().getValue(),
     			null, secondGroup.getId().getValue());
 
-    	doChange(client, factory, command, true);
+    	doAllChanges(client, factory, true, command);
     	disconnect();
     	loginUser(new ExperimenterGroupI(secondGroup.getId().getValue(),
     			false));
