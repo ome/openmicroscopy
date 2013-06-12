@@ -921,7 +921,7 @@ class Connector
     {
         long last = lastKeepAlive.get();
         long elapsed = System.currentTimeMillis() - last;
-        if (elapsed > 5000) {
+        if (elapsed > 30000) {
             return true;
         }
         return false;
