@@ -55,7 +55,7 @@ data1 = omero.grid.LongColumn('Uid', 'test Long', ids)
 data2 = omero.grid.StringColumn('MyStringColumn', '', 64, strings)
 data = [data1, data2]
 table.addData(data)
-table.close()           # when we're done, close.
+table.close()           # when we are done, close.
 
 
 # Get the table as an original file...
@@ -74,7 +74,7 @@ conn.getUpdateService().saveAndReturnObject(link)
 
 # Table API
 # =================================================================
-# .. seealso:: :jenkins:`javadoc <job/OMERO/javadoc/slice2html/omero/grid/Table.html>`
+# .. seealso:: :jenkins:`javadoc <slice2html/omero/grid/Table.html>`
 
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
 
@@ -132,5 +132,5 @@ print "Opened table with row-count:", savedTable.getNumberOfRows()
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()
