@@ -5,18 +5,10 @@ set -e
 set -u
 set -x
 
-export VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
-VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
-
-if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
-    CURL="curl ${CURL_OPTS-} --insecure -O"
-else
-    CURL="curl ${CURL_OPTS-} -O"
-fi
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -49,26 +41,21 @@ bin/brew doctor
 # Python pip installation
 ###################################################################
 
-# Python virtualenv/pip support
-rm -rf virtualenv.py
-$CURL "$VENV_URL"
-/usr/bin/python virtualenv.py --no-site-packages $VENV_DIR
-
-# Activate the virtual environment
-set +u
-source $VENV_DIR/bin/activate
-set -u
+# Install Homebrew python
+# Alternately, the system Python can be used but installing Python
+# dependencies may require sudo
+bin/brew install python
 
 # Tap ome-alt library
 bin/brew tap ome/alt || echo "Already tapped"
 
 if [ $TESTING_MODE ]; then
     # Install scc tools
-    $VENV_DIR/bin/pip install -U scc || echo "scc installed"
+    bin/scc install -U scc || echo "scc installed"
 
     # Merge homebrew-alt PRs
     cd Library/Taps/ome-alt
-    $VENV_DIR/bin/scc merge master
+    /usr/local/bin/scc merge master
 fi
 
 cd /usr/local
