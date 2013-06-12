@@ -386,7 +386,7 @@ class BrowserUI
     		init = true;
     	}
     	birdEyeView.setImage(image);
-    	if (init) {
+    	if (init && image != null) {
     		int width = image.getWidth();
         	int height = image.getHeight();
         	Rectangle r = getVisibleRectangle();

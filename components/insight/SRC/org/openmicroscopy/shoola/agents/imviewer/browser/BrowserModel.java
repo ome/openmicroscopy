@@ -1277,6 +1277,7 @@ class BrowserModel
 	 */
 	int getTiledImageSizeY() { return parent.getTiledImageSizeY(); }
 
+	/** Removes references to images.*/ 
 	void discard()
 	{
 		combinedImage = null;

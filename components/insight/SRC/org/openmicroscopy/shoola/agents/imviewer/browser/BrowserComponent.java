@@ -735,6 +735,7 @@ class BrowserComponent
 	public void discard()
 	{
 		model.discard();
+		if (model.isBigImage()) view.setBirdEyeView(null);
 	}
 
 }
