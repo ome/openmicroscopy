@@ -1938,7 +1938,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	private synchronized void needDefault(long pixelsID, Object prx)
+	private void needDefault(long pixelsID, Object prx)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
@@ -3294,7 +3294,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized byte[] retrieveThumbnail(SecurityContext ctx,
+	private byte[] retrieveThumbnail(SecurityContext ctx,
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3352,7 +3352,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized byte[] retrieveThumbnailByLongestSide(
+	private byte[] retrieveThumbnailByLongestSide(
 			SecurityContext ctx, long pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3408,7 +3408,7 @@ class OMEROGateway
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	private synchronized Map retrieveThumbnailSet(SecurityContext ctx,
+	private Map retrieveThumbnailSet(SecurityContext ctx,
 			List<Long> pixelsID, int maxLength, boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
@@ -3461,7 +3461,7 @@ class OMEROGateway
 	 * @throws FSAccessException If an error occurred when trying to build a 
 	 * pyramid or access file not available.
 	 */
-	private synchronized RenderingEnginePrx generateRenderingEngine(
+	private RenderingEnginePrx generateRenderingEngine(
 			SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
@@ -3969,7 +3969,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	private synchronized Map<Boolean, Object> retrieveArchivedFiles(
+	private Map<Boolean, Object> retrieveArchivedFiles(
 			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -4120,7 +4120,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	private synchronized File download(SecurityContext ctx, File file,
+	private File download(SecurityContext ctx, File file,
 			long fileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -4291,7 +4291,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.  
 	 */
-	private synchronized OriginalFile upload(SecurityContext ctx, File file,
+	private OriginalFile upload(SecurityContext ctx, File file,
 			String mimeType, long originalFileID)
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -4637,7 +4637,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private synchronized byte[] retrievePlane(SecurityContext ctx,
+	private byte[] retrievePlane(SecurityContext ctx,
 			long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
@@ -8164,7 +8164,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	private synchronized byte[] retrieveUserPhoto(SecurityContext ctx,
+	private byte[] retrieveUserPhoto(SecurityContext ctx,
 			long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException
 	{
