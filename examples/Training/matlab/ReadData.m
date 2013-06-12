@@ -2,14 +2,16 @@
 % All rights reversed.
 % Use is subject to license terms supplied in LICENSE.txt
 
-% Information to edit
-datasetId = 2651;
-imageId = 27544;
-plateId = 1007;
+
 % Load Data
 try
-    [client, session] = connect();
+    [client, session] = loadOmero();
     
+    % Information to edit
+    datasetId = str2double(client.getProperty('dataset.id'));
+    imageId = str2double(client.getProperty('image.id'));
+    plateId = str2double(client.getProperty('plate.id'));
+
     % Retrieve the project(s) owned by user currently logged in.
     % If a project contains datasets, the datasets will automatically be
     % loaded.
