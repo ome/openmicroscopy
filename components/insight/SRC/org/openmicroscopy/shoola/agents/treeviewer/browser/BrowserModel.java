@@ -282,7 +282,8 @@ class BrowserModel
     				selectedDisplay.getUserObject().getClass()))
     			selectedNodes.clear();
     	}
-    	selectedNodes.add(selectedDisplay);
+    	if (!selectedNodes.contains(selectedDisplay))
+    		selectedNodes.add(selectedDisplay);
     }
     
     /**
