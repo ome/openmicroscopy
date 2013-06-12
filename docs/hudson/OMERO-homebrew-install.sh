@@ -51,7 +51,7 @@ bin/brew tap ome/alt || echo "Already tapped"
 
 if [ $TESTING_MODE ]; then
     # Install scc tools
-    bin/scc install -U scc || echo "scc installed"
+    bin/pip install -U scc || echo "scc installed"
 
     # Merge homebrew-alt PRs
     cd Library/Taps/ome-alt
