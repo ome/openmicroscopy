@@ -554,8 +554,28 @@ class TestChgrp(lib.ITest):
             link.setChild(ann)
             link = update.saveAndReturnObject(link)
 
+
+    def testChgrp11109(self):
+        """
+        Place a plate in a single screen and attempt to move it.
+        """
+        # One user in two groups
+        client, user = self.new_client_and_user(perms=PRIVATE)
+        admin = client.sf.getAdminService()
+        target_grp = self.new_group([user],perms=PRIVATE)
+        target_gid = target_grp.id.val
+        admin.getEventContext() # Refresh
+
+        update = client.sf.getUpdateService()
+        plate = omero.model.PlateI()
+        plate.name = rstring("testChgrp11109")
+        screen = omero.model.ScreenI()
+        screen.name = rstring("testChgrp11109")
+        link = screen.linkPlate(plate)
+        link = update.saveAndReturnObject(link)
+
         # Now chgrp, should succeed
-        chgrp = omero.cmd.Chgrp(type="/Dataset", id=ds.id.val, grp=target_gid)
+        chgrp = omero.cmd.Chgrp(type="/Plate", id=link.child.id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client)
 
 class TestChgrpTarget(lib.ITest):
