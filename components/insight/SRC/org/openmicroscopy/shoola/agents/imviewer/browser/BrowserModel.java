@@ -30,6 +30,8 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -496,13 +498,11 @@ class BrowserModel
     void setRenderedImage(BufferedImage image)
     {
     	renderedImage = null;
-    	 if (displayedImage != null) displayedImage.flush();
-         if (combinedImage != null) combinedImage.flush();
-         clearList(gridImages);
-         displayedImage = null;
-         combinedImage = null;
-    	if (renderedImage != null) renderedImage.flush();
+    	displayedImage = null;
+    	combinedImage = null;
+    	clearList(gridImages);
         renderedImage = image;
+        
         if (renderedImage != null) {
         	if (init) {
         		int imageWidth = image.getWidth();
@@ -516,11 +516,6 @@ class BrowserModel
         		init = false;
         	}
         }
-        if (displayedImage != null) displayedImage.flush();
-        if (combinedImage != null) combinedImage.flush();
-        clearList(gridImages);
-        displayedImage = null;
-        combinedImage = null;
     }
     
     /** Sets the images composing the grid. */
@@ -603,19 +598,20 @@ class BrowserModel
      */
     void createDisplayedImage()
     {
-        if (renderedImage == null) return;
-        if (displayedImage != null) displayedImage.flush();
-        if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
-        	BufferedImage img = null;
-        	try {
-				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
-			} catch (Throwable e) {
-				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Magnification", 
-						"An error occurred while magnifying the image.");
-			}
-			if (img != null) displayedImage = img;
-        } else displayedImage = renderedImage;
+    	if (renderedImage == null) return;
+    	displayedImage = null;
+    	if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
+    		BufferedImage img = null;
+    		try {
+    			img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+    			renderedImage.flush();
+    		} catch (Throwable e) {
+    			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+    			un.notifyInfo("Magnification", 
+    					"An error occurred while magnifying the image.");
+    		}
+    		if (img != null) displayedImage = img;
+    	} else displayedImage = renderedImage;
     }
    
     /**
@@ -1293,6 +1289,7 @@ class BrowserModel
 		clearTextureMap(gridImagesAsTextures);
 		projectedImageAsTexture = null;
 		renderedImageAsTexture = null;
+		System.gc();//force garbage collection
 	}
 
 }
