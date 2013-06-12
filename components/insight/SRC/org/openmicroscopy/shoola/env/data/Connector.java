@@ -745,13 +745,7 @@ class Connector
 		}
 		reServices.clear();
 	}
-	
-	/** Keeps services alive.*/
-	void ping()
-		throws Exception
-	{
-		entryEncrypted.keepAlive(null);
-	}
+
 	
 	/** Keeps the services alive. */
 	void keepSessionAlive()
