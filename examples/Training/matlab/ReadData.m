@@ -7,6 +7,11 @@
 try
     disp('Creating connection');
     [client, session] = loadOmero();
+    fprintf(1, 'Created session for  %s', char(client.getProperty('omero.host')));
+    fprintf(1, ' for user %s',...
+        char(session.getAdminService().getEventContext().userName));
+    fprintf(1, ' using group %s\n',...
+        char(session.getAdminService().getEventContext().groupName));
     
     % Information to edit
     datasetId = str2double(client.getProperty('dataset.id'));
