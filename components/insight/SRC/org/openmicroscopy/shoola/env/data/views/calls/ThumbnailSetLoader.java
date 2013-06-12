@@ -274,7 +274,7 @@ public class ThumbnailSetLoader
      * 
      * @param ids The collection of pixels set id.
      */
-    private void loadThumbails(List ids) 
+    private void loadThumbnails(List ids) 
     {
     	try {
         	Map<Long, BufferedImage>
@@ -313,7 +313,7 @@ public class ThumbnailSetLoader
     
 	/**
      * Adds a {@link BatchCall} to the tree for each thumbnail to retrieve.
-     * The batch call simply invokes {@link #loadThumbail(int)}.
+     * The batch call simply invokes {@link #loadThumbnail(int)}.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
@@ -327,7 +327,7 @@ public class ThumbnailSetLoader
 			add(new BatchCall(description) {
         		public void doCall() { 
         			if (ImageData.class.equals(type)) {
-        				loadThumbails(ids);
+        				loadThumbnails(ids);
         			} else if (FileData.class.equals(type)) {
         				loadFSThumbnails(ids);
         			} else if (ExperimenterData.class.equals(type)) {
