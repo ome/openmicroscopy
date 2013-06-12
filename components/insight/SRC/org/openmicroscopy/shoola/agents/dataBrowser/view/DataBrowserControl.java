@@ -455,7 +455,7 @@ class DataBrowserControl
 	 * @param node The node to handle.
 	 */
 	void viewDisplay(ImageDisplay node) { model.viewDisplay(node, false); }
-	
+
 	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
