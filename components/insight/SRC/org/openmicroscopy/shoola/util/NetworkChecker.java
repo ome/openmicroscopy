@@ -24,14 +24,14 @@
 package org.openmicroscopy.shoola.util;
 
 //Java imports
-import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
 
 //Third-party libraries
 
@@ -46,9 +46,40 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
+@SuppressWarnings("unchecked")
 public class NetworkChecker {
 
-	
+	@SuppressWarnings("rawtypes")
+	static private Class NetworkInterfaceClass = null;
+	static private Method getNetworkInterfacesMethod = null;
+	static private Method isUpMethod = null;
+	static private Method isLoopbackMethod = null;
+	static private boolean useReflectiveCheck = false;
+
+	static {
+		//
+		// Perform static lookup via reflection of the methods
+		// needed to run Java 6 network checks.
+		//
+		try {
+			NetworkInterfaceClass = Class.forName("java.net.NetworkInterface");
+			getNetworkInterfacesMethod = NetworkInterfaceClass.getMethod("getNetworkInterfaces");
+			isUpMethod = NetworkInterfaceClass.getMethod("isUp");
+			isLoopbackMethod = NetworkInterfaceClass.getMethod("isLoopback");
+			useReflectiveCheck = true;
+		} catch (ClassNotFoundException e) {
+			// Knowingly using System.err since 1) this will be primarily used on
+			// Linux in the first instance and 2) we don't have access to a logger.
+			System.err.println("NetworkInterface class not found: assuming Java 1.5");
+		} catch (SecurityException e) {
+			// This should not happen. Logging (at ERROR)
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// This should not happen. Logging (at ERROR)
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * The IP Address of the server the client is connected to
 	 * or <code>null</code>.
@@ -74,6 +105,48 @@ public class NetworkChecker {
 	}
 	
 	/**
+	 * Run the standard Java 1.6 check using reflection. If this is not 1.6 or later, then
+	 * exit successfully, printing this assumption to System.err. If any odd reflection error
+	 * occurs, then act as if the network is up, even though we don't know. Finally, if the
+	 * reflection code works properly, throw an {@link UnknownHostException} if no up, non-loopback
+	 * network is found.
+	 *
+	 * @throws UnknownHostException
+	 */
+	@SuppressWarnings({ "rawtypes"})
+	public boolean reflectiveCheck() throws UnknownHostException {
+
+		if (!useReflectiveCheck) {
+			return true;
+		}
+
+		try {
+			Enumeration interfaces = (Enumeration) getNetworkInterfacesMethod.invoke(null);
+			if (interfaces != null) {
+				while (interfaces.hasMoreElements()) {
+					Object ni = interfaces.nextElement();
+					Boolean isUp = (Boolean) isUpMethod.invoke(ni);
+					Boolean isLoopback = (Boolean) isLoopbackMethod.invoke(ni);
+					if (isUp != null && isLoopback != null && (isUp && !isLoopback)) {
+						// TODO: add logging here for the successful check.
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			// This should not happen. It likely implies that something has happened in
+			// our reflection code, since no checked exceptions are thrown from the 1.6 code.
+			System.err.println("Failed during reflection. Assuming network is up.");
+			e.printStackTrace();
+			return true;
+		}
+
+		// If we reach here and no exception has been thrown then we assume that
+		// there is no network.
+		return false;
+	}
+
+	/**
 	 * Returns <code>true</code> if the network is still up, otherwise
 	 * throws an <code>UnknownHostException</code>.
 	 * 
@@ -83,39 +156,14 @@ public class NetworkChecker {
 	public boolean isNetworkup()
 		throws Exception
 	{
-		//Code work for 1.6. only. Tmp solution for now
-		/*
-		boolean networkup = false;
-		Enumeration<NetworkInterface> interfaces =
-				NetworkInterface.getNetworkInterfaces();
-		NetworkInterface ni;
-		if (interfaces != null) {
-			while (interfaces.hasMoreElements()) {
-				ni = interfaces.nextElement();
-				if (ni.isUp() && !ni.isLoopback()) {
-					networkup = true;
-					break;
-				}
-			}
-		}
-		if (!networkup) {
-			throw new UnknownHostException("Network is down.");
-		}
-		return networkup;
-		*/
-		//tmp code
+
 		boolean networkup = false;
 		List<String> ips = new ArrayList<String>();
 		if (UIUtilities.isLinuxOS()) {
-			try {
-				// use HTTP URL instead of plain socket connection to avoid
-				// network checks timeouts for clients behind a web proxy
-				// (requires adequate system property in startup script)
-				URL url = new URL("http://www.openmicroscopy.org.uk");
-				InputStream is = url.openStream();
-				is.close();
-				networkup = true;
-			} catch (Exception e) {}
+			// Not trying any connection on linux to prevent hangs.
+			// On Java 1.6+, reflectiveCheck will perform a proper check.
+			// On Java 1.5 and before, it will simply return true.
+			networkup = reflectiveCheck();
 		} else {
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
