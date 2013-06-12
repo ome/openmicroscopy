@@ -1216,6 +1216,5 @@ public class OmeroMetadata extends DummyMetadata {
 
     class OmeroMetadataRoot implements MetadataRoot
     {
-        OmeroMetadataRoot() { }
     }
 }
