@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import loci.formats.meta.DummyMetadata;
 import loci.formats.meta.MetadataRetrieve;
 import loci.formats.meta.MetadataStore;
+import loci.formats.meta.MetadataRoot;
 import ome.conditions.ApiUsageException;
 import ome.services.db.DatabaseIdentity;
 import ome.tools.hibernate.ProxyCleanupFilter;
@@ -130,6 +131,12 @@ public class OmeroMetadata extends DummyMetadata {
 
     public OmeroMetadata(DatabaseIdentity db) {
         this.db = db;
+    }
+
+    @Override
+    public MetadataRoot getRoot()
+    {
+        return new OmeroMetadataRoot();
     }
 
     public void addImage(Image image) {
@@ -1205,5 +1212,10 @@ public class OmeroMetadata extends DummyMetadata {
         TermAnnotation o = getAnnotation(
                 TermAnnotation.class, termAnnotationIndex);
         return o != null? fromRType(o.getTermValue()) : null;
+    }
+
+    class OmeroMetadataRoot implements MetadataRoot
+    {
+        OmeroMetadataRoot() { }
     }
 }
