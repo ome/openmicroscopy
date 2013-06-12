@@ -171,6 +171,7 @@ public class ManagedRepositoryI extends PublicRepositoryI
         FsFile relPath = new FsFile(expandTemplate(template, __current));
         // at this point, relPath should not yet exist on the filesystem
         createTemplateDir(relPath, __current);
+        fs.setTemplatePrefix(rstring(relPath.toString() + FsFile.separatorChar));
 
         final Class<? extends FormatReader> readerClass = getReaderClass(fs, __current);
         

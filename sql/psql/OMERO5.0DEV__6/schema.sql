@@ -730,6 +730,7 @@
     create table fileset (
         id int8 not null,
         permissions int8 not null,
+        templatePrefix text not null,
         version int4,
         creation_id int8 not null,
         external_id int8 unique,

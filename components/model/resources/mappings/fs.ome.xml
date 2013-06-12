@@ -47,6 +47,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
             <onemany name="usedFiles" type="ome.model.fs.FilesetEntry" inverse="fileset" ordered="true"/>
             <onemany name="images" type="ome.model.core.Image" inverse="fileset"/>
             <child name="jobLinks" type="ome.model.fs.FilesetJobLink" target="ome.model.jobs.Job" ordered="true"/>
+            <required name="templatePrefix" type="text"/>  <!-- see trac ticket 10811 for DB upgrade instructions -->
         </properties>
     </type>
 </types>
