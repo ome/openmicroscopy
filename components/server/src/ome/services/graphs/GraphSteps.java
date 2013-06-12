@@ -125,7 +125,10 @@ public class GraphSteps extends AbstractList<GraphStep> implements RandomAccess 
     private final List<GraphStep> steps;
 
     /**
-     * Multi-map of rows in
+     * Map from a key based on the table & id array of a given row to
+     * all the instances of that row that have been found. A multi-map
+     * is not used because we want to maintain an index to the various
+     * internal values.
      */
     private final Map<Key, Values> sameRows = new HashMap<Key, Values>();
 

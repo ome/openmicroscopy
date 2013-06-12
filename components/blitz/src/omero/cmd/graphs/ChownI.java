@@ -67,6 +67,7 @@ public class ChownI extends Chown implements IGraphModifyRequest {
         ChownI copy = (ChownI) ic.findObjectFactory(ice_id()).create(ChownI.ice_staticId());
         copy.type = type;
         copy.id = id;
+        copy.user = user;
         return copy;
     }
 
