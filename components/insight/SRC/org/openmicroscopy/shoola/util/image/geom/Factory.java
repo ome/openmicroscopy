@@ -186,6 +186,7 @@ public class Factory
 		g2.fillRect(0, 0, width, height);
 		g2.drawImage(src, 0, 0, width, height, null);
 		g2.dispose();
+		src = null;
 		return img;
 	}
 
@@ -235,6 +236,7 @@ public class Factory
 		if (background != null) g.setBackground(background);
 		g.drawImage(img.getImage(), 0, 0, null);
 		g.dispose();
+		img = null;
 		return thumbPix;
 	}
 
@@ -346,6 +348,7 @@ public class Factory
 		Graphics2D g2 = rescaleBuff.createGraphics();
 		g2.drawImage(img, at, null);
 		g2.dispose();
+		img.flush();
 		return rescaleBuff;
 	}
 
@@ -426,6 +429,7 @@ public class Factory
 			g2.setFont(g2.getFont().deriveFont(Font.BOLD));
 			g2.drawString(text, xTxt, yTxt);
 		}
+		img.flush();
 		return newImage;
 	}
 
@@ -458,6 +462,7 @@ public class Factory
 				buffer.setElem(2, pos, cm.getBlue(v));
 			}
 		}
+		img.flush();
 		ComponentColorModel ccm = new ComponentColorModel(
 				ColorSpace.getInstance(ColorSpace.CS_sRGB),
 				null, false, false, Transparency.OPAQUE, 
@@ -482,6 +487,7 @@ public class Factory
 		Graphics gfx = buff.createGraphics();
 		gfx.drawImage(img, 0, 0, null);
 		gfx.dispose();
+		img.flush();
 		return buff;
 	}
 
@@ -499,6 +505,7 @@ public class Factory
 		Graphics gfx = buff.createGraphics();
 		gfx.drawImage(img, 0, 0, null);
 		gfx.dispose();
+		img.flush();
 		return buff;
 	}
 
@@ -638,6 +645,7 @@ public class Factory
 			Icon icon = new ImageIcon(img);
 			if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
 				return null;
+			img = null;
 			return icon;
 		} catch (Exception e) {}
 		return null;
@@ -855,6 +863,7 @@ public class Factory
 			Graphics2D g = image.createGraphics();
 			g.drawImage(img, null, null);
 			g.dispose();
+			img = null;
 			return image;
 		} catch (Exception e) {
 		}

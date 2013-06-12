@@ -743,9 +743,10 @@ class ImViewerModel
 	void discard()
 	{
 		state = ImViewer.DISCARDED;
-		if (imageIcon != null) imageIcon.flush();
+		imageIcon = null;
 		browser.discard();
 		if (image == null) return;
+		resetTiles();
 		Iterator<Integer> i = loaders.keySet().iterator();
 		while (i.hasNext()) {
 			loaders.get(i.next()).cancel();
@@ -2749,6 +2750,7 @@ class ImViewerModel
     /** Resets the tiles.*/
     void resetTiles()
     {
+    	if (tiles == null) return;
     	Iterator<Tile> i = tiles.values().iterator();
 		while (i.hasNext())
 			i.next().setImage(null);
