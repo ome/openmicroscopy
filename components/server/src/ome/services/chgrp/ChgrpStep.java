@@ -166,7 +166,7 @@ public class ChgrpStep extends GraphStep {
         }
 
         logPhase("Validated");
-        }
+    }
 
     private List<Long> findImproperOutgoingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
