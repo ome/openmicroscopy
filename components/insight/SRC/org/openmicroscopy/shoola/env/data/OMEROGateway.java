@@ -1473,6 +1473,7 @@ class OMEROGateway
 	        if (c.needsKeepAlive()) {
 	            c.keepSessionAlive();
 	        }
+	        return c;
 		}
 		
 		//We are going to create a connector and activate a session.
