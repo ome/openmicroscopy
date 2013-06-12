@@ -70,6 +70,13 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.NetworkChecker;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+
 import omero.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -381,7 +388,9 @@ class OMEROGateway
 	}
 	
 	/** The collection of connectors.*/
-	private List<Connector> connectors;
+	private ListMultimap<Long, Connector> groupConnectorMap =
+	        Multimaps.<Long, Connector>synchronizedListMultimap(
+	                LinkedListMultimap.<Long, Connector>create());
 
 	/**
 	 * The entry point provided by the connection library to access the various
@@ -450,17 +459,33 @@ class OMEROGateway
 		buffer.append("where image.id in (:imageIds)");
 		return buffer.toString();
 	}
-	
-	/**
-	 * Checks if the network is up.
-	 * @throws Exception Throw
-	 */
-	private void isNetworkUp()
-		throws Exception
-	{
-		networkup = false;
-		networkup = networkChecker.isNetworkup();
+
+	private List<Connector> getAllConnectors() {
+	    synchronized(groupConnectorMap) {
+	        // This should be the only location which calues values().
+	        return new ArrayList<Connector>(groupConnectorMap.values());
+	    }
 	}
+    /**
+     * Checks if the network is up.
+     * @throws Exception Throw
+     */
+    private void isNetworkUp(boolean useCachedValue)
+        throws Exception
+    {
+        networkup = false;
+        networkup = networkChecker.isNetworkup(useCachedValue);
+    }
+
+    /**
+     * Checks if the network is up, using a cached value if present.
+     * @throws Exception Throw
+     */
+    private void isNetworkUp()
+        throws Exception
+    {
+        isNetworkUp(true);
+    }
 
 	/** 
 	 * Checks if the session is still alive.
@@ -475,7 +500,9 @@ class OMEROGateway
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
 			isNetworkUp();
-			c.ping();
+			if (c.needsKeepAlive()) {
+			    c.keepSessionAlive();
+			}
 		} catch (Exception e) {
 			handleConnectionException(e);
 		}
@@ -1460,12 +1487,14 @@ class OMEROGateway
 	private Connector getConnector(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		Iterator<Connector> i = connectors.iterator();
-		Connector c;
-		while (i.hasNext()) {
-			c = i.next();
-			if (c.isSame(ctx)) return c;
+		if (ctx == null) {
+		    return null;
 		}
+		List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
+		if (clist.size() > 0) {
+		    return clist.get(0);
+		}
+		
 		//We are going to create a connector and activate a session.
 		try {
 			UserCredentials uc = dsFactory.getCredentials();
@@ -1475,8 +1504,8 @@ class OMEROGateway
 					uc.getPassword());
 			prx.setSecurityContext(
 					new ExperimenterGroupI(ctx.getGroupID(), false));
-			c = new Connector(ctx, client, prx, encrypted);
-			connectors.add(c);
+			Connector c = new Connector(ctx, client, prx, encrypted);
+			groupConnectorMap.put(ctx.getGroupID(), c);
 			return c;
 		} catch (Throwable e) {
 			handleException(e, "Cannot create a connector");
@@ -2106,7 +2135,7 @@ class OMEROGateway
 	/** Clears the data. */
 	private void clear()
 	{
-		Iterator<Connector> i = connectors.iterator();
+		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
 			i.next().clear();
 		}
@@ -2159,7 +2188,6 @@ class OMEROGateway
 		this.dsFactory = dsFactory;
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
-		connectors = new ArrayList<Connector>();
 	}
 	
 	/**
@@ -2427,13 +2455,13 @@ class OMEROGateway
 		float compression, long groupID)
 		throws DSOutOfServiceException
 	{
+		Connector connector = null;
+		SecurityContext ctx = null;
 		try {
 			connected = true;
 			IAdminPrx prx = entryEncrypted.getAdminService();
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
 					prx.lookupExperimenter(userName));
-			SecurityContext ctx;
-			Connector connector;
 			if (groupID >= 0) {
 				long defaultID = -1;
 				try {
@@ -2444,19 +2472,17 @@ class OMEROGateway
 				ctx.setCompression(compression);
 				connector = new Connector(ctx, secureClient, entryEncrypted,
 						encrypted);
-				connectors.add(connector);
-				
+				groupConnectorMap.put(ctx.getGroupID(), connector);
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(ctx, exp, groupID);
-					connectors.remove(connector);
 					ctx = new SecurityContext(groupID);
 					ctx.setServerInformation(hostName, port);
 					ctx.setCompression(compression);
 					connector = new Connector(ctx, secureClient, entryEncrypted,
 							encrypted);
-					connectors.add(connector);
 					exp = getUserDetails(ctx, userName, true);
+					groupConnectorMap.put(ctx.getGroupID(), connector);
 				} catch (Exception e) {
 				}
 			}
@@ -2465,14 +2491,14 @@ class OMEROGateway
 			ctx.setCompression(compression);
 			connector = new Connector(ctx, secureClient, entryEncrypted,
 					encrypted);
-			connectors.add(connector);
+			groupConnectorMap.put(ctx.getGroupID(), connector);
 			return exp;
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Cannot log in. User credentials not valid.\n\n";
 			s += printErrorText(e);
 			throw new DSOutOfServiceException(s, e);  
-		} 
+		}
 	}
 	
 	/**
@@ -2620,7 +2646,7 @@ class OMEROGateway
 	{
 		Map<SecurityContext, Set<Long>> l = 
 			new HashMap<SecurityContext, Set<Long>>();
-		Iterator<Connector> i = connectors.iterator();
+		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
 			l.putAll(i.next().getRenderingEngines());
 		}
@@ -2639,12 +2665,12 @@ class OMEROGateway
 	boolean reconnect(String userName, String password)
 	{
 		try {
-			isNetworkUp();
+			isNetworkUp(false); // Force re-check to prevent hang
 		} catch (Exception e) {
 			// no need to handle the exception.
 		}
 		connected = false;
-		Iterator<Connector> i = connectors.iterator();
+		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
 			try {
 				i.next().close(networkup);
@@ -2653,9 +2679,9 @@ class OMEROGateway
 			}
 		}
 		if (!networkup) return false;
-		if (connected) return connected;
+
 		try {
-			i = connectors.iterator();
+			i = getAllConnectors().iterator();
 			while (i.hasNext()) {
 				i.next().reconnect(userName, password);
 			}
@@ -2671,22 +2697,22 @@ class OMEROGateway
 	void logout()
 	{
 		try {
-			isNetworkUp();
+			isNetworkUp(false); // Force re-check to prevent hang.
 		} catch (Exception e) {
 			//ignore already registered.
 		}
 		connected = false;
 		shutDownServices(true);
 		try {
-			Iterator<Connector> i = connectors.iterator();
+			Iterator<Connector> i = getAllConnectors().iterator();
 			while (i.hasNext()) {
+			    // Should each close perhaps be in its own try/catch?
 				i.next().close(networkup);
 			}
-			connectors.clear();
 		} catch (Throwable e) {
-			connectors.clear();
+			// Should this really be ignored?
 		} finally {
-			connectors.clear();
+			groupConnectorMap.clear();
 		}
 	}
 	
@@ -4255,8 +4281,8 @@ class OMEROGateway
 	private void shutDownServices(boolean rendering)
 	{
 		try {
-			isNetworkUp();
-			Iterator<Connector> i = connectors.iterator();
+			isNetworkUp(false); // Forces a re-check
+			Iterator<Connector> i = getAllConnectors().iterator();
 			while (i.hasNext())
 				i.next().shutDownServices(rendering);
 		} catch (Exception e) {
@@ -4565,7 +4591,7 @@ class OMEROGateway
 				Chmod chmod = new Chmod(REF_GROUP, group.getId(), null, r);
 				List<Request> l = new ArrayList<Request>();
 				l.add(chmod);
-				return getConnector(ctx).submit(l, null);
+				return getConnector(ctx, true, false).submit(l, null);
 			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the group. ");
@@ -5776,10 +5802,13 @@ class OMEROGateway
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
-		Iterator<Connector>  i = connectors.iterator();
+		Iterator<Connector>  i = getAllConnectors().iterator();
 		Connector c;
 		while (i.hasNext()) {
-			i.next().keepSessionAlive();
+			c = i.next();
+			if (c.needsKeepAlive()) {
+			    c.keepSessionAlive();
+			}
 		}
 	}
 	
@@ -6899,13 +6928,9 @@ class OMEROGateway
 	 */
 	void removeREService(SecurityContext ctx, long pixelsID)
 	{
-		Iterator<Connector> i = connectors.iterator();
-		Connector c;
-		while (i.hasNext()) {
-			c = i.next();
-			if (c.isSame(ctx)) {
-				c.shutDownRenderingEngine(pixelsID);
-			}
+		List<Connector> clist = groupConnectorMap.get(ctx.getGroupID());
+		for (Connector c : clist) {
+			c.shutDownRenderingEngine(pixelsID);
 		}
 	}
 
@@ -8607,14 +8632,17 @@ class OMEROGateway
 	void removeGroup(SecurityContext ctx) 
 	throws Exception
 	{
-		Connector c = getConnector(ctx);
-		if (c == null) return;
+		if (ctx == null) return;
+		List<Connector> clist = groupConnectorMap.removeAll(ctx.getGroupID());
+		if (clist == null || clist.size() == 0) return;
 		isNetworkUp();
-		try {
-			connectors.remove(c);
-			c.close(networkup);
-		} catch (Throwable e) {
-			new Exception("Cannot close the connector", e);
+		for (Connector c:  clist) {
+		    try {
+		        c.close(networkup);
+		    } catch (Throwable e) {
+		        // FIXME: should this be thrown?
+		        new Exception("Cannot close the connector", e);
+		    }
 		}
 	}
 
