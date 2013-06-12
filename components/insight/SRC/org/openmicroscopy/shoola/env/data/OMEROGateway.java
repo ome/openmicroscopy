@@ -467,7 +467,7 @@ class OMEROGateway
 	void isSessionAlive(SecurityContext ctx)
 	{
 		try {
-			Connector c = getConnector(ctx);
+			Connector c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -563,7 +563,7 @@ class OMEROGateway
 		ScriptCallback cb = null;
 		try {
 	         IScriptPrx svc = getScriptService(ctx);
-	         Connector c = getConnector(ctx);
+	         Connector c = getConnector(ctx, true, true);
 	         //scriptID, parameters, timeout (5s if null)
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, c.getClient(), prx);
@@ -1315,7 +1315,7 @@ class OMEROGateway
 		Connector c = null;
 		SharedResourcesPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1344,7 +1344,7 @@ class OMEROGateway
 	{
 		Connector c = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1375,10 +1375,7 @@ class OMEROGateway
 		Connector c = null;
 		OMEROMetadataStoreClient prx = null;
 		try {
-			c = getConnector(ctx);
-			if (c == null)
-				throw new DSOutOfServiceException(
-						"Cannot access the connector.");
+			c = getConnector(ctx, true, false);
 			c = c.getConnector(userName);
 			prx = c.getImportStore();
 		} catch (Throwable e) {
@@ -1405,7 +1402,7 @@ class OMEROGateway
 	{
 		Connector c = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1435,7 +1432,7 @@ class OMEROGateway
 		Connector c = null;
 		IScriptPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1454,9 +1451,16 @@ class OMEROGateway
 	 * Returns the connector corresponding to the passed context.
 	 * 
 	 * @param ctx The security context.
+	 * @param recreate whether or not to allow the recreation of the
+	 *     {@link Connector}. A {@link DSOutOfServiceException} is thrown
+	 *     if this is set to false and no {@link Connector} is available.
+	 * @param permitNull whether or not to throw a
+	 *     {@link DSOutOfServiceException} if no {@link Connector} is available
+	 *     by the end of the execution.
 	 * @return
 	 */
-	private Connector getConnector(SecurityContext ctx)
+	private Connector getConnector(SecurityContext ctx, boolean recreate,
+	        boolean permitNull)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (ctx == null) {
@@ -1468,6 +1472,14 @@ class OMEROGateway
 		}
 		
 		//We are going to create a connector and activate a session.
+		if (!recreate) {
+		    if (permitNull) {
+		        return null;
+		    } else {
+		        throw new DSOutOfServiceException("Not allowed to recreate");
+		    }
+		}
+		Connector c = null;
 		try {
 			UserCredentials uc = dsFactory.getCredentials();
 			ctx.setServerInformation(uc.getHostName(), port);
@@ -1476,13 +1488,16 @@ class OMEROGateway
 					uc.getPassword());
 			prx.setSecurityContext(
 					new ExperimenterGroupI(ctx.getGroupID(), false));
-			Connector c = new Connector(ctx, client, prx, encrypted);
+			c = new Connector(ctx, client, prx, encrypted);
 			groupConnectorMap.put(ctx.getGroupID(), c);
-			return c;
 		} catch (Throwable e) {
 			handleException(e, "Cannot create a connector");
 		}
-		return null;
+		if (c == null && !permitNull) {
+            throw new DSOutOfServiceException(
+                    "Cannot access the connector.");
+		}
+		return c;
 	}
 	
 	/**
@@ -1500,7 +1515,7 @@ class OMEROGateway
 		Connector c = null;
 		IContainerPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1530,7 +1545,7 @@ class OMEROGateway
 		Connector c = null;
 		IQueryPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1577,7 +1592,7 @@ class OMEROGateway
 		Connector c = null;
 		IUpdatePrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1607,10 +1622,7 @@ class OMEROGateway
 		Connector c = null;
 		IMetadataPrx prx = null;
 		try {
-			c = getConnector(ctx);
-			if (c == null)
-				throw new DSOutOfServiceException(
-						"Cannot access the connector.");
+			c = getConnector(ctx, true, false);
 			prx = c.getMetadataService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access the Metadata service.");
@@ -1636,7 +1648,7 @@ class OMEROGateway
 		Connector c = null;
 		IRoiPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1666,10 +1678,7 @@ class OMEROGateway
 		Connector c = null;
 		IAdminPrx prx = null;
 		try {
-			c = getConnector(ctx);
-			if (c == null)
-				throw new DSOutOfServiceException(
-						"Cannot access the connector.");
+			c = getConnector(ctx, true, false); // required
 			prx = c.getAdminService();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -1723,7 +1732,7 @@ class OMEROGateway
 		Connector c = null;
 		ThumbnailStorePrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1753,10 +1762,7 @@ class OMEROGateway
 		Connector c = null;
 		ExporterPrx prx = null;
 		try {
-			c = getConnector(ctx);
-			if (c == null)
-				throw new DSOutOfServiceException(
-						"Cannot access the connector.");
+			c = getConnector(ctx, true, false);
 			prx = c.getExporterService();
 		} catch (Throwable e) {
 			//method throws an exception
@@ -1783,7 +1789,7 @@ class OMEROGateway
 		Connector c = null;
 		RawFileStorePrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1815,7 +1821,7 @@ class OMEROGateway
 		Connector c = null;
 		RenderingEnginePrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1846,7 +1852,7 @@ class OMEROGateway
 		Connector c = null;
 		RawPixelsStorePrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1876,7 +1882,7 @@ class OMEROGateway
 		Connector c = null;
 		IPixelsPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1906,7 +1912,7 @@ class OMEROGateway
 		Connector c = null;
 		SearchPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -1936,7 +1942,7 @@ class OMEROGateway
 		Connector c = null;
 		IProjectionPrx prx = null;
 		try {
-			c = getConnector(ctx);
+			c = getConnector(ctx, true, true);
 			if (c == null)
 				throw new DSOutOfServiceException(
 						"Cannot access the connector.");
@@ -4206,8 +4212,12 @@ class OMEROGateway
 			StatefulServiceInterfacePrx svc)
 	{
 		try {
-			Connector c = getConnector(ctx);
-			if (c != null) c.close(svc);
+			Connector c = getConnector(ctx, false, true);
+			if (c != null) {
+			    c.close(svc);
+			} else {
+			    svc.close(); // Last ditch effort to close.
+			}
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -8360,7 +8370,7 @@ class OMEROGateway
 	{
 		isSessionAlive(ctx);
 		try {
-	         Connector c = getConnector(ctx);
+	         Connector c = getConnector(ctx, true, true);
 	         return c.submit(Arrays.<Request>asList(commands), ctx);
 		} catch (Throwable e) {
 		 	handleException(e, "Cannot delete the specified objects.");
@@ -8406,7 +8416,7 @@ class OMEROGateway
 	void closeImport(SecurityContext ctx)
 	{
 		try {
-			Connector c = getConnector(ctx);
+			Connector c = getConnector(ctx, false, true);
 			if (c != null) c.closeImport();
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -8476,7 +8486,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive(ctx);
-		Connector c = getConnector(ctx);
+		Connector c = getConnector(ctx, true, true);
 		if (c == null) return null;
 		IAdminPrx svc = getAdminService(ctx);
 		
@@ -8634,7 +8644,7 @@ class OMEROGateway
 	void shutDownDerivedConnector(SecurityContext ctx)
 		throws Exception
 	{
-		Connector c = getConnector(ctx);
+		Connector c = getConnector(ctx, true, true);
 		if (c == null) return;
 		isNetworkUp();
 		try {
@@ -8643,5 +8653,69 @@ class OMEROGateway
 			new Exception("Cannot close the derived connectors", e);
 		}
 	}
+
+	/**
+	 * Loads the annotations of the given type linked to the specified objects.
+	 * Returns a map whose keys are the object's id and the values are a
+	 * collection of annotation linked to that object.
+	 * 
+	 * @param ctx The security context.
+	 * @param rootType The type of object the annotations are linked to e.g.
+	 * Image.
+	 * @param rootIDs The collection of object's ids the annotations are linked
+	 * to.
+	 * @param nsInclude The annotation's name space to include if any.
+	 * @param nsExlcude The annotation's name space to exclude if any.
+	 * @param options Options to retrieve the data.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	Map<Long, Collection<AnnotationData>>
+	loadSpecifiedAnnotationsLinkedTo(SecurityContext ctx, Class<?> rootType,
+			List<Long> rootIDs, Class<?> annotationType, List<String> nsInclude,
+			List<String> nsExclude, Parameters options)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		String type = convertAnnotation(annotationType);
+		IMetadataPrx service = getMetadataService(ctx);
+		try {
+			return PojoMapper.asDataObjects(
+					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
+							nsExclude, convertPojos(rootType).getName(),
+							rootIDs, options));
+		} catch (Throwable t) {
+			handleException(t, "Cannot find annotation of "+annotationType+" " +
+					"for "+rootType+".");
+		}
+		return new HashMap<Long, Collection<AnnotationData>>();
+	}
 	
+	/**
+	 * Executes the commands.
+	 * 
+	 * @param commands The commands to execute.
+	 * @param ctx The security context.
+	 * @return See above.
+	 * @throws ProcessException If an error occurred while running the script.
+	 *  @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	RequestCallback submit(List<Request> commands, SecurityContext ctx)
+		throws ProcessException, DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive(ctx);
+		try {
+			Connector c = getConnector(ctx, true, true);
+			if (c == null) return null;
+			return c.submit(commands, ctx);
+		} catch (Throwable e) {
+			handleException(e, "Cannot execute the command.");
+			// Never reached
+			throw new ProcessException("Cannot execute the command.", e);
+		}
+	}
 }

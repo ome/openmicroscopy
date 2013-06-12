@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 //Third-party libraries
 
@@ -82,7 +83,8 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
  */
 class Connector
 {
-	
+    private final AtomicLong lastKeepAlive = new AtomicLong(0);
+
 	/** The thumbnail service. */
 	private ThumbnailStorePrx thumbnailService;
 
@@ -761,6 +763,7 @@ class Connector
 			if (entryUnencrypted != null)
 				entryUnencrypted.keepAllAlive(null);
 		} catch (Exception e) {}
+		lastKeepAlive.set(System.currentTimeMillis());
 	}
 
 	/**
@@ -919,5 +922,14 @@ class Connector
 		derived.put(userName, c);
 		return c;
 	}
-	
+
+    boolean needsKeepAlive()
+    {
+        long last = lastKeepAlive.get();
+        long elapsed = System.currentTimeMillis() - last;
+        if (elapsed > 5000) {
+            return true;
+        }
+        return false;
+    }
 }
