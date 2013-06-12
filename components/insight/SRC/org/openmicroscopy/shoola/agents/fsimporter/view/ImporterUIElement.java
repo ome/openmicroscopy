@@ -740,6 +740,7 @@ class ImporterUIElement
 			if (result instanceof Exception) {
 				r = new ImportErrorObject(file, (Exception) result,
 						c.getGroupID());
+				if (c.hasResult()) return null;
 				setImportResult(c, result);
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;
@@ -766,8 +767,14 @@ class ImporterUIElement
 		} else {//empty folder
 			if (result instanceof Exception) {
 				countUploaded++;
-				countCancelled++;
-				setImportResult(c, result);
+				//Check if no files
+				if (!c.hasComponents()) {
+					countImported++;
+					countUploadFailure++;
+					c.setStatus(result);
+				}
+				if (isDone() && rotationIcon != null)
+					rotationIcon.stopRotation();
 			} else if (result instanceof Boolean) {
 				Boolean b = (Boolean) result;
 				if (!b && c.isCancelled()) {
@@ -803,7 +810,11 @@ class ImporterUIElement
 				countImported--;
 			if (isDone() && rotationIcon != null)
 				rotationIcon.stopRotation();
-			if (fc.hasUploadFailed()) countUploadFailure++;
+			if (fc.hasUploadFailed()) {
+				countUploadFailure++;
+				sizeImport -= fc.getImportSize();
+				sizeLabel.setText(FileUtils.byteCountToDisplaySize(sizeImport));
+			}
 			if (fc.hasImportFailed()) countFailure++;
 			setNumberOfImport();
 			setClosable(isDone());

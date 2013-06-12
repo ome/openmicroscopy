@@ -6879,9 +6879,7 @@ class OMEROGateway
 			reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			ImportCandidates candidates = new ImportCandidates(reader,
-					paths, status);
-			return candidates;
+			return new ImportCandidates(reader, paths, status);
 		} catch (Throwable e) {
 			throw new ImportException(e);
 		} finally {
