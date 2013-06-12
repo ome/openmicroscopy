@@ -319,13 +319,6 @@ public abstract class ImageDisplay
     public void setNodeDecoration(long userID)
     {
     	List<JLabel> nodes = new ArrayList<JLabel>();
-    	
-    	if (hierarchyObject instanceof DataObject && userID >= 0) {
-    		ExperimenterData owner = getNodeOwner();
-			if (owner != null && userID != owner.getId())
-				nodes.add(new JLabel(NOT_OWNED_ICON));
-        }
-    	
     	if (EditorUtil.isAnnotated(hierarchyObject, count))
     		nodes.add(new JLabel(ANNOTATION_ICON));
     	
