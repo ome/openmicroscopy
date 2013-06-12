@@ -464,7 +464,7 @@ class OMEROGateway
 	 * 
 	 * @param ctx The security context.
 	 */
-	synchronized void isSessionAlive(SecurityContext ctx)
+	void isSessionAlive(SecurityContext ctx)
 	{
 		try {
 			Connector c = getConnector(ctx);
