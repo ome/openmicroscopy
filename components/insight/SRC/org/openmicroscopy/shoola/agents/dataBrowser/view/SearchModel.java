@@ -160,10 +160,12 @@ class SearchModel
 		Entry<Long, List<ImageData>> e;
 		Iterator<Entry<Long, List<ImageData>>> j = map.entrySet().iterator();
 		DataBrowserLoader loader;
+		Collection<DataObject> l;
 		while (j.hasNext()) {
 			e = j.next();
+			l = sorter.sort(e.getValue());
 			loader = new ThumbnailLoader(component, new SecurityContext(
-					e.getKey()), sorter.sort(e.getValue()));
+					e.getKey()), l, l.size());
 			loader.load();
 		}
 		state = DataBrowser.LOADING;
