@@ -101,6 +101,9 @@ import pojos.TagAnnotationData;
 abstract class DataBrowserModel
 {
 
+	/** The number of loaders to use for the thumbnails.*/
+	static final int MAX_LOADER = 4;
+	
 	/** Identifies the <code>DatasetsModel</code>. */
 	static final int	DATASETS = 0;
 	
@@ -360,13 +363,16 @@ abstract class DataBrowserModel
     	if (refresh) 
     		browser.accept(new ResetThumbnailVisitor(ids), 
     				ImageDisplayVisitor.IMAGE_NODE_ONLY);
-    	loader = createDataLoader(refresh, ids);
-    	if (loader == null) {
+    	List<DataBrowserLoader> loaders = createDataLoader(refresh, ids);
+    	if (loaders == null) {
     		state = DataBrowser.READY;
     		return;
     	}
     	state = DataBrowser.LOADING;
-    	loader.load();
+    	Iterator<DataBrowserLoader> i = loaders.iterator();
+    	while (i.hasNext()) {
+			i.next().load();
+		}
     }
     
     /**
@@ -959,6 +965,37 @@ abstract class DataBrowserModel
 		}
 	}
 
+	/**
+	 * Creates a collection of loaders for the thumbnails.
+	 * 
+	 * @param images The objects to load.
+	 * @return See above.
+	 */
+	List<DataBrowserLoader> createThumbnailsLoader(List<DataObject> images)
+	{
+		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
+		int n = images.size();
+		int diff = n/MAX_LOADER;
+		List<DataObject> l;
+		int j;
+		int step = 0;
+		if (n < MAX_LOADER) diff = 1;
+		for (int k = 0; k < MAX_LOADER; k++) {
+			l = new ArrayList<DataObject>();
+			j = step+diff;
+			if (k == (MAX_LOADER-1)) j += (n-j);
+			if (j <= n) {
+				l = images.subList(step, j);
+				step += l.size();
+			}
+			if (l.size() > 0) {
+				loaders.add(new ThumbnailLoader(component, ctx,
+						sorter.sort(l)));
+			}
+		}
+		return loaders;
+	}
+	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
@@ -968,7 +1005,7 @@ abstract class DataBrowserModel
      * @param ids       The collection of images' ids to reload.
      * @return A suitable data loader.
      */
-    protected abstract DataBrowserLoader createDataLoader(boolean refresh, 
+    protected abstract List<DataBrowserLoader> createDataLoader(boolean refresh, 
     		                                             Collection ids);
 
     /** 

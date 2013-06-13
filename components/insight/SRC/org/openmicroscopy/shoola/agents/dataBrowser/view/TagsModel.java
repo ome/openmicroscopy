@@ -170,7 +170,7 @@ public class TagsModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -182,7 +182,7 @@ public class TagsModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
+		List<DataObject> imgs = new ArrayList<DataObject>();
 		List<Long> loaded = new ArrayList<Long>();
 		ImageData img;
 		if (ids != null) {
@@ -213,7 +213,7 @@ public class TagsModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
+		return createThumbnailsLoader(imgs);
 	}
 	
 	/**

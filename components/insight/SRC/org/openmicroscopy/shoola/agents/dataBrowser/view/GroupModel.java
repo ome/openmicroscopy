@@ -88,7 +88,7 @@ class GroupModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -136,8 +136,10 @@ class GroupModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-				ThumbnailLoader.EXPERIMENTER);
+		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
+		loaders.add(new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
+				ThumbnailLoader.EXPERIMENTER));
+		return loaders;
 	}
 	
 	/**

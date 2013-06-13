@@ -98,7 +98,7 @@ class FSFolderModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -155,8 +155,9 @@ class FSFolderModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-				ThumbnailLoader.FS_FILE);
+		return null;
+		//new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
+		//		ThumbnailLoader.FS_FILE);
 	}
 	
 	/**

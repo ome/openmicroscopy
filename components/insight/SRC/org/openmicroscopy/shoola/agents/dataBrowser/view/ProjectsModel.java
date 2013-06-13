@@ -66,10 +66,13 @@ class ProjectsModel
 		super(ctx);
 	}
 	
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	/**
+	 * Creates a concrete loader.
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
+	 */
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh,
 			Collection ids)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

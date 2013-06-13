@@ -711,7 +711,7 @@ class WellsModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (!withThumbnails) return null;
@@ -740,7 +740,7 @@ class WellsModel
 		}
 
 		if (images.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, images);
+		return createThumbnailsLoader(images);
 	}
 	
 	/**
