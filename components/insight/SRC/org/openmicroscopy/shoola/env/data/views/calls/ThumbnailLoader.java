@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,18 +35,16 @@ import java.util.Set;
 
 //Third-party libraries
 
+//Application-internal dependencies
 import omero.api.ThumbnailStorePrx;
 import omero.model.RenderingDef;
-
-import org.openmicroscopy.shoola.agents.imviewer.TileLoader;
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import org.openmicroscopy.shoola.env.rnd.data.Tile;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 
@@ -140,7 +137,8 @@ public class ThumbnailLoader
     			store.setPixelsId(pxd.getId());
     		}
     		if (userID >= 0) {
-				//to be added.
+    			store.setRenderingDefId(service.getRenderingDef(ctx,
+    					pxd.getId(), userID));
 			}
     		thumbPix = WriterImage.bytesToImage(
     				store.getThumbnail(omero.rtypes.rint(sizeX),
