@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -48,6 +48,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import org.apache.tools.ant.types.selectors.modifiedselector.ChecksumAlgorithm;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -234,7 +235,7 @@ import pojos.WellSampleData;
 import pojos.WorkflowData;
 import pojos.XMLAnnotationData;
 
-/** 
+/**
  * Unified access point to the various <i>OMERO</i> services.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -249,63 +250,63 @@ import pojos.XMLAnnotationData;
  */
 class OMEROGateway
 {
-	
+
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
-	
+
 	/** Identifies the dataset as root. */
 	private static final String REF_DATASET = "/Dataset";
-	
+
 	/** Identifies the project as root. */
 	private static final String REF_PROJECT = "/Project";
-	
+
 	/** Identifies the screen as root. */
 	private static final String REF_SCREEN = "/Screen";
-	
+
 	/** Identifies the plate as root. */
 	private static final String REF_PLATE = "/Plate";
-	
+
 	/** Identifies the ROI as root. */
 	private static final String REF_ROI = "/Roi";
-	
+
 	/** Identifies the PlateAcquisition as root. */
 	private static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
 	/** Identifies the PlateAcquisition as root. */
 	private static final String REF_WELL = "/Well";
-	
+
 	/** Identifies the Tag. */
 	private static final String REF_ANNOTATION = "/Annotation";
-	
+
 	/** Identifies the Tag. */
 	private static final String REF_TAG = "/TagAnnotation";
-	
+
 	/** Identifies the Term. */
 	private static final String REF_TERM = "/TermAnnotation";
-	
+
 	/** Identifies the File. */
 	private static final String REF_FILE= "/FileAnnotation";
-	
+
 	/** Identifies the group. */
 	private static final String REF_GROUP = "/ExperimenterGroup";
-	
+
 	/** Indicates to keep a certain type of annotations. */
 	static final String KEEP = "KEEP";
-	
+
 	/** The default MIME type. */
-	private static final String				DEFAULT_MIMETYPE = 
+	private static final String				DEFAULT_MIMETYPE =
 		"application/octet-stream";
-	
+
 	/** String used to identify the overlays. */
 	private static final String				OVERLAYS = "Overlays";
-	
+
 	/** Maximum size of pixels read at once. */
 	private static final int				INC = 262144;//256000;
-	
+
 	/** The maximum number read at once. */
 	private static final int				MAX_BYTES = 1024;
-	
-	/** 
+
+	/**
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
 	 */
@@ -316,7 +317,7 @@ class OMEROGateway
 
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<Character>	SUPPORTED_SPECIAL_CHAR;
-	
+
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<String>		WILD_CARDS;
 
@@ -325,13 +326,13 @@ class OMEROGateway
 
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_UI_AVAILABLE;
-	
+
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
 
 	/* checksum provider factory for verifying file integrity in upload */
 	private static final ChecksumProviderFactory checksumProviderFactory = new ChecksumProviderFactoryImpl();
-	
+
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
@@ -354,16 +355,16 @@ class OMEROGateway
 		SYSTEM_GROUPS.add(GroupData.SYSTEM);
 		SYSTEM_GROUPS.add(GroupData.USER);
 		SYSTEM_GROUPS.add(GroupData.GUEST);
-		
+
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
-		
+
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
-		
+
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.IMPORT_PATH+"Populate_ROI.py");
@@ -374,24 +375,12 @@ class OMEROGateway
 		SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 				ScriptObject.SETUP_PATH+"FLIM_initialise.py");
 	}
-	
+
 	/** The collection of connectors.*/
 	private ListMultimap<Long, Connector> groupConnectorMap =
 	        Multimaps.<Long, Connector>synchronizedListMultimap(
 	                LinkedListMultimap.<Long, Connector>create());
 
-	/**
-	 * The entry point provided by the connection library to access the various
-	 * <i>OMERO</i> services.
-	 */
-	private ServiceFactoryPrx entryEncrypted;
-	
-	/**
-	 * The entry point provided by the connection library to access the various
-	 * <i>OMERO</i> services.
-	 */
-	private ServiceFactoryPrx entryUnencrypted;
-		
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>.*/
 	private boolean connected;
 
@@ -400,44 +389,74 @@ class OMEROGateway
 	 * occurred.
 	 */
 	private boolean reconnecting;
-	
-	/** 
+
+	/**
 	 * Used whenever a broken link is detected to get the Login Service and
 	 * try re-establishing a valid link to <i>OMERO</i>.
 	 */
 	private DataServicesFactory dsFactory;
-	
+
 	/** The default port to use. */
 	private int port;
-	
+
 	/** Map hosting the enumeration required for metadata. */
 	private Map<String, List<EnumerationObject>> enumerations;
 
 	/** The collection of system groups. */
 	private List<ExperimenterGroup>	 systemGroups;
-	
+
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView> fsViews;
-	
+
 	/** Flag indicating if the connection is encrypted or not.*/
 	private boolean encrypted;
-	
+
 	/** The version of the server the user is currently logged to.*/
 	private String serverVersion;
 
 	/** Tells whether or not the network is up.*/
 	private boolean networkup;
-	
+
 	/** Checks if the network is up or not.*/
 	private NetworkChecker networkChecker;
 
-	private List<Connector> getAllConnectors() {
-	    synchronized(groupConnectorMap) {
-	        // This should be the only location which calues values().
-	        return new ArrayList<Connector>(groupConnectorMap.values());
-	    }
+	/**
+	 * Creates the query to load the file set corresponding to a given image.
+	 *
+	 * @return See above.
+	 */
+	private String createFileSetQuery()
+	{
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("select fs from Fileset as fs ");
+		buffer.append("join fetch fs.images as image ");
+		buffer.append("left outer join fetch fs.usedFiles as usedFile ");
+		buffer.append("join fetch usedFile.originalFile as f ");
+		buffer.append("join fetch f.hasher ");
+		buffer.append("where image.id in (:imageIds)");
+		return buffer.toString();
 	}
-    /**
+
+	// Only code which should synchronize on groupConnectorMap or call
+	// values().
+
+	private List<Connector> getAllConnectors() {
+        synchronized(groupConnectorMap) {
+            // This should be the only location which calls values().
+            return new ArrayList<Connector>(groupConnectorMap.values());
+        }
+    }
+
+    private List<Connector> removeAllConnectors() {
+        synchronized(groupConnectorMap) {
+            // This should be the only location which calls values().
+            List<Connector> rv = new ArrayList<Connector>(groupConnectorMap.values());
+            groupConnectorMap.clear();
+            return rv;
+        }
+    }
+
+	/**
      * Checks if the network is up.
      * @throws Exception Throw
      */
@@ -458,10 +477,10 @@ class OMEROGateway
         isNetworkUp(true);
     }
 
-	
+
 	/**
 	 * Returns <code>true</code> if the server is running.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 */
@@ -474,10 +493,10 @@ class OMEROGateway
             return false;
         }
 	}
-	
+
 	/**
 	 * Creates the permissions corresponding to the specified level.
-	 * 
+	 *
 	 * @param level The level to handle.
 	 * @return
 	 */
@@ -499,17 +518,17 @@ class OMEROGateway
 		}
 		return new PermissionsI(perms);
 	}
-	
+
 	/**
 	 * Returns the identifier of the specified script.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param name The name of the script.
 	 * @param message The error message.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException       If an error occurred while trying to 
+	 * @throws DSAccessException       If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private long getScriptID(SecurityContext ctx, String name, String message)
@@ -526,7 +545,7 @@ class OMEROGateway
 
 	/**
 	 * Returns the specified script.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param scriptID The identifier of the script to run.
 	 * @param parameters The parameters to pass to the script.
@@ -546,27 +565,28 @@ class OMEROGateway
 	         cb = new ScriptCallback(scriptID, c.getClient(), prx);
 		} catch (Exception e) {
 			handleConnectionException(e);
-			throw new ProcessException("Cannot run script with ID:"+scriptID, 
+			throw new ProcessException("Cannot run script with ID:"+scriptID,
 					e);
 		}
 		return cb;
 	}
-	
+
 	/**
 	 * Retrieves the system groups.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private List<ExperimenterGroup> getSystemGroups(SecurityContext ctx)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (systemGroups != null) return systemGroups;
-		IQueryPrx service = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			List<RType> names = new ArrayList<RType>();
 			Iterator<String> j = SYSTEM_GROUPS.iterator();
@@ -578,7 +598,7 @@ class OMEROGateway
 			params.map.put("names", omero.rtypes.rlist(names));
 			String sql = "select g from ExperimenterGroup as g ";
 			sql += "where g.name in (:names)";
-			
+
 			List<IObject> l = service.findAllByQuery(sql, params);
 			Iterator<IObject> i = l.iterator();
 			ExperimenterGroup group;
@@ -607,16 +627,16 @@ class OMEROGateway
 		}
 		return systemGroups;
 	}
-	
+
 	/**
 	 * Returns the system group corresponding to the passed name.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param name The name to handle.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private ExperimenterGroup getSystemGroup(SecurityContext ctx, String name)
@@ -624,7 +644,7 @@ class OMEROGateway
 	{
 		getSystemGroups(ctx);
 		Iterator<ExperimenterGroup> i = systemGroups.iterator();
-		
+
 		ExperimenterGroup g = null;
 		while (i.hasNext()) {
 			g = (ExperimenterGroup) i.next();
@@ -633,14 +653,14 @@ class OMEROGateway
 		}
 		return g;
 	}
-	
+
 	/**
 	 * Creates a table with the overlays.
-	 * 
+	 *
 	 * @param imageID The id of the image.
 	 * @param table   The table to handle.
 	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 *                           retrieve data from OMEDS service.
 	 */
 	private TableResult createOverlay(long imageID, TablePrx table)
@@ -672,19 +692,19 @@ class OMEROGateway
 			String[] headersDescriptions = new String[size];
 			headers[0] = cols[imageIndex].name;
 			headersDescriptions[0] = cols[imageIndex].description;
-			
+
 			headers[1] = cols[roiIndex].name;
 			headersDescriptions[1] = cols[roiIndex].description;
-			
+
 			headers[1] = cols[roiIndex].name;
 			headersDescriptions[1] = cols[roiIndex].description;
-			
+
 			int n = (int) table.getNumberOfRows();
 			Data d;
 			Column column;
 			long[] a = {imageIndex, roiIndex, colorIndex};
 			long[] b = new long[0];
-	
+
 			d = table.slice(a, b);
 			List<Integer> rows = new ArrayList<Integer>();
 			column = d.columns[imageIndex];
@@ -696,7 +716,7 @@ class OMEROGateway
 						rows.add(j);
 				}
 			}
-			
+
 			Integer row;
 			Object[][] data = new Object[rows.size()][size];
 			int k = 0;
@@ -708,7 +728,7 @@ class OMEROGateway
 				row = r.next();
 				data[k][0] = row;
 				data[k][1] = ((RoiColumn) column).values[row];
-				if (columnColor != null) 
+				if (columnColor != null)
 					data[k][2] = ((LongColumn) columnColor).values[row];
 				k++;
 			}
@@ -771,23 +791,23 @@ class OMEROGateway
 					dst[j + offset][i] =
 						((ImageColumn) column).values[j];
 				}
-			} else if (column instanceof WellColumn) { 
+			} else if (column instanceof WellColumn) {
 				indexes.put(TableResult.WELL_COLUMN_INDEX, i);
 				for (int j = 0; j < length; j++) {
 					dst[j + offset][i] =
 						((WellColumn) column).values[j];
 				}
-			} 
+			}
 		}
 	}
 
 	/**
 	 * Transforms a set of rows for the passed table.
-	 * 
+	 *
 	 * @param table The table to convert.
 	 * @param rows The rows of the table to convert.
 	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 *                           retrieve data from OMEDS service.
 	 */
 	private TableResult createTableResult(TablePrx table, long[] rows)
@@ -843,12 +863,12 @@ class OMEROGateway
 
 	/**
 	 * Transforms the passed table data for a given image.
-	 * 
+	 *
 	 * @param table The table to convert.
 	 * @param key The key of the <code>where</code> clause.
 	 * @param id The identifier of the object to retrieve rows for.
 	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 *                           retrieve data from OMEDS service.
 	 */
 	private TableResult createTableResult(TablePrx table, String key, long id)
@@ -877,9 +897,9 @@ class OMEROGateway
 	 * message.
 	 * This method is not supposed to be used in this class' constructor or in
 	 * the login/logout methods.
-	 *  
+	 *
 	 * @param t     	The exception.
-	 * @param message	The context message.    
+	 * @param message	The context message.
 	 * @throws DSOutOfServiceException  A connection problem.
 	 * @throws DSAccessException    A server-side error.
 	 */
@@ -894,10 +914,10 @@ class OMEROGateway
 			String s = "For security reasons, cannot access data. \n";
 			throw new DSAccessException(s+message, cause);
 		} else if (cause instanceof SessionException) {
-			String s = "Session is not valid. \n"; 
+			String s = "Session is not valid. \n";
 			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof AuthenticationException) {
-			String s = "Cannot initialize the session. \n"; 
+			String s = "Cannot initialize the session. \n";
 			throw new DSOutOfServiceException(s+message, cause);
 		} else if (cause instanceof ResourceError) {
 			String s = "Fatal error. Please contact the administrator. \n";
@@ -905,12 +925,12 @@ class OMEROGateway
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
 	}
-	
+
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Depending on the specified exception, the user will be asked to
 	 * reconnect or to exit the application.
-	 *  
+	 *
 	 * @param e The exception to handle.
 	 * @return <code>true</code> to continue handling the error,
 	 * <code>false</code> otherwise.
@@ -934,19 +954,19 @@ class OMEROGateway
 	 * cancel the dialog indicating that the network when down.
 	 */
 	void resetNetwork() { networkup = true; }
-	
+
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
 	 * message.
 	 * This method is not supposed to be used in this class' constructor or in
 	 * the login/logout methods.
-	 *  
+	 *
 	 * @param t The exception.
 	 * @param message The context message.
 	 * @throws FSAccessException A server-side error.
 	 */
-	private void handleFSException(Throwable t, String message) 
+	private void handleFSException(Throwable t, String message)
 		throws FSAccessException
 	{
 		boolean b = handleConnectionException(t);
@@ -959,7 +979,7 @@ class OMEROGateway
 			//s += ", ready in approximately ";
 			//s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, cause);
-			if (mpe instanceof MissingPyramidException || 
+			if (mpe instanceof MissingPyramidException ||
 					mpe instanceof LockTimeout)
 				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
@@ -968,7 +988,7 @@ class OMEROGateway
 			ConcurrencyException mpe = (ConcurrencyException) t;
 			s += UIUtilities.calculateHMSFromMilliseconds(mpe.backOff);
 			FSAccessException fsa = new FSAccessException(message+s, t);
-			if (mpe instanceof MissingPyramidException || 
+			if (mpe instanceof MissingPyramidException ||
 					mpe instanceof LockTimeout)
 				fsa.setIndex(FSAccessException.PYRAMID);
 			fsa.setBackOffTime(mpe.backOff);
@@ -978,18 +998,18 @@ class OMEROGateway
 
 	/**
 	 * Utility method to print the error message
-	 * 
+	 *
 	 * @param e The exception to handle.
 	 * @return  See above.
 	 */
-	private String printErrorText(Throwable e) 
+	private String printErrorText(Throwable e)
 	{
 		return UIUtilities.printErrorText(e);
 	}
 
 	/**
 	 * Handles the result of the search.
-	 * 
+	 *
 	 * @param type 	The supported type.
 	 * @param r		The collection to fill.
 	 * @param svc	Helper reference to the service.
@@ -1018,17 +1038,17 @@ class OMEROGateway
 			object = (IObject) k.next();
 			if (type.equals(object.getClass().getName())) {
 				id = object.getId().getValue();
-				if (!r.contains(id)) 
+				if (!r.contains(id))
 					r.add(id); //Retrieve the object of a given type.
 			}
 		}
 		return r;
 	}
-	
+
 	/**
-	 * Formats the elements of the passed array. Adds the 
+	 * Formats the elements of the passed array. Adds the
 	 * passed field in front of each term.
-	 * 
+	 *
 	 * @param terms	The terms to format.
 	 * @param field	The string to add in front of the terms.
 	 * @return See above.
@@ -1039,14 +1059,14 @@ class OMEROGateway
 		if (field == null || field.length() == 0) return terms;
 		List<String> formatted = new ArrayList<String>(terms.size());
 		Iterator<String> j = terms.iterator();
-		while (j.hasNext()) 
+		while (j.hasNext())
 			formatted.add(field+":"+j.next());
-		
+
 		return formatted;
 	}
-	
+
 	/**
-	 * Formats the elements of the passed array. Adds the 
+	 * Formats the elements of the passed array. Adds the
 	 * passed field in front of each term.
 	 * @param terms			The terms to format.
 	 * @param firstField	The string to add in front of the terms.
@@ -1054,7 +1074,7 @@ class OMEROGateway
 	 * @param secondField	The string to add in front of the terms.
 	 * @return See above.
 	 */
-	private List<String> formatText(List<String> terms, String firstField, 
+	private List<String> formatText(List<String> terms, String firstField,
 								String sep, String secondField)
 	{
 		if (terms == null || terms.size() == 0) return null;
@@ -1069,10 +1089,10 @@ class OMEROGateway
 		}
 		return formatted;
 	}
-	
+
 	/**
 	 * Determines the table name corresponding to the specified class.
-	 * 
+	 *
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
@@ -1089,16 +1109,16 @@ class OMEROGateway
 			table = "PlateAcquisitionWellSampleLink";
 		else if (PlateAcquisitionI.class.equals(klass))
 			table = "PlateAcquisitionWellSampleLink";
-		else if (TagAnnotation.class.equals(klass)) 
+		else if (TagAnnotation.class.equals(klass))
 			table = "AnnotationAnnotationLink";
-		else if (TagAnnotationI.class.equals(klass)) 
+		else if (TagAnnotationI.class.equals(klass))
 			table = "AnnotationAnnotationLink";
 		return table;
 	}
-	
+
 	/**
 	 * Determines the table name corresponding to the specified class.
-	 * 
+	 *
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
@@ -1106,24 +1126,24 @@ class OMEROGateway
 	{
 		String table = null;
 		if (Dataset.class.equals(klass) ||
-			DatasetData.class.equals(klass)) 
+			DatasetData.class.equals(klass))
 			table = "DatasetAnnotationLink";
 		else if (Project.class.equals(klass) ||
-				ProjectData.class.equals(klass)) 
+				ProjectData.class.equals(klass))
 			table = "ProjectAnnotationLink";
 		else if (Image.class.equals(klass) ||
 				ImageData.class.equals(klass)) table = "ImageAnnotationLink";
 		else if (Screen.class.equals(klass) ||
-				ScreenData.class.equals(klass)) 
+				ScreenData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else if (Plate.class.equals(klass) ||
-				PlateData.class.equals(klass)) 
+				PlateData.class.equals(klass))
 			table = "PlateAnnotationLink";
 		else if (PlateAcquisition.class.equals(klass) ||
-				PlateAcquisitionData.class.equals(klass)) 
+				PlateAcquisitionData.class.equals(klass))
 			table = "PlateAcquisitionAnnotationLink";
 		else if (WellSample.class.equals(klass) ||
-				WellSampleData.class.equals(klass)) 
+				WellSampleData.class.equals(klass))
 			table = "ScreenAnnotationLink";
 		else table = "AnnotationAnnotationLink";
 		return table;
@@ -1131,7 +1151,7 @@ class OMEROGateway
 
 	/**
 	 * Determines the table name corresponding to the specified class.
-	 * 
+	 *
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
@@ -1139,62 +1159,62 @@ class OMEROGateway
 	{
 		String table = null;
 		if (klass == null) return table;
-		if (klass.equals(Dataset.class.getName())) 
+		if (klass.equals(Dataset.class.getName()))
 			table = "DatasetAnnotationLink";
-		else if (klass.equals(Project.class.getName())) 
+		else if (klass.equals(Project.class.getName()))
 			table = "ProjectAnnotationLink";
-		else if (klass.equals(Image.class.getName())) 
+		else if (klass.equals(Image.class.getName()))
 			table = "ImageAnnotationLink";
 		else if (klass.equals(Pixels.class.getName()))
 			table = "PixelAnnotationLink";
 		else if (klass.equals(Annotation.class.getName()))
 			table = "AnnotationAnnotationLink";
-		else if (klass.equals(DatasetData.class.getName())) 
+		else if (klass.equals(DatasetData.class.getName()))
 			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectData.class.getName())) 
+		else if (klass.equals(ProjectData.class.getName()))
 			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageData.class.getName())) 
+		else if (klass.equals(ImageData.class.getName()))
 			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsData.class.getName())) 
+		else if (klass.equals(PixelsData.class.getName()))
 			table = "PixelAnnotationLink";
-		else if (klass.equals(Screen.class.getName())) table = 
+		else if (klass.equals(Screen.class.getName())) table =
 			"ScreenAnnotationLink";
-		else if (klass.equals(Plate.class.getName())) 
+		else if (klass.equals(Plate.class.getName()))
 			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName())) 
+		else if (klass.equals(ScreenData.class.getName()))
 			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName())) 
+		else if (klass.equals(PlateData.class.getName()))
 			table = "PlateAnnotationLink";
-		else if (klass.equals(DatasetI.class.getName())) 
+		else if (klass.equals(DatasetI.class.getName()))
 			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectI.class.getName())) 
+		else if (klass.equals(ProjectI.class.getName()))
 			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageI.class.getName())) 
+		else if (klass.equals(ImageI.class.getName()))
 			table = "ImageAnnotationLink";
 		else if (klass.equals(PixelsI.class.getName()))
 			table = "PixelAnnotationLink";
-		else if (klass.equals(ScreenI.class.getName())) 
+		else if (klass.equals(ScreenI.class.getName()))
 			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateI.class.getName())) 
+		else if (klass.equals(PlateI.class.getName()))
 			table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class.getName())) 
+		else if (klass.equals(ScreenData.class.getName()))
 			table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class.getName())) 
+		else if (klass.equals(PlateData.class.getName()))
 			table = "PlateAnnotationLink";
 		else if (klass.equals(TagAnnotationData.class.getName()))
 			table = "AnnotationAnnotationLink";
 		else if (klass.equals(PlateAcquisitionData.class.getName()))
 			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisitionI.class.getName())) 
+		else if (klass.equals(PlateAcquisitionI.class.getName()))
 			table = "PlateAcquisitionAnnotationLink";
-		else if (klass.equals(PlateAcquisition.class.getName())) 
+		else if (klass.equals(PlateAcquisition.class.getName()))
 			table = "PlateAcquisitionAnnotationLink";
 		return table;
 	}
-	
+
 	/**
 	 * Determines the table name corresponding to the specified class.
-	 * 
+	 *
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
@@ -1209,12 +1229,12 @@ class OMEROGateway
 			return "PlateAcquisition";
 		return null;
 	}
-	
+
 	/**
-	 * Transforms the specified <code>property</code> into the 
+	 * Transforms the specified <code>property</code> into the
 	 * corresponding server value.
 	 * The transformation depends on the specified class.
-	 * 
+	 *
 	 * @param nodeType The type of node this property corresponds to.
 	 * @param property The name of the property.
 	 * @return See above.
@@ -1228,24 +1248,25 @@ class OMEROGateway
 				"property not supported");
 		return null;
 	}
-	
+
 	/**
 	 * Loads the links.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param table The table's link.
 	 * @param childID The annotation's identifier
 	 * @param userID The user's identifier.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private List loadLinks(SecurityContext ctx, String table, long childID,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+	    IQueryPrx service = c.getQueryService();
 		try {
 			if (table == null) return new ArrayList();
 			ParametersI param = new ParametersI();
@@ -1267,7 +1288,7 @@ class OMEROGateway
 					param.map.put("userID", omero.rtypes.rlong(userID));
 				}
 			}
-			
+
 			return service.findAllByQuery(sb.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
@@ -1275,15 +1296,15 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Returns the {@link SharedResourcesPrx} service.
 	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private SharedResourcesPrx getSharedResources(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
@@ -1301,15 +1322,15 @@ class OMEROGateway
 					"Cannot access the Shared Resources.");
 		return prx;
 	}
-	
+
 	/**
 	 * Returns the {@link IRenderingSettingsPrx} service.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private IRenderingSettingsPrx getRenderingSettingsService(
 			SecurityContext ctx)
@@ -1328,14 +1349,14 @@ class OMEROGateway
 
 	/**
 	 * Creates or recycles the import store.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx, 
+	private OMEROMetadataStoreClient getImportStore(SecurityContext ctx,
 			String userName)
 		throws DSAccessException, DSOutOfServiceException
 	{
@@ -1354,15 +1375,15 @@ class OMEROGateway
 					"Cannot access the Import service.");
 		return prx;
 	}
-	
+
 	/**
 	 * Returns the {@link IRepositoryInfoPrx} service.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private IRepositoryInfoPrx getRepositoryService(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
@@ -1379,16 +1400,16 @@ class OMEROGateway
 
 	/**
 	 * Returns the {@link IScriptPrx} service.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private IScriptPrx getScriptService(SecurityContext ctx)
 		throws DSAccessException, DSOutOfServiceException
-	{ 
+	{
 		Connector c = null;
 		IScriptPrx prx = null;
 		try {
@@ -1403,10 +1424,10 @@ class OMEROGateway
 					"Cannot access the Scripting service.");
 		return prx;
 	}
-	
+
 	/**
 	 * Returns the connector corresponding to the passed context.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param recreate whether or not to allow the recreation of the
 	 *     {@link Connector}. A {@link DSOutOfServiceException} is thrown
@@ -1418,7 +1439,7 @@ class OMEROGateway
 	 */
 	private Connector getConnector(SecurityContext ctx, boolean recreate,
 	        boolean permitNull)
-		throws DSAccessException, DSOutOfServiceException
+		throws DSOutOfServiceException
 	{
 
 	    try {
@@ -1448,467 +1469,42 @@ class OMEROGateway
 	        }
 	        return c;
 		}
-		
+
 		//We are going to create a connector and activate a session.
 		if (!recreate) {
 		    if (!permitNull) {
 		        throw new DSOutOfServiceException("Not allowed to recreate");
 		    }
 		}
-		
+
     	try {
     		UserCredentials uc = dsFactory.getCredentials();
     		ctx.setServerInformation(uc.getHostName(), port);
+    		// client will be cleaned up by connector
     		client client = new client(uc.getHostName(), port);
-    		ServiceFactoryPrx prx = client.createSession(uc.getUserName(), 
+    		ServiceFactoryPrx prx = client.createSession(uc.getUserName(),
     				uc.getPassword());
     		prx.setSecurityContext(
     				new ExperimenterGroupI(ctx.getGroupID(), false));
     		c = new Connector(ctx, client, prx, encrypted);
     		groupConnectorMap.put(ctx.getGroupID(), c);
     	} catch (Throwable e) {
-    		handleException(e, "Cannot create a connector");
+    	    // TODO: This previously was via handleException??
+    	    if (!permitNull) {
+    	        throw new DSOutOfServiceException("Failed to create connector", e);
+    	    }
     	}
-
-		if (c == null && !permitNull) {
-            throw new DSOutOfServiceException(
-                    "Cannot access the connector.");
-		}
 		return c;
 	}
-	
-	/**
-	 * Returns the {@link IContainerPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IContainerPrx getPojosService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IContainerPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getPojosService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Container service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Container service.");
-		return prx;
-	}
 
-	/**
-	 * Returns the {@link IQueryPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IQueryPrx getQueryService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IQueryPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getQueryService();
-			
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Query service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Query service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link IUpdatePrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IUpdatePrx getUpdateService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		return getUpdateService(ctx, null);
-	}
-
-	/**
-	 * Returns the {@link IUpdatePrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @param userName The name of the user to create data for.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IUpdatePrx getUpdateService(SecurityContext ctx, String userName)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IUpdatePrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			c = c.getConnector(userName);
-			prx = c.getUpdateService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access Update service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Update service.");
-		return prx;
-	}
-	/**
-	 * Returns the {@link IMetadataPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IMetadataPrx getMetadataService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{ 
-		Connector c = null;
-		IMetadataPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getMetadataService();
-		} catch (Throwable e) {
-			handleException(e, "Cannot access the Metadata service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Metadata service.");
-		return prx;
-	}
-
-	/**
-	 * Returns the {@link IRoiPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IRoiPrx getROIService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IRoiPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getROIService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access th ROI service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the ROI service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link IAdminPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IAdminPrx getAdminService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IAdminPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false); // required
-			prx = c.getAdminService();
-		} catch (Throwable e) {
-			//method throws an exception
-			handleException(e, "Cannot access the Admin service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Admin service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link IConfigPrx} service.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IConfigPrx getConfigService()
-		throws DSAccessException, DSOutOfServiceException
-	{
-		IConfigPrx prx = null;
-		try {
-			if (entryUnencrypted != null)
-				prx = entryUnencrypted.getConfigService();
-			else prx = entryEncrypted.getConfigService();
-		} catch (Throwable e) {
-			//method throws an exception
-			handleException(e, "Cannot access Configuration service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Configuration service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link ThumbnailStorePrx} service.
-	 *
-	 * @param ctx The security context.
-	 * @param n The number of retrieval.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private ThumbnailStorePrx getThumbnailService(SecurityContext ctx, int n)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		ThumbnailStorePrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getThumbnailService(n);
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access Thumbnail service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Thumbnail service.");
-		return prx;
-	}
-
-	/**
-	 * Returns the {@link ExporterPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private ExporterPrx getExporterService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		ExporterPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getExporterService();
-		} catch (Throwable e) {
-			//method throws an exception
-			handleException(e, "Cannot access the Exporter service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Exporter service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link RawFileStorePrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private RawFileStorePrx getRawFileService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		RawFileStorePrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getRawFileService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the RawFileStore service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the RawFileStore service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link RenderingEnginePrx Rendering service}.
-	 * 
-	 * @param ctx The security context.
-	 * @param pixelsID The identifier of the pixels data.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private RenderingEnginePrx getRenderingService(SecurityContext ctx, long 
-			pixelsID)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		RenderingEnginePrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getRenderingService(pixelsID);
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Rendering Engine for "
-					+pixelsID);
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Rendering Engine. for "+pixelsID);
-		return prx;
-	}
-
-	/**
-	 * Returns the {@link RawPixelsStorePrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private RawPixelsStorePrx getPixelsStore(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		RawPixelsStorePrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getPixelsStore();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the RawPixelsStore service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the RawPixelsStore service.");
-		return prx;
-	}
-
-	/**
-	 * Returns the {@link IPixelsPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private IPixelsPrx getPixelsService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IPixelsPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getPixelsService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Pixels service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Pixels service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link SearchPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.
-	 */
-	private SearchPrx getSearchService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		SearchPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getSearchService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Search service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Search service.");
-		return prx;
-	}
-	
-	/**
-	 * Returns the {@link IProjectionPrx} service.
-	 * 
-	 * @param ctx The security context.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.
-	 */
-	private IProjectionPrx getProjectionService(SecurityContext ctx)
-		throws DSAccessException, DSOutOfServiceException
-	{
-		Connector c = null;
-		IProjectionPrx prx = null;
-		try {
-			c = getConnector(ctx, true, false);
-			prx = c.getProjectionService();
-		} catch (Throwable e) {
-			//method throws exception
-			handleException(e, "Cannot access the Projection service.");
-		}
-		if (prx == null)
-			throw new DSOutOfServiceException(
-					"Cannot access the Projection service.");
-		return prx;
-	}
-	
 	/**
 	 * Checks if some default rendering settings have to be created
 	 * for the specified set of pixels.
-	 * 
+	 *
 	 * @param pixelsID	The pixels ID.
 	 * @param prx The rendering engine to load or thumbnail store.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	private void needDefault(long pixelsID, Object prx)
@@ -1933,18 +1529,18 @@ class OMEROGateway
 			handleException(e, "Cannot set the rendering defaults.");
 		}
 	}
-	
+
 	/**
 	 * Formats the terms to search for.
-	 * 
+	 *
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	private List<String> prepareTextSearch(String[] terms, SearchPrx service) 
+	private List<String> prepareTextSearch(String[] terms, SearchPrx service)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (terms == null || terms.length == 0) return null;
@@ -1957,19 +1553,19 @@ class OMEROGateway
 		try {
 			for (int j = 0; j < terms.length; j++) {
 				value = terms[j];
-				if (startWithWildCard(value)) 
+				if (startWithWildCard(value))
 					service.setAllowLeadingWildcard(true);
 				//format string
 				n = value.length();
 				arr = new char[n];
 				v = "";
-				value.getChars(0, n, arr, 0);  
+				value.getChars(0, n, arr, 0);
 				for (int i = 0; i < arr.length; i++) {
-					if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
+					if (SUPPORTED_SPECIAL_CHAR.contains(arr[i]))
 						v += "\\"+arr[i];
 					else v += arr[i];
 				}
-				if (value.contains(" ")) 
+				if (value.contains(" "))
 					formatted = "\""+v.toLowerCase()+"\"";
 				else formatted = v.toLowerCase();
 				formattedTerms.add(formatted);
@@ -1979,19 +1575,19 @@ class OMEROGateway
 		}
 		return formattedTerms;
 	}
-	
+
 	/**
 	 * Formats the terms to search for.
-	 * 
+	 *
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	private List<String> prepareTextSearch(Collection<String> terms, 
-			SearchPrx service) 
+	private List<String> prepareTextSearch(Collection<String> terms,
+			SearchPrx service)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		if (terms == null || terms.size() == 0) return null;
@@ -2009,7 +1605,7 @@ class OMEROGateway
 	/**
 	 * Returns <code>true</code> if the specified value starts with a wild card,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param value The value to handle.
 	 * @return See above.
 	 */
@@ -2029,7 +1625,7 @@ class OMEROGateway
 
 	/**
 	 * Converts the class to the specified model string.
-	 * 
+	 *
 	 * @param pojo The class to convert.
 	 * @return See above.
 	 */
@@ -2044,28 +1640,19 @@ class OMEROGateway
 		else if (LongAnnotationData.class.equals(pojo))
 			return "ome.model.annotations.LongAnnotation";
 		else if (FileAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.FileAnnotation"; 
+			return "ome.model.annotations.FileAnnotation";
 		else if (TermAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.UriAnnotation"; 
+			return "ome.model.annotations.UriAnnotation";
 		else if (TimeAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.TimeAnnotation"; 
+			return "ome.model.annotations.TimeAnnotation";
 		else if (BooleanAnnotationData.class.equals(pojo))
-			return "ome.model.annotations.BooleanAnnotation"; 
+			return "ome.model.annotations.BooleanAnnotation";
 		return null;
 	}
-	
-	/** Clears the data. */
-	private void clear()
-	{
-		Iterator<Connector> i = getAllConnectors().iterator();
-		while (i.hasNext()) {
-			i.next().clear();
-		}
-	}
-	
+
 	/**
 	 * Converts the specified type to its corresponding type for search.
-	 * 
+	 *
 	 * @param nodeType The type to convert.
 	 * @return See above.
 	 */
@@ -2093,46 +1680,46 @@ class OMEROGateway
 			return TimestampAnnotationI.class.getName();
 		throw new IllegalArgumentException("type not supported");
 	}
-	
+
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param port			The default port used to connect.
-	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
-	 * 						link is detected to get the Login Service and try 
+	 * @param dsFactory 	A reference to the factory. Used whenever a broken
+	 * 						link is detected to get the Login Service and try
 	 *                  	reestablishing a valid link to <i>OMERO</i>.
 	 *                  	Mustn't be <code>null</code>.
 	 */
 	OMEROGateway(int port, DataServicesFactory dsFactory)
 	{
-		if (dsFactory == null) 
+		if (dsFactory == null)
 			throw new IllegalArgumentException("No Data service factory.");
 		this.dsFactory = dsFactory;
 		this.port = port;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 	}
-	
+
 	/**
 	 * Returns the port used.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	int getPort() { return port; }
-	
+
 	/**
 	 * Sets the port value.
-	 * 
+	 *
 	 * @param port The value to set.
 	 */
 	void setPort(int port)
 	{
 		if (this.port != port) this.port = port;
 	}
-	
+
 	/**
 	 * Returns <code>true</code> if the passed group is an experimenter group
 	 * internal to OMERO, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param group The experimenter group to handle.
 	 * @return See above.
 	 */
@@ -2141,10 +1728,10 @@ class OMEROGateway
 		String n = group.getName() == null ? null : group.getName().getValue();
 		return (SYSTEM_GROUPS.contains(n));
 	}
-	
+
 	/**
 	 * Converts the specified POJO into the corresponding model.
-	 *  
+	 *
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
@@ -2154,10 +1741,10 @@ class OMEROGateway
 			return OriginalFile.class;
 		return convertPojos(node.getClass());
 	}
-	
+
 	/**
 	 * Converts the specified POJO into the corresponding model.
-	 *  
+	 *
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
@@ -2176,7 +1763,7 @@ class OMEROGateway
 			return LongAnnotation.class;
 		else if (TagAnnotationData.class.equals(nodeType))
 			return TagAnnotation.class;
-		else if (TextualAnnotationData.class.equals(nodeType)) 
+		else if (TextualAnnotationData.class.equals(nodeType))
 			return CommentAnnotation.class;
 		else if (FileAnnotationData.class.equals(nodeType))
 			return FileAnnotation.class;
@@ -2208,7 +1795,7 @@ class OMEROGateway
 
 	/**
 	 * Creates the string corresponding to the object to delete.
-	 * 
+	 *
 	 * @param data The object to handle.
 	 * @return See above.
 	 */
@@ -2220,23 +1807,23 @@ class OMEROGateway
 		else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
 		else if (PlateData.class.getName().equals(data)) return REF_PLATE;
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
-		else if (PlateAcquisitionData.class.getName().equals(data)) 
+		else if (PlateAcquisitionData.class.getName().equals(data))
 			return REF_PLATE_ACQUISITION;
-		else if (WellData.class.getName().equals(data)) 
+		else if (WellData.class.getName().equals(data))
 			return REF_WELL;
-		else if (PlateAcquisitionData.class.getName().equals(data)) 
+		else if (PlateAcquisitionData.class.getName().equals(data))
 			return REF_PLATE_ACQUISITION;
-		else if (TagAnnotationData.class.getName().equals(data) || 
+		else if (TagAnnotationData.class.getName().equals(data) ||
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data) ||
-				TextualAnnotationData.class.getName().equals(data)) 
+				TextualAnnotationData.class.getName().equals(data))
 			return REF_ANNOTATION;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
-	
+
 	/**
 	 * Creates the string corresponding to the object to delete.
-	 * 
+	 *
 	 * @param data The object to handle.
 	 * @return See above.
 	 */
@@ -2244,30 +1831,30 @@ class OMEROGateway
 	{
 		if (TagAnnotationData.class.getName().equals(data))
 			return REF_TAG;
-		else if (TermAnnotationData.class.getName().equals(data)) 
+		else if (TermAnnotationData.class.getName().equals(data))
 			return REF_TERM;
-		else if (FileAnnotationData.class.getName().equals(data)) 
+		else if (FileAnnotationData.class.getName().equals(data))
 			return REF_FILE;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
-	
+
 	/**
 	 * Tells whether the communication channel to <i>OMERO</i> is currently
 	 * connected.
 	 * This means that we have established a connection and have successfully
 	 * logged in.
-	 * 
+	 *
 	 * @return  <code>true</code> if connected, <code>false</code> otherwise.
 	 */
 	boolean isConnected() { return connected; }
-	
+
 	/**
 	 * Retrieves the details on the current user and maps the result calling
 	 * {@link PojoMapper#asDataObjects(Map)}.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param name  The user's name.
-	 * @param connectionError Pass <code>true</code> to handle the connection 
+	 * @param connectionError Pass <code>true</code> to handle the connection
 	 * error, <code>false</code> otherwise.
 	 * @return The {@link ExperimenterData} of the current user.
 	 * @throws DSOutOfServiceException If the connection is broken, or
@@ -2278,9 +1865,10 @@ class OMEROGateway
 			boolean connectionError)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx service = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+	    IAdminPrx service = c.getAdminService();
 		try {
-			return (ExperimenterData) 
+			return (ExperimenterData)
 				PojoMapper.asDataObject(service.lookupExperimenter(name));
 		} catch (Exception e) {
 			if (connectionError) handleConnectionException(e);
@@ -2292,7 +1880,7 @@ class OMEROGateway
 	/**
 	 * Returns <code>true</code> if an upgrade is required, <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	boolean isUpgradeRequired()
@@ -2300,19 +1888,19 @@ class OMEROGateway
 		ResourceBundle bundle = ResourceBundle.getBundle("omero");
 	    String version = bundle.getString("omero.version");
 	    String url = bundle.getString("omero.upgrades.url");
-	    UpgradeCheck check = new UpgradeCheck(url, version, "insight"); 
+	    UpgradeCheck check = new UpgradeCheck(url, version, "insight");
 	    check.run();
 	    return check.isUpgradeNeeded();
 	}
-	
+
 	/**
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials.
-	 * 
+	 *
 	 * @param userName The user name to be used for login.
 	 * @param password The password to be used for login.
 	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and 
+	 * @param compression The compression level used for images and
 	 * 					  thumbnails depending on the connection speed.
 	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
@@ -2322,6 +1910,7 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection can't be established
 	 *                                  or the credentials are invalid.
 	 * @see #getUserDetails(String)
+	 * TODO: could be refactored to return a Connector for later use in login()
 	 */
 	client createSession(String userName, String password, String hostName,
 		boolean encrypted, String agentName)
@@ -2330,20 +1919,25 @@ class OMEROGateway
 		this.encrypted = encrypted;
 		client secureClient = null;
 		try {
+		    // client must be cleaned up by caller.
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
 			secureClient.setAgent(agentName);
-			entryEncrypted = secureClient.createSession(userName, password);
-			serverVersion = getConfigService().getVersion();
+			ServiceFactoryPrx entryEncrypted
+			    = secureClient.createSession(userName, password);
+			serverVersion = entryEncrypted.getConfigService().getVersion();
 			String ip = null;
 	        try {
 				ip = InetAddress.getByName(hostName).getHostAddress();
 			} catch (Exception e) {
-				//ignore
+				log("Failed to get inet address: " + hostName);
 			}
 
 			networkChecker = new NetworkChecker(ip);
 		} catch (Throwable e) {
+		    if (secureClient != null) {
+		        secureClient.__del__();
+		    }
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -2351,15 +1945,15 @@ class OMEROGateway
 		}
 		return secureClient;
 	}
-	
+
 	/**
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials. The <code>createSession</code> method must be invoked before.
-	 * 
+	 *
 	 * @param userName The user name to be used for login.
 	 * @param secureClient Reference to the client
 	 * @param hostName The name of the server.
-	 * @param compression The compression level used for images and 
+	 * @param compression The compression level used for images and
 	 * 					  thumbnails depending on the connection speed.
 	 * @param groupID The id of the group or <code>-1</code>.
 	 * @param encrypted Pass <code>true</code> to encrypt data transfer,
@@ -2378,6 +1972,7 @@ class OMEROGateway
 		SecurityContext ctx = null;
 		try {
 			connected = true;
+			ServiceFactoryPrx entryEncrypted = secureClient.getSession();
 			IAdminPrx prx = entryEncrypted.getAdminService();
 			ExperimenterData exp = (ExperimenterData) PojoMapper.asDataObject(
 					prx.lookupExperimenter(userName));
@@ -2405,6 +2000,7 @@ class OMEROGateway
 				} catch (Exception e) {
 				}
 			}
+			// Connector now controls the secureClient for closing.
 			ctx = new SecurityContext(exp.getDefaultGroup().getId());
 			ctx.setServerInformation(hostName, port);
 			ctx.setCompression(compression);
@@ -2416,18 +2012,18 @@ class OMEROGateway
 			connected = false;
 			String s = "Cannot log in. User credentials not valid.\n\n";
 			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);  
+			throw new DSOutOfServiceException(s, e);
 		}
 	}
-	
+
 	/**
 	 * Retrieves the system view hosting the repositories.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	FSFileSystemView getFSRepositories(SecurityContext ctx, long userID)
@@ -2445,7 +2041,7 @@ class OMEROGateway
 			int index = 0;
 			FileData f;
 			RepositoryPrx proxy;
-			Map<FileData, RepositoryPrx> 
+			Map<FileData, RepositoryPrx>
 				repositories = new HashMap<FileData, RepositoryPrx>();
 			while (i.hasNext()) {
 				f = new FileData((OriginalFile) i.next(), true);
@@ -2462,16 +2058,16 @@ class OMEROGateway
 		if (view != null) fsViews.put(userID, view);
 		return view;
 	}
-	
+
 	/**
 	 * Changes the default group of the currently logged in user.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param exp The experimenter to handle
 	 * @param groupID The id of the group.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	void changeCurrentGroup(SecurityContext ctx, ExperimenterData exp,
 			long groupID)
@@ -2493,8 +2089,8 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Returns the version of the server.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.
@@ -2508,13 +2104,13 @@ class OMEROGateway
 			handleConnectionException(e);
 			String s = "Can't retrieve the server version.\n\n";
 			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);  
+			throw new DSOutOfServiceException(s, e);
 		}
 	}
-	
+
 	/**
 	 * Returns the LDAP details or an empty string.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userID The id of the user.
 	 * @return See above.
@@ -2524,17 +2120,18 @@ class OMEROGateway
 	String lookupLdapAuthExperimenter(SecurityContext ctx, long userID)
 		throws DSOutOfServiceException
 	{
+        Connector c = getConnector(ctx, true, false);
+        IAdminPrx svc = c.getAdminService();
 		try {
-			IAdminPrx svc = getAdminService(ctx);
 			return svc.lookupLdapAuthExperimenter(userID);
 		} catch (Throwable e) {
 			handleConnectionException(e);
 			String s = "Can't find the LDAP information.\n\n";
 			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e); 
+			throw new DSOutOfServiceException(s, e);
 		}
 	}
-	
+
 	void startFS(Properties fsConfig)
 	{
 		//TODO: review.
@@ -2549,20 +2146,20 @@ class OMEROGateway
 		while (i.hasNext()) {
 			key = (String) i.next();
 			if (!("omerofs.MonitorServer".equals(key)))
-				blitzClient.getProperties().setProperty(key, 
+				blitzClient.getProperties().setProperty(key,
 						fsConfig.getProperty(key));
 		}
 		*/
 	}
-	
+
 	/**
 	 * Returns the rendering engines to re-activate.
-	 * 
+	 *
 	 * @return See above.
 	 */
 	Map<SecurityContext, Set<Long>> getRenderingEngines()
 	{
-		Map<SecurityContext, Set<Long>> l = 
+		Map<SecurityContext, Set<Long>> l =
 			new HashMap<SecurityContext, Set<Long>>();
 		Iterator<Connector> i = getAllConnectors().iterator();
 		while (i.hasNext()) {
@@ -2570,12 +2167,12 @@ class OMEROGateway
 		}
 		return l;
 	}
-	
-	/** 
+
+	/**
 	 * Tries to reconnect to the server. Returns <code>true</code>
 	 * if it was possible to reconnect, <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * @param userName	The user name to be used for login.
 	 * @param password	The password to be used for login.
 	 * @return See above.
@@ -2588,7 +2185,7 @@ class OMEROGateway
 			// no need to handle the exception.
 		}
 		connected = false;
-		Iterator<Connector> i = getAllConnectors().iterator();
+		Iterator<Connector> i = removeAllConnectors().iterator();
 		while (i.hasNext()) {
 			try {
 				i.next().close(networkup);
@@ -2597,20 +2194,10 @@ class OMEROGateway
 			}
 		}
 		if (!networkup) return false;
-
-		try {
-			i = getAllConnectors().iterator();
-			while (i.hasNext()) {
-				i.next().reconnect(userName, password);
-			}
-			connected = true;
-		} catch (Throwable e) {
-			connected = false;
-		}
 		reconnecting = true;
 		return connected;
 	}
-	
+
 	/** Logs out. */
 	void logout()
 	{
@@ -2633,35 +2220,36 @@ class OMEROGateway
 			groupConnectorMap.clear();
 		}
 	}
-	
+
 	/**
 	 * Retrieves hierarchy trees rooted by a given node.
 	 * i.e. the requested node as root and all of its descendants.
 	 * The annotation for the current user is also linked to the object.
 	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the 
+	 * Wraps the call to the
 	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
+	 *
 	 * @param ctx The security context, necessary to determine the service.
-	 * @param rootType  The top-most type which will be searched for 
-	 *                  Can be <code>Project</code>. 
+	 * @param rootType  The top-most type which will be searched for
+	 *                  Can be <code>Project</code>.
 	 *                  Mustn't be <code>null</code>.
-	 * @param rootIDs   A set of the IDs of top-most containers. 
+	 * @param rootIDs   A set of the IDs of top-most containers.
 	 *                  Passed <code>null</code> to retrieve all container
 	 *                  of the type specified by the rootNodetype parameter.
 	 * @param options   The Options to retrieve the data.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */
 	Set loadContainerHierarchy(SecurityContext ctx, Class rootType,
 			List rootIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
 			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
@@ -2677,28 +2265,29 @@ class OMEROGateway
 	 * contain the specified Images.
 	 * The annotation for the current user is also linked to the object.
 	 * Annotations are currently possible only for Image and Dataset.
-	 * Wraps the call to the 
+	 * Wraps the call to the
 	 * {@link IPojos#findContainerHierarchies(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
+	 *
 	 * @param ctx The security context, necessary to determine the service.
-	 * @param rootNodeType  top-most type which will be searched for 
+	 * @param rootNodeType  top-most type which will be searched for
 	 *                      Can be <code>Project</code>
 	 *                      Mustn't be <code>null</code>.
-	 * @param leavesIDs     Set of identifiers of the Images that sit at the 
+	 * @param leavesIDs     Set of identifiers of the Images that sit at the
 	 * 						bottom of the trees. Mustn't be <code>null</code>.
 	 * @param options Options to retrieve the data.
 	 * @return A <code>Set</code> with all root nodes that were found.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#findContainerHierarchies(Class, List, Map)
 	 */
 	Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
 			List leavesIDs, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType).getName(), leavesIDs, options));
@@ -2707,7 +2296,7 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-	
+
 	/**
 	 * Loads all the annotations that have been attached to the specified
 	 * <code>rootNodes</code>. This method looks for all the <i>valid</i>
@@ -2716,31 +2305,31 @@ class OMEROGateway
 	 * that were found for that node. If no annotations were found for that
 	 * node, then the entry will be <code>null</code>. Otherwise it will be a
 	 * <code>Set</code> containing <code>Annotation</code> objects.
-	 * Wraps the call to the 
+	 * Wraps the call to the
 	 * {@link IMetadataPrx#loadAnnotations(String, List, List, List)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Parameters)}.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param nodeType      The type of the rootNodes.
-	 *                      Mustn't be <code>null</code>. 
-	 * @param nodeIDs       TheIds of the objects of type
-	 *                      <code>rootNodeType</code>. 
 	 *                      Mustn't be <code>null</code>.
-	 * @param annotationTypes The collection of annotations to retrieve or 
-	 * 						  passed an empty list if we retrieve all the 
-	 * 						  annotations. 
-	 * @param annotatorIDs  The identifiers of the users for whom annotations 
-	 * 						should be retrieved. If <code>null</code>, 
+	 * @param nodeIDs       TheIds of the objects of type
+	 *                      <code>rootNodeType</code>.
+	 *                      Mustn't be <code>null</code>.
+	 * @param annotationTypes The collection of annotations to retrieve or
+	 * 						  passed an empty list if we retrieve all the
+	 * 						  annotations.
+	 * @param annotatorIDs  The identifiers of the users for whom annotations
+	 * 						should be retrieved. If <code>null</code>,
 	 * 						all annotations are returned.
 	 * @param options       Options to retrieve the data.
 	 * @return A map whose key is rootNodeID and value the <code>Set</code> of
 	 *         all annotations for that node or <code>null</code>.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#findAnnotations(Class, List, List, Map)
 	 */
-	Map loadAnnotations(SecurityContext ctx, Class nodeType, List nodeIDs, 
+	Map loadAnnotations(SecurityContext ctx, Class nodeType, List nodeIDs,
 			List<Class> annotationTypes, List annotatorIDs, Parameters options)
 	throws DSOutOfServiceException, DSAccessException
 	{
@@ -2755,25 +2344,26 @@ class OMEROGateway
 					types.add(k);
 			}
 		}
-		IMetadataPrx service = getMetadataService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			return PojoMapper.asDataObjects(
-					service.loadAnnotations(convertPojos(nodeType).getName(), 
+					service.loadAnnotations(convertPojos(nodeType).getName(),
 							nodeIDs, types, annotatorIDs, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
 	}
-	
+
 	/**
 	 * Loads the specified annotations.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param annotationIds The annotation to load.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.s
 	 */
 	Set<DataObject> loadAnnotation(SecurityContext ctx,
@@ -2782,7 +2372,9 @@ class OMEROGateway
 	{
 		if (annotationIds == null || annotationIds.size() == 0)
 			return new HashSet<DataObject>();
-		IMetadataPrx service = getMetadataService(ctx);
+
+        Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			return PojoMapper.asDataObjects(
 					service.loadAnnotation(annotationIds));
@@ -2791,22 +2383,23 @@ class OMEROGateway
 		}
 		return new HashSet<DataObject>();
 	}
-	
+
 	/**
 	 * Finds the links if any between the specified parent and child.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type    The type of parent to handle.
 	 * @param userID  The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	Collection findAllAnnotations(SecurityContext ctx, Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
@@ -2823,28 +2416,29 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
-	 * Retrieves the images contained in containers specified by the 
+	 * Retrieves the images contained in containers specified by the
 	 * node type.
 	 * Wraps the call to the {@link IPojos#getImages(Class, List, Parameters)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param nodeType  The type of container. Can be either Project, Dataset.
 	 * @param nodeIDs   Set of containers' IDS.
 	 * @param options   Options to retrieve the data.
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#getImages(Class, List, Map)
 	 */
 	Set getContainerImages(SecurityContext ctx, Class nodeType, List nodeIDs,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+	    IContainerPrx service = c.getPojosService();
 		try {
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType).getName(), nodeIDs, options));
@@ -2858,27 +2452,29 @@ class OMEROGateway
 	 * Retrieves the images imported by the current user.
 	 * Wraps the call to the {@link IPojos#getUserImages(Parameters)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userID The id of the user.
 	 * @param orphan Indicates to load the images not in any container
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#getUserImages(Map)
 	 */
 	Set getUserImages(SecurityContext ctx, long userID, boolean orphan)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
+		IQueryPrx svc = c.getQueryService();
+
 		try {
 			if (!orphan) {
 				ParametersI po = new ParametersI();
 				if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
 				return PojoMapper.asDataObjects(service.getUserImages(po));
 			}
-			IQueryPrx svc = getQueryService(ctx);
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select img from Image as img ");
@@ -2904,28 +2500,29 @@ class OMEROGateway
 
 	/**
 	 * Counts the number of items in a collection for a given object.
-	 * Returns a map which key is the passed rootNodeID and the value is 
+	 * Returns a map which key is the passed rootNodeID and the value is
 	 * the number of items contained in this object and
 	 * maps the result calling {@link PojoMapper#asDataObjects(Map)}.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param rootNodeType 	The type of container.
 	 * @param property		One of the properties defined by this class.
 	 * @param ids           The identifiers of the objects.
-	 * @param options		Options to retrieve the data.		
+	 * @param options		Options to retrieve the data.
 	 * @param rootNodeIDs	Set of root node IDs.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#getCollectionCount(String, String, List, Map)
 	 */
 	Map getCollectionCount(SecurityContext ctx, Class rootNodeType,
 			String property, List ids, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
-		IContainerPrx svc = getPojosService(ctx);
+        Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
+		IContainerPrx svc = c.getPojosService();
 		try {
 			if (TagAnnotationData.class.equals(rootNodeType)) {
 				return service.getTaggedObjectsCount(ids, options);
@@ -2939,17 +2536,17 @@ class OMEROGateway
 		}
 		return new HashMap();
 	}
-	
+
 	/**
 	 * Creates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object The object to create.
 	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObject(IObject, Map)
 	 */
 	IObject createObject(SecurityContext ctx, IObject object)
@@ -2960,15 +2557,15 @@ class OMEROGateway
 
 	/**
 	 * Creates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object The object to create.
 	 * @param options Options to create the data.
 	 * @param userName The name of the user to create data for.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObject(IObject, Map)
 	 */
 	IObject createObject(SecurityContext ctx, IObject object, String userName)
@@ -2981,17 +2578,17 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates the specified objects.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objects The objects to create.
 	 * @param options Options to create the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObjects(IObject[], Map)
 	 */
 	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects)
@@ -3002,15 +2599,15 @@ class OMEROGateway
 
 	/**
 	 * Creates the specified objects.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objects The objects to create.
 	 * @param options Options to create the data.
 	 * @param userName The name of the user.s
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#createDataObjects(IObject[], Map)
 	 */
 	List<IObject> createObjects(SecurityContext ctx, List<IObject> objects,
@@ -3024,22 +2621,23 @@ class OMEROGateway
 		}
 		return new ArrayList<IObject>();
 	}
-	
+
 	/**
 	 * Deletes the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object    The object to delete.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObject(SecurityContext ctx, IObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
+        Connector c = getConnector(ctx, true, false);
+        IUpdatePrx service = c.getUpdateService();
 		try {
-			IUpdatePrx service = getUpdateService(ctx);
 			service.deleteObject(object);
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
@@ -3048,24 +2646,25 @@ class OMEROGateway
 
 	/**
 	 * Deletes the specified objects.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objects                  The objects to delete.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException       If an error occurred while trying to 
-	 *                                 retrieve data from OMERO service. 
-	 * @see IUpdate#deleteObject(IObject) 
+	 * @throws DSAccessException       If an error occurred while trying to
+	 *                                 retrieve data from OMERO service.
+	 * @see IUpdate#deleteObject(IObject)
 	 */
 	void deleteObjects(SecurityContext ctx, List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
+        Connector c = getConnector(ctx, true, false);
+	    IUpdatePrx service = c.getUpdateService();
 		try {
-			IUpdatePrx service = getUpdateService(ctx);
 			Iterator<IObject> i = objects.iterator();
 			//TODO: need method
-			while (i.hasNext()) 
+			while (i.hasNext())
 				service.deleteObject(i.next());
-			
+
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
 		}
@@ -3073,21 +2672,22 @@ class OMEROGateway
 
 	/**
 	 * Updates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object The object to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	IObject saveAndReturnObject(SecurityContext ctx, IObject object,
 			Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IUpdatePrx service = getUpdateService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IUpdatePrx service = c.getUpdateService();
 		try {
 			if (options == null) return service.saveAndReturnObject(object);
 			return service.saveAndReturnObject(object, options);
@@ -3096,26 +2696,30 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Updates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object The object to update.
 	 * @param options Options to update the data.
 	 * @param userName The name of the user to create the data for.
 	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	IObject saveAndReturnObject(SecurityContext ctx, IObject object,
 			Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IUpdatePrx service = getUpdateService(ctx, userName);
+	    Connector c = getConnector(ctx, true, false);
 		try {
+		    // Must be inside try because of Throwable
+            c = c.getConnector(userName); // Replace
+            IUpdatePrx service = c.getUpdateService();
+
 			if (options == null) return service.saveAndReturnObject(object);
 			return service.saveAndReturnObject(object, options);
 		} catch (Throwable t) {
@@ -3123,49 +2727,53 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Updates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objects The objects to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	List<IObject> saveAndReturnObject(SecurityContext ctx,
 			List<IObject> objects, Map options, String userName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IUpdatePrx service = getUpdateService(ctx, userName);
+	    Connector c = getConnector(ctx, true, false);
 		try {
+            // Must be inside try because of Throwable
+            c = c.getConnector(userName); // Replace
+	        IUpdatePrx service = c.getUpdateService();
 			return service.saveAndReturnArray(objects);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
 		return new ArrayList<IObject>();
 	}
-	
+
 	/**
 	 * Updates the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object The object to update.
 	 * @param options Options to update the data.
 	 * @return The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
 	IObject updateObject(SecurityContext ctx, IObject object,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
 			IObject r = service.updateDataObject(object, options);
 			return findIObject(ctx, r);
@@ -3176,23 +2784,24 @@ class OMEROGateway
 	}
 
 	/**
-	 * Updates the specified <code>IObject</code>s and returned the 
+	 * Updates the specified <code>IObject</code>s and returned the
 	 * updated <code>IObject</code>s.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objects The array of objects to update.
 	 * @param options Options to update the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-	 * @see IPojos#updateDataObjects(IObject[], Map) 
+	 * @see IPojos#updateDataObjects(IObject[], Map)
 	 */
 	List<IObject> updateObjects(SecurityContext ctx, List<IObject> objects,
 			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
 			List<IObject> l = service.updateDataObjects(objects, options);
 			if (l == null) return l;
@@ -3212,18 +2821,19 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the dimensions in microns of the specified pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	Pixels getPixels(SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IPixelsPrx service = getPixelsService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
 		try {
 			return service.retrievePixDescription(pixelsID);
 		} catch (Throwable t) {
@@ -3231,18 +2841,18 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param sizeX The size of the thumbnail along the X-axis.
 	 * @param sizeY The size of the thumbnail along the Y-axis.
 	 * @param userID The id of the user the thumbnail is for.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	byte[] getThumbnail(SecurityContext ctx, long pixelsID,
@@ -3254,24 +2864,24 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param sizeX The size of the thumbnail along the X-axis.
 	 * @param sizeY The size of the thumbnail along the Y-axis.
 	 * @param userID The id of the user the thumbnail is for.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private byte[] retrieveThumbnail(SecurityContext ctx,
 			long pixelsID, int sizeX, int sizeY, long userID)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		ThumbnailStorePrx service = null;
+	    Connector c = getConnector(ctx, true, false);
+	    ThumbnailStorePrx service = c.getThumbnailService();
 		try {
-			service = getThumbnailService(ctx, 1);
 			needDefault(pixelsID, service);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
@@ -3279,29 +2889,30 @@ class OMEROGateway
 				if (def != null) service.setRenderingDefId(
 						def.getId().getValue());
 			}
-			return service.getThumbnail(omero.rtypes.rint(sizeX), 
+			return service.getThumbnail(omero.rtypes.rint(sizeX),
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
-			closeService(ctx, service);
 			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
+		} finally {
+		    c.close(service);
 		}
 	}
-	
+
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param maxLength The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	byte[] getThumbnailByLongestSide(SecurityContext ctx, long pixelsID,
@@ -3313,40 +2924,41 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the thumbnail for the passed set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param maxLength The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private byte[] retrieveThumbnailByLongestSide(
 			SecurityContext ctx, long pixelsID, int maxLength)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		ThumbnailStorePrx service = null;
+        Connector c = getConnector(ctx, true, false);
+		ThumbnailStorePrx service = c.getThumbnailService();
 		try {
-			service = getThumbnailService(ctx, 1);
-			needDefault(pixelsID, service);
+			// No need to call setPixelsID if using set method?
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
 		} catch (Throwable t) {
-			closeService(ctx, service);
 			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
+		} finally {
+		    c.close(service);
 		}
 	}
-	
+
 	/**
 	 * Retrieves the thumbnail for the passed collection of pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The collection of pixels set.
 	 * @param maxLength The maximum length of the thumbnail width or height
@@ -3354,8 +2966,8 @@ class OMEROGateway
 	 * @param reset Pass <code>true</code> to reset the thumbnail store,
 	 *              <code>false</code> otherwise.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	Map getThumbnailSet(SecurityContext ctx, List<Long> pixelsID,
@@ -3364,10 +2976,10 @@ class OMEROGateway
 	{
 		return retrieveThumbnailSet(ctx, pixelsID, maxLength, reset);
 	}
-	
+
 	/**
 	 * Retrieves the thumbnail for the passed collection of pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The collection of pixels set.
 	 * @param maxLength The maximum length of the thumbnail width or height
@@ -3375,42 +2987,43 @@ class OMEROGateway
 	 * @param reset Pass <code>true</code> to reset the thumbnail store,
 	 *              <code>false</code> otherwise.
 	 * @return See above.
-	 * @throws RenderingServiceException If an error occurred while trying to 
-	 *              retrieve data from the service. 
+	 * @throws RenderingServiceException If an error occurred while trying to
+	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private Map retrieveThumbnailSet(SecurityContext ctx,
 			List<Long> pixelsID, int maxLength, boolean reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		ThumbnailStorePrx service = null;
+        Connector c = getConnector(ctx, true, false);
+		ThumbnailStorePrx service = c.getThumbnailService();
 		try {
 			int n = MAX_RETRIEVAL;
 			if (!reset) n = pixelsID.size();
-			service = getThumbnailService(ctx, n);
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);
 		} catch (Throwable t) {
-			closeService(ctx, service);
 			handleConnectionException(t);
 			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
+		} finally {
+		    c.close(service);
 		}
 	}
-	
+
 	/**
 	 * Creates a new rendering service for the specified pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-	 * @throws FSAccessException If an error occurred when trying to build a 
+	 * @throws FSAccessException If an error occurred when trying to build a
 	 * pyramid or access file not available.
 	 */
 	RenderingEnginePrx createRenderingEngine(SecurityContext ctx,
@@ -3422,33 +3035,31 @@ class OMEROGateway
 
 	/**
 	 * Creates a new rendering service for the specified pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-	 * @throws FSAccessException If an error occurred when trying to build a 
+	 * @throws FSAccessException If an error occurred when trying to build a
 	 * pyramid or access file not available.
 	 */
 	private RenderingEnginePrx generateRenderingEngine(
 			SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
-		RenderingEnginePrx service = getRenderingService(ctx, pixelsID);
+	    Connector c = getConnector(ctx, true, false);
+	    RenderingEnginePrx service = null;
 		try {
+		    service = c.getRenderingService(pixelsID);
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
 			return service;
 		} catch (Throwable t) {
+		    c.close(service);
 			String s = "Cannot start the Rendering Engine.";
-			if (service != null) {
-				try {
-					service.close();
-				} catch (Exception e) {}
-			}
 			handleFSException(t, s);
 			handleException(t, s);
 		}
@@ -3456,31 +3067,32 @@ class OMEROGateway
 	}
 	/**
 	 * Finds the link if any between the specified parent and child.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type The type of annotation to handle.
 	 * @param parentID The id of the parent.
-	 * @param childID The id of the child, or <code>-1</code> if no 
+	 * @param childID The id of the child, or <code>-1</code> if no
 	 *                child specified.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	IObject findAnnotationLink(SecurityContext ctx, Class type, long parentID,
 			long childID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			StringBuffer buffer = new StringBuffer();
-			
+
 			buffer.append("select link from "+table+" as link ");
 			buffer.append("left outer join fetch link.details.owner ");
-			buffer.append("where link.parent.id = :parentID"); 
+			buffer.append("where link.parent.id = :parentID");
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
 			p.map.put("parentID", omero.rtypes.rlong(parentID));
@@ -3501,24 +3113,25 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Finds the link if any between the specified parent and child.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parentType The type of parent to handle.
 	 * @param parentID The id of the parent to handle.
 	 * @param children Collection of the identifiers.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List findAnnotationLinks(SecurityContext ctx, String parentType,
 			long parentID, List<Long> children)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+       Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
@@ -3547,23 +3160,24 @@ class OMEROGateway
 					"parent ID: "+parentID);
 		}
 		return new ArrayList();
-	}		
-	
+	}
+
 	/**
 	 * Finds the link if any between the specified parent and child.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parent The parent.
 	 * @param child The child.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	IObject findLink(SecurityContext ctx, IObject parent, IObject child)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
@@ -3585,19 +3199,20 @@ class OMEROGateway
 
 	/**
 	 * Finds the links if any between the specified parent and children.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parent The parent.
 	 * @param children Collection of children as identifiers.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List findLinks(SecurityContext ctx, IObject parent, List children)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
@@ -3606,7 +3221,7 @@ class OMEROGateway
 			param.map.put("parentID", parent.getId());
 
 			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID"; 
+			"link.parent.id = :parentID";
 			if (children != null && children.size() > 0) {
 				sql += " and link.child.id in (:childIDs)";
 				param.addLongs("childIDs", children);
@@ -3622,21 +3237,22 @@ class OMEROGateway
 
 	/**
 	 * Finds the links if any between the specified parent and children.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parentClass The parent.
 	 * @param children Collection of children as identifiers.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List findLinks(SecurityContext ctx, Class parentClass, List children,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
@@ -3659,22 +3275,23 @@ class OMEROGateway
 
 	/**
 	 * Finds all the links.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param node The type of node to handle.
 	 * @param nodeID The id of the node if any.
-	 * @param children The collection of annotations' identifiers 
+	 * @param children The collection of annotations' identifiers
 	 * @param userID The user's identifier or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List findAnnotationLinks(SecurityContext ctx, Class node, long nodeID,
 			List children, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String table = getAnnotationTableLink(node);
 			if (table == null) return null;
@@ -3704,18 +3321,18 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Finds the links if any between the specified parent and children.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parentClass The parent.
 	 * @param childID The id of the child.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List findLinks(SecurityContext ctx, Class parentClass, long childID,
 			long userID)
@@ -3733,19 +3350,19 @@ class OMEROGateway
 		}
 		return loadLinks(ctx, getTableForLink(parentClass), childID, userID);
 	}
-	
+
 	/**
 	 * Finds the links if any between the specified parent and children.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param childID The id of the child.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
-	Set<DataObject> findPlateFromImage(SecurityContext ctx, long childID, 
+	Set<DataObject> findPlateFromImage(SecurityContext ctx, long childID,
 			long userID)
 	throws DSOutOfServiceException, DSAccessException
 	{
@@ -3753,15 +3370,17 @@ class OMEROGateway
 		List<Long> ids = new ArrayList<Long>();
 		ParametersI param = new ParametersI();
 		param.addLong("imageID", childID);
-		
+
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("select well from Well as well ");
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
 		sb.append("left outer join fetch ws.image as img ");
         sb.append("where img.id = :imageID");
-        IQueryPrx service = getQueryService(ctx);
+
+        Connector c = getConnector(ctx, true, false);
+        IQueryPrx service = c.getQueryService();
         try {
             List results = service.findAllByQuery(sb.toString(), param);
     		Iterator i = results.iterator();
@@ -3780,25 +3399,26 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot find the plates containing the image.");
 		}
-		
+
 		return data;
 	}
 
 	/**
 	 * Retrieves an updated version of the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param o The object to retrieve.
 	 * @return The last version of the object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	IObject findIObject(SecurityContext ctx, IObject o)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (o == null) return null;
-		IQueryPrx service = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			return service.find(o.getClass().getName(), o.getId().getValue());
 		} catch (Throwable t) {
@@ -3807,23 +3427,24 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Retrieves an updated version of the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param dataObjectThe object to retrieve.
 	 * @param name The name of the object.
-	 * @param 
+	 * @param
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	IObject findIObjectByName(SecurityContext ctx, Class dataObject,
 			String name, long ownerID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("name", rtypes.rstring(name));
@@ -3841,19 +3462,20 @@ class OMEROGateway
 
 	/**
 	 * Retrieves an updated version of the specified object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param klassName The type of object to retrieve.
 	 * @param id The object's id.
 	 * @return The last version of the object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	IObject findIObject(SecurityContext ctx, String klassName, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			return service.find(klassName, id);
 		} catch (Throwable t) {
@@ -3861,23 +3483,24 @@ class OMEROGateway
 					"object ID: "+id);
 		}
 		return null;
-	} 
-	
+	}
+
 	/**
 	 * Retrieves the groups visible by the current experimenter.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param loggedInUser The user currently logged in.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	Set<GroupData> getAvailableGroups(SecurityContext ctx,
 			ExperimenterData user)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		Set<GroupData> pojos = new HashSet<GroupData>();
 		try {
 			//Need method server side.
@@ -3896,7 +3519,7 @@ class OMEROGateway
 
 			//List<ExperimenterGroup> groups = service.containedGroups(
 			//		user.getId());
-			
+
 			ExperimenterGroup group;
 			//GroupData pojoGroup;
 			Iterator<IObject> i = groups.iterator();
@@ -3910,49 +3533,48 @@ class OMEROGateway
 		}
 		return pojos;
 	}
-	
+
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+<<<<<<< HEAD
 	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * retrieve data from OMERO service.
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	Map<Boolean, Object> getArchivedFiles(
 			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
-<<<<<<< HEAD
-		isSessionAlive(ctx);
 		if (!networkup) return null;
 		if (image.isArchived())
 			return retrieveArchivedFiles(ctx, file, image);
 		return null;
-=======
-		return retrieveArchivedFiles(ctx, file, image);
->>>>>>> c98464f... Refactor isSessionAlive/network logic into getConnector
 	}
-	
+
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param file The location where to save the files.
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private Map<Boolean, Object> retrieveArchivedFiles(
 			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		List<?> files = null;
 		try {
 			ParametersI param = new ParametersI();
@@ -3969,13 +3591,11 @@ class OMEROGateway
 
 		Map<Boolean, Object> result = new HashMap<Boolean, Object>();
 		if (files == null || files.size() == 0) return null;
-		RawFileStorePrx store;
-		
 		OriginalFile of;
 		long size;
 		FileOutputStream stream = null;
 		long offset = 0;
-		File f;
+		File f = null;
 		List<File> results = new ArrayList<File>();
 		List<String> notDownloaded = new ArrayList<String>();
 		String folderPath = null;
@@ -3984,21 +3604,22 @@ class OMEROGateway
 			else folderPath = file.getParent();
 		}
 
+
 		Iterator<?> i = files.iterator();
-		store = getRawFileService(ctx);
+		RawFileStorePrx store = c.getRawFileService();
+
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
+
 			try {
+			    store = c.getRawFileService();
 				store.setFileId(of.getId().getValue());
-			} catch (Exception e) {
-				closeService(ctx, store);
-				handleException(e, "Cannot set the file's id.");
-			}
-			if (folderPath != null) {
-				f = new File(folderPath, of.getName().getValue());
-			} else f = file;
-			results.add(f);
-			try {
+
+				if (folderPath != null) {
+				    f = new File(folderPath, of.getName().getValue());
+				} else f = file;
+				    results.add(f);
+
 				stream = new FileOutputStream(f);
 				size = of.getSize().getValue(); 
 				try {
@@ -4006,7 +3627,7 @@ class OMEROGateway
 						for (offset = 0; (offset+INC) < size;) {
 							stream.write(store.read(offset, INC));
 							offset += INC;
-						}	
+						}
 					} finally {
 						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
@@ -4027,12 +3648,14 @@ class OMEROGateway
 					results.remove(f);
 				}
 				notDownloaded.add(of.getName().getValue());
-				closeService(ctx, store);
 				throw new DSAccessException("Cannot create file in folderPath",
 						e);
+			} catch (ServerError sr) {
+			    throw new DSAccessException("ServerError on retrieveArchived", sr);
+			} finally {
+			    c.close(store);
 			}
 		}
-		closeService(ctx, store);
 		result.put(Boolean.valueOf(true), results);
 		result.put(Boolean.valueOf(false), notDownloaded);
 		return result;
@@ -4040,14 +3663,14 @@ class OMEROGateway
 
 	/**
 	 * Downloads a file previously uploaded to the server.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param file The file to copy the data into.	
+	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	File downloadFile(SecurityContext ctx, File file, long fileID)
 		throws DSAccessException, DSOutOfServiceException
@@ -4055,17 +3678,17 @@ class OMEROGateway
 		if (file == null) return null;
 		return download(ctx, file, fileID);
 	}
-	
+
 	/**
 	 * Downloads a file previously uploaded to the server.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param file The file to copy the data into.
 	 * @param fileID The id of the file to download.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private File download(SecurityContext ctx, File file,
 			long fileID)
@@ -4075,24 +3698,29 @@ class OMEROGateway
 		OriginalFile of = getOriginalFile(ctx, fileID);
 		//
 		if (of == null) return null;
-		long size = of.getSize().getValue();
-		RawFileStorePrx store = getRawFileService(ctx);
+
+		final long size = of.getSize().getValue();
+		final String path = file.getAbsolutePath();
+
+		Connector c = getConnector(ctx, true, false);
+		RawFileStorePrx store = c.getRawFileService();
 		try {
 			store.setFileId(fileID);
 		} catch (Throwable e) {
-			closeService(ctx, store);
+		    c.close(store);
 			handleException(e, "Cannot set the file's id.");
+			return null; // Never reached.
 		}
-		String path = file.getAbsolutePath();
-		long offset = 0;
+
 		try {
-			FileOutputStream stream = new FileOutputStream(file);
+	        long offset = 0;
+		    FileOutputStream stream = new FileOutputStream(file);
 			try {
 				try {
 					for (offset = 0; (offset+INC) < size;) {
 						stream.write(store.read(offset, INC));
 						offset += INC;
-					}	
+					}
 				} finally {
 					stream.write(store.read(offset, (int) (size-offset)));
 					stream.close();
@@ -4105,15 +3733,16 @@ class OMEROGateway
 			if (file != null) file.delete();
 			closeService(ctx, store);
 			throw new DSAccessException("Cannot create file  " +path, e);
+		} finally {
+		    c.close(store);
 		}
-		closeService(ctx, store);
-		
+
 		return file;
 	}
-	
+
 	/**
 	 * Closes the specified service.
-	 * 
+	 *
 	 * @param ctx The security context
 	 * @param svc The service to handle.
 	 */
@@ -4128,14 +3757,14 @@ class OMEROGateway
 			    svc.close(); // Last ditch effort to close.
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+		    log(String.format("Failed to close %s: %s", svc, e));
 		}
 	}
-	
-	/** 
-	 * Shuts downs the stateful services. 
-	 * 
-	 * @param rendering Pass <code>true</code> to shut down the rendering 
+
+	/**
+	 * Shuts downs the stateful services.
+	 *
+	 * @param rendering Pass <code>true</code> to shut down the rendering
 	 * 					services, <code>false</code> otherwise.
 	 */
 	private void shutDownServices(boolean rendering)
@@ -4149,22 +3778,23 @@ class OMEROGateway
 			//do not shut down the services, the network is down.
 		}
 	}
-	
+
 	/**
 	 * Returns the original file corresponding to the passed id.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The id identifying the file.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	OriginalFile getOriginalFile(SecurityContext ctx, long id)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		OriginalFile of = null;
-		IQueryPrx svc = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(id));
@@ -4176,23 +3806,24 @@ class OMEROGateway
 		}
 		return of;
 	}
-	
+
 	/**
-	 * Returns the collection of original files related to the specified 
+	 * Returns the collection of original files related to the specified
 	 * pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List getOriginalFiles(SecurityContext ctx, long pixelsID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		List files = null;
-		IQueryPrx svc = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+        IQueryPrx svc = c.getQueryService();
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("id", omero.rtypes.rlong(pixelsID));
@@ -4205,19 +3836,19 @@ class OMEROGateway
 		}
 		return files;
 	}
-	
+
 	/**
-	 * Uploads the passed file to the server and returns the 
+	 * Uploads the passed file to the server and returns the
 	 * original file i.e. the server object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param file The file to upload.
 	 * @param mimeType The mimeType of the file.
 	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	OriginalFile uploadFile(SecurityContext ctx, File file, String mimeType,
 			long originalFileID)
@@ -4225,19 +3856,19 @@ class OMEROGateway
 	{
 		return upload(ctx, file, mimeType, originalFileID);
 	}
-	
+
 	/**
-	 * Uploads the passed file to the server and returns the 
+	 * Uploads the passed file to the server and returns the
 	 * original file i.e. the server object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param file The file to upload.
 	 * @param mimeType The mimeType of the file.
 	 * @param originalFileID The id of the file or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service.  
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	private OriginalFile upload(SecurityContext ctx, File file,
 			String mimeType, long originalFileID)
@@ -4247,9 +3878,16 @@ class OMEROGateway
 			throw new IllegalArgumentException("No file to upload");
 		if (mimeType == null || mimeType.length() == 0)
 			mimeType =  DEFAULT_MIMETYPE;
-		RawFileStorePrx store = getRawFileService(ctx);;
-		OriginalFile save = null;
+
 		boolean fileCreated = false;
+
+
+        OriginalFile save = null;
+        Long fileId = null;
+
+		Connector c = getConnector(ctx, true, false);
+		IUpdatePrx update = c.getUpdateService();
+
 		try {
 			OriginalFile oFile;
 			if (originalFileID <= 0) {
@@ -4257,17 +3895,17 @@ class OMEROGateway
 				String name = file.getName();
 				oFile.setName(omero.rtypes.rstring(name));
 				String absolutePath = file.getAbsolutePath();
-				String path = absolutePath.substring(0, 
+				String path = absolutePath.substring(0,
 						absolutePath.length()-name.length());
 				oFile.setPath(omero.rtypes.rstring(path));
 				oFile.setSize(omero.rtypes.rlong(file.length()));
 				//Need to be modified
 				oFile.setSha1(omero.rtypes.rstring("pending"));
 				oFile.setMimetype(omero.rtypes.rstring(mimeType));
-				save = 
-					(OriginalFile) getUpdateService(ctx).saveAndReturnObject(
-							oFile);
-				store.setFileId(save.getId().getValue());
+
+				save =
+					(OriginalFile) update.saveAndReturnObject(oFile);
+				fileId = save.getId().getValue();
 				fileCreated = true;
 			} else {
 				oFile = (OriginalFile) findIObject(ctx,
@@ -4277,16 +3915,16 @@ class OMEROGateway
 					String name = file.getName();
 					oFile.setName(omero.rtypes.rstring(name));
 					String absolutePath = file.getAbsolutePath();
-					String path = absolutePath.substring(0, 
+					String path = absolutePath.substring(0,
 							absolutePath.length()-name.length());
 					oFile.setPath(omero.rtypes.rstring(path));
 					oFile.setSize(omero.rtypes.rlong(file.length()));
 					//Need to be modified
 					oFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(omero.rtypes.rstring(mimeType));
-					save = (OriginalFile) 
-						getUpdateService(ctx).saveAndReturnObject(oFile);
-					store.setFileId(save.getId().getValue());
+
+					save = (OriginalFile) update.saveAndReturnObject(oFile);
+					fileId = save.getId().getValue();
 					fileCreated = true;
 				} else {
 					OriginalFile newFile = new OriginalFileI();
@@ -4297,20 +3935,23 @@ class OMEROGateway
 					newFile.setSize(omero.rtypes.rlong(file.length()));
 					newFile.setSha1(omero.rtypes.rstring("pending"));
 					oFile.setMimetype(oFile.getMimetype());
-					save = (OriginalFile) 
-						getUpdateService(ctx).saveAndReturnObject(newFile);
-					store.setFileId(save.getId().getValue());
+
+					save = (OriginalFile) update.saveAndReturnObject(newFile);
+					fileId = save.getId().getValue();
 				}
 			}
 		} catch (Exception e) {
-			closeService(ctx, store);
 			handleException(e, "Cannot set the file's id.");
 		}
-		byte[] buf = new byte[INC]; 
+
+
+		byte[] buf = new byte[INC];
 		FileInputStream stream = null;
 		final ChecksumProvider hasher = checksumProviderFactory.getProvider(
 				ChecksumType.SHA1);
+		RawFileStorePrx store = c.getRawFileService();
 		try {
+		    store.setFileId(fileId);
 			stream = new FileInputStream(file);
 			long pos = 0;
 			int rlen;
@@ -4340,35 +3981,38 @@ class OMEROGateway
 			try {
 				if (fileCreated) deleteObject(ctx, save);
 				if (stream != null) stream.close();
-				closeService(ctx, store);
-			} catch (Exception ex) {}
-			closeService(ctx, store);
+			} catch (Exception ex) {
+			    log("Exception on upload cleanup: " + e);
+			}
 			handleConnectionException(e);
 			throw new DSAccessException("Cannot upload the file with path " +
 					file.getAbsolutePath(), e);
+		} finally {
+		    c.close(store);
 		}
 		return save;
 	}
-	
-	
+
+
 	/**
 	 * Modifies the password of the currently logged in user.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param password	The new password.
 	 * @param oldPassword The old password.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	void changePassword(SecurityContext ctx, String password,
 			String oldPassword)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx service = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx service = c.getAdminService();
 		try {
 			service.changePasswordWithOldPassword(
-					omero.rtypes.rstring(oldPassword), 
+					omero.rtypes.rstring(oldPassword),
 					omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
@@ -4377,20 +4021,21 @@ class OMEROGateway
 
 	/**
 	 * Updates the profile of the specified experimenter.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param exp	The experimenter to handle.
 	 * @param currentUserID The identifier of the user currently logged in.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	void updateExperimenter(SecurityContext ctx, Experimenter exp,
 			long currentUserID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (exp == null) return;
-		IAdminPrx svc = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			if (exp.getId().getValue() == currentUserID)
 				svc.updateSelf(exp);
@@ -4402,19 +4047,20 @@ class OMEROGateway
 
 	/**
 	 * Updates the specified group.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param group	The group to update.
 	 * @param permissions The new permissions.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
-	RequestCallback updateGroup(SecurityContext ctx, GroupData group, 
-			int permissions) 
+	RequestCallback updateGroup(SecurityContext ctx, GroupData group,
+			int permissions)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			ExperimenterGroup g = group.asGroup();
 			svc.updateGroup(g);
@@ -4447,21 +4093,22 @@ class OMEROGateway
 
 	/**
 	 * Adds or removes the passed experimenters from the specified system group.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param toAdd Pass <code>true</code> to add the experimenters as owners,
 	 * 				<code>false</code> otherwise.
 	 * @param experimenters The experimenters to add or remove.
 	 * @param systemGroup	The roles to handle.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	void modifyExperimentersRoles(SecurityContext ctx, boolean toAdd,
 			List<ExperimenterData> experimenters, String systemGroup)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			if (toAdd) {
 				Iterator<ExperimenterData> i = experimenters.iterator();
@@ -4515,25 +4162,26 @@ class OMEROGateway
 			handleException(t, "Cannot modify the roles of the experimenters.");
 		}
 	}
-	
+
 	/**
 	 * Adds the passed experimenters as owner of the group if the flag is
 	 * <code>true</code>, removes them otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param toAdd Pass <code>true</code> to add the experimenters as owners,
 	 * 				<code>false</code> otherwise.
 	 * @param group	The group to handle.
 	 * @param experimenters The experimenters to add or remove.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	void handleGroupOwners(SecurityContext ctx, boolean toAdd,
 			ExperimenterGroup group, List<Experimenter> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			if (toAdd) svc.addGroupOwners(group, experimenters);
 			else svc.removeGroupOwners(group, experimenters);
@@ -4541,11 +4189,11 @@ class OMEROGateway
 			handleException(t, "Cannot handle the group ownership. ");
 		}
 	}
-	
+
 	/**
-	 * Returns the XY-plane identified by the passed z-section, time-point 
+	 * Returns the XY-plane identified by the passed z-section, time-point
 	 * and wavelength.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of pixels containing the requested plane.
 	 * @param z The selected z-section.
@@ -4554,7 +4202,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	byte[] getPlane(SecurityContext ctx, long pixelsID, int z, int t, int c)
@@ -4564,9 +4212,9 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns the XY-plane identified by the passed z-section, time-point 
+	 * Returns the XY-plane identified by the passed z-section, time-point
 	 * and wavelength.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of pixels containing the requested plane.
 	 * @param z The selected z-section.
@@ -4575,19 +4223,18 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private byte[] retrievePlane(SecurityContext ctx,
 			long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException, FSAccessException
 	{
-		RawPixelsStorePrx service = getPixelsStore(ctx);
+	    Connector conn = getConnector(ctx, true, false);
+		RawPixelsStorePrx service = conn.getPixelsStore();
 		try {
-			if (service == null) service = getPixelsStore(ctx);
 			service.setPixelsId(pixelsID, false);
 			byte[] plane = service.getPlane(z, c, t);
-			service.close();
 			return plane;
 		} catch (Throwable e) {
 			if (e instanceof ValidationException) return null;
@@ -4595,27 +4242,30 @@ class OMEROGateway
 			"(z="+z+", t="+t+", c="+c+") for pixelsID: "+pixelsID;
 			handleFSException(e, s);
 			handleException(e, s);
+		} finally {
+		    conn.close(service);
 		}
 		return null;
 	}
 	/**
 	 * Returns the free or available space (in Kilobytes) on the file system
 	 * including nested sub-directories.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param Either a group or a user.
-	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * @param id The identifier of the user or group or <code>-1</code>
 	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long getFreeSpace(SecurityContext ctx, Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IRepositoryInfoPrx service = getRepositoryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IRepositoryInfoPrx service = c.getRepositoryService();
 		try {
 			return service.getFreeSpaceInKilobytes();
 		} catch (Throwable e) {
@@ -4627,22 +4277,23 @@ class OMEROGateway
 	/**
 	 * Returns the used space (in Kilobytes) on the file system
 	 * including nested sub-directories.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param Either a group or a user.
-	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * @param id The identifier of the user or group or <code>-1</code>
 	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long getUsedSpace(SecurityContext ctx, Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IRepositoryInfoPrx svc = getRepositoryService(ctx);
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IRepositoryInfoPrx svc = c.getRepositoryService();
+		IQueryPrx service = c.getQueryService();
 		try {
 			if (id < 0)
 				return svc.getUsedSpaceInKilobytes();
@@ -4652,7 +4303,7 @@ class OMEROGateway
 			buffer.append("where o.id = :userID");
 			ParametersI param = new ParametersI();
 			param.addLong("userID", id);
-			List<IObject> result = 
+			List<IObject> result =
 				service.findAllByQuery(buffer.toString(), param);
 			if (result == null) return -1;
 			Iterator<IObject> i = result.iterator();
@@ -4672,23 +4323,24 @@ class OMEROGateway
 	/**
 	 * Retrieves the images specified by a set of parameters
 	 * e.g. imported during a given period of time by a given user.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param map The options. 
-	 * @param asDataObject Pass <code>true</code> to convert the 
-	 * 						<code>IObject</code>s into the corresponding 
+	 * @param map The options.
+	 * @param asDataObject Pass <code>true</code> to convert the
+	 * 						<code>IObject</code>s into the corresponding
 	 * 						<code>DataObject</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection getImages(SecurityContext ctx, Parameters map,
 			boolean asDataObject)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IContainerPrx service = getPojosService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
 			List result = service.getImagesByOptions(map);
 			if (asDataObject) return PojoMapper.asDataObjects(result);
@@ -4701,25 +4353,25 @@ class OMEROGateway
 	}
 
 	/**
-	 * Resets the rendering settings for the images contained in the 
+	 * Resets the rendering settings for the images contained in the
 	 * specified node types.
-	 * Resets the settings to the passed images if the type is 
+	 * Resets the settings to the passed images if the type is
 	 * <code>ImageData</code>.
 	 * Returns <true> if the call was successful, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param rootNodeType The type of nodes. Can either be 
-	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * @param rootNodeType The type of nodes. Can either be
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or
 	 * 						<code>PlateData</code>.
-	 * @param nodes The nodes to apply settings to. 
+	 * @param nodes The nodes to apply settings to.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map resetRenderingSettings(SecurityContext ctx, Class rootNodeType,
-			List nodes) 
+			List nodes)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Long> success = new ArrayList<Long>();
@@ -4732,7 +4384,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
-		Iterator<Long> i = success.iterator(); 
+		Iterator<Long> i = success.iterator();
 		Long id;
 		while (i.hasNext()) {
 			id = i.next();
@@ -4743,22 +4395,22 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
-  
+
 	/**
-	 * Resets the rendering settings for the images contained in the 
+	 * Resets the rendering settings for the images contained in the
 	 * specified datasets if the rootType is <code>DatasetData</code>.
-	 * Resets the settings to the passed images if the type is 
+	 * Resets the settings to the passed images if the type is
 	 * <code>ImageData</code>.
 	 * Returns <true> if the call was successful, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param rootNodeType The type of nodes. Can either be 
+	 * @param rootNodeType The type of nodes. Can either be
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param nodes The nodes to apply settings to. 
+	 * @param nodes The nodes to apply settings to.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map setMinMaxSettings(SecurityContext ctx, Class rootNodeType, List nodes)
@@ -4766,17 +4418,17 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
-		
+
 		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
-			
+
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			success = service.resetMinMaxInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
-		Iterator<Long> i = success.iterator(); 
+		Iterator<Long> i = success.iterator();
 		Long id;
 		while (i.hasNext()) {
 			id = i.next();
@@ -4787,23 +4439,23 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
-	
+
 	/**
-	 * Resets the rendering settings, used by the owner of the images contained 
+	 * Resets the rendering settings, used by the owner of the images contained
 	 * in the specified datasets if the rootType is <code>DatasetData</code>.
-	 * Resets the settings to the passed images if the type is 
+	 * Resets the settings to the passed images if the type is
 	 * <code>ImageData</code>.
-	 * 
+	 *
 	 * Returns <true> if the call was successful, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param rootNodeType The type of nodes. Can either be 
+	 * @param rootNodeType The type of nodes. Can either be
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param nodes The nodes to apply settings to. 
+	 * @param nodes The nodes to apply settings to.
 	 * @return <true> if the call was successful, <code>false</code> otherwise.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map setOwnerRenderingSettings(SecurityContext ctx, Class rootNodeType,
@@ -4812,9 +4464,9 @@ class OMEROGateway
 	{
 		List<Long> success = new ArrayList<Long>();
 		List<Long> failure = new ArrayList<Long>();
-		
+
 		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
-		
+
 		try {
 			String klass = convertPojos(rootNodeType).getName();
 			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
@@ -4822,7 +4474,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
-		Iterator<Long> i = success.iterator(); 
+		Iterator<Long> i = success.iterator();
 		Long id;
 		while (i.hasNext()) {
 			id = i.next();
@@ -4833,25 +4485,25 @@ class OMEROGateway
 		result.put(Boolean.valueOf(false), failure);
 		return result;
 	}
-	
+
 	/**
-	 * Applies the rendering settings associated to the passed pixels set 
+	 * Applies the rendering settings associated to the passed pixels set
 	 * to the images contained in the specified datasets or plate.
 	 * if the rootType is <code>DatasetData</code> or <code>PlateData</code>.
-	 * Applies the settings to the passed images if the type is 
+	 * Applies the settings to the passed images if the type is
 	 * <code>ImageData</code>.
-	 * 
+	 *
 	 * Returns <true> if the call was successful, <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set to copy the settings from.
-	 * @param rootNodeType The type of nodes. Can either be 
+	 * @param rootNodeType The type of nodes. Can either be
 	 * 						<code>ImageData</code>, <code>DatasetData</code>.
-	 * @param nodes The nodes to apply settings to. 
+	 * @param nodes The nodes to apply settings to.
 	 * @return <true> if the call was successful, <code>false</code> otherwise.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map pasteRenderingSettings(SecurityContext ctx, long pixelsID,
@@ -4862,7 +4514,7 @@ class OMEROGateway
 		List<Long> failure = new ArrayList<Long>();
 		IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
 		try {
-			Map m  = service.applySettingsToSet(pixelsID, 
+			Map m  = service.applySettingsToSet(pixelsID,
 					convertPojos(rootNodeType).getName(),
 					nodes);
 			success = (List) m.get(Boolean.valueOf(true));
@@ -4879,7 +4531,7 @@ class OMEROGateway
 	/**
 	 * Retrieves all the rendering settings linked to the specified set
 	 * of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The pixels ID.
 	 * @param userID The id of the user.
@@ -4887,17 +4539,18 @@ class OMEROGateway
 	 * 		  and the value is the rendering settings itself.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map getRenderingSettings(SecurityContext ctx, long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Map map = new HashMap();
-		IPixelsPrx service = getPixelsService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
 		try {
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
-			
+
 			if (results == null || results.size() == 0) return map;
 			Iterator i = results.iterator();
 			RenderingDef rndDef;
@@ -4905,7 +4558,7 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				map.put(PojoMapper.asDataObject(exp), 
+				map.put(PojoMapper.asDataObject(exp),
 						PixelsServicesFactory.convert(rndDef));
 			}
 			return map;
@@ -4915,11 +4568,11 @@ class OMEROGateway
 		}
 		return map;
 	}
-	
+
 	/**
 	 * Retrieves all the rendering settings linked to the specified set
 	 * of pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID	The pixels ID.
 	 * @param userID	The id of the user.
@@ -4929,14 +4582,15 @@ class OMEROGateway
 	 * 		  and the value is the rendering settings itself.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<RndProxyDef> getRenderingSettingsFor(SecurityContext ctx,
 			long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IPixelsPrx service = getPixelsService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
 		try {
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
@@ -4952,24 +4606,25 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Retrieves the rendering settings for the specified pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels ID.
 	 * @param userID	The id of the user who set the rendering settings.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	RenderingDef getRenderingDef(SecurityContext ctx, long pixelsID,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IPixelsPrx service = getPixelsService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
 		try {
 			return service.retrieveRndSettingsFor(pixelsID, userID);
 		} catch (Exception e) {
@@ -4980,7 +4635,7 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the annotations of the passed type.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type The type of annotations to include.
 	 * @param toInclude The collection of name space to include.
@@ -4989,14 +4644,15 @@ class OMEROGateway
 	 * @return See above.
 	 *@throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Set loadSpecificAnnotation(SecurityContext ctx, Class type,
 			List<String> toInclude, List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotations(
@@ -5007,10 +4663,10 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-	
+
 	/**
 	 * Counts the annotations of the passed type.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type The type of annotations to include.
 	 * @param toInclude The collection of name space to include.
@@ -5019,17 +4675,18 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long countSpecificAnnotation(SecurityContext ctx, Class type,
 			List<String> toInclude, List<String> toExclude, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			RLong value = service.countSpecifiedAnnotations(
-					convertPojos(type).getName(), toInclude, 
+					convertPojos(type).getName(), toInclude,
 					toExclude, options);
 			if (value == null) return -1;
 			return value.getValue();
@@ -5038,25 +4695,26 @@ class OMEROGateway
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the number of annotations used by the passed user but not
 	 * owned.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param annotationType The type of annotation.
 	 * @param userID The identifier of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long countAnnotationsUsedNotOwned(SecurityContext ctx, Class annotationType,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		long count = 0;
 		try {
 			RLong value = service.countAnnotationsUsedNotOwned(
@@ -5069,17 +4727,17 @@ class OMEROGateway
 		}
 		return count;
 	}
-	
+
 	/**
 	 * Loads the tag Sets and the orphaned tags, if requested.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param annotationType The type of annotation to retrieve.
 	 * @param userID The identifier of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadAnnotationsUsedNotOwned(SecurityContext ctx,
@@ -5087,7 +4745,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set result = new HashSet();
-		IMetadataPrx service = getMetadataService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			List<IObject> set = service.loadAnnotationsUsedNotOwned(
 					convertAnnotation(annotationType), userID);
@@ -5105,22 +4764,23 @@ class OMEROGateway
 		}
 		return result;
 	}
-	
-	/** 
+
+	/**
 	 * Searches the images acquired or created during a given period of time.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param context The context of the search.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Set searchByTime(SecurityContext ctx, SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		ParametersI param = new ParametersI();
 		param.map = new HashMap<String, RType>();
 		StringBuffer buf = new StringBuffer();
@@ -5181,27 +4841,27 @@ class OMEROGateway
 			param.addLongs("ids", ids);
 			if (condition) {
 				buf.append(" and owner.id in (:ids)");
-			} else 
+			} else
 				buf.append("where owner.id in (:ids)");
-			
+
 			return PojoMapper.asDataObjects(
 					service.findAllByQuery(buf.toString(), param));
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the images.");
 		}
-		
+
 		return new HashSet();
 	}
-	
+
 	/**
 	 * Searches for data.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param context The context of search.
 	 * @return The found objects.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object performSearch(SecurityContext ctx, SearchDataContext context)
@@ -5212,8 +4872,9 @@ class OMEROGateway
 		List<Integer> scopes = context.getScope();
 		if (types == null || types.size() == 0) return new HashMap();
 		//if (scopes == null || scopes.size() == 0) return new HashMap();
-		
-		SearchPrx service = getSearchService(ctx);
+
+		Connector c = getConnector(ctx, true, false);
+		SearchPrx service = c.getSearchService();
 		try {
 			service.clearQueries();
 			service.setAllowLeadingWildcard(true);
@@ -5278,25 +4939,25 @@ class OMEROGateway
 			        owners.add(d);
 				}
 			}
-			
-			
+
+
 			List<String> some = prepareTextSearch(context.getSome(), service);
 			List<String> must = prepareTextSearch(context.getMust(), service);
 			List<String> none = prepareTextSearch(context.getNone(), service);
-			
+
 			List<String> supportedTypes = new ArrayList<String>();
 			i = types.iterator();
-			while (i.hasNext()) 
+			while (i.hasNext())
 				supportedTypes.add(convertPojos((Class) i.next()).getName());
 
 			List rType;
-			
+
 			Object size;
 			Integer key;
 			i = scopes.iterator();
-			while (i.hasNext()) 
+			while (i.hasNext())
 				results.put((Integer) i.next(), new ArrayList());
-			
+
 			Iterator<Details> owner;
 			i = scopes.iterator();
 			List<String> fSome = null, fMust = null, fNone = null;
@@ -5345,19 +5006,19 @@ class OMEROGateway
 					//service.onlyOwnedBy(d);
 					service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(
-							convertTypeForSearch(Image.class), rType, 
+							convertTypeForSearch(Image.class), rType,
 							service);
 					if (size instanceof Integer)
 						results.put(key, size);
 					service.clearQueries();
 					if (!(size instanceof Integer) && fSomeSec != null &&
 							fSomeSec.size() > 0) {
-						service.bySomeMustNone(fSomeSec, fMustSec, 
+						service.bySomeMustNone(fSomeSec, fMustSec,
 								fNoneSec);
 						size = handleSearchResult(
-								convertTypeForSearch(Image.class), 
+								convertTypeForSearch(Image.class),
 								rType, service);
-						if (size instanceof Integer) 
+						if (size instanceof Integer)
 							results.put(key, size);
 						service.clearQueries();
 					}
@@ -5368,36 +5029,39 @@ class OMEROGateway
 			return results;
 		} catch (Throwable e) {
 			handleException(e, "Cannot perform the search.");
+		} finally {
+		    c.close(service);
 		}
 		return null;
 	}
 
 	/**
 	 * Returns the collection of annotations of a given type.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param annotationType	The type of annotation.
 	 * @param terms				The terms to search for.
-	 * @param start				The lower bound of the time interval 
+	 * @param start				The lower bound of the time interval
 	 * 							or <code>null</code>.
-	 * @param end				The lower bound of the time interval 
+	 * @param end				The lower bound of the time interval
 	 * 							or <code>null</code>.
 	 * @param exp				The experimenter who annotated the object.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List filterBy(SecurityContext ctx, Class annotationType, List<String> terms,
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		SearchPrx service = getSearchService(ctx);
+		Connector c = getConnector(ctx, true, false);
+	    SearchPrx service = c.getSearchService();
 		try {
 			if (start != null && end != null)
 				service.onlyAnnotatedBetween(
-						omero.rtypes.rtime(start.getTime()), 
+						omero.rtypes.rtime(start.getTime()),
 						omero.rtypes.rtime(end.getTime()));
 			if (exp != null) {
 				Details d = new DetailsI();
@@ -5416,27 +5080,30 @@ class OMEROGateway
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
+		} finally {
+	        c.close(service);
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Retrieves all containers of a given type.
 	 * The containers are not linked to any of their children.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type		The type of container to retrieve.
 	 * @param userID	The id of the owner of the container.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set fetchContainers(SecurityContext ctx, Class type, long userID) 
+	Set fetchContainers(SecurityContext ctx, Class type, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			Parameters p = new ParametersI();
 			p.map = new HashMap<String, RType>();
@@ -5449,9 +5116,9 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param type
 	 * @param annotationIds
@@ -5459,19 +5126,20 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Set getAnnotatedObjects(SecurityContext ctx, Class type,
 			Set<Long> annotationIds, Set<Long> ownerIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			ParametersI param = new ParametersI();
 			param.addLongs("ids", annotationIds);
 			StringBuilder sb = new StringBuilder();
-			
+
 			if (type.equals(ImageData.class)) {
 				sb.append("select img from Image as img ");
 				sb.append("left outer join fetch "
@@ -5486,31 +5154,32 @@ class OMEROGateway
 	            }
 	            return PojoMapper.asDataObjects(
 	         			service.findAllByQuery(sb.toString(), param));
-			}	
+			}
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the annotated objects");
 		}
 		return new HashSet();
 	}
-	
+
 	/**
 	 * Returns the number of images related to a given tag.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param rootNodeIDs The annotated objects.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map getDataObjectsTaggedCount(SecurityContext ctx, List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			ParametersI param;
 			StringBuilder sb = new StringBuilder();
-			
+
 			sb.append("select img from Image as img ");
 			sb.append("left outer join fetch img.annotationLinks ail ");
             sb.append("where ail.child.id = :tagID");
@@ -5524,7 +5193,7 @@ class OMEROGateway
 				param = new ParametersI();
 				param.addLong("tagID", id);
 				l = service.findAllByQuery(sb.toString(), param);
-				if (l != null) 
+				if (l != null)
 					m.put(id, Long.valueOf(l.size()));
 			}
             //Dataset
@@ -5573,22 +5242,23 @@ class OMEROGateway
 		}
 		return new HashMap();
 	}
-	
+
 	/**
 	 * Removes the description linked to the tags.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param tagID  The id of tag to handle.
 	 * @param userID The id of the user who annotated the tag.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	void removeTagDescription(SecurityContext ctx, long tagID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			String type = "ome.model.annotations.TextAnnotation";
 			ParametersI param = new ParametersI();
@@ -5599,7 +5269,7 @@ class OMEROGateway
 			sql += "where link.parent.id = :id";
 			sql += " and link.child member of "+type;
 			sql += " and link.details.owner.id = :uid";
-			
+
 			List l = service.findAllByQuery(sql, param);
 			//remove all the links if any
 			if (l != null) {
@@ -5609,7 +5279,7 @@ class OMEROGateway
 				while (i.hasNext()) {
 					link = (AnnotationAnnotationLink) i.next();
 					child = link.getChild();
-					if (!((child instanceof TagAnnotation) || 
+					if (!((child instanceof TagAnnotation) ||
 						(child instanceof TermAnnotation)))  {
 						deleteObject(ctx, link);
 						deleteObject(ctx, child);
@@ -5620,7 +5290,7 @@ class OMEROGateway
 			handleException(e, "Cannot remove the tag description.");
 		}
 	}
-	
+
 	/** Keeps the services alive. */
 	void keepSessionAlive()
 	{
@@ -5633,11 +5303,11 @@ class OMEROGateway
 			}
 		}
 	}
-	
+
 	/**
-	 * Projects the specified set of pixels according to the projection's 
+	 * Projects the specified set of pixels according to the projection's
 	 * parameters. Adds the created image to the passed dataset.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The id of the pixels set.
 	 * @param startT	The time-point to start projecting from.
@@ -5654,7 +5324,7 @@ class OMEROGateway
 	 * @return The newly created image.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	ImageData projectImage(SecurityContext ctx, long pixelsID, int startT,
@@ -5663,11 +5333,12 @@ class OMEROGateway
 			String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IProjectionPrx service = getProjectionService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IProjectionPrx service = c.getProjectionService();
 		try {
 			PixelsType type = null;
 			if (pixType != null) {
-				IQueryPrx svc = getQueryService(ctx);
+				IQueryPrx svc = c.getQueryService();
 				List<IObject> l = svc.findAll(PixelsType.class.getName(), null);
 				Iterator<IObject> i = l.iterator();
 				PixelsType pt;
@@ -5683,31 +5354,31 @@ class OMEROGateway
 			}
 			long imageID = service.projectPixels(pixelsID, type, algorithm,
 					startT, endT, channels, stepping, startZ, endZ, name);
-			
+
 			return getImage(ctx, imageID, new Parameters());
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the image and loaded pixels.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param imageID The id of the image to load.
 	 * @param options The options.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	ImageData getImage(SecurityContext ctx, long imageID, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			Set result = getContainerImages(ctx, ImageData.class, 
+			Set result = getContainerImages(ctx, ImageData.class,
 					Arrays.asList(imageID), options);
 			if (result != null && result.size() == 1) {
 				Iterator i = result.iterator();
@@ -5720,24 +5391,25 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Creates default rendering setting for the passed pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set to handle.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	RenderingDef createRenderingDef(SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
+	    Connector c = getConnector(ctx, true, false);
+	    IPixelsPrx svc = c.getPixelsService();
 		try {
-			IPixelsPrx svc = getPixelsService(ctx);
 			Pixels pixels = svc.retrievePixDescription(pixelsID);
 			if (pixels == null) return null;
 			IRenderingSettingsPrx service = getRenderingSettingsService(ctx);
@@ -5747,22 +5419,23 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the plate where the specified image has been imported.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param imageID The identifier of the image.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	PlateData getImportedPlate(SecurityContext ctx, long imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			List results = null;
 			Iterator i;
@@ -5789,18 +5462,19 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
-	//TMP: 
+
+	//TMP:
 	Set loadPlateWells(SecurityContext ctx, long plateID, long acquisitionID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
-			
+
 			List results = null;
 			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
-			
+
 			//if no acquisition set. First try to see if we have a id.
 			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
@@ -5811,12 +5485,12 @@ class OMEROGateway
 				sb.append("where pa.plate.id = :plateID");
 				results = service.findAllByQuery(sb.toString(), param);
 				if (results != null && results.size() > 0)
-					acquisitionID = 
+					acquisitionID =
 						((PlateAcquisition) results.get(0)).getId().getValue();
 			}
-			
+
 			sb = new StringBuilder();
-			
+
 			sb.append("select well from Well as well ");
 			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
@@ -5829,7 +5503,7 @@ class OMEROGateway
             if (acquisitionID > 0) {
             	sb.append(" and pa.id = :acquisitionID");
             	param.addLong("acquisitionID", acquisitionID);
-            } 
+            }
             results = service.findAllByQuery(sb.toString(), param);
 			i = results.iterator();
 			while (i.hasNext()) {
@@ -5841,11 +5515,12 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-	
+
 	Set<WellData> loadPlateWells(SecurityContext ctx, List<Long> plateIDs)
 			throws DSOutOfServiceException, DSAccessException
 		{
-			IQueryPrx service = getQueryService(ctx);
+	        Connector c = getConnector(ctx, true, false);
+			IQueryPrx service = c.getQueryService();
 			try {
 				List<RType> ids = new ArrayList<RType>(plateIDs.size());
 				Iterator<Long> j = plateIDs.iterator();
@@ -5854,12 +5529,12 @@ class OMEROGateway
 				List results = null;
 				Set<WellData> wells = new HashSet<WellData>();
 				Iterator i;
-				
+
 				//if no acquisition set. First try to see if we have a id.
 				ParametersI param = new ParametersI();
 				param.add("plateIDs", omero.rtypes.rlist(ids));
 				StringBuilder sb = new StringBuilder();
-				
+
 				sb.append("select well from Well as well ");
 				sb.append("left outer join fetch well.plate as pt ");
 				sb.append("left outer join fetch well.wellSamples as ws ");
@@ -5872,7 +5547,7 @@ class OMEROGateway
 	            results = service.findAllByQuery(sb.toString(), param);
 				i = results.iterator();
 				while (i.hasNext()) {
-					wells.add((WellData) 
+					wells.add((WellData)
 							PojoMapper.asDataObject((Well) i.next()));
 				}
 				return wells;
@@ -5881,7 +5556,7 @@ class OMEROGateway
 			}
 			return new HashSet();
 		}
-	
+
 	/**
 	 * Loads the acquisition object related to the passed image.
 	 * @param ctx The security context.
@@ -5889,7 +5564,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object loadImageAcquisitionData(SecurityContext ctx, long imageID)
@@ -5899,7 +5574,9 @@ class OMEROGateway
 		po.acquisitionData();
 		List<Long> ids = new ArrayList<Long>(1);
 		ids.add(imageID);
-		IContainerPrx service = getPojosService(ctx);
+
+		Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
         try {
         	List images = service.getImages(Image.class.getName(), ids, po);
         	if (images != null && images.size() == 1)
@@ -5909,22 +5586,24 @@ class OMEROGateway
 		}
        return null;
 	}
-	
+
 	/**
 	 * Loads the acquisition metadata related to the specified channel.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param channelID The id of the channel.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object loadChannelAcquisitionData(SecurityContext ctx, long channelID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
+		IQueryPrx query = c.getQueryService();
 		try {
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(channelID);
@@ -5947,7 +5626,7 @@ class OMEROGateway
 					sb.append("where l.id = :id");
 					ParametersI param = new ParametersI();
 					param.addId(src.getId());
-					Laser laser = (Laser) getQueryService(ctx).findByQuery(
+					Laser laser = (Laser) query.findByQuery(
 							sb.toString(), param);
 					if (laser != null)
 						data.setLightSource(new LightSourceData(laser));
@@ -5960,24 +5639,25 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Returns the enumeration corresponding to the passed string or 
+	 * Returns the enumeration corresponding to the passed string or
 	 * <code>null</code> if none found.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param klass The class the enumeration is for.
 	 * @param value The value of the enumeration.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	IObject getEnumeration(SecurityContext ctx, Class klass, String value)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		try {
 			return service.findByString(klass.getName(), "value", value);
 		} catch (Exception e) {
@@ -5985,9 +5665,9 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Returns the enumerations corresponding to the passed type or 
+	 * Returns the enumerations corresponding to the passed type or
 	 * <code>null</code> if none found.
 	 *
 	 * @param ctx The security context.
@@ -5995,20 +5675,21 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<EnumerationObject> getEnumerations(SecurityContext ctx,
 			String klassName)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IPixelsPrx service = getPixelsService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
 		List<EnumerationObject> r;
 		try {
 			r = enumerations.get(klassName);
 			if (r != null) return r;
 			List<IObject> l = service.getAllEnumerations(klassName);
-			r = new ArrayList<EnumerationObject>(); 
+			r = new ArrayList<EnumerationObject>();
 			if (l == null) return r;
 			Iterator<IObject> i = l.iterator();
 			while (i.hasNext()) {
@@ -6021,23 +5702,24 @@ class OMEROGateway
 		}
 		return new ArrayList<EnumerationObject>();
 	}
-	
+
 	/**
 	 * Loads the tags.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id  The id of the tags.
 	 * @param options
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadTags(SecurityContext ctx, Long id, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			List<Long> ids = new ArrayList<Long>(1);
 			ids.add(id);
@@ -6050,22 +5732,23 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
+
 	/**
 	 * Loads the tag Sets and the orphaned tags, if requested.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param options
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadTagSets(SecurityContext ctx, Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			return PojoMapper.asDataObjects(service.loadTagSets(options));
 		} catch (Exception e) {
@@ -6073,11 +5756,11 @@ class OMEROGateway
 		}
 		return new HashSet();
 	}
-	
+
 	/**
 	 * Returns the collection of plane info object related to the specified
 	 * pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The id of the pixels set.
 	 * @param z The selected z-section or <code>-1</code>.
@@ -6086,14 +5769,15 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<IObject> loadPlaneInfo(SecurityContext ctx, long pixelsID, int z,
 			int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx service = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx service = c.getQueryService();
 		StringBuilder sb;
 		ParametersI param;
 		sb = new StringBuilder();
@@ -6116,19 +5800,19 @@ class OMEROGateway
         try {
         	return service.findAllByQuery(sb.toString(), param);
 		} catch (Exception e) {
-			handleException(e, 
+			handleException(e,
 					"Cannot load the plane info for pixels: "+pixelsID);
 		}
 		return new ArrayList<IObject>();
 	}
-	
+
 	/**
 	 * Fills the enumerations.
 	 *
 	 * @param ctx The security context.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	void fillEnumerations(SecurityContext ctx)
@@ -6155,9 +5839,9 @@ class OMEROGateway
 
 	/**
 	 * Creates a movie. Returns the id of the annotation hosting the movie.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param imageID 	The id of the image.	
+	 * @param imageID 	The id of the image.
 	 * @param pixelsID	The id of the pixels.
 	 * @param userID	The id of the user.
      * @param channels 	The channels to map.
@@ -6165,7 +5849,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
@@ -6193,12 +5877,12 @@ class OMEROGateway
 		map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
 		return runScript(ctx, id, map);
 	}
-	
+
 	/**
 	 * Creates a movie. Returns the id of the annotation hosting the movie.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param imageID 	The id of the image.	
+	 * @param imageID 	The id of the image.
 	 * @param pixelsID	The id of the pixels.
 	 * @param userID	The id of the user.
      * @param channels 	The channels to map.
@@ -6206,7 +5890,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
@@ -6220,7 +5904,7 @@ class OMEROGateway
 		if (id <= 0) return null;
 		List<RType> set = new ArrayList<RType>(channels.size());
 		Iterator<Integer> i = channels.iterator();
-		while (i.hasNext()) 
+		while (i.hasNext())
 			set.add(omero.rtypes.rint(i.next()));
 
 		RenderingDef def = null;
@@ -6248,9 +5932,9 @@ class OMEROGateway
 		map.put("T_End", omero.rtypes.rint(endT));
 		map.put("Channels", omero.rtypes.rlist(set));
 		map.put("FPS", omero.rtypes.rint(param.getFps()));
-		map.put("Show_Plane_Info", 
+		map.put("Show_Plane_Info",
 				omero.rtypes.rbool(param.isLabelVisible()));
-		map.put("Show_Time", 
+		map.put("Show_Time",
 				omero.rtypes.rbool(param.isLabelVisible()));
 		map.put("Split_View", omero.rtypes.rbool(false));
 		map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
@@ -6260,16 +5944,16 @@ class OMEROGateway
 					param.getColor()));
 		return runScript(ctx, id, map);
 	}
-	
+
 	/**
 	 * Returns all the scripts that the user can run.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param experimenter The experimenter or <code>null</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ScriptObject> loadRunnableScripts(SecurityContext ctx)
@@ -6278,10 +5962,10 @@ class OMEROGateway
 		IScriptPrx svc = getScriptService(ctx);
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-			
+
 			List<OriginalFile> storedScripts = svc.getScripts();
-		
-			if (storedScripts == null || storedScripts.size() == 0) 
+
+			if (storedScripts == null || storedScripts.size() == 0)
 				return scripts;
 			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
@@ -6295,7 +5979,7 @@ class OMEROGateway
 				v = of.getPath().getValue()+ value.getValue();
 				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)
 					&& !SCRIPTS_UI_AVAILABLE.contains(v)) {
-					script = new ScriptObject(of.getId().getValue(), 
+					script = new ScriptObject(of.getId().getValue(),
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
 					if (value != null) script.setMIMEType(value.getValue());
@@ -6307,7 +5991,7 @@ class OMEROGateway
 			while (j.hasNext()) {
 				of = j.next();
 				value = of.getName();
-				script = new ScriptObject(of.getId().getValue(), 
+				script = new ScriptObject(of.getId().getValue(),
 						of.getPath().getValue(), of.getName().getValue());
 				value = of.getMimetype();
 				if (value != null) script.setMIMEType(value.getValue());
@@ -6319,15 +6003,15 @@ class OMEROGateway
 		}
 		return scripts;
 	}
-	
+
 	/**
 	 * Returns all the official scripts with a UI.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ScriptObject> loadRunnableScriptsWithUI(SecurityContext ctx)
@@ -6336,10 +6020,10 @@ class OMEROGateway
 		IScriptPrx svc = getScriptService(ctx);
 		List<ScriptObject> scripts = new ArrayList<ScriptObject>();
 		try {
-			
+
 			List<OriginalFile> storedScripts = svc.getScripts();
-		
-			if (storedScripts == null || storedScripts.size() == 0) 
+
+			if (storedScripts == null || storedScripts.size() == 0)
 				return scripts;
 			Entry en;
 			Iterator<OriginalFile> j = storedScripts.iterator();
@@ -6352,7 +6036,7 @@ class OMEROGateway
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
 				if (SCRIPTS_UI_AVAILABLE.contains(v)) {
-					script = new ScriptObject(of.getId().getValue(), 
+					script = new ScriptObject(of.getId().getValue(),
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();
 					if (value != null) script.setMIMEType(value.getValue());
@@ -6364,11 +6048,11 @@ class OMEROGateway
 		}
 		return scripts;
 	}
-	
+
 	/**
 	 * Loads and returns the script w/ parameters corresponding to the passed
 	 * identifier.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param scriptID The id of the script.
 	 * @return See above.
@@ -6388,15 +6072,15 @@ class OMEROGateway
 		}
 		return script;
 	}
-	
+
 	/**
 	 * Returns all the scripts currently stored into the system.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Map<Long, String> getScriptsAsString(SecurityContext ctx)
@@ -6427,12 +6111,12 @@ class OMEROGateway
 
 	/**
 	 * Returns all the scripts currently stored into the system.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<OriginalFile> getScripts(SecurityContext ctx)
@@ -6440,29 +6124,29 @@ class OMEROGateway
 	{
 		IScriptPrx svc = getScriptService(ctx);
 		try {
-			
+
 			return svc.getScripts();
 		} catch (Exception e) {
 			handleException(e, "Cannot load the scripts. ");
 		}
 		return new ArrayList<OriginalFile>();
 	}
-	
-	
-	
+
+
+
 	/**
-	 * Creates a split view figure. 
+	 * Creates a split view figure.
 	 * Returns the id of the annotation hosting the figure.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param objectIDs The id of the objects composing the figure.
 	 * @param type The type of objects.
-	 * @param param The parameters to use.	
+	 * @param param The parameters to use.
 	 * @param userID The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
@@ -6492,29 +6176,29 @@ class OMEROGateway
 				long parentID = -1;
 				if (d instanceof DatasetData ||
 						d instanceof ProjectData) parentID = d.getId();
-				 
+
 				//map.put("Data_Type", dataType);
 				map.put("IDs", omero.rtypes.rlist(ids));
 				List<Long> tags = param.getTags();
 				if (tags != null && tags.size() > 0) {
 					ids = new ArrayList<RType>(tags.size());
 					i = tags.iterator();
-					while (i.hasNext()) 
+					while (i.hasNext())
 						ids.add(omero.rtypes.rlong(i.next()));
 					map.put("Tag_IDs", omero.rtypes.rlist(ids));
 				}
 
 				if (parentID > 0)
 					map.put("Parent_ID", omero.rtypes.rlong(parentID));
-				map.put("Show_Untagged_Images", 
+				map.put("Show_Untagged_Images",
 						omero.rtypes.rbool(param.isIncludeUntagged()));
 
 				map.put("Thumbnail_Size", omero.rtypes.rint(param.getWidth()));
 				map.put("Max_Columns", omero.rtypes.rint(
 						param.getMaxPerColumn()));
-				map.put("Format", 
+				map.put("Format",
 						omero.rtypes.rstring(param.getFormatAsString()));
-				map.put("Figure_Name", 
+				map.put("Figure_Name",
 						omero.rtypes.rstring(param.getName()));
 				return runScript(ctx, id, map);
 			case FigureParam.MOVIE:
@@ -6530,7 +6214,7 @@ class OMEROGateway
 			j = mergeChannels.entrySet().iterator();
 			while (j.hasNext()) {
 				entry = (Entry) j.next();
-				merge.put(""+(Integer) entry.getKey(), 
+				merge.put(""+(Integer) entry.getKey(),
 						omero.rtypes.rlong((Integer) entry.getValue()));
 			}
 		}
@@ -6543,7 +6227,7 @@ class OMEROGateway
 			j = splitChannels.entrySet().iterator();
 			while (j.hasNext()) {
 				entry = (Entry) j.next();
-				split.put(""+(Integer) entry.getKey(), 
+				split.put(""+(Integer) entry.getKey(),
 						omero.rtypes.rstring((String) entry.getValue()));
 			}
 		}
@@ -6563,7 +6247,7 @@ class OMEROGateway
 			map.put("Z_Start", omero.rtypes.rint(param.getStartZ()));
 		if (param.getEndZ() >= 0)
 			map.put("Z_End", omero.rtypes.rint(param.getEndZ()));
-		if (split.size() > 0) 
+		if (split.size() > 0)
 			map.put("Channel_Names", omero.rtypes.rmap(split));
 		if (merge.size() > 0)
 			map.put("Merged_Colours", omero.rtypes.rmap(merge));
@@ -6571,13 +6255,13 @@ class OMEROGateway
 			List<Integer> times = param.getTimepoints();
 			List<RType> ts = new ArrayList<RType>(objectIDs.size());
 			Iterator<Integer> k = times.iterator();
-			while (k.hasNext()) 
+			while (k.hasNext())
 				ts.add(omero.rtypes.rint(k.next()));
 			map.put("T_Indexes", omero.rtypes.rlist(ts));
-			map.put("Time_Units", 
+			map.put("Time_Units",
 					omero.rtypes.rstring(param.getTimeAsString()));
-		} else 
-			map.put("Split_Panels_Grey", 
+		} else
+			map.put("Split_Panels_Grey",
 					omero.rtypes.rbool(param.isSplitGrey()));
 		if (param.getScaleBar() > 0)
 			map.put("Scalebar", omero.rtypes.rint(param.getScaleBar()));
@@ -6586,11 +6270,11 @@ class OMEROGateway
 		map.put("Height", omero.rtypes.rint(param.getHeight()));
 		map.put("Stepping", omero.rtypes.rint(param.getStepping()));
 		map.put("Format", omero.rtypes.rstring(param.getFormatAsString()));
-		map.put("Algorithm", 
+		map.put("Algorithm",
 				omero.rtypes.rstring(param.getProjectionTypeAsString()));
-		map.put("Figure_Name", 
+		map.put("Figure_Name",
 				omero.rtypes.rstring(param.getName()));
-		map.put("Image_Labels", 
+		map.put("Image_Labels",
 				omero.rtypes.rstring(param.getLabelAsString()));
 		if (scriptIndex == FigureParam.SPLIT_VIEW_ROI) {
 			map.put("ROI_Zoom", omero.rtypes.rfloat((float)
@@ -6601,7 +6285,7 @@ class OMEROGateway
 	
 	/**
 	 * Imports the specified file. Returns the image.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object Information about the file to import.
 	 * @param container The folder to import the image.
@@ -6694,7 +6378,7 @@ class OMEROGateway
 			try {
 				if (reader != null) reader.close();
 			} catch (Exception ex) {}
-			
+
 			handleConnectionException(e);
 			if (close) closeImport(ctx);
 			throw new ImportException(e);
@@ -6707,14 +6391,14 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the import candidates.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param object Host information about the file to import.
 	 * @param file The file to import.
-	 * @param archived Pass <code>true</code> to archived the files, 
+	 * @param archived Pass <code>true</code> to archived the files,
 	 *                 <code>false</code> otherwise.
 	 * @param depth The depth used to set the name. This will be taken into
 	 *              account if the file is a directory.
@@ -6744,10 +6428,10 @@ class OMEROGateway
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes the rendering service corresponding to the pixels set ID.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID The pixels set Id to handle.
 	 */
@@ -6761,46 +6445,47 @@ class OMEROGateway
 
 	/**
 	 * Loads the folder identified by its absolute path.
-	 * 
+	 *
 	 * @param absolutePath The absolute path.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	DataObject loadFolder(String absolutePath) 
+	DataObject loadFolder(String absolutePath)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			
+
 		} catch (Exception e) {
 			handleException(e, "Cannot find the folder with path: "
 					+absolutePath);
 		}
 		return null;
 	}
-	 
+
 	/**
 	 * Loads the instrument and its components.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The id of the instrument.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object loadInstrument(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IMetadataPrx service = getMetadataService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			Instrument instrument = service.loadInstrument(id);
 			if (instrument == null) return null;
 			return new InstrumentData(instrument);
-			
+
 		} catch (Exception e) {
 			handleException(e, "Cannot load the instrument: "+id);
 		}
@@ -6809,14 +6494,14 @@ class OMEROGateway
 
 	/**
 	 * Loads the table associated to a given node.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parameters The parameters used to retrieve the table.
 	 * @param userID The user's identifier.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<TableResult> loadTabularData(SecurityContext ctx,
@@ -6872,17 +6557,17 @@ class OMEROGateway
 		}
 		return results;
 	}
-	
+
 	/**
 	 * Loads the ROI related to the specified image.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ROIResult> loadROI(SecurityContext ctx, long imageID,
@@ -6890,7 +6575,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ROIResult> results = new ArrayList<ROIResult>();
-		IRoiPrx svc = getROIService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IRoiPrx svc = c.getROIService();
 		try {
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
@@ -6902,7 +6588,7 @@ class OMEROGateway
 				if (r == null) return results;
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements
-				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
+				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID,
 						measurements, options);
 				if (map == null) return results;
 				Iterator i = map.entrySet().iterator();
@@ -6913,7 +6599,7 @@ class OMEROGateway
 					id = (Long) entry.getKey();
 					r = (RoiResult) entry.getValue();
 					//get the table
-					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
+					result = new ROIResult(PojoMapper.asDataObjects(r.rois),
 							id);
 					result.setResult(createTableResult(
 							svc.getTable(id), "Image", imageID));
@@ -6925,10 +6611,10 @@ class OMEROGateway
 		}
 		return results;
 	}
-	
+
 	/**
 	 * Save the ROI for the image to the server.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
@@ -6936,16 +6622,17 @@ class OMEROGateway
 	 * @return updated list of ROIData objects.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ROIData> saveROI(SecurityContext ctx, long imageID, long userID,
 			List<ROIData> roiList)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IUpdatePrx updateService = getUpdateService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IUpdatePrx updateService = c.getUpdateService();
+		IRoiPrx svc = c.getROIService();
 		try {
-			IRoiPrx svc = getROIService(ctx);
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
 			RoiResult serverReturn;
@@ -6959,11 +6646,11 @@ class OMEROGateway
 				if (roi != null)
 					clientROIMap.put(roi.getId(), roi);
 			}
-				
-			
-			/* Create a map of the <id, serverROI>, but remove any roi from 
+
+
+			/* Create a map of the <id, serverROI>, but remove any roi from
 			 * the server that should be deleted, before creating map.
-			 * To delete an roi we first must delete all the roiShapes in 
+			 * To delete an roi we first must delete all the roiShapes in
 			 * the roi. */
 			for (Roi r : serverRoiList) {
 				if (r != null) {
@@ -6972,16 +6659,16 @@ class OMEROGateway
 						roiMap.put(r.getId().getValue(), r);
 				}
 			}
-			
+
 			/* For each roi in the client, see what should be done:
-			 * 1. Create a new roi if it does not exist. 
-			 * 2. build a map of the roiShapes in the clientROI with 
+			 * 1. Create a new roi if it does not exist.
+			 * 2. build a map of the roiShapes in the clientROI with
 			 * ROICoordinate as a key.
 			 * 3. as above but for server roiShapes.
 			 * 4. iterate through the maps to see if the shapes have been
 			 * deleted in the roi on the client, if so then delete the shape on
 			 * the server.
-			 * 5. Somehow the server roi becomes stale on the client so we have 
+			 * 5. Somehow the server roi becomes stale on the client so we have
 			 * to retrieve the roi again from the server before updating it.
 			 * 6. Check to see if the roi in the cleint has been updated
 			 */
@@ -6997,7 +6684,7 @@ class OMEROGateway
 			long id;
 			RoiResult tempResults;
 			int shapeIndex;
-	
+
 			List<Long> deleted = new ArrayList<Long>();
 			Image unloaded = new ImageI(imageID, false);
 			Roi rr;
@@ -7013,10 +6700,10 @@ class OMEROGateway
 					rr.setImage(unloaded);
 					updateService.saveAndReturnObject(rr);
 					continue;
-				}	
-				
+				}
+
 				/*
-				 * Step 2. create the client roiShape map. 
+				 * Step 2. create the client roiShape map.
 				 */
 				serverRoi = roiMap.get(roi.getId());
 				shapeIterator  = roi.getIterator();
@@ -7028,7 +6715,7 @@ class OMEROGateway
 					if (shape != null)
 						clientCoordMap.put(shape.getROICoordinate(), shape);
 				}
-				
+
 				/*
 				 * Step 3. create the server roiShape map.
 				 */
@@ -7063,9 +6750,9 @@ class OMEROGateway
 						s = (Shape) entry.getValue();
 						if (s instanceof Line || s instanceof Polyline) {
 							shape = clientCoordMap.get(coord);
-							if ((s instanceof Line && 
+							if ((s instanceof Line &&
 									shape.asIObject() instanceof Polyline) ||
-								(s instanceof Polyline && 
+								(s instanceof Polyline &&
 									shape.asIObject() instanceof Line)) {
 								removed.add(coord);
 								updateService.deleteObject(s);
@@ -7085,7 +6772,7 @@ class OMEROGateway
 							serverRoi = rrr;
 					}
 				}
-				
+
 				/*
 				 * Step 6. Check to see if the roi in the client has been updated
 				 * if so replace the server roiShape with the client one.
@@ -7097,7 +6784,7 @@ class OMEROGateway
 					entry = (Entry) si.next();
 					coord = (ROICoordinate) entry.getKey();
 					shape = (ShapeData) entry.getValue();
-					
+
 					if (shape != null) {
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
@@ -7111,7 +6798,7 @@ class OMEROGateway
 							{
 								if (serverRoi != null) {
 									serverShape = serverRoi.getShape(j);
-									if (serverShape != null && 
+									if (serverShape != null &&
 											serverShape.getId() != null) {
 										sid = serverShape.getId().getValue();
 										if (sid == shape.getId()) {
@@ -7121,26 +6808,26 @@ class OMEROGateway
 									}
 								}
 							}
-							
+
 							if (shapeIndex == -1) {
 								serverShape = null;
 								shapeIndex = -1;
 								for (int j = 0 ; j < serverRoi.sizeOfShapes() ;
 								j++)
 								{
-									if (serverRoi != null) 
+									if (serverRoi != null)
 									{
 										z = 0;
 										t = 0;
 										serverShape = serverRoi.getShape(j);
 										if (serverShape != null) {
 											if (serverShape.getTheT() != null)
-												t = 
+												t =
 												serverShape.getTheT().getValue();
 											if (serverShape.getTheZ() != null)
-												z = 
+												z =
 												serverShape.getTheZ().getValue();
-											if (t == shape.getT() && 
+											if (t == shape.getT() &&
 												z == shape.getZ())
 											{
 												shapeIndex = j;
@@ -7165,10 +6852,10 @@ class OMEROGateway
 						}
 					}
 				}
-				
-				/* 
+
+				/*
 				 * Step 7. update properties of ROI, if they are changed.
-				 * 
+				 *
 				 */
 				if (serverRoi != null) {
 					Roi ri = (Roi) roi.asIObject();
@@ -7178,7 +6865,7 @@ class OMEROGateway
 					serverRoi.setImage(unloaded);
 					updateService.saveAndReturnObject(serverRoi);
 				}
-				
+
 			}
 			return roiList;
 		} catch (Exception e) {
@@ -7186,24 +6873,25 @@ class OMEROGateway
 		}
 		return new ArrayList<ROIData>();
 	}
-	
+
 	/**
 	 * Loads the <code>FileAnnotationData</code>s for the passed image.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param imageID 	The image's id.
 	 * @param userID	The id of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Collection loadROIMeasurements(SecurityContext ctx, long imageID,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IRoiPrx svc = getROIService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IRoiPrx svc = c.getROIService();
 		try {
 			RoiOptions options = new RoiOptions();
 			options.userId = omero.rtypes.rlong(userID);
@@ -7230,17 +6918,17 @@ class OMEROGateway
 				}
 			}
 			return results;
-			
+
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI measurements for image: "+
 					imageID);
 		}
 		return new ArrayList<Object>();
 	}
-	
+
 	/**
-	 * Returns the file 
-	 * 
+	 * Returns the file
+	 *
 	 * @param index Either OME-XML or OME-TIFF.
 	 * @param file		The file to write the bytes.
 	 * @param imageID	The id of the image.
@@ -7250,21 +6938,20 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
-	File exportImageAsOMEObject(SecurityContext ctx, int index, File f, 
+	File exportImageAsOMEObject(SecurityContext ctx, int index, File f,
 			long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		FileOutputStream stream = null;
 		DSAccessException exception = null;
-		ExporterPrx store = getExporterService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		ExporterPrx store = c.getExporterService();
 		try {
 			stream = new FileOutputStream(f);
 			try {
-				
-				if (store == null) store = getExporterService(ctx);
 				store.addImage(imageID);
 				try {
 					long size = 0;
@@ -7276,7 +6963,7 @@ class OMEROGateway
 						for (offset = 0; (offset+INC) < size;) {
 							stream.write(store.read(offset, INC));
 							offset += INC;
-						}	
+						}
 					} finally {
 						stream.write(store.read(offset, (int) (size-offset)));
 						stream.close();
@@ -7289,9 +6976,7 @@ class OMEROGateway
 					handleConnectionException(e);
 				}
 			} finally {
-				try {
-					if (store != null) closeService(ctx, store);
-				} catch (Exception e) {}
+			    c.close(store);
 				if (exception != null) throw exception;
 				return f;
 			}
@@ -7301,16 +6986,16 @@ class OMEROGateway
 					"Cannot export the image as an OME-TIFF", t);
 		}
 	}
-	
+
 	/**
 	 * Runs the script.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param script The script to run.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 * @throws ProcessException If an error occurred while running the script.
 	 */
@@ -7326,10 +7011,10 @@ class OMEROGateway
 		}
 		return runScript(ctx, id, script.getValueToPass());
 	}
-	
+
 	/**
 	 * Runs the script.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param script The script to run.
 	 * @param official Pass <code>true</code> to indicate that the script will
@@ -7337,7 +7022,7 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object uploadScript(SecurityContext ctx, ScriptObject script,
@@ -7363,7 +7048,7 @@ class OMEROGateway
 				} catch (Exception ex) {
 					//n
 				}
-				handleException(e, 
+				handleException(e,
 						"Cannot upload the script: "+script.getName()+".");
 				return -1;
 			}
@@ -7391,7 +7076,7 @@ class OMEROGateway
 				return svc.uploadOfficialScript(path, buf.toString());
 			return svc.uploadScript(path, buf.toString());
 		} catch (Exception e) {
-			handleException(e, 
+			handleException(e,
 					"Cannot upload the script: "+script.getName()+".");
 		}
 		try {
@@ -7400,29 +7085,30 @@ class OMEROGateway
 		}
 		return -1;
 	}
-	
-	//Admin 
-	
+
+	//Admin
+
 	/**
 	 * Creates the experimenters.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param object The object hosting information about the experimenters 
-	 * to create. 
+	 * @param object The object hosting information about the experimenters
+	 * to create.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> createExperimenters(SecurityContext ctx,
 			AdminObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		List<ExperimenterData> results = new ArrayList<ExperimenterData>();
 		try {
-			Map<ExperimenterData, UserCredentials> 
+			Map<ExperimenterData, UserCredentials>
 				m = object.getExperimenters();
 			Entry entry;
 			Iterator i = m.entrySet().iterator();
@@ -7435,7 +7121,7 @@ class OMEROGateway
 			if (groups != null && groups.size() >= 1) {
 				g = groups.get(0).asGroup();
 				Iterator<GroupData> j = groups.iterator();
-				while (j.hasNext()) 
+				while (j.hasNext())
 					l.add(((GroupData) j.next()).asGroup());
 			}
 			long id;
@@ -7459,14 +7145,14 @@ class OMEROGateway
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
-						id = svc.createExperimenterWithPassword(exp, 
-								omero.rtypes.rstring(password), g, l);			
+						id = svc.createExperimenterWithPassword(exp,
+								omero.rtypes.rstring(password), g, l);
 					} else
 						id = svc.createExperimenter(exp, g, l);
 					exp = svc.getExperimenter(id);
 					if (uc.isOwner() && !systemGroup)
 						svc.setGroupOwner(g, exp);
-					results.add((ExperimenterData) 
+					results.add((ExperimenterData)
 							PojoMapper.asDataObject(exp));
 				}
 			}
@@ -7478,22 +7164,23 @@ class OMEROGateway
 
 	/**
 	 * Creates the experimenters.
-	 * 
+	 *
 	 * @param ctx The security context.
-	 * @param object The object hosting information about the experimenters 
-	 * to create. 
+	 * @param object The object hosting information about the experimenters
+	 * to create.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	GroupData createGroup(SecurityContext ctx, AdminObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
-			Map<ExperimenterData, UserCredentials> 
+			Map<ExperimenterData, UserCredentials>
 				m = object.getExperimenters();
 			Entry entry;
 			Iterator i = m.entrySet().iterator();
@@ -7502,9 +7189,9 @@ class OMEROGateway
 			String password;
 			GroupData groupData = (GroupData) object.getGroup();
 			ExperimenterGroup g = lookupGroup(ctx, groupData.getName());
-			
-			if (g != null) return null; 
-			
+
+			if (g != null) return null;
+
 			g = new ExperimenterGroupI();
 			g.setName(omero.rtypes.rstring(groupData.getName()));
 			g.setDescription(omero.rtypes.rstring(groupData.getDescription()));
@@ -7541,8 +7228,8 @@ class OMEROGateway
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
-						id = svc.createExperimenterWithPassword(exp, 
-								omero.rtypes.rstring(password), g, l);			
+						id = svc.createExperimenterWithPassword(exp,
+								omero.rtypes.rstring(password), g, l);
 					} else
 						id = svc.createExperimenter(exp, g, l);
 					exp = svc.getExperimenter(id);
@@ -7559,23 +7246,24 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Counts the number of experimenters within the specified groups.
-	 * Returns a map whose keys are the group identifiers and the values the 
+	 * Returns a map whose keys are the group identifiers and the values the
 	 * number of experimenters in the group.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param ids The group identifiers.
 	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Long> countExperimenters(SecurityContext ctx, List<Long> groupIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx svc = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		Map<Long, Long> r = new HashMap<Long, Long>();
 		try {
 			ParametersI p = new ParametersI();
@@ -7621,15 +7309,15 @@ class OMEROGateway
 		}
 		return r;
 	}
-	
+
 	/**
 	 * Returns the collection of groups the user is a member of.
-	 * 
+	 *
 	 * @param experimenterID The experimenter's identifier.
 	 * @return See above.
 	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<GroupData> getGroups(SecurityContext ctx, long experimenterID)
@@ -7637,7 +7325,8 @@ class OMEROGateway
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
 		if (experimenterID < 0) return pojos;
-		IQueryPrx svc = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		try {
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
@@ -7652,34 +7341,35 @@ class OMEROGateway
 			Iterator<ExperimenterGroup> i = groups.iterator();
 			while (i.hasNext()) {
 				group = i.next();
-				if (!isSystemGroup(group)) 
-					pojos.add((GroupData) PojoMapper.asDataObject(group));	
+				if (!isSystemGroup(group))
+					pojos.add((GroupData) PojoMapper.asDataObject(group));
 			}
 		} catch (Exception e) {
 			handleConnectionException(e);
 		}
-		
+
 		return pojos;
 	}
-	
+
 	/**
 	 * Loads the groups the experimenters.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The group identifier or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<GroupData> loadGroups(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
-		IQueryPrx svc = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		try {
-			
+
 			List<ExperimenterGroup> groups = null;
 			if (id < 0) {
 				groups = (List)
@@ -7703,11 +7393,11 @@ class OMEROGateway
 			while (i.hasNext()) {
 				group = i.next();
 				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!isSystemGroup(group)) 
-					pojos.add(pojoGroup);	
+				if (!isSystemGroup(group))
+					pojos.add(pojoGroup);
 				else {
 					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
-						pojos.add(pojoGroup);	
+						pojos.add(pojoGroup);
 				}
 			}
 			return pojos;
@@ -7716,23 +7406,24 @@ class OMEROGateway
 		}
 		return pojos;
 	}
-	
+
 	/**
 	 * Loads the groups the experimenters.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The group identifier or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<GroupData> loadGroupsForExperimenter(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> pojos = new ArrayList<GroupData>();
-		IQueryPrx svc = getQueryService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		try {
 			List<ExperimenterGroup> groups = null;
 			ParametersI p = new ParametersI();
@@ -7748,11 +7439,11 @@ class OMEROGateway
 			while (i.hasNext()) {
 				group = i.next();
 				pojoGroup = (GroupData) PojoMapper.asDataObject(group);
-				if (!isSystemGroup(group)) 
-					pojos.add(pojoGroup);	
+				if (!isSystemGroup(group))
+					pojos.add(pojoGroup);
 				else {
 					if (GroupData.SYSTEM.equals(pojoGroup.getName()))
-						pojos.add(pojoGroup);	
+						pojos.add(pojoGroup);
 				}
 			}
 			return pojos;
@@ -7761,24 +7452,25 @@ class OMEROGateway
 		}
 		return pojos;
 	}
-	
+
 	/**
 	 * Loads the experimenters contained in the specified group or all
 	 * experimenters if the value passed is <code>-1</code>.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The group identifier or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> loadExperimenters(SecurityContext ctx, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> pojos = new ArrayList<ExperimenterData>();
-		IAdminPrx service = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IAdminPrx service = c.getAdminService();
 		try {
 			List<Experimenter> l = service.lookupExperimenters();
 			pojos.addAll(PojoMapper.asDataObjects(l));
@@ -7789,15 +7481,15 @@ class OMEROGateway
 	}
 
 	/**
-	 * Deletes the specified experimenters. Returns the experimenters 
+	 * Deletes the specified experimenters. Returns the experimenters
 	 * that could not be deleted.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param experimenters The experimenters to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> deleteExperimenters(SecurityContext ctx,
@@ -7805,7 +7497,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
-		IAdminPrx svc = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		while (i.hasNext()) {
@@ -7819,25 +7512,26 @@ class OMEROGateway
 		}
 		return r;
 	}
-	
+
 	/**
 	 * Copies the experimenter to the specified group.
 	 * Returns the experimenters that could not be copied.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> copyExperimenters(SecurityContext ctx,
 			GroupData group, Collection experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
@@ -7854,18 +7548,18 @@ class OMEROGateway
 		}
 		return r;
 	}
-	
+
 	/**
 	 * Removes the experimenters from the specified group.
 	 * Returns the experimenters that could not be removed.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<ExperimenterData> removeExperimenters(SecurityContext ctx,
@@ -7873,7 +7567,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<ExperimenterData> r = new ArrayList<ExperimenterData>();
-		IAdminPrx svc = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
@@ -7889,24 +7584,25 @@ class OMEROGateway
 		}
 		return r;
 	}
-	
+
 	/**
-	 * Deletes the specified groups. Returns the groups that could not be 
+	 * Deletes the specified groups. Returns the groups that could not be
 	 * deleted.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param groups The groups to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<GroupData> deleteGroups(SecurityContext ctx, List<GroupData> groups)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> r = new ArrayList<GroupData>();
-		IAdminPrx svc = getAdminService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		Iterator<GroupData> i = groups.iterator();
 		GroupData g;
 		while (i.hasNext()) {
@@ -7920,56 +7616,58 @@ class OMEROGateway
 		}
 		return r;
 	}
-	
+
 	/**
 	 * Resets the password of the specified user.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userName 	The login name.
 	 * @param userID 	The id of the user.
 	 * @param password 	The password to set.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	void resetPassword(SecurityContext ctx, String userName, long userID,
 			String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			svc.changeUserPassword(userName, omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the password for:"+userName);
 		}
 	}
-	
+
 	/**
 	 * Resets the login name of the specified user.
 	 * Returns <code>true</code> if the user name could be reset,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userName The login name.
 	 * @param experimenter The experimenter to handle.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	boolean resetUserName(SecurityContext ctx, String userName,
 			ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx service = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx service = c.getAdminService();
 		try {
 			//First check that no user with the name already exists
 			Experimenter value = lookupExperimenter(ctx, userName);
 			if (value == null) {
 				Experimenter exp = experimenter.asExperimenter();
 				exp.setOmeName(omero.rtypes.rstring(userName));
-				
+
 				service.updateExperimenter(exp);
 				return true;
 			}
@@ -7979,16 +7677,16 @@ class OMEROGateway
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Invokes when the user has forgotten his/her password.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param userName The login name.
 	 * @param email The e-mail if set.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	void reportForgottenPassword(SecurityContext ctx, String userName,
@@ -7996,100 +7694,104 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//root need to login and send an e-mail.
-		
+
 	}
-	
+
 	/**
 	 * Returns the group corresponding to the passed name or <code>null</code>.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param name The name of the group.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	ExperimenterGroup lookupGroup(SecurityContext ctx, String name)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			return svc.lookupGroup(name);
 		} catch (Exception e) {
-			if (e instanceof ApiUsageException) 
+			if (e instanceof ApiUsageException)
 				return null;
 			handleException(e, "Cannot load the group.");
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Returns the experimenter corresponding to the passed name or 
+	 * Returns the experimenter corresponding to the passed name or
 	 * <code>null</code>.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param name The name of the experimenter.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Experimenter lookupExperimenter(SecurityContext ctx, String name)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
 			return svc.lookupExperimenter(name);
 		} catch (Exception e) {
-			if (e instanceof ApiUsageException) 
+			if (e instanceof ApiUsageException)
 				return null;
 			handleException(e, "Cannot load the required group.");
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the list of available workflows on the server.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	List<WorkflowData> retrieveWorkflows(SecurityContext ctx, long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		IQueryPrx svc = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IQueryPrx svc = c.getQueryService();
 		try {
 			ParametersI param = new ParametersI();
 			param.map.put("userID", omero.rtypes.rlong(userID));
-			List<Namespace> serverWorkflows = 
+			List<Namespace> serverWorkflows =
 				(List) svc.findAllByQuery("from Namespace as n", param);
 			return PojoMapper.asDataObjectsAsList(serverWorkflows);
 		} catch(Throwable t) {
 			return new ArrayList<WorkflowData>();
 		}
 	}
-	
+
 	/**
 	 * Returns the list of available workflows on the server.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object storeWorkflows(SecurityContext ctx, List<WorkflowData> workflows,
 			long userID)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		IUpdatePrx updateService = getUpdateService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+	    IUpdatePrx updateService = c.getUpdateService();
 		for (WorkflowData workflow : workflows)
 			if (workflow.isDirty())
 			{
@@ -8101,17 +7803,17 @@ class OMEROGateway
 			}
 		return Boolean.valueOf(true);
 	}
-	
+
 	/**
 	 * Reads the file hosting the user photo.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param fileID The id of the file.
 	 * @param size   The size of the file.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	byte[] getUserPhoto(SecurityContext ctx, long fileID, long size)
@@ -8119,68 +7821,66 @@ class OMEROGateway
 	{
 		return retrieveUserPhoto(ctx, fileID, size);
 	}
-	
+
 	/**
 	 * Reads the file hosting the user photo.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param fileID The id of the file.
 	 * @param size   The size of the file.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	private byte[] retrieveUserPhoto(SecurityContext ctx,
 			long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		RawFileStorePrx store = getRawFileService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		RawFileStorePrx store = c.getRawFileService();
 		try {
 			store.setFileId(fileID);
-		} catch (Throwable e) {
-			closeService(ctx, store);
-			handleException(e, "Cannot set the file's id.");
-		}
-		try {
 			return store.read(0, (int) size);
 		} catch (Exception e) {
-			closeService(ctx, store);
 			handleConnectionException(e);
 			throw new DSAccessException("Cannot read the file" +fileID, e);
+		} finally {
+		    c.close(store);
 		}
 	}
-	
+
 	/**
 	 * Uploads the photo hosting the user photo.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param fileID The id of the file.
 	 * @param size   The size of the file.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	long uploadExperimenterPhoto(SecurityContext ctx, File file, String format,
 			long experimenterID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		try {
-			FileInputStream stream = new FileInputStream(file); 
-			long length = file.length(); 
+			FileInputStream stream = new FileInputStream(file);
+			long length = file.length();
 			//Make sure the file is not too big.
-			byte[] bytes = new byte[(int) length]; 
-			int offset = 0; int r = 0; 
-			while (offset < bytes.length && 
+			byte[] bytes = new byte[(int) length];
+			int offset = 0; int r = 0;
+			while (offset < bytes.length &&
 					(r = stream.read(bytes, offset, bytes.length-offset)) >= 0)
-				offset += r; 
+				offset += r;
 			if (offset < bytes.length)
 				throw new IOException("Could not completely read file "+
-						file.getName()); 
+						file.getName());
 			stream.close();
 			return svc.uploadMyUserPhoto(file.getName(), format, bytes);
 		} catch (Exception e) {
@@ -8214,35 +7914,36 @@ class OMEROGateway
 	}
 
 	/**
-	 * Returns the back-off time if it requires a pyramid to be built, 
+	 * Returns the back-off time if it requires a pyramid to be built,
 	 * <code>null</code> otherwise.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsId The identifier of the pixels set to handle.
 	 * @return See above
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occurred while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Boolean isLargeImage(SecurityContext ctx, long pixelsId)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		try {
-			RawPixelsStorePrx store = getPixelsStore(ctx);
+        Connector c = getConnector(ctx, true, false);
+        RawPixelsStorePrx store = c.getPixelsStore();
+	    try {
 			store.setPixelsId(pixelsId, true);
-			boolean b = store.requiresPixelsPyramid();
-			store.close();
-			return b;
+			return store.requiresPixelsPyramid();
 		} catch (Exception e) {
 			handleException(e, "Cannot start the Raw pixels store.");
+		} finally {
+		    c.close(store);
 		}
 		return null;
 	}
-	
-	/** 
+
+	/**
 	 * Closes the services initialized by the importer.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 */
 	void closeImport(SecurityContext ctx)
@@ -8251,26 +7952,27 @@ class OMEROGateway
 			Connector c = getConnector(ctx, false, true);
 			if (c != null) c.closeImport();
 		} catch (Exception e) {
-			// TODO: handle exception
+		    log("Failed to close import: " + e);
 		}
 	}
-	
+
 	/**
 	 * Adds the experimenters to the specified group.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	void addExperimenters(SecurityContext ctx, GroupData group,
 			List<ExperimenterData> experimenters)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IAdminPrx svc = getAdminService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IAdminPrx svc = c.getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		try {
 			List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
@@ -8286,7 +7988,7 @@ class OMEROGateway
 	/**
 	 * Checks that the specified context and the object match, if they don't
 	 * creates and returns a matching context.
-	 * 
+	 *
 	 * @param ctx The context to handle.
 	 * @param ho The context to handle.
 	 * @return See above.
@@ -8302,24 +8004,24 @@ class OMEROGateway
 
 	/**
 	 * Moves data between groups.
-	 * 
+	 *
 	 * @param ctx The security context of the source group.
 	 * @param target The security context of the destination group.
 	 * @param map The object to move and where to move them
 	 * @param options The options.
 	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
-	RequestCallback transfer(SecurityContext ctx, SecurityContext target, 
+	RequestCallback transfer(SecurityContext ctx, SecurityContext target,
 			Map<DataObject, List<IObject>> map, Map<String, String> options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Connector c = getConnector(ctx, true, true);
-		if (c == null) return null;
-		IAdminPrx svc = getAdminService(ctx);
-		
+		if (c == null) return null; // TODO:
+		IAdminPrx svc = c.getAdminService();
+
 		try {
 			Entry entry;
 			Iterator i = map.entrySet().iterator();
@@ -8352,11 +8054,11 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Returns <code>true</code> if the object can be deleted, 
+	 * Returns <code>true</code> if the object can be deleted,
 	 * <code>false</code> otherwise.
-	 * 
+	 *
 	 * @param ho The object to handle.
 	 * @return See above.
 	 */
@@ -8368,20 +8070,21 @@ class OMEROGateway
 
 	/**
 	 * Retrieves the dimensions in microns of the specified pixels set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param pixelsID  The pixels set ID.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
 	 */
 	List<IObject> getPixels(SecurityContext ctx, List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		IPixelsPrx service = getPixelsService(ctx);
-		IContainerPrx container = getPojosService(ctx);
-		IQueryPrx query = getQueryService(ctx);
+	    Connector c = getConnector(ctx, true, false);
+		IPixelsPrx service = c.getPixelsService();
+		IContainerPrx container = c.getPojosService();
+		IQueryPrx query = c.getQueryService();
 		try {
 			DataObject ho = objects.get(0);
 			List<Long> ids = new ArrayList<Long>();
@@ -8432,7 +8135,7 @@ class OMEROGateway
 			while (j.hasNext())
 				l.add(omero.rtypes.rlong(j.next()));
 			param.add("ids", omero.rtypes.rlist(l));
-			
+
            return query.findAllByQuery(buffer.toString(), param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the pixels sets");
@@ -8442,11 +8145,11 @@ class OMEROGateway
 
 	/**
 	 * Removes the security context.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
-	void removeGroup(SecurityContext ctx) 
+	void removeGroup(SecurityContext ctx)
 	throws Exception
 	{
 		if (ctx == null) return;
@@ -8463,10 +8166,10 @@ class OMEROGateway
 		}
 	}
 
-	/** 
-	 * Shuts down the connectors created while creating/importing data for 
+	/**
+	 * Shuts down the connectors created while creating/importing data for
 	 * other users.
-	 * 
+	 *
 	 * @param ctx
 	 * @throws Exception Thrown if the connector cannot be closed.
 	 */
@@ -8486,7 +8189,7 @@ class OMEROGateway
 	 * Loads the annotations of the given type linked to the specified objects.
 	 * Returns a map whose keys are the object's id and the values are a
 	 * collection of annotation linked to that object.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param rootType The type of object the annotations are linked to e.g.
 	 * Image.
@@ -8497,7 +8200,7 @@ class OMEROGateway
 	 * @param options Options to retrieve the data.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	Map<Long, Collection<AnnotationData>>
@@ -8507,7 +8210,8 @@ class OMEROGateway
 	throws DSOutOfServiceException, DSAccessException
 	{
 		String type = convertAnnotation(annotationType);
-		IMetadataPrx service = getMetadataService(ctx);
+		Connector c = getConnector(ctx, true, false);
+		IMetadataPrx service = c.getMetadataService();
 		try {
 			return PojoMapper.asDataObjects(
 					service.loadSpecifiedAnnotationsLinkedTo(type, nsInclude,
@@ -8519,16 +8223,16 @@ class OMEROGateway
 		}
 		return new HashMap<Long, Collection<AnnotationData>>();
 	}
-	
+
 	/**
 	 * Executes the commands.
-	 * 
+	 *
 	 * @param commands The commands to execute.
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws ProcessException If an error occurred while running the script.
 	 *  @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
 	RequestCallback submit(List<Request> commands, SecurityContext ctx)
@@ -8544,4 +8248,14 @@ class OMEROGateway
 			throw new ProcessException("Cannot execute the command.", e);
 		}
 	}
+
+    /**
+     * Temporary workaround until an insight logger instance can be obtained
+     * from the container.
+     */
+    private void log(String msg) {
+        org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
+                getClass().getName());
+        logger.debug(msg);
+    }
 }
