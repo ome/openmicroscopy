@@ -106,7 +106,6 @@ import omero.client;
 import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
-import omero.api.IConfigPrx;
 import omero.api.IContainerPrx;
 import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
