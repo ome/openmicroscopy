@@ -66,7 +66,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -684,8 +683,9 @@ class TreeViewerWin
     /** Creates and displays the title of the window. */
     void createTitle()
     {
-    	 String title = model.getExperimenterNames()+"'s ";
-         setTitle(title+TITLE);
+    	String title = model.getExperimenterNames()+" @";
+    	title += model.getHostname();
+    	setTitle(title);
     }
     
     /** Expands the first pane. */
