@@ -556,4 +556,11 @@ public class NullRenderingService
 		return null;
 	}
 
+	@Override
+	public Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
+			throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

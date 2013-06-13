@@ -1849,7 +1849,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
 	 */
-	public Long getRenderingDefID(SecurityContext ctx, long pixelsID,
+	public Long getRenderingDef(SecurityContext ctx, long pixelsID,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
