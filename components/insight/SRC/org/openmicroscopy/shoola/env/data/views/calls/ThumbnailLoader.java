@@ -107,45 +107,36 @@ public class ThumbnailLoader
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
-     * @param image		The image the thumbnail for.
-     * @param userID	The id of the user the thumbnail is for.
+     * @param pxd The image the thumbnail for.
+     * @param userID The id of the user the thumbnail is for.
      */
-    private void loadThumbail(ImageData image, long userID) 
+    private void loadThumbail(PixelsData pxd, long userID) 
     {
-        PixelsData pxd = null;
-        boolean valid = true;
-        try {
-        	pxd = image.getDefaultPixels();
-		} catch (Exception e) {} //something went wrong during import
         BufferedImage thumbPix = null;
-        if (pxd == null) {
-        	valid = false;
-        	thumbPix = Factory.createDefaultImageThumbnail(-1);
-        } else {
-        	int sizeX = maxWidth, sizeY = maxHeight;
-        	if (asImage) {
-        		sizeX = pxd.getSizeX();
-        		sizeY = pxd.getSizeY();
-        	} else {
-        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
-        				pxd.getSizeX(), pxd.getSizeY());
-        		sizeX = d.width;
-        		sizeY = d.height;
-        	}
-        	try {
-            	thumbPix = service.getThumbnail(ctx, pxd.getId(), sizeX, sizeY,
-            									userID);
-            } catch (RenderingServiceException e) {
-            	context.getLogger().error(this, 
-            			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
-            }
-            if (thumbPix == null) {
-            	valid = false;
-            	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
-            }  
+        boolean valid = true;
+        int sizeX = maxWidth, sizeY = maxHeight;
+    	if (asImage) {
+    		sizeX = pxd.getSizeX();
+    		sizeY = pxd.getSizeY();
+    	} else {
+    		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
+    				pxd.getSizeX(), pxd.getSizeY());
+    		sizeX = d.width;
+    		sizeY = d.height;
+    	}
+    	try {
+        	thumbPix = service.getThumbnail(ctx, pxd.getId(), sizeX, sizeY,
+        									userID);
+        } catch (RenderingServiceException e) {
+        	context.getLogger().error(this, 
+        			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }
-        currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID, 
-        		valid);
+        if (thumbPix == null) {
+        	valid = false;
+        	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
+        }
+        currentThumbnail = new ThumbnailData(pxd.getImage().getId(), thumbPix,
+        		userID, valid);
     }
     
     /**
@@ -182,28 +173,32 @@ public class ThumbnailLoader
      */
     protected void buildTree()
     {
-        if (pixelsCall) {
-            add(makeBatchCall());
-            return;
-        }
-        String description;
-        Iterator j = userIDs.iterator();
+    	if (pixelsCall) {
+    		add(makeBatchCall());
+    		return;
+    	}
+    	String description;
+    	Iterator<Long> j = userIDs.iterator();
     	Long id;
-    	Iterator i;
-    	ImageData image;
+    	Iterator<DataObject> i;
+    	DataObject image;
+    	PixelsData pxd;
     	while (j.hasNext()) {
-			id = (Long) j.next();
-			final long userID = id;
-			i = images.iterator();
-			while (i.hasNext()) {
-				image = (ImageData) i.next();
-				description = "Loading thumbnail: "+image.getName();
-            	final ImageData index = image;
-            	add(new BatchCall(description) {
-            		public void doCall() { loadThumbail(index, userID); }
-            	});  
-			}
-		}
+    		id = j.next();
+    		final long userID = id;
+    		i = images.iterator();
+    		while (i.hasNext()) {
+    			image = (DataObject) i.next();
+    			if (image instanceof ImageData)
+    				pxd = ((ImageData) image).getDefaultPixels();
+    			else pxd = (PixelsData) image;
+    			description = "Loading thumbnail";
+    			final PixelsData index = pxd;
+    			add(new BatchCall(description) {
+    				public void doCall() { loadThumbail(index, userID); }
+    			});  
+    		}
+    	}
     }
 
     /**

@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 //Third-party libraries
 
@@ -159,7 +157,7 @@ public class ThumbnailLoader
      */
     public void load()
     {
-    	long userID = DataBrowserAgent.getUserDetails().getId();
+    	long userID = -1;
     	if (thumbnail) 
     		handle = hiBrwView.loadThumbnails(ctx, objects, 
                     ThumbnailProvider.THUMB_MAX_WIDTH,
@@ -193,33 +191,23 @@ public class ThumbnailLoader
                 status = (percDone == 100) ? "Done" :  //Else
                                          ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
-            List l = (List) fe.getPartialResult();
-            if (l != null && l.size()  > 0) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	Object ref;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		ref = td.getRefObject();
-            		if (ref == null) ref = td.getImageID();
-            		viewer.setThumbnail(ref, td.getThumbnail(), 
-            				td.isValidImage(), max);
-				}
+            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null) {
+            	Object ref = td.getRefObject();
+            	if (ref == null) ref = td.getImageID();
+            	viewer.setThumbnail(ref, td.getThumbnail(),
+            			td.isValidImage(), max);
             }
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else
         			""; //Description wasn't available.   
         	viewer.setSlideViewStatus(status, percDone);
-        	List l = (List) fe.getPartialResult();
-            if (l != null) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		viewer.setSlideViewImage(td.getImageID(), 
-            				td.getThumbnail());
-				}
+        	ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null) {
+            	Object ref = td.getRefObject();
+            	if (ref == null) ref = td.getImageID();
+            	viewer.setSlideViewImage(td.getImageID(), td.getThumbnail());
             }
         }
     }
