@@ -1466,19 +1466,28 @@ class OMEROGateway
 	    try {
             isNetworkUp(); // Need safe version?
         } catch (Exception e1) {
-            throw new DSOutOfServiceException("Can't check network up");
+            if (permitNull) {
+                log("Failed to check network. Returning null connector");
+                return null;
+            }
+            throw new DSOutOfServiceException("Can't check network up", e1);
         }
 
 	    if (!networkup.get()) {
             if (permitNull) {
-                throw new DSOutOfServiceException(
-                        "networkup false but connector required");
+                log("Network down. Returning null connector");
+                return null;
             }
-            return null;
+            throw new DSOutOfServiceException(
+                    "network is down but connector required");
         }
 
         if (ctx == null) {
-		    return null;
+            if (permitNull) {
+                log("Null SecurityContext. Returning null connector");
+                return null;
+            }
+            throw new DSOutOfServiceException("Null SecurityContext");
 		}
 
 		Connector c = null;
@@ -1493,9 +1502,11 @@ class OMEROGateway
 
 		//We are going to create a connector and activate a session.
 		if (!recreate) {
-		    if (!permitNull) {
-		        throw new DSOutOfServiceException("Not allowed to recreate");
+		    if (permitNull) {
+		        log("Cannot re-create. Returning null connector");
+		        return null;
 		    }
+		    throw new DSOutOfServiceException("Not allowed to recreate");
 		}
 
     	try {
