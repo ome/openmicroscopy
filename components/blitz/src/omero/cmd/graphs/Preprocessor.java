@@ -27,6 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -58,6 +60,8 @@ import omero.cmd.Request;
  * @since 5.0
  */
 public class Preprocessor {
+
+    private final static Logger log = LoggerFactory.getLogger(Preprocessor.class);
     /**
      * The types of target for which we care about adjusting graph operation requests.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -195,6 +199,8 @@ public class Preprocessor {
         hqlFromTo = builder.build();
     }
 
+    private final Ice.Communicator ic;
+
     protected final List<Request> requests;
 
     private final Helper helper;
@@ -221,29 +227,32 @@ public class Preprocessor {
      */
     protected final void transform(Predicate<Request> isRelevant, GraphModifyTarget newRequestTarget,
             Set<GraphModifyTarget> prohibitedPrefixes, Set<GraphModifyTarget> prohibitedSuffixes) {
+
         boolean added = false;
-        int index = 0;
-        while (index < this.requests.size()) {
+
+        for (int index = this.requests.size() - 1; index >= 0; index--) {
+
             if (!isRelevant.apply(requests.get(index))) {
-                index++;
                 continue;
             }
+
             final GraphModify request = (GraphModify) this.requests.get(index);
             final TargetType targetType = TargetType.byName.get(request.type);
             if (targetType == null) {
-                index++;
                 continue;
             }
+
             /* it is a relevant request with an understood target type */
             final GraphModifyTarget requestTarget = new GraphModifyTarget(targetType, request.id);
             /* must we now prefix it? */
             if (!added && prohibitedPrefixes.contains(requestTarget)) {
                 added = true;
                 /* FIXME: this does not modify user-set options */
-                final GraphModify newRequest = (GraphModify) request.clone();
+                final GraphModify newRequest = 
+                        (GraphModify) ((IGraphModifyRequest) request).copy();
                 newRequest.type = TargetType.byType.get(newRequestTarget.targetType);
                 newRequest.id = newRequestTarget.targetId;
-                this.requests.add(index++, newRequest);
+                this.requests.add(index+1, newRequest);
             }
             /* must we remove it? */
             if (prohibitedSuffixes.contains(requestTarget)) {
@@ -251,8 +260,6 @@ public class Preprocessor {
                     throw new IllegalArgumentException("some prohibited prefix must occur before any prohibited suffixes");
                 }
                 this.requests.remove(index);
-            } else {
-                index++;
             }
         }
         if (!added) {
@@ -261,6 +268,11 @@ public class Preprocessor {
     }
 
     public Preprocessor(List<Request> requests, Helper helper) {
+        this(null, requests, helper);
+    }
+
+    public Preprocessor(Ice.Communicator ic, List<Request> requests, Helper helper) {
+        this.ic = ic;
         this.requests = requests;
         this.helper = helper;
 
@@ -412,6 +424,7 @@ public class Preprocessor {
      * Preprocess the list of requests.
      */
     protected void process() {
+        boolean modified = false;
         for (final Predicate<Request> isRelevant : predicatesForRequests()) {
             final SetMultimap<TargetType, GraphModifyTarget> targets = HashMultimap.create();
 
@@ -435,7 +448,6 @@ public class Preprocessor {
             }
 
             /* review the referenced FS images */
-
             while (!targets.get(TargetType.IMAGE).isEmpty()) {
                 final GraphModifyTarget image = targets.get(TargetType.IMAGE).iterator().next();
                 /* find the image's fileset */
@@ -464,11 +476,11 @@ public class Preprocessor {
                 final boolean completeFileset = targets.get(TargetType.IMAGE).containsAll(filesetImages);
                 /* this iteration will handle this fileset sufficiently, so do not revisit it */
                 targets.get(TargetType.IMAGE).removeAll(filesetImages);
-                /* this preprocessing is only needed for when a fileset has multiple images all of which are referenced */
-                if (!(filesetImages.size() > 1 && completeFileset)) {
+                /* this preprocessing is applied only when all of a fileset's images are referenced */
+                if (!(completeFileset)) {
                     continue;
                 }
-                /* okay, list the fileset as a target among the requests, before any of its images or their containers */
+                /* okay, list the fileset as a target among the requests, after all of its images and their containers */
                 final Set<GraphModifyTarget> prohibitedPrefixes = new HashSet<GraphModifyTarget>(filesetImages);
                 for (final GraphModifyTarget filesetImage : filesetImages) {
                     prohibitedPrefixes.addAll(getAllContainers(filesetImage));
@@ -478,7 +490,45 @@ public class Preprocessor {
                 prohibitedSuffixes.add(fileset);
                 /* adjust the list of requests accordingly */
                 transform(isRelevant, fileset, prohibitedPrefixes, prohibitedSuffixes);
+                modified = true;
             }
         }
+
+        if (modified) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(requestToString(requests.get(0)));
+            for (int i = 1; i < requests.size(); i++) {
+                sb.append(",");
+                sb.append(requestToString(requests.get(i)));
+            }
+            log.debug("transformed to: {}", sb);
+        }
+    }
+
+
+    /**
+     * Convert a single request to a pretty string.
+     */
+    protected String requestToString(final Request request) {
+        StringBuilder requestString = new StringBuilder();
+        if (request instanceof Delete) {
+            requestString.append("DELETE");
+        } else if (request instanceof Chgrp) {
+            requestString.append("CHGRP");
+            requestString.append('(');
+            requestString.append(((Chgrp) request).grp);
+            requestString.append(')');
+        } else {
+            requestString.append('?');
+        }
+        if (request instanceof GraphModify) {
+            final GraphModify graphModify = (GraphModify) request;
+            requestString.append('[');
+            requestString.append(graphModify.type);
+            requestString.append(':');
+            requestString.append(graphModify.id);
+            requestString.append(']');
+        }
+        return requestString.toString();
     }
 }

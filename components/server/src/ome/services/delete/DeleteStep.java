@@ -44,10 +44,20 @@ public class DeleteStep extends GraphStep {
 
     final private OmeroContext ctx;
 
+    /**
+     * IDs of fileset a related fileset which must be guaranteed to have also
+     * been deleted later in the transaction.
+     */
+    private Long filesetId = null;
+
     public DeleteStep(ExtendedMetadata em, OmeroContext ctx, int idx, List<GraphStep> stack,
             GraphSpec spec, GraphEntry entry, long[] ids) {
         super(em, idx, stack, spec, entry, ids);
         this.ctx = ctx;
+    }
+
+    public Long getFilesetId() {
+        return filesetId;
     }
 
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
@@ -63,14 +73,22 @@ public class DeleteStep extends GraphStep {
             }
         }
 
-        final QueryBuilder nullOp = optionalNullBuilder();
         final QueryBuilder qb = spec.deleteQuery(ec, table, opts);
 
         // Phase 2: NULL
-        optionallyNullField(session, nullOp, id);
+        optionallyNullField(session, id);
 
         // Phase 3: validation (duplicates constraint violation logic)
         graphValidation(session);
+        // also record any fileset ID for later deletion check.
+        // this replaces a "pre-commit" trigger. TODO needs better
+        // integration
+        if ("Image".equals(table)) {
+            QueryBuilder fsQb = new QueryBuilder();
+            fsQb.select("i.fileset.id").from("Image", "i");
+            fsQb.where().and("i.id = :id").param("id", id);
+            filesetId = (Long) fsQb.query(session).uniqueResult();
+        }
 
         // Phase 4: primary action
         StopWatch swStep = new Slf4JStopWatch();
@@ -84,37 +102,6 @@ public class DeleteStep extends GraphStep {
         logResults(count);
         swStep.lap("omero.deletestep." + table + "." + id);
 
-    }
-
-    private QueryBuilder optionalNullBuilder() {
-        QueryBuilder nullOp = null;
-        if (entry.isNull()) { // WORKAROUND see #2776, #2966
-            // If this is a null operation, we don't want to modify the source
-            // row,
-            // but modify a second row pointing at the source row via a FK.
-            //
-            // NB: below we also prevent this from
-            // being raised as an event. TODO: refactor out to Op
-            //
-            nullOp = new QueryBuilder();
-            nullOp.update(table);
-            nullOp.append("set relatedTo = null ");
-            nullOp.where();
-            nullOp.and("relatedTo.id = :id");
-        }
-        return nullOp;
-    }
-
-    private void optionallyNullField(Session session,
-            final QueryBuilder nullOp, Long id) {
-        if (nullOp != null) {
-            nullOp.param("id", id);
-            Query q = nullOp.query(session);
-            int updated = q.executeUpdate();
-            if (log.isDebugEnabled()) {
-                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
-            }
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -152,4 +139,5 @@ public class DeleteStep extends GraphStep {
         }
 
     }
+
 }

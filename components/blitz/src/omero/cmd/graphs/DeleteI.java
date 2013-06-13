@@ -34,7 +34,6 @@ import omero.cmd.DeleteRsp;
 import omero.cmd.ERR;
 import omero.cmd.HandleI.Cancel;
 import omero.cmd.Helper;
-import omero.cmd.IRequest;
 import omero.cmd.Response;
 
 /**
@@ -45,7 +44,7 @@ import omero.cmd.Response;
  * @since 4.4.0
  */
 @SuppressWarnings("deprecation")
-public class DeleteI extends Delete implements IRequest {
+public class DeleteI extends Delete implements IGraphModifyRequest {
 
     private static final long serialVersionUID = -3653081139095111039L;
 
@@ -53,7 +52,10 @@ public class DeleteI extends Delete implements IRequest {
 
     private/* final */Helper helper;
 
-    public DeleteI(Deletion delegate) {
+    private final Ice.Communicator ic;
+
+    public DeleteI(Ice.Communicator ic, Deletion delegate) {
+        this.ic = ic;
         this.delegate = delegate;
     }
 
@@ -78,7 +80,19 @@ public class DeleteI extends Delete implements IRequest {
     }
 
     //
-    // IRequest API
+    // IGraphModifyRequest
+    //
+
+    @Override
+    public IGraphModifyRequest copy() {
+        DeleteI copy = (DeleteI) ic.findObjectFactory(ice_id()).create(DeleteI.ice_staticId());
+        copy.type = type;
+        copy.id = id;
+        return copy;
+    }
+
+    //
+    // IRequest
     //
 
     public Map<String, String> getCallContext() {
@@ -113,6 +127,17 @@ public class DeleteI extends Delete implements IRequest {
                     cve.getConstraintName());
         } catch (Throwable t) {
             throw helper.cancel(err(), t, "failure");
+        }
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        try {
+            delegate.finish();
+        } catch (GraphException ge) {
+            throw helper.graphException(ge, helper.getSteps()+1, id);
+        } catch (Throwable t) {
+            throw helper.cancel(err(), t, "on-finish");
         }
     }
 

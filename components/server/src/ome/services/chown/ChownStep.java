@@ -19,6 +19,7 @@ import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphStep;
+import ome.services.graphs.GraphStep.Callback;
 import ome.services.messages.EventLogMessage;
 import ome.services.sharing.ShareBean;
 import ome.system.OmeroContext;
@@ -150,6 +151,66 @@ public class ChownStep extends GraphStep {
         }
 
         sw.stop("omero.chown.step." + lock[0] + "." + lock[1]);
+
+        return rv;
+    }
+
+
+    public void validate(Session session, GraphOpts opts)
+    throws GraphException {
+
+        // ticket:6422 - validation of graph, phase 2
+        // =====================================================================
+        final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
+
+        List<String> total = new ArrayList<String>();
+        for (String[] lock : locks) {
+            Long bad = findImproperOutgoingLinks(session, lock);
+            if (bad != null && bad > 0) {
+                String msg = String.format("%s:%s improperly links to %s.%s: %s",
+                        iObjectType.getSimpleName(), id, lock[0], lock[1],
+                        bad);
+                total.add(msg);
+            }
+        }
+        if (total.size() > 0) {
+            if (opts.isForce()) {
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete(table);
+                qb.where();
+                qb.and("id = :id");
+                qb.param("id", id);
+                qb.query(session).executeUpdate();
+            } else {
+                throw new GraphException(String.format("%s:%s improperly links to %s objects",
+                    iObjectType.getSimpleName(), id, total.size()));
+            }
+        }
+
+    }
+
+    private Long findImproperOutgoingLinks(Session session, String[] lock) {
+        StopWatch sw = new Slf4JStopWatch();
+        String str = String.format(
+                "select count(*) from %s target, %s source " +
+                "where target.id = source.%s.id and source.id = ? " +
+                "and not (target.details.group.id = ? " +
+                "  or target.details.group.id = ?)",
+                lock[0], iObjectType.getName(), lock[1]);
+
+        Query q = session.createQuery(str);
+        q.setLong(0, id);
+        // FIXME: q.setLong(1, grp);
+        q.setLong(2, userGroup);
+        Long rv = (Long) q.list().get(0);
+
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
+                    rv, str, id, usr, userGroup));
+        }
+
+        sw.stop("omero.chown.validation." + lock[0] + "." + lock[1]);
 
         return rv;
     }

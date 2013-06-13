@@ -57,6 +57,8 @@ public class QueryBuilder {
 
     private final Set<String> random = new HashSet<String>();
 
+    private final Map<Integer, Object> seqParams = new HashMap<Integer, Object>();
+
     private final Map<String, Object> params = new HashMap<String, Object>();
 
     private final Map<String, Collection> listParams = new HashMap<String, Collection>();
@@ -289,6 +291,11 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder param(int id, Object o) {
+        seqParams.put(id, o);
+        return this;
+    }
+
     public QueryBuilder param(String key, Object o) {
         params.put(key, o);
         return this;
@@ -375,6 +382,9 @@ public class QueryBuilder {
         for (String key : params.keySet()) {
             q.setParameter(key, params.get(key));
         }
+        for (Integer key : seqParams.keySet()) {
+            q.setParameter(key, seqParams.get(key));
+        }
         for (String key : listParams.keySet()) {
             q.setParameterList(key, listParams.get(key));
         }
@@ -419,6 +429,7 @@ public class QueryBuilder {
         StringBuilder toString = new StringBuilder();
         toString.append(queryString());
         toString.append(params);
+        toString.append(seqParams);
         toString.append(listParams);
         return toString.toString();
     }

@@ -52,10 +52,10 @@ public abstract class ObjectFactoryRegistry {
 
     }
 
-    public abstract Map<String, ObjectFactory> createFactories();
+    public abstract Map<String, ObjectFactory> createFactories(Ice.Communicator ic);
 
     public void setIceCommunicator(Ice.Communicator ic) {
-        Map<String, ObjectFactory> factories = createFactories();
+        Map<String, ObjectFactory> factories = createFactories(ic);
         for (ObjectFactory of : factories.values()) {
             of.register(log, ic, false);
         }
