@@ -172,12 +172,18 @@ public class NetworkChecker {
         if (useCachedValue) {
             long elapsed = System.currentTimeMillis() - lastCheck.get();
             if (elapsed <= 5000) {
-                return lastValue.get();
+                boolean last = lastValue.get();
+                log("Cached networkup: %s", last);
+                return last;
             }
         }
+        long start = System.currentTimeMillis();
         boolean newValue = _isNetworkup();
+        long stop = System.currentTimeMillis();
+        long elapsed = stop - start;
+        log("Network status: %s (in %s ms.)", newValue, elapsed);
         lastValue.set(newValue);
-        lastCheck.set(System.currentTimeMillis());
+        lastCheck.set(stop);
         return newValue;
     }
 
@@ -248,5 +254,14 @@ public class NetworkChecker {
 			throw new UnknownHostException("Network is down.");
 		}
 		return networkup;
+	}
+
+	static org.apache.log4j.Logger logger = 
+	        org.apache.log4j.Logger.getLogger(NetworkChecker.class.getName());
+
+	void log(String msg, Object...objs) {
+	    if (logger.isDebugEnabled()) {
+	        logger.debug(String.format(msg, objs));
+	    }
 	}
 }
