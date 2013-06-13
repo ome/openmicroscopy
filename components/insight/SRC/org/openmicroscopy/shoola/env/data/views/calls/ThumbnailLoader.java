@@ -35,6 +35,7 @@ import java.util.Set;
 
 //Third-party libraries
 
+import omero.ServerError;
 //Application-internal dependencies
 import omero.api.ThumbnailStorePrx;
 import omero.model.RenderingDef;
@@ -122,17 +123,18 @@ public class ThumbnailLoader
         BufferedImage thumbPix = null;
         boolean valid = true;
         int sizeX = maxWidth, sizeY = maxHeight;
-    	if (asImage) {
-    		sizeX = pxd.getSizeX();
-    		sizeY = pxd.getSizeY();
-    	} else {
-    		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
-    				pxd.getSizeX(), pxd.getSizeY());
-    		sizeX = d.width;
-    		sizeY = d.height;
-    	}
-    	try {
-    		if (!store.setPixelsId(pxd.getId())) {
+        try {
+        	if (asImage) {
+        		sizeX = pxd.getSizeX();
+        		sizeY = pxd.getSizeY();
+        	} else {
+        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
+        				pxd.getSizeX(), pxd.getSizeY());
+        		sizeX = d.width;
+        		sizeY = d.height;
+        	}
+
+        	if (!store.setPixelsId(pxd.getId())) {
     			store.resetDefaults();
     			store.setPixelsId(pxd.getId());
     		}
@@ -214,23 +216,35 @@ public class ThumbnailLoader
 				context.getLogger().debug(this,
 						"Cannot start thumbnail store.");
 			}
-    		final ThumbnailStorePrx value = store;
-    		int size = images.size()-1;
-    		int k = 0;
-    		while (i.hasNext()) {
-    			image = (DataObject) i.next();
-    			if (image instanceof ImageData)
-    				pxd = ((ImageData) image).getDefaultPixels();
-    			else pxd = (PixelsData) image;
-    			description = "Loading thumbnail";
-    			final PixelsData index = pxd;
-    			final boolean last = size == k;
-    			k++;
-    			add(new BatchCall(description) {
-    				public void doCall() {
-    					loadThumbail(index, userID, value, last);
-    				}
-    			});
+    		try {
+        		final ThumbnailStorePrx value = store;
+        		int size = images.size()-1;
+        		int k = 0;
+        		while (i.hasNext()) {
+        			image = (DataObject) i.next();
+        			if (image instanceof ImageData)
+        				pxd = ((ImageData) image).getDefaultPixels();
+        			else pxd = (PixelsData) image;
+        			description = "Loading thumbnail";
+        			final PixelsData index = pxd;
+        			final boolean last = size == k;
+        			k++;
+        			add(new BatchCall(description) {
+        				public void doCall() {
+        					loadThumbail(index, userID, value, last);
+        				}
+        			});
+        		}
+    		} catch (RuntimeException r) {
+    		    // If we fail to pass control to loadThumbnail
+    		    // then we need to clean up the service.
+    		    if (store != null) {
+    		        try {
+                        store.close();
+                    } catch (ServerError e) {
+                        context.getLogger().warn(this, "Failed to close " + store);
+                    }
+    		    }
     		}
     	}
     }
