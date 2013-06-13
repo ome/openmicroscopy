@@ -625,7 +625,7 @@ abstract class DataBrowserModel
 			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
 					                                    toKeep.size());
 			ThumbnailLoader loader = new ThumbnailLoader(component, ctx,
-					nodes, false, ThumbnailLoader.IMAGE);
+					nodes, false, ThumbnailLoader.IMAGE, nodes.size());
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}
@@ -973,6 +973,7 @@ abstract class DataBrowserModel
 	 */
 	List<DataBrowserLoader> createThumbnailsLoader(List<DataObject> images)
 	{
+		if (images == null) return null;
 		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
 		int n = images.size();
 		int diff = n/MAX_LOADER;
@@ -989,7 +990,8 @@ abstract class DataBrowserModel
 				step += l.size();
 			}
 			if (l.size() > 0) {
-				loaders.add(new ThumbnailLoader(component, ctx, l));
+				loaders.add(new ThumbnailLoader(component, ctx, l,
+						n));
 			}
 		}
 		return loaders;
