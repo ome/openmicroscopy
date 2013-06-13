@@ -91,7 +91,7 @@ class ImagesModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -104,7 +104,7 @@ class ImagesModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
+		List<DataObject> imgs = new ArrayList<DataObject>();
 		ImageData img;
 		if (ids != null) {
 			while (i.hasNext()) {
@@ -137,7 +137,7 @@ class ImagesModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
+		return createThumbnailsLoader(imgs);
 	}
 	
 	/**
