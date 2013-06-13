@@ -45,6 +45,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 
@@ -414,7 +415,7 @@ class OMEROGateway
 	private String serverVersion;
 
 	/** Tells whether or not the network is up.*/
-	private boolean networkup;
+	private final AtomicBoolean networkup = new AtomicBoolean(true); 
 
 	/** Checks if the network is up or not.*/
 	private NetworkChecker networkChecker;
@@ -470,8 +471,12 @@ class OMEROGateway
     private void isNetworkUp(boolean useCachedValue)
         throws Exception
     {
-        networkup = false;
-        networkup = networkChecker.isNetworkup(useCachedValue);
+        try {
+            networkup.set(networkChecker.isNetworkup(useCachedValue));
+        } catch (Throwable t) {
+            log("Error on isNetworkUp check:" + t);
+            networkup.set(false);
+        }
     }
 
     /**
@@ -960,7 +965,7 @@ class OMEROGateway
 	 * Resets the network value to <code>true</code> when the user decides to
 	 * cancel the dialog indicating that the network when down.
 	 */
-	void resetNetwork() { networkup = true; }
+	void resetNetwork() { networkup.set(true); }
 
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
@@ -1444,7 +1449,7 @@ class OMEROGateway
 	 *     by the end of the execution.
 	 * @return
 	 */
-	private Connector getConnector(SecurityContext ctx, boolean recreate,
+	Connector getConnector(SecurityContext ctx, boolean recreate,
 	        boolean permitNull)
 		throws DSOutOfServiceException
 	{
@@ -1455,7 +1460,7 @@ class OMEROGateway
             throw new DSOutOfServiceException("Can't check network up");
         }
 
-	    if (!networkup) {
+	    if (!networkup.get()) {
             if (permitNull) {
                 throw new DSOutOfServiceException(
                         "networkup false but connector required");
@@ -2192,6 +2197,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			// no need to handle the exception.
 		}
+		boolean networkup = this.networkup.get(); // our copy
 		connected = false;
 		Iterator<Connector> i = removeAllConnectors().iterator();
 		while (i.hasNext()) {
@@ -2220,7 +2226,7 @@ class OMEROGateway
 			Iterator<Connector> i = getAllConnectors().iterator();
 			while (i.hasNext()) {
 			    // Should each close perhaps be in its own try/catch?
-				i.next().close(networkup);
+				i.next().close(networkup.get());
 			}
 		} catch (Throwable e) {
 			// Should this really be ignored?
@@ -8167,7 +8173,7 @@ class OMEROGateway
 		isNetworkUp();
 		for (Connector c:  clist) {
 		    try {
-		        c.close(networkup);
+		        c.close(networkup.get());
 		    } catch (Throwable e) {
 		        // FIXME: should this be thrown?
 		        new Exception("Cannot close the connector", e);
@@ -8188,7 +8194,7 @@ class OMEROGateway
 		Connector c = getConnector(ctx, true, true);
 		if (c == null) return;
 		try {
-			c.closeDerived(networkup);
+			c.closeDerived(networkup.get());
 		} catch (Throwable e) {
 			new Exception("Cannot close the derived connectors", e);
 		}
