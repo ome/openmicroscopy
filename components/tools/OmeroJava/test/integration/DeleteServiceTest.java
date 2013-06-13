@@ -151,6 +151,9 @@ public class DeleteServiceTest
 	/** The namespace. */
 	public static final String NAMESPACE_2 = "omero.test.namespace2";
 	
+	/** Identifies the fileset as root. */
+	public static final String REF_FILESET = "/Fileset";
+	
 	/** Identifies the image as root. */
 	public static final String REF_IMAGE = "/Image";
 	
