@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.util;
+package org.openmicroscopy.shoola.agents.util.ui;
 
 
 //Java imports
@@ -39,7 +39,6 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -59,15 +58,15 @@ import pojos.PlateData;
  * </small>
  * @since 3.0-Beta4
  */
-class ThumbnailLabel 
+public class ThumbnailLabel
 	extends JLabel
 {
 
 	/** Bound property indicating to browse the specified plate. */
-	static final String BROWSE_PLATE_PROPERTY = "browsePlate";
+	public static final String BROWSE_PLATE_PROPERTY = "browsePlate";
 	
 	/** Bound property indicating to view the image. */
-	static final String VIEW_IMAGE_PROPERTY = "viewImage";
+	public static final String VIEW_IMAGE_PROPERTY = "viewImage";
 	
 	/** The border of the thumbnail label. */
 	private static final Border	LABEL_BORDER = 
@@ -81,7 +80,7 @@ class ThumbnailLabel
 	
 	/** The thumbnail or the image to host. */
 	private Object data;
-	
+
 	/** Posts an event to view the object. */
 	private void view()
 	{
@@ -155,14 +154,14 @@ class ThumbnailLabel
 	}
 	
 	/** Creates a default new instance. */
-	ThumbnailLabel() {}
+	public ThumbnailLabel() {}
 	
 	/**  
 	 * Creates a new instance. 
 	 * 
 	 * @param icon The icon to display.
 	 */
-	ThumbnailLabel(Icon icon)
+	public ThumbnailLabel(Icon icon)
 	{
 		super(icon);
 	}
@@ -172,7 +171,7 @@ class ThumbnailLabel
 	 * 
 	 * @param data The imported image.
 	 */
-	void setData(Object data)
+	public void setData(Object data)
 	{
 		if (data == null) return;
 		this.data = data;
@@ -180,8 +179,6 @@ class ThumbnailLabel
 			setToolTipText(IMAGE_LABEL_TOOLTIP);
 		} else if (data instanceof PlateData) {
 			setToolTipText(PLATE_LABEL_TOOLTIP);
-			IconManager icons = IconManager.getInstance();
-			setIcon(icons.getIcon(IconManager.PLATE));
 		} else if (data instanceof ThumbnailData) {
 			setThumbnail((ThumbnailData) data);
 			return;

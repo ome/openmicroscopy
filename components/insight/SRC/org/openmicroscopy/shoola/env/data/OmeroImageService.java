@@ -193,7 +193,7 @@ public interface OmeroImageService
 	 * @throws RenderingServiceException  If the server is out of service.
 	 */
 	public Map<Long, BufferedImage> getThumbnailSet(SecurityContext ctx,
-		List pixelsID, int maxLength)
+		Collection<Long> pixelsID, int maxLength)
 		throws RenderingServiceException;
 	
 	/**

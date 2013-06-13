@@ -70,6 +70,7 @@ import omero.model.ExperimenterGroup;
 import omero.model.Session;
 import omero.sys.Principal;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 
@@ -850,8 +851,7 @@ class Connector
 	RequestCallback submit(List<Request> commands, SecurityContext target)
 		throws Throwable
 	{
-		if (commands == null || commands.size() == 0)
-			return null;
+		if (CollectionUtils.isEmpty(commands)) return null;
 		DoAll all = new DoAll();
 		all.requests = commands;
 		Map<String, String> callContext = new HashMap<String, String>();

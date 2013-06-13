@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker;
 import org.openmicroscopy.shoola.agents.treeviewer.MoveDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ParentLoader;
@@ -62,6 +63,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ScriptsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TagHierarchyLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.ImageChecker.ImageCheckerType;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
@@ -1497,6 +1499,22 @@ class TreeViewerModel
 			default:
 				displayMode = LookupNames.EXPERIMENTER_DISPLAY;
 		}
+	}
+
+	/**
+	 * Starts an asynchronous call checking if the images are split between
+	 * various containers preventing the action to happen.
+	 * 
+	 * @param objects The object to handle.
+	 * @param action The object to handle after the check.
+	 * @param index The type of action.
+	 */
+	void fireImageChecking(Map<SecurityContext, List<DataObject>> objects,
+			Object action, ImageCheckerType index)
+	{
+		ImageChecker loader = new ImageChecker(component, getSecurityContext(),
+				objects, action, index);
+		loader.load();
 	}
 
 }
