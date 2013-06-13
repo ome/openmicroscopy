@@ -611,17 +611,16 @@ class Connector
 		    log("Failed to close " + proxy + "(" + e + ")");
 		} finally {
 		    if (proxy instanceof RenderingEnginePrx) {
-		        synchronized (reServices) {
-                    for (Long key : reServices.keySet()) {
-                        reServices.get(key).remove(proxy);
-                    }
+		        Set<Long> keys = reServices.keySet();
+		        keys.addAll(reServices.keySet());
+                for (Long key : keys) {
+                    reServices.remove(key, proxy);
                 }
 		    } else {
-		        synchronized (statefulServices) {
-		            for (String key : statefulServices.keySet()) {
-		                statefulServices.get(key).remove(proxy);
-		            }
-                }
+		        Set<String> keys = statefulServices.keySet();
+	            for (String key : keys) {
+	                statefulServices.remove(key, proxy);
+	            }
 		    }
 		}
 	}
