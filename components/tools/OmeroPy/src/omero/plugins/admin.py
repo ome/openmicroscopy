@@ -637,6 +637,14 @@ Examples:
             omero_data_dir = config['omero.data.dir']
         except KeyError:
             pass
+
+        from omero.util.temp_files import gettempdir
+        # gettempdir returns ~/omero/tmp/omero_%NAME/%PROCESS
+        # To find something more generally useful for calculating
+        # size, we go up two directories
+        omero_temp_dir = gettempdir()
+        omero_temp_dir = os.path.abspath(os.path.join(omero_temp_dir, os.path.pardir, os.path.pardir))
+
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -905,21 +913,36 @@ OMERO Diagnostics %s
         env_val("OMERO_HOME")
         env_val("OMERO_NODE")
         env_val("OMERO_MASTER")
+        env_val("OMERO_TEMPDIR")
         env_val("PATH")
         env_val("ICE_HOME")
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
         self.ctx.out("")
-        exists = os.path.exists(omero_data_dir)
-        is_writable = os.access(omero_data_dir, os.R_OK|os.W_OK)
-        self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
-            (omero_data_dir, exists, is_writable))
+        for dir_name, dir_path, dir_size in (
+                ("data", omero_data_dir, ""),
+                ("temp", omero_temp_dir, True)):
+            exists = os.path.exists(dir_path)
+            is_writable = os.access(dir_path, os.R_OK|os.W_OK)
+            if dir_size and exists:
+                dir_size = self.getdirsize(omero_temp_dir)
+                dir_size = "   (Size: %s)" % dir_size
+            self.ctx.out("OMERO %s dir: '%s'\tExists? %s\tIs writable? %s%s" % \
+                (dir_name, dir_path, exists, is_writable, dir_size))
+
         from omero.plugins.web import WebControl
         try:
             WebControl().status(args)
         except:
             self.ctx.out("OMERO.web not installed!")
+
+    def getdirsize(self, directory):
+        total = 0
+        for values in os.walk(directory):
+            for filename in values[2]:
+                total += os.path.getsize(os.path.join(values[0], filename))
+        return total
 
     def session_manager(self, communicator):
         import IceGrid, Glacier2

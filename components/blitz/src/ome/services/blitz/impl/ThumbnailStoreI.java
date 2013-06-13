@@ -44,7 +44,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see ome.api.ThumbnailStore
  */
-public class ThumbnailStoreI extends AbstractAmdServant implements
+public class ThumbnailStoreI extends AbstractCloseableAmdServant implements
         _ThumbnailStoreOperations {
 
     public ThumbnailStoreI(ThumbnailStore service, BlitzExecutor be) {
@@ -167,4 +167,17 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current);
     }
 
+    //
+    // Close logic
+    //
+
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
+    }
 }

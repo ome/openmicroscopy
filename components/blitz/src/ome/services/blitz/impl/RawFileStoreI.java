@@ -46,7 +46,7 @@ import Ice.TieBase;
  * @since 3.0-Beta4
  * @see ome.api.RawFileStore
  */
-public class RawFileStoreI extends AbstractAmdServant implements
+public class RawFileStoreI extends AbstractCloseableAmdServant implements
 _RawFileStoreOperations, ServiceFactoryAware, TieAware {
 
     private ServiceFactoryI sf;
@@ -123,6 +123,25 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         callInvokerOnRawArgs(__cb, __current);
     }
 
+
+    //
+    // Close logic
+    //
+
+    @Override
+    protected void preClose(Current current) throws Throwable {
+        // no-op
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
+    }
+
+    //
+    // Redirect
+    //
+
     public boolean __redirect(final long fileId, final _RawFileStoreTie rfsTie,
             final Ice.Current current) throws ServerError {
 
@@ -158,7 +177,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         return true;
     }
 
-    private static class OpsDelegate extends AbstractAmdServant implements
+    private static class OpsDelegate extends AbstractCloseableAmdServant implements
             _RawFileStoreOperations {
 
         final private _RawFileStoreTie tie;
@@ -241,6 +260,16 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
                     return null;
                 }
             });
+        }
+
+        @Override
+        protected void preClose(Current current) throws Throwable {
+            prx.close(current.ctx);
+        }
+
+        @Override
+        protected void postClose(Current current) {
+            // no-op
         }
 
     }
