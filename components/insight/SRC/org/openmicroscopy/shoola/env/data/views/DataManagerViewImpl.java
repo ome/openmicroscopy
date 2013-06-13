@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.DataObjectTransfer;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.FilesChecker;
+import org.openmicroscopy.shoola.env.data.views.calls.ImageSplitChecker;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
@@ -346,6 +347,19 @@ class DataManagerViewImpl
 			Collection<Long> ids, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new PlateWellsLoader(ctx, ids);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#getImagesBySplitFilesets(Map,
+	 * List, AgentEventListener)
+	 */
+	public CallHandle getImagesBySplitFilesets(
+			Map<SecurityContext, List<DataObject>> objects,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ImageSplitChecker(objects);
 		return cmd.exec(observer);
 	}
 }

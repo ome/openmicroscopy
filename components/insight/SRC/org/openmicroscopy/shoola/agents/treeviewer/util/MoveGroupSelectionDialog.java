@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -63,22 +62,17 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeViewerTranslator;
-import org.openmicroscopy.shoola.env.data.model.TransferableActivityParam;
-import org.openmicroscopy.shoola.env.data.model.TransferableObject;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
 
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -96,6 +90,9 @@ public class MoveGroupSelectionDialog
 	implements ActionListener, PropertyChangeListener, TreeSelectionListener
 {
 
+	/** Bound property indicating to transfer the data.*/
+	public static final String TRANSFER_PROPERTY = "transfer";
+	
 	/** Action id to close and dispose.*/
 	public static final int CANCEL = 1;
 	
@@ -109,16 +106,13 @@ public class MoveGroupSelectionDialog
 	private static final int CREATE = 3;
 	
 	/** Text displayed in the header.*/
-	private static final String TEXT = "Select where to move the data into ";
+	private static final String TEXT = "Select where to move the data.";
 	
 	/** The default size of the busy image.*/
 	private static final Dimension SIZE = new Dimension(32, 32);
 	
-	/** The group to move the data to.*/
-	private GroupData group;
-	
-	/** The data to move.*/
-	private Map<SecurityContext, List<DataObject>> toMove;
+	/** The object to handle.*/
+	private ChgrpObject object;
 	
 	/** The button to close and dispose.*/
 	private JButton cancelButton;
@@ -252,7 +246,6 @@ public class MoveGroupSelectionDialog
 	/** Moves the data.*/
 	private void move()
 	{
-		SecurityContext ctx = new SecurityContext(group.getId());
 		DataObject target = null;
 		if (toCreate != null) {
 			target = toCreate;
@@ -267,14 +260,9 @@ public class MoveGroupSelectionDialog
 				}
 			}
 		}
-		TransferableObject t = new TransferableObject(ctx, target, toMove);
-		t.setGroupName(group.getName());
-		IconManager icons = IconManager.getInstance();
-		TransferableActivityParam param = new TransferableActivityParam(
-				icons.getIcon(IconManager.MOVE_22), t);
-		param.setFailureIcon(icons.getIcon(IconManager.MOVE_FAILED_22));
-		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(null, param);
+		ChgrpObject newObject = new ChgrpObject(object.getGroupData(),
+				target, object.getTransferable());
+		firePropertyChange(TRANSFER_PROPERTY, null, newObject);
 		cancel();
 	}
 	
@@ -299,7 +287,7 @@ public class MoveGroupSelectionDialog
 		moveButton.setActionCommand(""+MOVE);
 		Entry<SecurityContext, List<DataObject>> entry;
 		Iterator<Entry<SecurityContext, List<DataObject>>>
-		i = toMove.entrySet().iterator();
+		i = object.getTransferable().entrySet().iterator();
 		List<DataObject> list;
 		DataObject data;
 		while (i.hasNext()) {
@@ -350,10 +338,9 @@ public class MoveGroupSelectionDialog
 	private void buildGUI()
 	{
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(getTitle(), TEXT+group.getName(), 
+		TitlePanel tp = new TitlePanel(getTitle(), TEXT,
 				icons.getIcon(IconManager.MOVE_48));
 		Container c = getContentPane();
-		//c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 		c.add(tp, BorderLayout.NORTH);
 		JXBusyLabel label = new JXBusyLabel(SIZE);
 		label.setBusy(true);
@@ -461,22 +448,21 @@ public class MoveGroupSelectionDialog
 	 * 
 	 * @param owner The owner of the dialog.
 	 * @param userID The identifier of the user.
-	 * @param group The group where to move the data to.
-	 * @param toMove The objects to move.
+	 * @param object The object to move.
 	 * @param same Pass <code>true</code> if the user moving the data and the 
 	 * 			   owner of the data are the same person, <code>false</code>
 	 */
-	public MoveGroupSelectionDialog(JFrame owner, long userID, GroupData group,
-			Map<SecurityContext, List<DataObject>> toMove, boolean same)
+	public MoveGroupSelectionDialog(JFrame owner, long userID,
+			ChgrpObject object, boolean same)
 	{
 		super(owner);
-		if (group == null)
-			throw new IllegalArgumentException("No group.");
-		if (toMove == null || toMove.size() == 0)
-			throw new IllegalArgumentException("No data to move.");
-		setTitle("Move to "+group.getName());
-		this.group = group;
-		this.toMove = toMove;
+		if (object == null)
+			throw new IllegalArgumentException("No object to move.");
+		StringBuffer buf = new StringBuffer();
+		buf.append("Move to ");
+		buf.append(object.getGroupData().getName());
+		setTitle(buf.toString());
+		this.object = object;
 		this.userID = userID;
 		initComponents(same);
 		buildGUI();
