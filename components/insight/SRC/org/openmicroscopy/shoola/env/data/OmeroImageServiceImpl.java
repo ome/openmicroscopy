@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -1834,9 +1834,14 @@ class OmeroImageServiceImpl
 		return gateway.getFileSet(ctx, Arrays.asList(imageId));
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#createThumbnailStore(SecurityContext)
+	 */
 	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException
 	{
+		if (ctx == null) return null;
 		return gateway.createThumbnailStore(ctx);
 	}
 }

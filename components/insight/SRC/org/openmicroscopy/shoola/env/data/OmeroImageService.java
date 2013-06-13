@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -857,6 +857,18 @@ public interface OmeroImageService
 	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException;
 
+	/**
+	 * Creates a thumbnail store for the specified security context.
+	 * This method has to be used with care. The stateful service must be closed
+	 * when the work is complete.
+	 * 
+	 * @param ctx The context to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException If an error occurred while trying to
+	 *                                  retrieve data from OMEDS service.
+	 */
 	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException;
 }

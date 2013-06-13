@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -989,8 +989,7 @@ abstract class DataBrowserModel
 				step += l.size();
 			}
 			if (l.size() > 0) {
-				loaders.add(new ThumbnailLoader(component, ctx,
-						sorter.sort(l)));
+				loaders.add(new ThumbnailLoader(component, ctx, l));
 			}
 		}
 		return loaders;
@@ -1009,11 +1008,11 @@ abstract class DataBrowserModel
     		                                             Collection ids);
 
     /** 
-     * Returns the type of the model. 
+     * Returns the type of the model.
      * 
      * @return See above.
      */
-    protected abstract int getType(); 
+    protected abstract int getType();
     
     /**
      * Returns the collection of {@link ImageDisplay}.
