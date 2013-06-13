@@ -145,55 +145,13 @@ public class ThumbnailLoader
     		thumbPix = WriterImage.bytesToImage(
     				store.getThumbnail(omero.rtypes.rint(sizeX),
     				omero.rtypes.rint(sizeY)));
-    		
-        	//thumbPix = service.getThumbnail(ctx, pxd.getId(), sizeX, sizeY,
-        	//								userID);
         } catch (Throwable e) {
-        	e.printStackTrace();
-        	context.getLogger().error(this, 
+        	context.getLogger().error(this,
         			"Cannot retrieve thumbnail: "+e.getMessage());
         } finally {
         	if (last) {
-        		try {
-					store.close();
-				} catch (Exception ex) {
-				}
+        		context.getDataService().closeService(ctx, store);
         	}
-        }
-        if (thumbPix == null) {
-        	valid = false;
-        	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
-        }
-        currentThumbnail = new ThumbnailData(pxd.getImage().getId(), thumbPix,
-        		userID, valid);
-    }
-    
-    /**
-     * Loads the thumbnail for {@link #images}<code>[index]</code>.
-     * 
-     * @param pxd The image the thumbnail for.
-     * @param userID The id of the user the thumbnail is for.
-     */
-    private void loadThumbail(PixelsData pxd, long userID) 
-    {
-        BufferedImage thumbPix = null;
-        boolean valid = true;
-        int sizeX = maxWidth, sizeY = maxHeight;
-    	if (asImage) {
-    		sizeX = pxd.getSizeX();
-    		sizeY = pxd.getSizeY();
-    	} else {
-    		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
-    				pxd.getSizeX(), pxd.getSizeY());
-    		sizeX = d.width;
-    		sizeY = d.height;
-    	}
-    	try {
-        	thumbPix = service.getThumbnail(ctx, pxd.getId(), sizeX, sizeY,
-        									userID);
-        } catch (RenderingServiceException e) {
-        	context.getLogger().error(this, 
-        			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }
         if (thumbPix == null) {
         	valid = false;
@@ -255,10 +213,11 @@ public class ThumbnailLoader
     		try {
     			store = service.createThumbnailStore(ctx);
 			} catch (Exception e) {
-				// TODO: handle exception
+				context.getLogger().debug(this,
+						"Cannot start thumbnail store.");
 			}
     		final ThumbnailStorePrx value = store;
-    		int size = images.size();
+    		int size = images.size()-1;
     		int k = 0;
     		while (i.hasNext()) {
     			image = (DataObject) i.next();
@@ -270,15 +229,10 @@ public class ThumbnailLoader
     			final boolean last = size == k;
     			k++;
     			add(new BatchCall(description) {
-    				public void doCall() { loadThumbail(index, userID, value, last); }
-    			});  
-    		}
-    		if (value != null) {
-    			try {
-					//value.close();
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
+    				public void doCall() {
+    					loadThumbail(index, userID, value, last);
+    				}
+    			});
     		}
     	}
     }

@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import omero.api.StatefulServiceInterfacePrx;
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.model.Annotation;
@@ -969,4 +970,15 @@ class OmeroDataServiceImpl
 		return gateway.transfer(ctx, target, map, options);
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#closeService(SecurityContext,
+	 * StatefulServiceInterfacePrx)
+	 */
+	public void closeService(SecurityContext ctx,
+			StatefulServiceInterfacePrx svc)
+	{
+		if (ctx == null || svc == null) return;
+		gateway.closeService(ctx, svc);
+	}
 }

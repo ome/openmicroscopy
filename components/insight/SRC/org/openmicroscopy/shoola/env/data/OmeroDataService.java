@@ -35,11 +35,13 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
+import omero.api.StatefulServiceInterfacePrx;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
 import pojos.DataObject;
 
 /** 
@@ -447,4 +449,11 @@ public interface OmeroDataService
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException;
 
+	/**
+	 * Closes the specified service.
+	 *
+	 * @param ctx The security context
+	 * @param svc The service to handle.
+	 */
+	void closeService(SecurityContext ctx, StatefulServiceInterfacePrx svc);
 }
