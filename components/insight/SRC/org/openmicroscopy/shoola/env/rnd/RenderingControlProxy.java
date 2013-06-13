@@ -163,12 +163,6 @@ class RenderingControlProxy
     /** Flag indicating that the image is a big image or not.*/
     private Boolean bigImage;
     
-    /** Check if the network is up or not.*/
-    private NetworkChecker checker;
-    
-    /** Flag indicating if the network is up or not.*/
-	private boolean networkUp = true;
-	
 	/** The associated rendering controls.*/
 	private List<RenderingControl> slaves;
 	
@@ -798,16 +792,12 @@ class RenderingControlProxy
 	}
 	
 	/** Checks if the proxy is still alive.*/
-	private synchronized void isSessionAlive()
+	private void isSessionAlive()
 		throws RenderingServiceException
 	{
     	lastAction = System.currentTimeMillis();
-		if (!networkUp) {
-			RenderingServiceException ex = new RenderingServiceException();
-			ex.setIndex(RenderingServiceException.CONNECTION);
-		}
 		try {
-			networkUp = checker.isNetworkup();
+			context.getImageService().isAlive(ctx);
 			servant.ice_ping();
 		} catch (Throwable e) {
 			if (shutDown && (e instanceof ObjectNotExistException)) {
@@ -823,7 +813,6 @@ class RenderingControlProxy
 			boolean b = handleConnectionException(e);
 			int index = 0;
 			if (!b) {
-				networkUp = false;
 				index = RenderingServiceException.CONNECTION;
 			}
 			RenderingServiceException ex = new RenderingServiceException(e);
@@ -861,16 +850,8 @@ class RenderingControlProxy
             throw new NullPointerException("No security context.");
         this.ctx = ctx;
         slaves = new ArrayList<RenderingControl>();
-        checker = new NetworkChecker();
         UserCredentials uc = (UserCredentials)
         		context.lookup(LookupNames.USER_CREDENTIALS);
-        String ip = null;
-        try {
-			ip = InetAddress.getByName(uc.getHostName()).getHostAddress();
-		} catch (Exception e) {
-			//ignore
-		}
-        checker = new NetworkChecker(ip);
         resolutionLevels = -1;
         selectedResolutionLevel = -1;
         lastAction = System.currentTimeMillis();
@@ -1717,7 +1698,7 @@ class RenderingControlProxy
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
     	try {
-    		networkUp = checker.isNetworkup();
+    	    context.getImageService().isAlive(ctx);
 			servant.ice_ping();
 		} catch (Exception e) {
 			return null;
@@ -1990,7 +1971,7 @@ class RenderingControlProxy
 		if (pDef == null) 
 			throw new IllegalArgumentException("Plane def cannot be null.");
 		try {
-    		networkUp = checker.isNetworkup();
+		    context.getImageService().isAlive(ctx);
 			servant.ice_ping();
 		} catch (Exception e) {
 			return null;
