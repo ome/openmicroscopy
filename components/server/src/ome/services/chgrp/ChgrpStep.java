@@ -108,7 +108,7 @@ public class ChgrpStep extends GraphStep {
     protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
-                "select source.%s.id from %s source where source.%s.id = ? and not " +
+                "select distinct source.%s.id from %s source where source.%s.id = ? and not " +
                 "(source.details.group.id = ? OR source.details.group.id = ?)",
                 lock[1], lock[0], lock[1]);
 

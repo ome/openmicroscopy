@@ -17,10 +17,9 @@
  */
 package ome.services.graphs;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import com.google.common.collect.HashMultimap;
 
 /**
  * Base {@link GraphStepFactory} which guarantees that
@@ -31,7 +30,7 @@ import java.util.Set;
  */
 public abstract class AbstractStepFactory implements GraphStepFactory {
 
-    protected Map<String, Set<Long>> reapTableIds = new HashMap<String, Set<Long>>();
+    protected HashMultimap<String, Long> reapTableIds = HashMultimap.create();
 
     protected int originalSize;
 

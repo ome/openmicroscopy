@@ -36,6 +36,8 @@ import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 
+import com.google.common.collect.HashMultimap;
+
 /**
  * Post-processing action produced by {@link ChgrpStepFactory},
  * one for each {@link ChgrpStep} in order to check group permission
@@ -77,8 +79,7 @@ public class ChgrpValidation extends GraphStep {
         // =====================================================================
         final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
 
-        final Map<String, List<Long>> constraints =
-                new HashMap<String, List<Long>>();
+        final HashMultimap<String, Long> constraints = HashMultimap.create();
         final List<String> total = new ArrayList<String>();
         for (String[] lock : locks) {
             List<Long> bad = findImproperOutgoingLinks(session, lock);
@@ -87,11 +88,7 @@ public class ChgrpValidation extends GraphStep {
                         iObjectType.getSimpleName(), id, lock[0], lock[1],
                         bad.size());
                 total.add(msg);
-                if (constraints.containsKey(lock[0])) {
-                    constraints.get(lock[0]).addAll(bad);
-                } else {
-                    constraints.put(lock[0], bad);
-                }
+                constraints.putAll(lock[0], bad);
             }
         }
         if (total.size() > 0) {
@@ -114,7 +111,7 @@ public class ChgrpValidation extends GraphStep {
     private List<Long> findImproperOutgoingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
-                "select source.%s.id from %s target, %s source " +
+                "select distinct source.%s.id from %s target, %s source " +
                 "where target.id = source.%s.id and source.id = ? " +
                 "and not (target.details.group.id = ? " +
                 "  or target.details.group.id = ?)",
@@ -140,16 +137,8 @@ public class ChgrpValidation extends GraphStep {
     @Override
     public void onRelease(Class<IObject> k, Set<Long> ids)
             throws GraphException {
-        EventLogMessage elm = new EventLogMessage(this, "CHGRP-VALIDATION", k,
-                new ArrayList<Long>(ids));
 
-        try {
-            ctx.publishMessage(elm);
-        } catch (Throwable t) {
-            GraphException de = new GraphException("EventLogMessage failed.");
-            de.initCause(t);
-            throw de;
-        }
+        // No special handling necessary on release.
 
     }
 
