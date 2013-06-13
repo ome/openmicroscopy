@@ -27,6 +27,7 @@ import omero.cmd.ERR;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
+import omero.cmd.HandleI.Cancel;
 import omero.util.IceMapper;
 
 /**
@@ -65,6 +66,11 @@ public class SaveI extends Save implements IRequest {
             throw helper.cancel(new ERR(), t, "failed", "obj",
                     String.format("%s", this.obj));
         }
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        // no-op
     }
 
     public void buildResponse(int step, Object object) {

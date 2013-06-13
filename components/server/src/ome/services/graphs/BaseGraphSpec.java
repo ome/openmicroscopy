@@ -27,12 +27,12 @@ import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -57,7 +57,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
      */
     protected final List<GraphEntry> entries;
 
-    private/* final */ExtendedMetadata em;
+    protected/* final */ExtendedMetadata em;
 
     private/* final */String beanName = null;
 
@@ -213,7 +213,7 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         final QueryBuilder qb = new QueryBuilder();
 
         qb.select("ROOT"+(sub.length-1));
-        walk(qb, subpath);
+        walk(sub, subpath, qb);
         qb.where();
         // From queryBackupIds
         qb.and("ROOT0.id = :id");
@@ -230,33 +230,37 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
         return sql.groupInfoFor(path[0], id);
     }
 
-    /*
-     * See interface documentation.
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public long[][] queryBackupIds(Session session, int step, GraphEntry subpath, QueryBuilder and)
-        throws GraphException {
+    protected QueryBuilder createQueryBuilder(String[] sub, GraphEntry subpath) {
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("distinct");
+        return qb;
+    }
 
-        final String[] sub = subpath.path(superspec);
-        final QueryBuilder qb = new QueryBuilder();
+    protected Query buildQuery(String[] sub, GraphEntry subpath,
+            QueryBuilder qb, QueryBuilder and, Session session) throws GraphException {
 
         final List<String> which = new ArrayList<String>();
         for (int i = 0; i < sub.length; i++) {
-            which.add("ROOT" + i + ".id");
+            which.add("ROOT" + i + ".id as ROOT" + i);
         }
         qb.select(which.toArray(new String[sub.length]));
-        walk(qb, subpath);
+        walk(sub, subpath, qb);
 
         qb.where();
-        qb.and("ROOT0.id = :id");
-        qb.param("id", id);
+        // Moving to seqParams due to SQL weirdness.
+        qb.and("ROOT0.id = ?");
+        qb.param(0, id);
         if (and != null) {
             qb.and("");
             qb.subselect(and);
         }
+        return qb.query(session);
+    }
 
-        Query q = qb.query(session);
+    protected List<List<Long>> runQuery(String[] sub, GraphEntry subpath, Query q, Session session) {
         StopWatch sw = new Slf4JStopWatch();
+
+        @SuppressWarnings("unchecked")
         List<List<Long>> results = q.list();
         sw.stop("omero.graph.query." + StringUtils.join(sub, "."));
 
@@ -267,13 +271,17 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
                 log.debug(logmsg(subpath, results));
             }
         }
+        return results;
+    }
+
+    protected long[][] parseResults(String[] sub, GraphEntry subpath, List<List<Long>> results) {
 
         // If only one result is returned, results == List<Long> and otherwise
         // List<Object[]>. Parsing into List<List<Long>>
         long[][] rv = new long[results.size()][sub.length];
         for (int i = 0; i < results.size(); i++) {
             Object v = results.get(i);
-            Class k = v == null ? Object.class : v.getClass();
+            Class<?> k = v == null ? Object.class : v.getClass();
             long[] arr = new long[sub.length];
             if (Long.class.isAssignableFrom(k)) {
                 arr[0] = (Long) v;
@@ -283,9 +291,10 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
                     arr[j] = (Long) objs[j];
                 }
             } else if (v instanceof List) {
-                List l = (List) v;
+                @SuppressWarnings("unchecked")
+                List<Long> l = (List<Long>) v;
                 for (int j = 0; j < arr.length; j++) {
-                    arr[j] = (Long) l.get(j);
+                    arr[j] = l.get(j);
                 }
             } else {
                 throw new IllegalArgumentException("Unknown type:" + v);
@@ -293,9 +302,21 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
             rv[i] = arr;
         }
         return rv;
-
     }
 
+    /*
+     * See interface documentation.
+     */
+    public long[][] queryBackupIds(Session session, int step, GraphEntry subpath, QueryBuilder and)
+        throws GraphException {
+
+        final String[] sub = subpath.path(superspec);
+        final QueryBuilder qb = createQueryBuilder(sub, subpath);
+        final Query q = buildQuery(sub, subpath, qb, and, session);
+        final List<List<Long>> results = runQuery(sub, subpath, q, session);
+        return parseResults(sub, subpath, results);
+
+    }
     public QueryBuilder chgrpQuery(EventContext ec, String table, GraphOpts opts) {
         final QueryBuilder qb = new QueryBuilder();
         qb.update(table);
@@ -382,17 +403,51 @@ public class BaseGraphSpec implements GraphSpec, BeanNameAware {
     }
 
     /**
-     * Walks the parts given adding a new relationship between each.
+     * Walks the parts given adding a new relationship between each. If this
+     * is a synthetic "Fileset" relationship, use the workaround methods
+     * {@link #joinDataset(QueryBuilder, String, String)} and
+     * {@link #joinPlate(QueryBuilder, String, String)}.
      */
-    private void walk(final QueryBuilder qb, final GraphEntry entry)
+    protected void walk(String[] sub, final GraphEntry entry, final QueryBuilder qb)
             throws GraphException {
-        String[] path = entry.path(superspec);
-        qb.from(path[0], "ROOT0");
-        for (int p = 1; p < path.length; p++) {
-            String p_1 = path[p - 1];
-            String p_0 = path[p];
-            join(qb, p_1, "ROOT" + (p - 1), p_0, "ROOT" + p);
+
+        qb.from(sub[0], "ROOT0");
+
+        for (int p = 1; p < sub.length; p++) {
+            String p_1 = sub[p - 1];
+            String p_0 = sub[p];
+
+            String r_1 = "ROOT" + (p-1);
+            String r_0 = "ROOT" + (p);
+
+            if ("Fileset".equals(p_0)) {
+                if ("Dataset".equals(p_1)) {
+                    joinDataset(qb, r_1, r_0);
+                    continue;
+                } else if ("Plate".equals(p_1)) {
+                    joinPlate(qb, r_1, r_0);
+                    continue;
+                }
+            }
+
+            // Default operation
+            join(qb, p_1, r_1, p_0, r_0);
+
         }
+
+    }
+
+    protected void joinDataset(QueryBuilder qb, String dataset, String fileset) {
+        qb.join(dataset + ".imageLinks", "links", false, false);
+        qb.join("links.child", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
+    }
+
+    protected void joinPlate(QueryBuilder qb, String plate, String fileset) {
+        qb.join(plate + ".wells", "well", false, false);
+        qb.join("well.wellSamples", "wellSample", false, false);
+        qb.join("wellSample.image", "image", false, false);
+        qb.join("image.fileset", fileset, false, false);
     }
 
     /**

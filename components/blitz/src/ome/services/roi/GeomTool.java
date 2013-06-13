@@ -113,7 +113,7 @@ public class GeomTool {
             throw new RuntimeException("Count out of bounds: " + count);
         }
 
-        Map<String, ObjectFactory> map = new RoiTypes.RoiTypesObjectFactoryRegistry().createFactories();
+        Map<String, ObjectFactory> map = new RoiTypes.RoiTypesObjectFactoryRegistry().createFactories(null);
         List<String> types = new ArrayList<String>(map.keySet());
         List<Shape> shapes = new ArrayList<Shape>();
         Random r = new Random();

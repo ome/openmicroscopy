@@ -45,7 +45,7 @@ public interface IRequest {
     Map<String, String> getCallContext();
 
     /**
-     * Method called within the thread boundaries before any processing occurs.
+     * Method called within the transaction boundaries before any processing occurs.
      * 
      * Implementations must properly initialize the "step" field of the
      * {@link Status} object by calling {@link Helper#setSteps(int). This count
@@ -69,6 +69,15 @@ public interface IRequest {
      * @throws Cancel
      */
     Object step(int step) throws Cancel;
+
+    /**
+     * Method within the transaction boudnaries after all processing has
+     * occurred. A thrown {@link Cancel} will still rollback the current
+     * transaction.
+     *
+     * @since 5.0.0
+     */
+    void finish() throws Cancel;
 
     /**
      * Post-transaction chance to map from the return value of

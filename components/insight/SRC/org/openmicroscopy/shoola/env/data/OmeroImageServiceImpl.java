@@ -563,7 +563,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#getThumbnailSet(SecurityContext, List, int)
 	 */
 	public Map<Long, BufferedImage> getThumbnailSet(SecurityContext ctx,
-		List pixelsID, int max)
+		Collection<Long> pixelsID, int max)
 		throws RenderingServiceException
 	{
 		Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
@@ -1847,7 +1847,9 @@ class OmeroImageServiceImpl
 			throws DSAccessException, DSOutOfServiceException
 	{
 		if (ctx == null) return null;
-		return gateway.createThumbnailStore(ctx);
+		Connector c = gateway.getConnector(ctx, true, false);
+		// Pass close responsiblity off to the caller.
+		return c.getThumbnailService();
 	}
 	
 	/**

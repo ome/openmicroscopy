@@ -18,6 +18,7 @@ import omero.cmd.ListRequests;
 import omero.cmd.ListRequestsRsp;
 import omero.cmd.Request;
 import omero.cmd.Response;
+import omero.cmd.HandleI.Cancel;
 import omero.util.ObjectFactoryRegistry;
 import omero.util.ObjectFactoryRegistry.ObjectFactory;
 
@@ -49,12 +50,13 @@ public class ListRequestsI extends ListRequests implements IRequest {
     public Object step(int i) {
         helper.assertStep(0, i);
 
+        final Ice.Communicator ic = ctx.getBean(Ice.Communicator.class);
         final List<Request> requestTypes = new ArrayList<Request>();
         final Map<String, ObjectFactoryRegistry> registries = ctx
                 .getBeansOfType(ObjectFactoryRegistry.class);
         final ListRequestsRsp rsp = new ListRequestsRsp();
         for (ObjectFactoryRegistry registry : registries.values()) {
-            Map<String, ObjectFactory> factories = registry.createFactories();
+            Map<String, ObjectFactory> factories = registry.createFactories(ic);
             for (Map.Entry<String, ObjectFactory> entry : factories.entrySet()) {
                 String key = entry.getKey();
                 ObjectFactory factory = entry.getValue();
@@ -67,6 +69,11 @@ public class ListRequestsI extends ListRequests implements IRequest {
 
         rsp.list = requestTypes;
         return rsp;
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        // no-op
     }
 
     public void buildResponse(int step, Object object) {

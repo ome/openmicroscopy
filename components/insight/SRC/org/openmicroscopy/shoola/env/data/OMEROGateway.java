@@ -129,6 +129,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.cmd.Chgrp;
 import omero.cmd.Chmod;
+import omero.cmd.Delete;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.constants.projection.ProjectionType;
@@ -259,6 +260,9 @@ import pojos.XMLAnnotationData;
  */
 class OMEROGateway
 {
+
+	/** Identifies the fileset as root. */
+	private static final String REF_FILESET = "/Fileset";
 
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
@@ -424,7 +428,7 @@ class OMEROGateway
 	private String serverVersion; // TODO: remove?
 
 	/** Tells whether or not the network is up.*/
-	private final AtomicBoolean networkup = new AtomicBoolean(true); 
+	private final AtomicBoolean networkup = new AtomicBoolean(true);
 
 	/** Checks if the network is up or not.*/
 	private NetworkChecker networkChecker;
@@ -472,7 +476,7 @@ class OMEROGateway
     {
     	dsFactory.getLogger().debug(this, msg);
     }
-    
+
 	/**
      * Checks if the network is up.
      * @throws Exception Throw
@@ -1844,6 +1848,7 @@ class OMEROGateway
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
 		else if (PlateAcquisitionData.class.getName().equals(data))
 			return REF_PLATE_ACQUISITION;
+		else if (FilesetData.class.getName().equals(data)) return REF_FILESET;
 		else if (WellData.class.getName().equals(data))
 			return REF_WELL;
 		else if (PlateAcquisitionData.class.getName().equals(data))
@@ -8042,20 +8047,72 @@ class OMEROGateway
 			Chgrp cmd;
 			long id;
 			Save save;
+			Map<Long, List<IObject>> images = new HashMap<Long, List<IObject>>();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				data = (DataObject) entry.getKey();
 				l = (List<IObject>) entry.getValue();
-				id = data.getId();
-				cmd = new Chgrp(createDeleteCommand(
-					data.getClass().getName()), id, options,
-					target.getGroupID());
-				commands.add(cmd);
-				j = l.iterator();
-				while (j.hasNext()) {
-					save = new Save();
-					save.obj = j.next();
-					commands.add(save);
+				if (data instanceof ImageData) {
+					images.put(data.getId(), l);
+				} else {
+					cmd = new Chgrp(createDeleteCommand(
+						data.getClass().getName()), data.getId(), options,
+						target.getGroupID());
+					commands.add(cmd);
+					j = l.iterator();
+					while (j.hasNext()) {
+						save = new Save();
+						save.obj = j.next();
+						commands.add(save);
+					}
+				}
+			}
+			if (images.size() > 0) {
+				Set<DataObject> fsList = getFileSet(ctx, images.keySet());
+				List<Long> all = new ArrayList<Long>();
+				Iterator<DataObject> kk = fsList.iterator();
+				FilesetData fs;
+				long imageId;
+				List<Long> imageIds;
+				while (kk.hasNext()) {
+					fs = (FilesetData) kk.next();
+					imageIds = fs.getImageIds();
+					if (imageIds.size() > 0) {
+						imageId = imageIds.get(0);
+						cmd = new Chgrp(createDeleteCommand(
+								FilesetData.class.getName()), fs.getId(),
+								options, target.getGroupID());
+						commands.add(cmd);
+						all.addAll(imageIds);
+						l = images.get(imageId);
+						j = l.iterator();
+						while (j.hasNext()) {
+							save = new Save();
+							save.obj = j.next();
+							commands.add(save);
+						}
+					}
+				}
+
+				//Now check that all the ids are covered.
+				Entry<Long, List<IObject>> ee;
+				Iterator<Entry<Long, List<IObject>>> e =
+						images.entrySet().iterator();
+				while (e.hasNext()) {
+					ee = e.next();
+					if (!all.contains(ee.getKey())) { //pre-fs data.
+						cmd = new Chgrp(createDeleteCommand(
+								ImageData.class.getName()), ee.getKey(),
+								options, target.getGroupID());
+						commands.add(cmd);
+						l = images.get(ee.getKey());
+						j = l.iterator();
+						while (j.hasNext()) {
+							save = new Save();
+							save.obj = j.next();
+							commands.add(save);
+						}
+					}
 				}
 			}
 			return c.submit(commands, target);
@@ -8281,7 +8338,7 @@ class OMEROGateway
 		try {
 			Connector c = getConnector(ctx, true, true);
 			if (c == null) return null;
-			return c.submit(commands, ctx);
+			return c.submit(commands, null);
 		} catch (Throwable e) {
 			handleException(e, "Cannot execute the command.");
 			// Never reached
@@ -8289,25 +8346,38 @@ class OMEROGateway
 		}
 	}
 
-    /**
-     * Returns a thumbnail store for the specified context.
-     * 
-     * @param ctx The security context.
+	/**
+	 * Given a list of IDs of a given type. Determines the filesets that will be
+	 * split. Returns the a Map with fileset's ids as keys and the
+	 * values if the map:
+	 * Key = <code>True</code> value: List of image's ids that are contained.
+	 * Key = <code>True</code> value: List of image's ids that are missing
+	 * so the delete or change group cannot happen.
+	 *
+	 * @param ctx The security context, necessary to determine the service.
+	 * @param rootType The top-most type which will be searched
+	 *                  Mustn't be <code>null</code>.
+	 * @param rootIDs A set of the IDs of objects.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
-     */
-	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+	 */
+	Map<Long, Map<Boolean, List<Long>>> getImagesBySplitFilesets(
+			SecurityContext ctx, Class<?> rootType, List<Long> rootIDs,
+			Parameters options)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		Connector c = getConnector(ctx, true, false);
+		IContainerPrx service = c.getPojosService();
 		try {
-			Connector c = getConnector(ctx, true, false);
-			if (c == null) return null;
-			return c.getThumbnailService();
-		} catch (Throwable e) {
-			handleException(e, "Cannot create the store.");
+			Map<String, List<Long>> m = new HashMap<String, List<Long>>();
+			m.put(convertPojos(rootType).getName(),rootIDs);
+			return service.getImagesBySplitFilesets(m, options);
+		} catch (Throwable t) {
+			handleException(t, "Cannot find split images.");
 		}
 		return null;
 	}
+
 }

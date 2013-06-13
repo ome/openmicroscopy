@@ -19,6 +19,7 @@ import ome.services.graphs.GraphSpec;
 import ome.services.graphs.GraphState;
 import ome.services.graphs.GraphStep;
 import ome.services.graphs.GraphStepFactory;
+import ome.services.graphs.GraphSteps;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -73,8 +74,8 @@ public class ExporterStepFactory implements GraphStepFactory {
         return step;
     }
 
-    public List<GraphStep> postProcess(List<GraphStep> steps) {
-        return steps;
+    public GraphSteps postProcess(List<GraphStep> steps) {
+        return new GraphSteps(steps);
     }
 
     public int getCount(String name) {

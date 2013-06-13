@@ -108,6 +108,11 @@ public class RawAccessRequestI extends RawAccessRequest implements IRequest {
         return rawAccess();
     }
 
+    @Override
+    public void finish() throws Cancel {
+        // no-op
+    }
+
     public void buildResponse(int step, Object object) {
         helper.assertResponse(step);
         helper.setResponseIfNull(((Response) object));

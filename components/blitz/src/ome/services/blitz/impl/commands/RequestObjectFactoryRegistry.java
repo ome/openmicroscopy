@@ -43,7 +43,7 @@ public class RequestObjectFactoryRegistry extends
         this.ctx = (OmeroContext) ctx;
     }
 
-    public Map<String, ObjectFactory> createFactories() {
+    public Map<String, ObjectFactory> createFactories(Ice.Communicator ic) {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
         factories.put(SaveI.ice_staticId(), new ObjectFactory(
                 SaveI.ice_staticId()) {

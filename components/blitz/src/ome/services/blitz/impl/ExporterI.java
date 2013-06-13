@@ -82,7 +82,7 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 4.1
  */
-public class ExporterI extends AbstractAmdServant implements
+public class ExporterI extends AbstractCloseableAmdServant implements
         _ExporterOperations, ServiceFactoryAware, BlitzOnly {
 
     private final static Logger log = LoggerFactory.getLogger(ExporterI.class);
@@ -536,12 +536,18 @@ public class ExporterI extends AbstractAmdServant implements
     // Stateful interface methods
     // =========================================================================
 
-    public void preClose() {
+    @Override
+    protected void preClose(Ice.Current current) {
         retrieve = null;
         if (file != null) {
             file.delete();
             file = null;
         }
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
     }
 
     // Misc. helpers.

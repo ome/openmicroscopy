@@ -95,16 +95,23 @@ public class WriterImage
     		throw new IllegalArgumentException("No file specified.");
     	if (img == null) 
     		throw new IllegalArgumentException("No image specified.");
-        try {
-            Iterator writers = ImageIO.getImageWritersByFormatName(format);
-            ImageWriter writer = (ImageWriter) writers.next();
-            ImageOutputStream ios = ImageIO.createImageOutputStream(f);
-            writer.setOutput(ios);
-            writer.write(img);
-            ios.close();
-        } catch (Exception e) {
-            throw new EncoderException("Cannot encode the image.", e);
-        }
+    	ImageOutputStream ios = null;
+    	try {
+    		Iterator<ImageWriter> writers =
+    				ImageIO.getImageWritersByFormatName(format);
+    		ImageWriter writer = writers.next();
+    		ios = ImageIO.createImageOutputStream(f);
+    		writer.setOutput(ios);
+    		writer.write(img);
+    	} catch (Exception e) {
+    		throw new EncoderException("Cannot encode the image.", e);
+    	} finally {
+			if (ios != null) {
+				try {
+					ios.close();
+				} catch (Exception ex) {}
+			}
+		}
     }
 
     /** 
@@ -121,11 +128,11 @@ public class WriterImage
     		throw new IllegalArgumentException("No encoder specified.");
         try {
             encoder.write();
-            encoder.getOutput().close();   
+            encoder.getOutput().close();
         } catch (Exception e) {
             throw new EncoderException("Cannot encode the image.", e);
-        }      
-    }  
+        }
+    }
     
     /**
 	 * Converts the BufferImage to <code>JPEG</code> image.
@@ -155,8 +162,9 @@ public class WriterImage
 	{
 		if (image == null) 
     		throw new IllegalArgumentException("No image specified.");
+		ByteArrayOutputStream stream = null;
 		try {
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			stream = new ByteArrayOutputStream();
 			switch (type) {
 				case PNG:
 					ImageIO.write(image, PNGFilter.PNG, stream);
@@ -168,11 +176,16 @@ public class WriterImage
 				default:
 					ImageIO.write(image, JPEGFilter.JPEG, stream);
 			}
-			stream.close();
 			return stream.toByteArray();
 		} catch (Throwable e) {
 			throw new EncoderException("Cannot encode the image.", e);
-		}  
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception ex) {}
+			}
+		}
 	}
 	
 	/**
@@ -188,14 +201,20 @@ public class WriterImage
 	{
 		if (values == null) 
     		throw new IllegalArgumentException("No array specified.");
+		ByteArrayInputStream stream = null;
 		try {
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			stream = new ByteArrayInputStream(values);
 			BufferedImage image = ImageIO.read(stream);
 			if (image != null) image.setAccelerationPriority(1f);
-			stream.close();
 			return image;
 		} catch (Exception e) {
 			throw new EncoderException("Cannot create buffered image", e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception ex) {}
+			}
 		}
 	}
 	
@@ -212,10 +231,10 @@ public class WriterImage
 	{
 		if (values == null) 
     		throw new IllegalArgumentException("No array specified.");
+		ByteArrayInputStream stream = null;
 		try {
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			stream = new ByteArrayInputStream(values);
 			BufferedImage image = ImageIO.read(stream);
-			stream.close();
 			if (image == null) return null;
 			image.setAccelerationPriority(1f);
 			int w = image.getWidth();
@@ -235,6 +254,12 @@ public class WriterImage
 			return buf.getData();
 		} catch (Exception e) {
 			throw new EncoderException("Cannot create buffered image", e);
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception ex) {}
+			}
 		}
 	}
 	
@@ -261,5 +286,5 @@ public class WriterImage
 			throw new EncoderException("Cannot decode the image.", e);
 		}
 	}
-	
+
 }

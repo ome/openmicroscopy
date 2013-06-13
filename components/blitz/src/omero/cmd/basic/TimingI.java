@@ -27,6 +27,7 @@ import omero.cmd.IRequest;
 import omero.cmd.OK;
 import omero.cmd.Response;
 import omero.cmd.Timing;
+import omero.cmd.HandleI.Cancel;
 
 /**
  * Diagnostic tool for testing call overhead.
@@ -70,6 +71,11 @@ public class TimingI extends Timing implements IRequest {
 			helper.debug("Interrupted");
 		}
         return null;
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        // no-op
     }
 
     public void buildResponse(int step, Object object) {

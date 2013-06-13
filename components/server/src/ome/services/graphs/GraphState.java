@@ -26,12 +26,12 @@ import ome.system.OmeroContext;
 import ome.system.SimpleEventContext;
 import ome.util.SqlAction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.LoadQueryInfluencers;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tree-structure containing all scheduled actions which closely resembles the
@@ -65,7 +65,7 @@ public class GraphState implements GraphStep.Callback {
      *
      *  The instance once set is {@link Collections#unmodifiableList(List) unmodifiable}.
      */
-    private final List<GraphStep> steps;
+    private final GraphSteps steps;
 
     /**
      * List of Maps of db table names to the ids actually processed from that
@@ -148,8 +148,7 @@ public class GraphState implements GraphStep.Callback {
         };
 
         // Post-process and lock.
-        this.steps = Collections.unmodifiableList(
-                factory.postProcess(steps));
+        this.steps = factory.postProcess(steps);
         for (GraphStep step : this.steps) {
             step.setEventContext(gec);
         }
@@ -256,6 +255,14 @@ public class GraphState implements GraphStep.Callback {
         return steps.size();
     }
 
+    public GraphStep getStep(int i) {
+        return steps.get(i);
+    }
+
+    public GraphOpts getOpts() {
+        return opts;
+    }
+
     /**
      * Return the total number of ids which were processed. This is calculated by
      * taking the only the completed savepoints into account.
@@ -324,6 +331,10 @@ public class GraphState implements GraphStep.Callback {
 
         final GraphStep step = steps.get(j);
 
+        if (steps.alreadySucceeded(step)) {
+            return "";
+        }
+
         String msgOrNull = step.start(this);
         if (msgOrNull != null) {
             return msgOrNull; // EARLY EXIT
@@ -352,6 +363,7 @@ public class GraphState implements GraphStep.Callback {
 
                 // Finalize.
                 step.release(this);
+                steps.succeeded(step);
                 return "";
 
             } catch (ConstraintViolationException cve) {
@@ -388,7 +400,7 @@ public class GraphState implements GraphStep.Callback {
 
         // If this entry is "SOFT" then there's nothing
         // special we need to do.
-        if (step.entry.isSoft() || step.markedReap()) {
+        if (step.entry.isSoft() || steps.willBeTriedAgain(step)) {
             log.debug(msg);
             return "Skipping processing of " + step.table + ":" + step.id + "\n";
         }

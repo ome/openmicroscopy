@@ -23,9 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import ome.services.graphs.GraphEntry;
-import ome.services.graphs.GraphException;
+import com.google.common.collect.HashMultimap;
 
 /**
  * Exception which will be thrown by {@link GraphStep} implementations like
@@ -41,30 +41,28 @@ public class GraphConstraintException extends GraphException {
 
     private static final long serialVersionUID = 1L;
 
-    private final Map<String, List<Long>> constraints;
+    private final HashMultimap<String, Long> constraints;
 
-    public GraphConstraintException(String msg, Map<String, List<Long>> constraints) {
+    public GraphConstraintException(String msg, HashMultimap<String, Long> constraints) {
         super(msg);
         this.constraints = constraints;
     }
 
     public Map<String, long[]> getConstraints() {
         Map<String, long[]> rv = new HashMap<String, long[]>();
-        for (Map.Entry<String, List<Long>> entry : constraints.entrySet()) {
-            String key = toSimpleKey(entry);
-            long[] arr = toArray(entry);
-            rv.put(key, arr);
+        for (String key : constraints.keys()) {
+            String simpleKey = toSimpleKey(key);
+            long[] arr = toArray(constraints.get(key));
+            rv.put(simpleKey, arr);
         }
         return rv;
     }
 
-    private String toSimpleKey(Entry<String, List<Long>> entry) {
-        String key = entry.getKey();
+    private String toSimpleKey(String key) {
         return key.substring(key.lastIndexOf(".")+1);
     }
 
-    private long[] toArray(Map.Entry<String, List<Long>> entry) {
-        List<Long> value = entry.getValue();
+    private long[] toArray(Set<Long> value) {
         Long[] arr = value.toArray(new Long[value.size()]);
         long[] arr2 = new long[arr.length];
         for (int i=0; i < arr.length; i++) {

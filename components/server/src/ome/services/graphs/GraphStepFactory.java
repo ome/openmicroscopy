@@ -49,5 +49,5 @@ public interface GraphStepFactory {
      * @return Either the original unmodified list, possibly with additions or
      *         deletions, or a new list entirely.
      */
-    List<GraphStep> postProcess(List<GraphStep> steps);
+    GraphSteps postProcess(List<GraphStep> steps);
 }

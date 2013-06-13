@@ -9,9 +9,7 @@ package ome.services.chgrp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -21,8 +19,11 @@ import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
+
 import ome.model.IObject;
 import ome.services.graphs.AnnotationGraphSpec;
+import ome.services.graphs.GraphConstraintException;
 import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
@@ -60,7 +61,6 @@ public class ChgrpStep extends GraphStep {
         this.userGroup = roles.getUserGroupId();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void action(Callback cb, Session session, SqlAction sql, GraphOpts opts)
             throws GraphException {
@@ -77,6 +77,10 @@ public class ChgrpStep extends GraphStep {
             }
         }
 
+        // Phase 2: NULL
+        optionallyNullField(session, id);
+
+        // Phase 3: Actual chgrp.
         final QueryBuilder qb = spec.chgrpQuery(ec, table, opts);
         qb.param("id", id);
         qb.param("grp", grp);
@@ -108,9 +112,9 @@ public class ChgrpStep extends GraphStep {
     protected List<Long> findImproperIncomingLinks(Session session, String[] lock) {
         StopWatch sw = new Slf4JStopWatch();
         String str = String.format(
-                "select source.%s.id from %s source where source.%s.id = ? and not " +
+                "select distinct source.id from %s source where source.%s.id = ? and not " +
                 "(source.details.group.id = ? OR source.details.group.id = ?)",
-                lock[1], lock[0], lock[1]);
+                lock[0], lock[1]);
 
         Query q = session.createQuery(str);
         q.setLong(0, id);
@@ -124,6 +128,67 @@ public class ChgrpStep extends GraphStep {
         }
 
         sw.stop("omero.chgrp.step." + lock[0] + "." + lock[1]);
+
+        return rv;
+    }
+
+    public void validate(Session session, GraphOpts opts) throws GraphException {
+        logPhase("Validating");
+
+        // ticket:6422 - validation of graph, phase 2
+        // =====================================================================
+        final String[][] locks = em.getLockCandidateChecks(iObjectType, true);
+
+        final HashMultimap<String, Long> constraints = HashMultimap.create();
+        final List<String> total = new ArrayList<String>();
+        for (String[] lock : locks) {
+            List<Long> bad = findImproperOutgoingLinks(session, lock);
+            if (bad != null && bad.size() > 0) {
+                String msg = String.format("%s:%s improperly links to %s.%s: %s",
+                        iObjectType.getSimpleName(), id, lock[0], lock[1],
+                        bad.size());
+                total.add(msg);
+                constraints.putAll(lock[0], bad);
+            }
+        }
+        if (total.size() > 0) {
+            if (opts.isForce()) {
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete(table);
+                qb.where();
+                qb.and("id = :id");
+                qb.param("id", id);
+                qb.query(session).executeUpdate();
+            } else {
+                throw new GraphConstraintException(String.format("%s:%s improperly links to %s objects",
+                    iObjectType.getSimpleName(), id, total.size()), constraints);
+            }
+        }
+
+        logPhase("Validated");
+    }
+
+    private List<Long> findImproperOutgoingLinks(Session session, String[] lock) {
+        StopWatch sw = new Slf4JStopWatch();
+        String str = String.format(
+                "select distinct source.%s.id from %s target, %s source " +
+                "where target.id = source.%s.id and source.id = ? " +
+                "and not (target.details.group.id = ? " +
+                "  or target.details.group.id = ?)",
+                lock[1], lock[0], iObjectType.getName(), lock[1]);
+
+        Query q = session.createQuery(str);
+        q.setLong(0, id);
+        q.setLong(1, grp);
+        q.setLong(2, userGroup);
+        List<Long> rv = q.list();
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("%s<==%s, id=%s, grp=%s, userGroup=%s",
+                    rv.size(), str, id, grp, userGroup));
+        }
+
+        sw.stop("omero.chgrp.validation." + lock[0] + "." + lock[1]);
 
         return rv;
     }

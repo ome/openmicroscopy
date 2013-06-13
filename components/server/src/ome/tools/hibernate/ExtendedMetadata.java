@@ -160,8 +160,30 @@ public interface ExtendedMetadata {
      */
     String getRelationship(String from, String to);
 
+    /**
+     * provides the link between two tables similar to
+     * {link {@link #getRelationship(String, String)}. However, whereas
+     * {@link #getRelationship(String, String)} needs to be called twice, once
+     * for each of the Hibernate directions,
+     * {@link #getSQLJoin(String, String, String, String)} need only ever be
+     * called once since there will be only one correct SQL join.
+     *
+     * For example, getRelationship("Image", "DatasetImageLink") returns
+     * "datasetLinks" while getRelationship("DatasetImageLink", "Image")
+     * returns "child". getSQLJoin("Image", "I", "DatasetImageLink", "L"),
+     * however, will always return "I.id = L.child" (though the order may be
+     * reversed).
+     *
+     * @param fromType
+     * @param fromAlias
+     * @param toType
+     * @param toAlias
+     * @return
+     */
+    String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias);
+
 /**
- * Sole implementatino of ExtendedMetadata. The separation is intended to make
+ * Sole implementation of ExtendedMetadata. The separation is intended to make
  * unit testing without a full {@link ExtendedMetadata} possible.
  */
 public static class Impl extends OnContextRefreshedEventListener implements ExtendedMetadata {
@@ -182,7 +204,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
 
     private final Set<Class<Annotation>> annotationTypes = new HashSet<Class<Annotation>>();
 
-    private final Map<String, Map<String, String>> relationships = new HashMap<String, Map<String, String>>();
+    private final Map<String, Map<String, Relationship>> relationships = new HashMap<String, Map<String, Relationship>>();
 
     private final Map<String, Class<IObject>> hibernateClasses = new HashMap<String, Class<IObject>>();
 
@@ -259,7 +281,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         }
 
         for (String key : m.keySet()) {
-            Map<String, String> value = new HashMap<String, String>();
+            Map<String, Relationship> value = new HashMap<String, Relationship>();
             ClassMetadata cm = m.get(key);
             for (Class<?> c : hierarchy(m, key)) {
                 Locks locks = locksHolder.get(c.getName());
@@ -267,8 +289,8 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
             }
 
             // FIXME: using simple name rather than FQN
-            Map<String, String> value2 = new HashMap<String, String>();
-            for (Map.Entry<String, String> i : value.entrySet()) {
+            Map<String, Relationship> value2 = new HashMap<String, Relationship>();
+            for (Map.Entry<String, Relationship> i : value.entrySet()) {
                 String k = i.getKey();
                 k = k.substring(k.lastIndexOf(".")+1);
                 value2.put(k, i.getValue());
@@ -311,17 +333,56 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
         return hibernateClasses.get(table);
     }
 
+    private Relationship _getRelationship(String from, String to) {
+        Map<String, Relationship> m = relationships.get(from);
+        if (m != null) {
+            return m.get(to);
+        }
+        return null;
+    }
+
     /**
      * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
      * for "from" argument to see if there is any direct relationship to th
      * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
     public String getRelationship(String from, String to) {
-        Map<String, String> m = relationships.get(from);
-        if (m != null) {
-            return m.get(to);
+        Relationship r = _getRelationship(from, to);
+        if (r != null) {
+            return r.relationshipName;
         }
         return null;
+    }
+
+    /**
+     * Note: this implementation does not yet take into account the mapping
+     * of joined subclasses like Job->UpdateJob.
+     */
+    public String getSQLJoin(String fromType, String fromAlias, String toType, String toAlias) {
+        String fromPath = "UNKNOWN";
+        String toPath = "UNKNOWN";
+
+
+        final Relationship fromRel = _getRelationship(fromType, toType);
+        final Relationship toRel = _getRelationship(toType, fromType);
+
+        if (fromRel != null && !fromRel.collection) {
+            fromPath = fromRel.relationshipName;
+            toPath = "id";
+        } else if (toRel != null && !toRel.collection) {
+            toPath = toRel.relationshipName;
+            fromPath = "id";
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("fromType=");
+            sb.append(fromType);
+            sb.append(";toType=");
+            sb.append(toType);
+            throw new InternalException("Unhandled SQL Join! -- " + sb);
+        }
+
+        return String.format("%s.%s = %s.%s",
+                fromAlias, fromPath, toAlias, toPath);
     }
 
     public Set<Class<IAnnotated>> getAnnotatableTypes() {
@@ -594,6 +655,32 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
 }
 
 /**
+ * Simple value class to maintain all of the state for use by
+ * {@link ExtendedMetadata#getRelationship(String, String)} and
+ * {@link ExtendedMetadata#getSQLJoin(String, String, String, String)}.
+ */
+class Relationship {
+
+    /**
+     * Value to be returned by {@link ExtendedMetadata#getRelationship(String, String)}.
+     */
+    private final String relationshipName;
+
+    /**
+     * Whether or not the given relationship is the many valued side, i.e.
+     * represents a collection. In this case, there will not be a column
+     * of the given name to join on for
+     * {@link ExtendedMetadata#getSQLJoin(String, String, String, String)}.
+     */
+    private final boolean collection;
+
+    Relationship(String name, boolean collection) {
+        this.relationshipName = name;
+        this.collection = collection;
+    }
+}
+
+/**
  * inner class which wraps the information (index number, path, etc) related to
  * what fields a particular object can lock. This is fairly complicated because
  * though the properties available are a simple array, some of those properties
@@ -726,7 +813,7 @@ class Locks {
      * in the "value" argument.
      */
     public void fillRelationships(SessionFactoryImplementor sfi,
-            Map<String, String> value) {
+            Map<String, Relationship> value) {
 
         final Type[] types = cm.getPropertyTypes();
         for (int t = 0; t < types.length; t++) {
@@ -735,11 +822,11 @@ class Locks {
             final String name = type.getName();
 
             String to = null;
-            String field = null;
+            Relationship field = null;
             if (type instanceof EntityType) {
                 final EntityType entType = (EntityType) type;
                 to = entType.getAssociatedEntityName();
-                field = cm.getPropertyNames()[t];
+                field = new Relationship(cm.getPropertyNames()[t], false);
 
 
             } else if (types[t] instanceof CollectionType) {
@@ -754,7 +841,7 @@ class Locks {
                 int close = name.lastIndexOf(")");
                 String role = name.substring(open + 1, close);
                 int dot = role.lastIndexOf(".");
-                field = role.substring(dot+1);
+                field = new Relationship(role.substring(dot+1), true);
 
             }
 

@@ -47,7 +47,7 @@ public abstract class RoiTypes {
     public static class RoiTypesObjectFactoryRegistry extends ObjectFactoryRegistry {
 
         @Override
-        public Map<String, ObjectFactory> createFactories() {
+        public Map<String, ObjectFactory> createFactories(Ice.Communicator ic) {
             Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
 
             factories.put(SmartEllipseI.ice_staticId(), new ObjectFactory(Ellipse.ice_staticId()) {

@@ -17,10 +17,7 @@
  */
 package ome.services.graphs;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Base {@link GraphStepFactory} which guarantees that
@@ -31,23 +28,12 @@ import java.util.Set;
  */
 public abstract class AbstractStepFactory implements GraphStepFactory {
 
-    protected Map<String, Set<Long>> reapTableIds = new HashMap<String, Set<Long>>();
-
     protected int originalSize;
 
-    public final List<GraphStep> postProcess(List<GraphStep> steps) {
-
+    public final GraphSteps postProcess(List<GraphStep> steps) {
         originalSize = steps.size();
-
-        // Handle REAP
-        for (int i = originalSize - 1; i >= 0; i--) {
-            GraphStep step = steps.get(i);
-            step.handleReap(reapTableIds);
-        }
-
         onPostProcess(steps);
-
-        return steps;
+        return new GraphSteps(steps);
     }
 
     protected void onPostProcess(List<GraphStep> steps) {

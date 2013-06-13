@@ -224,7 +224,7 @@
             <list>
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                <value>/OriginalFile+Only;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
+                <value>/OriginalFile;SOFT;/Image/Pixels/PixelsOriginalFileMap</value><!-- #5273 -->
                 <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
                 <value>/Image/Pixels/PlaneInfo</value>
@@ -243,20 +243,6 @@
                 <value>/Image/StageLabel</value>
                 <value>/Experiment;SOFT;/Image</value>
                 <value>/Instrument;SOFT;/Image</value>
-                <!-- If this is the only image in the fileset, then
-                     this entry should suffice. For multi-image filesets,
-                     an extra-step will be required. -->
-                <value>/Image/Fileset/FilesetEntry;REAP</value>
-                <value>/OriginalFile+Only;REAP;/Image/Fileset/FilesetEntry</value>
-                <value>/Image/Fileset/FilesetJobLink;REAP</value>
-                <value>/Image/Fileset/FilesetJobLink/Job;REAP</value>
-                <value>/Image/Fileset/FilesetJobLink/Job/FilesetVersionInfo;REAP</value>
-                <value>/Image/Fileset/FilesetAnnotationLink;REAP</value>
-                <value>/Annotation;SOFT;/Image/Fileset/FilesetAnnotationLink</value>
-                <value>/Image/Fileset;REAP</value>
-                <!-- Fileset is inlined into /Image both because REAP doesn't
-                     yet support subspecs, and also because the /Fileset spec
-                     was not yet properly defined. -->
             </list>
         </constructor-arg>
     </bean>
@@ -265,7 +251,25 @@
         <constructor-arg>
             <list>
                 <value>/Image;HARD;/Fileset</value>
+                <value>/Fileset+Only</value>
             </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="graphSpec" name="/Fileset+Only">
+        <constructor-arg>
+            <list>
+                <value>/Fileset/FilesetEntry</value>
+                <value>/OriginalFile;HARD;/Fileset/FilesetEntry</value>
+                <value>/Fileset/FilesetJobLink</value>
+                <value>/Fileset/FilesetJobLink/Job;NULL</value>
+                <!-- TODO: currently not working. Relies on NULL logic.
+                <value>/Fileset/FilesetJobLink/Job/FilesetVersionInfo</value>
+                -->
+                <value>/Fileset/FilesetAnnotationLink</value>
+                <value>/Annotation;SOFT;/Fileset/FilesetAnnotationLink</value>
+                <value>/Fileset+Only</value>
+           </list>
         </constructor-arg>
     </bean>
 
@@ -282,7 +286,7 @@
         <constructor-arg>
             <list>
                 <value>/Dataset/DatasetImageLink;FORCE</value>
-                <value>/Image;HARD;/Dataset/DatasetImageLink</value>
+                <value>/Image+Only;HARD;/Dataset/DatasetImageLink</value>
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset+Only</value>
@@ -322,7 +326,6 @@
             <list>
                 <value>/Plate/ScreenPlateLink;FORCE</value>
                 <value>/Plate+Only</value>
-                <!-- Accessing fileset? -->
             </list>
         </constructor-arg>
     </bean>
@@ -373,23 +376,13 @@
     <bean parent="graphSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
-                <value>/OriginalFile/FilesetEntry</value>
-                <value>/Fileset;HARD;/OriginalFile/FilesetEntry</value>
-                <value>/OriginalFile+Only</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
-    <bean parent="graphSpec" name="/OriginalFile+Only">
-        <constructor-arg>
-            <list>
                 <value>/OriginalFile/PixelsOriginalFileMap;FORCE</value>
                 <value>/FileAnnotation+special;FORCE;/OriginalFile</value>
                 <!-- value>/FileAnnotation+special;FORCE;/OriginalFile</value-->
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
                 <value>/OriginalFile/JobOriginalFileLink;FORCE</value>
-                <value>/OriginalFile+Only</value>
+                <value>/OriginalFile</value>
             </list>
         </constructor-arg>
     </bean>
