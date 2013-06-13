@@ -6308,6 +6308,7 @@ class OMEROGateway
         ImportConfig config = new ImportConfig();
         //FIXME: unclear why we would need to set these values on
         // both the ImportConfig and the ImportContainer.
+
 		try {
 			reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(omsc, reader);
@@ -8231,7 +8232,7 @@ class OMEROGateway
 	 * @param ctx The security context.
 	 * @return See above.
 	 * @throws ProcessException If an error occurred while running the script.
-	 *  @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to
 	 * retrieve data from OMERO service.
 	 */
@@ -8258,4 +8259,27 @@ class OMEROGateway
                 getClass().getName());
         logger.debug(msg);
     }
+
+    /**
+     * Returns a thumbnail store for the specified context.
+     * 
+     * @param ctx The security context.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMERO service.
+     */
+	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			Connector c = getConnector(ctx, true, false);
+			if (c == null) return null;
+			return c.getThumbnailService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot create the store.");
+		}
+		return null;
+	}
+
 }
