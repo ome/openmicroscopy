@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
@@ -523,6 +524,16 @@ public class DataServicesFactory
     public LoginService getLoginService()
     {
         return (LoginService) registry.lookup(LookupNames.LOGIN);
+    }
+    
+    /**
+     * Returns the {@link Logger}
+     * 
+     * @return See above.
+     */
+    Logger getLogger()
+    {
+        return (Logger) registry.getLogger();
     }
     
 	/**

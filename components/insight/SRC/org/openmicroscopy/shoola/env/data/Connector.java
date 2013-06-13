@@ -89,6 +89,7 @@ import omero.model.Session;
 import omero.sys.Principal;
 
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.Logger;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -158,6 +159,17 @@ class Connector
 	/** The name of the group. To be removed when we can use groupId.*/
 	private String groupName;
 
+	/** Reference to the logger.*/
+	private final Logger logger;
+
+    /**
+     * Logs the error.
+     */
+    private void log(String msg)
+    {
+        logger.debug(this, msg);
+    }
+    
 	/**
 	 * Creates a new instance.
 	 * 
@@ -165,10 +177,11 @@ class Connector
 	 * @param secureClient The entry point to server.
 	 * @param entryEncrypted The entry point to access the various services.
 	 * @param encrypted The entry point to access the various services.
+	 * @param logger Reference to the logger.
 	 * @throws Throwable Thrown if entry points cannot be initialized.
 	 */
 	Connector(SecurityContext context, client secureClient,
-			ServiceFactoryPrx entryEncrypted, boolean encrypted)
+			ServiceFactoryPrx entryEncrypted, boolean encrypted, Logger logger)
 			throws Throwable
 	{
 		if (context == null)
@@ -184,6 +197,7 @@ class Connector
 		    unsecureClient = null;
 		    entryUnencrypted = null;
 		}
+		this.logger = logger;
 		this.secureClient = secureClient;
 		this.entryEncrypted = entryEncrypted;
 		this.context = context;
@@ -753,7 +767,7 @@ class Connector
 		ServiceFactoryPrx userSession = client.createSession(
 				session.getUuid().getValue(), session.getUuid().getValue());
 		c = new Connector(context.copy(), client, userSession,
-				unsecureClient == null);
+				unsecureClient == null, logger);
 		log("Created derived connector: " + userName);
 
 		Connector otherThread = derived.putIfAbsent(userName, c); 
@@ -814,16 +828,6 @@ class Connector
         } catch (Exception e) {
             throw new DSOutOfServiceException("Could not create " + name, e);
         }
-    }
-
-    /**
-     * Temporary workaround until an insight logger instance can be obtained
-     * from the container.
-     */
-    private void log(String msg) {
-        org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
-                getClass().getName());
-        logger.debug(msg);
     }
 
 }

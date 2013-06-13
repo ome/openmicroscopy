@@ -456,6 +456,14 @@ class OMEROGateway
         }
     }
 
+    /**
+     * Logs the information.
+     */
+    private void log(String msg)
+    {
+    	dsFactory.getLogger().debug(this, msg);
+    }
+    
 	/**
      * Checks if the network is up.
      * @throws Exception Throw
@@ -1486,7 +1494,8 @@ class OMEROGateway
     				uc.getPassword());
     		prx.setSecurityContext(
     				new ExperimenterGroupI(ctx.getGroupID(), false));
-    		c = new Connector(ctx, client, prx, encrypted);
+    		c = new Connector(ctx, client, prx, encrypted,
+    				dsFactory.getLogger());
     		groupConnectorMap.put(ctx.getGroupID(), c);
     	} catch (Throwable e) {
     	    // TODO: This previously was via handleException??
@@ -1985,7 +1994,7 @@ class OMEROGateway
 				ctx.setServerInformation(hostName, port);
 				ctx.setCompression(compression);
 				connector = new Connector(ctx, secureClient, entryEncrypted,
-						encrypted);
+						encrypted, dsFactory.getLogger());
 				groupConnectorMap.put(ctx.getGroupID(), connector);
 				if (defaultID == groupID) return exp;
 				try {
@@ -1994,7 +2003,7 @@ class OMEROGateway
 					ctx.setServerInformation(hostName, port);
 					ctx.setCompression(compression);
 					connector = new Connector(ctx, secureClient, entryEncrypted,
-							encrypted);
+							encrypted, dsFactory.getLogger());
 					exp = getUserDetails(ctx, userName, true);
 					groupConnectorMap.put(ctx.getGroupID(), connector);
 				} catch (Exception e) {
@@ -2005,7 +2014,7 @@ class OMEROGateway
 			ctx.setServerInformation(hostName, port);
 			ctx.setCompression(compression);
 			connector = new Connector(ctx, secureClient, entryEncrypted,
-					encrypted);
+					encrypted, dsFactory.getLogger());
 			groupConnectorMap.put(ctx.getGroupID(), connector);
 			return exp;
 		} catch (Throwable e) {
@@ -8249,16 +8258,6 @@ class OMEROGateway
 			throw new ProcessException("Cannot execute the command.", e);
 		}
 	}
-
-    /**
-     * Temporary workaround until an insight logger instance can be obtained
-     * from the container.
-     */
-    private void log(String msg) {
-        org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(
-                getClass().getName());
-        logger.debug(msg);
-    }
 
     /**
      * Returns a thumbnail store for the specified context.
