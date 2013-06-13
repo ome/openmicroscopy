@@ -272,7 +272,7 @@ public class OMEROMetadataStoreClient
     /** Bio-Formats reader that's populating us. */
     private IFormatReader reader;
 
-    private OMEROMetadataStoreClientRoot pixelsList;
+    private OMEROMetadataStoreClientRoot pixelsList = new OMEROMetadataStoreClientRoot();
 
     private boolean encryptedConnection = false;
 
