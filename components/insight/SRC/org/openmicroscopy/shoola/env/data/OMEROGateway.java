@@ -3789,7 +3789,7 @@ class OMEROGateway
 	 * @param ctx The security context
 	 * @param svc The service to handle.
 	 */
-	private void closeService(SecurityContext ctx,
+	void closeService(SecurityContext ctx,
 			StatefulServiceInterfacePrx svc)
 	{
 		try {

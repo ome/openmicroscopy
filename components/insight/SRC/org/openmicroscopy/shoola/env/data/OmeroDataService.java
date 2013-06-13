@@ -35,13 +35,13 @@ import java.util.Set;
 
 //Third-party libraries
 
+
+
 //Application-internal dependencies
+import omero.api.StatefulServiceInterfacePrx;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.DataObject;
 import pojos.PlateData;
 
@@ -466,4 +466,11 @@ public interface OmeroDataService
 		Collection<Long> ids)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Closes the specified service.
+	 *
+	 * @param ctx The security context
+	 * @param svc The service to handle.
+	 */
+	void closeService(SecurityContext ctx, StatefulServiceInterfacePrx svc);
 }

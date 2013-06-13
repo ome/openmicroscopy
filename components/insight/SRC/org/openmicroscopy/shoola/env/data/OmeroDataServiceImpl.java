@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,6 +39,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import omero.api.StatefulServiceInterfacePrx;
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -1029,6 +1029,18 @@ class OmeroDataServiceImpl
 			r.put(id, gateway.getImportedPlate(ctx, id));
 		}
 		return r;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#closeService(SecurityContext,
+	 * StatefulServiceInterfacePrx)
+	 */
+	public void closeService(SecurityContext ctx,
+			StatefulServiceInterfacePrx svc)
+	{
+		if (ctx == null || svc == null) return;
+		gateway.closeService(ctx, svc);
 	}
 
 }
