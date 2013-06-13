@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
@@ -856,4 +857,6 @@ public interface OmeroImageService
 	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException;
 
+	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException;
 }

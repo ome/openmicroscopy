@@ -59,6 +59,7 @@ import com.sun.opengl.util.texture.TextureData;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RenderingEnginePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -1833,4 +1834,9 @@ class OmeroImageServiceImpl
 		return gateway.getFileSet(ctx, Arrays.asList(imageId));
 	}
 
+	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.createThumbnailStore(ctx);
+	}
 }

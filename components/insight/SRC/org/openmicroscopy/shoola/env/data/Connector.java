@@ -767,7 +767,6 @@ class Connector
 		}
 		return c;
 	}
-
 	//
 	// HELPERS
 	//
@@ -826,4 +825,5 @@ class Connector
                 getClass().getName());
         logger.debug(msg);
     }
+
 }
