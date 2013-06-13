@@ -94,6 +94,7 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 
 /** 
@@ -626,12 +627,13 @@ class Connector
 		} finally {
 		    if (proxy instanceof RenderingEnginePrx) {
 		        Set<Long> keys = reServices.keySet();
-		        keys.addAll(reServices.keySet());
+		        keys = Sets.newHashSet(keys);
                 for (Long key : keys) {
                     reServices.remove(key, proxy);
                 }
 		    } else {
 		        Set<String> keys = statefulServices.keySet();
+		        keys = Sets.newHashSet(keys);
 	            for (String key : keys) {
 	                statefulServices.remove(key, proxy);
 	            }
