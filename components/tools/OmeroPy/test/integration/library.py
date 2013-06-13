@@ -633,7 +633,10 @@ class ITest(unittest.TestCase):
         rsp = prx.getResponse()
 
         if test_should_pass:
-            if isinstance(rsp, ERR):
+            if isinstance(rsp, omero.cmd.GraphConstraintERR):
+                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s constraints=%s" \
+                              % (rsp.category, rsp.name, rsp.parameters, rsp.constraints))
+            elif isinstance(rsp, ERR):
                 self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
             self.assertFalse(State.FAILURE in prx.getStatus().flags)
         else:

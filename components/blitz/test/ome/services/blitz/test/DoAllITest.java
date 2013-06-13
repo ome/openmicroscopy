@@ -194,6 +194,10 @@ public class DoAllITest extends AbstractGraphTest {
             return null;
         }
 
+        public void finish() {
+            // no-op
+        }
+
         public void buildResponse(int i, Object object) {
             if (responses.size() != i) {
                 throw new RuntimeException(String.format(

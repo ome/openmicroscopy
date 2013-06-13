@@ -23,22 +23,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.slf4j.Slf4JStopWatch;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.AbstractFactoryBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.nio.AbstractFileSystemService;
@@ -50,7 +38,21 @@ import ome.services.messages.DeleteLogMessage;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.SqlAction;
+
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.slf4j.Slf4JStopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.AbstractFactoryBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Maintain state about a delete itself. That makes a central class for
@@ -133,6 +135,8 @@ public class Deletion {
     //
     // Command state (on start)
     //
+
+    private Session session;
 
     private String type;
 
@@ -227,6 +231,7 @@ public class Deletion {
             String type, long id,
             Map<String, String> options)  throws GraphException {
 
+        this.session = session;
         this.sw = new Slf4JStopWatch();
         this.start = System.currentTimeMillis();
         this.type = type;
@@ -314,6 +319,33 @@ public class Deletion {
             sw.stop("omero.delete.step." + step);
         }
 
+    }
+
+    /**
+     * Should be called within the transaction boundaries but as the last
+     * processing step.
+     */
+    public void finish() throws GraphException {
+        Set<Long> filesets = new HashSet<Long>();
+        for (int i = 0; i < state.getTotalFoundCount(); i++) {
+            DeleteStep step = (DeleteStep) state.getStep(i);
+            Long fsId = step.getFilesetId();
+            if (fsId != null) {
+                filesets.add(fsId);
+            }
+        }
+        if (filesets.size() > 0) {
+            QueryBuilder qb = new QueryBuilder();
+            qb.select("fs.id").from("Fileset", "fs");
+            qb.join("fs.images", "img", false, false);
+            qb.where().and("fs.id in (:ids)").paramList("ids", filesets);
+            List<?> rv = qb.query(session).list();
+            if (rv != null && rv.size() > 0) {
+                String msg = "Filesets found after deletion: " + rv;
+                error.append(msg);
+                throw new GraphException(msg);
+            }
+        }
     }
 
     /**

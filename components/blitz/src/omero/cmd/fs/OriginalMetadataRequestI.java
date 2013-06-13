@@ -38,6 +38,7 @@ import omero.cmd.IRequest;
 import omero.cmd.OriginalMetadataRequest;
 import omero.cmd.OriginalMetadataResponse;
 import omero.cmd.Response;
+import omero.cmd.HandleI.Cancel;
 import omero.constants.annotation.file.ORIGINALMETADATA;
 import omero.constants.namespaces.NSCOMPANIONFILE;
 import omero.util.IceMapper;
@@ -85,6 +86,11 @@ public class OriginalMetadataRequestI extends OriginalMetadataRequest implements
 			loadFileAnnotation();
 		}
 		return null;
+	}
+
+	@Override
+	public void finish() throws Cancel {
+		// no-op
 	}
 
 	public void buildResponse(int step, Object object) {

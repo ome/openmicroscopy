@@ -67,7 +67,7 @@ public class RequestObjectFactoryRegistry extends
         this.ctx = (OmeroContext) ctx;
     }
 
-    public Map<String, ObjectFactory> createFactories() {
+    public Map<String, ObjectFactory> createFactories(final Ice.Communicator ic) {
         Map<String, ObjectFactory> factories = new HashMap<String, ObjectFactory>();
         factories.put(TimingI.ice_staticId(), new ObjectFactory(
                 TimingI.ice_staticId()) {
@@ -109,7 +109,7 @@ public class RequestObjectFactoryRegistry extends
                                 new String[] { "classpath:ome/services/spec.xml" },
                                 ctx);
                         ChgrpStepFactory factory = new ChgrpStepFactory(ctx, em, roles);
-                        return new ChgrpI(factory, specs);
+                        return new ChgrpI(ic, factory, specs);
                     }
 
                 });
@@ -117,7 +117,7 @@ public class RequestObjectFactoryRegistry extends
                 new ObjectFactory(ChmodI.ice_staticId()) {
                     @Override
                     public Ice.Object create(String name) {
-                        return new ChmodI(
+                        return new ChmodI(ic,
                                 ctx.getBean("chmodStrategy", ChmodStrategy.class));
                     }
 
@@ -130,7 +130,7 @@ public class RequestObjectFactoryRegistry extends
                                 new String[] { "classpath:ome/services/spec.xml" },
                                 ctx);
                         ChownStepFactory factory = new ChownStepFactory(ctx, em, roles);
-                        return new ChownI(factory, specs);
+                        return new ChownI(ic, factory, specs);
                     }
 
                 });
@@ -139,7 +139,7 @@ public class RequestObjectFactoryRegistry extends
                     @Override
                     public Ice.Object create(String name) {
                         Deletion d = ctx.getBean(Deletion.class.getName(), Deletion.class);
-                        return new DeleteI(d);
+                        return new DeleteI(ic, d);
                     }
                 });
         factories.put(OriginalMetadataRequestI.ice_staticId(),

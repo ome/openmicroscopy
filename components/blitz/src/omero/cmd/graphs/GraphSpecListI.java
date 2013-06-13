@@ -21,6 +21,7 @@ import omero.cmd.GraphSpecListRsp;
 import omero.cmd.Helper;
 import omero.cmd.IRequest;
 import omero.cmd.Response;
+import omero.cmd.HandleI.Cancel;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -40,6 +41,10 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
     public GraphSpecListI(OmeroContext ctx) {
         this.ctx = ctx;
     }
+
+    //
+    // IRequest
+    //
 
     public Map<String, String> getCallContext() {
         return null;
@@ -71,6 +76,11 @@ public class GraphSpecListI extends GraphSpecList implements IRequest {
 
         rsp.list = cmds;
         return rsp;
+    }
+
+    @Override
+    public void finish() throws Cancel {
+        // no-op
     }
 
     public void buildResponse(int i, Object object) {
