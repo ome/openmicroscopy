@@ -990,7 +990,7 @@ abstract class DataBrowserModel
 				step += l.size();
 			}
 			if (l.size() > 0) {
-				loaders.add(new ThumbnailLoader(component, ctx, l,
+				loaders.add(new ThumbnailLoader(component, ctx, sorter.sort(l),
 						n));
 			}
 		}
