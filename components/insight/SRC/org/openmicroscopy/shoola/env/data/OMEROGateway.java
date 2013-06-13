@@ -418,10 +418,10 @@ class OMEROGateway
 	private Map<Long, FSFileSystemView> fsViews;
 
 	/** Flag indicating if the connection is encrypted or not.*/
-	private boolean encrypted;
+	private boolean encrypted; // TODO: remove?
 
 	/** The version of the server the user is currently logged to.*/
-	private String serverVersion;
+	private String serverVersion; // TODO: remove?
 
 	/** Tells whether or not the network is up.*/
 	private final AtomicBoolean networkup = new AtomicBoolean(true); 
