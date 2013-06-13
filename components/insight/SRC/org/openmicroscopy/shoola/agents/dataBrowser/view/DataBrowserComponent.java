@@ -503,6 +503,7 @@ class DataBrowserComponent
 		//model.layoutBrowser();
 		view.layoutUI();
 		view.setNumberOfImages(model.getNumberOfImages());
+		fireStateChange();
 	}
 
 	/**
@@ -554,6 +555,7 @@ class DataBrowserComponent
 		view.setNumberOfImages(nodes.size());
 		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.setFilterStatus(false);
+		fireStateChange();
 	}
 
 	/**
@@ -1166,7 +1168,8 @@ class DataBrowserComponent
 		((WellsModel) model).viewField(selectedIndex);
 		view.viewField();
 		view.repaint();
-		model.loadData(false, null); 
+		model.loadData(false, null);
+		fireStateChange();
 	}
 
 	/**
@@ -1564,6 +1567,7 @@ class DataBrowserComponent
 			if (node != null) 
 				viewFieldsFor(node.getRow(), node.getColumn(), false);
 		}
+		fireStateChange();
 	}
 
 	/**
