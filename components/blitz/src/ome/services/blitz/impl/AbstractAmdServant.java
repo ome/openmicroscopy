@@ -55,8 +55,7 @@ import Ice.ObjectAdapterDeactivatedException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
-public abstract class AbstractAmdServant implements ApplicationContextAware,
-    CloseableServant {
+public abstract class AbstractAmdServant implements ApplicationContextAware {
 
     final protected Logger log = LoggerFactory.getLogger(getClass());
 
@@ -192,99 +191,6 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
 
-    }
-
-    public final void close(Ice.Current __current) {
-        final RuntimeException[] re = new RuntimeException[1];
-        AMD_StatefulServiceInterface_close cb =
-            new AMD_StatefulServiceInterface_close() {
-            public void ice_exception(Exception ex) {
-                if (ex instanceof RuntimeException) {
-                    re[0] = (RuntimeException) ex;
-                } else {
-                    re[0] = new RuntimeException(ex);
-                }
-            }
-            public void ice_response() {
-                // ok.
-            }
-        };
-        close_async(cb, __current);
-        if (re[0] != null) {
-            throw re[0];
-        }
-    }
-
-    /**
-     * {@link ome.tools.hibernate.SessionHandler} also
-     * specially catches close() calls, but cannot remove the servant
-     * from the {@link Ice.ObjectAdapter} and thereby prevent any
-     * further communication. Once the invocation is finished, though,
-     * it is possible to raise the message and have the servant
-     * cleaned up.
-     *
-     * @see ticket:1855
-     */
-    public final void close_async(AMD_StatefulServiceInterface_close __cb,
-            Ice.Current __current) {
-
-        // Special call logic:
-        // callInvokerOnRawArgs(__cb, __current);
-
-        Throwable t = null;
-
-        // First we call close on the object
-        try {
-            preClose(__current);
-            if (service instanceof StatefulServiceInterface) {
-                StatefulServiceInterface ss = (StatefulServiceInterface) service;
-                ss.close();
-            }
-        } catch (NoSuchElementException nsee) {
-            log.info("NoSuchElementException: Login is already gone");
-            t = nsee;
-        } catch (Throwable t1) {
-            log.error("Error on close, stage1", t1);
-            t = t1;
-        }
-
-        // Then we publish the close event
-        try {
-            InternalMessage msg = new UnregisterServantMessage(this, __current, holder);
-            ctx.publishMessage(msg);
-        } catch (ObjectAdapterDeactivatedException oade) {
-            log.warn("ObjectAdapter deactivated!");
-            ShutdownInProgress sip = new ShutdownInProgress();
-            IceMapper.fillServerError(sip, oade);
-            t = sip;
-        } catch (Throwable t2) {
-            log.error("Error on close, stage2", t2);
-            t = t2;
-        }
-
-        // Now we've finished that, let's return control to the user.
-        try {
-            if (t == null) {
-                __cb.ice_response();
-            } else {
-                __cb.ice_exception(new IceMapper().handleException(t, ctx));
-            }
-        } finally {
-            postClose(__current);
-        }
-    }
-
-    protected void preClose(Ice.Current current) throws Throwable {
-        log.debug("Base pre-close define");
-    }
-
-    /**
-     * Should not throw any exceptions which should be detected by clients
-     * since it is  called in a finally block after the client thread has been
-     * released.
-     */
-    protected void postClose(Ice.Current current) {
-        log.debug("Base post-close define");
     }
 
 }
