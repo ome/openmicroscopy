@@ -515,7 +515,12 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
-	
+
+	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
+	{
+	    return null != gateway.getConnector(ctx, true, true);
+	}
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#shutDown(SecurityContext,long)

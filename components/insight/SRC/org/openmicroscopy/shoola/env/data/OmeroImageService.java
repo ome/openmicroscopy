@@ -159,6 +159,16 @@ public interface OmeroImageService
 		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage)
 		throws RenderingServiceException;
 
+    /**
+     * Returns true if a connection is available for the given
+     * {@link SecurityContext}. This is equivalent to being able to
+     * access a {@link Connector};
+     *
+     * @param ctx The security context.
+     */
+	public boolean isAlive(SecurityContext ctx)
+	    throws DSOutOfServiceException;
+
 	/**
 	 * Shuts downs the rendering service attached to the specified 
 	 * pixels set.

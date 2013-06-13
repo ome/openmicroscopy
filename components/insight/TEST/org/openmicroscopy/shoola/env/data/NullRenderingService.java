@@ -105,6 +105,8 @@ public class NullRenderingService
         return null;
     }
 
+    public boolean isAlive(SecurityContext ctx) { return false; }
+
     /**
      * No-op implementation
      * @see OmeroImageService#shutDown(long)
