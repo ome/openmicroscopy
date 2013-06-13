@@ -1459,4 +1459,14 @@ class TreeViewerModel
 		}
 	}
 
+	/**
+	 * Returns the name of the server the user is currently connected to.
+	 * 
+	 * @return See above.
+	 */
+	String getHostname()
+	{
+		return TreeViewerAgent.getRegistry().getAdminService().getServerName();
+	}
+
 }
