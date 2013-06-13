@@ -33,6 +33,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryUsage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -743,9 +745,10 @@ class ImViewerModel
 	void discard()
 	{
 		state = ImViewer.DISCARDED;
-		if (imageIcon != null) imageIcon.flush();
+		imageIcon = null;
 		browser.discard();
 		if (image == null) return;
+		resetTiles();
 		Iterator<Integer> i = loaders.keySet().iterator();
 		while (i.hasNext()) {
 			loaders.get(i.next()).cancel();
@@ -2749,6 +2752,7 @@ class ImViewerModel
     /** Resets the tiles.*/
     void resetTiles()
     {
+    	if (tiles == null) return;
     	Iterator<Tile> i = tiles.values().iterator();
 		while (i.hasNext())
 			i.next().setImage(null);
