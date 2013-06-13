@@ -1844,4 +1844,18 @@ class OmeroImageServiceImpl
 		if (ctx == null) return null;
 		return gateway.createThumbnailStore(ctx);
 	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
+	 */
+	public Long getRenderingDefID(SecurityContext ctx, long pixelsID,
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		RenderingDef def = gateway.getRenderingDef(ctx, pixelsID, userID);
+		if (def == null) return -1L;
+		return def.getId().getValue();
+	}
+
 }

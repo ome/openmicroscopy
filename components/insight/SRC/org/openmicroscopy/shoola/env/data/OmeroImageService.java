@@ -40,6 +40,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
+import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -871,4 +872,20 @@ public interface OmeroImageService
 	 */
 	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
 			throws DSAccessException, DSOutOfServiceException;
+	
+	/**
+	 * Retrieves the rendering settings for the specified pixels set.
+	 *
+	 * @param ctx The security context.
+	 * @param pixelsID  The pixels ID.
+	 * @param userID	The id of the user who set the rendering settings.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+
 }
