@@ -28,6 +28,7 @@ import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
+import ome.services.graphs.GraphState;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
@@ -132,7 +133,10 @@ public class ChgrpStep extends GraphStep {
         return rv;
     }
 
-    public void validate(Session session, GraphOpts opts) throws GraphException {
+    @Override
+    public void validate(GraphState graphState, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException {
+
         logPhase("Validating");
 
         // ticket:6422 - validation of graph, phase 2

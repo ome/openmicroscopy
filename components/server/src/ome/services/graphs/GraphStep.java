@@ -200,6 +200,21 @@ public abstract class GraphStep {
             GraphOpts opts) throws GraphException;
 
 
+
+    /**
+     * Action performed at the end of the transaction to give all rows the
+     * change to invalidate other inactions.
+     *
+     * @param graphState
+     * @param session
+     * @param sql
+     * @param opts
+     */
+    public void validate(GraphState graphState, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException {
+        // no-op
+    }
+
     protected void logPhase(String phase) {
         log.debug(String.format("%s %s from %s: root=%s", phase, id,
                 pathMsg, entry.getId()));
@@ -469,4 +484,5 @@ public abstract class GraphStep {
             }
         }
     }
+
 }

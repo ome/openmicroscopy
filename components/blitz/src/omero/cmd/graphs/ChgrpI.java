@@ -183,9 +183,8 @@ public class ChgrpI extends Chgrp implements IGraphModifyRequest {
         // Replaces ChgrpValidation
         int steps = state.getTotalFoundCount();
         for (int i = 0; i < steps; i++) {
-            ChgrpStep step = (ChgrpStep) state.getStep(i);
             try {
-                step.validate(helper.getSession(), state.getOpts());
+                state.validate(i);
             } catch (GraphException ge) {
                 throw helper.graphException(ge, i, id);
             }
