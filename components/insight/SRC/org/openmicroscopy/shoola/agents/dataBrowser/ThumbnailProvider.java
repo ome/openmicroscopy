@@ -199,8 +199,8 @@ public class ThumbnailProvider
      */
     public void setFullScaleThumb(BufferedImage t)
     {
+    	flush();
     	fullScaleThumb = t;
-        fullSizeImage = null;
         if (fullScaleThumb != null) scale(scalingFactor);
     }
     

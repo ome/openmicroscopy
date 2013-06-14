@@ -1045,12 +1045,6 @@ class DataBrowserComponent
 			case NEW:
 				return;
 		}
-		//flush the previous one first
-		Browser browser = model.getBrowser();
-		if (browser != null) {
-			browser.accept(new FlushVisitor(),
-					ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		}
 		model.loadData(true, ids);
 		fireStateChange();
 	}
