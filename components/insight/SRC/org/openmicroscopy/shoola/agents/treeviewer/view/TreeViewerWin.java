@@ -683,7 +683,7 @@ class TreeViewerWin
     /** Creates and displays the title of the window. */
     void createTitle()
     {
-    	String title = model.getExperimenterNames()+" @";
+    	String title = model.getExperimenterNames()+" connected to ";
     	title += model.getHostname();
     	setTitle(title);
     }
