@@ -137,7 +137,7 @@
   <logger name="org.hibernate.validator" level="ERROR"/>
 
     <!-- Import logs //////////////////////////////////////////////////////////// -->
-  <logger name="ome">
+  <logger name="ome.services.blitz.repo.ManagedImportRequestI">
     <level value="DEBUG"/>
     <appender-ref ref="SIFT"/>
   </logger>
