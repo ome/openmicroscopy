@@ -626,6 +626,9 @@ class TestChgrpTarget(lib.ITest):
         dsImgs = client.sf.getContainerService().getImages('Dataset', [ds.id.val], None, ctx)
         self.assertEqual(len(dsImgs), len(images), "All Images should be in target Dataset")
 
+        previous_gid = admin.getEventContext().groupId
+        return (ds, images, client, user, previous_gid, target_gid)
+
     def testChgrpImageToTargetDataset(self):
         """ Chgrp a single Image to target Dataset """
         self.chgrpImagesToTargetDataset(1)
@@ -633,6 +636,17 @@ class TestChgrpTarget(lib.ITest):
     def testChgrpMifImagesToTargetDataset(self):
         """ Chgrp 2 images in a MIF to target Dataset """
         self.chgrpImagesToTargetDataset(2)
+
+    def testChgrpImageToTargetDatasetAndBack(self):
+        """
+        Chgrp a single Image to target Dataset and then back
+        No target is provided on the way back.
+        see ticket:11118
+        """
+        ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
+        self.doAllSubmit([chgrp], client, omero_group=old_gid)
+
 
 if __name__ == '__main__':
     unittest.main()
