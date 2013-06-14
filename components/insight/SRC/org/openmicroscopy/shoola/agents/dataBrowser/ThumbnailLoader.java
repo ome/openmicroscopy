@@ -194,9 +194,6 @@ public class ThumbnailLoader
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
         if (thumbnail) {
-        	if (status == null) 
-                status = (percDone == 100) ? "Done" :  //Else
-                                         ""; //Description wasn't available.   
             ThumbnailData td;
             Object ref;
             if (type == EXPERIMENTER) {
@@ -221,6 +218,7 @@ public class ThumbnailLoader
                 			td.isValidImage(), max);
                 }
             }
+            
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else

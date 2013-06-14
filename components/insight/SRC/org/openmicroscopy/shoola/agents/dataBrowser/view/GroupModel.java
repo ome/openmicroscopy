@@ -137,8 +137,8 @@ class GroupModel
 		}
 		if (imgs.size() == 0) return null;
 		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
-		loaders.add(new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-				ThumbnailLoader.EXPERIMENTER));
+		loaders.add(new ThumbnailLoader(component, ctx, sorter.sort(imgs),
+				ThumbnailLoader.EXPERIMENTER, imgs.size()));
 		return loaders;
 	}
 	
