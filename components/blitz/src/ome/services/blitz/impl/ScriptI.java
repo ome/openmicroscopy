@@ -286,7 +286,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 if (official != null) {
                     String fullname = official.getPath() + official.getName();
                     RepoFile f = scripts.write(fullname, scriptText);
-                    file = scripts.update(f, file.getId());
+                    file = scripts.update(f, file.getId(), __current.ctx);
                 } else {
                     file = writeContent(file, scriptText, __current);
                 }

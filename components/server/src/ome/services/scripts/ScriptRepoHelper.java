@@ -430,8 +430,9 @@ public class ScriptRepoHelper {
         sqlAction.setFileRepo(old, null);
     }
 
-    public OriginalFile update(final RepoFile repoFile, final Long id) {
-        return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
+    public OriginalFile update(final RepoFile repoFile, final Long id,
+            Map<String,String> context) {
+        return (OriginalFile) ex.execute(context, p, new Executor.SimpleWork(this,
                 "update", repoFile, id) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
