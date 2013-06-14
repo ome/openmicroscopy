@@ -1333,7 +1333,7 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (getFile().isFile()) {
-			if (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported) {
+			if (hasFailuresToReupload() && !reimported) {
 				return Arrays.asList(this);
 			}
 		} else {
