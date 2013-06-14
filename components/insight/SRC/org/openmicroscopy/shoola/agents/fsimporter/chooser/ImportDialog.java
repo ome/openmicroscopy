@@ -78,6 +78,7 @@ import loci.formats.gui.ComboFileFilter;
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.view.ImportLocationDetails;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
@@ -130,9 +131,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Bound property indicating that the cancel button is pressed. */
 	public static final String CANCEL_SELECTION_PROPERTY = "cancelSelection";
 
-	/** Bound property indicating that the cancel button is pressed. */
-	public static final String CANCEL_ALL_IMPORT_PROPERTY = "cancelAllImport";
-
 	/** Bound property indicating to import the selected files. */
 	public static final String IMPORT_PROPERTY = "import";
 
@@ -157,9 +155,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 
 	/** Action id indicating to refresh the file chooser. */
 	private static final int CMD_REFRESH_FILES = 6;
-
-	/** Action id indicating to select the Project/Dataset or Screen. */
-	private static final int CMD_CANCEL_ALL_IMPORT = 7;
 
 	// String constants
 
@@ -213,12 +208,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	/** Tooltip for Close button */
 	private static final String TOOLTIP_CLOSE =
 			"Close the dialog and do not import.";
-
-	/** Cancel All Button text */
-	private static final String TEXT_CANCEL_ALL = "Cancel All";
-
-	/** Cancel all button tooltip */
-	private static final String TOOLTIP_CANCEL_ALL = "Cancel all ongoing imports.";
 
 	/** Show Thumbnails label */
 	private static final String TEXT_SHOW_THUMBNAILS =
@@ -527,12 +516,15 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	}
 
 	/**
-	 * Initialises the components composing the display.
+	 * Initializes the components composing the display.
 	 * 
 	 * @param filters
 	 *            The filters to handle.
+	 * @param importerAction
+	 *            The cancel-all-imports action.
 	 */
-	private void initComponents(FileFilter[] filters) {
+	private void initComponents(FileFilter[] filters,
+	        ImporterAction importerAction) {
 		canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
 		diskSpacePane = new JPanel();
@@ -687,10 +679,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		closeButton.setActionCommand("" + CMD_CLOSE);
 		closeButton.addActionListener(this);
 
-		cancelImportButton = new JButton(TEXT_CANCEL_ALL);
-		cancelImportButton.setToolTipText(TOOLTIP_CANCEL_ALL);
-		cancelImportButton.setActionCommand("" + CMD_CANCEL_ALL_IMPORT);
-		cancelImportButton.addActionListener(this);
+		cancelImportButton = new JButton(importerAction);
+		importerAction.setEnabled(false);
 
 		importButton = new JButton(TEXT_IMPORT);
 		importButton.setToolTipText(TOOLTIP_IMPORT);
@@ -1165,11 +1155,13 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 *            The possible objects.
 	 * @param type
 	 *            One of the type constants.
+	 * @param importerAction
+	 *            The cancel-all-imports action.
 	 */
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
 			Collection<TreeImageDisplay> objects, int type,
-			Collection<GroupData> groups) {
+			Collection<GroupData> groups, ImporterAction importerAction) {
 		
 		super(0, TITLE, TITLE);
 		
@@ -1180,7 +1172,7 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 		
 		setClosable(false);
 		setCloseVisible(false);
-		initComponents(filters);
+		initComponents(filters, importerAction);
 		buildGUI();
 	}
 
@@ -1278,8 +1270,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				long id = -1;
 				if (ho instanceof DataObject)
 					id = ((DataObject) ho).getId();
-				List l;
-				Iterator j;
+				List<TreeImageDisplay> l;
+				Iterator<TreeImageDisplay> j;
 				while (i.hasNext()) {
 					node = i.next();
 					nho = node.getUserObject();
@@ -1534,9 +1526,6 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 				ImportLocationDetails details = new ImportLocationDetails(getType());
 				firePropertyChange(REFRESH_LOCATION_PROPERTY, null, details);
 				break;
-			case CMD_CANCEL_ALL_IMPORT:
-				firePropertyChange(CANCEL_ALL_IMPORT_PROPERTY,
-						Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 	}
 

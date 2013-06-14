@@ -289,7 +289,8 @@ class ImporterComponent
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(),
 					selectedContainer, objects, type,
-					ImporterAgent.getAvailableUserGroups());
+					ImporterAgent.getAvailableUserGroups(),
+					controller.getAction(ImporterControl.CANCEL_BUTTON));
 			chooser.addPropertyChangeListener(controller);
 			view.addComponent(chooser);
 		} else {
