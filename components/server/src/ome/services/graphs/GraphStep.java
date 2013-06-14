@@ -203,7 +203,7 @@ public abstract class GraphStep {
 
     /**
      * Action performed at the end of the transaction to give all rows the
-     * change to invalidate other inactions.
+     * chance to invalidate other actions.
      *
      * @param graphState
      * @param session
