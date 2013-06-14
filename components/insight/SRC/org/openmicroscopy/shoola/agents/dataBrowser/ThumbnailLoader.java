@@ -26,9 +26,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
@@ -195,13 +198,31 @@ public class ThumbnailLoader
                 status = (percDone == 100) ? "Done" :  //Else
                                          ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
-            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-            if (td != null) {
-            	Object ref = td.getRefObject();
-            	if (ref == null) ref = td.getImageID();
-            	viewer.setThumbnail(ref, td.getThumbnail(),
-            			td.isValidImage(), max);
+            ThumbnailData td;
+            Object ref;
+            if (type == EXPERIMENTER) {
+            	List<ThumbnailData> l =
+            			(List<ThumbnailData>) fe.getPartialResult();
+                if (!CollectionUtils.isEmpty(l)) {
+                	Iterator<ThumbnailData> i = l.iterator();
+                	while (i.hasNext()) {
+                		td = i.next();
+                		ref = td.getRefObject();
+                		if (ref == null) ref = td.getImageID();
+                		viewer.setThumbnail(ref, td.getThumbnail(),
+                				td.isValidImage(), max);
+    				}
+                }
+            } else {
+            	td = (ThumbnailData) fe.getPartialResult();
+                if (td != null) {
+                	ref = td.getRefObject();
+                	if (ref == null) ref = td.getImageID();
+                	viewer.setThumbnail(ref, td.getThumbnail(),
+                			td.isValidImage(), max);
+                }
             }
+            
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else

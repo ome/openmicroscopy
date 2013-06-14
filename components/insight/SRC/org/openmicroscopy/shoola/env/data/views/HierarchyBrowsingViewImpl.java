@@ -80,8 +80,10 @@ class HierarchyBrowsingViewImpl
     	Collection<DataObject> images, int maxWidth, int maxHeight, long userID,
         int type, AgentEventListener observer)
     {
-    	//BatchCallTree cmd = new ThumbnailSetLoader(ctx, images, maxHeight, type);
-    	BatchCallTree cmd = new ThumbnailLoader(ctx, images, maxWidth,
+    	BatchCallTree cmd;
+    	if (type == EXPERIMENTER)
+    		cmd = new ThumbnailSetLoader(ctx, images, maxHeight, type);
+    	else cmd = new ThumbnailLoader(ctx, images, maxWidth,
     			maxHeight, userID);
         return cmd.exec(observer);
     }
