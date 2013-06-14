@@ -642,7 +642,7 @@ class TestChgrpTarget(lib.ITest):
         """ Chgrp 2 images in a MIF to target Dataset """
         self.chgrpImagesToTargetDataset(2)
 
-    def testChgrpImageToTargetDatasetAndBack(self):
+    def testChgrpImageToTargetDatasetAndBackNoDS(self):
         """
         Chgrp a single Image to target Dataset and then back
         No target is provided on the way back.
@@ -652,6 +652,22 @@ class TestChgrpTarget(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
         self.doAllSubmit([chgrp], client, omero_group=old_gid)
 
+    def testChgrpImageToTargetDatasetAndBackDS(self):
+        """
+        Chgrp a single Image to target Dataset and then back
+        see ticket:11118
+        """
+        ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
+
+        # create Dataset in original group
+        ds = self.createDSInGroup(old_gid, client=client)
+        link = omero.model.DatasetImageLinkI()
+        link.parent = ds.proxy()
+        link.child = images[0].proxy()
+
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
+        save = Save(link)
+        self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
 
 if __name__ == '__main__':
     unittest.main()
