@@ -142,13 +142,33 @@
     <appender-ref ref="SIFT"/>
   </logger>
 
+  <logger name="ome.annotations">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.logic">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.security">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.tools">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
   <logger name="omero">
     <level value="DEBUG"/>
     <appender-ref ref="SIFT"/>
   </logger>
 
   <logger name="loci">
-    <level value="DEBUG"/>
+    <level value="INFO"/>
     <appender-ref ref="SIFT"/>
   </logger>
 
