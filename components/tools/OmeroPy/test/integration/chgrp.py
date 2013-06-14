@@ -60,14 +60,14 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
         admin = client.sf.getAdminService()
         first_gid = admin.getEventContext().groupId
-        
+
         # Create a dataset in the 'first group'
         ds = omero.model.DatasetI()
         ds.name = rstring("testChgrpImage_target")
         ds = update.saveAndReturnObject(ds)
         ds_id = ds.id.val
 
-        # Change our context to new group and create image 
+        # Change our context to new group and create image
         admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         update = client.sf.getUpdateService()   # do we need to get this again?
@@ -100,7 +100,7 @@ class TestChgrp(lib.ITest):
         l = client.sf.getQueryService().findByQuery(query, None)
         self.assertTrue(l is not None, "New DatasetImageLink on image not found")
         self.assertEqual(l.details.group.id.val, first_gid, "Link Created in same group as Image target")
-        
+
 
     def testChgrpPDI(self):
         """
