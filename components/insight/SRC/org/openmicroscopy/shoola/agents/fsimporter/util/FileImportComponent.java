@@ -510,9 +510,8 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		boolean b = statusLabel.isCancellable();
-		if (!b) b = getFile().isDirectory();
-		if (!isCancelled() && b) {
+		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
+		if (!isCancelled() && !hasImportFailed() && b) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();
@@ -1462,6 +1461,8 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl.equals(statusLabel) && busyLabel != null) {
 				cancelButton.setEnabled(sl.isCancellable());
+				firePropertyChange(StatusLabel.FILE_IMPORT_STARTED_PROPERTY,
+				        null, this);
 			}
 		} else if (StatusLabel.UPLOAD_DONE_PROPERTY.equals(name)) {
 			StatusLabel sl = (StatusLabel) evt.getNewValue();

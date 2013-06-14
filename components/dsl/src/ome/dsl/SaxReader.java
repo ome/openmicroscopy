@@ -291,7 +291,7 @@ class DSLHandler extends DefaultHandler {
          * type="ome.model.display.Thumbnail" inverse="pixels"/> Thumnail:
          * <required name="pixels" type="ome.model.core.Pixels"/>
          * 
-         * We want Thumbail.pixels to be given the inverse "thumbnails"
+         * We want Thumbnail.pixels to be given the inverse "thumbnails"
          * 
          * This only holds so long as there is only one link from a given type
          * to another given type, which does *not* hold true for
@@ -305,7 +305,7 @@ class DSLHandler extends DefaultHandler {
                     String inv = p.getInverse(); // "pixels"
                     if (inv != null) {
                         if (types.containsKey(rev)) {
-                            SemanticType reverse = types.get(rev); // Thumbail
+                            SemanticType reverse = types.get(rev); // Thumbnail
                             for (Property inverse : reverse.getProperties()) {
                                 if (inverse.getType().equals(id)) { // "ome...Pixels"
                                     inverse.setInverse(p.getName());
