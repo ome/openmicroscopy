@@ -509,9 +509,8 @@ public class FileImportComponent
 	 */
 	private void cancel(boolean fire)
 	{
-		boolean b = statusLabel.isCancellable();
-		if (!b) b = getFile().isDirectory();
-		if (!isCancelled() && b) {
+		boolean b = statusLabel.isCancellable() || getFile().isDirectory();
+		if (!isCancelled() && !hasImportFailed() && b) {
 			busyLabel.setBusy(false);
 			busyLabel.setVisible(false);
 			statusLabel.markedAsCancel();

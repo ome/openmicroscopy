@@ -1081,7 +1081,7 @@ class ImporterUIElement
 		return false;
 	}
 	
-	/** Indicates that the import has been cancel. */
+	/** Indicates that the import has been cancelled. */
 	void cancelLoading()
 	{
 		if (components == null || components.size() == 0) return;

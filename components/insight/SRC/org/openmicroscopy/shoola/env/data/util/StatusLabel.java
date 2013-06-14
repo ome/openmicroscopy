@@ -289,7 +289,7 @@ public class StatusLabel
 	}
 
 	/** Initializes the components.*/
-	private void initiliaze()
+	private void initialize()
 	{
 		step = 0;
 		sizeUpload = 0;
@@ -335,7 +335,7 @@ public class StatusLabel
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
-		initiliaze();
+		initialize();
 		buildUI();
 	}
 
