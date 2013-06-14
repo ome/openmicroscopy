@@ -27,6 +27,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
+from django.core.cache import cache as django_cache
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
@@ -673,6 +674,13 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
     @return:            http response wrapping jpeg
     """
     server_id = request.session['connector'].server_id
+    full_path = request.get_full_path()
+    cache_key = md5(full_path).hexdigest()
+    jpeg_data = django_cache.get(cache_key)
+    if jpeg_data is not None:
+        logger.info('CACHE HIT: %s' % full_path)
+        return HttpResponse(jpeg_data, mimetype='image/jpeg')
+    logger.info('CACHE MISS: %s' % full_path)
     # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
     # alternatively, could return a 404?    
     #if h == None:
@@ -719,12 +727,12 @@ def render_image_region(request, iid, z, t, conn=None, **kwargs):
             logger.debug(traceback.format_exc())
 
     # region details in request are used as key for caching. 
-    jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
     if jpeg_data is None:
         jpeg_data = img.renderJpegRegion(z,t,x,y,w,h,level=level, compression=compress_quality)
         if jpeg_data is None:
             raise Http404
-        webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
+        logger.info('CACHE SET: %s' % full_path)
+        django_cache.set(cache_key, jpeg_data)
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp    
     
