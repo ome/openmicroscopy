@@ -739,7 +739,7 @@ class WellsModel
 		}
 
 		if (images.size() == 0) return null;
-		return createThumbnailsLoader(images);
+		return createThumbnailsLoader(sorter.sort(images));
 	}
 	
 	/**
