@@ -12,9 +12,8 @@ FOR TRAINING PURPOSES ONLY!
 """
 
 import omero
-from omero.rtypes import rdouble, rint
+from omero.rtypes import rdouble, rint, rlong
 from omero.gateway import BlitzGateway
-from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 import omero.util.figureUtil as figUtil
 
 # Create a connection
@@ -28,26 +27,26 @@ conn.connect()
 imageId = 67
 
 
-# Create an Image from 2 others
+# The Image we want to Analyse
 # =================================================================
-# Replace one channel with a channel from another image.
 image = conn.getObject('Image', imageId)
 
 
-# To keep things simple, we'll work with a single Ellipse
+# To keep things simple, we'll work with a single Ellipse per T
 # =================================================================
 def getEllipses(conn, imageId):
     """ 
-    Returns the a dict of t: {'cx':cx, 'cy':cy, 'rx':rx, 'ry':ry, 'z':z} 
+    Returns the a dict of tIndex: {'cx':cx, 'cy':cy, 'rx':rx, 'ry':ry, 'z':z} 
     NB: Assume only 1 ellipse per time point
+
+    @param conn:    BlitzGateway connection
+    @param imageId:     Image ID
     """
 
     ellipses = {}
-    result = conn.getRoiService().findByImage(imageId, None)
+    result = conn.getRoiService().findByImage(imageId, None, conn.SERVICE_OPTS)
 
     for roi in result.rois:
-        shapeMap = {} # map shapes by Time
-        roiName = None
         for shape in roi.copyShapes():
             if type(shape) == omero.model.EllipseI:
                 cx = int(shape.getCx().getValue())
@@ -72,15 +71,19 @@ def getEllipseData(image, ellipses):
         cy = e['cy']
         rx = e['rx']
         ry = e['ry']
-        # find bounding box of ellipse
-        xStart = e['cx'] - e['rx']
-        xEnd = e['cx'] + e['rx']
-        yStart = e['cy'] - e['ry']
-        yEnd = e['cy'] + e['ry']
-        width = e['rx'] * 2
-        height = e['ry'] * 2
 
+        # find bounding box of ellipse
+        xStart = cx - rx
+        xEnd = cx + rx
+        yStart = cy - ry
+        yEnd = cy + ry
+        width = rx * 2
+        height = ry * 2
+
+        # get pixel data for the 'tile'
         tileData = image.getPrimaryPixels().getTile(theZ=e['z'], theC=0, theT=t, tile=(xStart, yStart, width, height))
+
+        # find the pixels within the ellipse
         pixelValues = []
         for x in range(xStart, xEnd):
             for y in range(yStart, yEnd):
@@ -89,28 +92,64 @@ def getEllipseData(image, ellipses):
                 r = float(dx*dx)/float(rx*rx) + float(dy*dy)/float(ry*ry)
                 if r <= 1:
                     pixelValues.append(tileData[dx][dy])
+        # get the average intensity
         average = sum(pixelValues)/len(pixelValues)
         data[t] = average
     return data
 
 
-# Get dictionary of t:ellipse
-ellipses = getEllipses(conn, imageId)
-# Get dictionary of t:averageIntensity
-intensityData = getEllipseData(image, ellipses)
-timeValues = figUtil.getTimes(conn.getQueryService(), image.getPixelsId(), range(image.getSizeT()))
+def getTimes(conn, image, theC=0):
+    """
+    Get a dict of tIndex:time (seconds) for the first plane (Z = 0) at 
+    each time-point for the defined image and Channel.
+    
+    @param conn:        BlitzGateway connection
+    @param image:       ImageWrapper
+    @return:            A map of tIndex: timeInSecs
+    """
 
-# create lists of times (secs) and intensities
+    queryService = conn.getQueryService()
+    pixelsId = image.getPixelsId()
+
+    params = omero.sys.ParametersI()
+    params.add("theC", rint(theC))
+    params.add("theZ", rint(0))
+    params.add("pixelsId", rlong(pixelsId))
+
+    query = "from PlaneInfo as Info where Info.theZ=:theZ and Info.theC=:theC and pixels.id=:pixelsId"
+    infoList = queryService.findAllByQuery(query, params, conn.SERVICE_OPTS)
+
+    timeMap = {}
+    for info in infoList:
+        tIndex = info.theT.getValue()
+        time = info.deltaT.getValue() 
+        timeMap[tIndex] = time
+    return timeMap    
+    
+
+
+# Get dictionary of tIndex:ellipse
+ellipses = getEllipses(conn, imageId)
+# Get dictionary of tIndex:averageIntensity
+intensityData = getEllipseData(image, ellipses)
+
+# Get dictionary of tIndex:timeStamp (secs)
+timeValues = getTimes(conn, image)
+
+
+# We now have all the Data we need from OMERO
+
+# create lists of times (secs) and intensities...
 timeList = []
 valueList = []
 
+# ...Ordered by tIndex
 for t in range(image.getSizeT()):
-    if t in ellipses:
+    if t in intensityData:
         timeList.append( timeValues[t] )
         valueList.append( intensityData[t] )
 
-print timeList
-print valueList
+print "Analysing pixel values for %s time points" % len(timeList)
 
 # Find the bleach intensity & time
 bleachValue = min(valueList)
@@ -118,10 +157,16 @@ bleachTindex = valueList.index(bleachValue)
 bleachTime = timeList[bleachTindex]
 preBleachValue = valueList[bleachTindex-1]
 
+print "Bleach at tIndex: %s, TimeStamp: %0.2f seconds" % (bleachTindex, bleachTime)
+print "Before Bleach: %0.2f, After Bleach: %0.2f" % (preBleachValue, bleachValue)
+
 # Use last timepoint for max recovery
 recoveryValue = valueList[-1]
-recoveryTime = timeList[-1]
+endTimepoint = timeList[-1]
 mobileFraction = (recoveryValue - bleachValue)/(preBleachValue - bleachValue)
+
+print "Recovered to: %0.2f, after %0.2f seconds" % (recoveryValue, endTimepoint)
+print "Mobile Fraction: %0.2f" % mobileFraction
 
 halfRecovery = (recoveryValue + bleachValue)/2
 
@@ -129,24 +174,25 @@ halfRecovery = (recoveryValue + bleachValue)/2
 recoveryValues = valueList[bleachTindex:]   # just the values & times after bleach time
 recoveryTimes = timeList[bleachTindex:]
 for t, v in zip(recoveryTimes, recoveryValues):
-    print t, v, halfRecovery
     if v >= halfRecovery:
         tHalf = t - bleachTime
         break
 
-print ""
-print ",".join([str(v) for v in valueList])
+print "tHalf: %0.2f seconds" % tHalf
+
+
+csvLines = [ 
+    "Time (secs)," + ",".join([str(t) for t in timeList]),
+    "\n",
+    "Average pixel value," + ",".join([str(v) for v in valueList]),
+    "\n",
+    "tHalf (secs), %0.2f seconds" % tHalf,
+    "mobileFraction, %0.2f" % mobileFraction
+    ]
 
 f = open("FRAP.csv", "w")
-f.writelines( [ ",".join([str(t) for t in timeList]),
-    "\n",
-    ",".join([str(v) for v in valueList]) ])
+f.writelines(csvLines)
 f.close()
-
-print "tHalf: %0.2f seconds" % tHalf
-print "mobileFraction: %0.2f" % mobileFraction
-
-
 
 # Close connection:
 # =================================================================
