@@ -580,6 +580,17 @@ class TestChgrp(lib.ITest):
 
 class TestChgrpTarget(lib.ITest):
 
+    def createDSInGroup(self, gid, name=None, client=None):
+        if name is None:
+            name = self.id()
+        if client is None:
+            client = self.client
+        ctx = {'omero.group': str(gid)}
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring(self.id())
+        return update.saveAndReturnObject(ds, ctx)
+
     def chgrpImagesToTargetDataset(self, imgCount):
         """
         Helper method to test chgrp of image(s) to target Dataset
@@ -591,13 +602,7 @@ class TestChgrpTarget(lib.ITest):
         target_gid = target_grp.id.val
 
         images = self.importMIF(imgCount, client=client)
-
-        # create Dataset in target group
-        ctx = {'omero.group': str(target_gid)}
-        update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
-        ds.name = rstring("testChgrpImagesToDatasetOK")
-        ds = update.saveAndReturnObject(ds, ctx)
+        ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset
         requests = []
