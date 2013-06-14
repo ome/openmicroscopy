@@ -651,7 +651,9 @@ public class StatusLabel
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 			exception = new ImportException(e.exception);
-			handleProcessingError(ImportException.FILE_NOT_VALID_TEXT, false);
+			String text = ImportException.FILE_NOT_VALID_TEXT;
+			if (directory) text = "";
+			handleProcessingError(text, false);
 		} else if (event instanceof ErrorHandler.INTERNAL_EXCEPTION) {
 			ErrorHandler.INTERNAL_EXCEPTION e =
 					(ErrorHandler.INTERNAL_EXCEPTION) event;

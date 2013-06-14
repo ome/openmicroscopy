@@ -1065,7 +1065,6 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReupload()
 	{
-		System.err.println(hasUploadFailed());
 		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
