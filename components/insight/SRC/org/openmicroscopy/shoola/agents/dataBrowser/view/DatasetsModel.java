@@ -161,7 +161,7 @@ class DatasetsModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return createThumbnailsLoader(imgs);
+		return createThumbnailsLoader(sorter.sort(imgs));
 	}
 	
 	/**
