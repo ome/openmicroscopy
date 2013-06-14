@@ -645,7 +645,7 @@ class ImporterComponent
 			Collection<ImporterUIElement> list = view.getImportElements();
 			List<ImporterUIElement> 
 			toImport = new ArrayList<ImporterUIElement>();
-			if (list == null || list.size() == 0) return;
+			if (CollectionUtils.isEmpty(list)) return;
 			Iterator<ImporterUIElement> i = list.iterator();
 			ImporterUIElement element;
 			while (i.hasNext()) {
@@ -654,17 +654,9 @@ class ImporterComponent
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
-				MessageBox box = new MessageBox(view, CANCEL_TITLE,
-						CANCEL_TEXT);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
-					return;
 				i = toImport.iterator();
 				while (i.hasNext()) {
-					element = i.next();
-					//if (element.hasImportToCancel()) {
-						element.cancelLoading();
-						//model.cancel(element.getID());
-					//}
+					i.next().cancelLoading();
 				}
 			}
 		}

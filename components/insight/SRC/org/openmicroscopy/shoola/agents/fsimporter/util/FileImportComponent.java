@@ -517,7 +517,7 @@ public class FileImportComponent
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			if (fire)
+			//if (fire)
 				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
