@@ -3705,7 +3705,6 @@ class OMEROGateway
 						results.remove(f);
 					}
 					notDownloaded.add(of.getName().getValue());
-					closeService(ctx, store);
 					handleConnectionException(e);
 				}
 			} catch (IOException e) {
@@ -3796,7 +3795,7 @@ class OMEROGateway
 			}
 		} catch (IOException e) {
 			if (file != null) file.delete();
-			closeService(ctx, store);
+			c.close(store);
 			throw new DSAccessException("Cannot create file  " +path, e);
 		} finally {
 		    c.close(store);
@@ -4030,7 +4029,6 @@ class OMEROGateway
 			}
 			stream.close();
 			OriginalFile f = store.save();
-			closeService(ctx, store);
 			if (f != null) {
 				save = f;
 				final String clientHash = hasher.checksumAsString();
@@ -5091,7 +5089,6 @@ class OMEROGateway
 				//}
 				//}
 			}
-			closeService(ctx, service);
 			return results;
 		} catch (Throwable e) {
 			handleException(e, "Cannot perform the search.");
@@ -5142,7 +5139,6 @@ class OMEROGateway
 			Object size = handleSearchResult(
 					convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) rType = new ArrayList();
-			closeService(ctx, service);
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
