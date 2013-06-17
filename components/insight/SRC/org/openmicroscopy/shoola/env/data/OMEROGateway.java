@@ -8139,6 +8139,7 @@ class OMEROGateway
 					j = well.getWellSamples().iterator();
 					while (j.hasNext()) {
 						ids.add(j.next().getImage().getId());
+						break;//tmp solution
 					}
 				}
 			}

@@ -407,7 +407,7 @@ public class DataServicesFactory
 	 */
 	public void sessionExpiredExit(int index, Throwable exc)
 	{
-		if (connectionDialog != null) return;
+		if (connectionDialog != null || !omeroGateway.isConnected()) return;
 		String message;
 		if (exc != null) {
 			LogMessage msg = new LogMessage();
