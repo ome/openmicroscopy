@@ -47,6 +47,9 @@ bin/brew doctor
 # dependencies may require sudo
 bin/brew install python
 
+# Install Genshi (OMERO and Bio-Formats requirement)
+bin/pip install -U genshi
+
 # Tap ome-alt library
 bin/brew tap ome/alt || echo "Already tapped"
 
