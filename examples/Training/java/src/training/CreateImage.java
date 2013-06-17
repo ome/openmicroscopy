@@ -59,10 +59,10 @@ public class CreateImage
 
 	/** Information to edit.*/
 	/** The id of an image.*/
-	private long imageId = 551;//27544;
+	private long imageId = 1355;//27544;
 	
 	/** Id of the dataset hosting the image of reference.*/
-	private long datasetId = 201;//Should be the id of the
+	private long datasetId = 51;//Should be the id of the
 	
 	/** The image.*/
 	private ImageData image;
@@ -76,6 +76,14 @@ public class CreateImage
 			throw new Exception("Image does not exist. Check ID.");
 	}
 	
+	/**
+	 * Returns a linearize version of the plane.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected timepoint.
+	 * @param sizeZ The number of z-sections.
+	 * @return
+	 */
 	private Integer linearize(int z, int t, int sizeZ)
 	{
 		if (z < 0 || sizeZ <= z) 
@@ -99,27 +107,30 @@ public class CreateImage
 		long pixelsId = pixels.getId();
 		if (sizeC <= 1)
 			throw new Exception("The image must have at least 2 channels.");
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore();
-		store.setPixelsId(pixelsId, false);
-
+		RawPixelsStorePrx store = null;
 		//Create a new image.
 		Map<Integer, byte[]> map = new LinkedHashMap<Integer, byte[]>();
-		
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				byte[] planeC1 = store.getPlane(z, 0, t);
-				byte[] planeC2 = store.getPlane(z, 1, t);
-				byte[] newPlane = new byte[planeC1.length];
-				for (int i = 0; i < planeC1.length; i++) {
-					newPlane[i] = (byte) ((planeC1[i]+planeC2[i])/2);
+		try {
+			store = entryUnencrypted.createRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					byte[] planeC1 = store.getPlane(z, 0, t);
+					byte[] planeC2 = store.getPlane(z, 1, t);
+					byte[] newPlane = new byte[planeC1.length];
+					for (int i = 0; i < planeC1.length; i++) {
+						newPlane[i] = (byte) ((planeC1[i]+planeC2[i])/2);
+					}
+					map.put(linearize(z, t, sizeZ), newPlane);
 				}
-				map.put(linearize(z, t, sizeZ), newPlane);
 			}
+			
+		} catch (Exception e) {
+			throw new Exception("Cannot retrieve the plane", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		
-		//Better to close to free space.
-		store.close();
-		
+
 		//Now we are going to create the new image.
 		IPixelsPrx proxy = entryUnencrypted.getPixelsService();
 		List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
@@ -133,7 +144,6 @@ public class CreateImage
 				type = o;
 				break;
 			}
-				
 		}
 		if (type == null)
 			throw new Exception("Pixels Type not valid.");
@@ -153,17 +163,22 @@ public class CreateImage
 		entryUnencrypted.getUpdateService().saveAndReturnObject(link);
 		
 		//Write the data.
-		store = entryUnencrypted.createRawPixelsStore();
-		store.setPixelsId(newImage.getDefaultPixels().getId(), false);
-		int index = 0;
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				index = linearize(z, t, sizeZ);
-				store.setPlane(map.get(index), z, 0, t);
+		try {
+			store = entryUnencrypted.createRawPixelsStore();
+			store.setPixelsId(newImage.getDefaultPixels().getId(), false);
+			int index = 0;
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					index = linearize(z, t, sizeZ);
+					store.setPlane(map.get(index), z, 0, t);
+				}
 			}
+			store.save();
+		} catch (Exception e) {
+			throw new Exception("Cannot retrieve the plane", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		store.save();
-		store.close();
 	}
 	
 	/**
