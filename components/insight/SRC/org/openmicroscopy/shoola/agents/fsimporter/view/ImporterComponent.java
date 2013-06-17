@@ -498,41 +498,7 @@ class ImporterComponent
 			bus.post(new ExitApplication());
 			return;
 		}
-		Collection<ImporterUIElement> list = view.getImportElements();
-		List<ImporterUIElement> 
-		toImport = new ArrayList<ImporterUIElement>();
-		if (CollectionUtils.isEmpty(list)) {
-			 view.setVisible(false);
-			return;
-		}
-		Iterator<ImporterUIElement> i = list.iterator();
-		ImporterUIElement element;
-		ImporterUIElement started = null;
-		while (i.hasNext()) {
-			element = i.next();
-			if (element.hasStarted()) started = element;
-			if (!element.isUploadComplete())
-				toImport.add(element);
-		}
-		if (toImport.size() > 0) {
-			MessageBox box = new MessageBox(view, CANCEL_TITLE,
-					CANCEL_TEXT+"\n" +
-					"If Yes, the window will close when the on-going " +
-					"upload is completed.");
-			if (box.centerMsgBox() == MessageBox.NO_OPTION)
-				return;
-			markToclose = true;
-			i = toImport.iterator();
-			while (i.hasNext()) {
-				element = i.next();
-				element.cancelLoading();
-				model.cancel(element.getID());
-			}
-			if (started != null && started.isUploadComplete()) {
-				markToclose = false;
-			}
-		} else markToclose = false;
-		if (!markToclose) view.setVisible(false);
+		view.setVisible(false);
 	}
 	
 	/** 

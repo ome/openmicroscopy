@@ -313,7 +313,7 @@ class ImporterUI extends TopWindow
 				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
 				controller.getAction(
 						ImporterControl.RETRY_BUTTON).setEnabled(
-							hasFailuresToReimport());
+							hasFailuresToReupload());
 				controller.getAction(
 						ImporterControl.SEND_BUTTON).setEnabled(
 								hasFailuresToSend());
@@ -685,20 +685,7 @@ class ImporterUI extends TopWindow
     	if (pane == null) return null;
     	return pane.getFilesToReupload();
 	}
-	
-	/**
-	 * Returns <code>true</code> if file to re-import, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasFailuresToReimport()
-	{
-		ImporterUIElement element = getSelectedPane();
-		if (element == null) return false;
-		return element.hasFailuresToReimport();
-	}
-	
+
 	/**
 	 * Returns <code>true</code> if file to re-upload, <code>false</code>
 	 * otherwise.
