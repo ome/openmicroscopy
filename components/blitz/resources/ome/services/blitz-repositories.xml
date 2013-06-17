@@ -33,7 +33,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
-              <constructor-arg value="${omero.fslite.path_rules}"/>
+              <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -61,12 +61,12 @@
       <constructor-arg index="4" value="${omero.managed.dir}"/>
       <constructor-arg index="5">
           <bean class="ome.services.blitz.repo.ManagedRepositoryI">
-              <constructor-arg value="${omero.fslite.path}"/>
+              <constructor-arg value="${omero.fs.repo.path}"/>
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="processContainer"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
-              <constructor-arg value="${omero.fslite.path_rules}"/>
+              <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
@@ -101,7 +101,7 @@
               <constructor-arg ref="repositoryDao"/>
               <constructor-arg ref="checksumProviderFactory"/>
               <constructor-arg ref="checksumAlgorithm"/>
-              <constructor-arg value="${omero.fslite.path_rules}"/>
+              <constructor-arg value="${omero.fs.repo.path_rules}"/>
           </bean>
       </constructor-arg>
   </bean>
