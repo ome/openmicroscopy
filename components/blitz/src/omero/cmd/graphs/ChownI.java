@@ -155,8 +155,8 @@ public class ChownI extends Chown implements IGraphModifyRequest {
 
     @Override
     public void finish() throws Cancel {
-        // Replaces ChgrpValidation
-        int steps = state.getTotalFoundCount();
+        // Replaces ChownValidation
+        int steps = state.validation();
         for (int i = 0; i < steps; i++) {
             try {
                 state.validate(i);

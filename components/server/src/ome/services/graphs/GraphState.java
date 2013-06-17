@@ -330,7 +330,20 @@ public class GraphState implements GraphStep.Callback {
          return perform(j, false);
      }
 
-    /**
+     /**
+      * Prepares the next phase ({@link #validate(int)}) by returning how
+      * many validation steps should be performed.
+      * @return
+      */
+     public int validation() {
+         int total = getTotalFoundCount();
+         for (int i = 0; i < total; i++) {
+             steps.get(i).validation();
+         }
+         return total;
+     }
+
+     /**
      *
      * @param step
      *             which step is to be invoked. Running a step multiple times is
@@ -355,8 +368,14 @@ public class GraphState implements GraphStep.Callback {
 
         final GraphStep step = steps.get(j);
 
-        if (steps.alreadySucceeded(step)) {
-            return "";
+        if (validate) {
+            if (steps.alreadyValidated(step)) {
+                return "";
+            }
+        } else {
+            if (steps.alreadySucceeded(step)) {
+                return "";
+            }
         }
 
         String msgOrNull = step.start(this);
