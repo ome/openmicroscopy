@@ -40,6 +40,8 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.api.StatefulServiceInterfacePrx;
+import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 
@@ -102,6 +104,8 @@ public class NullRenderingService
     {
         return null;
     }
+
+    public boolean isAlive(SecurityContext ctx) { return false; }
 
     /**
      * No-op implementation
@@ -546,6 +550,18 @@ public class NullRenderingService
 	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 	throws DSAccessException, DSOutOfServiceException
 	{
+		return null;
+	}
+
+	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException {
+		return null;
+	}
+
+	@Override
+	public Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
+			throws DSOutOfServiceException, DSAccessException {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

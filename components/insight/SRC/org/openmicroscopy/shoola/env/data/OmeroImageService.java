@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageService
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,8 +37,10 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
+import omero.api.ThumbnailStorePrx;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
+import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -156,6 +158,16 @@ public interface OmeroImageService
 	public Object renderImage(SecurityContext ctx,
 		long pixelsID, PlaneDef pd, boolean asTexture, boolean largeImage)
 		throws RenderingServiceException;
+
+    /**
+     * Returns true if a connection is available for the given
+     * {@link SecurityContext}. This is equivalent to being able to
+     * access a {@link Connector};
+     *
+     * @param ctx The security context.
+     */
+	public boolean isAlive(SecurityContext ctx)
+	    throws DSOutOfServiceException;
 
 	/**
 	 * Shuts downs the rendering service attached to the specified 
@@ -855,5 +867,35 @@ public interface OmeroImageService
 	 */
 	public Set<DataObject> getFileSet(SecurityContext ctx, long imageId)
 		throws DSAccessException, DSOutOfServiceException;
+
+	/**
+	 * Creates a thumbnail store for the specified security context.
+	 * This method has to be used with care. The stateful service must be closed
+	 * when the work is complete.
+	 * 
+	 * @param ctx The context to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException If an error occurred while trying to
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException;
+	
+	/**
+	 * Retrieves the rendering settings for the specified pixels set.
+	 *
+	 * @param ctx The security context.
+	 * @param pixelsID  The pixels ID.
+	 * @param userID	The id of the user who set the rendering settings.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Long getRenderingDef(SecurityContext ctx, long pixelsID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
 
 }

@@ -262,7 +262,7 @@ class OmeroMetadataServiceImpl
 	{
 		LogicalChannel lc = data.asChannel().getLogicalChannel();
 		ModelMapper.unloadCollections(lc);
-		gateway.updateObject(ctx, lc, new Parameters());
+		gateway.saveAndReturnObject(ctx, lc, null);
 	}
 	
 	/**
@@ -2125,7 +2125,7 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		//Update the channels now
-		gateway.updateObjects(ctx, toUpdate, new Parameters());
+		gateway.saveAndReturnObject(ctx, toUpdate, null, null);
 		return images;
 	}
 	

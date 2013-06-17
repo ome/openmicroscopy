@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import omero.api.StatefulServiceInterfacePrx;
 //Application-internal dependencies
 import omero.cmd.Delete;
 import omero.cmd.Request;
@@ -93,7 +94,7 @@ import pojos.TagAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
-/** 
+/**
  * Implementation of the {@link OmeroDataService} I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -113,16 +114,16 @@ class OmeroDataServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway gateway;
-	
+
 	/**
 	 * Unlinks the collection of children from the specified parent.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param parent    The parent of the children.
 	 * @param children  The children to unlink
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMEDS service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMEDS service.
 	 */
 	private void cut(SecurityContext ctx, DataObject parent, Set children)
 		throws DSOutOfServiceException, DSAccessException
@@ -130,32 +131,32 @@ class OmeroDataServiceImpl
 		IObject mParent = parent.asIObject();
 		Iterator i = children.iterator();
 		List<Long> ids = new ArrayList<Long>(children.size());
-		while (i.hasNext()) {  
-			ids.add(Long.valueOf(((DataObject) i.next()).getId())); 
+		while (i.hasNext()) {
+			ids.add(Long.valueOf(((DataObject) i.next()).getId()));
 		}
 		List links = gateway.findLinks(ctx, mParent, ids);
-		if (links != null) 
+		if (links != null)
 			gateway.deleteObjects(ctx, links);
 	}
-	
+
 	/**
 	 * Deletes the tag set.
-	 * 
+	 *
 	 * @param ctx The security context.
 	 * @param id The identifier of the set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMEDS service. 
+	 * @throws DSAccessException If an error occurred while trying to
+	 * retrieve data from OMEDS service.
 	 */
 	private List<DataObject> deleteTagSet(SecurityContext ctx, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List l = gateway.findAnnotationLinks(ctx, Annotation.class.getName(),
 				id, null);
-		
+
 		List<Long> tagIds = new ArrayList<Long>();
-		List<DataObject> tags = new ArrayList<DataObject>(); 
+		List<DataObject> tags = new ArrayList<DataObject>();
 		Iterator i = l.iterator();
 		AnnotationAnnotationLink link;
 		long tagID;
@@ -175,7 +176,7 @@ class OmeroDataServiceImpl
 	/**
 	 * Returns the user name or <code>null</code> if the passed user is
 	 * the user currently logged in.
-	 * 
+	 *
 	 * @param user The user to handle.
 	 * @return See above.
 	 */
@@ -189,7 +190,7 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Creates a new instance.
-	 * 
+	 *
 	 * @param gateway   Reference to the OMERO entry point.
 	 *                  Mustn't be <code>null</code>.
 	 * @param registry  Reference to the registry. Mustn't be <code>null</code>.
@@ -204,14 +205,14 @@ class OmeroDataServiceImpl
 		this.gateway = gateway;
 	}
 
-	/** 
-	 * Implemented as specified by {@link OmeroDataService}. 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadContainerHierarchy(SecurityContext, Class, List, boolean, long)
 	 */
 	public Set loadContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, List rootNodeIDs, boolean withLeaves,
 			long userID)
-		throws DSOutOfServiceException, DSAccessException 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		ParametersI param = new ParametersI();
 		if (rootNodeIDs == null) {
@@ -220,29 +221,29 @@ class OmeroDataServiceImpl
 		if (withLeaves) param.leaves();
 		else param.noLeaves();
 		if (rootNodeIDs == null || rootNodeIDs.size() == 0) {
-			if (ProjectData.class.equals(rootNodeType) || 
+			if (ProjectData.class.equals(rootNodeType) ||
 					ScreenData.class.equals(rootNodeType))
 				param.orphan();
 		}
 		return gateway.loadContainerHierarchy(ctx, rootNodeType, rootNodeIDs,
-				param); 
+				param);
 	}
 
-	/** 
-	 * Implemented as specified by {@link OmeroDataService}. 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadTopContainerHierarchy(SecurityContext, Class, long)
 	 */
 	public Set loadTopContainerHierarchy(SecurityContext ctx,
 			Class rootNodeType, long userID)
-		throws DSOutOfServiceException, DSAccessException 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		ParametersI param = new ParametersI();
 		param.exp(omero.rtypes.rlong(userID));
 		return gateway.loadContainerHierarchy(ctx, rootNodeType, null, param);
 	}
 
-	/** 
-	 * Implemented as specified by {@link OmeroDataService}. 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#findContainerHierarchy(SecurityContext, Class, List, long)
 	 */
 	public Set findContainerHierarchy(SecurityContext ctx, Class rootNodeType,
@@ -254,9 +255,9 @@ class OmeroDataServiceImpl
 		po.exp(omero.rtypes.rlong(userID));
 		return gateway.findContainerHierarchy(ctx, rootNodeType, leavesIDs, po);
 	}
-	
-	/** 
-	 * Implemented as specified by {@link OmeroDataService}. 
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImages(SecurityContext, Class, List, long)
 	 */
 	public Set getImages(SecurityContext ctx, Class nodeType, List nodeIDs,
@@ -270,9 +271,9 @@ class OmeroDataServiceImpl
 		return gateway.getContainerImages(ctx, nodeType, nodeIDs, po);
 	}
 
-	/** 
+	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long, 
+	 * @see OmeroDataService#getExperimenterImages(SecurityContext, long,
 	 * boolean)
 	 */
 	public Set getExperimenterImages(SecurityContext ctx, long userID, boolean
@@ -300,20 +301,20 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#createDataObject(SecurityContext, DataObject, 
+	 * @see OmeroDataService#createDataObject(SecurityContext, DataObject,
 	 * 										DataObject, Collection)
 	 */
 	public DataObject createDataObject(SecurityContext ctx, DataObject child,
 			DataObject parent, Collection children)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (child == null) 
+		if (child == null)
 			throw new IllegalArgumentException("The child cannot be null.");
 		//Make sure parent is current
-		
+
 		String userName = getUserName(ctx.getExperimenterData());
 		IObject obj = ModelMapper.createIObject(child, parent);
-		if (obj == null) 
+		if (obj == null)
 			throw new NullPointerException("Cannot convert the object.");
 
 		IObject created = gateway.createObject(ctx, obj, userName);
@@ -324,7 +325,7 @@ class OmeroDataServiceImpl
 				gateway.createObject(ctx, link, userName);
 			}
 		}
-			
+
 		if (children != null && children.size() > 0) {
 			Iterator i = children.iterator();
 			Object node;
@@ -343,7 +344,7 @@ class OmeroDataServiceImpl
 		} catch (Exception e) {
 			context.getLogger().info(this, "Cannot shut down the connectors.");
 		}
-		
+
 		return PojoMapper.asDataObject(created);
 	}
 
@@ -354,11 +355,11 @@ class OmeroDataServiceImpl
 	public DataObject updateDataObject(SecurityContext ctx, DataObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (object == null) 
+		if (object == null)
 			throw new DSAccessException("No object to update.");
 		if (!object.isDirty()) return object;
 		ctx = gateway.checkContext(ctx, object);
-		if (object instanceof ExperimenterData) 
+		if (object instanceof ExperimenterData)
 			return updateExperimenter(ctx, (ExperimenterData) object, null);
 		if (!object.isLoaded()) return object;
 		IObject ho = null;
@@ -391,8 +392,8 @@ class OmeroDataServiceImpl
 			}
 		} else if (parent instanceof GroupData) {
 			try {
-				ExperimenterData[] exp = 
-					(ExperimenterData[]) 
+				ExperimenterData[] exp =
+					(ExperimenterData[])
 					children.toArray(new ExperimenterData[] {});
 				List<ExperimenterData> list = new ArrayList<ExperimenterData>();
 				for (int i = 0; i < exp.length; i++) {
@@ -436,7 +437,7 @@ class OmeroDataServiceImpl
 				if (tag.getNameSpace() != null)
 					throw new IllegalArgumentException(
 					"items can only be Tag.");
-					
+
 			}
 		} else
 			throw new IllegalArgumentException("Parent not supported");
@@ -496,7 +497,7 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#getArchivedFiles(SecurityContext, File, long)
 	 */
 	public Map<Boolean, Object> getArchivedImage(SecurityContext ctx,
-			File file, long imageID) 
+			File file, long imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		context.getLogger().debug(this, file.getAbsolutePath());
@@ -510,23 +511,23 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#updateExperimenter(SecurityContext, ExperimenterData, GroupData)
 	 */
 	public ExperimenterData updateExperimenter(SecurityContext ctx,
-			ExperimenterData exp, GroupData group) 
-		throws DSOutOfServiceException, DSAccessException 
+			ExperimenterData exp, GroupData group)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		if (exp == null) 
+		if (exp == null)
 			throw new DSAccessException("No object to update.");
 		ctx = gateway.checkContext(ctx, exp);
-		UserCredentials uc = (UserCredentials) 
+		UserCredentials uc = (UserCredentials)
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		ExperimenterData user = 
+		ExperimenterData user =
 			(ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 		gateway.updateExperimenter(ctx, exp.asExperimenter(), user.getId());
 		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId()) 
+		if (group != null && exp.getDefaultGroup().getId() != group.getId())
 			gateway.changeCurrentGroup(ctx, exp, group.getId());
 		data = gateway.getUserDetails(ctx, uc.getUserName(), true);
-		
+
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
 		List agents = (List) context.lookup(LookupNames.AGENTS);
@@ -550,13 +551,13 @@ class OmeroDataServiceImpl
 	{
 		if (startTime == null && endTime == null)
 			throw new NullPointerException("Time not specified.");
-		
+
 		ParametersI po = new ParametersI();
 		po.leaves();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
-		if (startTime != null) 
+		if (startTime != null)
 			po.startTime(omero.rtypes.rtime(startTime.getTime()));
-		if (endTime != null) 
+		if (endTime != null)
 			po.endTime(omero.rtypes.rtime(endTime.getTime()));
 		return gateway.getImages(ctx, po, asDataObject);
 	}
@@ -565,8 +566,8 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesAllPeriodCount(SecurityContext, Timestamp, Timestamp, long)
 	 */
-	public List getImagesAllPeriodCount(SecurityContext ctx, 
-			Timestamp startTime, Timestamp endTime, long userID) 
+	public List getImagesAllPeriodCount(SecurityContext ctx,
+			Timestamp startTime, Timestamp endTime, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (startTime == null || endTime == null)
@@ -585,13 +586,13 @@ class OmeroDataServiceImpl
 		}
 		return times;
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(List, SearchDataContext)
 	 */
 	public Object advancedSearchFor(SecurityContext ctx,
-			SearchDataContext context) 
+			SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ctx == null)
@@ -601,9 +602,9 @@ class OmeroDataServiceImpl
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
-		
+
 		if (!context.hasTextToSearch()) {
-			results.put(SearchDataContext.TIME, 
+			results.put(SearchDataContext.TIME,
 					gateway.searchByTime(ctx, context));
 			return results;
 		}
@@ -611,7 +612,7 @@ class OmeroDataServiceImpl
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
-		
+
 		Integer key;
 		List value;
 		Iterator k;
@@ -627,7 +628,7 @@ class OmeroDataServiceImpl
 			}
 		}
 		if (m == null) return results;
-		
+
 		Set<DataObject> nodes;
 		Object v;
 		Iterator i = m.entrySet().iterator();
@@ -640,7 +641,7 @@ class OmeroDataServiceImpl
 				results.put(key, v);
 			} else {
 				value = (List) v;
-				nodes = new HashSet<DataObject>(); 
+				nodes = new HashSet<DataObject>();
 				results.put(key, nodes);
 				if (value.size() > 0) {
 					switch (key) {
@@ -665,7 +666,7 @@ class OmeroDataServiceImpl
 				}
 			}
 		}
-		return results; 
+		return results;
 	}
 
 	/**
@@ -674,7 +675,7 @@ class OmeroDataServiceImpl
 	 * long)
 	 */
 	public Collection findContainerPaths(SecurityContext ctx,
-			Class type, long id, long userID) 
+			Class type, long id, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
@@ -713,7 +714,7 @@ class OmeroDataServiceImpl
 					parent = ((DatasetImageLink) i.next()).getParent();
 				else if (parentClass.equals(Screen.class))
 					parent = ((ScreenPlateLink) i.next()).getParent();
-				else if (parentClass.equals(TagAnnotation.class)) 
+				else if (parentClass.equals(TagAnnotation.class))
 					parent = ((AnnotationAnnotationLink) i.next()).getParent();
 				else if (parentClass.equals(FileAnnotation.class)) {
 					link = (IObject) i.next();
@@ -730,8 +731,8 @@ class OmeroDataServiceImpl
 				}
 				parentId = parent.getId().getValue();
 				if (!ids.contains(parentId)) {
-					object = gateway.findIObject(ctx, 
-							parent.getClass().getName(), 
+					object = gateway.findIObject(ctx,
+							parent.getClass().getName(),
 							parent.getId().getValue());
 					data = PojoMapper.asDataObject(object);
 					if (TagAnnotation.class.equals(parentClass)) {
@@ -756,20 +757,20 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getOriginalFiles(SecurityContext, long)
 	 */
-	public Collection getOriginalFiles(SecurityContext ctx, long pixelsID) 
+	public Collection getOriginalFiles(SecurityContext ctx, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (pixelsID < 0)
 			throw new IllegalArgumentException("Pixels set ID not valid.");
 		return gateway.getOriginalFiles(ctx, pixelsID);
 	}
-	
+
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#loadPlateWells(SecurityContext, long, long, long)
 	 */
 	public Collection loadPlateWells(SecurityContext ctx,
-			long plateID, long acquisitionID, long userID) 
+			long plateID, long acquisitionID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.loadPlateWells(ctx, plateID, acquisitionID);
@@ -821,7 +822,7 @@ class OmeroDataServiceImpl
 				}
 			}
 			if (!object.deleteContent()) {
-				if (options == null) 
+				if (options == null)
 					options = new HashMap<String, String>();
 				if (data instanceof DatasetData) {
 					options.put(gateway.createDeleteCommand(
@@ -892,7 +893,7 @@ class OmeroDataServiceImpl
 					all.addAll(imageIds);
 				}
 			}
-			
+
 			//Now check that all the ids are covered.
 			Entry<Long, Map<String, String>> entry;
 			Iterator<Entry<Long, Map<String, String>>> e =
@@ -925,7 +926,7 @@ class OmeroDataServiceImpl
 	 * @see OmeroDataService#transfer(SecurityContext, SecurityContext, List,
 	 * List)
 	 */
-	public RequestCallback transfer(SecurityContext ctx, 
+	public RequestCallback transfer(SecurityContext ctx,
 			SecurityContext target, List<DataObject> targetNodes,
 		List<DataObject> objects)
 		throws DSOutOfServiceException, DSAccessException, ProcessException
@@ -935,7 +936,7 @@ class OmeroDataServiceImpl
 		if (objects == null || objects.size() == 0)
 			throw new IllegalArgumentException("No object to move.");
 		Iterator<DataObject> i = objects.iterator();
-		Map<DataObject, List<IObject>> map = 
+		Map<DataObject, List<IObject>> map =
 			new HashMap<DataObject, List<IObject>>();
 		DataObject data;
 		List<IObject> l;
@@ -949,7 +950,7 @@ class OmeroDataServiceImpl
 		IObject newObject;
 		PermissionData perms;
 		List<IObject> targets = new ArrayList<IObject>();
-		
+
 		while (i.hasNext()) {
 			data = i.next();
 			owner = data.getOwner();
@@ -960,7 +961,7 @@ class OmeroDataServiceImpl
 				break;
 			}
 		}
-		
+
 		if (targetNodes != null && targetNodes.size() > 0) {
 			List<IObject> toCreate = new ArrayList<IObject>();
 			j = targetNodes.iterator();
@@ -1031,6 +1032,18 @@ class OmeroDataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#closeService(SecurityContext,
+	 * StatefulServiceInterfacePrx)
+	 */
+	public void closeService(SecurityContext ctx,
+			StatefulServiceInterfacePrx svc)
+	{
+		if (ctx == null || svc == null) return;
+		gateway.closeService(ctx, svc);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesBySplitFilesets(SecurityContext, Class,
 	 * List)
 	 */
@@ -1043,8 +1056,8 @@ class OmeroDataServiceImpl
 		ParametersI param = new ParametersI();
 		Map<Long, Map<Boolean, List<Long>>> m =
 				gateway.getImagesBySplitFilesets(ctx, rootType, rootIDs, param);
-		
-		Map<Long, Map<Boolean, List<ImageData>>> 
+
+		Map<Long, Map<Boolean, List<ImageData>>>
 		r = new HashMap<Long, Map<Boolean, List<ImageData>>>();
 		if (m == null || m.size() == 0) return r;
 		List<Long> ids = new ArrayList<Long>();

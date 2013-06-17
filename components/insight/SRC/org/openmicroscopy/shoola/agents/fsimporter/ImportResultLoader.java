@@ -140,14 +140,10 @@ public class ImportResultLoader
     {
     	if (viewer.getState() == DataBrowser.DISCARDED ||
     			!ThumbnailData.class.equals(nodeType)) return;
-
-    	List l = (List) fe.getPartialResult();
-    	if (!CollectionUtils.isEmpty(l)) {
+    	ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+    	if (td != null) {
     		if (result == null) result = new ArrayList<Object>();
-    		Iterator i = l.iterator();
-    		while (i.hasNext()) {
-    			result.add(i.next());
-    		}
+        	result.add(td);
     		if (result.size() == ids.size())
     			viewer.setImportResult(result, comp);
     	}

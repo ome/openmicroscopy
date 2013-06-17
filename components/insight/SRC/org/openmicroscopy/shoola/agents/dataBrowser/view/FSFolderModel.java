@@ -34,7 +34,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
-import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
@@ -98,7 +97,7 @@ class FSFolderModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -155,8 +154,9 @@ class FSFolderModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-				ThumbnailLoader.FS_FILE);
+		return null;
+		//new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
+		//		ThumbnailLoader.FS_FILE);
 	}
 	
 	/**
