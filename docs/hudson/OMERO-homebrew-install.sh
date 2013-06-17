@@ -73,9 +73,14 @@ fi
 
 cd /usr/local
 
+# Install Genshi (OMERO and Bio-Formats requirement)
+bin/brew install python
+bin/pip install -U genshi
+
 ###################################################################
 # Bio-Formats installation
 ###################################################################
+
 
 # Install Bio-Formats
 bin/brew install bioformats $BREW_OPTS
