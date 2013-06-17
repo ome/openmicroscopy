@@ -35,6 +35,8 @@ import java.util.Set;
 
 //Third-party libraries
 
+import omero.api.StatefulServiceInterfacePrx;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -443,6 +445,10 @@ public class NullOmeroPojoService
 			DSAccessException {
 		return null;
 	}
+	
+	
+	public void closeService(SecurityContext ctx,
+			StatefulServiceInterfacePrx svc) {}
 
 	/**
      * No-operation implementation

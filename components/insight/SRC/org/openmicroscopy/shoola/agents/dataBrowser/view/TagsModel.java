@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.TagsModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -33,10 +33,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
-import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
@@ -170,7 +168,7 @@ public class TagsModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -182,7 +180,7 @@ public class TagsModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
+		List<DataObject> imgs = new ArrayList<DataObject>();
 		List<Long> loaded = new ArrayList<Long>();
 		ImageData img;
 		if (ids != null) {
@@ -213,7 +211,7 @@ public class TagsModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
+		return createThumbnailsLoader(sorter.sort(imgs));
 	}
 	
 	/**

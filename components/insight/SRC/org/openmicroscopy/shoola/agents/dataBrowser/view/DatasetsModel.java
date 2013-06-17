@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.DatasetsModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
-import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
@@ -45,7 +44,6 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
@@ -114,7 +112,7 @@ class DatasetsModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected List<DataBrowserLoader> createDataLoader(boolean refresh,
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -126,7 +124,7 @@ class DatasetsModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
+		List<DataObject> imgs = new ArrayList<DataObject>();
 		ImageData img;
 		List<Long> loaded = new ArrayList<Long>();
 		if (ids != null) {
@@ -163,7 +161,7 @@ class DatasetsModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs));
+		return createThumbnailsLoader(sorter.sort(imgs));
 	}
 	
 	/**

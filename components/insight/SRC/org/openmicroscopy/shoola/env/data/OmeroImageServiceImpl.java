@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.OmeroImageServiceImpl
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -59,6 +59,7 @@ import com.sun.opengl.util.texture.TextureData;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportContainer;
 import omero.api.RenderingEnginePrx;
+import omero.api.ThumbnailStorePrx;
 import omero.model.Annotation;
 import omero.model.Channel;
 import omero.model.Dataset;
@@ -514,7 +515,12 @@ class OmeroImageServiceImpl
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
-	
+
+	public boolean isAlive(SecurityContext ctx) throws DSOutOfServiceException
+	{
+	    return null != gateway.getConnector(ctx, true, true);
+	}
+
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#shutDown(SecurityContext,long)
@@ -1831,6 +1837,32 @@ class OmeroImageServiceImpl
 		throws DSAccessException, DSOutOfServiceException
 	{
 		return gateway.getFileSet(ctx, Arrays.asList(imageId));
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#createThumbnailStore(SecurityContext)
+	 */
+	public ThumbnailStorePrx createThumbnailStore(SecurityContext ctx)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		if (ctx == null) return null;
+		Connector c = gateway.getConnector(ctx, true, false);
+		// Pass close responsiblity off to the caller.
+		return c.getThumbnailService();
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#getRenderingDef(SecurityContext, long, long)
+	 */
+	public Long getRenderingDef(SecurityContext ctx, long pixelsID,
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		RenderingDef def = gateway.getRenderingDef(ctx, pixelsID, userID);
+		if (def == null) return -1L;
+		return def.getId().getValue();
 	}
 
 }

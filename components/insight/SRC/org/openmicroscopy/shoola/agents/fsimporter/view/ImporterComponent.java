@@ -100,6 +100,9 @@ class ImporterComponent
 	/** Title displayed in dialog box when cancelling import.*/
 	private static final String CANCEL_TITLE = "Cancel Import";
 	
+	/** If a given plane is larger than the size, the thumbnail is not loaded.*/
+	private static final int MAX_SIZE = 2000*2000;
+	
 	/** The Model sub-component. */
 	private ImporterModel 	model;
 	
@@ -864,12 +867,17 @@ class ImporterComponent
 			klass = PlateData.class;
 		}
 		int index = 0;
+		PixelsData pxd;
 		while (i.hasNext()) {
 			if (index == n) break;
-			l.add(i.next());
-			index++;
+			pxd = i.next();
+			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
+				l.add(pxd);
+				index++;
+			}
 		}
-		model.fireImportResultLoading(l, klass, component);
+		if (l.size() > 0)
+			model.fireImportResultLoading(l, klass, component);
 	}
 
 	/** 
