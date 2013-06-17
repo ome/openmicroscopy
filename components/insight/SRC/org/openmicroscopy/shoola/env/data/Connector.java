@@ -107,16 +107,18 @@ import com.google.common.collect.Sets;
  */
 class Connector
 {
+
+	/** Keeps track of the last keep alive action.*/
     private final AtomicLong lastKeepAlive = new AtomicLong(0);
 
 	/** 
-	 * The Blitz client object, this is the entry point to the 
-	 * OMERO Server using a secure connection. 
+	 * The Blitz client object, this is the entry point to the
+	 * OMERO Server using a secure connection.
 	 */
 	private final client secureClient;
 
 	/** 
-	 * The client object, this is the entry point to the 
+	 * The client object, this is the entry point to the
 	 * OMERO Server using non secure data transfer
 	 */
 	private final client unsecureClient;
@@ -136,10 +138,10 @@ class Connector
     /** Collection of stateless services to prevent re-lookup */
     private final ConcurrentHashMap<String, ServiceInterfacePrx> statelessServices;
 
-    /** Collection of statefule services to prevent re-lookup.
+    /** Collection of stateful services to prevent re-lookup.
      * {@link RenderingEnginePrx} and {@link OMEROMetadataStoreClient}
      * instances are stored separately */
-    private final Multimap<String, StatefulServiceInterfacePrx> statefulServices;	
+    private final Multimap<String, StatefulServiceInterfacePrx> statefulServices;
 
     private final ConcurrentHashMap<OMEROMetadataStoreClient, String> importStores;
 
@@ -241,7 +243,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 		return IRenderingSettingsPrxHelper.uncheckedCast(
-		        get(omero.constants.RENDERINGSETTINGS.value, false));
+		        get(omero.constants.RENDERINGSETTINGS.value,
+		        		unsecureClient == null));
 	}
 
 	/**
@@ -254,7 +257,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IRepositoryInfoPrxHelper.uncheckedCast(
-	            get(omero.constants.REPOSITORYINFO.value, false));
+	            get(omero.constants.REPOSITORYINFO.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -267,7 +271,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IScriptPrxHelper.uncheckedCast(
-	            get(omero.constants.SCRIPTSERVICE.value, false));
+	            get(omero.constants.SCRIPTSERVICE.value,
+	            		unsecureClient == null));
 	}
 	
 	/**
@@ -280,7 +285,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IContainerPrxHelper.uncheckedCast(
-	            get(omero.constants.CONTAINERSERVICE.value, false));
+	            get(omero.constants.CONTAINERSERVICE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -293,7 +299,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return IQueryPrxHelper.uncheckedCast(
-	            get(omero.constants.QUERYSERVICE.value, false));
+	            get(omero.constants.QUERYSERVICE.value,
+	            		unsecureClient == null));
 	}
 	
 	/**
@@ -306,7 +313,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return IUpdatePrxHelper.uncheckedCast(
-	            get(omero.constants.UPDATESERVICE.value, false));
+	            get(omero.constants.UPDATESERVICE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -319,7 +327,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IMetadataPrxHelper.uncheckedCast(
-	            get(omero.constants.METADATASERVICE.value, false));
+	            get(omero.constants.METADATASERVICE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -332,7 +341,7 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return IRoiPrxHelper.uncheckedCast(
-	            get(omero.constants.ROISERVICE.value, false));
+	            get(omero.constants.ROISERVICE.value, unsecureClient == null));
 	}
 
 	/**
@@ -345,7 +354,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IConfigPrxHelper.uncheckedCast(
-	            get(omero.constants.CONFIGSERVICE.value, false));
+	            get(omero.constants.CONFIGSERVICE.value,
+	            		unsecureClient == null));
 	}
 	
 	/**
@@ -358,7 +368,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return ThumbnailStorePrxHelper.uncheckedCast(
-	            create(omero.constants.THUMBNAILSTORE.value, false));
+	            create(omero.constants.THUMBNAILSTORE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -371,7 +382,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return ExporterPrxHelper.uncheckedCast(
-	            create(omero.constants.EXPORTERSERVICE.value, false));
+	            create(omero.constants.EXPORTERSERVICE.value,
+	            		unsecureClient == null));
 	}
 	
 	/**
@@ -384,7 +396,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return RawFileStorePrxHelper.uncheckedCast(
-	            create(omero.constants.RAWFILESTORE.value, false));
+	            create(omero.constants.RAWFILESTORE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -397,7 +410,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return RawPixelsStorePrxHelper.uncheckedCast(
-	            create(omero.constants.RAWPIXELSSTORE.value, false));
+	            create(omero.constants.RAWPIXELSSTORE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -410,7 +424,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return IPixelsPrxHelper.uncheckedCast(
-	            get(omero.constants.PIXELSSERVICE.value, false));
+	            get(omero.constants.PIXELSSERVICE.value,
+	            		unsecureClient == null));
 	}
 	
 	/**
@@ -423,7 +438,7 @@ class Connector
 	    throws DSOutOfServiceException
 	{
 		return SearchPrxHelper.uncheckedCast(
-		        create(omero.constants.SEARCH.value, false));
+		        create(omero.constants.SEARCH.value, unsecureClient == null));
 	}
 	
 	/**
@@ -436,7 +451,8 @@ class Connector
 		throws DSOutOfServiceException
 	{
 	    return IProjectionPrxHelper.uncheckedCast(
-	            get(omero.constants.PROJECTIONSERVICE.value, false));
+	            get(omero.constants.PROJECTIONSERVICE.value,
+	            		unsecureClient == null));
 	}
 
 	/**
@@ -449,7 +465,8 @@ class Connector
 		throws DSOutOfServiceException
 	{ 
 	    return IAdminPrxHelper.uncheckedCast(
-	            get(omero.constants.ADMINSERVICE.value, false));
+	            get(omero.constants.ADMINSERVICE.value,
+	            		unsecureClient == null));
 	}
 
 
@@ -531,7 +548,7 @@ class Connector
 
 	/** Closes the services initialized by the importer
 	 * TODO: along with the TODO on derived, this will need to be reviewed
-	 * for race conditions. 
+	 * for race conditions.
 	 **/
 	void closeImport()
 	{
@@ -541,7 +558,6 @@ class Connector
 		} catch (Throwable e) {
 		    log("Exception on closeDerived: " + e);
 		}
-		
 	}
 	
 	/**
@@ -649,13 +665,14 @@ class Connector
 	 */
 	void shutDownRenderingEngine(long pixelsId)
 	{
-	    Collection<RenderingEnginePrx> proxies = 
+	    Collection<RenderingEnginePrx> proxies =
 	            reServices.removeAll(pixelsId);
 	    for (RenderingEnginePrx prx : proxies) {
 	        close(prx);
 	    }
 	}
 
+	/** Shuts down the import services.*/
 	void shutdownImports() {
        Collection<OMEROMetadataStoreClient> imports = null;
         synchronized (importStores) {
@@ -672,6 +689,7 @@ class Connector
         }
 	}
 
+	/** Shuts down the stateful services.*/
 	void shutdownStateful() {
         Collection<StatefulServiceInterfacePrx> proxies = null;
         synchronized (statefulServices) {
@@ -787,6 +805,12 @@ class Connector
 	// HELPERS
 	//
 
+	/**
+	 * Returns <code>true</code> if the services need to be kept alive,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
     boolean needsKeepAlive()
     {
         long last = lastKeepAlive.get();
@@ -797,7 +821,16 @@ class Connector
         return false;
     }
 
-    ServiceInterfacePrx get(String name, boolean secure)
+    /**
+     * Recycles the specified service.
+     * 
+     * @param name The name of the service to create or recycle.
+     * @param secure Pass <code>true</code> to create a secure object,
+     * <code>false</code> otherwise.
+     * @return See above.
+     * @throws DSOutOfServiceException Thrown if an error occurred.
+     */
+    private ServiceInterfacePrx get(String name, boolean secure)
             throws DSOutOfServiceException {
         try {
             ServiceInterfacePrx prx = statelessServices.get(name);
@@ -807,7 +840,7 @@ class Connector
             if (!secure && entryUnencrypted != null) {
                 prx = entryUnencrypted.getByName(name);
             } else {
-                prx = entryEncrypted.getByName(name);  
+                prx = entryEncrypted.getByName(name);
             }
             statelessServices.put(name, prx);
             return prx;
@@ -816,7 +849,16 @@ class Connector
         }
     }
 
-    StatefulServiceInterfacePrx create(String name, boolean secure)
+    /**
+     * Creates the specified service.
+     * 
+     * @param name The name of the service to create or recycle.
+     * @param secure Pass <code>true</code> to create a secure object,
+     * <code>false</code> otherwise.
+     * @return See above.
+     * @throws DSOutOfServiceException Thrown if an error occurred.
+     */
+    private StatefulServiceInterfacePrx create(String name, boolean secure)
             throws DSOutOfServiceException {
         try {
             StatefulServiceInterfacePrx prx = null;
