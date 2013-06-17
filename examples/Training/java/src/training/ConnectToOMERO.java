@@ -2,7 +2,7 @@
  * training.ConnectToOMERO 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -50,12 +50,10 @@ public class ConnectToOMERO {
 	/** The name space used during the training.*/
 	String trainingNameSpace = "imperial.training.demo";
 	
+	//The value used if the configuration file is not used.*/
 	/** The server address.*/
 	private String hostName = "howe.openmicroscopy.org.uk";//"serverName";
-	
-	/** The port to use.*/
-	private int port = 4064; //default port
-	
+
 	/** The username.*/
 	private String userName = "user-1";//"userName";
 	
@@ -68,12 +66,16 @@ public class ConnectToOMERO {
 	/** The service factory.*/
 	protected ServiceFactoryPrx entryUnencrypted;
 	
-	/** Connects to the server.*/
-	protected void connect()
+	/**
+	 * Connects to the server.
+	 * 
+	 * @param info Configuration info or <code>null</code>.
+	 */
+	protected void connect(ConfigurationInfo info)
 		throws Exception
 	{
-		client = new client(hostName, port);
-		ServiceFactoryPrx entry = client.createSession(userName, password);
+		client = new client(info.getHostName(), info.getPort());
+		client.createSession(info.getHostName(), info.getPassword());
 		// if you want to have the data transfer encrypted then you can 
 		// use the entry variable otherwise use the following 
 		unsecureClient = client.createClient(false);
@@ -105,25 +107,37 @@ public class ConnectToOMERO {
 	
 	/**
 	 * Shows how to connect to omero.
+	 * 
+	 * @param info Configuration info or <code>null</code>.
 	 */
-	ConnectToOMERO()
+	ConnectToOMERO(ConfigurationInfo info)
 	{
+		if (info == null) { //run from main
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+		}
 		try {
-			connect();
+			connect(info);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				disconnect(); // Be sure to disconnect
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
+	/**
+	 * Runs the script with configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new ConnectToOMERO();
+		ConnectToOMERO connector = new ConnectToOMERO(null);
+		try {
+			connector.disconnect(); // Be sure to disconnect
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.exit(0);
 	}
 
