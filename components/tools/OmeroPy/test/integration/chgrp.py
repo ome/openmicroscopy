@@ -578,6 +578,12 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Plate", id=link.child.id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client)
 
+        # Check that the links have been destroyed
+        query = client.sf.getQueryService()
+        self.assertRaises(omero.ValidationException,
+                          query.get, "ScreenPlateLink", link.id.val, {"omero.group":"-1"})
+
+
 class TestChgrpTarget(lib.ITest):
 
     def createDSInGroup(self, gid, name=None, client=None):
