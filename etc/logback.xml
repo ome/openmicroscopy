@@ -2,31 +2,19 @@
 <configuration scan="true" debug="false">
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-
     <file>${omero.logfile}</file>
-
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <fileNamePattern>${omero.logfile}.%i</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>
     </rollingPolicy>
-
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <maxFileSize>500MB</maxFileSize>
     </triggeringPolicy>
-
     <encoder>
       <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>
     </encoder>
-
-    <filter class="ch.qos.logback.classic.filter.LevelFilter">
-      <level>INFO</level>
-      <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
-    </filter>
-
   </appender>
-
 
   <appender name="SIFT" class="ome.util.logback.SiftingWhileRejectingDefaultAppender">
     <!-- in the absence of the class attribute, it is assumed that the
@@ -50,8 +38,6 @@
       <level>DEBUG</level>
     </filter>
   </appender>
-
-
 
   <!-- PERF4J ///////////////////////////////////////////////////////////////// -->
   <appender name="Perf4jJmxAppender" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
