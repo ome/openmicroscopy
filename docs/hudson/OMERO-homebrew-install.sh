@@ -9,6 +9,7 @@ export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
+VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -76,7 +77,16 @@ showinf -version
 bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
-# Install additional Python dependencies
+# Create a virtual environment for Python dependencies
+bin/pip install virtualenv
+bin/virtualenv $VENV_DIR
+
+# Activate the virtual environment
+set +u
+source $VENV_DIR/bin/activate
+set -u
+
+# Install OMERO Python dependencies
 bash bin/omero_python_deps
 
 # Set environment variables
@@ -87,8 +97,7 @@ export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
-
-# Create database
+# Create PostgreSQL database
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
 fi
@@ -96,17 +105,17 @@ bin/initdb $PSQL_DIR
 bin/brew services restart postgresql
 bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log start
 
+# Create user and database
+bin/createuser -w -D -R -S db_user
+bin/createdb -O db_user omero_database
+bin/psql -h localhost -U db_user -l
 
 # Set database
 bin/omero config set omero.db.name omero_database
 bin/omero config set omero.db.user db_user
 bin/omero config set omero.db.pass db_password
 
-# Create user and databse
-bin/createuser -w -D -R -S db_user
-bin/createdb -O db_user omero_database
-bin/psql -h localhost -U db_user -l
-
+# Run DB script
 bin/omero db script "" "" root_password -f $SCRIPT_NAME
 bin/psql -h localhost -U db_user omero_database < $SCRIPT_NAME
 rm $SCRIPT_NAME
