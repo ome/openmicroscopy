@@ -1047,11 +1047,11 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReimport()
 	{
-		if (getFile().isFile()) return hasImportFailed() && !reimported;
+		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
-			if (i.next().hasFailuresToReimport())
+			if (i.next().hasUploadFailed())
 				return true;
 		}
 		return false;
@@ -1333,7 +1333,7 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (getFile().isFile()) {
-			if (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported) {
+			if (hasFailuresToReupload() && !reimported) {
 				return Arrays.asList(this);
 			}
 		} else {
