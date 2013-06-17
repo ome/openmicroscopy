@@ -275,6 +275,8 @@ class PropertiesUI
 	/** Modifies the UI so the user can edit the channels.*/
 	private void editChannels()
 	{
+		Map data = model.getChannelData();
+		if (data == null || data.size() == 0) return;
 		if (channelEditPane == null) {
 			Object ho = model.getParentRootObject();
 			if (model.getParentRootObject() instanceof WellData)
@@ -1177,6 +1179,15 @@ class PropertiesUI
         setParentLabel();
         buildChannelsPane();
         buildGUI();
+	}
+	
+	/** 
+	 * Sets the <code>enabled</code> flag to <code>false</code> when the
+	 * channels are loading.s
+	 */
+	void onChannelDataLoading()
+	{
+		editChannel.setEnabled(false);
 	}
 	
     /** Sets the focus on the name area. */
