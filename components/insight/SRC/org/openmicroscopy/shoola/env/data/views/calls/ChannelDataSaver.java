@@ -26,22 +26,17 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 
@@ -109,7 +104,7 @@ public class ChannelDataSaver
     public ChannelDataSaver(SecurityContext ctx, 
     		List<ChannelData> channels, List<DataObject> objects)
     {
-    	if (channels == null || channels.size() == 0)
+    	if (CollectionUtils.isEmpty(channels))
     		 throw new IllegalArgumentException("No Channels specified.");
         loadCall = makeBatchCall(ctx, channels, objects);
     }
