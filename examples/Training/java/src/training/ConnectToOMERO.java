@@ -51,16 +51,16 @@ public class ConnectToOMERO {
 	String trainingNameSpace = "imperial.training.demo";
 	
 	/** The server address.*/
-	private String hostName = "serverName";
+	private String hostName = "howe.openmicroscopy.org.uk";//"serverName";
 	
 	/** The port to use.*/
 	private int port = 4064; //default port
 	
 	/** The username.*/
-	private String userName = "userName";
+	private String userName = "user-1";//"userName";
 	
 	/** The password.*/
-	private String password = "password";
+	private String password = "ome";//"password";
 	
 	/** Reference to the clients.*/
 	protected client client, unsecureClient;
@@ -78,18 +78,14 @@ public class ConnectToOMERO {
 		// use the entry variable otherwise use the following 
 		unsecureClient = client.createClient(false);
 		entryUnencrypted = unsecureClient.getSession();
-		
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
-		
-		long groupId = entryUnencrypted.getAdminService().getEventContext().groupId;
 	}
 
 	/** Disconnects.*/
 	protected void disconnect()
 		throws Exception
 	{
-			if (client != null) client.closeSession(); // No exception
-			if (unsecureClient != null) unsecureClient.closeSession(); // No exception
+		if (client != null) client.__del__(); // No exception
+		if (unsecureClient != null) unsecureClient.__del__(); // No exception
 	}
 
 	/** Load the image.*/
