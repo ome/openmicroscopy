@@ -24,6 +24,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -389,8 +390,7 @@ public class ScriptRepoHelper {
         }
 
         OriginalFile ofile = new OriginalFile();
-        ExperimenterGroup group = loadUserGroup(session);
-        return update(repoFile, sqlAction, sf, ofile, group);
+        return update(session, repoFile, sqlAction, sf, ofile);
     }
 
     /**
@@ -438,8 +438,7 @@ public class ScriptRepoHelper {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 OriginalFile ofile = load(id, session, getSqlAction(), true);
-                ExperimenterGroup group = loadUserGroup(session);
-                return update(repoFile, getSqlAction(), sf, ofile, group);
+                return update(session, repoFile, getSqlAction(), sf, ofile);
             }
         });
     }
@@ -449,11 +448,22 @@ public class ScriptRepoHelper {
             session.get(ExperimenterGroup.class, roles.getUserGroupId());
     }
 
-    private OriginalFile update(final RepoFile repoFile, SqlAction sqlAction,
-            ServiceFactory sf, OriginalFile ofile, ExperimenterGroup group) {
+    private ChecksumAlgorithm loadChecksum(Session session, String hasher) {
+        return (ChecksumAlgorithm)
+            session.createQuery(
+                    "select ca from ChecksumAlgorithm ca where ca.value = :value")
+                    .setParameter("value", hasher).uniqueResult();
+    }
+
+    private OriginalFile update(Session session, final RepoFile repoFile, SqlAction sqlAction,
+            ServiceFactory sf, OriginalFile ofile) {
+
+        ExperimenterGroup group = loadUserGroup(session);
+        ChecksumAlgorithm hasher = loadChecksum(session, repoFile.hasher().getValue());
+
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
-        ofile.setHasher(repoFile.hasher());
+        ofile.setHasher(hasher);
         ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
