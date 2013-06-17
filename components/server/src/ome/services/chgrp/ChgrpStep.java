@@ -9,6 +9,7 @@ package ome.services.chgrp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -163,6 +164,8 @@ public class ChgrpStep extends GraphStep {
                 qb.and("id = :id");
                 qb.param("id", id);
                 qb.query(session).executeUpdate();
+                publish(new EventLogMessage(this, "DELETE", iObjectType,
+                        Collections.singletonList(id)));
             } else {
                 throw new GraphConstraintException(String.format("%s:%s improperly links to %s objects",
                     iObjectType.getSimpleName(), id, total.size()), constraints);
@@ -202,7 +205,10 @@ public class ChgrpStep extends GraphStep {
             throws GraphException {
         EventLogMessage elm = new EventLogMessage(this, "CHGRP", k,
                 new ArrayList<Long>(ids));
+        publish(elm);
+    }
 
+    protected void publish(EventLogMessage elm) throws GraphException {
         try {
             ctx.publishMessage(elm);
         } catch (Throwable t) {
