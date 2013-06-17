@@ -1,6 +1,6 @@
 
 from omero.gateway import BlitzGateway
-from omero.rtypes import rstring, rlong
+from omero.rtypes import rstring, rlong, robject
 import omero.scripts as scripts
 import os
 import Image
@@ -184,6 +184,7 @@ def upload_to_omero(conn, destination, imageName, dataset=None):
     print "Creating a NEW image: %s  sizeZ: %s  sizeC: %s  in Dataset: %s" % (imageName, newSizeZ, sizeC, dsName)
     newImg = conn.createImageFromNumpySeq(plane_gen, imageName, sizeZ=newSizeZ, sizeC=sizeC, dataset=dataset)
     print "New Image ID", newImg.getId()
+    return newImg
 
 
 def process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawData=False, cIndex=0, region=None):
@@ -212,7 +213,9 @@ def process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawDa
 
     # Create new Image from the processed stack of images
     newImageName = "%s-3D" % image.getName()
-    upload_to_omero(conn, processed_img_dir, newImageName, dataset)
+    newImg = upload_to_omero(conn, processed_img_dir, newImageName, dataset)
+
+    return newImg
 
 
 
@@ -242,6 +245,7 @@ def rotation_proj_stitch(conn, scriptParams):
             file_path = os.path.join(dir_path, old_file)
             os.unlink(file_path)
 
+    newImages = []
     for image in conn.getObjects("Image", scriptParams['IDs']):
 
         # remove input and processed images
@@ -251,12 +255,26 @@ def rotation_proj_stitch(conn, scriptParams):
         if use_rois:
             print "Analysing regions:", get_rects_from_rois(conn, image.getId())
             for r in get_rects_from_rois(conn, image.getId()):
-                process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawData, cIndex, r)
+                newImg = process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawData, cIndex, r)
+                newImages.append(newImg)
 
         else:
-            process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawData, cIndex)
+            newImg = process_image(conn, image, tiff_stack_dir, processed_img_dir, axis, useRawData, cIndex)
+            newImages.append(newImg)
 
-    return "DONE"
+    # Handle what we're returning to client
+    if len(newImages) == 0:
+        return None, "No images created"
+    if len(newImages) == 1:
+        new = newImages[0]
+        msg = "New Image: %s" % new.getName()
+        return new._obj, msg
+    else:
+        ds = newImages[0].getParent()
+        if ds is not None:
+            return ds._obj, "%s New Images in Dataset:" % len(newImages)
+        else:
+            return None, "Created %s New Images" % len(newImages)
 
 
 def runScript():
@@ -309,9 +327,11 @@ Does ImageJ 'Rotation Projection' macro processing, creating a new Image in OMER
                 scriptParams[key] = client.getInput(key, unwrap=True)
         print scriptParams
 
-        message = rotation_proj_stitch(conn, scriptParams)
+        robj, message = rotation_proj_stitch(conn, scriptParams)
 
         client.setOutput("Message", rstring(message))
+        if robj is not None:
+            client.setOutput("Result", robject(robj))
 
     finally:
         client.closeSession()
