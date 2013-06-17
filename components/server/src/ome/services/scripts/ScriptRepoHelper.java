@@ -24,6 +24,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
+import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
@@ -342,7 +343,7 @@ public class ScriptRepoHelper {
                     String hash = null;
                     OriginalFile ofile = null;
                     if (id == null) {
-                        ofile = addOrReplace(sqlAction, sf, file, null);
+                        ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
 
                         ofile = load(id, session, getSqlAction(), true); // checks for type & repo
@@ -353,7 +354,7 @@ public class ScriptRepoHelper {
                         if (modificationCheck) {
                             hash = file.hash();
                             if (!hash.equals(ofile.getHash())) {
-                                ofile = addOrReplace(sqlAction, sf, file, id);
+                                ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
                         }
                     }
@@ -375,12 +376,12 @@ public class ScriptRepoHelper {
                 "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return addOrReplace(getSqlAction(), sf, repoFile, old);
+                return addOrReplace(session, getSqlAction(), sf, repoFile, old);
             }
         });
     }
 
-    protected OriginalFile addOrReplace(SqlAction sqlAction, ServiceFactory sf,
+    protected OriginalFile addOrReplace(Session session, SqlAction sqlAction, ServiceFactory sf,
             final RepoFile repoFile, final Long old) {
 
         if (old != null) {
@@ -389,7 +390,7 @@ public class ScriptRepoHelper {
         }
 
         OriginalFile ofile = new OriginalFile();
-        return update(repoFile, sqlAction, sf, ofile);
+        return update(session, repoFile, sqlAction, sf, ofile);
     }
 
     /**
@@ -430,27 +431,43 @@ public class ScriptRepoHelper {
         sqlAction.setFileRepo(old, null);
     }
 
-    public OriginalFile update(final RepoFile repoFile, final Long id) {
-        return (OriginalFile) ex.execute(p, new Executor.SimpleWork(this,
+    public OriginalFile update(final RepoFile repoFile, final Long id,
+            Map<String,String> context) {
+        return (OriginalFile) ex.execute(context, p, new Executor.SimpleWork(this,
                 "update", repoFile, id) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 OriginalFile ofile = load(id, session, getSqlAction(), true);
-                return update(repoFile, getSqlAction(), sf, ofile);
+                return update(session, repoFile, getSqlAction(), sf, ofile);
             }
         });
     }
 
-    private OriginalFile update(final RepoFile repoFile, SqlAction sqlAction,
+    private ExperimenterGroup loadUserGroup(Session session) {
+        return (ExperimenterGroup)
+            session.get(ExperimenterGroup.class, roles.getUserGroupId());
+    }
+
+    private ChecksumAlgorithm loadChecksum(Session session, String hasher) {
+        return (ChecksumAlgorithm)
+            session.createQuery(
+                    "select ca from ChecksumAlgorithm ca where ca.value = :value")
+                    .setParameter("value", hasher).uniqueResult();
+    }
+
+    private OriginalFile update(Session session, final RepoFile repoFile, SqlAction sqlAction,
             ServiceFactory sf, OriginalFile ofile) {
+
+        ExperimenterGroup group = loadUserGroup(session);
+        ChecksumAlgorithm hasher = loadChecksum(session, repoFile.hasher().getValue());
+
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
-        ofile.setHasher(repoFile.hasher());
+        ofile.setHasher(hasher);
         ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
-        ofile.getDetails().setGroup(
-                new ExperimenterGroup(roles.getUserGroupId(), false));
+        ofile.getDetails().setGroup(group);
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
 
         sqlAction.setFileRepo(ofile.getId(), uuid);
