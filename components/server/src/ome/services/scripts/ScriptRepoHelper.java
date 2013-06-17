@@ -342,7 +342,7 @@ public class ScriptRepoHelper {
                     String hash = null;
                     OriginalFile ofile = null;
                     if (id == null) {
-                        ofile = addOrReplace(sqlAction, sf, file, null);
+                        ofile = addOrReplace(session, sqlAction, sf, file, null);
                     } else {
 
                         ofile = load(id, session, getSqlAction(), true); // checks for type & repo
@@ -353,7 +353,7 @@ public class ScriptRepoHelper {
                         if (modificationCheck) {
                             hash = file.hash();
                             if (!hash.equals(ofile.getHash())) {
-                                ofile = addOrReplace(sqlAction, sf, file, id);
+                                ofile = addOrReplace(session, sqlAction, sf, file, id);
                             }
                         }
                     }
@@ -375,12 +375,12 @@ public class ScriptRepoHelper {
                 "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return addOrReplace(getSqlAction(), sf, repoFile, old);
+                return addOrReplace(session, getSqlAction(), sf, repoFile, old);
             }
         });
     }
 
-    protected OriginalFile addOrReplace(SqlAction sqlAction, ServiceFactory sf,
+    protected OriginalFile addOrReplace(Session session, SqlAction sqlAction, ServiceFactory sf,
             final RepoFile repoFile, final Long old) {
 
         if (old != null) {
@@ -389,7 +389,8 @@ public class ScriptRepoHelper {
         }
 
         OriginalFile ofile = new OriginalFile();
-        return update(repoFile, sqlAction, sf, ofile);
+        ExperimenterGroup group = loadUserGroup(session);
+        return update(repoFile, sqlAction, sf, ofile, group);
     }
 
     /**
@@ -437,21 +438,26 @@ public class ScriptRepoHelper {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 OriginalFile ofile = load(id, session, getSqlAction(), true);
-                return update(repoFile, getSqlAction(), sf, ofile);
+                ExperimenterGroup group = loadUserGroup(session);
+                return update(repoFile, getSqlAction(), sf, ofile, group);
             }
         });
     }
 
+    private ExperimenterGroup loadUserGroup(Session session) {
+        return (ExperimenterGroup)
+            session.get(ExperimenterGroup.class, roles.getUserGroupId());
+    }
+
     private OriginalFile update(final RepoFile repoFile, SqlAction sqlAction,
-            ServiceFactory sf, OriginalFile ofile) {
+            ServiceFactory sf, OriginalFile ofile, ExperimenterGroup group) {
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
         ofile.setHasher(repoFile.hasher());
         ofile.setHash(repoFile.hash());
         ofile.setSize(repoFile.length());
         ofile.setMimetype("text/x-python");
-        ofile.getDetails().setGroup(
-                new ExperimenterGroup(roles.getUserGroupId(), false));
+        ofile.getDetails().setGroup(group);
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
 
         sqlAction.setFileRepo(ofile.getId(), uuid);
