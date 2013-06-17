@@ -336,7 +336,7 @@ class ImporterControl
             return;
         }
         for (final ImporterUIElement importerUIElement : view.getImportElements()) {
-            if (importerUIElement.hasImportToCancel()) {
+        	if (importerUIElement.hasImportToCancel()) {
                 return;
             }
         }
