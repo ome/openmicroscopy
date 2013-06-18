@@ -37,11 +37,14 @@ import java.util.Set;
 import omero.ServerError;
 //Application-internal dependencies
 import omero.api.ThumbnailStorePrx;
+
+import org.apache.commons.validator.ISBNValidator;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
@@ -117,7 +120,7 @@ public class ThumbnailLoader
     private void loadThumbail(PixelsData pxd, long userID,
     		ThumbnailStorePrx store, boolean last)
     {
-        BufferedImage thumbPix = null;
+    	BufferedImage thumbPix = null;
         boolean valid = true;
         int sizeX = maxWidth, sizeY = maxHeight;
         try {
@@ -125,10 +128,8 @@ public class ThumbnailLoader
         		sizeX = pxd.getSizeX();
         		sizeY = pxd.getSizeY();
         	} else {
-        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY,
-        				pxd.getSizeX(), pxd.getSizeY());
-        		sizeX = d.width;
-        		sizeY = d.height;
+        		sizeX = Factory.THUMB_DEFAULT_WIDTH;
+        		sizeY = Factory.THUMB_DEFAULT_HEIGHT;
         	}
 
         	if (!store.setPixelsId(pxd.getId())) {
@@ -143,8 +144,11 @@ public class ThumbnailLoader
     				store.getThumbnail(omero.rtypes.rint(sizeX),
     				omero.rtypes.rint(sizeY)));
         } catch (Throwable e) {
-        	context.getLogger().error(this,
-        			"Cannot retrieve thumbnail: "+e.getMessage());
+        	thumbPix = null;
+        	LogMessage msg = new LogMessage();
+            msg.print("Cannot retrieve thumbnail");
+            msg.print(e);
+        	context.getLogger().error(this, msg);
         } finally {
         	if (last) {
         		context.getDataService().closeService(ctx, store);

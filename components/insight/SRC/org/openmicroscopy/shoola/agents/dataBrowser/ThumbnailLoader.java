@@ -245,6 +245,9 @@ public class ThumbnailLoader
      */
     public void handleNullResult() {}
     
+    /** Does nothing.*/
+    public void onEnd() {}
+    
     /**
      * Notifies the user that an error has occurred.
      * @see DataBrowserLoader#handleException(Throwable)
