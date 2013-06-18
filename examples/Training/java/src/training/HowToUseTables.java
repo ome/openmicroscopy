@@ -2,7 +2,7 @@
  * training.HowToUseTables 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -51,7 +51,6 @@ public class HowToUseTables
 	
 	//Edit the information below
 	/** The server address.*/
-	/** The server address.*/
 	private String hostName = "serverName";
 
 	/** The username.*/
@@ -63,26 +62,26 @@ public class HowToUseTables
 	
 	/** Reference to the connector.*/
 	private Connector connector;
-	
-    /**
-     * Creates a number of empty rows.
-     * 
-     * @param rows The number of rows.
-     * @return See above.
-     */
-    private Column[] createColumns(int rows) 
-    {
-        Column[] newColumns = new Column[2];
-        newColumns[0] = new LongColumn("Uid", "", new long[rows]);
-        newColumns[1] = new LongColumn("MyLongColumn", "", 
-        		new long[rows]);
-        return newColumns;
-    }
-    
-    /** 
-     * Creates a table.
-     * @throws Exception
-     */
+
+	/**
+	 * Creates a number of empty rows.
+	 * 
+	 * @param rows The number of rows.
+	 * @return See above.
+	 */
+	private Column[] createColumns(int rows) 
+	{
+		Column[] newColumns = new Column[2];
+		newColumns[0] = new LongColumn("Uid", "", new long[rows]);
+		newColumns[1] = new LongColumn("MyLongColumn", "", 
+				new long[rows]);
+		return newColumns;
+	}
+
+	/** 
+	 * Creates a table.
+	 * @throws Exception
+	 */
 	private void createTable()
 		throws Exception
 	{
@@ -104,19 +103,17 @@ public class HowToUseTables
 			rows = 2;
 			Column[] newRow = createColumns(rows);
 
-	    	LongColumn uids = (LongColumn) newRow[0];
-	    	LongColumn myLongs = (LongColumn) newRow[1];
-	    	for (int i = 0; i < rows; i++) {
-	    		uids.values[i] = i;
-	        	myLongs.values[i] = i;
+			LongColumn uids = (LongColumn) newRow[0];
+			LongColumn myLongs = (LongColumn) newRow[1];
+			for (int i = 0; i < rows; i++) {
+				uids.values[i] = i;
+				myLongs.values[i] = i;
 			}
-	    	
+
 			table.addData(newRow);
 
 			OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
-			
-			
-			
+
 			file = new OriginalFileI(file.getId(), false);
 			//Open the table again
 			table2 = store.openTable(file);
@@ -184,6 +181,11 @@ public class HowToUseTables
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new HowToUseTables(null);
