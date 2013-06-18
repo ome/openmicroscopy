@@ -42,6 +42,9 @@ public class ConfigurationInfo
 	/** The default port.*/
 	public static final int DEFAULT_PORT = 4064;
 	
+	/** The name space used during the training.*/
+	public static final String TRAINING_NS = "omero.training.demo";
+	
 	/** The server address.*/
 	private String hostName = "howe.openmicroscopy.org.uk";//"serverName";
 	
@@ -53,6 +56,21 @@ public class ConfigurationInfo
 	
 	/** The password.*/
 	private String password = "ome";
+	
+	/** The id of an image.*/
+	private long imageId = 1355;//27544;
+	
+	/** Id of the dataset hosting the image of reference.*/
+	private long datasetId = 51;//Should be the id of the
+	
+	/** The id of a plate.*/
+	private long plateId = 1007;
+	
+	/** The id of the plate acquisition corresponding to the plate.*/
+	private long plateAcquisitionId = 0;
+	
+	/** The id of a project.*/
+	private long projectId = 3109;
 	
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
@@ -115,4 +133,78 @@ public class ConfigurationInfo
 	 * @param userName The value to set.
 	 */
 	public void setUserName(String userName) { this.userName = userName; }
+	
+	/**
+	 * Returns the dataset's identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getDatasetId() { return datasetId; }
+	
+	/**
+	 * Returns the image's identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getImageId() { return imageId; }
+	
+	/**
+	 * Sets the dataset's identifier.
+	 * 
+	 * @param datasetId The value to set.
+	 */
+	public void setDatasetId(long datasetId) { this.datasetId = datasetId; }
+	
+	/**
+	 * Sets the image's identifier.
+	 * 
+	 * @param imageId The value to set.
+	 */
+	public void setImageId(long imageId) { this.imageId = imageId; }
+	
+	/**
+	 * Returns the plate's identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getPlateId() { return plateId; }
+	
+	/**
+	 * Sets the plate's identifier.
+	 * 
+	 * @param plateId The value to set.
+	 */
+	public void setPlateId(long plateId) { this.plateId = plateId; }
+	
+	/**
+	 * Returns the plate acquisition's identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getPlateAcquisitionId() { return plateAcquisitionId; }
+	
+	/**
+	 * Sets the plate acquisition's identifier.
+	 * 
+	 * @param plateAcquisitionId The value to set.
+	 */
+	public void setPlateAcquisitionId(long plateAcquisitionId)
+	{
+		this.plateAcquisitionId = plateAcquisitionId;
+	}
+	
+	/**
+	 * Returns the project's identifier.
+	 * 
+	 * @return See above.
+	 */
+	public long getProjectId() { return projectId; }
+	
+	/**
+	 * Sets the project's identifier.
+	 * 
+	 * @param projectId The value to set.
+	 */
+	public void setProjectId(long projectId) { this.projectId = projectId; }
+
 }

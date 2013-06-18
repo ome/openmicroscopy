@@ -25,22 +25,34 @@ package training;
 
 
 //Java imports
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 import omero.ServerError;
 //Application-internal dependencies
 import omero.client;
+import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
+import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
+import omero.api.IQueryPrx;
+import omero.api.IRoiPrx;
 import omero.api.IUpdatePrx;
+import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
+import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Image;
-import omero.sys.ParametersI;
-import pojos.ImageData;
+import omero.api.ThumbnailStorePrx;
+import omero.cmd.CmdCallbackI;
+import omero.cmd.DoAll;
+import omero.cmd.HandlePrx;
+import omero.cmd.Request;
+import omero.cmd.Response;
+import omero.constants.ROISERVICE;
+import omero.grid.SharedResourcesPrx;
 
 /** 
  * Sample code showing how to connect to an OMERO server.
@@ -50,19 +62,17 @@ import pojos.ImageData;
  * @since Beta4.3.2
  */
 public class Connector {
-
-	/** The name space used during the training.*/
-	String trainingNameSpace = "imperial.training.demo";
 	
-	//The value used if the configuration file is not used.*/
+	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	private String hostName = "howe.openmicroscopy.org.uk";//"serverName";
+	private String hostName = "serverName";
 
 	/** The username.*/
-	private String userName = "user-1";//"userName";
+	private String userName = "userName";
 	
 	/** The password.*/
-	private String password = "ome";//"password";
+	private String password = "password";
+	//end edit
 	
 	/** Reference to the clients.*/
 	protected client client, unsecureClient;
@@ -70,16 +80,15 @@ public class Connector {
 	/** The service factory.*/
 	protected ServiceFactoryPrx entryUnencrypted;
 	
-	/**
-	 * Connects to the server.
-	 * 
-	 * @param info Configuration info or <code>null</code>.
-	 */
-	protected void connect(ConfigurationInfo info)
+	/** The configuration information.*/
+	private ConfigurationInfo info;
+	
+	/** Connects to the server.*/
+	protected void connect()
 		throws Exception
 	{
 		client = new client(info.getHostName(), info.getPort());
-		client.createSession(info.getHostName(), info.getPassword());
+		client.createSession(info.getUserName(), info.getPassword());
 		// if you want to have the data transfer encrypted then you can 
 		// use the entry variable otherwise use the following 
 		unsecureClient = client.createClient(false);
@@ -107,10 +116,17 @@ public class Connector {
 			info.setPassword(password);
 			info.setUserName(userName);
 		}
+		this.info = info;
 		try {
-			connect(info);
+			connect();
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				disconnect(); // Be sure to disconnect
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -163,18 +179,129 @@ public class Connector {
 	}
 	
 	/**
+	 * Returns the shared resources.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	SharedResourcesPrx getSharedResources()
+		throws ServerError
+	{
+		return entryUnencrypted.sharedResources();
+	}
+	
+	/**
+	 * Returns the thumbnail store.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	ThumbnailStorePrx getThumbnailStore()
+		throws ServerError
+	{
+		return entryUnencrypted.createThumbnailStore();
+	}
+	
+	/**
+	 * Returns the rendering engine.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	RenderingEnginePrx getRenderingEngine()
+		throws ServerError
+	{
+		return entryUnencrypted.createRenderingEngine();
+	}
+	
+	/**
+	 * Returns the admin service.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	IAdminPrx getAdminService()
+		throws ServerError
+	{
+		return entryUnencrypted.getAdminService();
+	}
+	
+	/**
+	 * Returns the query service.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	IQueryPrx getQueryService()
+		throws ServerError
+	{
+		return entryUnencrypted.getQueryService();
+	}
+
+	/**
+	 * Returns the ROI service.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	IRoiPrx getRoiService()
+		throws ServerError
+	{
+		return entryUnencrypted.getRoiService();
+	}
+	
+	/**
+	 * Returns the Raw File store.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	RawFileStorePrx getRawFileStore()
+		throws ServerError
+	{
+		return entryUnencrypted.createRawFileStore();
+	}
+	
+	/**
+	 * Returns the Metadata service.
+	 * 
+	 * @return See above.
+	 * @throws ServerError
+	 */
+	IMetadataPrx getMetadataService()
+		throws ServerError
+	{
+		return entryUnencrypted.getMetadataService();
+	}
+
+	/**
+	 * Submits the specified commands
+	 * 
+	 * @param commands The commands to submit.
+	 * @return See above.
+	 * @throws ServerError
+	 * @throws InterruptedException
+	 */
+	Response submit(List<Request> commands)
+		throws ServerError, InterruptedException
+	{
+		DoAll all = new DoAll();
+		all.requests = commands;
+		final Map<String, String> callContext = new HashMap<String, String>();
+		final HandlePrx prx = entryUnencrypted.submit(all, callContext);
+		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
+		CmdCallbackI cb = new CmdCallbackI(unsecureClient, prx);
+		cb.loop(20, 500);
+		return cb.getResponse();
+	}
+	/**
 	 * Runs the script with configuration options.
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args)
 	{
-		Connector connector = new Connector(null);
-		try {
-			connector.disconnect(); // Be sure to disconnect
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		new Connector(null);
 		System.exit(0);
 	}
 

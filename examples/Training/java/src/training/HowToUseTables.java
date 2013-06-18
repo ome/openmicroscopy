@@ -34,6 +34,7 @@ import java.util.UUID;
 import omero.grid.Column;
 import omero.grid.Data;
 import omero.grid.LongColumn;
+import omero.grid.SharedResourcesPrx;
 import omero.grid.TablePrx;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
@@ -46,8 +47,22 @@ import omero.model.OriginalFileI;
  * @since Beta4.3.2
  */
 public class HowToUseTables
-	extends ConnectToOMERO
 {
+	
+	//Edit the information below
+	/** The server address.*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	//end edit
+	
+	/** Reference to the connector.*/
+	private Connector connector;
 	
     /**
      * Creates a number of empty rows.
@@ -64,6 +79,10 @@ public class HowToUseTables
         return newColumns;
     }
     
+    /** 
+     * Creates a table.
+     * @throws Exception
+     */
 	private void createTable()
 		throws Exception
 	{
@@ -72,72 +91,93 @@ public class HowToUseTables
 		Column[] columns = createColumns(rows);
 
 		//create a new table.
-		TablePrx table = entryUnencrypted.sharedResources().newTable(1, name);
+		SharedResourcesPrx store = null;
+		TablePrx table = null;
+		TablePrx table2 = null;
+		try {
+			store = connector.getSharedResources();
+			table = store.newTable(1, name);
 
-		//initialize the table
-		table.initialize(columns);
-		//add data to the table.
-		rows = 2;
-		Column[] newRow = createColumns(rows);
+			//initialize the table
+			table.initialize(columns);
+			//add data to the table.
+			rows = 2;
+			Column[] newRow = createColumns(rows);
 
-    	LongColumn uids = (LongColumn) newRow[0];
-    	LongColumn myLongs = (LongColumn) newRow[1];
-    	for (int i = 0; i < rows; i++) {
-    		uids.values[i] = i;
-        	myLongs.values[i] = i;
+	    	LongColumn uids = (LongColumn) newRow[0];
+	    	LongColumn myLongs = (LongColumn) newRow[1];
+	    	for (int i = 0; i < rows; i++) {
+	    		uids.values[i] = i;
+	        	myLongs.values[i] = i;
+			}
+	    	
+			table.addData(newRow);
+
+			OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
+			
+			
+			
+			file = new OriginalFileI(file.getId(), false);
+			//Open the table again
+			table2 = store.openTable(file);
+
+			//read headers
+			Column[] cols = table2.getHeaders();
+			
+			for (int i = 0; i < cols.length; i++) {
+				String colName = cols[i].name;
+				System.err.println("Column"+colName);
+			}
+
+			// Depending on size of table, you may only want to read some blocks.
+			long[] columnsToRead = new long[cols.length];
+			for (int i = 0; i < cols.length; i++) {
+				columnsToRead[i] = i;
+			} 
+			
+			// The number of columns we wish to read.
+			long[] rowSubset = new long[(int) (table2.getNumberOfRows()-1)];
+			for (int j = 0; j < rowSubset.length; j++) {
+				rowSubset[j] = j;
+			}
+			Data data = table2.slice(columnsToRead, rowSubset); // read the data.
+			cols = data.columns;
+			for (int j = 0; j < cols.length; j++) {
+				Column c = cols[j];
+				//do something
+			}
+			
+		} catch (Exception e) {
+			throw new Exception("Cannot open table", e);
+		} finally {
+			if (table != null) table.close();
+			if (table2 != null) table2.close();
 		}
-    	
-		table.addData(newRow);
-
-		OriginalFile file = table.getOriginalFile(); // if you need to interact with the table
 		
-		table.close();
-		
-		file = new OriginalFileI(file.getId(), false);
-		//Open the table again
-		table = entryUnencrypted.sharedResources().openTable(file);
-
-		//read headers
-		Column[] cols = table.getHeaders();
-		
-		for (int i = 0; i < cols.length; i++) {
-			String colName = cols[i].name;
-			System.err.println("Column"+colName);
-		}
-
-		// Depending on size of table, you may only want to read some blocks.
-		long[] columnsToRead = new long[cols.length];
-		for (int i = 0; i < cols.length; i++) {
-			columnsToRead[i] = i;
-		} 
-		
-		// The number of columns we wish to read.
-		long[] rowSubset = new long[(int) (table.getNumberOfRows()-1)];
-		for (int j = 0; j < rowSubset.length; j++) {
-			rowSubset[j] = j;
-		}
-		Data data = table.slice(columnsToRead, rowSubset); // read the data.
-		cols = data.columns;
-		for (int j = 0; j < cols.length; j++) {
-			Column c = cols[j];
-			//do something
-		}
-		table.close(); // Important to close when done.
 	}
 
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	HowToUseTables()
+	HowToUseTables(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+		}
+		connector = new Connector(info);
 		try {
-			connect();
+			connector.connect();
 			createTable();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -146,7 +186,7 @@ public class HowToUseTables
 
 	public static void main(String[] args)
 	{
-		new HowToUseTables();
+		new HowToUseTables(null);
 		System.exit(0);
 	}
 
