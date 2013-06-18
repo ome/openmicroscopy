@@ -1183,7 +1183,7 @@ class PropertiesUI
 	
 	/** 
 	 * Sets the <code>enabled</code> flag to <code>false</code> when the
-	 * channels are loading.s
+	 * channels are loading.
 	 */
 	void onChannelDataLoading()
 	{
