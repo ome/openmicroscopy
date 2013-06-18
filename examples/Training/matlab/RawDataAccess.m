@@ -24,8 +24,8 @@ try
     sizeX = pixels.getSizeX().getValue(); % The number of pixels along the X-axis.
     sizeY = pixels.getSizeY().getValue(); % The number of pixels along the Y-axis.
     sizeZ = pixels.getSizeZ().getValue(); % The number of z-sections.
-    sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
     sizeC = pixels.getSizeC().getValue(); % The number of channels.
+    sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
     fprintf(1, 'Size X: %g\n', sizeX);
     fprintf(1, 'Size Y: %g\n', sizeY);
     fprintf(1, 'Size Z: %g\n', sizeZ);
