@@ -2,7 +2,7 @@
  * training.RenderImages
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -61,7 +61,6 @@ public class RenderImages
 {
 
 	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
 	/** The server address.*/
 	private String hostName = "serverName";
 
@@ -199,6 +198,11 @@ public class RenderImages
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new RenderImages(null);

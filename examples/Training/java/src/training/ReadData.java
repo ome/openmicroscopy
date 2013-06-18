@@ -60,9 +60,8 @@ import pojos.WellData;
  */
 public class ReadData
 {
-	
+
 	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
 	/** The server address.*/
 	private String hostName = "serverName";
 
@@ -320,6 +319,11 @@ public class ReadData
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new ReadData(null);

@@ -53,7 +53,6 @@ public class LoadMetadataAdvanced
 
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	/** The server address.*/
 	private String hostName = "serverName";
 
 	/** The username.*/
@@ -163,6 +162,11 @@ public class LoadMetadataAdvanced
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new LoadMetadataAdvanced(null);
