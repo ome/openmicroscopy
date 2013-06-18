@@ -51,7 +51,6 @@ import omero.cmd.DoAll;
 import omero.cmd.HandlePrx;
 import omero.cmd.Request;
 import omero.cmd.Response;
-import omero.constants.ROISERVICE;
 import omero.grid.SharedResourcesPrx;
 
 /** 
@@ -289,13 +288,12 @@ public class Connector {
 		all.requests = commands;
 		final Map<String, String> callContext = new HashMap<String, String>();
 		final HandlePrx prx = entryUnencrypted.submit(all, callContext);
-		//assertFalse(prx.getStatus().flags.contains(State.FAILURE));
 		CmdCallbackI cb = new CmdCallbackI(unsecureClient, prx);
 		cb.loop(20, 500);
 		return cb.getResponse();
 	}
 	/**
-	 * Runs the script with configuration options.
+	 * Runs the script without configuration options.
 	 * 
 	 * @param args
 	 */
