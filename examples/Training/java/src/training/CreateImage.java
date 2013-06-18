@@ -220,7 +220,6 @@ public class CreateImage
 	{
 		if (info == null) {
 			info = new ConfigurationInfo();
-			info = new ConfigurationInfo();
 			info.setHostName(hostName);
 			info.setPassword(password);
 			info.setUserName(userName);
@@ -243,6 +242,11 @@ public class CreateImage
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new CreateImage(null);
