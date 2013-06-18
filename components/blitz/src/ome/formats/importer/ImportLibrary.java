@@ -655,6 +655,7 @@ public class ImportLibrary implements IObservable
     public void clear()
     {
         store.setGroup(null);
+        store.setCurrentLogFile(null);
         store.createRoot();
     }
 

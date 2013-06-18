@@ -2,25 +2,19 @@
 <configuration scan="true" debug="false">
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-
     <file>${omero.logfile}</file>
-
     <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
       <fileNamePattern>${omero.logfile}.%i</fileNamePattern>
       <minIndex>1</minIndex>
       <maxIndex>9</maxIndex>
     </rollingPolicy>
-
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
       <maxFileSize>500MB</maxFileSize>
     </triggeringPolicy>
-
     <encoder>
       <pattern>%date %-5level [%40.40logger{40}] \(%10.10thread\) %msg%n</pattern>
     </encoder>
-
   </appender>
-
 
   <appender name="SIFT" class="ome.util.logback.SiftingWhileRejectingDefaultAppender">
     <!-- in the absence of the class attribute, it is assumed that the
@@ -40,9 +34,10 @@
         </encoder>
       </appender>
     </sift>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>DEBUG</level>
+    </filter>
   </appender>
-
-
 
   <!-- PERF4J ///////////////////////////////////////////////////////////////// -->
   <appender name="Perf4jJmxAppender" class="org.perf4j.logback.JmxAttributeStatisticsAppender">
@@ -57,12 +52,6 @@
   <logger name="org.perf4j.TimingLogger">
     <level value="INFO"/>
     <appender-ref ref="CoalescingStatistics"/>
-  </logger>
-
-  <!-- Import logs //////////////////////////////////////////////////////////// -->
-  <logger name="ome.services.blitz.repo.ManagedImportRequestI">
-    <level value="DEBUG"/>
-    <appender-ref ref="SIFT"/>
   </logger>
 
   <!-- All below are ROOT loggers -->
@@ -132,6 +121,42 @@
   <logger name="org.hibernate.pretty" level="ERROR"/>
   <logger name="org.hibernate.type" level="ERROR"/>
   <logger name="org.hibernate.validator" level="ERROR"/>
+
+    <!-- Import logs //////////////////////////////////////////////////////////// -->
+  <logger name="ome.services.blitz.repo.ManagedImportRequestI">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.annotations">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.logic">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.security">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="ome.tools">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="omero">
+    <level value="DEBUG"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
+
+  <logger name="loci">
+    <level value="INFO"/>
+    <appender-ref ref="SIFT"/>
+  </logger>
 
   <root level="OFF">
     <appender-ref ref="FILE"/>
