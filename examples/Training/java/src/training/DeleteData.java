@@ -108,6 +108,11 @@ public class DeleteData
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new DeleteData(null);
