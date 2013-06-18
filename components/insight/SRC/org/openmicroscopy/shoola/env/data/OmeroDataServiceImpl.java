@@ -68,6 +68,7 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.hql.CollectionSubqueryFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -962,7 +963,7 @@ class OmeroDataServiceImpl
 			}
 		}
 
-		if (targetNodes != null && targetNodes.size() > 0) {
+		if (!CollectionUtils.isEmpty(targetNodes)) {
 			List<IObject> toCreate = new ArrayList<IObject>();
 			j = targetNodes.iterator();
 			while (j.hasNext()) {
@@ -985,12 +986,13 @@ class OmeroDataServiceImpl
 		}
 		i = objects.iterator();
 		Iterator<IObject> k;
+		boolean notEmpty = !CollectionUtils.isEmpty(targets);
 		while (i.hasNext()) {
 			data = i.next();
 			owner = data.getOwner();
 			perms = data.getPermissions();
 			l = new ArrayList<IObject>();
-			if (targets != null && targets.size() > 0) {
+			if (notEmpty) {
 				k = targets.iterator();
 				while (k.hasNext()) {
 					newObject = k.next();
