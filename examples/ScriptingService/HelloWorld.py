@@ -15,17 +15,17 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License along
   with this program; if not, write to the Free Software Foundation, Inc.,
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ------------------------------------------------------------------------------
 
-This script demonstrates the minimum framework of a script that can be run by the 
-scripting service on an OMERO server. 
-It defines a name, description and parameter list for the script. 
-    
+This script demonstrates the minimum framework of a script that can be run by the
+scripting service on an OMERO server.
+It defines a name, description and parameter list for the script.
+
 @author  Will Moore &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
 @version 3.0
@@ -33,45 +33,42 @@ It defines a name, description and parameter list for the script.
 (<b>Internal version:</b> $Revision: $Date: $)
 </small>
 @since 3.0-Beta4.2
- 
+
 """
 
 import omero
 from omero.rtypes import rstring
 import omero.scripts as scripts
 
-
 if __name__ == "__main__":
-    
+
     """
-    The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
+    The main entry point of the script, as called by the client via the scripting service, passing the required parameters.
     """
-    
-    client = scripts.client('HelloWorld.py', 'Hello World example script', 
+
+    client = scripts.client('HelloWorld.py', 'Hello World example script',
     scripts.String("Input_Message", description="Message to pass to the script."))
-    
+
     session = client.getSession()
-    
+
     try:
-        # process the list of args above. Not scrictly necessary, but useful for more complex scripts
+        # process the list of args above. Not strictly necessary, but useful for more complex scripts
         parameterMap = {}
         for key in client.getInputKeys():
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue() # convert from rtype to value (String, Integer etc)
-    
+
         # now we can work with arguments in our parameterMap
         if "Input_Message" in parameterMap:
-            print "Hello World"                    
+            print "Hello World"
             print parameterMap["Input_Message"]
         else:
-            # Any print statments (std.out) will go into one file on the server (E.g. /OMERO/Files/001) 
-            print "No message parameter"    
-        
-            # Any Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002) 
-            raise Exception("message parameter was not in the argument list")    
-        
+            # Any print statments (std.out) will go into one file on the server (E.g. /OMERO/Files/001)
+            print "No message parameter"
+
+            # Any Exceptions (std.err) will go in another file on the server (E.g. /OMERO/Files/002)
+            raise Exception("message parameter was not in the argument list")
+
         client.setOutput("Message", rstring("Script ran OK!"))
     finally:
         client.closeSession()
-    
-    
