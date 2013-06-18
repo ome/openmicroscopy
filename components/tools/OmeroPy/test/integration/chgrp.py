@@ -663,17 +663,23 @@ class TestChgrpTarget(lib.ITest):
         Chgrp a single Image to target Dataset and then back
         see ticket:11118
         """
-        ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
+        new_ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
 
         # create Dataset in original group
-        ds = self.createDSInGroup(old_gid, client=client)
+        old_ds = self.createDSInGroup(old_gid, client=client)
         link = omero.model.DatasetImageLinkI()
-        link.parent = ds.proxy()
+        link.parent = old_ds.proxy()
         link.child = images[0].proxy()
 
         chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
         save = Save(link)
         self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
+
+        dils = client.sf.getQueryService().findAllByQuery(
+            "select dil from DatasetImageLink dil where dil.child.id = :id",
+            omero.sys.ParametersI().addId(images[0].id.val), {"omero.group": "-1"})
+        self.assertEquals(1, len(dils))
+
 
 if __name__ == '__main__':
     unittest.main()
