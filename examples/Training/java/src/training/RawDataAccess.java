@@ -53,7 +53,6 @@ public class RawDataAccess
 	
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	/** The server address.*/
 	private String hostName = "serverName";
 
 	/** The username.*/
@@ -120,7 +119,7 @@ public class RawDataAccess
 						 p = data.getPlane(plane);
 						 for (int x = 0; x < sizeX; x++) {
 							for (int y = 0; y < sizeY; y++) {
-								System.err.println(p.getPixelValue(x, y));
+								//System.err.println(p.getPixelValue(x, y));
 							}
 						}
 					}
@@ -200,7 +199,7 @@ public class RawDataAccess
 	}
 	
 	/**
-	 * Retrieve a given hypercube. 
+	 * Retrieve a given hypercube.
 	 * 
 	 * This is useful when you need the pixels intensity.
 	 */
@@ -276,6 +275,11 @@ public class RawDataAccess
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new RawDataAccess(null);

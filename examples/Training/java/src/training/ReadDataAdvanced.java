@@ -2,7 +2,7 @@
  * training.ReadDataAdvanced
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -61,7 +61,6 @@ public class ReadDataAdvanced
 {
 
 	//The value used if the configuration file is not used. To edit*/
-	/** The server address.*/
 	/** The server address.*/
 	private String hostName = "serverName";
 
@@ -263,6 +262,11 @@ public class ReadDataAdvanced
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		new ReadDataAdvanced(null);
