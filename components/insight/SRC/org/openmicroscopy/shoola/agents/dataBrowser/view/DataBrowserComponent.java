@@ -279,7 +279,8 @@ class DataBrowserComponent
 			int maxEntries)
 	{
 		int previousState = model.getState();
-		model.setThumbnail(ref, thumb, valid, maxEntries);
+		int perc = model.setThumbnail(ref, thumb, valid, maxEntries);
+		setStatus((perc == 100) ? "Done" : "", perc);
 		if (previousState != model.getState()) fireStateChange();
 	}
 

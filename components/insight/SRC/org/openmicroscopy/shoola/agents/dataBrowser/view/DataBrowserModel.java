@@ -443,14 +443,15 @@ abstract class DataBrowserModel
      * When every image object has a thumbnail, this method sets the state
      * to {@link HiViewer#READY}.
      * 
-     * @param imageID    The id of the image or to the object of reference
-     * 				 	 which the thumbnail belongs.
-     * @param thumb      The thumbnail pixels.
-     * @param valid		 Pass <code>true</code> if it is a valid thumbnail,
-     * 					 <code>false</code> otherwise.
+     * @param imageID The id of the image or to the object of reference
+     * which the thumbnail belongs.
+     * @param thumb The thumbnail pixels.
+     * @param valid Pass <code>true</code> if it is a valid thumbnail,
+     * <code>false</code> otherwise.
      * @param maxEntries The number of thumbnails to load.
+     * @return The percentage of processed data.
      */
-    void setThumbnail(Object ref, BufferedImage thumb, boolean valid, 
+    int setThumbnail(Object ref, BufferedImage thumb, boolean valid,
     		int maxEntries)
     {
         if (thumbsManager == null) {
@@ -463,10 +464,12 @@ abstract class DataBrowserModel
         }
 
         thumbsManager.setThumbnail(ref, thumb, valid);
+        int perc = thumbsManager.getPercentDone();
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
             thumbsManager = null;
         }
+        return perc;
     }
 
     /**
