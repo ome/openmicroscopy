@@ -5,18 +5,11 @@ set -e
 set -u
 set -x
 
-export VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 export PSQL_DIR=${PSQL_DIR:-/usr/local/var/postgres}
 export OMERO_DATA_DIR=${OMERO_DATA_DIR:-/tmp/var/OMERO.data}
 export BREW_OPTS=${BREW_OPTS:-}
 export SCRIPT_NAME=${SCRIPT_NAME:-OMERO.sql}
-VENV_URL=${VENV_URL:-https://raw.github.com/pypa/virtualenv/master/virtualenv.py}
-
-if [[ "${GIT_SSL_NO_VERIFY-}" == "1" ]]; then
-    CURL="curl ${CURL_OPTS-} --insecure -O"
-else
-    CURL="curl ${CURL_OPTS-} -O"
-fi
+VENV_DIR=${VENV_DIR:-/usr/local/virtualenv}
 
 # Test whether this script is run in a job environment
 JOB_NAME=${JOB_NAME:-}
@@ -49,26 +42,24 @@ bin/brew doctor
 # Python pip installation
 ###################################################################
 
-# Python virtualenv/pip support
-rm -rf virtualenv.py
-$CURL "$VENV_URL"
-/usr/bin/python virtualenv.py --no-site-packages $VENV_DIR
+# Install Homebrew python
+# Alternately, the system Python can be used but installing Python
+# dependencies may require sudo
+bin/brew install python
 
-# Activate the virtual environment
-set +u
-source $VENV_DIR/bin/activate
-set -u
+# Install Genshi (OMERO and Bio-Formats requirement)
+bin/pip install -U genshi
 
 # Tap ome-alt library
 bin/brew tap ome/alt || echo "Already tapped"
 
 if [ $TESTING_MODE ]; then
     # Install scc tools
-    $VENV_DIR/bin/pip install -U scc || echo "scc installed"
+    bin/pip install -U scc || echo "scc installed"
 
     # Merge homebrew-alt PRs
     cd Library/Taps/ome-alt
-    $VENV_DIR/bin/scc merge master
+    /usr/local/bin/scc merge master
 fi
 
 cd /usr/local
@@ -89,7 +80,16 @@ showinf -version
 bin/brew install omero $BREW_OPTS
 bin/brew install postgres
 
-# Install additional Python dependencies
+# Create a virtual environment for Python dependencies
+bin/pip install virtualenv
+bin/virtualenv $VENV_DIR
+
+# Activate the virtual environment
+set +u
+source $VENV_DIR/bin/activate
+set -u
+
+# Install OMERO Python dependencies
 bash bin/omero_python_deps
 
 # Set environment variables
@@ -100,8 +100,7 @@ export PYTHONPATH=$(bin/brew --prefix omero)/lib/python:$ICE_HOME/python
 export PATH=$(bin/brew --prefix)/bin:$(bin/brew --prefix)/sbin:/usr/local/lib/node_modules:$ICE_HOME/bin:$PATH
 export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$ICE_HOME/python:${DYLD_LIBRARY_PATH-}
 
-
-# Create database
+# Create PostgreSQL database
 if [ -d "$PSQL_DIR" ]; then
     rm -rf $PSQL_DIR
 fi
@@ -109,17 +108,17 @@ bin/initdb $PSQL_DIR
 bin/brew services restart postgresql
 bin/pg_ctl -D $PSQL_DIR -l $PSQL_DIR/server.log start
 
+# Create user and database
+bin/createuser -w -D -R -S db_user
+bin/createdb -O db_user omero_database
+bin/psql -h localhost -U db_user -l
 
 # Set database
 bin/omero config set omero.db.name omero_database
 bin/omero config set omero.db.user db_user
 bin/omero config set omero.db.pass db_password
 
-# Create user and databse
-bin/createuser -w -D -R -S db_user
-bin/createdb -O db_user omero_database
-bin/psql -h localhost -U db_user -l
-
+# Run DB script
 bin/omero db script "" "" root_password -f $SCRIPT_NAME
 bin/psql -h localhost -U db_user omero_database < $SCRIPT_NAME
 rm $SCRIPT_NAME
