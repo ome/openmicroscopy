@@ -46,7 +46,7 @@ public class ConfigurationInfo
 	public static final String TRAINING_NS = "omero.training.demo";
 	
 	/** The server address.*/
-	private String hostName = "howe.openmicroscopy.org.uk";//"serverName";
+	private String hostName;
 	
 	/** The port to use.*/
 	private int port;
@@ -58,19 +58,19 @@ public class ConfigurationInfo
 	private String password = "ome";
 	
 	/** The id of an image.*/
-	private long imageId = 1355;//27544;
+	private long imageId;
 	
 	/** Id of the dataset hosting the image of reference.*/
-	private long datasetId = 51;//Should be the id of the
+	private long datasetId;
 	
 	/** The id of a plate.*/
-	private long plateId = 1007;
+	private long plateId;
 	
 	/** The id of the plate acquisition corresponding to the plate.*/
-	private long plateAcquisitionId = 0;
+	private long plateAcquisitionId;
 	
 	/** The id of a project.*/
-	private long projectId = 3109;
+	private long projectId;
 	
 	/** Creates a new instance.*/
 	public ConfigurationInfo()
