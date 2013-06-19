@@ -61,7 +61,6 @@ public class CreateImage
 
 	//The value used if the configuration file is not used. To edit*/
 	/** The server address.*/
-	/** The server address.*/
 	private String hostName = "serverName";
 
 	/** The username.*/
