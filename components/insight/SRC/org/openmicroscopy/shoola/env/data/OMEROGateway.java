@@ -8034,8 +8034,9 @@ class OMEROGateway
 		IAdminPrx svc = c.getAdminService();
 
 		try {
-			Entry entry;
-			Iterator i = map.entrySet().iterator();
+			Entry<DataObject, List<IObject>> entry;
+			Iterator<Entry<DataObject, List<IObject>>>
+			i = map.entrySet().iterator();
 			DataObject data;
 			List<IObject> l;
 			Iterator<IObject> j;
@@ -8045,9 +8046,9 @@ class OMEROGateway
 			Save save;
 			Map<Long, List<IObject>> images = new HashMap<Long, List<IObject>>();
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				data = (DataObject) entry.getKey();
-				l = (List<IObject>) entry.getValue();
+				entry = i.next();
+				data = entry.getKey();
+				l = entry.getValue();
 				if (data instanceof ImageData) {
 					images.put(data.getId(), l);
 				} else {
@@ -8070,6 +8071,7 @@ class OMEROGateway
 				FilesetData fs;
 				long imageId;
 				List<Long> imageIds;
+				Iterator<Long> ii;
 				while (kk.hasNext()) {
 					fs = (FilesetData) kk.next();
 					imageIds = fs.getImageIds();
@@ -8080,12 +8082,15 @@ class OMEROGateway
 								options, target.getGroupID());
 						commands.add(cmd);
 						all.addAll(imageIds);
-						l = images.get(imageId);
-						j = l.iterator();
-						while (j.hasNext()) {
-							save = new Save();
-							save.obj = j.next();
-							commands.add(save);
+						ii = imageIds.iterator();
+						while (ii.hasNext()) {
+							l = images.get(ii.next());
+							j = l.iterator();
+							while (j.hasNext()) {
+								save = new Save();
+								save.obj = j.next();
+								commands.add(save);
+							}
 						}
 					}
 				}

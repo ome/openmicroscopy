@@ -159,16 +159,16 @@ public class StatusLabel
 	static {
 		STEPS = new HashMap<Integer, String>();
 		STEPS.put(1, "Importing Metadata");
-		STEPS.put(2, "Processing Pixels");
+		STEPS.put(2, "Reading Pixels");
 		STEPS.put(3, "Generating Thumbnails");
-		STEPS.put(4, "Processing Metadata");
+		STEPS.put(4, "Reading Metadata");
 		STEPS.put(5, "Generating Objects");
 		STEPS.put(6, "Complete");
 		STEP_FAILURES = new HashMap<Integer, String>();
 		STEP_FAILURES.put(1, "Failed to Import Metadata");
-		STEP_FAILURES.put(2, "Failed to Process Pixels");
+		STEP_FAILURES.put(2, "Failed to Read Pixels");
 		STEP_FAILURES.put(3, "Failed to Generate Thumbnails");
-		STEP_FAILURES.put(4, "Failed to Process Metadata");
+		STEP_FAILURES.put(4, "Failed to Read Metadata");
 		STEP_FAILURES.put(5, "Failed to Generate Objects");
 	}
 	
