@@ -70,7 +70,7 @@ for c in range(1, sizeC + 1):       # Channel index starts at 1
 # =================================================================
 image.setColorRenderingModel()
 channels = [1, 2, 3]
-colorList = ['F00', None, 'FFFF00']         # don't change colour of 2nd channel
+colorList = ['F00', None, 'FFFF00']         # do not change colour of 2nd channel
 image.setActiveChannels(channels, colors=colorList)
 image.setProjection('intmax')               # max intensity projection 'intmean' for mean-intensity
 renderedImage = image.renderImage(z, t)     # z and t are ignored for projections
@@ -96,5 +96,5 @@ image.saveDefaults()
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()
