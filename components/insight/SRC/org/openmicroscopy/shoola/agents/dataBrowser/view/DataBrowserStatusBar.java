@@ -119,7 +119,7 @@ class DataBrowserStatusBar
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		JPanel right = new JPanel();
 		right.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        //right.add(progressBar);
+        right.add(progressBar);
         JPanel left = new JPanel();
         left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         left.add(mag);
