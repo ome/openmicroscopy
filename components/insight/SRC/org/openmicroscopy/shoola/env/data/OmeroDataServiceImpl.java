@@ -996,11 +996,21 @@ class OmeroDataServiceImpl
 				while (k.hasNext()) {
 					newObject = k.next();
 					if (newObject != null) {
-						link = ModelMapper.linkParentToChild(
-								data.asIObject(), newObject);
-						if (link != null) {
-							if (o != null) link.getDetails().setOwner(o);
-							l.add(link);
+						//due to move all option when moving mif
+						//the following scenario could happen
+						//select a dataset to move to a Project
+						//missing image from mif will be added to the queue
+						//(Move all) The image cannot be linked to the target
+						//i.e. project so an exception is thrown
+						try {
+							link = ModelMapper.linkParentToChild(
+									data.asIObject(), newObject);
+							if (link != null) {
+								if (o != null) link.getDetails().setOwner(o);
+								l.add(link);
+							}	
+						} catch (Exception e) {
+							//ignore
 						}
 					}
 				}
