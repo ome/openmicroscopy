@@ -9,6 +9,7 @@ package ome.services.chgrp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import ome.services.graphs.GraphEntry;
 import ome.services.graphs.GraphException;
 import ome.services.graphs.GraphOpts;
 import ome.services.graphs.GraphSpec;
+import ome.services.graphs.GraphState;
 import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
 import ome.system.OmeroContext;
@@ -132,7 +134,10 @@ public class ChgrpStep extends GraphStep {
         return rv;
     }
 
-    public void validate(Session session, GraphOpts opts) throws GraphException {
+    @Override
+    public void validate(GraphState graphState, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException {
+
         logPhase("Validating");
 
         // ticket:6422 - validation of graph, phase 2
@@ -159,6 +164,8 @@ public class ChgrpStep extends GraphStep {
                 qb.and("id = :id");
                 qb.param("id", id);
                 qb.query(session).executeUpdate();
+                publish(new EventLogMessage(this, "DELETE", iObjectType,
+                        Collections.singletonList(id)));
             } else {
                 throw new GraphConstraintException(String.format("%s:%s improperly links to %s objects",
                     iObjectType.getSimpleName(), id, total.size()), constraints);
@@ -198,7 +205,10 @@ public class ChgrpStep extends GraphStep {
             throws GraphException {
         EventLogMessage elm = new EventLogMessage(this, "CHGRP", k,
                 new ArrayList<Long>(ids));
+        publish(elm);
+    }
 
+    protected void publish(EventLogMessage elm) throws GraphException {
         try {
             ctx.publishMessage(elm);
         } catch (Throwable t) {

@@ -314,12 +314,40 @@ public class GraphState implements GraphStep.Callback {
     // Iteration methods, used for actual processing
     //
 
-    /**
+     /**
+      *
+      * @param step
+      *             which step is to be invoked. Running a step multiple times is
+      *             not supported.
+      * @return Any warnings which were noted during execution.
+      * @throws GraphException
+      *             Any errors which were caused during execution. Which
+      *             execution states may be encountered is strongly tied to the
+      *             definition of the specification and to the options which are
+      *             passed in during initialization.
+      */
+     public String execute(int j) throws GraphException {
+         return perform(j, false);
+     }
+
+     /**
+      * Prepares the next phase ({@link #validate(int)}) by returning how
+      * many validation steps should be performed.
+      * @return
+      */
+     public int validation() {
+         int total = getTotalFoundCount();
+         for (int i = 0; i < total; i++) {
+             steps.get(i).validation();
+         }
+         return total;
+     }
+
+     /**
      *
      * @param step
-     *            which step is to be invoked. Running a step multiple times is
-     *            not supported.
-     *
+     *             which step is to be invoked. Running a step multiple times is
+     *             not supported.
      * @return Any warnings which were noted during execution.
      * @throws GraphException
      *             Any errors which were caused during execution. Which
@@ -327,12 +355,27 @@ public class GraphState implements GraphStep.Callback {
      *             definition of the specification and to the options which are
      *             passed in during initialization.
      */
-    public String execute(int j) throws GraphException {
+    public String validate(int j) throws GraphException {
+        return perform(j, true);
+    }
+
+    /**
+     * @param validate
+     *       after the proper execution of all steps has taken place,
+     *       a validation call is made.
+     */
+    public String perform(int j, boolean validate) throws GraphException {
 
         final GraphStep step = steps.get(j);
 
-        if (steps.alreadySucceeded(step)) {
-            return "";
+        if (validate) {
+            if (steps.alreadyValidated(step)) {
+                return "";
+            }
+        } else {
+            if (steps.alreadySucceeded(step)) {
+                return "";
+            }
         }
 
         String msgOrNull = step.start(this);
@@ -359,7 +402,11 @@ public class GraphState implements GraphStep.Callback {
 
             try {
 
-                step.action(this, session, sql, opts);
+                if (!validate) {
+                    step.action(this, session, sql, opts);
+                } else {
+                    step.validate(this, session, sql, opts);
+                }
 
                 // Finalize.
                 step.release(this);

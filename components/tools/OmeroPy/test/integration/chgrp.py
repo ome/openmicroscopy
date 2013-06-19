@@ -60,14 +60,14 @@ class TestChgrp(lib.ITest):
         query = client.sf.getQueryService()
         admin = client.sf.getAdminService()
         first_gid = admin.getEventContext().groupId
-        
+
         # Create a dataset in the 'first group'
         ds = omero.model.DatasetI()
         ds.name = rstring("testChgrpImage_target")
         ds = update.saveAndReturnObject(ds)
         ds_id = ds.id.val
 
-        # Change our context to new group and create image 
+        # Change our context to new group and create image
         admin.setDefaultGroup(exp, omero.model.ExperimenterGroupI(gid, False))
         self.set_context(client, gid)
         update = client.sf.getUpdateService()   # do we need to get this again?
@@ -100,7 +100,7 @@ class TestChgrp(lib.ITest):
         l = client.sf.getQueryService().findByQuery(query, None)
         self.assertTrue(l is not None, "New DatasetImageLink on image not found")
         self.assertEqual(l.details.group.id.val, first_gid, "Link Created in same group as Image target")
-        
+
 
     def testChgrpPDI(self):
         """
@@ -578,7 +578,24 @@ class TestChgrp(lib.ITest):
         chgrp = omero.cmd.Chgrp(type="/Plate", id=link.child.id.val, grp=target_gid)
         self.doAllSubmit([chgrp], client)
 
+        # Check that the links have been destroyed
+        query = client.sf.getQueryService()
+        self.assertRaises(omero.ValidationException,
+                          query.get, "ScreenPlateLink", link.id.val, {"omero.group":"-1"})
+
+
 class TestChgrpTarget(lib.ITest):
+
+    def createDSInGroup(self, gid, name=None, client=None):
+        if name is None:
+            name = self.id()
+        if client is None:
+            client = self.client
+        ctx = {'omero.group': str(gid)}
+        update = client.sf.getUpdateService()
+        ds = omero.model.DatasetI()
+        ds.name = rstring(self.id())
+        return update.saveAndReturnObject(ds, ctx)
 
     def chgrpImagesToTargetDataset(self, imgCount):
         """
@@ -591,13 +608,7 @@ class TestChgrpTarget(lib.ITest):
         target_gid = target_grp.id.val
 
         images = self.importMIF(imgCount, client=client)
-
-        # create Dataset in target group
-        ctx = {'omero.group': str(target_gid)}
-        update = client.sf.getUpdateService()
-        ds = omero.model.DatasetI()
-        ds.name = rstring("testChgrpImagesToDatasetOK")
-        ds = update.saveAndReturnObject(ds, ctx)
+        ds = self.createDSInGroup(target_gid, client=client)
 
         # each chgrp includes a 'save' link to target dataset
         requests = []
@@ -626,6 +637,9 @@ class TestChgrpTarget(lib.ITest):
         dsImgs = client.sf.getContainerService().getImages('Dataset', [ds.id.val], None, ctx)
         self.assertEqual(len(dsImgs), len(images), "All Images should be in target Dataset")
 
+        previous_gid = admin.getEventContext().groupId
+        return (ds, images, client, user, previous_gid, target_gid)
+
     def testChgrpImageToTargetDataset(self):
         """ Chgrp a single Image to target Dataset """
         self.chgrpImagesToTargetDataset(1)
@@ -633,6 +647,39 @@ class TestChgrpTarget(lib.ITest):
     def testChgrpMifImagesToTargetDataset(self):
         """ Chgrp 2 images in a MIF to target Dataset """
         self.chgrpImagesToTargetDataset(2)
+
+    def testChgrpImageToTargetDatasetAndBackNoDS(self):
+        """
+        Chgrp a single Image to target Dataset and then back
+        No target is provided on the way back.
+        see ticket:11118
+        """
+        ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
+        self.doAllSubmit([chgrp], client, omero_group=old_gid)
+
+    def testChgrpImageToTargetDatasetAndBackDS(self):
+        """
+        Chgrp a single Image to target Dataset and then back
+        see ticket:11118
+        """
+        new_ds, images, client, user, old_gid, new_gid =  self.chgrpImagesToTargetDataset(1)
+
+        # create Dataset in original group
+        old_ds = self.createDSInGroup(old_gid, client=client)
+        link = omero.model.DatasetImageLinkI()
+        link.parent = old_ds.proxy()
+        link.child = images[0].proxy()
+
+        chgrp = omero.cmd.Chgrp(type="/Image", id=images[0].id.val, grp=old_gid)
+        save = Save(link)
+        self.doAllSubmit([chgrp, save], client, omero_group=old_gid)
+
+        dils = client.sf.getQueryService().findAllByQuery(
+            "select dil from DatasetImageLink dil where dil.child.id = :id",
+            omero.sys.ParametersI().addId(images[0].id.val), {"omero.group": "-1"})
+        self.assertEquals(1, len(dils))
+
 
 if __name__ == '__main__':
     unittest.main()

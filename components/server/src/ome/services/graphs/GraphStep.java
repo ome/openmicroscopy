@@ -141,10 +141,15 @@ public abstract class GraphStep {
     /**
      * Not final. Set during {@link GraphState#execute(int)}. If anything goes
      * wrong, it and possibly other instances from {@link #stack} will have
-     * their savepoints rolled back.
+     * their savepoints rolled back. Re-used during validation.
+     * See {@link #validation()}
      */
     private String savepoint = null;
 
+    /**
+     * Re-used during validation.
+     * See {@link #validation()}
+     */
     private boolean rollbackOnly = false;
 
     public GraphStep(ExtendedMetadata em, int idx, List<GraphStep> stack,
@@ -200,6 +205,21 @@ public abstract class GraphStep {
             GraphOpts opts) throws GraphException;
 
 
+
+    /**
+     * Action performed at the end of the transaction to give all rows the
+     * chance to invalidate other actions.
+     *
+     * @param graphState
+     * @param session
+     * @param sql
+     * @param opts
+     */
+    public void validate(GraphState graphState, Session session, SqlAction sql,
+            GraphOpts opts) throws GraphException {
+        // no-op
+    }
+
     protected void logPhase(String phase) {
         log.debug(String.format("%s %s from %s: root=%s", phase, id,
                 pathMsg, entry.getId()));
@@ -246,6 +266,11 @@ public abstract class GraphStep {
 
     public boolean hasSavepoint() {
         return savepoint != null;
+    }
+
+    public void validation() {
+        savepoint = null;
+        rollbackOnly = false;
     }
 
     public String start(Callback cb) throws GraphException {
@@ -469,4 +494,5 @@ public abstract class GraphStep {
             }
         }
     }
+
 }
