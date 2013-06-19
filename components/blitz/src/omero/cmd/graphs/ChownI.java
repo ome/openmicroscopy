@@ -156,11 +156,10 @@ public class ChownI extends Chown implements IGraphModifyRequest {
     @Override
     public void finish() throws Cancel {
         // Replaces ChownValidation
-        int steps = state.getTotalFoundCount();
+        int steps = state.validation();
         for (int i = 0; i < steps; i++) {
-            ChownStep step = (ChownStep) state.getStep(i);
             try {
-                step.validate(helper.getSession(), state.getOpts());
+                state.validate(i);
             } catch (GraphException ge) {
                 throw helper.graphException(ge, i, id);
             }

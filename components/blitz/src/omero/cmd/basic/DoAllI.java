@@ -327,9 +327,16 @@ public class DoAllI extends DoAll implements IRequest {
     public void finish() {
         for (X x : substeps) {
             try {
-                x.r.finish();
+                x.login();
+                try {
+                    x.r.finish();
+                } finally {
+                    x.logout();
+                }
             } catch (Cancel c) {
                 throw subcancel(c, x);
+            } catch (Throwable t) {
+                helper.cancel(new ERR(), t, "bad-finish");
             }
         }
     }

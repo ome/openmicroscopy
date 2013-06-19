@@ -101,6 +101,7 @@ public class GraphSteps extends AbstractList<GraphStep> implements RandomAccess 
         private final Map<GraphStep, Integer> index;
         private final List<GraphStep> steps;
         private boolean success;
+        private boolean validated;
         Values() {
             this.index = new HashMap<GraphStep, Integer>();
             this.steps = new ArrayList<GraphStep>();
@@ -205,4 +206,20 @@ public class GraphSteps extends AbstractList<GraphStep> implements RandomAccess 
         return v.success;
     }
 
+
+    public void validated(GraphStep step) {
+        Values v = v(step);
+        if (v == null) {
+            return; // no-op
+        }
+        v.validated = true;
+    }
+
+    public boolean alreadyValidated(GraphStep step) {
+        Values v = v(step);
+        if (v == null) {
+            return false;
+        }
+        return v.validated;
+    }
 }
