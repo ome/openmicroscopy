@@ -103,9 +103,9 @@ public class Setup {
 		ConfigurationInfo info = null;
 		try {
 			info = new ConfigurationInfo();
-			info.setHostName(p.getProperty("omero.hostname"));
-			info.setPassword(p.getProperty("omero.password"));
-			info.setUserName(p.getProperty("omero.username"));
+			info.setHostName(p.getProperty("omero.host"));
+			info.setPassword(p.getProperty("omero.pass"));
+			info.setUserName(p.getProperty("omero.user"));
 			info.setImageId(Long.parseLong(p.getProperty("omero.imageId")));
 			info.setDatasetId(Long.parseLong(p.getProperty("omero.datasetId")));
 			info.setProjectId(Long.parseLong(p.getProperty("omero.projectId")));
@@ -136,8 +136,8 @@ public class Setup {
 	 */
 	public static void main(String[] args)
 	{
-		
 		new Setup();
+		System.exit(0);
 	}
 
 }
