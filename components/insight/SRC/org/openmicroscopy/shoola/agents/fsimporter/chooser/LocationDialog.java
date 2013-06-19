@@ -193,7 +193,7 @@ class LocationDialog extends JDialog implements ActionListener,
 	
 	/** Tooltip text for Close button */
 	private static final String TOOLTIP_CLOSE_DIALOGUE = 
-			"Close the dialogue and do not add the files to the queue.";
+			"Close the dialog and do not add the files to the queue.";
 
 	/** Text for Add button */
 	private static final String TEXT_QUEUE_ITEMS = "Add to the Queue";
@@ -1051,9 +1051,8 @@ class LocationDialog extends JDialog implements ActionListener,
 	private boolean canLink(DataObject node, long userID, GroupData group,
 			long loggedUserID)
 	{
-		if (userID == loggedUserID) return true;
-		if (!node.canLink()) return false;
-
+		if (userID == loggedUserID || node.getOwner().getId() == userID)
+			return true;
 		PermissionData permissions = group.getPermissions();
 		if (permissions.isGroupWrite()) return true;
 		Set leaders = group.getLeaders();
@@ -1065,7 +1064,7 @@ class LocationDialog extends JDialog implements ActionListener,
 				if (exp.getId() == userID) return true;
 			}
 		}
-		return node.getOwner().getId() == userID;
+		return node.canLink();
 	}
 	
 	/**
@@ -1538,6 +1537,7 @@ class LocationDialog extends JDialog implements ActionListener,
 		if (compareItem instanceof Selectable<?>)
 		{
 			Selectable<?> selectable = (Selectable<?>) compareItem;
+			if (!selectable.isSelectable()) return null;
 			Object innerItem = selectable.getObject();
 			if (innerItem instanceof DataNode)
 				return (DataNode) innerItem;
@@ -1575,11 +1575,11 @@ class LocationDialog extends JDialog implements ActionListener,
 				DataNode node = getSelectedItem(projectsBox);
 				datasetsBox.setEnabled(true);
 				newDatasetButton.setEnabled(true);
-				if (node.isDefaultProject()) {
-					newDatasetButton.setEnabled(true);
-				} else if (!node.getDataObject().canLink()) {
+				if (node == null) {
 					projectsBox.setSelectedIndex(0);
 					return;
+				} else if (node.isDefaultProject()) {
+					newDatasetButton.setEnabled(true);
 				}
 				populateDatasetsBox();
 			} else if (source == datasetsBox) {
