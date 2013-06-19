@@ -320,6 +320,7 @@ class GeneralPaneUI
 		} else if (refObject instanceof ImageData) {
 			if (!multi) {
 				h = 1;
+				propertiesUI.onChannelDataLoading();
 				controller.loadChannelData();
 			}
 		} else if (refObject instanceof WellSampleData) {
