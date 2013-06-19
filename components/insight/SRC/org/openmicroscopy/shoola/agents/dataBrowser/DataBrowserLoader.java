@@ -122,7 +122,7 @@ public abstract class DataBrowserLoader
      * Notifies the {@link #viewer} one last time.
      * This way the {@link #viewer} has a chance to hide the progress bar.
      */
-    public void onEnd() { viewer.setStatus(null, -1); }
+    public void onEnd() { viewer.setStatus(null, 100); }
     
     /**
      * Notifies the user that it wasn't possible to retrieve the data and

@@ -197,7 +197,7 @@ public class ThumbnailLoader
         	if (status == null) 
                 status = (percDone == 100) ? "Done" :  //Else
                                          ""; //Description wasn't available.   
-            viewer.setStatus(status, percDone);
+            //viewer.setStatus(status, percDone);
             ThumbnailData td;
             Object ref;
             if (type == EXPERIMENTER) {
@@ -244,6 +244,9 @@ public class ThumbnailLoader
      * @see DataBrowserLoader#handleNullResult()
      */
     public void handleNullResult() {}
+    
+    /** Does nothing.*/
+    public void onEnd() {}
     
     /**
      * Notifies the user that an error has occurred.

@@ -122,7 +122,7 @@ public class ImportResultLoader
 			handle = hiBrwView.loadThumbnails(ctx, ids,
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
-                    userID, HierarchyBrowsingView.IMAGE, this);
+                    -1, HierarchyBrowsingView.IMAGE, this);
 		}
 	}
 	
