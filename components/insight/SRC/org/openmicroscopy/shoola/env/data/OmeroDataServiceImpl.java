@@ -1010,7 +1010,12 @@ class OmeroDataServiceImpl
 								l.add(link);
 							}	
 						} catch (Exception e) {
-							//ignore
+							StringBuffer buffer = new StringBuffer();
+							buffer.append("Cannot link ");
+							buffer.append(data.getClass());
+							buffer.append(" to ");
+							buffer.append(newObject.getClass());
+							context.getLogger().debug(this, buffer.toString());
 						}
 					}
 				}
