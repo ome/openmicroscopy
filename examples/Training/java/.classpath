@@ -2,6 +2,5 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/jburel/Documents/git-repo/openmicroscopy/target/repository/omero_client-5.0.0-alpha5-DEV-ice33.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
