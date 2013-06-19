@@ -68,7 +68,6 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.hibernate.hql.CollectionSubqueryFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
