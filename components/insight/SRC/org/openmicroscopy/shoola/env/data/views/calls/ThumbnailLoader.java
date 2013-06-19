@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,8 +36,6 @@ import java.util.Set;
 import omero.ServerError;
 //Application-internal dependencies
 import omero.api.ThumbnailStorePrx;
-
-import org.apache.commons.validator.ISBNValidator;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
