@@ -25,11 +25,8 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JList;
-
-import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.Selectable;
 
 
