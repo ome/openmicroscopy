@@ -962,7 +962,7 @@ class OmeroDataServiceImpl
 			}
 		}
 
-		if (targetNodes != null && targetNodes.size() > 0) {
+		if (!CollectionUtils.isEmpty(targetNodes)) {
 			List<IObject> toCreate = new ArrayList<IObject>();
 			j = targetNodes.iterator();
 			while (j.hasNext()) {
@@ -985,21 +985,32 @@ class OmeroDataServiceImpl
 		}
 		i = objects.iterator();
 		Iterator<IObject> k;
+		boolean notEmpty = !CollectionUtils.isEmpty(targets);
 		while (i.hasNext()) {
 			data = i.next();
 			owner = data.getOwner();
 			perms = data.getPermissions();
 			l = new ArrayList<IObject>();
-			if (targets != null && targets.size() > 0) {
+			if (notEmpty) {
 				k = targets.iterator();
 				while (k.hasNext()) {
 					newObject = k.next();
 					if (newObject != null) {
-						link = ModelMapper.linkParentToChild(
-								data.asIObject(), newObject);
-						if (link != null) {
-							if (o != null) link.getDetails().setOwner(o);
-							l.add(link);
+						//due to move all option when moving mif
+						//the following scenario could happen
+						//select a dataset to move to a Project
+						//missing image from mif will be added to the queue
+						//(Move all) The image cannot be linked to the target
+						//i.e. project so an exception is thrown
+						try {
+							link = ModelMapper.linkParentToChild(
+									data.asIObject(), newObject);
+							if (link != null) {
+								if (o != null) link.getDetails().setOwner(o);
+								l.add(link);
+							}	
+						} catch (Exception e) {
+							//ignore
 						}
 					}
 				}
