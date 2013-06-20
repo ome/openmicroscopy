@@ -104,10 +104,9 @@ public class DataLoader
 	 */
 	public void load()
 	{
-		long id = userID;
-		if (viewer.getDisplayMode() == LookupNames.GROUP_DISPLAY) id = -1;
+		//always load the data for the group.
 		handle = dmView.loadContainerHierarchy(ctx, rootType, null, false,
-				id, this);
+				-1, this);
 	}
 	
 	/** 

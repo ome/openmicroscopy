@@ -906,9 +906,10 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private void switchToSelectedUser()
 	{
-		setInputsEnabled(false);
-		firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
-				new ImportLocationDetails(dataType, getSelectedUser().getId()));
+		populateLocationComboBoxes();
+		//setInputsEnabled(false);
+		//firePropertyChange(ImportDialog.REFRESH_LOCATION_PROPERTY, null,
+		//		new ImportLocationDetails(dataType, getSelectedUser().getId()));
 	}
 
 	/**
