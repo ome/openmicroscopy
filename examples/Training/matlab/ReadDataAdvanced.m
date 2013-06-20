@@ -9,7 +9,14 @@ tagName = char('myTagName');
 
 % Load Data
 try
-    [client, session] = connect();
+    disp('Creating connection');
+    [client, session] = loadOmero();
+    fprintf(1, 'Created session for  %s', char(client.getProperty('omero.host')));
+    fprintf(1, ' for user %s',...
+        char(session.getAdminService().getEventContext().userName));
+    fprintf(1, ' using group %s\n',...
+        char(session.getAdminService().getEventContext().groupName));
+    
     iUpdate = session.getUpdateService();
     %First create datasets
     n = 2;
@@ -42,7 +49,7 @@ try
     end
     
     %Load the tags by name space
-     
+    
     results = proxy.findAllByString(omero.model.TagAnnotation.class, 'ns', tagNs, 1, filter);
     for i= 0:results.size-1,
         tag = results.get(i);
@@ -53,7 +60,7 @@ try
     % Retrieve the project(s) owned by user currently logged in and load the orphaned datasets.
     % i.e. datasets not contained in a project.
     % If a project contains datasets, the datasets will automatically be
-    % loaded. 
+    % loaded.
     proxy = session.getContainerService();
     param = omero.sys.ParametersI();
     param.orphan();
@@ -64,13 +71,13 @@ try
     for j = 0:results.size()-1,
         value = results.get(j);
         if (isa(value, 'omero.model.Project'))
-          % handle project
-          p = value;
-      p.linkedDatasetList();
+            % handle project
+            p = value;
+            p.linkedDatasetList();
         elseif (isa(value, 'omero.model.Dataset'))
-          % handle dataset
-          dataset = value;
-      dataset.getName().getValue();
+            % handle dataset
+            dataset = value;
+            dataset.getName().getValue();
         end
     end
     

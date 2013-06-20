@@ -2,29 +2,29 @@
 % All rights reversed.
 % Use is subject to license terms supplied in LICENSE.txt
 
-% information to edit.
-imageId = java.lang.Long(27544);
-
 try
-    [client, session] = Connect();
+    % Create a connection
+    [client, session] = loadOmero();
+    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
+    fprintf(1, 'Created session for user %s using group %s\n',...
+        char(session.getAdminService().getEventContext().userName),...
+        char(session.getAdminService().getEventContext().groupName));
+    
+    % Information to edit
+    imageId = str2double(client.getProperty('image.id'));
 
-    imagename = tempname();
-    proxy = session.getContainerService();
-    list = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), omero.sys.ParametersI());
-    if (list.size == 0)
-        exception = MException('OMERO:RenderImages', 'Image Id not valid');
-        throw(exception);
-    end
-    image = list.get(0);
-    pixelsList = image.copyPixels();
-    pixels = pixelsList.get(0);
-
+    % Load image acquisition data.
+    fprintf(1, 'Reading image: %g\n', imageId);
+    image = getImages(session, imageId);
+    assert(~isempty(image), 'OMERO:RenderImages', 'Image Id not valid');
+    pixels = image.getPrimaryPixels();
+    pixelsId = pixels.getId().getValue();
+   
     % Rendering 
 
     % Follow an example indicating, how to create a rendering engine.
-
+    disp('Rendering the image');
     % Create rendering engine.
-    pixelsId = pixels.getId().getValue(); % see Load data section
     re = session.createRenderingEngine();
     re.lookupPixels(pixelsId);
     % Check if default required.
@@ -66,31 +66,20 @@ try
     image = javax.imageio.ImageIO.read(stream);
     stream.close();
     imshow(JavaImageToMatlab(image));
-    
-    %save to Jpeg
-    %file = [imagename '.jpg'];
-    %fid = fopen(file, 'wb');
-    %fwrite(fid, values, 'int8');
-    %fclose(fid);
-    %delete(file);
 
     %Close the rendering engine.
     re.close();
     
-    %Load thumbnails.
-    store = session.createThumbnailStore();
-    map = store.getThumbnailByLongestSideSet(omero.rtypes.rint(96), java.util.Arrays.asList(java.lang.Long(pixelsId)));
-    %Display the thumbnail;
-    collection = map.values();
-    i = collection.iterator();
-    while (i.hasNext())
-        figure(100);
-        stream = java.io.ByteArrayInputStream(i.next());
-        image = javax.imageio.ImageIO.read(stream);
-        stream.close();
-        imshow(JavaImageToMatlab(image));
-    end
-    store.close();
+    % Load cache thumbnail
+    disp('Loading the cache thumbnails');
+    thumbnail = getThumbnail(session, imageId);
+    figure; 
+    imshow(thumbnail, []);
+    
+    % Load cache thumbnail and set the longest side
+    thumbnail = getThumbnailByLongestSide(session, imageId, 96);
+    figure; 
+    imshow(thumbnail, []);
 catch err
      disp(err.message);
 end

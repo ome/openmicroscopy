@@ -3,7 +3,6 @@
 % Use is subject to license terms supplied in LICENSE.txt
 
 % Information to edit
-imageId = java.lang.Long(27544);
 projectId = 3109;
 
 fileToUpload= char('mydata.txt'); % file should exist.
@@ -21,17 +20,22 @@ NAME_SPACE_TO_SET = char('imperial.training.demo');
 %  1. a link between the `Image` and the `FileAnnotation`.
 
 try
-    [client, session] = Connect();
-    % First retrieve the image.
-    ids = java.util.ArrayList();
-    ids.add(imageId); %add the id of the image.
-    proxy = session.getContainerService();
-    list = proxy.getImages(omero.model.Image.class, ids, omero.sys.ParametersI());
-    if (list.size == 0)
-        exception = MException('OMERO:WriteData', 'Image Id not valid');
-        throw(exception);
-    end
-    image = list.get(0);
+    % Create a connection
+    [client, session] = loadOmero();
+    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
+    fprintf(1, 'Created session for user %s using group %s\n',...
+        char(session.getAdminService().getEventContext().userName),...
+        char(session.getAdminService().getEventContext().groupName));
+    
+    % Information to edit
+    imageId = str2double(client.getProperty('image.id'));
+    projectId = str2double(client.getProperty('image.id'));
+    % Load image
+    fprintf(1, 'Reading image: %g\n', imageId);
+    image = getImages(session, imageId);
+    assert(~isempty(image), 'OMERO:WriteData', 'Image Id not valid');
+
+    
     iUpdate = session.getUpdateService(); % service used to write object
     % create the original file object.
     file = java.io.File(fileToUpload);
