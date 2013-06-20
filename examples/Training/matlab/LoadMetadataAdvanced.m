@@ -2,38 +2,32 @@
 % All rights reversed.
 % Use is subject to license terms supplied in LICENSE.txt
 
-% information to edit.
-imageId = java.lang.Long(27544);
-
 % Load Metadata
 try
-    [client, session] = connect();
-    iUpdate = session.getUpdateService();
-    %Load image acquisition data.
-    
-    proxy = session.getContainerService();
-    param = omero.sys.ParametersI();
-    param.acquisitionData();
-    results = proxy.getImages(omero.model.Image.class, java.util.Arrays.asList(imageId), param);
-    if (results.size == 0)
-        exception = MException('OMERO:LoadMetadataAdvanced', 'Image Id not valid');
-        throw(exception);
-    end
-    image = results.get(0);
-    %display the humidity
-    %image.getImagingEnvironment().getHumidity().getValue();
-    
-    %Load the channel
-    pixelsList = image.copyPixels();
-    pixels = pixelsList.get(0);
+    % Create a connection
+    [client, session] = loadOmero();
+    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
+    fprintf(1, 'Created session for user %s using group %s\n',...
+        char(session.getAdminService().getEventContext().userName),...
+        char(session.getAdminService().getEventContext().groupName));
         
-    pixelsDescription = session.getPixelsService().retrievePixDescription(pixels.getId().getValue());
+    % Information to edit
+    imageId = str2double(client.getProperty('image.id'));
+
+    % Load image acquisition data.
+    fprintf(1, 'Reading image: %g\n', imageId);
+    image = getImages(session, imageId);
+    assert(~isempty(image), 'OMERO:LoadMetadataAdvanced', 'Image Id not valid');
+    pixels = image.getPrimaryPixels();
+    pixelsId = pixels.getId().getValue();
     
+    % Read channels
+    fprintf(1, 'Reading channels for image %g\n', imageId');
+    pixelsDescription = session.getPixelsService().retrievePixDescription(pixelsId);
     channels = pixelsDescription.copyChannels();
-    %handle the channels
     for j = 0:channels.size()-1,
         channel = channels.get(j);
-        channel.getId().getValue()
+        fprintf(1, 'Reading channel %g: %g\n',j+1, channel.getId().getValue());
     end
 catch err
     disp(err.message);
