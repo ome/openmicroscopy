@@ -39,6 +39,7 @@ import omero.api.IQueryPrx;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.Plate;
 import omero.model.Project;
 import omero.model.Screen;
 import omero.model.Well;
@@ -282,6 +283,39 @@ public class ReadData
 		}
 	}
 	
+	/** 
+	 * Retrieve Screening data owned by the user currently logged in.
+	 * 
+	 * To learn about the model go to ScreenPlateWell.
+	 * Note that the wells are not loaded.
+	 */
+	private void loadPlate(ConfigurationInfo info)
+		throws Exception
+	{
+		IQueryPrx proxy = connector.getQueryService();
+		StringBuilder sb = new StringBuilder();
+		ParametersI param = new ParametersI();
+		param.addLong("plateID", info.getPlateId());
+		sb.append("select plate from Plate as plate ");
+		sb.append("left outer join fetch plate.wells as well ");
+		sb.append("left outer join fetch well.wellSamples as ws ");
+		sb.append("left outer join fetch ws.plateAcquisition as pa ");
+		sb.append("left outer join fetch ws.image as img ");
+		sb.append("left outer join fetch img.pixels as pix ");
+		sb.append("left outer join fetch pix.pixelsType as pt ");
+        sb.append("where plate.id = :plateID");
+        if (info.getPlateAcquisitionId() > 0) {
+        	 sb.append(" and pa.id = :acquisitionID");
+        	 param.addLong("acquisitionID", info.getPlateAcquisitionId());
+        }
+        List<IObject> results = proxy.findAllByQuery(sb.toString(), param);
+        Iterator<IObject> i = results.iterator();
+        PlateData plate;
+        while (i.hasNext()) {
+        	plate = new PlateData((Plate) i.next());
+		}
+	}
+	
 	/**
 	 * Connects and invokes the various methods.
 	 * 
@@ -308,6 +342,7 @@ public class ReadData
 			loadImage(info);
 			loadScreens();
 			loadWells(info);
+			loadPlate(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
