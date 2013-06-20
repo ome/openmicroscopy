@@ -1584,16 +1584,10 @@ class LocationDialog extends JDialog implements ActionListener,
 				populateDatasetsBox();
 			} else if (source == datasetsBox) {
 				DataNode node = getSelectedItem(datasetsBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						datasetsBox.setSelectedIndex(0);
-				}
+				if (node == null) datasetsBox.setSelectedIndex(0);
 			} else if (source == screensBox) {
 				DataNode node =  getSelectedItem(screensBox);
-				if (!node.isDefaultNode()) {
-					if (!node.getDataObject().canLink())
-						screensBox.setSelectedIndex(0);
-				}
+				if (node == null) screensBox.setSelectedIndex(0);
 			}
 		}
 	}
