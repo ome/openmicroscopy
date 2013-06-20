@@ -84,7 +84,7 @@ try
     re.close();
     
     % Load cache thumbnail
-    disp('Loading the cache thumbnails');
+    disp('Loading the cache thumbnail');
     thumbnail = getThumbnail(session, imageId);
     figure; 
     imshow(thumbnail, []);

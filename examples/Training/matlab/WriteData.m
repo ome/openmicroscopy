@@ -40,7 +40,7 @@ try
     
     % Information to edit
     imageId = str2double(client.getProperty('image.id'));
-    projectId = str2double(client.getProperty('image.id'));
+    projectId = str2double(client.getProperty('project.id'));
     % Load image
     fprintf(1, 'Reading image: %g\n', imageId);
     image = getImages(session, imageId);
