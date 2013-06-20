@@ -76,6 +76,9 @@ import org.openmicroscopy.shoola.util.ui.Selectable;
 import org.openmicroscopy.shoola.util.ui.SelectableComboBoxModel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -942,13 +945,24 @@ class LocationDialog extends JDialog implements ActionListener,
 	 */
 	private ExperimenterData getSelectedUser()
 	{
+		return getUser(usersBox.getSelectedIndex());
+	}
+
+	/**
+	 * Returns the user corresponding to the specified index.
+	 * 
+	 * @param index The index of the user.
+	 * @return see above.
+	 */
+	private ExperimenterData getUser(int index)
+	{
 		Selectable<ExperimenterDisplay> selectedItem =
-				(Selectable<ExperimenterDisplay>) usersBox.getSelectedItem();
+				(Selectable<ExperimenterDisplay>) usersBox.getItemAt(index);
 		if (selectedItem != null)
 			return selectedItem.getObject().getData();
 		return null;
 	}
-
+	
 	/**
 	 * Populates the JComboBox with the items provided adding hover tooltips.
 	 * @param comboBox The JComboBox to populate
@@ -1385,9 +1399,11 @@ class LocationDialog extends JDialog implements ActionListener,
 		switch (dataType)
 		{
 			case Importer.PROJECT_TYPE:
-				displayItems(projectsBox, projects, selectedProject, this);
+				displayItems(projectsBox, sortByUser(projects),
+						selectedProject, this);
 				displayItemsWithTooltips(datasetsBox,
-						datasets.get(selectedProject), selectedDataset);
+						sortByUser(datasets.get(selectedProject)),
+						selectedDataset);
 				break;
 			case Importer.SCREEN_TYPE:
 				if (container != null)
@@ -1398,10 +1414,47 @@ class LocationDialog extends JDialog implements ActionListener,
 				}
 				
 				displayItemsWithTooltips(screensBox,
-						screens, selectedScreen);
+						sortByUser(screens), selectedScreen);
 		}
 	}
 
+	/**
+	 * Sorts the nodes.
+	 * 
+	 * @param nodes The nodes to sort.
+	 * @return See above.
+	 */
+	private List<DataNode> sortByUser(List<DataNode> nodes)
+	{
+		if (CollectionUtils.isEmpty(nodes)) return nodes;
+		List<DataNode> sorted = new ArrayList<DataNode>(nodes.size());
+		ListMultimap<Long, DataNode> map = ArrayListMultimap.create();
+		sorted.add(nodes.get(0)); //default node.
+		Iterator<DataNode> i = nodes.iterator();
+		DataNode node;
+		while (i.hasNext()) {
+			node = i.next();
+			if (!node.isDefaultNode()) {
+				map.put(node.getDataObject().getOwner().getId(), node);
+			}
+		}
+		ExperimenterData exp = getSelectedUser();
+		List<DataNode> l = map.get(exp.getId());
+		sorted.addAll(sort(l));
+		//items are ordered by users.
+		long id;
+		ExperimenterData user;
+		for (int j = 0; j < usersBox.getItemCount(); j++) {
+			user = getUser(j);
+			if (user != null) {
+				id = user.getId();
+				if (id != exp.getId())
+					sorted.addAll(sort(map.get(id)));
+			}
+		}
+		return sorted;
+	}
+	
 	/**
 	 * Searches the list of nodes returning the entry with the same Id as 
 	 * the find parameter, returns <null> if the list is empty, or the first 
