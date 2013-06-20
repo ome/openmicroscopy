@@ -51,7 +51,7 @@ try
     
     
     linearize = @(z,t) sizeZ * t + z;
-    % REad the raw data
+    % Read the raw data
     disp('Reading planes');
     map = java.util.LinkedHashMap;
     for z = 0:sizeZ-1,
