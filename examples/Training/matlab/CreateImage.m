@@ -44,19 +44,21 @@ try
     sizeT = pixels.getSizeT().getValue(); % The number of timepoints.
     sizeC = pixels.getSizeC().getValue(); % The number of channels.
     assert(sizeC > 1,'OMERO:CreateImage', 'Image must contain at least 2 channels');
-
+    
     pixelsId = pixels.getId().getValue();
     store = session.createRawPixelsStore();
     store.setPixelsId(pixelsId, false);
     
+    
+    linearize = @(z,t) sizeZ * t + z;
     % REad the raw data
     disp('Reading planes');
     map = java.util.LinkedHashMap;
     for z = 0:sizeZ-1,
-       for t = 0:sizeT-1,
-             planeC1 = store.getPlane(z, 0, t);
-             map.put(linearize(z, t, sizeZ), planeC1);
-       end
+        for t = 0:sizeT-1,
+            planeC1 = store.getPlane(z, 0, t);
+            map.put(linearize(z, t), planeC1);
+        end
     end
     
     % Close to free space.
@@ -82,7 +84,7 @@ try
     disp('Checking the created image');
     imageNew = getImages(session, idNew.getValue());
     assert(~isempty(imageNew), 'OMERO:CreateImage', 'Image Id not valid');
-
+    
     % load the dataset
     fprintf(1, 'Reading dataset: %g\n', datasetId);
     dataset = getDatasets(session, datasetId, false);
@@ -103,10 +105,9 @@ try
     store.setPixelsId(pixelsNewId, false);
     
     for z = 0:sizeZ-1,
-       for t = 0:sizeT-1,
-             index = linearize(z, t, sizeZ);
-             store.setPlane(map.get(index), z, 0, t);
-       end
+        for t = 0:sizeT-1,
+            store.setPlane(map.get(linearize(z, t)), z, 0, t);
+        end
     end
     store.save(); %save the data
     store.close(); %close
