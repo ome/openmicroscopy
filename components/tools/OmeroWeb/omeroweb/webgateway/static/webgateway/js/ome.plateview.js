@@ -102,10 +102,11 @@ jQuery._WeblitzPlateview = function (container, options) {
       baseurl: '',
       width: 64,
       height: 48,
+      size: 96,
       useParentPrefix: true,
     }, options);
 
-  opts.size = Math.max(opts.width, opts.height);
+  opts.size = opts.size || Math.max(opts.width, opts.height);
   this.self = jQuery(container);
   this.self.addClass('weblitz-plateview');
   this.origHTML = this.self.html();
@@ -138,7 +139,9 @@ jQuery._WeblitzPlateview = function (container, options) {
           if (opts.useParentPrefix) {
               parentPrefix = thisid+'-';
           }
-          var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'"><div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div><img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
+          var td = $('<td class="well" id="'+parentPrefix+'well-'+data.grid[i][j].wellId+'">' +
+            '<div class="waiting" style="width:'+opts.width+'px;height:'+opts.height+'px;"></div>' +
+            '<img id="'+parentPrefix+'image-'+data.grid[i][j].id+'" class="loading" style="width:'+opts.width+'px;height:'+opts.height+'px;" src="'+ data.grid[i][j].thumb_url+'" name="'+(data.rowlabels[i] + data.collabels[j])+'"></td>');
           $('img', td)
             .click(tclick(data.grid[i][j]))
             .load(function() { 
