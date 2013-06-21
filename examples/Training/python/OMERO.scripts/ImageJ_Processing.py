@@ -8,7 +8,7 @@ from numpy import zeros, int32, asarray
 from cStringIO import StringIO
 
 
-# ** NEED to cofigure this with respecto to your own server 
+# ** NEED to cofigure this with respect to your own server 
 IMAGEJPATH = "/Applications/ImageJ/ImageJ.app/Contents/Resources/Java/ij.jar" # Path to ij.jar
 
 
@@ -167,7 +167,7 @@ def upload_to_omero(conn, destination, imageName, dataset=None):
                 numpyPlane = asarray(channel)
                 yield numpyPlane
 
-    # We're making a Z-stack, so the we know the sizeZ
+    # We're making a Z-stack, so we know the sizeZ
     newSizeZ = len(image_list)
 
     # Need to check whether we're dealing with RGB images (3 channels) or greyscale (1 channel)
