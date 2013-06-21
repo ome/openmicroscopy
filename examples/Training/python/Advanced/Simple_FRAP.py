@@ -18,7 +18,7 @@ import omero.util.figureUtil as figUtil
 
 # Create a connection
 # =================================================================
-conn = BlitzGateway("will", "ome", host="localhost")
+conn = BlitzGateway("username", "password", host="localhost")
 conn.connect()
 
 
