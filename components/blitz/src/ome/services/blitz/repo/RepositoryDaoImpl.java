@@ -298,7 +298,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
 
                 // Look for the dir in all groups (
                 Long id = getSqlAction().findRepoFile(repoUuid, checked.getRelativePath(),
-                        checked.getName(), null);
+                        checked.getName());
 
                 ome.model.core.OriginalFile f = null;
                 if (id == null) {
@@ -417,8 +417,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
                 }
             } else {
                 id = sql.findRepoFile(repoUuid,
-                        checked.getRelativePath(), checked.getName(),
-                        null);
+                        checked.getRelativePath(), checked.getName());
 
                 if (id == null) {
                     throw new ome.conditions.SecurityViolation(
@@ -647,7 +646,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
             final CheckedPath parent, ServiceFactory sf, SqlAction sql) {
         Long fileId = sql.findRepoFile(
                 repoUuid, checked.getRelativePath(),
-                checked.getName(), null /*mimetype doesn't matter*/);
+                checked.getName());
 
         if (fileId == null) {
             canWriteParentDirectory(sf, sql,
@@ -797,8 +796,7 @@ public class RepositoryDaoImpl implements RepositoryDao {
         // Now we check whether or not the current user has
         // write permissions for the *parent* directory.
         final Long parentId = sql.findRepoFile(repoUuid,
-                parent.getRelativePath(), parent.getName(),
-                null);
+                parent.getRelativePath(), parent.getName());
 
         if (parentId == null) {
             throw new ome.conditions.SecurityViolation(
