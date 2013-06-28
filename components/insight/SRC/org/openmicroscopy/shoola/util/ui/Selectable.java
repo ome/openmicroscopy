@@ -21,7 +21,6 @@
  */
 package org.openmicroscopy.shoola.util.ui;
 
-import pojos.ExperimenterData;
 
 /** 
  * Provides a wrapper class for a selectable option
