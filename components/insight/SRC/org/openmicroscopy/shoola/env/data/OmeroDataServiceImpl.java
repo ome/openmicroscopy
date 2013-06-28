@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -1010,7 +1011,16 @@ class OmeroDataServiceImpl
 								l.add(link);
 							}	
 						} catch (Exception e) {
-							//ignore
+							StringBuffer buffer = new StringBuffer();
+							buffer.append("Cannot link ");
+							buffer.append(data.getClass());
+							buffer.append(" to ");
+							buffer.append(newObject.getClass());
+							buffer.append(" ");
+							LogMessage msg = new LogMessage();
+							msg.print(buffer.toString());
+							msg.print(e);
+							context.getLogger().debug(this, msg);
 						}
 					}
 				}
