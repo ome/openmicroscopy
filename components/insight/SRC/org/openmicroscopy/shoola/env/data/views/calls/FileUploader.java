@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
@@ -108,19 +108,31 @@ public class FileUploader
 						details.getExtra(), es, appName, version, token);
 			} else {
 				File f = object.getFile();
-				File directory = Files.createTempDir();
-				if (f != null)
-					FileUtils.copyFileToDirectory(f, directory, true);
+				
+				File directory = null;
+				boolean b = false;
+				Files.createTempDir();
+				
 				String[] usedFiles = object.getUsedFiles();
 				if (usedFiles != null) {
-					for (int i = 0; i < usedFiles.length; i++) {
-						FileUtils.copyFileToDirectory(new File(usedFiles[i]),
-								directory, true);
-					}
+					if (usedFiles.length > 1) b = true;
+					if (usedFiles.length == 1)
+						b = !f.getAbsolutePath().equals(usedFiles[0]);
+					
 				}
-				if (details.getLogFile() != null) {
-					FileUtils.copyFileToDirectory(details.getLogFile(),
-							directory, true);
+				if (b || details.getLogFile() != null) {
+					directory = Files.createTempDir();
+					if (f != null)
+						FileUtils.copyFileToDirectory(f, directory, true);
+					if (usedFiles != null) {
+						for (int i = 0; i < usedFiles.length; i++) {
+							FileUtils.copyFileToDirectory(
+									new File(usedFiles[i]), directory, true);
+						}
+					}
+					if (details.getLogFile() != null)
+						FileUtils.copyFileToDirectory(details.getLogFile(),
+								directory, true);
 				}
 				//zip the directory.
 				f = IOUtil.zipDirectory(directory);
@@ -135,11 +147,17 @@ public class FileUploader
 				c = SvcRegistry.getCommunicator(desc);
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
-				if (directory != null) directory.delete();
-				if (f != null) f.delete();
+				if (directory != null) {
+					directory.delete();
+					f.delete();
+				}
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Submit to QA");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
 	}
 	
