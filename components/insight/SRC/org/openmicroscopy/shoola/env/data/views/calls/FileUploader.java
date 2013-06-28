@@ -118,6 +118,10 @@ public class FileUploader
 								directory, true);
 					}
 				}
+				if (details.getLogFile() != null) {
+					FileUtils.copyFileToDirectory(details.getLogFile(),
+							directory, true);
+				}
 				//zip the directory.
 				f = IOUtil.zipDirectory(directory);
 
