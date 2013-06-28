@@ -49,7 +49,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 //Third-party libraries
 
-import org.apache.tools.ant.types.selectors.modifiedselector.ChecksumAlgorithm;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -3567,7 +3566,6 @@ class OMEROGateway
 	 * @param image The image to retrieve.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-<<<<<<< HEAD
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 * @throws DSAccessException If an error occurred while trying to
@@ -3577,7 +3575,6 @@ class OMEROGateway
 			SecurityContext ctx, File file, ImageData image)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		if (!networkup) return null;
 		if (image.isArchived())
 			return retrieveArchivedFiles(ctx, file, image);
 		return null;
