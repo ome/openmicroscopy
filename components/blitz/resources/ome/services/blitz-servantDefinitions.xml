@@ -73,9 +73,13 @@
       <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
   </bean>
-  <bean id="PyScripts" class="ome.services.scripts.ScriptFileType">
+  <bean id="PythonScripts" class="ome.services.scripts.ScriptFileType">
       <constructor-arg index="0" value="*.py"/>
       <constructor-arg index="1" value="text/x-python"/>
+  </bean>
+  <bean id="JythonScripts" class="ome.services.scripts.ScriptFileType">
+      <constructor-arg index="0" value="*.jy"/>
+      <constructor-arg index="1" value="text/x-jython"/>
   </bean>
 
   <bean id="omero.api.Exporter" class="omero.api._ExporterTie" singleton="false">
