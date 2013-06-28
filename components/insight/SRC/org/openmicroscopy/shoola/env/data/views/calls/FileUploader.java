@@ -94,7 +94,7 @@ public class FileUploader
 	private void uploadFile(ImportErrorObject object)
 	{
 		try {
-			Communicator c; 
+			Communicator c;
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
@@ -111,8 +111,7 @@ public class FileUploader
 				
 				File directory = null;
 				boolean b = false;
-				Files.createTempDir();
-				
+
 				String[] usedFiles = object.getUsedFiles();
 				if (usedFiles != null) {
 					if (usedFiles.length > 1) b = true;
@@ -135,7 +134,7 @@ public class FileUploader
 								directory, true);
 				}
 				//zip the directory.
-				f = IOUtil.zipDirectory(directory);
+				if (directory != null) f = IOUtil.zipDirectory(directory);
 
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -114,6 +115,7 @@ class FileUploader
 		total = nodes.size();
 		if (!details.isExceptionOnly()) {
 			src.setSubmitStatus("0 out of "+total, false);
+			details.setLogFile(new File(registry.getLogger().getLogFile()));
 		}
 		handle = mhView.submitFiles(ctx, details, this);
 	}
