@@ -292,31 +292,32 @@ public class IOUtil
 		if (!zip.isDirectory())
 			throw new IllegalArgumentException("Not a directory.");
 		File[] entries = zip.listFiles();
-	    byte[] buffer = new byte[4096]; // Create a buffer for copying
-	    int bytesRead;
+		byte[] buffer = new byte[4096]; // Create a buffer for copying
+		int bytesRead;
 
-	    String name = zip.getName()+ZIP_EXTENSION;
-	    File f;
+		String name = zip.getName()+ZIP_EXTENSION;
+		
+		File file;
 		try {
-			f = new File(zip.getParentFile(), name);
+			file = new File(zip.getParentFile(), name);
 			ZipOutputStream out = new ZipOutputStream(
-					new FileOutputStream(f));
+					new FileOutputStream(file));
 
-		    FileInputStream in;
-		    
-		    for (int i = 0; i < entries.length; i++) {
-		    	f = entries[i];
-		    	if (f.isDirectory())
-		    		continue;//Ignore directory TODO
-		    	in = new FileInputStream(f); // Stream to read file
-		    	out.putNextEntry(new ZipEntry(f.getName())); // Store entry
-		    	while ((bytesRead = in.read(buffer)) != -1)
-		    		out.write(buffer, 0, bytesRead);
-		    	out.closeEntry();
-		    	in.close(); 
-		    }
-		    out.close();
-			return zip;
+			FileInputStream in;
+			File f;
+			for (int i = 0; i < entries.length; i++) {
+				f = entries[i];
+				if (f.isDirectory() && f.isHidden())
+					continue;//Ignore directory TODO
+				in = new FileInputStream(f); // Stream to read file
+				out.putNextEntry(new ZipEntry(f.getName())); // Store entry
+				while ((bytesRead = in.read(buffer)) != -1)
+					out.write(buffer, 0, bytesRead);
+				out.closeEntry();
+				in.close(); 
+			}
+			out.close();
+			return file;
 		} catch (Exception e) {
 			throw new Exception("Cannot create the zip.", e);
 		}
