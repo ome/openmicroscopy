@@ -78,7 +78,6 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.DatasetData;
