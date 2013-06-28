@@ -2965,6 +2965,7 @@ class OMEROGateway
         Connector c = getConnector(ctx, true, false);
 		ThumbnailStorePrx service = c.getThumbnailService();
 		try {
+			service.setPixelsId(pixelsID);
 			// No need to call setPixelsID if using set method?
 			return service.getThumbnailByLongestSide(
 					omero.rtypes.rint(maxLength));
