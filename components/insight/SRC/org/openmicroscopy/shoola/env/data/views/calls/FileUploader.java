@@ -30,6 +30,7 @@ import java.util.List;
 //Third-party libraries
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -121,8 +122,11 @@ public class FileUploader
 				}
 				if (b || details.getLogFile() != null) {
 					directory = Files.createTempDir();
-					if (f != null)
+					if (f != null) {
+						directory = new File(directory.getParentFile(),
+								FilenameUtils.removeExtension(f.getName()));
 						FileUtils.copyFileToDirectory(f, directory, true);
+					}
 					if (usedFiles != null) {
 						for (int i = 0; i < usedFiles.length; i++) {
 							FileUtils.copyFileToDirectory(
