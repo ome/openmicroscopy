@@ -130,7 +130,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     def make_env(self):
         self.env = omero.util.Environment("PATH", "PYTHONPATH",\
             "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME",\
-            "DISPLAY")
+            "DISPLAY", "CLASSPATH")
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
@@ -140,6 +140,10 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         # see 39.17.2 "node.datadir).
         self.env.append("PYTHONPATH", str(self.omero_home / "lib" / "python"))
         self.env.set("ICE_CONFIG", str(self.config_path))
+        # Also actively adding all jars under lib/server to the CLASSPATH
+        lib_server = self.omero_home / "lib" / "server"
+        for jar_file in lib_server.walk("*.jar"):
+            self.env.append("CLASSPATH", str(jar_file))
 
     def make_files(self):
         self.dir = create_path("process", ".dir", folder = True)
