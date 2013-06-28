@@ -148,7 +148,7 @@ public class FileUploader
 				c.submitFile(token.toString(), f, object.getReaderType(),
 						new StringBuilder());
 				if (directory != null) {
-					directory.delete();
+					FileUtils.deleteDirectory(directory);
 					f.delete();
 				}
 			}
