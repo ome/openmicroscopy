@@ -143,7 +143,7 @@ public class FileUploader
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
-						f, null, token);
+						null, null, token);
 				desc = new CommunicatorDescriptor(
 						HttpChannel.CONNECTION_PER_REQUEST, processURL,
 						timeout);
