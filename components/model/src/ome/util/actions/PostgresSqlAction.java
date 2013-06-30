@@ -115,33 +115,12 @@ public class PostgresSqlAction extends SqlAction.Impl {
         return _jdbc().queryForLong(_lookup("find_repo_image_from_pixels"), id); //$NON-NLS-1$
     }
 
-    public int repoScriptCount(String uuid, Set<String> mimetypes) {
-        String query = _lookup("repo_script_count"); //$NON-NLS-1$
-        if (mimetypes == null) {
-            return _jdbc().queryForInt(query, uuid);
-        } else {
-            query = query + _lookup("and_mimetype");
-            return _jdbc().queryForInt(query, uuid, mimetypes);
-        }
-    }
-
     public Long nextSessionId() {
         return _jdbc().queryForLong(_lookup("next_session")); //$NON-NLS-1$
     }
 
-    public List<Long> fileIdsInDb(String uuid, Set<String> mimetypes) {
-        String query = _lookup("file_id_in_db"); //$NON-NLS-1$
-        if (mimetypes == null) {
-            return _jdbc().query(query, new IdRowMapper(), uuid);
-        } else {
-            query = query + _lookup("and_mimetype");
-            return _jdbc().query(query, new IdRowMapper(), uuid, mimetypes);
-        }
-    }
-
     public Map<String, Object> repoFile(long value) {
         return _jdbc().queryForMap(_lookup("repo_file"), value); //$NON-NLS-1$
-
     }
 
     public long countFormat(String name) {
@@ -171,16 +150,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
 
     public Long sessionId(String uuid) {
         return _jdbc().queryForLong(_lookup("session_id"), uuid); //$NON-NLS-1$
-    }
-
-    public int isFileInRepo(String uuid, long id, Set<String> mimetypes) {
-        String query = _lookup("is_file_in_repo"); //$NON-NLS-1$
-        if (mimetypes == null) {
-            return _jdbc().queryForInt(uuid, id);
-        } else {
-            query = query + _lookup("and_mimetype");
-            return _jdbc().queryForInt(uuid, id, mimetypes);
-        }
     }
 
     public int removePassword(Long id) {

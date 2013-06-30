@@ -559,8 +559,26 @@ public interface SqlAction {
         }
 
         //
-        // FILES
+        // FILE & MIMETYPE METHODS
         //
+
+        /**
+         * Returns the "and_mimetype" clause which must be appended to a given
+         * query. Note: the rest of the SQL statement to which this clause is
+         * appended must used named SQL parameters otherwise "Can't infer the
+         * SQL type to use" will be raised.
+         *
+         * @param mimetypes If null, then "" will be returned.
+         * @param params sql parameter source to be passed to JDBC methods.
+         * @return Possibly empty String, but never null.
+         */
+        protected String addMimetypes(Collection<String> mimetypes, Map<String, Object> params) {
+            if (mimetypes != null) {
+                params.put("mimetypes", mimetypes);
+                return _lookup("and_mimetype"); //$NON-NLS-1$
+            }
+            return "";
+        }
 
         public Long findRepoFile(String uuid, String dirname, String basename) {
             return findRepoFile(uuid, dirname, basename, (Set<String>) null);
@@ -576,19 +594,47 @@ public interface SqlAction {
                 Set<String> mimetypes) {
 
             String findRepoFileSql = _lookup("find_repo_file"); //$NON-NLS-1$
-
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            params.put("path", dirname);
+            params.put("name", basename);
+            findRepoFileSql += addMimetypes(mimetypes, params);
             try {
-                if (mimetypes != null) {
-                    return _jdbc().queryForLong(
-                            findRepoFileSql + _lookup("and_mimetype"), //$NON-NLS-1$
-                            uuid, dirname, basename, mimetypes);
-                } else {
-                    return _jdbc().queryForLong(findRepoFileSql, uuid, dirname, basename);
-                }
+                return _jdbc().queryForLong(findRepoFileSql, params);
             } catch (EmptyResultDataAccessException e) {
                 return null;
             }
         }
+
+        public int repoScriptCount(String uuid, Set<String> mimetypes) {
+            String query = _lookup("repo_script_count"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().queryForInt(query, params);
+        }
+
+
+        public int isFileInRepo(String uuid, long id, Set<String> mimetypes) {
+            String query = _lookup("is_file_in_repo"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            params.put("file", id);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().queryForInt(query, params);
+        }
+
+        public List<Long> fileIdsInDb(String uuid, Set<String> mimetypes) {
+            String query = _lookup("file_id_in_db"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("repo", uuid);
+            query += addMimetypes(mimetypes, params);
+            return _jdbc().query(query, new IdRowMapper(), params);
+        }
+
+        //
+        // OTHER FILE METHODS
+        //
 
         public List<Long> findRepoFiles(String uuid, String dirname) {
             try {
@@ -691,14 +737,14 @@ public interface SqlAction {
         }
 
         public String scriptRepo(long fileId, Set<String> mimetypes) {
+
+            String query = _lookup("file_repo_of_script"); //$NON-NLS-1$
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("file", fileId);
+            query += addMimetypes(mimetypes, params);
+
             try {
-                String query = _lookup("file_repo_of_script"); //$NON-NLS-1$
-                if (mimetypes == null) {
-                    return _jdbc().queryForObject(query, String.class, fileId);
-                } else {
-                    query = query + _lookup("and_mimetype"); //$NON-NLS-1$
-                    return _jdbc().queryForObject(query, String.class, fileId, mimetypes);
-                }
+                return _jdbc().queryForObject(query, String.class, params);
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
