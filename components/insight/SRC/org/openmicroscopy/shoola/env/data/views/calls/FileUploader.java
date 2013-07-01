@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.data.views.calls.FileUploader
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,23 +24,28 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
+
+import com.google.common.io.Files;
 
 /**
  * Uploads files to the QA system.
@@ -90,7 +95,7 @@ public class FileUploader
 	private void uploadFile(ImportErrorObject object)
 	{
 		try {
-			Communicator c; 
+			Communicator c;
 			CommunicatorDescriptor desc = new CommunicatorDescriptor
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
@@ -103,45 +108,59 @@ public class FileUploader
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version, token);
 			} else {
-				File f = null;
-				if (details.isSubmitMainFile())
-					f = object.getFile();
-				String[] usedFiles = object.getUsedFiles();
-				List<File> additionalFiles = null;
-				if (usedFiles != null && usedFiles.length > 0) {
-					additionalFiles = new ArrayList<File>();
-					for (int i = 0; i < usedFiles.length; i++) {
-						additionalFiles.add(new File(usedFiles[i]));
-					}
-				}
+				File f = object.getFile();
 				
+				File directory = null;
+				boolean b = false;
+
+				String[] usedFiles = object.getUsedFiles();
+				if (usedFiles != null) {
+					if (usedFiles.length > 1) b = true;
+					if (usedFiles.length == 1)
+						b = !f.getAbsolutePath().equals(usedFiles[0]);
+					
+				}
+				if (b || details.getLogFile() != null) {
+					directory = Files.createTempDir();
+					if (f != null) {
+						directory = new File(directory.getParentFile(),
+								FilenameUtils.removeExtension(f.getName()));
+						FileUtils.copyFileToDirectory(f, directory, true);
+					}
+					if (usedFiles != null) {
+						for (int i = 0; i < usedFiles.length; i++) {
+							FileUtils.copyFileToDirectory(
+									new File(usedFiles[i]), directory, true);
+						}
+					}
+					if (details.getLogFile() != null)
+						FileUtils.copyFileToDirectory(details.getLogFile(),
+								directory, true);
+				}
+				//zip the directory.
+				if (directory != null) f = IOUtil.zipDirectory(directory);
+
 				c.submitFilesError("",
 						details.getEmail(), details.getComment(),
 						details.getExtra(), es, appName, version,
-						f, additionalFiles, token);
+						null, null, token);
 				desc = new CommunicatorDescriptor(
 						HttpChannel.CONNECTION_PER_REQUEST, processURL,
 						timeout);
 				c = SvcRegistry.getCommunicator(desc);
-				StringBuilder reply = new StringBuilder();
-				String reader = object.getReaderType();
-				if (f != null)
-					c.submitFile(token.toString(), f, reader, reply);
-				if (additionalFiles != null) {
-					Iterator<File> i = additionalFiles.iterator();
-					File log = details.getLogFile();
-					String logs = "";
-					if (log != null) logs = log.getAbsolutePath();
-					while (i.hasNext()) {
-						f = i.next();
-						if (f.getAbsolutePath().equals(logs))
-							c.submitFile(token.toString(), f, null, reply);
-						else c.submitFile(token.toString(), f, null, reply);
-					}
+				c.submitFile(token.toString(), f, object.getReaderType(),
+						new StringBuilder());
+				if (directory != null) {
+					FileUtils.deleteDirectory(directory);
+					f.delete();
 				}
 			}
 			uploadedFile = object;
 		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Submit to QA");
+			msg.print(e);
+			context.getLogger().error(this, msg);
 		}
 	}
 	
