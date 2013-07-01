@@ -155,8 +155,7 @@ class UserNotifierManager
 								MessengerDetails details)
 	{
 		Registry reg = container.getRegistry();
-		if (details.getObjectToSubmit() != null || 
-				details.getLogFile() != null) {
+		if (details.getObjectToSubmit() != null) {
 			ExperimenterData exp = (ExperimenterData) reg.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			SecurityContext ctx = new SecurityContext(
@@ -194,8 +193,8 @@ class UserNotifierManager
 			else c.submitError(invoker, details.getEmail(),
 					details.getComment(), details.getExtra(), error, appName, v,
 					builder);
-			if (!bug) reply += COMMENT_REPLY;
-			else reply += ERROR_REPLY;
+			if (!bug) reply = COMMENT_REPLY;
+			else reply = ERROR_REPLY;
 			
 			
 			JOptionPane.showMessageDialog(source, reply);

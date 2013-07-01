@@ -381,7 +381,7 @@ public class UserNotifierImpl implements UserNotifier, PropertyChangeListener {
 					(DownloadAndLaunchActivityParam) activity;
 			comp = new DownloadAndLaunchActivity(this, manager.getRegistry(),
 					ctx, p);
-
+			uiRegister = p.isUIRegister();
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
 			File f = p.getFolder();
