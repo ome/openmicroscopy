@@ -81,7 +81,7 @@ import Ice.UserException;
  * @since Beta4.1
  * @see ome.grid.SharedResources
  */
-public class SharedResourcesI extends AbstractAmdServant implements
+public class SharedResourcesI extends AbstractCloseableAmdServant implements
         _SharedResourcesOperations, BlitzOnly, ServiceFactoryAware,
         ParamsHelper.Acquirer { // FIXME
 
@@ -137,6 +137,11 @@ public class SharedResourcesI extends AbstractAmdServant implements
             }
             tableIds.clear();
         }
+    }
+
+    @Override
+    protected void postClose(Current current) {
+        // no-op
     }
 
     // Acquisition framework
