@@ -391,7 +391,7 @@ public class TreeViewerAgent
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp);
         if (viewer != null) 
         	viewer.setImporting(evt.isImporting(), evt.getContainers(), 
-        			evt.isToRefresh());
+        			evt.isToRefresh(), evt.getImportResult());
     }
     
     /**

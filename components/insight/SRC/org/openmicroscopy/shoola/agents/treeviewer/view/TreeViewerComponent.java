@@ -3840,6 +3840,8 @@ class TreeViewerComponent
 		view.removeAllFromWorkingPane();
 		model.setDataViewer(null);
 		
+		model.clearImportResult();
+		view.onImport();
 		//reset metadata
 		MetadataViewer mv = view.resetMetadataViewer();
 		mv.addPropertyChangeListener(controller);
@@ -4008,13 +4010,14 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporting(boolean, List, boolean)
+	 * @see TreeViewer#setImporting(boolean, List, boolean, Object)
 	 */
-	public void setImporting(boolean importing, List<DataObject> containers, 
-			boolean refreshTree)
+	public void setImporting(boolean importing, List<DataObject> containers,
+			boolean refreshTree, Object importResult)
 	{
 		if (model.getState() == DISCARDED) return;
-		model.setImporting(importing);
+		model.setImporting(importing, importResult);
+		view.onImport();
 		if (!importing)
 			indicateToRefresh(containers, refreshTree);
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
