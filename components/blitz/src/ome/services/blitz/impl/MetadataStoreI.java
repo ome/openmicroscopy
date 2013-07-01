@@ -72,7 +72,7 @@ import Ice.UserException;
 
 /**
  */
-public class MetadataStoreI extends AbstractAmdServant implements
+public class MetadataStoreI extends AbstractCloseableAmdServant implements
         _MetadataStoreOperations, ServiceFactoryAware, BlitzOnly {
 
     private final static Log log = LogFactory.getLog(MetadataStoreI.class);
@@ -452,4 +452,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
         store = null;
     }
 
+    @Override
+    protected void postClose(Current current) {
+        // no-op
+    }
 }
