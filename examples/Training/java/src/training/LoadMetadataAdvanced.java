@@ -2,7 +2,7 @@
  * training.LoadMetadataAdvanced
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -49,21 +49,37 @@ import pojos.ImageData;
  * @since Beta4.3.2
  */
 public class LoadMetadataAdvanced 
-	extends ConnectToOMERO
 {
 
-	/**Information to edit.*/
-	private long imageId = 27544;
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
 	
-	/** Load the image acquisition data.*/
-	private void loadAcquisitionData()
+	/** The password.*/
+	private String password = "password";
+	
+	private long imageId = 1;
+	//end edit
+	
+	/** Reference to the connector.*/
+	private Connector connector;
+	
+	/**
+	 * Load the image acquisition data.
+	 * 
+	 * @param info The configuration information.
+	 */
+	private void loadAcquisitionData(ConfigurationInfo info)
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI po = new ParametersI();
 		po.acquisitionData(); // load the acquisition data.
 		List<Image> results = proxy.getImages(Image.class.getName(), 
-				Arrays.asList(imageId), po);
+				Arrays.asList(info.getImageId()), po);
 		if (results.size() == 0)
 			throw new Exception("Image does not exist. Check ID.");
 		ImageAcquisitionData image = new ImageAcquisitionData(results.get(0));
@@ -72,17 +88,39 @@ public class LoadMetadataAdvanced
 		System.err.println(image.getHumidity());
 	}
 	
-	
-	/** Load the channel data.*/
-	private void loadChannelData()
+	/**
+	 * Loads the image.
+	 * 
+	 * @param imageID The id of the image to load.
+	 * @return See above.
+	 */
+	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		ImageData image = loadImage(imageId);
+		IContainerPrx proxy = connector.getContainerService();
+		List<Image> results = proxy.getImages(Image.class.getName(),
+				Arrays.asList(imageID), new ParametersI());
+		//You can directly interact with the IObject or the Pojos object.
+		//Follow interaction with the Pojos.
+		if (results.size() == 0)
+			throw new Exception("Image does not exist. Check ID.");
+		return new ImageData(results.get(0));
+	}
+	
+	/**
+	 * Load the channel data.
+	 * 
+	 * @param info The configuration information.
+	 */
+	private void loadChannelData(ConfigurationInfo info)
+		throws Exception
+	{
+		ImageData image = loadImage(info.getImageId());
 		if (image == null)
 			throw new Exception("Image does not exist. Check ID.");
 		long pixelsId = image.getDefaultPixels().getId();
-		Pixels pixels = 
-			entryUnencrypted.getPixelsService().retrievePixDescription(pixelsId);
+		Pixels pixels =
+			connector.getPixelsService().retrievePixDescription(pixelsId);
 		List<Channel> l = pixels.copyChannels();
 		Iterator<Channel> i = l.iterator();
 		int index = 0;
@@ -96,27 +134,42 @@ public class LoadMetadataAdvanced
 
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	LoadMetadataAdvanced()
+	LoadMetadataAdvanced(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+			info.setImageId(imageId);
+		}
+		connector = new Connector(info);
 		try {
-			connect(); //First connect.
-			loadAcquisitionData();
-			loadChannelData();
+			connector.connect(); //First connect.
+			loadAcquisitionData(info);
+			loadChannelData(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new LoadMetadataAdvanced();
+		new LoadMetadataAdvanced(null);
 		System.exit(0);
 	}
 }

@@ -2,7 +2,7 @@
  * training.ReadDataAdvanced
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -58,15 +58,28 @@ import pojos.ProjectData;
  * @since Beta4.3.2
  */
 public class ReadDataAdvanced
-	extends ConnectToOMERO
 {
 
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	//end edit
+	
 	/** The name of a Dataset.*/
 	private String datasetName = "MyDataset";
 
 	/** The name of a Tag.*/
 	private String tagName = "MyTag";
 
+	/** Reference to the connector.*/
+	private Connector connector;
+	
 	/**
 	 * Creates 3 Datasets with the name defined by {@link #datasetName}.
 	 */
@@ -80,7 +93,7 @@ public class ReadDataAdvanced
 			d.setName(rstring(datasetName));
 			datasets.add(d);
 		}
-		entryUnencrypted.getUpdateService().saveArray(datasets);
+		connector.getUpdateService().saveArray(datasets);
 	}
 
 	/**
@@ -93,11 +106,11 @@ public class ReadDataAdvanced
 		for (int i = 0; i < 3; i ++)
 		{
 			TagAnnotation t = new TagAnnotationI();
-			t.setNs(rstring(trainingNameSpace));
+			t.setNs(rstring(ConfigurationInfo.TRAINING_NS));
 			t.setDescription(rstring(String.format("%s %s", tagName, i)));
 			tags.add(t);
 		}
-		entryUnencrypted.getUpdateService().saveArray(tags);
+		connector.getUpdateService().saveArray(tags);
 	}
 
 
@@ -113,7 +126,7 @@ public class ReadDataAdvanced
 		filter.limit = rint(10);
 		filter.offset = rint(0);
 
-		IQueryPrx proxy = entryUnencrypted.getQueryService();
+		IQueryPrx proxy = connector.getQueryService();
 		List<IObject> datasets = (List<IObject>)
 		proxy.findAllByString("Dataset", "name", datasetName, caseSensitive,
 				filter);
@@ -139,10 +152,10 @@ public class ReadDataAdvanced
 		filter.limit = rint(10);
 		filter.offset = rint(0);
 
-		IQueryPrx proxy = entryUnencrypted.getQueryService();
+		IQueryPrx proxy = connector.getQueryService();
 		List<IObject> tags = (List<IObject>)
-		proxy.findAllByString("TagAnnotation", "ns", trainingNameSpace,
-				caseSensitive, filter);
+		proxy.findAllByString("TagAnnotation", "ns",
+				ConfigurationInfo.TRAINING_NS, caseSensitive, filter);
 		System.out.println("\nList Tags:");
 		for (IObject obj : tags)
 		{
@@ -161,9 +174,9 @@ public class ReadDataAdvanced
 	private void loadProjectsAndOrphanedDatasets()
 		throws Exception
 	{
-		IContainerPrx proxy = entryUnencrypted.getContainerService();
+		IContainerPrx proxy = connector.getContainerService();
 		ParametersI param = new ParametersI();
-		long userId = entryUnencrypted.getAdminService().getEventContext().userId;
+		long userId = connector.getAdminService().getEventContext().userId;
 		param.exp(omero.rtypes.rlong(userId));
 		
 		//Load the orphaned datasets.
@@ -219,11 +232,20 @@ public class ReadDataAdvanced
 
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	ReadDataAdvanced()
+	ReadDataAdvanced(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+		}
+		connector = new Connector(info);
 		try {
-			connect(); // First connect.
+			connector.connect(); // First connect.
 			createDatasets();
 			createTags();
 			loadDatasetsByName();
@@ -233,16 +255,21 @@ public class ReadDataAdvanced
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new ReadDataAdvanced();
+		new ReadDataAdvanced(null);
 		System.exit(0);
 	}
 
