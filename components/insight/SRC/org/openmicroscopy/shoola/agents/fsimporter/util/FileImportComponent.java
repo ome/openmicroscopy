@@ -62,6 +62,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
+import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
@@ -334,6 +335,22 @@ public class FileImportComponent
 	/** Flag indicating the the user is member of one group only.*/
 	private boolean singleGroup;
 
+	
+	/**
+	 * Returns the formatted result.
+	 * 
+	 * @return See above.
+	 */
+	private Object getFormattedResult()
+	{
+		if (image == null) return null;
+		ImportErrorObject o = getImportErrorObject();
+		if (o != null) return o;
+		if (image instanceof ImageData || image instanceof ThumbnailData ||
+			image instanceof PlateData || image instanceof List)
+			return image;
+		return null;
+	}
 	
 	/**
 	 * Logs the exception.
@@ -836,9 +853,10 @@ public class FileImportComponent
 	 * Sets the result of the import.
 	 * 
 	 * @param status Flag indicating the status of the import.
-	 * @param image  The image.
+	 * @param image The image.
+	 * @return The formatted result.
 	 */
-	public void setStatus(boolean status, Object image)
+	public Object setStatus(boolean status, Object image)
 	{
 		this.image = image;	
 		busyLabel.setBusy(false);
@@ -998,7 +1016,14 @@ public class FileImportComponent
 					setStatusText(StatusLabel.DUPLICATE);
 				} else {
 					statusLabel.setVisible(false);
-					setStatusText(FILE_NOT_VALID_TEXT);
+					if (file.isFile()) {
+						setStatusText(FILE_NOT_VALID_TEXT);
+						this.image = new ImportException(FILE_NOT_VALID_TEXT);
+						exception = (ImportException) this.image;
+						errorButton.setVisible(true);
+						errorBox.setVisible(true);
+						errorBox.addChangeListener(this);
+					}
 				}
 			} else resultLabel.setText("");
 		} else {
@@ -1058,8 +1083,9 @@ public class FileImportComponent
 			}
 		}
 		repaint();
+		return getFormattedResult();
 	}
-	
+
 	/**
 	 * Returns the files that failed to import.
 	 * 
@@ -1458,8 +1484,15 @@ public class FileImportComponent
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
 			if (f.getAbsolutePath().equals(file.getAbsolutePath())) {
-				setStatus(false, results[1]);
+				Object result = setStatus(false, results[1]);
+				firePropertyChange(StatusLabel.FILE_IMPORTED_PROPERTY, null,
+						result);
 				if (f.isFile()) {
+					EventBus bus = ImporterAgent.getRegistry().getEventBus();
+					ImportStatusEvent event;
+					//Always assume true
+					event = new ImportStatusEvent(true, null, result);
+					bus.post(event);
 					if (hasImportFailed())
 						firePropertyChange(IMPORT_STATUS_CHANGE_PROPERTY, null,
 								FAILURE);

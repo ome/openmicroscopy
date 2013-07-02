@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -45,11 +45,11 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportStatusEvent 
+public class ImportStatusEvent
 	extends RequestEvent
 {
 
-	/** Flag indicating if there are on-going import. */
+	/** Flag indicating if there are any on-going import. */
 	private boolean importing;
 	
 	/** The collection of containers that will have to be refreshed. */
@@ -58,17 +58,24 @@ public class ImportStatusEvent
 	/** Flag indicating that the tree needs to be refreshed. */
 	private boolean toRefresh;
 	
+	/** The successfully imported object or the failure.*/
+	private Object importResult;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param importing Pass <code>true</code> indicating of on-going imports,
+	 * @param importing Pass <code>true</code> to indicate on-going imports,
 	 * 					<code>false</code> otherwise.
 	 * @param containers The containers to refresh.
+	 * @param imported The files that imported successfully
+	 * @param failures The files that could not be imported.
 	 */
-	public ImportStatusEvent(boolean importing, List<DataObject> containers)
+	public ImportStatusEvent(boolean importing, List<DataObject> containers,
+			Object importResult)
 	{
 		this.importing = importing;
 		this.containers = containers;
+		this.importResult = importResult;
 	}
 	
 	/**
@@ -103,4 +110,11 @@ public class ImportStatusEvent
 	 */
 	public boolean isImporting() { return importing; }
 	
+	/**
+	 * Returns the result of the import
+	 * 
+	 * @return See above.
+	 */
+	public Object getImportResult() { return importResult; }
+
 }

@@ -608,11 +608,14 @@ public class IconManager
     /** The <code>Plate</code> icon. */
     public static final int TAG_SET_NOT_OWNED = 184;
     
+    /** The <code>Apply</code> icon. */
+    public static final int APPLY = 185;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 184;
+    private static final int MAX_ID = 185;
 
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -824,6 +827,7 @@ public class IconManager
         relPaths[DATASET_ANNOTATED_NOT_OWNED] = "tagged_dataset_notowned16.png";
         relPaths[IMAGE_ANNOTATED_NOT_OWNED] = "tagged_image_notowned16.png";
         relPaths[TAG_SET_NOT_OWNED] = "nuvola_knotesRed_notowned16.png";
+        relPaths[APPLY] = "nuvola_apply16.png";
     }
     
     /** The sole instance. */
