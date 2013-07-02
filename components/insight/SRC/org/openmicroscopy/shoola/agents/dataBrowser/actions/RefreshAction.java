@@ -54,6 +54,14 @@ public class RefreshAction
     /** Description of the action. */
     private static final String DESCRIPTION = "Refresh thumbnails.";
     
+    /**
+     * Disables the action when the thumbnails are loaded.
+     */
+    protected void onStateChange()
+    {
+    	setEnabled(model.getState() == DataBrowser.READY);
+    }
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -62,7 +70,7 @@ public class RefreshAction
 	public RefreshAction(DataBrowser model)
 	{
 		super(model);
-		setEnabled(true);
+		setEnabled(false);
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager icons = IconManager.getInstance();

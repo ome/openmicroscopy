@@ -302,8 +302,6 @@ class DataBrowserUI
 				Browser b = model.getBrowser();
 				model.layoutBrowser();
 				b.getUI().repaint();
-				model.loadData(false, null);
-				b.getUI().repaint();
 				break;
 			case COLUMNS_VIEW:
 				ImageTableView v = model.getTableView();

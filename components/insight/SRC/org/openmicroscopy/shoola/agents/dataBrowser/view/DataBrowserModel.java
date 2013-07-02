@@ -931,6 +931,14 @@ abstract class DataBrowserModel
 	int getDisplayMode() { return displayMode; }
 	
 	/**
+	 * Returns <code>true</code> if the thumbnails have been loaded
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasThumbnailsBeenLoaded() { return loader != null; }
+	
+	/**
 	 * Sets the display mode.
 	 * 
 	 * @param value The value to set.
