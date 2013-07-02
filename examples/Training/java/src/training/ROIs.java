@@ -2,7 +2,7 @@
  * training.ROIs 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -25,11 +25,13 @@ package training;
 
 
 //Java imports
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
+import omero.api.IContainerPrx;
 //Application-internal dependencies
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -40,7 +42,9 @@ import omero.model.RectI;
 import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
+import omero.sys.ParametersI;
 import pojos.EllipseData;
+import pojos.ImageData;
 import pojos.LineData;
 import pojos.PointData;
 import pojos.ROIData;
@@ -55,23 +59,44 @@ import pojos.ShapeData;
  * @since Beta4.3.2
  */
 public class ROIs 
-	extends ConnectToOMERO
 {
 	
-	/** Information to edit.*/
-	private long imageId = 27544;
-	
-	private Image image;
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
 
-	/** 
-	 * Retrieve an image if the identifier is known.
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	
+	/** Information to edit.*/
+	private long imageId = 1;
+	//end edit
+	
+	private ImageData image;
+
+	/** Reference to the connector.*/
+	private Connector connector;
+	
+	/**
+	 * Loads the image.
+	 * 
+	 * @param imageID The id of the image to load.
+	 * @return See above.
 	 */
-	private void loadImage()
+	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		image = loadImage(imageId).asImage();
-		if (image == null)
+		IContainerPrx proxy = connector.getContainerService();
+		List<Image> results = proxy.getImages(Image.class.getName(),
+				Arrays.asList(imageID), new ParametersI());
+		//You can directly interact with the IObject or the Pojos object.
+		//Follow interaction with the Pojos.
+		if (results.size() == 0)
 			throw new Exception("Image does not exist. Check ID.");
+		return new ImageData(results.get(0));
 	}
 	
 	/** 
@@ -81,7 +106,7 @@ public class ROIs
 		throws Exception
 	{
 		Roi roi = new RoiI();
-        roi.setImage(image);
+        roi.setImage(image.asImage());
         Rect rect = new RectI();
         rect.setX(omero.rtypes.rdouble(10));
         rect.setY(omero.rtypes.rdouble(10));
@@ -115,7 +140,7 @@ public class ROIs
         
         //Add the shape
         roi.addShape(ellipse);
-        roi = (Roi) entryUnencrypted.getUpdateService().saveAndReturnObject(roi);
+        roi = (Roi) connector.getUpdateService().saveAndReturnObject(roi);
         
         //now check that the shape has been added.
         ROIData roiData = new ROIData(roi);
@@ -145,13 +170,13 @@ public class ROIs
         
         
         // Retrieve the roi linked to an image
-        RoiResult r = entryUnencrypted.getRoiService().findByImage(
-        		image.getId().getValue(), new RoiOptions());
+        RoiResult r = connector.getRoiService().findByImage(
+        		image.getId(), new RoiOptions());
         if (r == null)
-        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
+        	throw new Exception("No rois linked to Image:"+image.getId());
         List<Roi> rois = r.rois;
         if (rois == null)
-        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
+        	throw new Exception("No rois linked to Image:"+image.getId());
         List<Shape> list;
         Iterator<Roi> j = rois.iterator();
         while (j.hasNext()) {
@@ -161,48 +186,63 @@ public class ROIs
 			//remove first shape
 			roi.removeShape(list.get(0));
 			//update the roi
-			entryUnencrypted.getUpdateService().saveAndReturnObject(roi);
+			connector.getUpdateService().saveAndReturnObject(roi);
 		}
         
         //Check that the shape does not have shape.
-        r = entryUnencrypted.getRoiService().findByImage(
-        		image.getId().getValue(), new RoiOptions());
+        r = connector.getRoiService().findByImage(
+        		image.getId(), new RoiOptions());
         if (r == null)
-        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
+        	throw new Exception("No rois linked to Image:"+image.getId());
         rois = r.rois;
         if (rois == null)
-        	throw new Exception("No rois linked to Image:"+image.getId().getValue());
+        	throw new Exception("No rois linked to Image:"+image.getId());
         j = rois.iterator();
         while (j.hasNext()) {
 			roi = j.next();
 			list = roi.copyShapes();
-			//size = 1
+			System.err.println(list.size());
 		}
 	}
 	
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	ROIs()
+	ROIs(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+			info.setImageId(imageId);
+		}
+		connector = new Connector(info);
 		try {
-			connect();
-			loadImage();
+			connector.connect();
+			image = loadImage(info.getImageId());
 			createROIs();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new ROIs();
+		new ROIs(null);
 		System.exit(0);
 	}
 

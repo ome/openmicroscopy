@@ -2,7 +2,7 @@
  * training.CreateImage 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -35,14 +35,17 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.RLong;
+import omero.api.IContainerPrx;
 import omero.api.IPixelsPrx;
 import omero.api.RawPixelsStorePrx;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
+import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.PixelsType;
+import omero.sys.ParametersI;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -54,28 +57,59 @@ import pojos.PixelsData;
  * @since Beta4.3.2
  */
 public class CreateImage
-	extends ConnectToOMERO
 {
 
-	/** Information to edit.*/
+	//The value used if the configuration file is not used. To edit*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	
 	/** The id of an image.*/
-	private long imageId = 551;//27544;
+	private long imageId = 1;
 	
 	/** Id of the dataset hosting the image of reference.*/
-	private long datasetId = 201;//Should be the id of the
+	private long datasetId = 1;
+	//end edit
+	
 	
 	/** The image.*/
 	private ImageData image;
 	
-	/** Load the image.*/
-	private void loadImage()
+	/** Reference to the connector.*/
+	private Connector connector;
+	
+	/**
+	 * Loads the image.
+	 * 
+	 * @param imageID The id of the image to load.
+	 * @return See above.
+	 */
+	private ImageData loadImage(long imageID)
 		throws Exception
 	{
-		image = loadImage(imageId);
-		if (image == null)
+		IContainerPrx proxy = connector.getContainerService();
+		List<Image> results = proxy.getImages(Image.class.getName(),
+				Arrays.asList(imageID), new ParametersI());
+		//You can directly interact with the IObject or the Pojos object.
+		//Follow interaction with the Pojos.
+		if (results.size() == 0)
 			throw new Exception("Image does not exist. Check ID.");
+		return new ImageData(results.get(0));
 	}
-	
+
+	/**
+	 * Returns a linearize version of the plane.
+	 * 
+	 * @param z The selected z-section.
+	 * @param t The selected timepoint.
+	 * @param sizeZ The number of z-sections.
+	 * @return
+	 */
 	private Integer linearize(int z, int t, int sizeZ)
 	{
 		if (z < 0 || sizeZ <= z) 
@@ -86,8 +120,10 @@ public class CreateImage
 	
 	/**
 	 * Creates a new image with one channel from a source image.
+	 * 
+	 * @param info The information about the data to handle.
 	 */
-	private void CreateNewImage()
+	private void CreateNewImage(ConfigurationInfo info)
 		throws Exception
 	{
 		PixelsData pixels = image.getDefaultPixels();
@@ -99,29 +135,32 @@ public class CreateImage
 		long pixelsId = pixels.getId();
 		if (sizeC <= 1)
 			throw new Exception("The image must have at least 2 channels.");
-		RawPixelsStorePrx store = entryUnencrypted.createRawPixelsStore();
-		store.setPixelsId(pixelsId, false);
-
+		RawPixelsStorePrx store = null;
 		//Create a new image.
 		Map<Integer, byte[]> map = new LinkedHashMap<Integer, byte[]>();
-		
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				byte[] planeC1 = store.getPlane(z, 0, t);
-				byte[] planeC2 = store.getPlane(z, 1, t);
-				byte[] newPlane = new byte[planeC1.length];
-				for (int i = 0; i < planeC1.length; i++) {
-					newPlane[i] = (byte) ((planeC1[i]+planeC2[i])/2);
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(pixelsId, false);
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					byte[] planeC1 = store.getPlane(z, 0, t);
+					byte[] planeC2 = store.getPlane(z, 1, t);
+					byte[] newPlane = new byte[planeC1.length];
+					for (int i = 0; i < planeC1.length; i++) {
+						newPlane[i] = (byte) ((planeC1[i]+planeC2[i])/2);
+					}
+					map.put(linearize(z, t, sizeZ), newPlane);
 				}
-				map.put(linearize(z, t, sizeZ), newPlane);
 			}
+			
+		} catch (Exception e) {
+			throw new Exception("Cannot retrieve the plane", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		
-		//Better to close to free space.
-		store.close();
-		
+
 		//Now we are going to create the new image.
-		IPixelsPrx proxy = entryUnencrypted.getPixelsService();
+		IPixelsPrx proxy = connector.getPixelsService();
 		List<IObject> l = proxy.getAllEnumerations(PixelsType.class.getName());
 		Iterator<IObject> i = l.iterator();
 		PixelsType type = null;
@@ -133,7 +172,6 @@ public class CreateImage
 				type = o;
 				break;
 			}
-				
 		}
 		if (type == null)
 			throw new Exception("Pixels Type not valid.");
@@ -148,47 +186,69 @@ public class CreateImage
 		
 		//link the new image and the dataset hosting the source image.
 		DatasetImageLink link = new DatasetImageLinkI();
-		link.setParent(new DatasetI(datasetId, false));
+		link.setParent(new DatasetI(info.getDatasetId(), false));
 		link.setChild(new ImageI(newImage.getId(), false));
-		entryUnencrypted.getUpdateService().saveAndReturnObject(link);
+		connector.getUpdateService().saveAndReturnObject(link);
 		
 		//Write the data.
-		store = entryUnencrypted.createRawPixelsStore();
-		store.setPixelsId(newImage.getDefaultPixels().getId(), false);
-		int index = 0;
-		for (int z = 0; z < sizeZ; z++) {
-			for (int t = 0; t < sizeT; t++) {
-				index = linearize(z, t, sizeZ);
-				store.setPlane(map.get(index), z, 0, t);
+		try {
+			store = connector.getRawPixelsStore();
+			store.setPixelsId(newImage.getDefaultPixels().getId(), false);
+			int index = 0;
+			for (int z = 0; z < sizeZ; z++) {
+				for (int t = 0; t < sizeT; t++) {
+					index = linearize(z, t, sizeZ);
+					store.setPlane(map.get(index), z, 0, t);
+				}
 			}
+			store.save();
+			System.err.println("image created");
+		} catch (Exception e) {
+			throw new Exception("Cannot set the plane", e);
+		} finally {
+			if (store != null) store.close();
 		}
-		store.save();
-		store.close();
 	}
 	
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information
 	 */
-	 CreateImage()
+	CreateImage(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+			info.setDatasetId(datasetId);
+			info.setImageId(imageId);
+		}
+		connector = new Connector(info);
 		try {
-			connect();
-			loadImage();
-			CreateNewImage();
+			connector.connect();
+			image = loadImage(info.getImageId());
+			CreateNewImage(info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new CreateImage();
+		new CreateImage(null);
 		System.exit(0);
 	}
 }

@@ -2,7 +2,7 @@
  * training.DeleteData 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -26,14 +26,13 @@ package training;
 
 
 //Java imports
-
+import java.util.Arrays;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
-import omero.grid.DeleteCallbackI;
+import omero.cmd.Delete;
+import omero.cmd.Request;
+import omero.cmd.Response;
 import omero.model.Image;
 import omero.model.ImageI;
 
@@ -44,10 +43,23 @@ import omero.model.ImageI;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.3.2
  */
-public class DeleteData 
-	extends ConnectToOMERO
+public class DeleteData
 {
 
+	//The value used if the configuration file is not used.*/
+	/** The server address.*/
+	private String hostName = "serverName";
+
+	/** The username.*/
+	private String userName = "userName";
+	
+	/** The password.*/
+	private String password = "password";
+	//end edit
+	
+	/** Reference to the connector.*/
+	private Connector connector;
+	
 	/** 
 	 * Delete Image.
 	 * 
@@ -61,48 +73,49 @@ public class DeleteData
 		img.setName(omero.rtypes.rstring("image1"));
 		img.setDescription(omero.rtypes.rstring("descriptionImage1"));
 		img.setAcquisitionDate(omero.rtypes.rtime(1000000));
-		img = (Image) entryUnencrypted.getUpdateService().saveAndReturnObject(img);
+		img = (Image) connector.getUpdateService().saveAndReturnObject(img);
 		
-		DeleteCommand[] cmds = new DeleteCommand[1];
-		cmds[0] = new DeleteCommand("/Image", img.getId().getValue(), null);
-		DeleteHandlePrx handle = entryUnencrypted.getDeleteService().queueDelete(cmds);
-        DeleteCallbackI cb = new DeleteCallbackI(client, handle);
-        
-        int count = 10 * cmds.length;
-        while (null == cb.block(500)) {
-            count--;
-            if (count == 0) {
-                throw new RuntimeException("Waiting on delete timed out");
-            }
-        }
-        DeleteReport[] reports = handle.report();
-        for (int i = 0; i < reports.length; i++) {
-        	DeleteReport report = reports[i];
-        	String error = report.error;
-        }
+		Delete[] cmds = new Delete[1];
+		cmds[0] = new Delete("/Image", img.getId().getValue(), null);
+		Response rsp = connector.submit(Arrays.<Request>asList(cmds));
+		System.err.println(rsp);
 	}
 	/**
 	 * Connects and invokes the various methods.
+	 * 
+	 * @param info The configuration information.
 	 */
-	DeleteData()
+	DeleteData(ConfigurationInfo info)
 	{
+		if (info == null) {
+			info = new ConfigurationInfo();
+			info.setHostName(hostName);
+			info.setPassword(password);
+			info.setUserName(userName);
+		}
+		connector = new Connector(info);
 		try {
-			connect();
+			connector.connect();
 			deleteImage();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
-				disconnect(); // Be sure to disconnect
+				connector.disconnect(); // Be sure to disconnect
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Runs the script without configuration options.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
-		new DeleteData();
+		new DeleteData(null);
 		System.exit(0);
 	}
 
