@@ -919,6 +919,9 @@ class DataBrowserToolBar
 			case DataBrowserUI.THUMB_VIEW:
 			case DataBrowserUI.COLUMNS_VIEW:
 				view.setSelectedView(index);
+				if (index == DataBrowserUI.THUMB_VIEW &&
+						!model.hasThumbnailsBeenLoaded())
+					model.loadData(false, null);
 				break;
 			case ROLL_OVER:
 				//view.setRollOver(rollOverItem.isSelected());
