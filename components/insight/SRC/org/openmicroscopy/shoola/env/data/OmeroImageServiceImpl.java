@@ -352,9 +352,11 @@ class OmeroImageServiceImpl
 			if (pixels.getSizeX()*pixels.getSizeY() >= MAX_SIZE)
 				return image;
 			backoff = gateway.isLargeImage(ctx, pixels.getId());
-		} catch (Exception e) {}
-		//if (backoff != null && backoff.booleanValue())
-		//	return new ThumbnailData(image, backoff);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print(e);
+			context.getLogger().debug(this, msg);
+		}
 		if (thumbnail) {
 			ThumbnailData thumb = (ThumbnailData) createImportedImage(ctx,
 				userID, image);
