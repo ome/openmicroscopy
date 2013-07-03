@@ -239,8 +239,8 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						if (thumbnail)
-							label.setFile(file, 
-								createImportedImage(ctx, userID, image));
+							label.setFile(file,
+									formatResult(ctx, image, userID, true));
 						else label.setFile(file, image);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
@@ -252,7 +252,7 @@ class OmeroImageServiceImpl
 							image = kk.next();
 							if (thumbnail)
 								converted.add(
-									createImportedImage(ctx, userID, image));
+										formatResult(ctx, image, userID, true));
 							else converted.add(image);
 						}
 						label.setFile(file, converted);
