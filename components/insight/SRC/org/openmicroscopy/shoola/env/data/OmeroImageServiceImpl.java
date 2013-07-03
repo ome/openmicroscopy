@@ -239,8 +239,8 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						if (thumbnail)
-							label.setFile(file,
-									formatResult(ctx, image, userID, true));
+							label.setFile(file, formatResult(ctx, image, userID,
+									true, userName));
 						else label.setFile(file, image);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
@@ -251,8 +251,8 @@ class OmeroImageServiceImpl
 						while (kk.hasNext()) {
 							image = kk.next();
 							if (thumbnail)
-								converted.add(
-										formatResult(ctx, image, userID, true));
+								converted.add(formatResult(ctx, image, userID,
+										true, userName));
 							else converted.add(image);
 						}
 						label.setFile(file, converted);
@@ -307,10 +307,11 @@ class OmeroImageServiceImpl
 	 * @param ctx The security context.
 	 * @param userID  The identifier of the user.
 	 * @param image   The image to handle.
+	 * @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 */
 	private Object createImportedImage(SecurityContext ctx, long userID,
-		ImageData image)
+		ImageData image, String userName)
 	{
 		if (image != null) {
 			ThumbnailData data;
@@ -318,7 +319,7 @@ class OmeroImageServiceImpl
 				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
 						gateway.getThumbnailByLongestSide(ctx, pix.getId(),
-								Factory.THUMB_DEFAULT_WIDTH));
+								Factory.THUMB_DEFAULT_WIDTH, userName));
 				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
@@ -341,10 +342,11 @@ class OmeroImageServiceImpl
 	 * @param userID The user's id.
 	 * @param thumbnail Pass <code>true</code> if thumbnail has to be created,
 	 * 					<code>false</code> otherwise.
+	 * @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 */
 	private Object formatResult(SecurityContext ctx, ImageData image,
-		long userID, boolean thumbnail)
+		long userID, boolean thumbnail, String userName)
 	{
 		Boolean backoff = null;
 		try {
@@ -359,7 +361,7 @@ class OmeroImageServiceImpl
 		}
 		if (thumbnail) {
 			ThumbnailData thumb = (ThumbnailData) createImportedImage(ctx,
-				userID, image);
+				userID, image, userName);
 			thumb.setBackOffForPyramid(backoff);
 			return thumb;
 		} 
@@ -1299,7 +1301,8 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(ctx, list, images, userName);
-						return formatResult(ctx, image, userID, thumbnail);
+						return formatResult(ctx, image, userID, thumbnail,
+								userName);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
 						annotatedImportedImage(ctx, list, ll, userName);
@@ -1307,7 +1310,7 @@ class OmeroImageServiceImpl
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
 							converted.add(formatResult(ctx, kk.next(), userID,
-									thumbnail));
+									thumbnail, userName));
 						}
 						return converted;
 					}
@@ -1336,7 +1339,8 @@ class OmeroImageServiceImpl
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(ctx, list, images, userName);
-					return formatResult(ctx, image, userID, thumbnail);
+					return formatResult(ctx, image, userID, thumbnail,
+							userName);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(ctx, list, ll, userName);
@@ -1344,7 +1348,7 @@ class OmeroImageServiceImpl
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
 						converted.add(formatResult(ctx, kk.next(), userID,
-								thumbnail));
+								thumbnail, userName));
 					}
 					return converted;
 				}

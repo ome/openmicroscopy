@@ -2934,16 +2934,18 @@ class OMEROGateway
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param maxLength The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
+	 * @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while trying to
 	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	byte[] getThumbnailByLongestSide(SecurityContext ctx, long pixelsID,
-			int maxLength)
+			int maxLength, String userName)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		return retrieveThumbnailByLongestSide(ctx, pixelsID, maxLength);
+		return retrieveThumbnailByLongestSide(ctx, pixelsID, maxLength, 
+				userName);
 	}
 
 	/**
@@ -2953,18 +2955,23 @@ class OMEROGateway
 	 * @param pixelsID The id of the pixels set the thumbnail is for.
 	 * @param maxLength The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
+	 *  @param userName The name of the user who will own the thumbnail.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while trying to
 	 *              retrieve data from the service.
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
 	private byte[] retrieveThumbnailByLongestSide(
-			SecurityContext ctx, long pixelsID, int maxLength)
+			SecurityContext ctx, long pixelsID, int maxLength, String
+			userName)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-        Connector c = getConnector(ctx, true, false);
-		ThumbnailStorePrx service = c.getThumbnailService();
+        Connector c = null;
+        ThumbnailStorePrx service = null;
 		try {
+			c = getConnector(ctx, true, false);
+	        c = c.getConnector(userName); // Replace
+			service = c.getThumbnailService();
 			service.setPixelsId(pixelsID);
 			// No need to call setPixelsID if using set method?
 			return service.getThumbnailByLongestSide(
@@ -2977,7 +2984,7 @@ class OMEROGateway
 			}
 			throw new RenderingServiceException("Cannot get thumbnail", t);
 		} finally {
-		    c.close(service);
+		    if (c != null) c.close(service);
 		}
 	}
 
