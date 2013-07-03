@@ -487,7 +487,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </copy>
 		<copy todir="target">
             <fileset dir="components/insight/target" includes="importer*.zip"/>
-            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer -${omero.version}\1.zip"/>
+            <mapper type="regexp" from="importer(.*).zip"  to="OMERO.importer-${omero.version}\1.zip"/>
         </copy>
        	<copy file="components/insight/target/insight-ij.zip" tofile="target/OMERO.insight-ij-${omero.version}.zip"/>
 
