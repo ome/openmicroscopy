@@ -131,6 +131,11 @@ import pojos.WorkflowData;
 class OmeroImageServiceImpl
  	implements OmeroImageService
 {
+	/**
+	 * If a given plane is larger than the size, the thumbnail is not loaded
+	 * at import time.
+	 */
+	private static final int MAX_SIZE = 2000*2000;
 
 	/** The collection of supported file filters. */
 	private FileFilter[] filters;
@@ -344,6 +349,8 @@ class OmeroImageServiceImpl
 		Boolean backoff = null;
 		try {
 			PixelsData pixels = image.getDefaultPixels();
+			if (pixels.getSizeX()*pixels.getSizeY() >= MAX_SIZE)
+				return image;
 			backoff = gateway.isLargeImage(ctx, pixels.getId());
 		} catch (Exception e) {}
 		//if (backoff != null && backoff.booleanValue())
