@@ -20,7 +20,7 @@ function fa = writeFileAnnotation(session, filePath, varargin)
 %        fa = writeFileAnnotation(session, filePath, 'description',
 %        description)
 %
-% See also:
+% See also: WRITETEXTANNOTATION
 
 % Copyright (C) 2013 University of Dundee & Open Microscopy Environment.
 % All rights reserved.
