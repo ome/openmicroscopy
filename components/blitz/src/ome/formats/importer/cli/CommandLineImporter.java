@@ -138,7 +138,8 @@ public class CommandLineImporter {
 
         else {
             library.addObserver(new LoggingImportMonitor());
-            library.addObserver(new ErrorHandler(config));
+            // error handler has been configured in constructor from main args
+            library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
             report();
         }
