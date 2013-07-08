@@ -1,11 +1,21 @@
-% Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
-% All rights reversed.
-% Use is subject to license terms supplied in LICENSE.txt
+% Copyright (C) 2011-2013 University of Dundee & Open Microscopy Environment.
+% All rights reserved.
+%
+% This program is free software; you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation; either version 2 of the License, or
+% (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along
+% with this program; if not, write to the Free Software Foundation, Inc.,
+% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 % Information to edit
-imageId = java.lang.Long(27544);
-projectId = 3109;
-
 fileToUpload= char('mydata.txt'); % file should exist.
 generatedSha1 = char('pending');
 fileMimeType = char('application/octet-stream');
@@ -21,17 +31,22 @@ NAME_SPACE_TO_SET = char('imperial.training.demo');
 %  1. a link between the `Image` and the `FileAnnotation`.
 
 try
-    [client, session] = Connect();
-    % First retrieve the image.
-    ids = java.util.ArrayList();
-    ids.add(imageId); %add the id of the image.
-    proxy = session.getContainerService();
-    list = proxy.getImages(omero.model.Image.class, ids, omero.sys.ParametersI());
-    if (list.size == 0)
-        exception = MException('OMERO:WriteData', 'Image Id not valid');
-        throw(exception);
-    end
-    image = list.get(0);
+    % Create a connection
+    [client, session] = loadOmero();
+    fprintf(1, 'Created connection to %s\n', char(client.getProperty('omero.host')));
+    fprintf(1, 'Created session for user %s using group %s\n',...
+        char(session.getAdminService().getEventContext().userName),...
+        char(session.getAdminService().getEventContext().groupName));
+    
+    % Information to edit
+    imageId = str2double(client.getProperty('image.id'));
+    projectId = str2double(client.getProperty('project.id'));
+    % Load image
+    fprintf(1, 'Reading image: %g\n', imageId);
+    image = getImages(session, imageId);
+    assert(~isempty(image), 'OMERO:WriteData', 'Image Id not valid');
+
+    
     iUpdate = session.getUpdateService(); % service used to write object
     % create the original file object.
     file = java.io.File(fileToUpload);
