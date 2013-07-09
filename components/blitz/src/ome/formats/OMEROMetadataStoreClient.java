@@ -5384,9 +5384,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsSignificantBits(ome.xml.model.primitives.PositiveInteger,int)
      */
-    public void  setPixelsSignificantBits(PositiveInteger value,  int index)
+    public void  setPixelsSignificantBits(PositiveInteger value,  int imageIndex)
     {
-        // TODO : not in OMERO model
+        Pixels o = getPixels(imageIndex);
+        o.setSignificantBits(toRType(value));
     }
 
     /* (non-Javadoc)
