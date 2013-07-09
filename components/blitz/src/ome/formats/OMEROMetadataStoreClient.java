@@ -3165,7 +3165,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setDetectorSettingsIntegration(PositiveInteger value, int value2, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -3203,7 +3203,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setDetectorSettingsZoom(Double value, int value2, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     ////////Dichroic/////////
@@ -5318,7 +5318,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsBigEndian(Boolean value,  int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -5348,7 +5348,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsInterleaved(Boolean value,  int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
 
@@ -5384,7 +5384,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsSignificantBits(PositiveInteger value,  int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -6644,7 +6644,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setCommentAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7249,7 +7249,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setXMLAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7277,7 +7277,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setBooleanAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7325,7 +7325,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setDoubleAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7353,7 +7353,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setFileAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7371,7 +7371,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setListAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
 
@@ -7400,7 +7400,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setLongAnnotationAnnotator(String value, int XMLAnnotationIndex)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /**
@@ -7465,7 +7465,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTagAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7539,7 +7539,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTermAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7576,7 +7576,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTimestampAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -8302,7 +8302,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setRightsRightsHeld(String value)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -8310,7 +8310,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setRightsRightsHolder(String value)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     public void setCurrentLogFile(String logFilename) {
