@@ -31,15 +31,27 @@ public class LoggingImportMonitor implements IObserver
             IMPORT_DONE ev = (IMPORT_DONE) event;
             log.info(event.toLog());
 
-            if (log.isDebugEnabled()) {
-                log.debug("Imported pixels:");
-                for (Pixels p : ev.pixels) {
-                    log.debug(p.getId().getValue());
-                }
-            }
+            // send the import results to stdout
+            // to enable external tools integration
+            outputGreppableResults(ev);
         }
         else if (log.isDebugEnabled()) {
             log.debug(event.toLog());
+        }
+    }
+
+    /**
+     * Displays a list of successfully imported Pixels IDs on standard output.
+     *
+     * Note that this behaviour is intended for other command line tools
+     * to pipe/grep the import results, and should be kept as is.
+     *
+     * @param ev the end of import event.
+     */
+    private void outputGreppableResults(IMPORT_DONE ev) {
+        System.err.println("Imported pixels:");
+        for (Pixels p : ev.pixels) {
+            System.out.println(p.getId().getValue());
         }
     }
 }
