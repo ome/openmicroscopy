@@ -5348,7 +5348,9 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsInterleaved(Boolean value,  int index)
     {
-        // TODO : not in OMERO model
+        // TODO: not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setInterleaved(value);
     }
 
 
