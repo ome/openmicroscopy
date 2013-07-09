@@ -5501,6 +5501,8 @@ public class OMEROMetadataStoreClient
     public void setPlaneHashSHA1(String hashSHA1, int imageIndex, int planeIndex)
     {
         // TODO : not in the OMERO model
+        //PlaneInfo o = getPlane(imageIndex, planeIndex);
+        //o.setHashSHA1(toRType(exposureTime));
     }
 
     /* (non-Javadoc)
