@@ -6650,6 +6650,8 @@ public class OMEROMetadataStoreClient
     public void  setCommentAnnotationAnnotator(String value, int index)
     {
         // TODO : not in OMERO model
+        //CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
+        //o.setAnnotator(toRType(value));
     }
 
     /* (non-Javadoc)
