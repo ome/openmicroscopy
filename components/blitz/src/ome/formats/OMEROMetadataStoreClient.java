@@ -7275,8 +7275,8 @@ public class OMEROMetadataStoreClient
     public void setBooleanAnnotationDescription(String description,
             int booleanAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        BooleanAnnotation o = getBooleanAnnotation(booleanAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7303,8 +7303,8 @@ public class OMEROMetadataStoreClient
     public void setCommentAnnotationDescription(String description,
             int commentAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7323,8 +7323,8 @@ public class OMEROMetadataStoreClient
     public void setDoubleAnnotationDescription(String description,
             int doubleAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        DoubleAnnotation o = getDoubleAnnotation(doubleAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7351,8 +7351,8 @@ public class OMEROMetadataStoreClient
     public void setFileAnnotationDescription(String description,
             int fileAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        FileAnnotation o = getFileAnnotation(fileAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7369,8 +7369,8 @@ public class OMEROMetadataStoreClient
     public void setListAnnotationDescription(String description,
             int listAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        ListAnnotation o = getListAnnotation(listAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7398,8 +7398,8 @@ public class OMEROMetadataStoreClient
     public void setLongAnnotationDescription(String description,
             int longAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        LongAnnotation o = getLongAnnotation(longAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7439,8 +7439,8 @@ public class OMEROMetadataStoreClient
     public void setTagAnnotationDescription(String description,
             int tagAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TagAnnotation o = getTagAnnotation(tagAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7513,8 +7513,8 @@ public class OMEROMetadataStoreClient
     public void setTermAnnotationDescription(String description,
             int termAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TermAnnotation o = getTermAnnotation(termAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7574,8 +7574,8 @@ public class OMEROMetadataStoreClient
     public void setTimestampAnnotationDescription(String description,
             int timestampAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7602,8 +7602,8 @@ public class OMEROMetadataStoreClient
     public void setXMLAnnotationDescription(String description,
             int XMLAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     //
