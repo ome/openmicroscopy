@@ -3163,9 +3163,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsIntegration(ome.xml.model.primitives.PositiveInteger,int,int)
      */
-    public void  setDetectorSettingsIntegration(PositiveInteger value, int value2, int index)
+    public void  setDetectorSettingsIntegration(PositiveInteger integration, int imageIndex, int channelIndex)
     {
-        // TODO : not in OMERO model
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setIntegration(toRType(integration));
     }
 
     /* (non-Javadoc)
@@ -3201,9 +3202,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsZoom(java.lang.Double,int,int)
      */
-    public void  setDetectorSettingsZoom(Double value, int value2, int index)
+    public void  setDetectorSettingsZoom(Double zoom, int imageIndex, int channelIndex)
     {
-        // TODO : not in OMERO model
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setZoom(toRType(zoom));
     }
 
     ////////Dichroic/////////
