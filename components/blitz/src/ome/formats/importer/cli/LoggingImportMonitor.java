@@ -33,28 +33,9 @@ public class LoggingImportMonitor implements IObserver
             IMPORT_DONE ev = (IMPORT_DONE) event;
             log.info(event.toLog());
 
-            if (log.isDebugEnabled()) {
-                log.debug("Imported pixels:");
-                for (Pixels p : ev.pixels) {
-                    log.debug(Long.toString(p.getId().getValue()));
-                }
-            }
-            System.err.println("Other imported objects:");
-            System.err.print("Fileset:");
-            System.err.println(ev.fileset.getId().getValue());
-            for (IObject object : ev.objects) {
-                if (object != null && object.getId() != null) {
-                    // Not printing to stdout since the contract at the moment
-                    // is that only pixel IDs hit stdout.
-                    String kls = object.getClass().getSimpleName();
-                    if (kls.endsWith("I")) {
-                        kls = kls.substring(0,kls.length()-1);
-                    }
-                    System.err.print(kls);
-                    System.err.print(":");
-                    System.err.println(object.getId().getValue());
-                }
-            }
+            // send the import results to stdout
+            // to enable external tools integration
+            outputGreppableResults(ev);
         } else if (event instanceof FILESET_UPLOAD_START) {
             log.info(event.toLog());
         } else if (event instanceof FILESET_UPLOAD_END) {
@@ -69,6 +50,38 @@ public class LoggingImportMonitor implements IObserver
             log.info(event.toLog());
         } else if (log.isDebugEnabled()) {
             log.debug(event.toLog());
+        }
+    }
+
+    /**
+     * Displays a list of successfully imported Pixels IDs on standard output.
+     *
+     * Note that this behaviour is intended for other command line tools
+     * to pipe/grep the import results, and should be kept as is.
+     *
+     * @param ev the end of import event.
+     */
+    private void outputGreppableResults(IMPORT_DONE ev) {
+        System.err.println("Imported pixels:");
+        for (Pixels p : ev.pixels) {
+            System.out.println(p.getId().getValue());
+        }
+
+        System.err.println("Other imported objects:");
+        System.err.print("Fileset:");
+        System.err.println(ev.fileset.getId().getValue());
+        for (IObject object : ev.objects) {
+            if (object != null && object.getId() != null) {
+                // Not printing to stdout since the contract at the moment
+                // is that only pixel IDs hit stdout.
+                String kls = object.getClass().getSimpleName();
+                if (kls.endsWith("I")) {
+                    kls = kls.substring(0,kls.length()-1);
+                }
+                System.err.print(kls);
+                System.err.print(":");
+                System.err.println(object.getId().getValue());
+            }
         }
     }
 }
