@@ -35,11 +35,6 @@ $(function () {
     // this is called on change in jstree selection, or switching tabs
     var update_metadata_general_tab = function() {
 
-        var remove_id_suffix = function(sid) {
-            tsid = sid.split('-', 2).join('-');
-            return tsid;
-        }
-
         var selected = $("body").data("selected_objects.ome");
 
         var prefix = '{% url webindex %}';
@@ -56,8 +51,7 @@ $(function () {
                 if (typeof selected[i]['class'] != 'undefined' && selected[i]['class'].indexOf("canAnnotate") < 0) {
                     return;
                 }
-                productListQuery[i] = remove_id_suffix(selected[i]["id"])
-                    .replace("-","=");
+                productListQuery[i] = selected[i]["id"].replace("-","=");
                 well_index = well_index || selected[i]["index"];
             }
             var query = '{% url batch_annotate %}'+"?"+productListQuery.join("&");
@@ -73,8 +67,7 @@ $(function () {
                     var selected_ids = [], i,
                         selected_data = $("body").data("selected_objects.ome");
                     for(i=0; i<selected_data.length; i++) {
-                        selected_ids.push(remove_id_suffix(
-                            selected_data[i].id));
+                        selected_ids.push(selected_data[i].id);
                     }
                     var oids = $(data).filter("#object-ids").text().split("|");
                     // need to compare two arrays of strings...
@@ -129,8 +122,7 @@ $(function () {
                         url: url,
                         dataType: "html",
                         success: function(data) {
-                            var selected_id = remove_id_suffix(
-                                $("body").data("selected_objects.ome")[0].id);
+                            var selected_id = $("body").data("selected_objects.ome")[0].id;
                             var oid = $(data).filter("#object-id").text();
                             if (oid === selected_id) {
                                 $metadata_general.html(data);
