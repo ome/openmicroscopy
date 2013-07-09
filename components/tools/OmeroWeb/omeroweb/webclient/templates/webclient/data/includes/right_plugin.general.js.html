@@ -35,8 +35,6 @@ $(function () {
     // this is called on change in jstree selection, or switching tabs
     var update_metadata_general_tab = function() {
 
-        // Handle multiple images with extended IDs. E.g. image-123-XXX
-        // which may be used by external webapps
         var remove_id_suffix = function(sid) {
             tsid = sid.split('-', 2).join('-');
             return tsid;
