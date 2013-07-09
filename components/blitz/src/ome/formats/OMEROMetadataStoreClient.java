@@ -7260,6 +7260,26 @@ public class OMEROMetadataStoreClient
     }
 
     /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setXMLAnnotationAnnotationRef(String annotation,
+            int XMLAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(XmlAnnotation.class, XMLAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationDescription(java.lang.String, int)
+     */
+    public void setXMLAnnotationDescription(String description,
+            int XMLAnnotationIndex)
+    {
+        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
+        o.setDescription(toRType(description));
+    }
+
+    /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setBooleanAnnotationAnnotationRef(java.lang.String, int, int)
      */
     public void setBooleanAnnotationAnnotationRef(String annotation,
@@ -7584,26 +7604,6 @@ public class OMEROMetadataStoreClient
     public void  setTimestampAnnotationAnnotator(String value, int index)
     {
         // TODO : not in OMERO model
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotationRef(java.lang.String, int, int)
-     */
-    public void setXMLAnnotationAnnotationRef(String annotation,
-            int XMLAnnotationIndex, int annotationRefIndex)
-    {
-        LSID key = new LSID(XmlAnnotation.class, XMLAnnotationIndex);
-        addReference(key, new LSID(annotation));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setXMLAnnotationDescription(java.lang.String, int)
-     */
-    public void setXMLAnnotationDescription(String description,
-            int XMLAnnotationIndex)
-    {
-        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
-        o.setDescription(toRType(description));
     }
 
     //
