@@ -5321,6 +5321,8 @@ public class OMEROMetadataStoreClient
     public void  setPixelsBigEndian(Boolean value,  int index)
     {
         // TODO : not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setBigEndian(value);
     }
 
     /* (non-Javadoc)
@@ -5330,6 +5332,8 @@ public class OMEROMetadataStoreClient
             int binDataIndex)
     {
         // TODO : not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setBinDataBigEndian(value);
     }
 
     /* (non-Javadoc)
