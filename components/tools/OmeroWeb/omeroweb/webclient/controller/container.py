@@ -298,6 +298,16 @@ class BaseContainer(BaseController):
         self.tags.sort(key=lambda x: x.getTextValue() and x.getTextValue().lower())
         self.t_size = len(self.tags)
     
+    def loadTagsRecursive(self, eid=None):
+        if eid is not None:
+            if eid == -1:       # Load data for all users
+                eid = None
+            else:
+                self.experimenter = self.conn.getObject("Experimenter", eid)
+        else:
+            eid = self.conn.getEventContext().userId
+        self.tags_recursive = self.conn.listTagsRecursive(eid)
+
     def loadDataByTag(self):
         pr_list = list(self.conn.getObjectsByAnnotations('Project',[self.tag.id]))
         ds_list = list(self.conn.getObjectsByAnnotations('Dataset',[self.tag.id]))
@@ -544,7 +554,7 @@ class BaseContainer(BaseController):
         if self.image is not None:
             return sort_tags(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.dataset is not None:
-            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
+            return sort_tags(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag', ns=['any']))
         elif self.project is not None:
             return sort_tags(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:

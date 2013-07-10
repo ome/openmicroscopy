@@ -30,20 +30,34 @@
 
 <div class="standard_form">
 
-    <h1>{% trans "Available Tags" %}:</h1>
-    
-    {{ form_tags.tags }}{% if form_tags.tags.field.required %}*{% endif %}
+    <h1>{% trans "Select from available tags or Add new tag" %}:</h1>
 
-    <h1>{% trans "Add a new tag" %}</h1>
-    
-		
-		<label>Tag Name:</label>
-		{{ form_tags.tag }}
-       
-	  
-       	<label>Description:</label>
-        {{ form_tags.description }}
-       
+    {{ form_tags.tag }}
+    {{ form_tags.description }}
+    <button id="id_add_new_tag"> <img src="{% static "webclient/image/plus.png" %}" /> Add new </button>
+
+    <div style="float: left;">
+
+        <h1>{% trans "Available Tags" %}:</h1>
+        <div id="id_all_tags" class="tag_selection"></div>
+
+    </div>
+
+
+    <div id="id_move_tags">
+
+        <button> <img src="{% static "webclient/image/icon_arrow_right.png" %}" /> </button>
+        <button> <img src="{% static "webclient/image/icon_arrow_left.png" %}" /> </button>
+
+    </div>
+
+    <div style="float: left;">
+
+        <h1>{% trans "Selected Tags" %}:</h1>
+        <div id="id_selected_tags" class="tag_selection"></div>
+
+    </div>
+
 
         <!-- hidden fields used to specify the objects we're tagging -->
         <div class="hiddenField">{{ form_tags.image }}</div>
@@ -57,3 +71,79 @@
 
 
 </div>
+
+<style>
+    input#id_tag {
+        background: url({% static 'webclient/image/search.png' %}) no-repeat right center;
+        width: 200px;
+        vertical-align: top;
+    }
+    textarea#id_description {
+        width: 420px;
+    }
+    button#id_add_new_tag {
+        vertical-align: top;
+    }
+    div#id_move_tags {
+        float: left;
+        width: 40px;
+        padding-top: 100px;
+        margin: 10px;
+        text-align: center;
+    }
+    div#id_move_tags button {
+        width: 25px;
+        height: 25px;
+        margin-bottom: 10px;
+    }
+    div.tag_selection {
+        height: 200px;
+        width: 320px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        font-size: larger;
+        border: thin solid black;
+        padding: 3px;
+        background-color: white;
+    }
+    div.tag_selection div {
+        white-space: nowrap;
+        padding-left: 22px;
+        padding-top: 2px;
+        height: 1.5em;
+    }
+    div.tag_selection div.alltags-tagset {
+        background: url({% static "webclient/image/left_sidebar_icon_tags.png" %}) no-repeat left center;
+    }
+    div.tag_selection div.alltags-tag {
+        background: url({% static "webclient/image/left_sidebar_icon_tag.png" %}) no-repeat left center;
+    }
+    div.tag_selection div.alltags-childtag {
+        background: url({% static "webclient/image/left_sidebar_icon_tag.png" %}) no-repeat left center;
+        margin-left: 20px;
+    }
+    div.tag_selection div.ui-selected {
+        background-color: hsl(215,20%,75%);
+    }
+
+</style>
+
+<script>
+    var all_tags = {{ all_tags|safe }};
+    var html = "";
+    for (var id in all_tags) {
+        var tag = all_tags[id];
+        if (!tag.c) {
+            var cls = tag.s ? 'alltags-tagset' : 'alltags-tag';
+            html += "<div class='" + cls + "'>" + tag.t + "</div>";
+            if (tag.s) {
+                for (var sid in tag.s) {
+                    html += "<div class='alltags-childtag'>" + all_tags[tag.s[sid]].t + "</div>";
+                }
+            }
+        }
+    }
+
+    $("#id_all_tags").append(html).selectable();
+
+</script>
