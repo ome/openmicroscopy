@@ -48,8 +48,8 @@
 
     <div id="id_move_tags">
 
-        <button> <img src="{% static "webclient/image/icon_arrow_right.png" %}" /> </button>
-        <button> <img src="{% static "webclient/image/icon_arrow_left.png" %}" /> </button>
+        <button id="id_tag_select_button"> <img src="{% static "webclient/image/icon_arrow_right.png" %}" /> </button>
+        <button id="id_tag_deselect_button"> <img src="{% static "webclient/image/icon_arrow_left.png" %}" /> </button>
 
     </div>
 
@@ -156,7 +156,7 @@
             if (tag.s) {
                 for (var sid in tag.s) {
                     var child = all_tags[tag.s[sid]];
-                    html += "<div class='alltags-childtag' data-id='" + child.i + "'>" + child.t + "</div>";
+                    html += "<div class='alltags-childtag' data-id='" + child.i + "' data-set='" + tag.i + "'>" + child.t + "</div>";
                 }
             }
         }
@@ -181,8 +181,28 @@
         // hide tag sets that have no unselected tags anymore
         $("div.alltags-tagset + div.alltags-tagset", div_all_tags).prev().hide();
         $("div.alltags-tagset:last-child").hide();
+        $("div.alltags-tagset + div.alltags-childtag").show();
+    }
+
+    var select_tags = function(event) {
+        event.preventDefault();
+    }
+
+    var deselect_tags = function(event) {
+        $("div.ui-selected", div_selected_tags).each(function() {
+            var tagset = $(this).attr("data-set");
+            if (tagset) {
+                $(this).insertAfter($("div[data-id=" + tagset + "]", div_all_tags));
+            } else {
+                $(this).appendTo(div_all_tags);
+            }
+        });
+        event.preventDefault();
     }
 
     hide_empty_tagsets();
+
+    $("button#id_tag_select_button").click(select_tags);
+    $("button#id_tag_deselect_button").click(deselect_tags);
 
 </script>
