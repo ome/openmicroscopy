@@ -39,7 +39,9 @@
     <div style="float: left;">
 
         <h1>{% trans "Available Tags" %}:</h1>
-        <div id="id_all_tags" class="tag_selection"></div>
+        <div class="tag_selection_wrapper">
+            <div id="id_all_tags" class="tag_selection"></div>
+        </div>
 
     </div>
 
@@ -54,7 +56,9 @@
     <div style="float: left;">
 
         <h1>{% trans "Selected Tags" %}:</h1>
-        <div id="id_selected_tags" class="tag_selection"></div>
+        <div class="tag_selection_wrapper">
+            <div id="id_selected_tags" class="tag_selection"></div>
+        </div>
 
     </div>
 
@@ -96,7 +100,9 @@
         height: 25px;
         margin-bottom: 10px;
     }
-    div.tag_selection {
+    // wrapper is a hack to make overflow:hidden work with .selectable()
+    // without it items become deselected when scrollbar is clicked
+    div.tag_selection_wrapper {
         height: 200px;
         width: 320px;
         overflow-y: scroll;
@@ -105,6 +111,9 @@
         border: thin solid black;
         padding: 3px;
         background-color: white;
+    }
+    div.tag_selection {
+        overflow: visible;
     }
     div.tag_selection div {
         white-space: nowrap;
