@@ -1263,6 +1263,8 @@ def annotate_tags(request, conn=None, **kwargs):
     filter_user_id = request.session.get('user_id')
     manager.loadTagsRecursive(filter_user_id)
     all_tags = manager.tags_recursive
+    manager.annotationList()
+    selected_tags = [tag.id for tag in manager.tag_annotations]
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
@@ -1306,7 +1308,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags, 'index': index, 'all_tags': simplejson.dumps(all_tags), }
+        context = {'form_tags': form_tags, 'index': index, 'all_tags': simplejson.dumps(all_tags), 'selected_tags': simplejson.dumps(selected_tags), }
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context
