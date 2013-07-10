@@ -347,7 +347,64 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         for ann in q.findAllByQuery(sql, params, self.SERVICE_OPTS):
             yield TagAnnotationWrapper(self, ann)
-    
+
+
+    def listTagsRecursive(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+        params.map['ns'] = rstring(omero.constants.metadata.NSINSIGHTTAGSET)
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+
+        q = self.getQueryService()
+
+        sql = """
+            select aal.parent.id, aal.child.id
+            from AnnotationAnnotationLink aal
+            inner join aal.parent ann
+            where ann.ns=:ns
+            """
+        if eid is not None:
+            sql += " and ann.details.owner.id = :eid"
+
+        children = set()
+        mapping = dict()
+        for element in q.projection(sql, params, self.SERVICE_OPTS):
+            parent = unwrap(element[0])
+            child = unwrap(element[1])
+            children.add(child)
+            mapping.setdefault(parent, []).append(child)
+
+        sql = """
+            select ann.id, ann.description, ann.textValue, ann.details.owner.firstName, ann.details.owner.lastName
+            from TagAnnotation ann
+            """
+
+        if eid is not None:
+            sql += " where ann.details.owner.id = :eid"
+
+        tags = dict()
+        for element in q.projection(sql, params, self.SERVICE_OPTS):
+            tag_id, description, text, first, last = map(unwrap, element)
+            tags[tag_id] = dict(
+                i=tag_id,
+                c=tag_id in children,
+                d=description,
+                t=text,
+#                owner='%s %s' % (first, last),
+                s=mapping.get(tag_id),
+            )
+        #
+        #for parent, child_list in mapping.iteritems():
+        #    tags[parent]['tags'] = [tags[child] for child in child_list]
+        #
+        #for child in children:
+        #    del tags[child]
+
+        return tags
+
+
     def countOrphans (self, obj_type, eid=None):
         links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
                 'Image':('DatasetImageLink', ImageWrapper),

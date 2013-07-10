@@ -189,10 +189,12 @@ class TagsAnnotationForm(BaseAnnotationForm):
     def __init__(self, *args, **kwargs):
         super(TagsAnnotationForm, self).__init__(*args, **kwargs)
         self.fields['tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['tags'], 
-                widget=forms.SelectMultiple(attrs={'size':6, 'class':'existing'}), required=False)
+                widget=forms.SelectMultiple(attrs={'size':14, 'class':'existing'}), required=False)
+        self.fields['selected_tags'] = AnnotationModelMultipleChoiceField(queryset=kwargs['initial']['selected_tags'], 
+                widget=forms.SelectMultiple(attrs={'size':14, 'class':'existing'}), required=False)
 
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 31}), required=False, label="Desc")
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'cols': 31}), required=False, label="Desc")
 
 
 class FilesAnnotationForm(BaseAnnotationForm):

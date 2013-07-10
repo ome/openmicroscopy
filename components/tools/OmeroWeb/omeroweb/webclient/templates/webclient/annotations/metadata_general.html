@@ -222,14 +222,20 @@
                     autoOpen: false,
                     resizable: false,
                     height: 450,
-                    width:420,
+                    width: 780,
                     modal: true,
                     buttons: {
-                        "Accept": function() {
+                        "Reset": function() {
+                            // discard all changes and reload the form
+                            $("#add_tags_form").load($("#launch_tags_form").attr('href'));
+                        },
+{% comment %}
+                        "Save": function() {
                             // simply submit the form (AJAX handling set-up above)
                             $("#add_tags_form").submit();
                             $( this ).dialog( "close" );
                         },
+{% endcomment %}
                         "Cancel": function() {
                             $( this ).dialog( "close" );
                         }

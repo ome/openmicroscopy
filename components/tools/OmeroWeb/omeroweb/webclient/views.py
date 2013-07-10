@@ -1216,6 +1216,7 @@ def annotate_comment(request, conn=None, **kwargs):
     else:
         return HttpResponse(str(form_multi.errors))      # TODO: handle invalid form error
 
+
 @login_required(setGroupContext=True)
 @render_response()
 def annotate_tags(request, conn=None, **kwargs):
@@ -1247,18 +1248,27 @@ def annotate_tags(request, conn=None, **kwargs):
             manager = BaseShare(conn, o_id)
 
     if manager is not None:
-        tags = manager.getTagsByObject()
+#        tags = manager.getTagsByObject()
+        pass
     else:
         manager = BaseContainer(conn)
         for dtype, objs in oids.items():
             if len(objs) > 0:
                 # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
-                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
+#                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
                 break
+
+    tags = []
+
+    filter_user_id = request.session.get('user_id')
+    manager.loadTagsRecursive(filter_user_id)
+    all_tags = manager.tags_recursive
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
     initial['tags'] = tags
+    initial['selected_tags'] = [
+    ]
 
     if request.method == 'POST':
         # handle form submission
@@ -1296,7 +1306,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags, 'index': index}
+        context = {'form_tags': form_tags, 'index': index, 'all_tags': simplejson.dumps(all_tags), }
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context
