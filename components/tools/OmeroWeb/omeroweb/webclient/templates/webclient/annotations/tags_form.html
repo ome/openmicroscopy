@@ -28,6 +28,7 @@
 -->
 {% endcomment %}
 
+
 <div class="standard_form">
 
     <h1>{% trans "Select from available tags or Add new tag" %}:</h1>
@@ -76,70 +77,6 @@
 
 </div>
 
-<style>
-    input#id_tag {
-        background: url({% static 'webclient/image/search.png' %}) no-repeat right center;
-        width: 200px;
-        vertical-align: top;
-    }
-    textarea#id_description {
-        width: 420px;
-    }
-    button#id_add_new_tag {
-        vertical-align: top;
-    }
-    div#id_move_tags {
-        float: left;
-        width: 40px;
-        padding-top: 100px;
-        margin: 10px;
-        text-align: center;
-    }
-    div#id_move_tags button {
-        width: 25px;
-        height: 25px;
-        margin-bottom: 10px;
-    }
-    // wrapper is a hack to make overflow:hidden work with .selectable()
-    // without it items become deselected when scrollbar is clicked
-    div.tag_selection_wrapper {
-        height: 200px;
-        width: 320px;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        font-size: larger;
-        border: thin solid black;
-        padding: 3px;
-        background-color: white;
-    }
-    div.tag_selection {
-        overflow: visible;
-    }
-    div.tag_selection div {
-        white-space: nowrap;
-        padding-left: 22px;
-        padding-top: 2px;
-        height: 1.5em;
-    }
-    div.tag_selection div.alltags-tagset {
-        background: url({% static "webclient/image/left_sidebar_icon_tags.png" %}) no-repeat left center;
-    }
-    div.tag_selection div.alltags-tag {
-        background: url({% static "webclient/image/left_sidebar_icon_tag.png" %}) no-repeat left center;
-    }
-    div.tag_selection div.alltags-childtag {
-        background: url({% static "webclient/image/left_sidebar_icon_tag.png" %}) no-repeat left center;
-        margin-left: 20px;
-    }
-    div#id_selected_tags div.alltags-childtag {
-        margin-left: 0;
-        background-color: hsl(215,20%,90%);
-    }
-    div.tag_selection div.ui-selected {
-        background-color: hsl(215,20%,75%) !important;
-    }
-
-</style>
 
 <script>
     var div_all_tags = $("#id_all_tags");
@@ -166,13 +103,6 @@
 
     var selected_tags = {{ selected_tags }};
 
-/*
-    selected_tags.push(7);
-    selected_tags.push(9);
-    selected_tags.push(8444);
-    selected_tags.push(8446);
-*/
-
     for (var idx in selected_tags) {
         $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
     }
@@ -181,12 +111,26 @@
         // hide tag sets that have no unselected tags anymore
         $("div.alltags-tagset + div.alltags-tagset", div_all_tags).prev().hide();
         $("div.alltags-tagset:last-child").hide();
-        $("div.alltags-tagset + div.alltags-childtag").show();
-    }
+        $("div.alltags-tagset + div.alltags-childtag").prev().show();
+    };
 
     var select_tags = function(event) {
+        // move individual tags first
+        $("div.ui-selected.alltags-tag, div.ui-selected.alltags-childtag", div_all_tags).each(function() {
+            $(this).appendTo(div_selected_tags);
+        });
+        // move whole tag sets
+        $("div.ui-selected.alltags-tagset", div_all_tags).each(function() {
+            var tag = $(this).next("div.alltags-childtag");
+            while (tag.length) {
+                var current = tag;
+                tag = current.next("div.alltags-childtag");
+                current.appendTo(div_selected_tags);
+            }
+        });
+        hide_empty_tagsets();
         event.preventDefault();
-    }
+    };
 
     var deselect_tags = function(event) {
         $("div.ui-selected", div_selected_tags).each(function() {
@@ -197,8 +141,9 @@
                 $(this).appendTo(div_all_tags);
             }
         });
+        hide_empty_tagsets();
         event.preventDefault();
-    }
+    };
 
     hide_empty_tagsets();
 
