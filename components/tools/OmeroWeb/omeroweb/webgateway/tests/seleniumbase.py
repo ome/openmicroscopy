@@ -130,7 +130,8 @@ class SeleniumTestBase (unittest.TestCase):
             self.SERVER = SeleniumTestServer()
         self.driver = self.SERVER.getDriver()
 
-    def goToUrl (self, relativeUrl):
+    def getRelativeUrl (self, relativeUrl):
+        """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
         url = self.SERVER.url + relativeUrl
         self.driver.get(url)
 
@@ -161,4 +162,5 @@ class SeleniumTestBase (unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+        self.SERVER.driver = None
         self.assertEqual([], self.verificationErrors)

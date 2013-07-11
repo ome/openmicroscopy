@@ -28,31 +28,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from random import random
 from django.conf import settings
 
-def createGroup(sel, groupName):
-    """
-    Helper method for creating a new group with the give name. 
-    Must be logged in as root. Creates a private group. 
-    Returns groupId if creation sucessful (the groups page displays new group name)
-    Otherwise returns 0
-    """
-    sel.open("/webadmin/groups")
-    sel.click("link=Add new group")
-    sel.wait_for_page_to_load("30000")
-    sel.type("id_name", groupName)
-    sel.click("//input[@value='Save']")
-    sel.wait_for_page_to_load("30000")
-    
-    gId = 0
-    if sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName):
-        # find group in the table
-        i = 1
-        while sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[2]" % i) != groupName:
-           i+=1
-           # raises exception if out of bounds for the html table
-        idTxt = sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[1]" % i)
-        gId = long(idTxt.strip("id:"))
-    return gId
-    
 
 def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
     """
@@ -94,7 +69,8 @@ class WebAdminTestBase (SeleniumTestBase):
 
     def login (self, u, p, sid=None): #sid
         driver = self.driver
-        self.goToUrl("/webadmin")   # will get redirect to login
+        # self.getRelativeUrl("/webclient/logout/")    # not needed?
+        self.getRelativeUrl("/webclient/login/")
         if sid is not None:
             select = driver.find_element_by_tag_name("select")
             option = select.find_element_by_css_selector("option[value='%s']" % sid)
@@ -106,12 +82,32 @@ class WebAdminTestBase (SeleniumTestBase):
         # submit the form
         pwInput.submit()
         # Wait to be redirected to the webadmin 'home page'
-        WebDriverWait(driver, 10).until(EC.title_contains("OMERO Users"))
+        WebDriverWait(driver, 10).until(EC.title_contains("Webclient"))
 
     def logout (self):
         driver = self.driver
-        self.goToUrl("/webclient/logout/")
+        self.getRelativeUrl("/webclient/logout/")
         WebDriverWait(driver, 10).until(EC.title_contains("Login"))
+
+    def createGroup (self, groupName):
+        """
+        Helper method for creating a new group with the given name. 
+        Must be logged in as root. Creates a private group. 
+        Returns groupId if creation sucessful (the groups page displays new group name)
+        Otherwise returns None
+        """
+        driver = self.driver
+        self.getRelativeUrl("/webadmin/groups")
+        driver.find_element_by_link_text("Add new Group").click()
+        WebDriverWait(driver, 10).until(EC.title_is("Add group"))
+        nameInput = driver.find_element_by_name("name")
+        nameInput.send_keys(groupName)
+        nameInput.submit()
+        WebDriverWait(driver, 10).until(EC.title_is("OMERO Groups"))
+        tdText = driver.execute_script("return $('td:contains(\"%s\")').prev().text()" % groupName)
+        if len(tdText) > 0:
+            return long(tdText)
+
 
 class AdminTests (WebAdminTestBase):
 
@@ -137,7 +133,7 @@ class AdminTests (WebAdminTestBase):
         """
         # login done already in setUp()
         driver = self.driver
-        self.goToUrl("/webadmin/experimenters")     # start at the 'Users' page
+        self.getRelativeUrl("/webadmin/experimenters")     # start at the 'Users' page
 
         driver.find_element_by_link_text("Groups").click()
         WebDriverWait(driver, 10).until(EC.title_contains("Groups"))
@@ -196,17 +192,16 @@ class AdminTests (WebAdminTestBase):
         self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName))
 
 
-    def XtestCreateGroup(self):
+    def testCreateGroup(self):
         """
         This needs to run before testCreateExperimenter()
         """
-        #print "testCreateGroup"
         groupName = "Selenium-testCreateGroup%s" % random()
-        
-        sel = self.selenium
-        # check new Group is on the page of Groups. 
-        gId = createGroup(sel, groupName)
-        self.assertTrue(gId > 0)
+
+        driver = self.driver
+        # Create a group and checks for new Group on the page of Groups.
+        gId = self.createGroup(groupName)
+        self.assertTrue(gId is not None and gId > 0)
 
 
     def XtestRemoveExpFromGroup(self):
@@ -260,7 +255,7 @@ class AdminTests (WebAdminTestBase):
            i+=1
            # raises exception if out of bounds for the html table
         self.assert_(sel.is_element_present("//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/img[@alt='admin']" % i))
-
+        
 
     def tearDown(self):
         self.logout()
