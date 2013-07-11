@@ -98,14 +98,7 @@
             }
         }
     }
-
     div_all_tags.append(html);
-
-    var selected_tags = {{ selected_tags }};
-
-    for (var idx in selected_tags) {
-        $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
-    }
 
     var hide_empty_tagsets = function() {
         // hide tag sets that have no unselected tags anymore
@@ -131,6 +124,8 @@
             }
         });
         hide_empty_tagsets();
+        // scroll to first selected tag
+        div_selected_tags.parent().scrollTop($("div.ui-selected", div_selected_tags).offset().top - div_selected_tags.offset().top - 40);
         event.preventDefault();
     };
 
@@ -147,9 +142,15 @@
             }
         });
         hide_empty_tagsets();
+        // scroll to first selected tag
+        div_all_tags.parent().scrollTop($("div.ui-selected", div_all_tags).offset().top - div_all_tags.offset().top - 40);
         event.preventDefault();
     };
 
+    var selected_tags = {{ selected_tags }};
+    for (var idx in selected_tags) {
+        $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
+    }
     hide_empty_tagsets();
 
     $("button#id_tag_select_button").click(select_tags);
