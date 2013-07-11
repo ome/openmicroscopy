@@ -115,6 +115,8 @@
     };
 
     var select_tags = function(event) {
+        // clear selections in right box
+        $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
         // move individual tags first
         $("div.ui-selected.alltags-tag, div.ui-selected.alltags-childtag", div_all_tags).each(function() {
             $(this).appendTo(div_selected_tags);
@@ -125,7 +127,7 @@
             while (tag.length) {
                 var current = tag;
                 tag = current.next("div.alltags-childtag");
-                current.appendTo(div_selected_tags);
+                current.addClass('ui-selected').appendTo(div_selected_tags);
             }
         });
         hide_empty_tagsets();
@@ -133,6 +135,9 @@
     };
 
     var deselect_tags = function(event) {
+        // clear selections in left box
+        $("div.ui-selected", div_all_tags).removeClass('ui-selected');
+        // move tags back to left box
         $("div.ui-selected", div_selected_tags).each(function() {
             var tagset = $(this).attr("data-set");
             if (tagset) {
