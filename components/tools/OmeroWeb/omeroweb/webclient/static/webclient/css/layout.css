@@ -2329,11 +2329,65 @@ tr.figImageData:hover .rowDragHandle {
 
 
 
-
-
-
-
-
-
-
-
+input#id_tag {
+    background: url(../image/search.png) no-repeat right center;
+    width: 200px;
+    vertical-align: top;
+}
+textarea#id_description {
+    width: 420px;
+}
+button#id_add_new_tag {
+    vertical-align: top;
+}
+div#id_move_tags {
+    float: left;
+    width: 40px;
+    padding-top: 100px;
+    margin: 10px;
+    text-align: center;
+}
+div#id_move_tags button {
+    width: 25px;
+    height: 25px;
+    margin-bottom: 10px;
+}
+/* wrapper is a hack to make overflow:hidden work with .selectable()
+   without it items become deselected when scrollbar is clicked */
+div.tag_selection_wrapper {
+    height: 200px;
+    width: 320px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    font-size: larger;
+    border: thin solid black;
+    padding: 3px;
+    padding-right: 0;
+    background-color: white;
+}
+div.tag_selection {
+    overflow: visible;
+}
+div.tag_selection div {
+    white-space: nowrap;
+    padding-left: 22px;
+    padding-top: 2px;
+    height: 1.5em;
+}
+div.tag_selection div.alltags-tagset {
+    background: url(../image/left_sidebar_icon_tags.png) no-repeat left center;
+}
+div.tag_selection div.alltags-tag {
+    background: url(../image/left_sidebar_icon_tag.png) no-repeat left center;
+}
+div.tag_selection div.alltags-childtag {
+    background: url(../image/left_sidebar_icon_tag.png) no-repeat left center;
+    margin-left: 20px;
+}
+div#id_selected_tags div.alltags-childtag {
+    margin-left: 0;
+    background-color: hsl(215,20%,90%);
+}
+div.tag_selection div.ui-selected {
+    background-color: hsl(215,20%,75%) !important;
+}
