@@ -81,7 +81,7 @@
 <script>
     var div_all_tags = $("#id_all_tags");
     var div_selected_tags = $("#id_selected_tags");
-    $(".tag_selection").selectable();
+    var tag_input = $("#{{ form_tags.tag.auto_id }}");
 
     var all_tags = {{ all_tags|safe }};
     var html = "";
@@ -100,31 +100,26 @@
     }
     div_all_tags.append(html);
 
-    var hide_empty_tagsets = function() {
-        // hide tag sets that have no unselected tags anymore
-        $("div.alltags-tagset + div.alltags-tagset", div_all_tags).prev().hide();
-        $("div.alltags-tagset:last-child").hide();
-        $("div.alltags-tagset + div.alltags-childtag").prev().show();
-    };
-
     var select_tags = function(event) {
         // clear selections in right box
         $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
         // move individual tags first
-        $("div.ui-selected.alltags-tag, div.ui-selected.alltags-childtag", div_all_tags).each(function() {
+        $("div.ui-selected.alltags-tag:not(.filtered), div.ui-selected.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
             $(this).appendTo(div_selected_tags);
         });
         // move whole tag sets
-        $("div.ui-selected.alltags-tagset", div_all_tags).each(function() {
+        $("div.ui-selected.alltags-tagset:not(.filtered)", div_all_tags).each(function() {
             var tag = $(this).next("div.alltags-childtag");
             while (tag.length) {
                 var current = tag;
                 tag = current.next("div.alltags-childtag");
-                current.addClass('ui-selected').appendTo(div_selected_tags);
+                if (!current.hasClass("filtered")) {
+                    current.addClass('ui-selected').appendTo(div_selected_tags);
+                }
             }
         });
-        hide_empty_tagsets();
         sort_tag_list(div_selected_tags);
+        update_filter();
         // scroll to first selected tag
         div_selected_tags.parent().scrollTop($("div.ui-selected", div_selected_tags).offset().top - div_selected_tags.offset().top - 40);
         event.preventDefault();
@@ -142,11 +137,38 @@
                 $(this).appendTo(div_all_tags);
             }
         });
-        hide_empty_tagsets();
         sort_tag_list(div_all_tags);
+        update_filter();
         // scroll to first selected tag
         div_all_tags.parent().scrollTop($("div.ui-selected", div_all_tags).offset().top - div_all_tags.offset().top - 40);
         event.preventDefault();
+    };
+
+    var update_filter = function() {
+        var filters = $.trim(tag_input.val()).toLowerCase().split(/ +/);
+        if (filters.length == 1 && filters[0] == "") {
+            $("div.filtered", div_all_tags).removeClass('filtered');
+        } else {
+            $("div.alltags-childtag,div.alltags-tag", div_all_tags).each(function() {
+                var match = true;
+                var text = all_tags[this.getAttribute("data-id")].t.toLowerCase();
+                for (filter in filters) {
+                    match = match && text.indexOf(filters[filter]) >= 0;
+                }
+                $(this).toggleClass("filtered", !match);
+            });
+        }
+        // make sure tagsets with unfiltered tags are also not filtered
+        var unfiltered_tagsets = {};
+        $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
+            unfiltered_tagsets[this.getAttribute("data-set")] = true;
+        });
+        $("div.alltags-tagset", div_all_tags).each(function() {
+            $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
+        });
+        // hide tag sets that have no unselected tags anymore
+        $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
+        $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
     };
 
     var tag_sort_key = function(tag) {
@@ -173,12 +195,17 @@
     for (var idx in selected_tags) {
         $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
     }
-    hide_empty_tagsets();
 
     $("button#id_tag_select_button").click(select_tags);
     $("button#id_tag_deselect_button").click(deselect_tags);
 
     sort_tag_list(div_all_tags);
     sort_tag_list(div_selected_tags);
+
+    $(".tag_selection").selectable({ filter: "div:not(.filtered)" });
+
+    update_filter();
+
+    tag_input.keyup(update_filter).change(update_filter);
 
 </script>
