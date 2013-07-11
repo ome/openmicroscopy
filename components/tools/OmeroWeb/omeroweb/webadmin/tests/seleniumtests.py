@@ -141,55 +141,68 @@ class AdminTests (WebAdminTestBase):
         WebDriverWait(driver, 10).until(EC.title_contains("Users"))
 
 
-    def XtestCreateExperimenter (self):
+    def testCreateExperimenter (self):
         """
-        Creates a new experimenter (creates group first). Tests that ommiting to fill 
+        Creates a new group and experimenter. Tests that ommiting to fill 
         in 'ome-name' gives a correct message to user.
         Checks that the new user is displayed in the table of experimenters.
         """
         #print "testCreateExperimenter"  #print
-        
+
         groupName = "Selenium-testCreateExp%s" % random()
-        
+
         # uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         uuid = random()
         omeName = 'OmeName%s' % uuid
         firstName = 'Selenium'
         lastName = 'Test'
         password = 'secretPassword'
-        
+
         # first create a group for the new experimenter
-        sel = self.selenium
-        self.assertTrue(createGroup(sel, groupName))
-        
-        sel.open("/webadmin/experimenters")
-        sel.click("link=Add new scientist")
-        sel.wait_for_page_to_load("30000")
+        driver = self.driver
+        gId = self.createGroup(groupName)
+        self.assertTrue(gId is not None and gId > 0)
+
+        self.getRelativeUrl("/webadmin/experimenters")
+        driver.find_element_by_link_text("Add new User").click()
+        WebDriverWait(driver, 10).until(EC.title_is("New User"))
         # Don't fill out omeName here.
-        sel.type("id_first_name", firstName)
-        sel.type("id_last_name", lastName)
-        sel.type("id_password", password)
-        sel.type("id_confirmation", password)
-        
-        # choose existing group, add to new user, choose one as default group 
-        sel.add_selection("id_available_groups", "label=%s" % groupName)
-        sel.click("add")
-        sel.click("default_group")
-        sel.click("//input[@value='Save']")
-        sel.wait_for_page_to_load("30000")
-        
-        # check that we failed to create experimenter - ome-name wasn't filled out
-        self.failUnless(sel.is_text_present("This field is required."))
-        sel.type("id_omename", omeName)
-        sel.click("//input[@value='Save']")
-        sel.wait_for_page_to_load("30000")
-        
-        # check omeName and 'Full Name' are on the page of Scientists. 
-        self.assertEqual("WebAdmin - Scientists", sel.get_title())
-        self.failUnless(sel.is_text_present(omeName))
-        self.failUnless(sel.is_text_present("%s %s" % (firstName, lastName)))
-        # better to check text in right place
-        self.assert_(sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName))
+        nameInput = driver.find_element_by_id("id_first_name")
+        nameInput.send_keys(firstName)
+        driver.find_element_by_id("id_last_name").send_keys(lastName)
+        driver.find_element_by_id("id_password").send_keys(password)
+        driver.find_element_by_id("id_confirmation").send_keys(password)
+
+        # In order to use the Chosen plugin, we first need to know the text of the group option we want
+        # We can get this from the underlying select element
+        optionText = driver.execute_script("return $('#id_other_groups option:[value=\"%s\"]').text()" % gId)
+
+        # Chosen: show the list of groups to choose from...
+        cznInput = driver.find_element_by_css_selector("#id_other_groups_chzn input").click()
+        # ...and click the one with the text we want
+        driver.find_element_by_xpath('//li[contains(text(), "%s")]' % optionText).click()
+        # NB: Can't use :contains in css_selector!?
+        # driver.find_element_by_css_selector("#li:contains('private (rw----)')")
+
+        # Submit form...
+        nameInput.submit()
+        # wait for 'errorlist' to appear
+        WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_css_selector("ul.errorlist"))
+        self.assertEqual(driver.find_element_by_css_selector("ul.errorlist").text, "This field is required.")
+
+        # Now we fill in the missing OME username.
+        omenameInput = driver.find_element_by_id("id_omename")
+        omenameInput.send_keys(omeName)
+        # Need to re-enter passwords
+        driver.find_element_by_id("id_password").send_keys(password)
+        driver.find_element_by_id("id_confirmation").send_keys(password)
+        # submit
+        omenameInput.submit()
+
+        # Check the 'Users' page for omeName:
+        WebDriverWait(driver, 10).until(EC.title_contains("Users"))
+        # self.failUnless(sel.is_text_present(omeName))
+        self.assertTrue(len(driver.find_elements_by_xpath('//td[contains(text(), "%s")]' % omeName)) > 0, "New username not in Users table")
 
 
     def testCreateGroup(self):
