@@ -225,10 +225,12 @@ public class ServerEditor
 		table = new ServerTable(this, servers, 
 				icons.getIcon(IconManager.SERVER_22));
 		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
+		removeButton.setName("remove server button");
 		UIUtilities.unifiedButtonLookAndFeel(removeButton);
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list of servers.");
 		addButton = new JButton(icons.getIcon(IconManager.ADD));
+		addButton.setName("add server button");
 		addButton.setToolTipText("Add a new server to the list of servers.");
 		addButton.setBorder(new TitledBorder(""));
 		UIUtilities.unifiedButtonLookAndFeel(addButton);
@@ -242,6 +244,7 @@ public class ServerEditor
 			public void actionPerformed(ActionEvent e) { addRow(""); }
 		});
 		editButton = new JButton(icons.getIcon(IconManager.EDIT));
+		editButton.setName("edit server button");
 		UIUtilities.unifiedButtonLookAndFeel(editButton);
 		editButton.setToolTipText("Edit an existing server.");
 		editButton.addActionListener(new ActionListener() {
