@@ -212,9 +212,12 @@ public class NetworkChecker {
 			// On Java 1.5 and before, it will simply return true.
 			networkup = reflectiveCheck();
 		} else {
+			if (useReflectiveCheck) {
+				networkup = reflectiveCheck();
+			}
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
-			if (interfaces != null) {
+			if (interfaces != null && !networkup) {
 				NetworkInterface ni;
 				InetAddress ia;
 				while (interfaces.hasMoreElements()) {
