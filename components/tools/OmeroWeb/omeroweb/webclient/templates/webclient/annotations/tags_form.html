@@ -83,19 +83,50 @@
     var div_selected_tags = $("#id_selected_tags");
     var tag_input = $("#{{ form_tags.tag.auto_id }}");
 
-    var all_tags = {{ all_tags|safe }};
+    var all_tags = (function() {
+        var raw_tags = {{ all_tags|safe }};
+        var child_tags = (function() {
+            var children = {};
+            for (var idx in raw_tags) {
+                var c = raw_tags[idx][4];
+                if (c) {
+                    for (var cidx in c) {
+                        children[c[cidx]] = true;
+                    }
+                }
+            }
+            return children;
+        })();
+        var tagstruct = function(tag) {
+            if (tag) return {
+                i: tag[0],
+                d: tag[1],
+                t: tag[2],
+                o: tag[3],
+                s: tag[4]
+            };
+        };
+        var result = {};
+        for (var idx in raw_tags) {
+            var tag = tagstruct(raw_tags[idx]);
+            result[tag.i] = tag;
+        }
+        return result;
+    })();
+    var owners = {{ all_tags_owners|safe }};
+
     var html = "";
     for (var id in all_tags) {
         var tag = all_tags[id];
-        if (!tag.c) {
+        if (!(id in child_tags)) {
             var cls = tag.s ? 'alltags-tagset' : 'alltags-tag';
-            var title = "<b>Owner:</b> " + tag.o + "<br /><b>Description:</b> " + tag.d;
+            var title = "<b>Owner:</b> " + owners[tag.o] + "<br /><b>Description:</b> " + tag.d;
             title = $('<div/>').text(title).html(); // encode HTML
             html += "<div class='" + cls + "' data-id='" + tag.i + "' title='" + title + "'>" + tag.t + "</div>";
             if (tag.s) {
                 for (var sid in tag.s) {
                     var child = all_tags[tag.s[sid]];
-                    var ctitle = "<b>Owner:</b> " + child.o + "<br /><b>Description:</b> " + child.d;
+                    var ctitle = "<b>Owner:</b> " + owners[child.o] + "<br /><b>Description:</b> " + child.d;
                     ctitle = $('<div/>').text(ctitle).html(); // encode HTML
                     html += "<div class='alltags-childtag' data-id='" + child.i + "' data-set='" + tag.i+ "' title='" + ctitle + "'>" + child.t + "</div>";
                 }

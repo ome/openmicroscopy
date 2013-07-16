@@ -350,6 +350,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
 
     def listTagsRecursive(self, eid=None):
+        """
+        Returns a two-element tuple:
+        * A list of tags, where each tag is a list with the following
+          elements:
+          0: id
+          1: tag is a child of a tag set (1=true/0=false)
+          2: description
+          3: text
+          4: owner id
+          5: list of child tag ids, or 0 if this is not a tag set
+        * A dictionary of user ids mapped to user names
+        """
+
         params = omero.sys.ParametersI()
         params.orphan()
         params.map = {}
@@ -377,32 +390,28 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             mapping.setdefault(parent, []).append(child)
 
         sql = """
-            select ann.id, ann.description, ann.textValue, ann.details.owner.firstName, ann.details.owner.lastName
+            select ann.id, ann.description, ann.textValue, ann.details.owner.id,
+            ann.details.owner.firstName, ann.details.owner.lastName
             from TagAnnotation ann
             """
 
         if eid is not None:
             sql += " where ann.details.owner.id = :eid"
 
-        tags = dict()
+        tags = []
+        owners = dict()
         for element in q.projection(sql, params, self.SERVICE_OPTS):
-            tag_id, description, text, first, last = map(unwrap, element)
-            tags[tag_id] = dict(
-                i=tag_id,
-                c=tag_id in children,
-                d=description,
-                t=text,
-                o='%s %s' % (first, last),
-                s=mapping.get(tag_id),
-            )
-        #
-        #for parent, child_list in mapping.iteritems():
-        #    tags[parent]['tags'] = [tags[child] for child in child_list]
-        #
-        #for child in children:
-        #    del tags[child]
+            tag_id, description, text, owner, first, last = map(unwrap, element)
+            tags.append([
+                tag_id,
+                description,
+                text,
+                owner,
+                mapping.get(tag_id) or 0,
+            ])
+            owners[owner] = "%s %s" % (first, last)
 
-        return tags
+        return tags, owners
 
 
     def countOrphans (self, obj_type, eid=None):
