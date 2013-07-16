@@ -201,4 +201,16 @@ public class NetworkChecker {
 		}
 		return networkup;
 	}
+
+	/**
+	 * Testing main that allows for the usage of the NetworkChecker
+	 * without running the entire software stack.
+	 */
+	public static void main(String[] args) throws Exception {
+		String address = args.length == 1? args[0] : null;
+		NetworkChecker nc = new NetworkChecker(address);
+		System.err.println("Using explicit server address: " + address);
+		System.err.println("Java version: " + System.getProperty("java.version"));
+		System.err.println("isNetworkup()?: " + nc.isNetworkup());
+	}
 }
