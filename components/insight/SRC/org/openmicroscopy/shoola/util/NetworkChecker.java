@@ -36,7 +36,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -84,7 +83,7 @@ public class NetworkChecker {
 	 * The IP Address of the server the client is connected to
 	 * or <code>null</code>.
 	 */
-	private String ipAddress;
+	private InetAddress ipAddress;
 	
 	/** Creates a new instance.
 	 */
@@ -101,9 +100,15 @@ public class NetworkChecker {
 	 */
 	public NetworkChecker(String ipAddress)
 	{
-		this.ipAddress = ipAddress;
+		if (ipAddress != null) {
+			try {
+				this.ipAddress = InetAddress.getByName(ipAddress);
+			} catch (UnknownHostException e) {
+				// Ignored
+			}
+		}
 	}
-	
+
 	/**
 	 * Run the standard Java 1.6 check using reflection. If this is not 1.6 or later, then
 	 * exit successfully, printing this assumption to System.err. If any odd reflection error
@@ -159,15 +164,13 @@ public class NetworkChecker {
 
 		boolean networkup = false;
 		List<String> ips = new ArrayList<String>();
-		if (UIUtilities.isLinuxOS()) {
-			// Not trying any connection on linux to prevent hangs.
+		if (useReflectiveCheck) {
 			// On Java 1.6+, reflectiveCheck will perform a proper check.
-			// On Java 1.5 and before, it will simply return true.
 			networkup = reflectiveCheck();
 		} else {
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
-			if (interfaces != null) {
+			if (interfaces != null && !networkup) {
 				NetworkInterface ni;
 				InetAddress ia;
 				while (interfaces.hasMoreElements()) {
@@ -178,34 +181,36 @@ public class NetworkChecker {
 							ia = (InetAddress) e.nextElement();
 							if (!ia.isAnyLocalAddress() &&
 									!ia.isLoopbackAddress()) {
-								//if (!ia.isSiteLocalAddress()) {
 								if (!ia.getHostName().equals(
 										ia.getHostAddress())) {
 									networkup = true;
 									break;
 								}
-								//}
 							}
 						}
 						if (networkup) break;
-					} else {
-						String ip;
-						while (e.hasMoreElements()) {
-							ia = (InetAddress) e.nextElement();
-							ip = ia.getHostAddress();
-							if (!ips.contains(ip))
-								ips.add(ip);
-						}
 					}
 				}
 			}
 		}
 		if (!networkup) {
-			if (ipAddress != null) {
-				if (ips.contains(ipAddress)) return true;
+			if (ipAddress != null && ipAddress.isLoopbackAddress()) {
+				return true;
 			}
 			throw new UnknownHostException("Network is down.");
 		}
 		return networkup;
+	}
+
+	/**
+	 * Testing main that allows for the usage of the NetworkChecker
+	 * without running the entire software stack.
+	 */
+	public static void main(String[] args) throws Exception {
+		String address = args.length == 1? args[0] : null;
+		NetworkChecker nc = new NetworkChecker(address);
+		System.err.println("Using explicit server address: " + address);
+		System.err.println("Java version: " + System.getProperty("java.version"));
+		System.err.println("isNetworkup()?: " + nc.isNetworkup());
 	}
 }
