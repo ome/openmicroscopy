@@ -89,11 +89,15 @@
         var tag = all_tags[id];
         if (!tag.c) {
             var cls = tag.s ? 'alltags-tagset' : 'alltags-tag';
-            html += "<div class='" + cls + "' data-id='" + tag.i + "'>" + tag.t + "</div>";
+            var title = "<b>Owner:</b> " + tag.o + "<br /><b>Description:</b> " + tag.d;
+            title = $('<div/>').text(title).html(); // encode HTML
+            html += "<div class='" + cls + "' data-id='" + tag.i + "' title='" + title + "'>" + tag.t + "</div>";
             if (tag.s) {
                 for (var sid in tag.s) {
                     var child = all_tags[tag.s[sid]];
-                    html += "<div class='alltags-childtag' data-id='" + child.i + "' data-set='" + tag.i + "'>" + child.t + "</div>";
+                    var ctitle = "<b>Owner:</b> " + child.o + "<br /><b>Description:</b> " + child.d;
+                    ctitle = $('<div/>').text(ctitle).html(); // encode HTML
+                    html += "<div class='alltags-childtag' data-id='" + child.i + "' data-set='" + tag.i+ "' title='" + ctitle + "'>" + child.t + "</div>";
                 }
             }
         }
@@ -207,5 +211,8 @@
     update_filter();
 
     tag_input.keyup(update_filter).change(update_filter);
+
+    $("div", div_all_tags).tooltip();
+    $("div", div_selected_tags).tooltip();
 
 </script>
