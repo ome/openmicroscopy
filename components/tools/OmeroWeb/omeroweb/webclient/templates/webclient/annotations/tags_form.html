@@ -83,9 +83,10 @@
     var div_selected_tags = $("#id_selected_tags");
     var tag_input = $("#{{ form_tags.tag.auto_id }}");
 
+    var child_tags;
     var all_tags = (function() {
         var raw_tags = {{ all_tags|safe }};
-        var child_tags = (function() {
+        child_tags = (function() {
             var children = {};
             for (var idx in raw_tags) {
                 var c = raw_tags[idx][4];
