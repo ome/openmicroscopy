@@ -392,7 +392,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 c=tag_id in children,
                 d=description,
                 t=text,
-#                owner='%s %s' % (first, last),
+                o='%s %s' % (first, last),
                 s=mapping.get(tag_id),
             )
         #
