@@ -1263,6 +1263,7 @@ def annotate_tags(request, conn=None, **kwargs):
     filter_user_id = request.session.get('user_id')
     manager.loadTagsRecursive(filter_user_id)
     all_tags = manager.tags_recursive
+    all_tags_owners = manager.tags_recursive_owners
     manager.annotationList()
     selected_tags = [tag.id for tag in manager.tag_annotations]
 
@@ -1308,7 +1309,13 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
-        context = {'form_tags': form_tags, 'index': index, 'all_tags': simplejson.dumps(all_tags), 'selected_tags': simplejson.dumps(selected_tags), }
+        context = {
+            'form_tags': form_tags,
+            'index': index,
+            'all_tags': simplejson.dumps(all_tags, separators=(',', ':')),
+            'all_tags_owners': simplejson.dumps(all_tags_owners, separators=(',', ':')),
+            'selected_tags': simplejson.dumps(selected_tags),
+        }
         template = "webclient/annotations/tags_form.html"
     context['template'] = template
     return context

@@ -306,7 +306,7 @@ class BaseContainer(BaseController):
                 self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
-        self.tags_recursive = self.conn.listTagsRecursive(eid)
+        self.tags_recursive, self.tags_recursive_owners = self.conn.listTagsRecursive(eid)
 
     def loadDataByTag(self):
         pr_list = list(self.conn.getObjectsByAnnotations('Project',[self.tag.id]))
