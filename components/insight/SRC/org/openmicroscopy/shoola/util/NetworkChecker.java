@@ -38,7 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /**
@@ -97,8 +96,8 @@ public class NetworkChecker {
 	 * The IP Address of the server the client is connected to
 	 * or <code>null</code>.
 	 */
-	private String ipAddress;
-
+	private InetAddress ipAddress;
+	
 	/** Creates a new instance.
 	 */
 	public NetworkChecker()
@@ -114,7 +113,13 @@ public class NetworkChecker {
 	 */
 	public NetworkChecker(String ipAddress)
 	{
-		this.ipAddress = ipAddress;
+		if (ipAddress != null) {
+			try {
+				this.ipAddress = InetAddress.getByName(ipAddress);
+			} catch (UnknownHostException e) {
+				// Ignored
+			}
+		}
 	}
 
 	/**
@@ -206,15 +211,10 @@ public class NetworkChecker {
 
 		boolean networkup = false;
 		List<String> ips = new ArrayList<String>();
-		if (UIUtilities.isLinuxOS()) {
-			// Not trying any connection on linux to prevent hangs.
+		if (useReflectiveCheck) {
 			// On Java 1.6+, reflectiveCheck will perform a proper check.
-			// On Java 1.5 and before, it will simply return true.
 			networkup = reflectiveCheck();
 		} else {
-			if (useReflectiveCheck) {
-				networkup = reflectiveCheck();
-			}
 			Enumeration<NetworkInterface> interfaces =
 					NetworkInterface.getNetworkInterfaces();
 			if (interfaces != null && !networkup) {
@@ -228,31 +228,21 @@ public class NetworkChecker {
 							ia = (InetAddress) e.nextElement();
 							if (!ia.isAnyLocalAddress() &&
 									!ia.isLoopbackAddress()) {
-								//if (!ia.isSiteLocalAddress()) {
 								if (!ia.getHostName().equals(
 										ia.getHostAddress())) {
 									networkup = true;
 									break;
 								}
-								//}
 							}
 						}
 						if (networkup) break;
-					} else {
-						String ip;
-						while (e.hasMoreElements()) {
-							ia = (InetAddress) e.nextElement();
-							ip = ia.getHostAddress();
-							if (!ips.contains(ip))
-								ips.add(ip);
-						}
 					}
 				}
 			}
 		}
 		if (!networkup) {
-			if (ipAddress != null) {
-				if (ips.contains(ipAddress)) return true;
+			if (ipAddress != null && ipAddress.isLoopbackAddress()) {
+				return true;
 			}
 			throw new UnknownHostException("Network is down.");
 		}
