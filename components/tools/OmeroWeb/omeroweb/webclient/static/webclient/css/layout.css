@@ -2334,7 +2334,7 @@ input#id_tag {
     width: 200px;
     vertical-align: top;
 }
-textarea#id_description {
+textarea#tag_description {
     width: 420px;
 }
 button#id_add_new_tag {

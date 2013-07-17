@@ -194,7 +194,7 @@ class TagsAnnotationForm(BaseAnnotationForm):
                 widget=forms.SelectMultiple(attrs={'size':14, 'class':'existing'}), required=False)
 
     tag = forms.CharField(widget=forms.TextInput(attrs={'size':36}), required=False)
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'cols': 31}), required=False, label="Desc")
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'cols': 31, 'id': 'tag_description'}), required=False, label="Desc")
 
 
 class FilesAnnotationForm(BaseAnnotationForm):
