@@ -18,6 +18,7 @@
 % File annotation constants
 filePath = 'mydata.txt';
 fileContent = 'file annotation content';
+updatedFileContent = [fileContent ' modified'];
 fileMimeType = 'application/octet-stream';
 fileDescription = 'file annotation example';
 fileNamespace = 'examples.training.matlab';
@@ -43,7 +44,7 @@ try
     fprintf(1, 'Reading image: %g\n', imageId);
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:WriteData', 'Image Id not valid');
-
+    
     % Create a local file
     fprintf(1, 'Creating local file with content: %s\n', fileContent);
     fid = fopen(filePath, 'w');
@@ -60,7 +61,7 @@ try
     % Link the image and the file annotation
     link = linkAnnotation(session, fa, 'image', imageId);
     fprintf(1, 'and linked it to image %g\n', imageId);
-
+    
     % Delete the local file
     delete(filePath);
     
@@ -81,8 +82,28 @@ try
     readContent = fread(fid);
     fclose(fid);
     fprintf(1, 'File content: %s\n', readContent);
-
+    
     % Delete the local file
+    delete(fileOutputPath);
+    
+    % Update the local file
+    fprintf(1, 'Updating local file with content: %s\n', updatedFileContent);
+    fid = fopen(filePath, 'w');
+    fwrite(fid, updatedFileContent);
+    fclose(fid);
+    
+    % Update the original file on the server
+    updateOriginalFile(session, fa.getFile(), filePath);
+    delete(filePath);
+    
+    % Read the updated content of the file annotation
+    fprintf(1, 'Reading content of updated file annotation %g\n',...
+        fa.getId().getValue());
+    getFileAnnotationContent(session, fa, fileOutputPath);
+    fid = fopen(fileOutputPath, 'r');
+    readContent = fread(fid);
+    fclose(fid);
+    fprintf(1, 'Updated file content: %s\n', readContent);
     delete(fileOutputPath);
     
     % Create a tag i.e. tag annotation and link it to an existing project.
