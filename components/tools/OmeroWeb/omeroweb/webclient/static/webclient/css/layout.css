@@ -2391,6 +2391,9 @@ div#id_selected_tags div.alltags-childtag {
 div.tag_selection div.ui-selected {
     background-color: hsl(215,20%,75%) !important;
 }
+div.tag_selection div:hover {
+    background-color: #f0f0f0;
+}
 div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
     display: none;
 }
