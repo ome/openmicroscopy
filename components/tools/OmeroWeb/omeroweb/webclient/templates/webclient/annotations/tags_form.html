@@ -33,8 +33,9 @@
 
     <h1>{% trans "Select from available tags or Add new tag" %}:</h1>
 
-    {{ form_tags.tag }}
-    {{ form_tags.description }}
+    <input type="text" id="id_tag" />
+    <textarea id="tag_description"></textarea>
+
     <button id="id_add_new_tag"> <img src="{% static "webclient/image/plus.png" %}" /> Add new </button>
 
     <div style="float: left;">
@@ -74,6 +75,8 @@
         <div class="hiddenField">{{ form_tags.well }}</div>
         <div class="hiddenField"><input type="text" name="index" value="{{ index }}"/></div>
 
+        <div class="hiddenField">{{ form_tags.tags }}</div>
+        <div class="hiddenField">{{ newtags_formset.management_form }}</div>
 
 </div>
 
@@ -81,7 +84,7 @@
 <script>
     var div_all_tags = $("#id_all_tags");
     var div_selected_tags = $("#id_selected_tags");
-    var tag_input = $("#{{ form_tags.tag.auto_id }}");
+    var tag_input = $("#id_tag");
     var description_input = $("#tag_description");
 
     var child_tags;
@@ -134,7 +137,7 @@
         if (parent_id) {
             html += " data-set='" + parent_id + "'";
         }
-        if (!id) { // new tag, save description
+        if (id < 0) { // new tag, save description
             html += " data-description='" + encode_html(description) + "'";
         }
         if (title) {
@@ -257,6 +260,24 @@
         event.preventDefault();
     };
 
+    var save_tags = function() {
+        var existing_tags = [];
+        var new_tags = $("#id_{{ newtags_formset.prefix }}-TOTAL_FORMS");
+        var count = 0;
+        $('div', div_selected_tags).each(function() {
+            var tag_id = this.getAttribute('data-id');
+            if (tag_id[0] == "-") { // newly created tag
+                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tag").val($(this).text()));
+                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-description").val(this.getAttribute('data-description')));
+                count += 1;
+            } else { // previously existing tag
+                existing_tags.push(tag_id);
+            }
+        });
+        new_tags.val(count);
+        $("#{{ form_tags.tags.auto_id }}").val(existing_tags.join(','));
+    };
+
     var tag_sort_key = function(tag) {
         var tagid = tag.getAttribute('data-id');
         var tagset = tag.getAttribute('data-set');
@@ -285,6 +306,7 @@
     $("#id_tag_select_button").click(select_tags);
     $("#id_tag_deselect_button").click(deselect_tags);
     $("#id_add_new_tag").click(add_new_tag);
+    $("#add_tags_form").off('prepare-submit').on('prepare-submit', save_tags);
 
     sort_tag_list(div_all_tags);
     sort_tag_list(div_selected_tags);
