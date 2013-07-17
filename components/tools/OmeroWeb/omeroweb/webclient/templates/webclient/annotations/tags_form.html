@@ -116,20 +116,42 @@
     })();
     var owners = {{ all_tags_owners|safe }};
 
+    var encode_html = function(text) {
+        return $('<div/>').text(text).html();
+    }
+
+    var create_tag_html = function(text, description, owner, id, parent_id, is_tagset) {
+        var title = "";
+        if (owner) {
+            title += "<b>Owner:</b> " + owner + "<br />";
+        }
+        if (description) {
+            title += "<b>Description:</b> " + description;
+        }
+        var cls = is_tagset ? "alltags-tagset" : (parent_id ? "alltags-childtag" : "alltags-tag");
+        var html = "<div class='" + cls + "' data-id='" + id + "'";
+        if (parent_id) {
+            html += " data-set='" + parent_id + "'";
+        }
+        if (!id) { // new tag, save description
+            html += " data-description='" + encode_html(description) + '"';
+        }
+        if (title) {
+            html += " title='" + encode_html(title) + "'";
+        }
+        html += ">" + text + "</div>";
+        return html;
+    };
+
     var html = "";
     for (var id in all_tags) {
         var tag = all_tags[id];
         if (!(id in child_tags)) {
-            var cls = tag.s ? 'alltags-tagset' : 'alltags-tag';
-            var title = "<b>Owner:</b> " + owners[tag.o] + "<br /><b>Description:</b> " + tag.d;
-            title = $('<div/>').text(title).html(); // encode HTML
-            html += "<div class='" + cls + "' data-id='" + tag.i + "' title='" + title + "'>" + tag.t + "</div>";
+            html += create_tag_html(tag.t, tag.d, owners[tag.o], tag.i, null, tag.s);
             if (tag.s) {
                 for (var sid in tag.s) {
                     var child = all_tags[tag.s[sid]];
-                    var ctitle = "<b>Owner:</b> " + owners[child.o] + "<br /><b>Description:</b> " + child.d;
-                    ctitle = $('<div/>').text(ctitle).html(); // encode HTML
-                    html += "<div class='alltags-childtag' data-id='" + child.i + "' data-set='" + tag.i+ "' title='" + ctitle + "'>" + child.t + "</div>";
+                    html += create_tag_html(child.t, child.d, owners[child.o], child.i, tag.i);
                 }
             }
         }
