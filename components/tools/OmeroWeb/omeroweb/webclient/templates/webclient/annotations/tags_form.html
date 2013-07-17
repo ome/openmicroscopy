@@ -135,7 +135,7 @@
             html += " data-set='" + parent_id + "'";
         }
         if (!id) { // new tag, save description
-            html += " data-description='" + encode_html(description) + '"';
+            html += " data-description='" + encode_html(description) + "'";
         }
         if (title) {
             html += " title='" + encode_html(title) + "'";
