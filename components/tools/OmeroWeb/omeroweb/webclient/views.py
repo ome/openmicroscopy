@@ -1277,12 +1277,22 @@ def annotate_tags(request, conn=None, **kwargs):
         newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
-            added_tags = [];
-            #if tags is not None and len(tags)>0:
-            #    added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
-            #if tag is not None and tag != "":
-            #    new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
-            #    added_tags.append(new_tag_id)
+            added_tags = []
+            tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tags]
+            if tags:
+                added_tags.extend(manager.createAnnotationsLinks(
+                    'tag',
+                    tags,
+                    oids,
+                    well_index=index,
+                ))
+            for form in newtags_formset.forms:
+                added_tags.append(manager.createTagAnnotations(
+                    form.cleaned_data['tag'],
+                    form.cleaned_data['description'],
+                    oids,
+                    well_index=index,
+                ))
             if len(added_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"

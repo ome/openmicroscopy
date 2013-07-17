@@ -194,6 +194,17 @@ class TagsAnnotationForm(BaseAnnotationForm):
 
     tags = forms.CharField(required=False, widget=forms.HiddenInput)
 
+    def clean_tags(self):
+        data = self.cleaned_data['tags']
+        if not data:
+            return []
+        try:
+            data = map(int, data.split(','))
+        except Exception:
+            raise forms.ValidationError()
+        return data
+
+
 class NewTagsAnnotationForm(forms.Form):
     """ Helper form for new tags """
     tag = forms.CharField(required=True, widget=forms.HiddenInput)
