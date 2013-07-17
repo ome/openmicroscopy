@@ -54,7 +54,8 @@ from forms import GlobalSearchForm, ShareForm, BasketShareForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataObjectiveSettingsForm, MetadataStageLabelForm, \
                     MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    FilesAnnotationForm, WellIndexForm
+                    FilesAnnotationForm, WellIndexForm, \
+                    NewTagsAnnotationFormSet
 
 from controller.index import BaseIndex
 from controller.basket import BaseBasket
@@ -1269,24 +1270,19 @@ def annotate_tags(request, conn=None, **kwargs):
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
-    initial['tags'] = tags
-    initial['selected_tags'] = [
-    ]
 
     if request.method == 'POST':
         # handle form submission
         form_tags = TagsAnnotationForm(initial=initial, data=request.REQUEST.copy())
+        newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
-        if form_tags.is_valid():
-            tag = form_tags.cleaned_data['tag']
-            description = form_tags.cleaned_data['description']
-            tags = form_tags.cleaned_data['tags']
+        if form_tags.is_valid() and newtags_formset.is_valid():
             added_tags = [];
-            if tags is not None and len(tags)>0:
-                added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
-            if tag is not None and tag != "":
-                new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
-                added_tags.append(new_tag_id)
+            #if tags is not None and len(tags)>0:
+            #    added_tags = manager.createAnnotationsLinks('tag', tags, oids, well_index=index)
+            #if tag is not None and tag != "":
+            #    new_tag_id = manager.createTagAnnotations(tag, description, oids, well_index=index)
+            #    added_tags.append(new_tag_id)
             if len(added_tags) == 0:
                 return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
@@ -1309,8 +1305,10 @@ def annotate_tags(request, conn=None, **kwargs):
 
     else:
         form_tags = TagsAnnotationForm(initial=initial)
+        newtags_formset = NewTagsAnnotationFormSet(prefix='newtags')
         context = {
             'form_tags': form_tags,
+            'newtags_formset': newtags_formset,
             'index': index,
             'all_tags': simplejson.dumps(all_tags, separators=(',', ':')),
             'all_tags_owners': simplejson.dumps(all_tags_owners, separators=(',', ':')),

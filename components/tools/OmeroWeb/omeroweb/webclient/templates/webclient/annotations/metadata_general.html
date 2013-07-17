@@ -214,7 +214,7 @@
                     $("#add_tags_form").dialog("open");
                     // load form via AJAX...
                     var load_url = $(this).attr('href');
-                    $("#add_tags_form").load(load_url);
+                    $("#add_tags_form").html('').load(load_url);
                     return false;
                 });
                 // set-up the tags form to use dialog
@@ -225,19 +225,17 @@
                     width: 780,
                     modal: true,
                     buttons: {
-                        "Reset": function() {
-                            // discard all changes and reload the form
-                            $("#add_tags_form").load($("#launch_tags_form").attr('href'));
-                        },
-{% comment %}
                         "Save": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#add_tags_form").submit();
+                            $("#add_tags_form").trigger('prepare-submit').submit();
                             $( this ).dialog( "close" );
                         },
-{% endcomment %}
                         "Cancel": function() {
                             $( this ).dialog( "close" );
+                        },
+                        "Reset": function() {
+                            // discard all changes and reload the form
+                            $("#add_tags_form").html('').load($("#launch_tags_form").attr('href'));
                         }
                     }
                 });
