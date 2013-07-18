@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright (C) 2008-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -61,7 +61,8 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
                 sendFiles = ((ImportEvent.DEBUG_SEND) event).sendFiles;
                 sendLogs = ((ImportEvent.DEBUG_SEND) event).sendLogs;
                 log.info("Sending error report "
-                        + (sendFiles ? "with files " : " ") + "...");
+                        + "(" + errors.size() + ")"
+                        + (sendFiles ? " with files " : " ") + "...");
                 if (sendLogs) log.info("Sending log file...");
                 sendErrors();
             }
