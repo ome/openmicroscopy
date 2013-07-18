@@ -18,10 +18,12 @@
 % File annotation constants
 filePath = 'mydata.txt';
 fileContent = 'file annotation content';
-updatedFileContent = [fileContent ' modified'];
+newFileContent = [fileContent ' modified'];
 fileMimeType = 'application/octet-stream';
-fileDescription = 'file annotation example';
+fileDescription = 'file annotation description';
+newFileDescription = [fileDescription ' modified'];
 fileNamespace = 'examples.training.matlab';
+newFileNamespace = [fileNamespace '.extended'];
 fileOutputPath = 'mydataBack.txt';
 
 % Tag annotation constants
@@ -87,16 +89,17 @@ try
     delete(fileOutputPath);
     
     % Update the local file
-    fprintf(1, 'Updating local file with content: %s\n', updatedFileContent);
+    fprintf(1, 'Creating local file with content: %s\n', newFileContent);
     fid = fopen(filePath, 'w');
-    fwrite(fid, updatedFileContent);
+    fwrite(fid, newFileContent);
     fclose(fid);
     
-    % Update the original file on the server
-    updateOriginalFile(session, fa.getFile(), filePath);
+    % Update the file annotation on the server
+    fa = updateFileAnnotation(session, fa, filePath, 'description',...
+        newFileDescription, 'namespace', newFileNamespace);
     delete(filePath);
     
-    % Read the updated content of the file annotation
+    % Read the content of the updated file annotation
     fprintf(1, 'Reading content of updated file annotation %g\n',...
         fa.getId().getValue());
     getFileAnnotationContent(session, fa, fileOutputPath);
