@@ -1,5 +1,5 @@
 function originalFile = updateOriginalFile(session, originalFile, filePath)
-% UPDATEORIGINALFILE Update a file on the OMERO server with new content 
+% UPDATEORIGINALFILE Update a file on the OMERO server with new content
 %
 %    originalFile = updateOriginalFile(session, originalFile, filePath)
 %    updates the content of the input original file using the content of
