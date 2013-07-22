@@ -152,9 +152,11 @@
         var tag = all_tags[id];
         if (!(id in child_tags)) {
             html += create_tag_html(tag.t, tag.d, owners[tag.o], tag.i, null, tag.s);
+            tag.sort_key = tag.t.toLowerCase();
             if (tag.s) {
                 for (var sid in tag.s) {
                     var child = all_tags[tag.s[sid]];
+                    child.sort_key = tag.t.toLowerCase() + child.t.toLowerCase();
                     html += create_tag_html(child.t, child.d, owners[child.o], child.i, tag.i);
                 }
             }
@@ -278,24 +280,11 @@
         $("#{{ form_tags.tags.auto_id }}").val(existing_tags.join(','));
     };
 
-    var tag_sort_key = function(tag) {
-        var tagid = tag.getAttribute('data-id');
-        var tagset = tag.getAttribute('data-set');
-        if (tagset) {
-            return all_tags[tagset].t + all_tags[tagid].t;
-        } else {
-            return all_tags[tagid].t;
-        }
-    };
-
-    var compare_tags = function(a, b) {
-        var a_key = tag_sort_key(a);
-        var b_key = tag_sort_key(b);
-        return a_key > b_key ? 1 : -1;
-    };
-
     var sort_tag_list = function(list) {
-        $("div", list).sort(compare_tags).appendTo(list);
+        $("div", list).sort(function(a, b) {
+            return (all_tags[a.getAttribute('data-id')].sort_key >
+                    all_tags[b.getAttribute('data-id')].sort_key ? 1 : -1);
+        }).appendTo(list);
     };
 
     var selected_tags = {{ selected_tags }};
