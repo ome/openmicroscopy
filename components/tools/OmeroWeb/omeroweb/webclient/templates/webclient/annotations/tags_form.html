@@ -300,7 +300,7 @@
     sort_tag_list(div_all_tags);
     sort_tag_list(div_selected_tags);
 
-    $(".tag_selection").selectable({ filter: "div:not(.filtered)" });
+    $(".tag_selection").selectable({ filter: "div:not(.filtered)", autoRefresh: false });
 
     update_filter();
 
