@@ -355,11 +355,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         * A list of tags, where each tag is a list with the following
           elements:
           0: id
-          1: tag is a child of a tag set (1=true/0=false)
-          2: description
-          3: text
-          4: owner id
-          5: list of child tag ids, or 0 if this is not a tag set
+          1: description
+          2: text
+          3: owner id
+          4: list of child tag ids, or 0 if this is not a tag set
         * A dictionary of user ids mapped to user names
         """
 
