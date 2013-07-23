@@ -75,6 +75,6 @@ rawFileStore.close();
 
 % Compare checksums of file client-side verus server-side
 clientHash = char(hasher.checksumAsString());
-serverHash = char(originalFile.getSha1().getValue());
+serverHash = char(originalFile.getHash().getValue());
 msg = 'File checksum mismatch on upload: %s (client has %s, server has %s)';
 assert(isequal(clientHash, serverHash), msg, filePath, clientHash, serverHash);
