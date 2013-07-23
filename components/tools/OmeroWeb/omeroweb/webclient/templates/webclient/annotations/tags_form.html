@@ -208,31 +208,44 @@
         event.preventDefault();
     };
 
+    var update_timeout = null;
     var update_filter = function() {
-        var filters = $.trim(tag_input.val()).toLowerCase().split(/ +/);
+        clearTimeout(update_timeout);
+        var input = tag_input.val();
+        var filters = $.trim(input).toLowerCase().split(/ +/);
         if (filters.length == 1 && filters[0] == "") {
             $("div.filtered", div_all_tags).removeClass('filtered');
         } else {
-            $("div.alltags-childtag,div.alltags-tag", div_all_tags).each(function() {
-                var match = true;
-                var text = all_tags[this.getAttribute("data-id")].t.toLowerCase();
-                for (filter in filters) {
-                    match = match && text.indexOf(filters[filter]) >= 0;
+            var tags = $("div.alltags-childtag,div.alltags-tag", div_all_tags);
+            var dofilter = function(pos) {
+                var endpos = Math.min(pos + 1000, tags.length);
+                for (var idx = pos; idx < endpos; idx++) {
+                    var tag = tags.eq(idx);
+                    var match = true;
+                    var text = all_tags[tag.attr("data-id")].t.toLowerCase();
+                    for (filter in filters) {
+                        match = match && text.indexOf(filters[filter]) >= 0;
+                    }
+                    tag.toggleClass("filtered", !match);
                 }
-                $(this).toggleClass("filtered", !match);
-            });
+                if (endpos < tags.length) {
+                    update_timeout = setTimeout(function() { dofilter(endpos); }, 1);
+                } else {
+                    // make sure tagsets with unfiltered tags are also not filtered
+                    var unfiltered_tagsets = {};
+                    $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
+                        unfiltered_tagsets[this.getAttribute("data-set")] = true;
+                    });
+                    $("div.alltags-tagset", div_all_tags).each(function() {
+                        $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
+                    });
+                    // hide tag sets that have no unselected tags anymore
+                    $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
+                    $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
+                }
+            };
+            dofilter(0);
         }
-        // make sure tagsets with unfiltered tags are also not filtered
-        var unfiltered_tagsets = {};
-        $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
-            unfiltered_tagsets[this.getAttribute("data-set")] = true;
-        });
-        $("div.alltags-tagset", div_all_tags).each(function() {
-            $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
-        });
-        // hide tag sets that have no unselected tags anymore
-        $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
-        $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
     };
 
     var new_tag_counter = 0;
