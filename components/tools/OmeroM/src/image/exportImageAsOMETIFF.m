@@ -39,7 +39,7 @@ ip.addRequired('imagePath', @ischar);
 ip.parse(image, imagePath);
 
 % Get the pixels from the image
-if ~isa(image, 'omero.model.ImageI'),
+if isa(image, 'omero.model.ImageI'),
     imageID = image.getId().getValue;
 else
     imageID = image;
