@@ -93,6 +93,25 @@
     var all_tags;
     var owners = {};
 
+    var progressbar = {
+        init: function() {
+            if ($("#add_tags_progress").length == 0) {
+                $("#add_tags_form").next().append("<div id='add_tags_progress'></div>");
+            }
+            return progressbar;
+        },
+        update: function(status, progress) {
+            $("#add_tags_progress").show().html(status + " " + progress + "% done");
+            return progressbar;
+        },
+        complete: function() {
+            setTimeout(function() {
+                $("#add_tags_progress").hide();
+            }, 2000);
+            return progressbar;
+        }
+    };
+
     var create_html = function() {
         var html = "";
         for (var id in all_tags) {
@@ -125,6 +144,7 @@
     };
 
     var load_owners = function() {
+        progressbar.init().update('Loading owners', 35);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=owners",
             cache: false,
@@ -138,6 +158,7 @@
     };
 
     var load_tags = function() {
+        progressbar.init().update('Loading tags', 0);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=tags",
             cache: false,
@@ -179,6 +200,7 @@
     };
 
     var load_descriptions = function() {
+        progressbar.init().update('Loading descriptions', 50);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=desc",
             cache: false,
@@ -188,6 +210,7 @@
                     all_tags[id].d = data[id];
                 }
                 update_html();
+                progressbar.update('Loading descriptions', 100).complete();
             }
         });
     };
