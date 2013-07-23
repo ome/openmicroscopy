@@ -1262,14 +1262,17 @@ def annotate_tags(request, conn=None, **kwargs):
     tags = []
 
     filter_user_id = request.session.get('user_id')
-    manager.loadTagsRecursive(filter_user_id)
-    all_tags = manager.tags_recursive
-    all_tags_owners = manager.tags_recursive_owners
     manager.annotationList()
     selected_tags = [tag.id for tag in manager.tag_annotations]
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
+
+    jsonmode = request.GET.get('jsonmode')
+    if jsonmode:
+        manager.loadTagsRecursive(filter_user_id)
+        all_tags = manager.tags_recursive
+        all_tags_owners = manager.tags_recursive_owners
 
     if request.method == 'POST':
         # handle form submission
@@ -1315,6 +1318,18 @@ def annotate_tags(request, conn=None, **kwargs):
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
 
+    elif jsonmode == 'tags':
+        # send tag information without descriptions
+        return list((i, t, o, s) for i, d, t, o, s in all_tags)
+
+    elif jsonmode == 'desc':
+        # send descriptions for tags
+        return dict((i, d) for i, d, t, o, s in all_tags)
+
+    elif jsonmode == 'owners':
+        # send owner information
+        return all_tags_owners
+
     else:
         form_tags = TagsAnnotationForm(initial=initial)
         newtags_formset = NewTagsAnnotationFormSet(prefix='newtags')
@@ -1322,8 +1337,6 @@ def annotate_tags(request, conn=None, **kwargs):
             'form_tags': form_tags,
             'newtags_formset': newtags_formset,
             'index': index,
-            'all_tags': simplejson.dumps(all_tags, separators=(',', ':')),
-            'all_tags_owners': simplejson.dumps(all_tags_owners, separators=(',', ':')),
             'selected_tags': simplejson.dumps(selected_tags),
         }
         template = "webclient/annotations/tags_form.html"
