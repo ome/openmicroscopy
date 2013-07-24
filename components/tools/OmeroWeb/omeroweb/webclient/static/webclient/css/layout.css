@@ -2407,7 +2407,7 @@ div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
 ================================================== */
 .ui-progressbar {
   background-color: #ccc;
-  height: 14px;
+  height: 14px !important;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
   border-radius: 2px;
@@ -2481,8 +2481,13 @@ div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
     margin: 15px 0 0 10px;
 }
 
+#add_tags_progress > div {
+    float: left;
+}
+
 #add_tags_progress .progress-label {
     width: 120px;
+    text-align: right;
 }
 
 #add_tags_progress .progress-striped {
