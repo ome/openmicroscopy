@@ -2336,9 +2336,14 @@ input#id_tag {
 }
 textarea#tag_description {
     width: 420px;
+    height: 1.2em;
+    margin-top: 2px;
+    vertical-align: top;
 }
 button#id_add_new_tag {
     vertical-align: top;
+    margin-top: 2px;
+    height: 25px;
 }
 div#id_move_tags {
     float: left;
