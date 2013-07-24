@@ -2402,3 +2402,90 @@ div.tag_selection div:hover {
 div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
     display: none;
 }
+
+/* #Progress Bar
+================================================== */
+.ui-progressbar {
+  background-color: #ccc;
+  height: 14px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border-radius: 2px;
+  -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  padding-right: 2px;
+  width: 68px;
+}
+
+.progress-striped {
+  -moz-background-size: 30px 30px;
+  -webkit-background-size: 30px 30px;
+  background-size: 30px 30px;
+  background-image: -moz-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: -webkit-gradient(linear, left top, right bottom,
+          color-stop(.25, rgba(255, 255, 255, .5)), color-stop(.25, transparent),
+          color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .5)),
+          color-stop(.75, rgba(255, 255, 255, .5)), color-stop(.75, transparent),
+          to(transparent));
+  background-image: -webkit-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: -ms-linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, .5) 25%, transparent 25%,
+          transparent 50%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, .5) 75%,
+          transparent 75%, transparent);
+  -webkit-animation: animate-stripes 3s linear infinite;
+  -moz-animation: animate-stripes 3s linear infinite;
+}
+
+/*animates the stripes*/
+@-moz-keyframes animate-stripes {
+  0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
+
+@-webkit-keyframes animate-stripes {
+  0% {background-position: 0 0;} 100% {background-position: 60px 0;}
+}
+
+.ui-progressbar-value {
+  background-color: #619e47;
+  background-image: -moz-linear-gradient(top, #add79a, #619e47);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#add79a), to(#619e47));
+  background-image: -webkit-linear-gradient(top, #add79a, #619e47);
+  background-image: linear-gradient(to bottom, #add79a, #619e47);
+  background-repeat: repeat-x;
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff80a1a2', endColorstr='#ff547879', GradientType=0);
+  -moz-border-radius: 1px;
+  -webkit-border-radius: 12px;
+  border-right: 1px solid #628c51;
+  border-left: 1px solid #628c51;
+  border-radius: 1px;
+  -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(0, 0, 0, 0.2);
+  height: 100%;
+  -moz-transition: width .4s ease-in-out;
+  -webkit-transition: width .4s ease-in-out;
+  -ms-transition: width .4s ease-in-out;
+  transition: width .4s ease-in-out;
+  width: 0;
+}
+
+#add_tags_progress {
+    margin: 15px 0 0 10px;
+}
+
+#add_tags_progress .progress-label {
+    width: 120px;
+}
+
+#add_tags_progress .progress-striped {
+    width: 200px;
+    margin: 0 10px;
+}

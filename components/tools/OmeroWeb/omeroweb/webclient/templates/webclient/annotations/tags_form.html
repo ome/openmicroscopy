@@ -28,7 +28,6 @@
 -->
 {% endcomment %}
 
-
 <div class="standard_form">
 
     <h1>{% trans "Select from available tags or Add new tag" %}:</h1>
@@ -81,6 +80,7 @@
 </div>
 
 
+
 <script>
     var selected_tags = {{ selected_tags }};
 
@@ -93,24 +93,27 @@
     var all_tags;
     var owners = {};
 
-    var progressbar = {
-        init: function() {
-            if ($("#add_tags_progress").length == 0) {
-                $("#add_tags_form").next().append("<div id='add_tags_progress'></div>");
-            }
-            return progressbar;
-        },
-        update: function(status, progress) {
-            $("#add_tags_progress").show().html(status + " " + progress + "% done");
-            return progressbar;
-        },
-        complete: function() {
-            setTimeout(function() {
-                $("#add_tags_progress").hide();
-            }, 2000);
-            return progressbar;
-        }
-    };
+    if ($("#add_tags_progress").length == 0) {
+        $("#add_tags_form").next().append(
+            "<div id='add_tags_progress' style='display:none;'>" +
+            "    <div style='float: left;' class='progress-label'></div>" +
+            "    <div style='float: left;' class='progress-striped animate-stripes'></div>" +
+            "    <div style='float: left;' class='progress-value'></div>" +
+            "</div>"
+        );
+    }
+
+    // progress bar
+    var progressbar = $("#add_tags_progress .progress-striped").progressbar({
+            change: function() {
+                $("#add_tags_progress .progress-value").text(progressbar.progressbar("value") + "%")
+            },
+            complete: function() {
+                setTimeout(function() { $("#add_tags_progress").hide(); }, 2000);
+            },
+            value: -1
+        });
+    var progressbar_label = $("#add_tags_progress .progress-label");
 
     var create_html = function() {
         var html = "";
@@ -144,7 +147,8 @@
     };
 
     var load_owners = function() {
-        progressbar.init().update('Loading owners', 35);
+        progressbar_label.text("Loading owners");
+        progressbar.progressbar("value", 35);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=owners",
             cache: false,
@@ -158,7 +162,9 @@
     };
 
     var load_tags = function() {
-        progressbar.init().update('Loading tags', 0);
+        $("#add_tags_progress").show();
+        progressbar_label.text("Loading tags");
+        progressbar.progressbar("value", 0);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=tags",
             cache: false,
@@ -200,7 +206,8 @@
     };
 
     var load_descriptions = function() {
-        progressbar.init().update('Loading descriptions', 50);
+        progressbar_label.text("Loading descriptions");
+        progressbar.progressbar("value", 50);
         $.ajax({
             url: $("#launch_tags_form").attr('href') + "&jsonmode=desc",
             cache: false,
@@ -210,7 +217,7 @@
                     all_tags[id].d = data[id];
                 }
                 update_html();
-                progressbar.update('Loading descriptions', 100).complete();
+                progressbar.progressbar("value", 100);
             }
         });
     };
