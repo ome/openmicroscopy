@@ -1298,12 +1298,10 @@ def annotate_tags(request, conn=None, **kwargs):
                     oids,
                     well_index=index,
                 ))
-            if len(added_tags) == 0:
-                return HttpResponse("<div>No Tags Added</div>")
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=added_tags, addedByMe=(obj_count==1))
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'], addedByMe=(obj_count==1))
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
