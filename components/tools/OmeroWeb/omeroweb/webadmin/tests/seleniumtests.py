@@ -32,56 +32,6 @@ from django.conf import settings
 class WebAdminTestBase (SeleniumTestBase):
 
 
-    def createGroup (self, groupName):
-        """
-        Helper method for creating a new group with the given name. 
-        Must be logged in as root. Creates a private group. 
-        Returns groupId if creation sucessful (the groups page displays new group name)
-        Otherwise returns None
-        """
-        driver = self.driver
-        self.getRelativeUrl("/webadmin/groups")
-        driver.find_element_by_link_text("Add new Group").click()
-        WebDriverWait(driver, 10).until(EC.title_is("Add group"))
-        nameInput = driver.find_element_by_name("name")
-        nameInput.send_keys(groupName)
-        nameInput.submit()
-        WebDriverWait(driver, 10).until(EC.title_is("OMERO Groups"))
-        tdText = driver.execute_script("return $('td:contains(\"%s\")').prev().text()" % groupName)
-        if len(tdText) > 0:
-            return long(tdText)
-
-
-    def createExperimenter(self, omeName, groupIds, password="ome", firstName="Selenium", lastName="Test"):
-        """
-        Helper method for creating an experimenter in the specified existing groups
-        Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
-        Otherwise returns None
-        """
-        driver = self.driver
-        self.getRelativeUrl("/webadmin/experimenters")
-        driver.find_element_by_link_text("Add new User").click()
-        WebDriverWait(driver, 10).until(EC.title_is("New User"))
-        # Fill in all required fields
-        driver.find_element_by_id("id_omename").send_keys(omeName)
-        driver.find_element_by_id("id_first_name").send_keys(firstName)
-        driver.find_element_by_id("id_last_name").send_keys(lastName)
-        driver.find_element_by_id("id_password").send_keys(password)
-        pwConf = driver.find_element_by_id("id_confirmation")
-        pwConf.send_keys(password)
-
-        self.chosenPicker("#id_other_groups", groupIds)
-        # Submit form...
-        pwConf.submit()
-
-        # Check the 'Users' page for omeName:
-        WebDriverWait(driver, 10).until(EC.title_contains("Users"))
-        self.assertTrue(len(driver.find_elements_by_xpath('//td[contains(text(), "%s")]' % omeName)) > 0, "New username not in Users table")
-        eId = driver.execute_script("return $('td:contains(\"%s\")').prev().prev().text()" % omeName)
-        if len(eId) > 0:
-            return long(eId)
-
-
     def chosenPicker(self, selectSelector, toAdd=[], toRemove=[]):
         """
         For a Chosen plugin based on the <select> with selectSelector E.g. #id_other_groups
@@ -102,20 +52,6 @@ class WebAdminTestBase (SeleniumTestBase):
 
 
 class AdminTests (WebAdminTestBase):
-
-    def setUp(self):
-        super(AdminTests, self).setUp()
-
-        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
-        try:
-            root_password = c.ic.getProperties().getProperty('omero.rootpass')
-            omero_host = c.ic.getProperties().getProperty('omero.host')
-        finally:
-            c.__del__()
-
-        from omeroweb.connector import Server
-        server_id = Server.find(host=omero_host)[0].id
-        self.login('root', root_password, server_id)
 
 
     def testPages (self):
@@ -224,7 +160,7 @@ class AdminTests (WebAdminTestBase):
         self.assertTrue(group2Id > 0)
         
         # create the experimenter in 2 groups
-        eId = self.createExperimenter(omeName, [group1Id, group2Id])
+        eId = self.createExperimenter(omeName, group1Id)
         self.assertTrue(eId > 0)
         self.getRelativeUrl("/webadmin/experimenter/edit/%d" % eId)
 

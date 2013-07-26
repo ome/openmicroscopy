@@ -46,6 +46,9 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import unittest, time, urllib2, cookielib
+from random import random
+import omero
+import os
 
 class SeleniumTestServer (object):
     def __init__ (self, base='webgateway', url='http://localhost:8000', host='localhost', port=4444, browser='*firefox'):
@@ -132,32 +135,87 @@ class SeleniumTestBase (unittest.TestCase):
             self.SERVER = SeleniumTestServer()
         self.driver = self.SERVER.getDriver()
 
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            omero_host = c.ic.getProperties().getProperty('omero.host')
+        finally:
+            c.__del__()
+
+        from omeroweb.connector import Server
+        server_id = Server.find(host=omero_host)[0].id
+        self.login('root', root_password, server_id)
+
     def getRelativeUrl (self, relativeUrl):
         """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
         url = self.SERVER.url + relativeUrl
         self.driver.get(url)
 
-    def login (self, u, p, sid=None): #sid
+    def login (self, u, p, sid=1): #sid
         driver = self.driver
-        # self.getRelativeUrl("/webclient/logout/")    # not needed?
         self.getRelativeUrl("/webclient/login/")
-        if sid is not None:
-            select = driver.find_element_by_tag_name("select")
-            option = select.find_element_by_css_selector("option[value='%s']" % sid)
-            option.click()
-
-        driver.find_element_by_name("username").send_keys(u)
-        pwInput = driver.find_element_by_name("password")
-        pwInput.send_keys(p)
-        # submit the form
-        pwInput.submit()
-        # Wait to be redirected to the webadmin 'home page'
-        WebDriverWait(driver, 10).until(EC.title_contains("Webclient"))
+        postJs = '$.post("/webclient/login/", {"username":"%s", "password":"%s", "server":%s})' % (u, p, sid)
+        driver.execute_script(postJs)
 
     def logout (self):
         driver = self.driver
         self.getRelativeUrl("/webclient/logout/")
         WebDriverWait(driver, 10).until(EC.title_contains("Login"))
+
+
+    def createGroup (self, groupName, perms=1):
+        """
+        Helper method for creating a new group with the given name.
+        Must be on a page that has jQuery $ and be logged in as Admin.
+        Creates a private group by default
+        Returns groupId if creation sucessful (the groups page displays new group name)
+        Otherwise returns None
+        
+        @param groupName:   Name of new group
+        @param perms:       1 = private, 2 = read-only, 3 = read-annotate
+        """
+        driver = self.driver
+        createGroupJs = '$.post("/webadmin/group/create/", {"name":"%s", "permissions":"%s"})' % (groupName, perms)
+        driver.execute_script(createGroupJs)
+        self.getRelativeUrl("/webadmin/groups/")
+        tdText = driver.execute_script("return $('td:contains(\"%s\")').prev().text()" % groupName)
+        if len(tdText) > 0:
+            return long(tdText)
+
+
+    def createExperimenter(self, omeName, groupId, password="ome", firstName="Selenium", lastName="Test"):
+        """
+        Helper method for creating an experimenter in the specified existing group
+        Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
+        Otherwise returns None
+        """
+        driver = self.driver
+        createUserJs = '$.post("/webadmin/experimenter/create/", \
+                        {"omename":"%s", "password":"%s", "confirmation":"%s", \
+                        "first_name":"%s", "last_name":"%s", "other_groups":%s, "active":"true"})' % (omeName, password, password, firstName, lastName, groupId)
+        driver.execute_script(createUserJs)
+        self.getRelativeUrl("/webadmin/experimenters/")
+        self.assertTrue(len(driver.find_elements_by_xpath('//td[contains(text(), "%s")]' % omeName)) > 0, "New username not in Users table")
+        eId = driver.execute_script("return $('td:contains(\"%s\")').prev().prev().text()" % omeName)
+        if len(eId) > 0:
+            return long(eId)
+
+
+    def createUserAndLogin(self, omeName=None, gid=None):
+        """
+        Creates a new user in the specified group (or new group).
+        Then logs in as the new user.
+        """
+        if omeName is None:
+            omeName = "SeleniumTest%s" % random()
+        if gid is None:
+            groupName = "SeleniumTestGroup%s" % random()
+            gid = self.createGroup(groupName)
+        eid = self.createExperimenter(omeName, gid)
+        self.logout()
+        self.login(omeName, "ome")
+        return eid
+
 
     def waitForElementPresence (self, element, present=True):
         """
