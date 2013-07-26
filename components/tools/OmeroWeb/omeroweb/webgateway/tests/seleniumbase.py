@@ -43,6 +43,8 @@ The values above are just examples.
 __docformat__='epytext' 
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import unittest, time, urllib2, cookielib
 
 class SeleniumTestServer (object):
@@ -134,6 +136,28 @@ class SeleniumTestBase (unittest.TestCase):
         """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
         url = self.SERVER.url + relativeUrl
         self.driver.get(url)
+
+    def login (self, u, p, sid=None): #sid
+        driver = self.driver
+        # self.getRelativeUrl("/webclient/logout/")    # not needed?
+        self.getRelativeUrl("/webclient/login/")
+        if sid is not None:
+            select = driver.find_element_by_tag_name("select")
+            option = select.find_element_by_css_selector("option[value='%s']" % sid)
+            option.click()
+
+        driver.find_element_by_name("username").send_keys(u)
+        pwInput = driver.find_element_by_name("password")
+        pwInput.send_keys(p)
+        # submit the form
+        pwInput.submit()
+        # Wait to be redirected to the webadmin 'home page'
+        WebDriverWait(driver, 10).until(EC.title_contains("Webclient"))
+
+    def logout (self):
+        driver = self.driver
+        self.getRelativeUrl("/webclient/logout/")
+        WebDriverWait(driver, 10).until(EC.title_contains("Login"))
 
     def waitForElementPresence (self, element, present=True):
         """
