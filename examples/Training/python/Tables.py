@@ -76,7 +76,7 @@ conn.getUpdateService().saveAndReturnObject(link)
 
 # Table API
 # =================================================================
-# .. seealso:: :jenkins:`javadoc <slice2html/omero/grid/Table.html>`
+# .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
 
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
 
