@@ -630,3 +630,52 @@ def render_performance (request, obj_type, id, conn=None, **kwargs):
         context = {'imageIds':imageIds}
 
     return render_to_response('webtest/demo_viewers/render_performance.html', context)
+
+@login_required(setGroupContext=True)
+def createTestImage (request, conn=None, **kwargs):
+    """
+    Creates a Test Image using numpy.
+    Various parameters can be set using request.
+    name, sizeX, sizeY, sizeZ, sizeC, sizeT, ptype, dataset
+    Returns the Image ID.
+    """
+
+    from numpy import fromfunction, int8, int16, int32, int64, uint8, uint16
+
+    def getNumber(rstring, default):
+        try:
+            return int(request.REQUEST.get(rstring, default))
+        except:
+            return default
+
+    name = request.REQUEST.get('name', "webtest-TestImage")
+    sizeX = getNumber('sizeX', 125)
+    sizeY = getNumber('sizeY', 125)
+    sizeZ = getNumber('sizeZ', 1)
+    sizeC = getNumber('sizeC', 1)
+    sizeT = getNumber('sizeT', 1)
+    ptype = request.REQUEST.get('ptype', 'int8')
+    dataset = getNumber('dataset', None)
+
+    ptypes = {'int8':int8, 'int16':int16, 'int32':int32, 'int64':int64, 'uint8':uint8, 'uint16':uint16}
+    if ptype not in ptypes:
+        ptype = 'int8'
+    dtype = ptypes[ptype]
+
+    if dataset is not None:
+        dataset = conn.getObject("Dataset", dataset)
+
+    def f(y, x):
+        return x
+
+    def planeGen():
+        for count in range(sizeZ * sizeC * sizeT):
+            print count
+            yield fromfunction(f, (sizeY, sizeX), dtype=dtype)
+
+    desc = "Created via /webtest/createTestImage"
+    zctPlanes = planeGen()
+
+    image = conn.createImageFromNumpySeq(zctPlanes, name, sizeZ, sizeC, sizeT, description=desc, dataset=dataset)
+
+    return HttpResponse(image.getId())

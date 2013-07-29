@@ -55,4 +55,8 @@ urlpatterns = patterns('django.views.generic.simple',
 
     # Test the speed of rendering all planes in an Image OR images in a Plate or Dataset (E.g. to compare FS)
     url( r'^render_performance/(?P<obj_type>[a-z]+)/(?P<id>[0-9]+)/', views.render_performance, name='webtest_render_performance' ),
+
+    # create a test image. Extra params in request. E.g. createTestImage/?sizeX=50&sizeY=50&dataset=123
+    # NB: Requires numpy to be installed on webserver machine
+    url(r'^createTestImage/', views.createTestImage, name="webtest_createTestImage"),
 )
