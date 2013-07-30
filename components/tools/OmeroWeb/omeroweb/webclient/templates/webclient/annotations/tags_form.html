@@ -61,7 +61,7 @@
     </div>
 
     <div style="clear: left;">
-        <h1>{% trans "Add a new tag" %} <span id="id_selected_tag_set"></span></h1>
+        <h1 id="id_selected_tag_set">{% trans "Add a new tag" %}:</h1>
 
         <input type="text" id="id_tag" />
         <textarea id="tag_description"></textarea>
@@ -121,6 +121,15 @@
         });
     var progressbar_label = $("#add_tags_progress .progress-label");
 
+    var get_selected_tagset = function() {
+        var selected = $(".ui-selected", div_all_tags);
+        if (selected.length == 1 && (selected.hasClass('alltags-tagset') || selected.hasClass('alltags-childtag'))) {
+            return selected.hasClass('alltags-tagset') ? selected : selected.prevAll('.alltags-tagset').eq(0);
+        } else {
+            return null;
+        }
+    };
+
     var create_html = function() {
         var html = "";
         for (var id in all_tags) {
@@ -138,7 +147,31 @@
             }
         }
         div_all_tags.append(html);
-        $(".tag_selection").selectable({ filter: "div:not(.filtered)", autoRefresh: false });
+        $(".tag_selection").selectable({
+            filter: "div:not(.filtered)",
+            autoRefresh: false,
+            stop: function(event, ui) {
+                var selected = $(".ui-selected", div_all_tags);
+                var count = selected.length;
+                $("#id_tags_selected").text(count ? count + " selected" : "");
+                var tagset = get_selected_tagset();
+                if (tagset) {
+                    $("#id_selected_tag_set").text("Add a new tag in " + tagset.text() + " tag set:");
+                } else {
+                    $("#id_selected_tag_set").text("Add a new tag:");
+                }
+            },
+            start: function(event, ui) {
+                // remember which element(s) were selected at start, so we can deselect it if it's clicked again
+                $(".was-selected", div_all_tags).removeClass('was-selected');
+                $(".ui-selected", div_all_tags).addClass('was-selected');
+            },
+            selected: function(event, ui) {
+                if ($(ui.selected).hasClass('was-selected') && !event.metaKey && !event.ctrlKey) {
+                    $(ui.selected).removeClass('ui-selected');
+                }
+            }
+        });
         $("div", div_all_tags).tooltip();
         $("div", div_selected_tags).tooltip();
     };
