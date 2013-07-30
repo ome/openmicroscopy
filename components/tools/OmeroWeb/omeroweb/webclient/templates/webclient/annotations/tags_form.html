@@ -30,17 +30,14 @@
 
 <div class="standard_form">
 
-    <h1>{% trans "Select from available tags or Add new tag" %}:</h1>
+    <h1>{% trans "Select from available tags" %}:</h1>
 
-    <input type="text" id="id_tag" />
-    <textarea id="tag_description"></textarea>
-
-    <button id="id_add_new_tag"> <img src="{% static "webclient/image/plus.png" %}" /> Add new </button>
 
     <div style="float: left;">
 
-        <h1>{% trans "Available Tags" %}:</h1>
-        <div class="tag_selection_wrapper">
+        <h1>{% trans "Available Tags" %}: <span id="id_tags_selected"></span></h1>
+        <input type="text" id="id_tag_filter" />
+        <div class="tag_selection_wrapper filtered">
             <div id="id_all_tags" class="tag_selection"></div>
         </div>
 
@@ -63,6 +60,14 @@
 
     </div>
 
+    <div style="clear: left;">
+        <h1>{% trans "Add a new tag" %} <span id="id_selected_tag_set"></span></h1>
+
+        <input type="text" id="id_tag" />
+        <textarea id="tag_description"></textarea>
+
+        <button id="id_add_new_tag"> <img src="{% static "webclient/image/plus.png" %}" /> Add new </button>
+    </div>
 
         <!-- hidden fields used to specify the objects we're tagging -->
         <div class="hiddenField">{{ form_tags.image }}</div>
@@ -87,6 +92,7 @@
     var div_all_tags = $("#id_all_tags");
     var div_selected_tags = $("#id_selected_tags");
     var tag_input = $("#id_tag");
+    var tag_input_filter = $("#id_tag_filter");
     var description_input = $("#tag_description");
 
     var child_tags;
@@ -320,7 +326,7 @@
             $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
             $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
         };
-        var input = tag_input.val();
+        var input = tag_input_filter.val();
         var filters = $.trim(input).toLowerCase().split(/ +/);
         if (filters.length == 1 && filters[0] == "") {
             $("div.filtered", div_all_tags).removeClass('filtered');
@@ -404,7 +410,7 @@
     $("#id_tag_deselect_button").click(deselect_tags);
     $("#id_add_new_tag").click(add_new_tag);
     $("#add_tags_form").off('prepare-submit').on('prepare-submit', save_tags);
-    tag_input.keyup(update_filter).change(update_filter);
+    tag_input_filter.keyup(update_filter).change(update_filter);
 
     load_tags();
 
