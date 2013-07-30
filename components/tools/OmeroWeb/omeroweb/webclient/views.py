@@ -1282,7 +1282,6 @@ def annotate_tags(request, conn=None, **kwargs):
         if form_tags.is_valid() and newtags_formset.is_valid():
             added_tags = []
             tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tags]
-            # TODO: need to remove the tags that are no longer selected
             removed = [tag for tag in selected_tags if tag not in form_tags.cleaned_data['tags']]
             if tags:
                 added_tags.extend(manager.createAnnotationsLinks(
@@ -1298,6 +1297,13 @@ def annotate_tags(request, conn=None, **kwargs):
                     oids,
                     well_index=index,
                 ))
+            for remove in removed:
+                tag_manager = BaseContainer(conn, tag=remove)
+                tag_manager.remove([
+                        "%s-%s" % (dtype, obj.id)
+                        for dtype, objs in oids.items()
+                        for obj in objs
+                    ], index)
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
