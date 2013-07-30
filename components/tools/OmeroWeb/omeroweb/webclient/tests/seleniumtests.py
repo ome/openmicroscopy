@@ -21,6 +21,8 @@
 
 import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from random import random
 import os
 
@@ -35,15 +37,44 @@ class WebClientTestBase (SeleniumTestBase):
 class WebClientTests (WebClientTestBase):
 
 
-    def testWeb(self):
+    def createObject(self, dtype="project"):
+
+        driver = self.driver
+        driver.find_element_by_id("add"+dtype+"Button").click()
+
+        # Simply fill the name field and submit
+        nameInput = driver.find_element_by_css_selector("#new-container-form input[name='name']")
+        nameInput.send_keys("Selenium-testCreate-"+dtype)
+        nameInput.submit()
+
+        # wait for right panel to load, and get ProjectId
+        WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_css_selector('.data_heading_id'))
+        newId = driver.find_element_by_css_selector(".data_heading_id strong").text
+
+        # get the jsTree node by ID
+        newNode = driver.find_element_by_id(dtype+"-"+newId)
+        # confirms Project node is selected
+        newLeaf = driver.find_element_by_css_selector("#"+dtype+"-"+newId+" a.jstree-clicked")
+
+
+    def testCreateDataset(self):
+
+        driver = self.driver
 
         eid = self.createUserAndLogin()
-
         self.getRelativeUrl("/webclient/")
 
-        import time
-        time.sleep(5)
+        self.createObject("dataset")
 
+
+    def testCreateProject(self):
+
+        driver = self.driver
+
+        eid = self.createUserAndLogin()
+        self.getRelativeUrl("/webclient/")
+
+        self.createObject("project")
 
 
 if __name__ == "__main__":
