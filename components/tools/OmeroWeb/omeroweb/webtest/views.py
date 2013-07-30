@@ -642,18 +642,19 @@ def createTestImage (request, conn=None, **kwargs):
 
     from numpy import fromfunction, int8, int16, int32, int64, uint8, uint16
 
-    def getNumber(rstring, default):
+    def getNumber(rstring, default, maxValue=None):
         try:
-            return int(request.REQUEST.get(rstring, default))
+            n = int(request.REQUEST.get(rstring, default))
+            return min(n, maxValue)
         except:
             return default
 
     name = request.REQUEST.get('name', "webtest-TestImage")
-    sizeX = getNumber('sizeX', 125)
-    sizeY = getNumber('sizeY', 125)
-    sizeZ = getNumber('sizeZ', 1)
-    sizeC = getNumber('sizeC', 1)
-    sizeT = getNumber('sizeT', 1)
+    sizeX = getNumber('sizeX', 125, 2000)
+    sizeY = getNumber('sizeY', 125, 2000)
+    sizeZ = getNumber('sizeZ', 1, 500)
+    sizeC = getNumber('sizeC', 1, 100)
+    sizeT = getNumber('sizeT', 1, 500)
     ptype = request.REQUEST.get('pixelType', 'int8')
     dataset = getNumber('dataset', None)
 
