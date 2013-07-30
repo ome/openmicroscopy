@@ -671,7 +671,6 @@ def createTestImage (request, conn=None, **kwargs):
 
     def planeGen():
         for count in range(sizeZ * sizeC * sizeT):
-            print count
             yield fromfunction(f, (sizeY, sizeX), dtype=dtype)
 
     desc = "Created via /webtest/createTestImage"
