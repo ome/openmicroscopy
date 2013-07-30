@@ -439,10 +439,20 @@
         }).appendTo(list);
     };
 
+    var update_add_new_button_state = function() {
+        if (tag_input.val() != '') {
+            $("#id_add_new_tag").removeAttr('disabled');
+        } else {
+            $("#id_add_new_tag").attr('disabled','disabled');
+        }
+    };
+
     $("#id_tag_select_button").click(select_tags);
     $("#id_tag_deselect_button").click(deselect_tags);
     $("#id_add_new_tag").click(add_new_tag);
     $("#add_tags_form").off('prepare-submit').on('prepare-submit', save_tags);
+    tag_input.keyup(update_add_new_button_state).change(update_add_new_button_state);
+    update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
 
     load_tags();
