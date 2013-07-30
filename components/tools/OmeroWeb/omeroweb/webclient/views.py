@@ -1284,12 +1284,12 @@ def annotate_tags(request, conn=None, **kwargs):
             tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tags]
             removed = [tag for tag in selected_tags if tag not in form_tags.cleaned_data['tags']]
             if tags:
-                added_tags.extend(manager.createAnnotationsLinks(
+                manager.createAnnotationsLinks(
                     'tag',
                     tags,
                     oids,
                     well_index=index,
-                ))
+                )
             for form in newtags_formset.forms:
                 added_tags.append(manager.createTagAnnotations(
                     form.cleaned_data['tag'],
@@ -1308,7 +1308,7 @@ def annotate_tags(request, conn=None, **kwargs):
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'], addedByMe=(obj_count==1))
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags, addedByMe=(obj_count==1))
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True
