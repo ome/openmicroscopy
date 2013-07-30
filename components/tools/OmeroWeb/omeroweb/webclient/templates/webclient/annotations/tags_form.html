@@ -36,7 +36,7 @@
     <div style="float: left;">
 
         <h1>{% trans "Available Tags" %}: <span id="id_tags_selected"></span></h1>
-        <input type="text" id="id_tag_filter" />
+        <input type="text" id="id_tag_filter" placeholder="Filter" />
         <div class="tag_selection_wrapper filtered">
             <div id="id_all_tags" class="tag_selection"></div>
         </div>
@@ -63,8 +63,8 @@
     <div style="clear: left;">
         <h1 id="id_selected_tag_set">{% trans "Add a new tag" %}:</h1>
 
-        <input type="text" id="id_tag" />
-        <textarea id="tag_description"></textarea>
+        <input type="text" id="id_tag" placeholder='Tag'/>
+        <textarea id="tag_description" placeholder='Description'></textarea>
 
         <button id="id_add_new_tag"> <img src="{% static "webclient/image/plus.png" %}" /> Add new </button>
     </div>
