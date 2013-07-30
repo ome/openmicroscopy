@@ -16,6 +16,8 @@ import omero.grid
 from omero.gateway import BlitzGateway
 from Connect_To_OMERO import USERNAME, PASSWORD, HOST, PORT
 
+#
+# .. _python_omero_tables_code_samples:
 
 # Create a connection
 # =================================================================
@@ -55,7 +57,7 @@ data1 = omero.grid.LongColumn('Uid', 'test Long', ids)
 data2 = omero.grid.StringColumn('MyStringColumn', '', 64, strings)
 data = [data1, data2]
 table.addData(data)
-table.close()           # when we're done, close.
+table.close()           # when we are done, close.
 
 
 # Get the table as an original file...
@@ -74,13 +76,13 @@ conn.getUpdateService().saveAndReturnObject(link)
 
 # Table API
 # =================================================================
-# See: http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/slice2html/omero/grid/Table.html
+# .. seealso:: :javadoc:` OMERO Tables <slice2html/omero/grid/Table.html>`
+
 openTable = conn.c.sf.sharedResources().openTable(orig_file)
 
 print "Table Columns:"
 for col in openTable.getHeaders():
     print "   ", col.name
-
 rowCount = openTable.getNumberOfRows()
 print "Row count:", rowCount
 
@@ -132,5 +134,5 @@ print "Opened table with row-count:", savedTable.getNumberOfRows()
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()
