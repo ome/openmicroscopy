@@ -392,18 +392,21 @@
     var add_new_tag = function() {
         var text = $.trim(tag_input.val());
         var description = $.trim(description_input.val());
+        var tagset = get_selected_tagset();
         if (text.length > 0) {
             new_tag_counter -= 1;
+            var tagset_id = tagset ? parseInt(tagset.attr('data-id'), 10) : false;
             all_tags[new_tag_counter] = {
                 i: new_tag_counter,
                 d: description,
                 t: text,
                 o: null,
-                s: false
+                s: tagset_id,
+                sort_key: (tagset_id ? all_tags[tagset_id].t.toLowerCase() : '') + text.toLowerCase()
             };
-            var div = $(create_tag_html(text, description, null, new_tag_counter));
+            var div = $(create_tag_html(text, description, null, new_tag_counter, tagset ? tagset.attr('data-id') : null));
             div.addClass('ui-selected').tooltip();
-            div_selected_tags.append(div);
+            div_selected_tags.append(div).selectable("refresh");
             tag_input.val('');
             description_input.val('');
         }
@@ -423,6 +426,7 @@
             if (tag_id[0] == "-") { // newly created tag
                 new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tag").val($(this).text()));
                 new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-description").val(this.getAttribute('data-description')));
+                new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tagset").val(this.getAttribute('data-set')));
                 count += 1;
             } else { // previously existing tag
                 existing_tags.push(tag_id);

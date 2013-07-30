@@ -1296,6 +1296,7 @@ def annotate_tags(request, conn=None, **kwargs):
                     form.cleaned_data['description'],
                     oids,
                     well_index=index,
+                    tag_group_id=form.cleaned_data['tagset'],
                 ))
             for remove in removed:
                 tag_manager = BaseContainer(conn, tag=remove)

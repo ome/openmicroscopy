@@ -684,7 +684,7 @@ class BaseContainer(BaseController):
         return self.conn.getObject("CommentAnnotation", ann.getId())
 
     
-    def createTagAnnotations(self, tag, desc, oids, well_index=0):
+    def createTagAnnotations(self, tag, desc, oids, well_index=0, tag_group_id=None):
         """
         Creates a new tag (with description) OR uses existing tag with the specified name if found.
         Links the tag to the specified objects.
@@ -702,6 +702,17 @@ class BaseContainer(BaseController):
             ann.textValue = rstring(str(tag))
             ann.setDescription(rstring(str(desc)))
             ann = self.conn.saveAndReturnObject(ann)
+            if tag_group_id:  # Put new tag in given tag set
+                tag_group = None
+                try:
+                    tag_group = self.conn.getObject('TagAnnotation', tag_group_id)
+                except:
+                    pass
+                if tag_group is not None:
+                    link = omero.model.AnnotationAnnotationLinkI()
+                    link.parent = tag_group._obj
+                    link.child = ann._obj
+                    self.conn.saveObject(link)
 
         new_links = list()
         parent_objs = []

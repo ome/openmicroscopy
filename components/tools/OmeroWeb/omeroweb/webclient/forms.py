@@ -209,6 +209,7 @@ class NewTagsAnnotationForm(forms.Form):
     """ Helper form for new tags """
     tag = forms.CharField(required=True, widget=forms.HiddenInput)
     description = forms.CharField(required=False, widget=forms.HiddenInput)
+    tagset = forms.IntegerField(min_value=1, required=False, widget=forms.HiddenInput)
 
 NewTagsAnnotationFormSet = formset_factory(NewTagsAnnotationForm, extra=0)
 
