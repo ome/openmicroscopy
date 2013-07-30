@@ -636,7 +636,7 @@ def createTestImage (request, conn=None, **kwargs):
     """
     Creates a Test Image using numpy.
     Various parameters can be set using request.
-    name, sizeX, sizeY, sizeZ, sizeC, sizeT, ptype, dataset
+    name, sizeX, sizeY, sizeZ, sizeC, sizeT, pixelType, dataset
     Returns the Image ID.
     """
 
@@ -654,7 +654,7 @@ def createTestImage (request, conn=None, **kwargs):
     sizeZ = getNumber('sizeZ', 1)
     sizeC = getNumber('sizeC', 1)
     sizeT = getNumber('sizeT', 1)
-    ptype = request.REQUEST.get('ptype', 'int8')
+    ptype = request.REQUEST.get('pixelType', 'int8')
     dataset = getNumber('dataset', None)
 
     ptypes = {'int8':int8, 'int16':int16, 'int32':int32, 'int64':int64, 'uint8':uint8, 'uint16':uint16}
