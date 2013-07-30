@@ -2328,9 +2328,14 @@ tr.figImageData:hover .rowDragHandle {
 
 
 
-
+input#id_tag_filter {
+    background: white url(../image/search.png) no-repeat right center;
+    width: 319px;
+    height: 15px;
+    margin-bottom: 0;
+    border: solid thin black;
+}
 input#id_tag {
-    background: url(../image/search.png) no-repeat right center;
     width: 200px;
     vertical-align: top;
 }
@@ -2369,6 +2374,9 @@ div.tag_selection_wrapper {
     padding: 3px;
     padding-right: 0;
     background-color: white;
+}
+div.tag_selection_wrapper.filtered {
+    height: 175px;
 }
 div.tag_selection {
     overflow: visible;
