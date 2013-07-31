@@ -128,9 +128,17 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     #
 
     def make_env(self):
-        self.env = omero.util.Environment("PATH", "PYTHONPATH",\
-            "DYLD_LIBRARY_PATH", "LD_LIBRARY_PATH", "MLABRAW_CMD_STR", "HOME",\
-            "DISPLAY", "CLASSPATH")
+        self.env = omero.util.Environment(
+            "CLASSPATH",
+            "DISPLAY",
+            "DYLD_LIBRARY_PATH",
+            "HOME",
+            "JYTHON_HOME",
+            "LD_LIBRARY_PATH",
+            "MLABRAW_CMD_STR",
+            "PATH",
+            "PYTHONPATH",
+        )
         # WORKAROUND
         # Currently duplicating the logic here as in the PYTHONPATH
         # setting of the grid application descriptor (see etc/grid/*.xml)
