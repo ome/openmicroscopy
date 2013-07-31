@@ -22,5 +22,10 @@ bash setup_nginx.sh
 
 $OMERO_BIN/omero admin start
 
+#OMERO_POST_INSTALL_SCRIPTS
+for cmd in "$@"; do
+    bash "`basename $cmd`"
+done
+
 echo $PASSWORD | sudo -S halt
 #echo $PASSWORD | sudo -S reboot
