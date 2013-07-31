@@ -17,6 +17,7 @@
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
 #include <omero/model/SessionI.h>
+#include <omero/util/uuid.h>
 
 using namespace std;
 
@@ -164,13 +165,13 @@ namespace omero {
         omero::registerObjectFactory(__ic, this);
         omero::rtypes::registerObjectFactory(__ic);
 
-        // Define our unique identifier (used during close/detach)
-        __uuid = IceUtil::generateUUID();
-        Ice::ImplicitContextPtr ctx = __ic->getImplicitContext();
-        if (!ctx) {
-            throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
-        }
-        ctx->put(omero::constants::CLIENTUUID, __uuid);
+	// Define our unique identifier (used during close/detach)
+	__uuid = util::generate_uuid();
+	Ice::ImplicitContextPtr ctx = __ic->getImplicitContext();
+	if (!ctx) {
+	    throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
+	}
+	ctx->put(omero::constants::CLIENTUUID, __uuid);
 
         // ticket:2951 - sending user group
         std::string group = id.properties->getPropertyWithDefault("omero.group", "");

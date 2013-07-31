@@ -144,11 +144,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <unzip src="${lib.dir}/repository/scons-local-2.1.0.zip" dest="target/scons"/>
     </target>
 
-    <target name="check-ice" description="Checks for slice/include files and unpacks">
-        <available property="slice.dir" value="true" filepath="${target.dir}" file="Ice" />
-        <antcall target="build-ice" inheritAll="true" inheritRefs="true"/>
+    <target name="check-ice" description="Checks Ice versioning">
         <!-- Checking the slice2* version before continuing. See #1185 -->
-        <exec outputproperty="executable.ice.version" executable="slice2java">
+        <exec outputproperty="executable.ice.version" executable="${ice.slice2java}">
             <arg value="--version"/>
         </exec>
         <if>
@@ -160,23 +158,17 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
             </not>
             <then><fail>WRONG ICE VERSION!
 
-                slice2java version = ${executable.ice.version}
+                slice2java (${ice.slice2java}) version = ${executable.ice.version}
                 Expected version = ${ice.compatibility}
 
-                If you would like to configure which Ice to use,
-                set ice.compatibility=3.3 or ice.compatibility=3.4
-                in your etc/local.properties file or on the command-
-                line: ./build.py -Dice.compatibility=3.3
+                If you would like to configure which Ice to use, set
+                ice.compatibility=3.3, ice.compatibility=3.4, or
+                ice.compatibility=3.5 in your etc/local.properties
+                file or on the command- line:
+                  ./build.py -Dice.compatibility=3.3
 
             </fail></then>
         </if>
-    </target>
-
-    <target name="build-ice" depends="check-scons" description="Installs the Ice code generation executables" unless="slice2java.exe">
-        <if><not><available file="${target.dir}/Ice"/></not><then>
-            <mkdir dir="${target.dir}/Ice"/>
-            <untar compression="gzip" src="${lib.dir}/repository/ice-includes-${versions.ice}.tar.gz" dest="target/Ice"/>
-        </then></if>
     </target>
 
     <target name="build-default" description="Default build calls build" depends="build"/>
@@ -616,7 +608,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
       <replace file="${omero.home}/target/docs/header.txt" token="@VERSION@" value="${omero.version}"/>
       <replace file="${omero.home}/target/docs/footer.txt" token="@VERSION@" value="${omero.version}"/>
       <mkdir dir="${dist.dir}/docs/api/slice2html"/>
-      <apply executable="slice2html" parallel="true" failonerror="true">
+      <apply executable="${ice.slice2html}" parallel="true" failonerror="true">
            <arg value="--hdr"/>
            <arg value="${omero.home}/target/docs/header.txt"/>
            <!-- <arg value="-REMOVETHISTEXTBETWEENDASHES-ftr"/> Commented out as causing a crash in slice2html
@@ -626,7 +618,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
            <arg value="-I"/>
            <arg value="${blitz.comp}/resources"/>
            <arg value="-I"/>
-           <arg value="${omero.home}/target/Ice/slice"/>
+           <arg value="${ice.slicepath}"/>
            <arg value="--output-dir"/>
            <arg value="${dist.dir}/docs/api/slice2html"/>
         <!-- The order here is important. Later docs overwrite earlier ones -->
