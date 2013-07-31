@@ -17,6 +17,7 @@
 #include <omero/api/ISession.h>
 #include <omero/model/IObject.h>
 #include <omero/model/SessionI.h>
+#include <omero/util/uuid.h>
 
 using namespace std;
 
@@ -157,7 +158,8 @@ namespace omero {
         omero::rtypes::registerObjectFactory(__ic);
 
 	// Define our unique identifier (used during close/detach)
-	__uuid = IceUtil::generateUUID();
+
+	__uuid = util::generate_uuid();
 	Ice::ImplicitContextPtr ctx = __ic->getImplicitContext();
 	if (!ctx) {
 	    throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
