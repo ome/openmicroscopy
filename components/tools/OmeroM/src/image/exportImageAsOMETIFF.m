@@ -32,6 +32,8 @@ function exportImageAsOMETIFF(session, image, imagePath)
 % with this program; if not, write to the Free Software Foundation, Inc.,
 % 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+INC = 1024 * 1024; % Maximum size that can be run at once
+
 % Input check
 ip = inputParser;
 ip.addRequired('image', @(x) isa(x, 'omero.model.ImageI') || isscalar(x));
@@ -39,7 +41,7 @@ ip.addRequired('imagePath', @ischar);
 ip.parse(image, imagePath);
 
 % Get the pixels from the image
-if ~isa(image, 'omero.model.ImageI'),
+if isa(image, 'omero.model.ImageI'),
     imageID = image.getId().getValue;
 else
     imageID = image;
@@ -52,9 +54,23 @@ store = session.createExporter;
 store.addImage(imageID);
 size = store.generateTiff();
 
-% Read data and cast into int8
+% Open image file in write access
 fid = fopen(imagePath, 'w');
-fwrite(fid, store.read(0, size), 'int8');
+fprintf(1, 'Downloading image %d to %s', imageID, imagePath);
+
+% Read data in increments of size INC
+n = fix(size/INC);
+for i = 1 : n
+    fwrite(fid, store.read((i-1) * INC, INC), 'int8');
+    if mod(i, 72) == 1, fprintf('\n    '); end
+    fprintf('.');
+end
+
+% Read last block of data
+if mod(size, INC) ~= 0
+    fwrite(fid, store.read(n * INC, size - n* INC), 'int8');
+end
+fprintf('\n');
 fclose(fid);
 
 % Close the file store
