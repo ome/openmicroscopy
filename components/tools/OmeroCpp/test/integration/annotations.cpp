@@ -5,7 +5,6 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  */
-#include <IceUtil/UUID.h>
 #include <omero/fixture.h>
 #include <omero/model/TagAnnotationI.h>
 #include <omero/model/ImageAnnotationLinkI.h>
@@ -13,6 +12,7 @@
 #include <omero/model/FormatI.h>
 #include <omero/model/OriginalFileI.h>
 #include <omero/model/FileAnnotationI.h>
+#include <omero/util/uuid.h>
 
 #include <stdio.h>
 #include <fstream>
@@ -29,6 +29,7 @@ using namespace omero::api;
 using namespace omero::model;
 using namespace omero::sys;
 using namespace omero::rtypes;
+using namespace omero::util;
 
 TEST(AnnotationTest, tagAnnotation )
 {
@@ -44,7 +45,7 @@ TEST(AnnotationTest, tagAnnotation )
         TagAnnotationIPtr tag = new TagAnnotationI();
         tag->setTextValue(rstring("my-first-tag"));
 
-        string uuid = IceUtil::generateUUID();
+        string uuid = generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(tag);
@@ -88,7 +89,7 @@ TEST(AnnotationTest, fileAnnotation )
         close(fd);
 #endif
 
-        string unique_content = IceUtil::generateUUID();
+        string unique_content = generate_uuid();
         {
             ofstream out(pointer);
             out << "<xml>" << endl;
@@ -133,7 +134,7 @@ TEST(AnnotationTest, fileAnnotation )
         FileAnnotationPtr attachment = new FileAnnotationI();
         attachment->setFile(file);
 
-        string uuid = IceUtil::generateUUID();
+        string uuid = generate_uuid();
         ImageIPtr i = ImageIPtr::dynamicCast(new_ImageI());
         i->setName(rstring(uuid));
         i->linkAnnotation(attachment);
