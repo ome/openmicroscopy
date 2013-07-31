@@ -26,7 +26,6 @@ import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
 import ome.model.enums.ChecksumAlgorithm;
-import ome.model.enums.ChecksumAlgorithm;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.delete.Deletion;
 import ome.services.graphs.GraphException;
