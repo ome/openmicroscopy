@@ -51,7 +51,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var progressbar_label = $("#add_tags_progress .progress-label");
 
     var get_selected_tagset = function() {
-        var selected = $(".ui-selected", div_all_tags);
+        var selected = $(".ui-selected", div_all_tags).not(".filtered");
         if (selected.length == 1 && (selected.hasClass('alltags-tagset') || selected.hasClass('alltags-childtag'))) {
             return selected.hasClass('alltags-tagset') ? selected : selected.prevAll('.alltags-tagset').eq(0);
         } else {
@@ -84,15 +84,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             filter: "div:not(.filtered)",
             autoRefresh: false,
             stop: function(event, ui) {
-                var selected = $(".ui-selected", div_all_tags);
-                var count = selected.length;
-                $("#id_tags_selected").text(count ? count + " selected" : "");
-                var tagset = get_selected_tagset();
-                if (tagset) {
-                    $("#id_selected_tag_set").text("Add a new tag in " + tagset.text() + " tag set:");
-                } else {
-                    $("#id_selected_tag_set").text("Add a new tag:");
-                }
+                update_selected_labels();
             },
             start: function(event, ui) {
                 // remember which element(s) were selected at start, so we can deselect it if it's clicked again
@@ -107,6 +99,17 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         });
         $("div", div_all_tags).tooltip();
         $("div", div_selected_tags).tooltip();
+    };
+
+    var update_selected_labels = function() {
+        var count = $(".ui-selected", div_all_tags).not(".filtered").length;
+        $("#id_tags_selected").text(count ? count + " selected" : "");
+        var tagset = get_selected_tagset();
+        if (tagset) {
+            $("#id_selected_tag_set").text("Add a new tag in " + tagset.text() + " tag set:");
+        } else {
+            $("#id_selected_tag_set").text("Add a new tag:");
+        }
     };
 
     var update_html = function() {
@@ -325,6 +328,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             // hide tag sets that have no unselected tags anymore
             $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
             $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
+            update_selected_labels();
         };
         var input = tag_input_filter.val();
         var filters = $.trim(input).toLowerCase().split(/ +/);
