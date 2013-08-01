@@ -298,7 +298,7 @@ class BaseContainer(BaseController):
         self.tags.sort(key=lambda x: x.getTextValue() and x.getTextValue().lower())
         self.t_size = len(self.tags)
     
-    def loadTagsRecursive(self, eid=None):
+    def loadTagsRecursive(self, eid=None, offset=None, limit=1000):
         if eid is not None:
             if eid == -1:       # Load data for all users
                 eid = None
@@ -306,7 +306,10 @@ class BaseContainer(BaseController):
                 self.experimenter = self.conn.getObject("Experimenter", eid)
         else:
             eid = self.conn.getEventContext().userId
-        self.tags_recursive, self.tags_recursive_owners = self.conn.listTagsRecursive(eid)
+        self.tags_recursive, self.tags_recursive_owners = self.conn.listTagsRecursive(eid, offset, limit)
+
+    def getTagCount(self, eid=None):
+        return self.conn.getTagCount(eid)
 
     def loadDataByTag(self):
         pr_list = list(self.conn.getObjectsByAnnotations('Project',[self.tag.id]))

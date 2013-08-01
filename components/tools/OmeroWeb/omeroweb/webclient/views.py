@@ -1270,9 +1270,17 @@ def annotate_tags(request, conn=None, **kwargs):
 
     jsonmode = request.GET.get('jsonmode')
     if jsonmode:
-        manager.loadTagsRecursive(filter_user_id)
-        all_tags = manager.tags_recursive
-        all_tags_owners = manager.tags_recursive_owners
+        try:
+            offset = int(request.GET.get('offset'))
+            limit = int(request.GET.get('limit', 1000))
+        except:
+            offset = limit = None
+        if jsonmode == 'tagcount':
+            tag_count = manager.getTagCount(filter_user_id)
+        else:
+            manager.loadTagsRecursive(filter_user_id, offset=offset, limit=limit)
+            all_tags = manager.tags_recursive
+            all_tags_owners = manager.tags_recursive_owners
 
     if request.method == 'POST':
         # handle form submission
@@ -1322,6 +1330,10 @@ def annotate_tags(request, conn=None, **kwargs):
                 context['can_remove'] = True
         else:
             return HttpResponse(str(form_tags.errors))      # TODO: handle invalid form error
+
+    elif jsonmode == 'tagcount':
+        # send number of tags for better paging progress bar
+        return dict(tag_count=tag_count)
 
     elif jsonmode == 'tags':
         # send tag information without descriptions
