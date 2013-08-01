@@ -30,6 +30,7 @@
     <!-- Public -->
     <dependency org="gui" name="ini4j" rev="0.3.2"/>
     <dependency org="log4j" name="log4j" rev="${versions.log4j}"/><!-- Required for compile-time importer classes -->
+    <dependency org="bf-deps" name="joda-time" rev="2.2" conf="build->default"/>
   </dependencies>
 </ivy-module>
 
