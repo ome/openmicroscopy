@@ -456,7 +456,7 @@ def getDataset (client, alias, forceproj=None):
 def getImage (client, alias, forceds=None):
     return IMAGES[alias].get(client, forceds)
 
-def bootstrap (onlyUsers=False):
+def bootstrap (onlyUsers=False, skipImages=True):
     # Create users
     client = loginAsRoot()
     try:
@@ -472,9 +472,10 @@ def bootstrap (onlyUsers=False):
         for k, d in DATASETS.items():
             d = d.create()
             d._conn.seppuku()
-        for k, i in IMAGES.items():
-            i = i.create()
-            i._conn.seppuku()
+        if not skipImages:
+            for k, i in IMAGES.items():
+                i = i.create()
+                i._conn.seppuku()
     finally:
         client.seppuku()
 
