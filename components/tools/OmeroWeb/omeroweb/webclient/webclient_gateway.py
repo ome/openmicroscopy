@@ -349,7 +349,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield TagAnnotationWrapper(self, ann)
 
 
-    def listTagsRecursive(self, eid=None):
+    def listTagsRecursive(self, eid=None, offset=None, limit=1000):
         """
         Returns a two-element tuple:
         * A list of tags, where each tag is a list with the following
@@ -388,14 +388,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             children.add(child)
             mapping.setdefault(parent, []).append(child)
 
+        if offset is not None:
+            params.page(offset, limit)
+
         sql = """
             select ann.id, ann.description, ann.textValue, ann.details.owner.id,
             ann.details.owner.firstName, ann.details.owner.lastName
             from TagAnnotation ann
             """
-
         if eid is not None:
             sql += " where ann.details.owner.id = :eid"
+        sql += " order by ann.id"
 
         tags = []
         owners = dict()
@@ -411,6 +414,25 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             owners[owner] = "%s %s" % (first, last)
 
         return tags, owners
+
+
+    def getTagCount(self, eid=None):
+        params = omero.sys.ParametersI()
+        params.orphan()
+        params.map = {}
+
+        q = self.getQueryService()
+
+        sql = """
+            select count(ann)
+            from TagAnnotation ann
+            """
+
+        if eid is not None:
+            params.map["eid"] = rlong(long(eid))
+            sql += " where ann.details.owner.id = :eid"
+
+        return unwrap(q.projection(sql, params, self.SERVICE_OPTS)[0][0])
 
 
     def countOrphans (self, obj_type, eid=None):
