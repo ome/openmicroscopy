@@ -228,19 +228,19 @@ public class DeleteServicePermissionsTest
     {
         EventContext ownerEc = newUserAndGroup("rw----");
 
-    	//owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
-		
-    	//group owner deletes it
-		disconnect();
-		newUserInGroup(ownerEc);
-		makeGroupOwner();
+        //owner creates the image
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
 
-		delete(client, new Delete(
-    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        //group owner deletes it
+        disconnect();
+        newUserInGroup(ownerEc);
+        makeGroupOwner();
 
-		assertDoesNotExist(img); // Deletion permitted in 4.4
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE,
+                img.getId().getValue(), null));
+
+        assertDoesNotExist(img); // Deletion permitted in 4.4
     }
     
     /**

@@ -618,7 +618,7 @@ public class AbstractServerTest
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        factoryEncrypted = c.createSession(ec.userName, "");
+        factoryEncrypted = c.createSession(ec.userName, null);
         return init(c);
     }
 
