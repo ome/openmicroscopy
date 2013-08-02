@@ -128,6 +128,7 @@ class SeleniumTestBase (unittest.TestCase):
     All tests will have the C{self.selenium} attr with a selenium client ready for usage.
     """
     SERVER = None
+    stepPause = 0
 
     def setUp (self):
         self.verificationErrors = []
@@ -150,6 +151,12 @@ class SeleniumTestBase (unittest.TestCase):
         """ Since Selenium 2 doesn't support relative URLs, we do that ourselves """
         url = self.SERVER.url + relativeUrl
         self.driver.get(url)
+
+    def startStep (self):
+        """ May want to do various operations here. E.g. getScreenshot or Pause (for viewing) """
+        if self.stepPause > 0:
+            print "stepPause", self.stepPause
+            time.sleep(self.stepPause)
 
     def login (self, u, p, sid=1): #sid
         driver = self.driver
@@ -243,6 +250,8 @@ class SeleniumTestBase (unittest.TestCase):
         else: self.fail("time out")
 
     def tearDown(self):
+        self.startStep()
+        self.logout()
         self.driver.quit()
         self.SERVER.driver = None
         self.assertEqual([], self.verificationErrors)
