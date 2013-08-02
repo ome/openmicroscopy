@@ -24,7 +24,7 @@ from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from random import random
-import os
+import os, time
 
 import sys
 
@@ -40,14 +40,20 @@ class WebClientTests (WebClientTestBase):
     def createObject(self, dtype="project"):
 
         driver = self.driver
-        driver.find_element_by_id("add"+dtype+"Button").click()
 
-        # Simply fill the name field and submit
+        # Launch dialog and Simply fill the name field
+        self.startStep()
+        driver.find_element_by_id("add"+dtype+"Button").click()
         nameInput = driver.find_element_by_css_selector("#new-container-form input[name='name']")
         nameInput.send_keys("Selenium-testCreate-"+dtype)
+
+        # submit
+        self.startStep()
         nameInput.submit()
 
         # wait for right panel to load, and get ProjectId
+        self.startStep()
+        time.sleep(1)       # For some reason this is makes the subsequent jsTree queries work better!?!?!
         WebDriverWait(driver, 10).until(lambda driver: driver.find_element_by_css_selector('.data_heading_id'))
         newId = driver.find_element_by_css_selector(".data_heading_id strong").text
 
@@ -55,26 +61,31 @@ class WebClientTests (WebClientTestBase):
         newNode = driver.find_element_by_id(dtype+"-"+newId)
         # confirms Project node is selected
         newLeaf = driver.find_element_by_css_selector("#"+dtype+"-"+newId+" a.jstree-clicked")
+        return newId
 
 
-    def testCreateDataset(self):
-
+    def testCreateProjectAndDataset(self):
+        #self.stepPause = 3;
         driver = self.driver
 
         eid = self.createUserAndLogin()
-        self.getRelativeUrl("/webclient/")
 
+        # Test Project creation
+        self.getRelativeUrl("/webclient/")
+        self.createObject("project")
+
+        # Refresh page - test Dataset creation independently
+        self.getRelativeUrl("/webclient/")
         self.createObject("dataset")
 
-
-    def testCreateProject(self):
-
-        driver = self.driver
-
-        eid = self.createUserAndLogin()
+        # Refresh again - Now test Project AND Dataset creation
         self.getRelativeUrl("/webclient/")
-
-        self.createObject("project")
+        pid = self.createObject("project")
+        # At this point, Project is selected, Dataset should be created under it.
+        did = self.createObject("dataset")
+        # Check that parent of the Dataset is Project
+        parentId = driver.execute_script("return $('#dataset-%s').parent().parent().attr('id')" % did)
+        self.assertEqual(parentId, "project-%s" % pid, "Dataset parentId %s should be project-%s" % (parentId, pid))
 
 
 if __name__ == "__main__":
