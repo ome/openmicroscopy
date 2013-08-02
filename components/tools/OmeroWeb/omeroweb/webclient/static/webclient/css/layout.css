@@ -2399,7 +2399,6 @@ div.tag_selection div.alltags-childtag {
 }
 div#id_selected_tags div.alltags-childtag {
     margin-left: 0;
-    background-color: hsl(215,20%,90%);
 }
 div.tag_selection div.ui-selected {
     background-color: hsl(215,20%,75%) !important;
