@@ -645,7 +645,9 @@ def createTestImage (request, conn=None, **kwargs):
     def getNumber(rstring, default, maxValue=None):
         try:
             n = int(request.REQUEST.get(rstring, default))
-            return min(n, maxValue)
+            if maxValue is not None:
+                return min(n, maxValue)
+            return n
         except:
             return default
 
