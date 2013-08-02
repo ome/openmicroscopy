@@ -28,20 +28,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var all_tags = {};
     var owners = {};
 
-    if ($("#add_tags_progress").length == 0) {
+    if ($("#add_tags_progress").length === 0) {
         $("#add_tags_form").next().append(
             "<div id='add_tags_progress' style='display:none;'>" +
             "    <div class='progress-label'></div>" +
             "    <div class='progress-striped animate-stripes'></div>" +
             "    <div class='progress-value'>0%</div>" +
-            "</div>"
-        );
+            "</div>");
     }
 
     // progress bar
     var progressbar = $("#add_tags_progress .progress-striped").progressbar({
             change: function() {
-                $("#add_tags_progress .progress-value").text($("#add_tags_progress .progress-striped").progressbar("value") + "%")
+                $("#add_tags_progress .progress-value").text($("#add_tags_progress .progress-striped").progressbar("value") + "%");
             },
             complete: function() {
                 setTimeout(function() { $("#add_tags_progress").hide(); }, 2000);
@@ -138,7 +137,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 url += "&offset=" + offset + "&limit=" + limit;
             }
             $.ajax({ url: url, cache: false, dataType: 'json', success: callback });
-        }
+        };
 
         $("#add_tags_progress").show();
         progressbar_label.text("Initializing");
@@ -152,17 +151,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             for (var offset = 0; offset < tag_count; offset += batch_size) {
                 load('tags', tags_callback, offset, batch_size);
             }
-        }
+        };
 
         var tags_callback = function(data) {
             raw_tags = raw_tags.concat(data);
+            /*jsl:ignore*/
             if (++num_tag_callbacks == batch_steps) {
+            /*jsl:end*/
                 process_tags();
                 progressbar_label.text("Loading owners");
                 load('owners', owners_callback);
             }
             progressbar.progressbar("value", Math.ceil(num_tag_callbacks * step_weight));
-        }
+        };
 
         var owners_callback = function(data) {
             process_owners(data);
@@ -171,18 +172,20 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             for (var offset = 0; offset < tag_count; offset += batch_size) {
                 load('desc', desc_callback, offset, batch_size);
             }
-        }
+        };
 
         var desc_callback = function(data) {
             $.extend(raw_desc, data);
+            /*jsl:ignore*/
             if (++num_desc_callbacks == batch_steps) {
+            /*jsl:end*/
                 process_desc();
                 progressbar_label.text("Complete");
                 progressbar.progressbar("value", 100);
             } else {
                 progressbar.progressbar("value", Math.ceil((batch_steps + 1 + num_desc_callbacks) * step_weight));
             }
-        }
+        };
 
         var process_tags = function() {
             child_tags = {};
@@ -202,12 +205,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     s: tag[3]
                 };
             };
-            for (var idx in raw_tags) {
+            for (idx in raw_tags) {
                 var tag = tagstruct(raw_tags[idx]);
                 all_tags[tag.i] = tag;
             }
             create_html();
-            for (var idx in selected_tags) {
+            for (idx in selected_tags) {
                 $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
             }
             sort_tag_list(div_all_tags);
@@ -228,7 +231,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         load('tagcount', tag_count_callback);
-    }
+    };
 
 
     var encode_html = function(text) {
@@ -332,7 +335,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
         var input = tag_input_filter.val();
         var filters = $.trim(input).toLowerCase().split(/ +/);
-        if (filters.length == 1 && filters[0] == "") {
+        if (filters.length == 1 && filters[0] === "") {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
         } else {
@@ -415,7 +418,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_add_new_button_state = function() {
-        if (tag_input.val() != '') {
+        if (tag_input.val() !== '') {
             $("#id_add_new_tag").removeAttr('disabled');
         } else {
             $("#id_add_new_tag").attr('disabled','disabled');
