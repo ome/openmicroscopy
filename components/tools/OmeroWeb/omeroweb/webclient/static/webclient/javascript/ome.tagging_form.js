@@ -114,7 +114,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var update_html = function() {
         $("#id_all_tags div, #id_selected_tags div").each(function() {
             var tag = all_tags[this.getAttribute("data-id")];
-            this.setAttribute("title", create_tag_title(tag.d, owners[tag.o]));
+            var parent_id = all_tags[this.getAttribute("data-set")];
+            this.setAttribute("title", create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null));
         });
         $("div", div_all_tags).tooltip();
         $("div", div_selected_tags).tooltip();
@@ -238,13 +239,16 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         return $('<div/>').text(text).html();
     };
 
-    var create_tag_title = function(description, owner) {
+    var create_tag_title = function(description, owner, tagset) {
         var title = "";
         if (owner) {
             title += "<b>Owner:</b> " + owner + "<br />";
         }
         if (description) {
-            title += "<b>Description:</b> " + description;
+            title += "<b>Description:</b> " + description + "<br />";
+        }
+        if (tagset) {
+            title += "<b>Tag set:</b> " + tagset + "<br />";
         }
         return title;
     };
@@ -252,13 +256,15 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var create_tag_html = function(text, description, owner, id, parent_id, is_tagset) {
         var cls = is_tagset ? "alltags-tagset" : (parent_id ? "alltags-childtag" : "alltags-tag");
         var html = "<div class='" + cls + "' data-id='" + id + "'";
-        var title = create_tag_title(description, owner);
+        var tagset;
         if (parent_id) {
             html += " data-set='" + parent_id + "'";
+            tagset = all_tags[parent_id].t;
         }
         if (id < 0) { // new tag, save description
             html += " data-description='" + encode_html(description) + "'";
         }
+        var title = create_tag_title(description, owner, tagset);
         if (title) {
             html += " title='" + title + "'";
         }
