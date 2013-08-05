@@ -48,6 +48,8 @@ class PyTest(TestCommand):
                     ('test-string=', 'k', "only run tests including 'string'"),
                     ('test-path=', 's', "base dir for test collection"),
                     ('test-failfast', 'x', "Exit on first error"),
+                    ('test-verbose', 'v', "more verbose output"),
+                    ('test-quiet', 'q', "less verbose output"),
                     ('pdb',None,"fallback to pdb on error"),]
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -56,6 +58,8 @@ class PyTest(TestCommand):
         self.test_string = None
         self.test_path = None
         self.test_failfast = False
+        self.test_quiet = False
+        self.test_verbose = False
         self.pdb = False
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -66,6 +70,10 @@ class PyTest(TestCommand):
             self.test_args.extend(['-k', self.test_string])
         if self.test_failfast:
             self.test_args.extend(['-x'])
+        if self.test_verbose:
+            self.test_args.extend(['-v'])
+        if self.test_quiet:
+            self.test_args.extend(['-q'])
         if self.pdb:
             self.test_args.extend(['--pdb'])
         print self.test_failfast
