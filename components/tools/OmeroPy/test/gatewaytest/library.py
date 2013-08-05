@@ -9,7 +9,8 @@
 
 """
 
+import unittest
 from omero.gateway.scripts.testdb_create import *
 
-class GTest(unittest.TestCase, TestDBHelper):
+class GTest(TestDBHelper, unittest.TestCase):
     pass
