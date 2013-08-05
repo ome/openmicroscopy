@@ -453,8 +453,13 @@ def assertCommentAnnotation (object, ns, value):
 def getDataset (client, alias, forceproj=None):
     return DATASETS[alias].get(client, forceproj)
 
-def getImage (client, alias, forceds=None):
-    return IMAGES[alias].get(client, forceds)
+def getImage (client, alias, forceds=None, autocreate=False):
+    rv = IMAGES[alias].get(client, forceds)
+    if rv is None and autocreate:
+        i = IMAGES[alias].create()
+        i._conn.seppuku()
+        rv = IMAGES[alias].get(client, forceds)
+    return rv
 
 def bootstrap (onlyUsers=False, skipImages=True):
     # Create users
