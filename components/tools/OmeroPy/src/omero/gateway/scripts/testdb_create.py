@@ -124,8 +124,8 @@ class TestDBHelper(object):
     def getTestDataset2 (self, project=None):
         return dbhelpers.getDataset(self.gateway, 'testds2', project)
 
-    def getTestImage (self, dataset=None, create=False):
-        return dbhelpers.getImage(self.gateway, 'testimg1', dataset, create=create)
+    def getTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'testimg1', forceds=dataset, autocreate=autocreate)
 
     def getTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'testimg2', dataset)
@@ -133,8 +133,8 @@ class TestDBHelper(object):
     def getBadTestImage (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'badimg', dataset)
 
-    def getTinyTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg', dataset)
+    def getTinyTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg', forceds=dataset, autocreate=autocreate)
 
     def getTinyTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
