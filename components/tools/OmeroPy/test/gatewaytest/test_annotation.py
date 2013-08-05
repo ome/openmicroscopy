@@ -7,13 +7,17 @@
    Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
+   - author_testimg_generated
+
 """
 
 import time, datetime
 import os
-import pytest
 
 import omero.gateway
+
 
 def _testAnnotation (obj, annclass, ns, value):
     gateway = obj._conn
@@ -240,5 +244,3 @@ def testUnlinkAnnotation (author_testimg_generated):
     dataset.unlinkAnnotations(TESTANN_NS)
     assert dataset.getAnnotation(TESTANN_NS) is None
 
-#if __name__ == '__main__':
-#    unittest.main()

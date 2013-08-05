@@ -43,9 +43,28 @@ def gatewaywrapper (request):
 
 
 @pytest.fixture(scope='function')
-def author_testimg_generated (gatewaywrapper):
+def author_testimg_generated (request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
     gatewaywrapper.loginAsAuthor()
-    return gatewaywrapper.createTestImg_generated()
+    rv = gatewaywrapper.createTestImg_generated()
+    return rv
+
+@pytest.fixture(scope='function')
+def author_testimg_tiny (request, gatewaywrapper):
+    """
+    logs in as Author and returns the test image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.getTinyTestImage(autocreate=True)
+    return rv
+
+@pytest.fixture(scope='function')
+def author_testimg (request, gatewaywrapper):
+    """
+    logs in as Author and returns the test image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.getTestImage(autocreate=True)
+    return rv
