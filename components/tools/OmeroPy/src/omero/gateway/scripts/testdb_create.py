@@ -47,6 +47,7 @@ class TestDBHelper(object):
     def setUp(self, skipTestDB=False, skipTestImages=True):
         self.tmpfiles = []
         self._has_connected = False
+        self._last_login = None
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
@@ -76,14 +77,19 @@ class TestDBHelper(object):
             assert not self.gateway.isConnected(), 'Can not disconnect'
         self.gateway = None
         self._has_connected = False
+        self._last_login = None
 
     def doLogin (self, user=None, groupname=None):
+        l = (user, groupname)
+        if self._has_connected and self._last_login == l:
+            return self.doConnect()
         self.doDisconnect()
         if user:
             self.gateway = dbhelpers.login(user, groupname)
         else:
             self.gateway = dbhelpers.loginAsPublic()
         self.doConnect()
+        self._last_login = l
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -130,20 +136,20 @@ class TestDBHelper(object):
     def getTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'testimg2', dataset)
 
-    def getBadTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'badimg', dataset)
+    def getBadTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'badimg', forceds=dataset, autocreate=autocreate)
 
     def getTinyTestImage (self, dataset=None, autocreate=False):
         return dbhelpers.getImage(self.gateway, 'tinyimg', forceds=dataset, autocreate=autocreate)
 
-    def getTinyTestImage2 (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
+    def getTinyTestImage2 (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg2', forceds=dataset, autocreate=autocreate)
 
-    def getTinyTestImage3 (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg3', dataset)
+    def getTinyTestImage3 (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg3', forceds=dataset, autocreate=autocreate)
 
-    def getBigTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
+    def getBigTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'bigimg', forceds=dataset, autocreate=autocreate)
 
     def prepTestDB (self, onlyUsers=False, skipImages=True):
         dbhelpers.bootstrap(onlyUsers=onlyUsers, skipImages=skipImages)
