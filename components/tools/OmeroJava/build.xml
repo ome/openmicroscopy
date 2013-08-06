@@ -80,7 +80,7 @@
         </unjar>
     </target>
 
-    <target name="compile" depends="pre-compile,lifecycle.compile"/>
+    <target name="compile" depends="pre-compile"/>
 
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
 	<jar update="true" destfile="${target.dir}/${ivy.module}.jar">
