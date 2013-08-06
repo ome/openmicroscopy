@@ -1,0 +1,13 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="ui-scripts"
+      status="integration"/>
+  <configurations>
+    <conf name="test"/>
+  </configurations>
+  <publications>
+  </publications>
+  <dependencies defaultconfmapping="test->*">
+  </dependencies>
+</ivy-module>
