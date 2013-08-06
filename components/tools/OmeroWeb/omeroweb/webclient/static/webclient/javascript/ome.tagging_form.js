@@ -58,6 +58,11 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         }
     };
 
+    var tag_click = function(event) {
+        $(this).toggleClass('ui-selected').siblings('.ui-selected').removeClass('ui-selected');
+        update_selected_labels();
+    };
+
     var create_html = function() {
         var html = "";
         for (var id in all_tags) {
@@ -79,25 +84,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             }
         }
         div_all_tags.append(html);
-        $(".tag_selection").selectable({
-            filter: "div:not(.filtered)",
-            autoRefresh: false,
-            stop: function(event, ui) {
-                update_selected_labels();
-            },
-            start: function(event, ui) {
-                // remember which element(s) were selected at start, so we can deselect it if it's clicked again
-                $(".was-selected", div_all_tags).removeClass('was-selected');
-                $(".ui-selected", div_all_tags).addClass('was-selected');
-            },
-            selected: function(event, ui) {
-                if ($(ui.selected).hasClass('was-selected') && !event.metaKey && !event.ctrlKey) {
-                    $(ui.selected).removeClass('ui-selected');
-                }
-            }
-        });
-        $("div", div_all_tags).tooltip();
-        $("div", div_selected_tags).tooltip();
+        $(".tag_selection div").on('click', tag_click).tooltip();
     };
 
     var update_selected_labels = function() {
@@ -146,11 +133,16 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
         var tag_count_callback = function(data) {
             tag_count = data.tag_count;
-            batch_steps = Math.ceil(tag_count / batch_size);
-            step_weight = 100 / (2 * batch_steps + 1);
-            progressbar_label.text("Loading tags");
-            for (var offset = 0; offset < tag_count; offset += batch_size) {
-                load('tags', tags_callback, offset, batch_size);
+            if (tag_count > 0) {
+                batch_steps = Math.ceil(tag_count / batch_size);
+                step_weight = 100 / (2 * batch_steps + 1);
+                progressbar_label.text("Loading tags");
+                for (var offset = 0; offset < tag_count; offset += batch_size) {
+                    load('tags', tags_callback, offset, batch_size);
+                }
+            } else {
+                progressbar_label.text("Complete");
+                progressbar.progressbar("value", 100);
             }
         };
 
@@ -385,8 +377,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 sort_key: (tagset_id ? all_tags[tagset_id].t.toLowerCase() : '') + text.toLowerCase()
             };
             var div = $(create_tag_html(text, description, null, new_tag_counter, tagset ? tagset.attr('data-id') : null));
-            div.addClass('ui-selected').tooltip();
-            div_selected_tags.append(div).selectable("refresh");
+            div.addClass('ui-selected').on('click', tag_click).tooltip();
+            $("div.ui-selected", div_selected_tags).removeClass('ui-selected');
+            div_selected_tags.append(div);
             tag_input.val('');
             description_input.val('');
         }
