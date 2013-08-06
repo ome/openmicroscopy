@@ -33,11 +33,7 @@ import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
-import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
@@ -64,8 +60,6 @@ import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
-import omero.model.LongAnnotation;
-import omero.model.LongAnnotationI;
 import omero.model.Microscope;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -77,8 +71,6 @@ import omero.model.PixelsOriginalFileMapI;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
-import omero.model.PlateAcquisitionAnnotationLink;
-import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
@@ -110,11 +102,7 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 import omero.model.Thumbnail;
 import omero.model.Well;
-import omero.model.WellAnnotationLink;
-import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
-import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
@@ -334,7 +322,7 @@ public class DeleteServiceTest
     			mmFactory.simpleImage(0));
     	assertNotNull(img);
     	long id = img.getId().getValue();
-    	iDelete.deleteImage(id, false); //do not force.
+	delete(new Delete(REF_IMAGE, id, null));
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -358,7 +346,7 @@ public class DeleteServiceTest
     			mmFactory.simplePlateData().asIObject());
     	assertNotNull(p);
     	long id = p.getId().getValue();
-    	iDelete.deletePlate(id);
+	delete(new Delete(REF_PLATE, id, null));
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -416,7 +404,7 @@ public class DeleteServiceTest
 				}
 			}
 	        //Now delete the plate
-	        iDelete.deletePlate(p.getId().getValue());
+	        delete(new Delete(REF_PLATE, p.getId().getValue(), null));
 	        
 	        param = new ParametersI();
 	        param.addId(p.getId().getValue());
@@ -755,7 +743,7 @@ public class DeleteServiceTest
 			infos.add(info.getId().getValue());
 		}
     	
-    	iDelete.deleteImage(id, false); //do not force.
+	delete(new Delete(REF_IMAGE, id, null)); //do not force.
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -909,7 +897,7 @@ public class DeleteServiceTest
     	List<IObject> settings = iQuery.findAllByQuery(sql, param);
     	//now delete the image
     	assertTrue(settings.size() > 0);
-    	iDelete.deleteImage(img.getId().getValue(), false); //do not force.
+	delete(new Delete(REF_IMAGE, img.getId().getValue(), null)); //do not force.
     	//check if the settings have been deleted.
     	Iterator<IObject> i = settings.iterator();
     	IObject o;
@@ -1040,7 +1028,7 @@ public class DeleteServiceTest
 		}
     	
     	//Now we try to delete the image.
-    	iDelete.deleteImage(img.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, img.getId().getValue(), null));
     	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
 
@@ -1128,7 +1116,7 @@ public class DeleteServiceTest
     		shapeIds.add(shape.getId().getValue());
     	}
     	//Delete the image.
-    	iDelete.deleteImage(image.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, image.getId().getValue(), null));
     	//check if the objects have been delete.
 
     	ParametersI param = new ParametersI();
@@ -3695,7 +3683,7 @@ public class DeleteServiceTest
                 mmFactory.createImage());
     	
     	List<Long> ids = createNonSharableAnnotation(image, null);
-    	iDelete.deleteImage(image.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, image.getId().getValue(), null));
     	String sql = "select a from Annotation as a where a.id in (:ids)";
     	ParametersI p = new ParametersI();
     	p.addIds(ids);
