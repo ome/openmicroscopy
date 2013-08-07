@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -3874,7 +3874,7 @@ public class DeleteServiceTest
      * Simulates an SVS import in which many Pixels are attached to a
      * single, archived OriginalFile.
      */
-    @Test(groups = "ticket:5237")
+    @Test(groups = {"ticket:5237", "ticket:11348", "broken"})
     public void testDeletePixelsAndFiles()
         throws Exception
     {
