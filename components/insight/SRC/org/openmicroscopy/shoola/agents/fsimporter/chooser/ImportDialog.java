@@ -109,7 +109,7 @@ import pojos.TagAnnotationData;
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:donald@lifesci.dundee.ac.uk"
  *         >donald@lifesci.dundee.ac.uk</a>
-  * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
+ * @author Scott Littlewood &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:sylittlewood@dundee.ac.uk"
  *         >sylittlewood@dundee.ac.uk</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
