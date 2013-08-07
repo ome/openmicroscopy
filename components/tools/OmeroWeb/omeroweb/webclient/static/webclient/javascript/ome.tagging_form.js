@@ -59,7 +59,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var tag_click = function(event) {
-        $(this).toggleClass('ui-selected').siblings('.ui-selected').removeClass('ui-selected');
+        $(this).not('.alltags-locked').toggleClass('ui-selected').siblings('.ui-selected').removeClass('ui-selected');
         update_selected_labels();
     };
 
@@ -98,14 +98,19 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         }
     };
 
-    var update_html = function() {
-        $("#id_all_tags div, #id_selected_tags div").each(function() {
+    var update_html_list = function(list) {
+        $("div", list).each(function() {
             var tag = all_tags[this.getAttribute("data-id")];
             var parent_id = all_tags[this.getAttribute("data-set")];
-            this.setAttribute("title", create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null));
-        });
-        $("div", div_all_tags).tooltip();
-        $("div", div_selected_tags).tooltip();
+            var link_owner = this.getAttribute("data-linkownername");
+            var link_date = this.getAttribute("data-linkdate");
+            this.setAttribute("title", create_tag_title(tag.d, owners[tag.o], parent_id ? parent_id.t : null, link_owner, link_date));
+        }).tooltip();
+    }
+
+    var update_html = function() {
+        update_html_list($("#id_all_tags"));
+        update_html_list($("#id_selected_tags"));
     };
 
     var loader = function() {   // wrapper function for all data loading code
@@ -135,6 +140,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             tag_count = data.tag_count;
             if (tag_count > 0) {
                 batch_steps = Math.ceil(tag_count / batch_size);
+                console.log("batch steps", batch_steps);
                 step_weight = 100 / (2 * batch_steps + 1);
                 progressbar_label.text("Loading tags");
                 for (var offset = 0; offset < tag_count; offset += batch_size) {
@@ -203,9 +209,26 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 all_tags[tag.i] = tag;
             }
             create_html();
+
+            var remove_from_left = [];
             for (idx in selected_tags) {
-                $("div[data-id=" + selected_tags[idx] + "]", div_all_tags).appendTo(div_selected_tags);
+                var left_tag = $("div[data-id=" + selected_tags[idx][0] + "]", div_all_tags);
+                var selected_tag = left_tag.clone(true).appendTo(div_selected_tags);
+                selected_tag.attr("data-linkowner", selected_tags[idx][1]);
+                selected_tag.attr("data-linkownername", selected_tags[idx][2]);
+                selected_tag.attr("data-linkdate", selected_tags[idx][4]);
+                if (selected_tags[idx][5]) {
+                    remove_from_left.push(left_tag);
+                }
+                if (!selected_tags[idx][3]) {
+                    selected_tag.addClass('alltags-locked');
+                }
             }
+            for (idx in remove_from_left) {
+                remove_from_left[idx].remove();
+            }
+
+            update_html_list($("#id_selected_tags"));
             sort_tag_list(div_all_tags);
             sort_tag_list(div_selected_tags);
             update_filter();
@@ -231,10 +254,16 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         return $('<div/>').text(text).html();
     };
 
-    var create_tag_title = function(description, owner, tagset) {
+    var create_tag_title = function(description, owner, tagset, link_owner, link_date) {
         var title = "";
         if (owner) {
             title += "<b>Owner:</b> " + owner + "<br />";
+        }
+        if (link_owner) {
+            title += "<b>Linked by:</b> " + link_owner + "<br />";
+        }
+        if (link_date) {
+            title += "<b>On:</b> " + link_date + "<br />";
         }
         if (description) {
             title += "<b>Description:</b> " + description + "<br />";
