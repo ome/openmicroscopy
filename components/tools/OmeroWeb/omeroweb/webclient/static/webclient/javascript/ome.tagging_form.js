@@ -63,6 +63,11 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         update_selected_labels();
     };
 
+    var take_tag_click = function(event) {
+        $("div[data-id=" + $(this).parent().attr('data-id') + "]", div_all_tags).addClass('ui-selected').appendTo(div_selected_tags);
+        post_select_tags();
+    };
+
     var create_html = function() {
         var html = "";
         for (var id in all_tags) {
@@ -218,11 +223,13 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                     remove_from_left.push(left_tag);
                 }
                 if (!selected_tags[idx][3] || !selected_tags[idx][5]) {
-                    selected_tag.addClass('alltags-locked');
+                    selected_tag.addClass('alltags-locked').append($('<span>').addClass('alltags-take').on('click', take_tag_click));
                 }
             }
             for (idx in remove_from_left) {
                 remove_from_left[idx].remove();
+                // remove 'take tag' icon from right column
+                $("div[data-id=" + remove_from_left[idx].attr('data-id') + "] span", div_selected_tags).remove();
             }
 
             update_html_list($("#id_selected_tags"));
@@ -308,6 +315,10 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 }
             }
         });
+        post_select_tags();
+    };
+
+    var post_select_tags = function() {
         sort_tag_list(div_selected_tags);
         update_filter();
         // scroll to first selected tag
@@ -315,6 +326,12 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         if (first_selected.length > 0) {
             div_selected_tags.parent().scrollTop(first_selected.offset().top - div_selected_tags.offset().top - 40);
         }
+        // remove 'take tag' icons
+        $("div span", div_selected_tags).each(function() {
+            if ($("div[data-id=" + $(this).parent().attr('data-id') + "]:not(:has(span))", div_selected_tags).length > 0) {
+                $(this).remove();
+            }
+        });
         event.preventDefault();
     };
 
