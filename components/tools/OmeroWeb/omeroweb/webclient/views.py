@@ -1264,11 +1264,11 @@ def annotate_tags(request, conn=None, **kwargs):
     manager.annotationList()
     self_id = conn.getEventContext().userId
     selected_tags = [(tag.id,
-                      unwrap(tag.details.owner.id),
-                      "%s %s" % (unwrap(tag.details.owner.firstName), unwrap(tag.details.owner.lastName)),
-                      unwrap(tag.details.getPermissions().canDelete()),
-                      str(datetime.datetime.fromtimestamp(unwrap(tag.details.getCreationEvent().getTime()) / 1000)),
-                      self_id == unwrap(tag.details.owner.id),
+                      unwrap(tag.link.details.owner.id),
+                      "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
+                      unwrap(tag.link.details.getPermissions().canDelete()),
+                      str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
+                      self_id == unwrap(tag.link.details.owner.id),
                       )
                      for tag in manager.tag_annotations]
 
@@ -1295,9 +1295,11 @@ def annotate_tags(request, conn=None, **kwargs):
         newtags_formset = NewTagsAnnotationFormSet(prefix='newtags', data=request.REQUEST.copy())
         # Create new tags or Link existing tags...
         if form_tags.is_valid() and newtags_formset.is_valid():
-            added_tags = []
-            tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tags]
-            removed = [tag for tag in selected_tags if tag not in form_tags.cleaned_data['tags']]
+            # filter down previously selected tags to the ones owned by current user
+            selected_tag_ids = [stag[0] for stag in selected_tags if stag[5]]
+            added_tags = [stag[0] for stag in selected_tags if not stag[5]]
+            tags = [tag for tag in form_tags.cleaned_data['tags'] if tag not in selected_tag_ids]
+            removed = [tag for tag in selected_tag_ids if tag not in form_tags.cleaned_data['tags']]
             if tags:
                 manager.createAnnotationsLinks(
                     'tag',
@@ -1323,7 +1325,7 @@ def annotate_tags(request, conn=None, **kwargs):
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
-            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags, addedByMe=(obj_count==1))
+            batchAnns = manager.loadBatchAnnotations(oids, ann_ids=form_tags.cleaned_data['tags'] + added_tags)
             if obj_count > 1:
                 context["batchAnns"] = batchAnns
                 context['batch_ann'] = True

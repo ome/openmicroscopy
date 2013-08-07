@@ -76,8 +76,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                         if (child) {
                             child.sort_key = tag.t.toLowerCase() + child.t.toLowerCase();
                             html += create_tag_html(child.t, child.d, owners[child.o], child.i, tag.i);
-                        } else {
-                            console.log(sid, tag.s[sid], child);
                         }
                     }
                 }
@@ -140,7 +138,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             tag_count = data.tag_count;
             if (tag_count > 0) {
                 batch_steps = Math.ceil(tag_count / batch_size);
-                console.log("batch steps", batch_steps);
                 step_weight = 100 / (2 * batch_steps + 1);
                 progressbar_label.text("Loading tags");
                 for (var offset = 0; offset < tag_count; offset += batch_size) {
@@ -220,7 +217,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 if (selected_tags[idx][5]) {
                     remove_from_left.push(left_tag);
                 }
-                if (!selected_tags[idx][3]) {
+                if (!selected_tags[idx][3] || !selected_tags[idx][5]) {
                     selected_tag.addClass('alltags-locked');
                 }
             }
@@ -430,7 +427,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-description").val(this.getAttribute('data-description')));
                 new_tags.after($("<input type='hidden' />").attr('name', "newtags-" + count + "-tagset").val(this.getAttribute('data-set')));
                 count += 1;
-            } else { // previously existing tag
+            } else if (!$(this).hasClass('alltags-locked')) { // previously existing tag link owned by current user
                 existing_tags.push(tag_id);
             }
         });
