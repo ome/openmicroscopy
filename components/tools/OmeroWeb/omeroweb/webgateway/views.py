@@ -14,10 +14,13 @@
 # Author: Carlos Neves <carlos(at)glencoesoftware.com>
 
 import re
+import tempfile
+import zlib
 
 import omero
+import omero.grid
 import omero.clients
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect, Http404, HttpResponseForbidden
 from django.utils import simplejson
 from django.utils.encoding import smart_str
 from django.utils.http import urlquote
@@ -27,19 +30,28 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template import RequestContext as Context
 from django.core.servers.basehttp import FileWrapper
+import django.views.generic
+from django.views.decorators.http import require_http_methods, require_POST
 from omero.rtypes import rlong, unwrap
 from omero.constants.namespaces import NSBULKANNOTATIONS
 from marshal import imageMarshal, shapeMarshal
+import omero_ext.uuid as uuid
 
 try:
     from hashlib import md5
 except:
     from md5 import md5
     
+try:
+    from hashlib import sha1 as sha
+except:
+    from sha import sha
+
 from cStringIO import StringIO
 
-from omero import client_wrapper, ApiUsageException
-from omero.gateway import timeit, TimeIt
+from omero import client_wrapper, ApiUsageException, InternalException
+from omero.gateway import timeit, TimeIt, OriginalFileWrapper, CommentAnnotationWrapper
+from omeroweb.decorators import ConnCleaningHttpResponse
 
 import Ice
 import glob
@@ -1782,6 +1794,20 @@ def su (request, user, conn=None, **kwargs):
     conn.seppuku()
     return True
 
+def get_repository(conn, klass, name=None):
+    klass = '%sPrx' % klass
+    klass = getattr(omero.grid, klass)
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    for index, proxy in enumerate(repositories.proxies):
+        repository = klass.checkedCast(proxy)
+        if repository is not None:
+            description = repositories.descriptions[index]
+            if name is None or name == description.name.val:
+                return (repository, description)
+    raise AttributeError(
+        'Repository of type %s with optional name %s unavailable' %
+        (klass, name))
 
 def _annotations(request, objtype, objid, conn=None, **kwargs):
     """
@@ -1941,3 +1967,644 @@ def object_table_query(request, objtype, objid, conn=None, **kwargs):
     # one (= the one with the highest identifier)
     fileId = max(annotation['file'] for annotation in a['data'])
     return _table_query(request, fileId, conn, **kwargs)
+
+
+@login_required()
+@jsonp
+def repositories(request, conn=None, **kwargs):
+    """
+    Returns a list of repositories and their indices
+    """
+    sr = conn.getSharedResources()
+    repositories = sr.repositories()
+    result = []
+    for description in repositories.descriptions:
+        result.append(OriginalFileWrapper(
+            conn=conn, obj=description).simpleMarshal())
+    return result
+
+
+@login_required()
+@jsonp
+def repository(request, klass, name=None, conn=None, **kwargs):
+    """
+    Returns a repository and its root property
+    """
+    repository, description = get_repository(conn, klass, name)
+    return dict(repository=OriginalFileWrapper(conn=conn, obj=description).simpleMarshal(),
+                root=unwrap(repository.root().path))
+
+
+@login_required()
+@jsonp
+def repository_list(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    Returns a list of files in a repository.  If filepath is not specified,
+    returns files at the top level of the repository, otherwise files within
+    the specified filepath
+    """
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
+    repository, description = get_repository(conn, klass, name)
+    root = ''
+    if filepath:
+        root = os.path.join(root, filepath)
+    show_hidden = request.GET.get('hidden', 'false')
+    try:
+        result = [f for f in repository.list(root, ctx)
+                  if show_hidden or not f.startswith('.')]
+    except: # list failed, likely because root does not exist
+        logger.error(traceback.format_exc())
+        result = []
+    return dict(result=result)
+
+
+@login_required()
+@jsonp
+def repository_listfiles(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    Returns a list of files and some of their metadata in a repository.
+    If filepath is not specified, returns files at the top level of the
+    repository, otherwise files within the specified filepath
+    """
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
+    repository, description = get_repository(conn, klass, name)
+    root = ''
+    if filepath:
+        root = os.path.join(root, filepath)
+    show_hidden = request.GET.get('hidden', 'false') == 'true'
+    permissions = request.GET.get('permissions', 'false') == 'true'
+
+    owners = dict()
+
+    def _getFile(f):
+        w = OriginalFileWrapper(conn=conn, obj=f)
+        rv = w.simpleMarshal()
+        owner = w.details.owner.id.val
+        owners[owner] = None
+        rv['owner'] = owner
+        if permissions:
+            rv.update((prop, getattr(w, prop)()) for prop in dir(w)
+                if prop.startswith('can'))
+        return rv
+
+    try:
+        result = [_getFile(f) for f in repository.listFiles(root, ctx)]
+    except: # listFiles failed, likely because root does not exist
+        logger.error(traceback.format_exc())
+        return dict(result=[])
+
+    result = [f for f in result
+              if show_hidden or not f.get('name', '').startswith('.')]
+    if owners.keys():
+        for owner in conn.getObjects("Experimenter", owners.keys()):
+            owners[owner.id] = owner.simpleMarshal()
+    for f in result:
+        f['owner'] = owners.get(f['owner'])
+    return dict(result=result)
+
+
+@login_required()
+@jsonp
+def repository_sha(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    json method: Returns the sha1 checksum of the specified file
+    """
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
+    repository, description = get_repository(conn, klass, name)
+    fullpath = filepath
+
+    try:
+        sourcefile = repository.file(fullpath, 'r', ctx)
+    except InternalException:
+        raise Http404()
+
+    digest = sha()
+    for block in iterate_content(sourcefile, 0, sourcefile.size() - 1):
+        digest.update(block)
+
+    return dict(sha=digest.hexdigest())
+
+
+def _gather_files_for_deletion(repository, ctx, batchsize, explore, files, directories):
+    while explore and (batchsize == 0 or len(files) < batchsize):
+        directory = explore.pop()
+        for entry in repository.listFiles(directory, ctx):
+            fullname = os.path.join(directory, unwrap(entry.name))
+            if unwrap(entry.mimetype) == 'Directory':
+                explore.append(fullname)
+            else:
+                files.append(fullname)
+        directories.insert(0, directory)
+    if not explore:
+        files.extend(directories)
+        del directories[:]
+    batchsize = len(files) if batchsize == 0 else batchsize
+    todelete = files[:batchsize]
+    del files[:batchsize]
+    return todelete
+
+
+@require_POST
+@login_required()
+@jsonp
+def repository_delete(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    json method: Deletes the specified file or directory
+    """
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
+    ctx = conn.SERVICE_OPTS.copy()
+    repository, description = get_repository(conn, klass, name)
+
+    async = request.GET.get('async') == 'true'
+    progress = request.GET.get('progress') == 'true'
+    try:
+        timeout = int(request.GET.get('timeout', '30'))
+    except ValueError:
+        timeout = 30
+    try:
+        batchsize = int(request.GET.get('batchsize', '0'))
+    except ValueError:
+        batchsize = 0
+
+    rdict = {
+        'async': async,
+        'progress': progress,
+    }
+
+    total = None
+    remaining = None
+
+    if repository.fileExists(filepath):
+
+        if progress:
+            total = len(_gather_files_for_deletion(repository, ctx, 0,
+                                                   [filepath], [], []))
+            remaining = total
+
+        if async:
+            explore = [filepath]
+            files = []
+            directories = []
+            todelete = _gather_files_for_deletion(repository, ctx, batchsize,
+                                       explore, files, directories)
+        else:
+            todelete = [filepath]
+
+        handle = repository.deletePaths(todelete, True, True, ctx)
+
+        if async:
+
+            # return immediately
+            request.session.setdefault('deletes', dict())[str(handle)] = {
+                'filepath': filepath,
+                'explore': explore,
+                'files': files,
+                'directories': directories,
+                'batchsize': batchsize,
+                'total': total,
+                'remaining': remaining,
+                'currenthandle': str(handle),
+                }
+            request.session.save()
+            rdict['handle'] = str(handle)
+
+        else:
+
+            try:
+                conn._waitOnCmd(handle, loops=timeout * 2)  # loops are 500ms
+                remaining = 0
+            finally:
+                handle.close()
+
+    rdict['total'] = total
+    rdict['remaining'] = remaining
+    return rdict
+
+
+@login_required()
+@jsonp
+def repository_delete_status(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    json method: Get status for asynchronous delete
+    """
+    strhandle = str(request.GET.get('handle'))
+
+    info = request.session.setdefault('deletes', dict()).get(strhandle, dict())
+    if info.get('currenthandle') == None:
+        return dict(error='Invalid handle')
+    handle = omero.cmd.HandlePrx.checkedCast(conn.c.ic.stringToProxy(info['currenthandle']))
+    status = handle.getStatus()
+    remaining = info['remaining']
+    total = info['total']
+
+    rdict = dict(
+        total=total,
+        complete=False)
+
+    if status.stopTime > 0:
+        handle.close()
+
+        batchsize = info['batchsize']
+        explore = info['explore']
+        files = info['files']
+        directories = info['directories']
+
+        if explore or files or directories:
+            if remaining:
+                remaining -= batchsize
+            conn.SERVICE_OPTS.setOmeroGroup('-1')
+            ctx = conn.SERVICE_OPTS.copy()
+            repository, description = get_repository(conn, klass, name)
+
+            todelete = _gather_files_for_deletion(repository, ctx, batchsize,
+                                       explore, files, directories)
+            handle = repository.deletePaths(todelete, True, True, ctx)
+            request.session['deletes'][strhandle]['explore'] = explore
+            request.session['deletes'][strhandle]['files'] = files
+            request.session['deletes'][strhandle]['directories'] = directories
+            request.session['deletes'][strhandle]['currenthandle'] = str(handle)
+            request.session['deletes'][strhandle]['remaining'] = remaining
+        else:
+            remaining = 0
+            request.session['deletes'].pop(strhandle)
+            rdict['complete'] = True
+        request.session.save()
+    rdict['remaining'] = remaining
+    return rdict
+
+
+@login_required()
+@jsonp
+def repository_root(request, klass, name=None, conn=None, **kwargs):
+    """
+    Returns the root and name property of a repository
+    """
+    repository, description = get_repository(conn, klass, name)
+    return dict(root=unwrap(repository.root().path),
+                name=OriginalFileWrapper(conn=conn, obj=description).getName())
+
+
+@require_POST
+@login_required()
+@jsonp
+def repository_makedir(request, klass, name=None, dirpath=None, conn=None, **kwargs):
+    """
+    Creates a directory in a repository
+    """
+    repository, description = get_repository(conn, klass, name)
+    root = unwrap(repository.root().path)
+    fwname = OriginalFileWrapper(conn=conn, obj=description).getName()
+
+    try:
+        path = dirpath
+        rdict = {'bad': 'false'}
+        force = request.GET.get('force', 'false')
+        parents = request.GET.get('parents', 'true')
+        if force == 'true' and repository.fileExists(path):
+            return rdict
+        repository.makeDir(path, parents != 'false')
+    except Exception, ex:
+        logger.error(traceback.format_exc())
+        rdict = {'bad': 'true', 'errs': str(ex)}
+    return rdict
+
+
+def iterate_content(source, start, end):
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    position = start
+    to_read = end - start + 1
+    while True:
+        chunk = source.read(position, min(chunk_size, to_read))
+        if not chunk:
+            break
+        to_read -= len(chunk)
+        position += len(chunk)
+        yield chunk
+
+
+@login_required(doConnectionCleanup=False)
+def repository_download(request, klass, name=None, filepath=None, conn=None, **kwargs):
+    """
+    Downloads a file from a repository.  Supports the HTTP_RANGE header to
+    perform partial downloads or download continuation
+    """
+    repository, description = get_repository(conn, klass, name)
+    fullpath = filepath
+
+    ctx = conn.SERVICE_OPTS.copy()
+    ctx.setOmeroGroup('-1')
+
+    try:
+        sourcefile = repository.file(fullpath, 'r', ctx)
+    except InternalException:
+        raise Http404()
+
+    def parse_range(request, size):
+        # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.35
+        m = re.match(r"^bytes=(\d*)-(\d*)$", request.META.get('HTTP_RANGE', ''))
+        if not m:
+            return 200, 0, size - 1
+        try:
+            start = int(m.group(1) or 0)
+            end = int(m.group(2) or (size - 1))
+            if start == 0 and end == size - 1:
+                return 200, start, end
+            if start <= end:
+                if end >= size:
+                    return 416, start, end
+                else:
+                    return 206, start, end
+        except ValueError:
+            pass
+        return 416, 0, size - 1
+
+    filesize = sourcefile.size()
+
+    code, start, end = parse_range(request, filesize)
+
+    if code < 400:
+        response = ConnCleaningHttpResponse(iterate_content(sourcefile, start, end),
+                                            close_files=[sourcefile])
+        response.conn = conn
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Length'] = end - start + 1
+
+    else:
+        response = ConnCleaningHttpResponse(status=code,
+                                            close_files=[sourcefile])
+        response.conn = conn
+
+    return response
+
+
+
+def chunk_copy(source, target, start=None, end=None):
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    if start > 0:
+        source.seek(start)
+    to_read = (end - (start or 0) + 1) if end else None
+    while True:
+        chunk = source.read(min(chunk_size, to_read) if to_read > -1 else chunk_size)
+        if not chunk:
+            break
+        if to_read:
+            to_read -= len(chunk)
+        target.write(chunk)
+
+
+def chunk_decompress_copy(source, target):
+    decompressor = zlib.decompressobj()
+    chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+    while True:
+        chunk = source.read(chunk_size)
+        if not chunk:
+            break
+        chunk = decompressor.decompress(chunk)
+        target.write(chunk)
+    chunk = decompressor.flush()
+    if chunk:
+        target.write(chunk)
+
+
+def touch(fname, times=None):
+    with file(fname, 'a'):
+        os.utime(fname, times)
+
+def get_temp_path(uploadId=None):
+    temp_dir = getattr(settings, 'MPU_TEMP_DIR', tempfile.gettempdir())
+    if not uploadId:
+        return os.path.join(temp_dir, 'mpu_uploads')
+    else:
+        return os.path.join(temp_dir, 'mpu_uploads', uploadId)
+
+def _delete_upload(objectname):
+    shutil.rmtree(os.path.dirname(objectname), ignore_errors=True)
+
+
+class login_required_no_redirect(login_required):
+
+    def on_not_logged_in(self, request, url, error=None):
+        """Called whenever the user is not logged in."""
+
+        logger.debug("webapi: Could not log in - always 403")
+
+        return HttpResponseForbidden()
+
+
+# Use these utility decorators to use any decorator designed for classic views
+# on class-based view methods.
+# Example:
+#
+# class ViewClass(django.views.generic.View):
+#     @cloak_self
+#     @login_required()
+#     @uncloak_self
+#     def protected_view(self, request, *args, **kwargs):
+#         ...
+
+def cloak_self(function):
+    def decorated(self, *args, **kwargs):
+        kwargs['__self__'] = self
+        return function(*args, **kwargs)
+    return decorated
+
+def uncloak_self(function):
+    def decorated(*args, **kwargs):
+        self = kwargs.pop('__self__', None)
+        return function(self, *args, **kwargs)
+    return decorated
+
+
+def process_request(require_uploadId):
+    def decorate_method(method):
+        @cloak_self
+        @login_required_no_redirect()
+        @jsonp
+        @uncloak_self
+        def decorated(self, request, klass, name=None, filepath=None, conn=None, **kwargs):
+
+            repository, description = get_repository(conn, klass, name)
+            fullpath = filepath
+
+            objectname = os.path.basename(fullpath)
+            uploadId = request.GET.get('uploadId')
+            if uploadId:
+                path = get_temp_path(uploadId)
+                objectname = os.path.join(path, objectname)
+                if not os.path.exists(objectname):
+                    return HttpResponseForbidden()
+                touch(os.path.join(path, objectname))
+            elif require_uploadId:
+                return HttpResponseForbidden()
+            try:
+                rdict = {'bad': 'false'}
+                rdict.update(method(self, request, objectname, conn,
+                                    fullpath=fullpath, repository=repository,
+                                    **kwargs))
+            except Exception, ex:
+                logger.error(traceback.format_exc())
+                rdict = {'bad': 'true', 'errs': str(ex)}
+            return rdict
+        return decorated
+    return decorate_method
+
+
+class repository_upload(django.views.generic.View):
+    """
+    Upload a file into a repository using multi-part upload.  Modeled on
+    the Amazon S3 MPU calls.
+
+    POST /filepath?uploads - Initiates the upload and returns an uploadId
+    PUT /filepath?uploadId=X&partNumber=Y - uploads a file part
+    GET /filepath?uploadId=X - returns a list of already uploaded parts
+    POST /filepath?uploadId=X - assembles file parts and submits to repository
+    DELETE /filepath?uploadId=X - abort upload process
+    """
+
+    @process_request(require_uploadId=True)
+    def get(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        if objectname:
+            rdict['parts'] = self._get_parts(objectname)
+        return rdict
+
+    @process_request(require_uploadId=False)
+    def post(self, request, objectname, conn, fullpath, repository, **kwargs):
+        rdict = {}
+        if request.GET.has_key('uploads'):
+            rdict['uploadId'] = self._initiate_upload(objectname)
+        else:
+            self._complete_upload(objectname, fullpath, repository)
+        return rdict
+
+    @process_request(require_uploadId=True)
+    def put(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        try:
+            partNumber = int(request.GET.get('partNumber'))
+        except ValueError:
+            partNumber = 0
+        compress = request.GET.get('compressed')
+        if compress and compress != 'gzip':
+            raise ValueError('Supported compression methods: gzip')
+        if partNumber < 1 or partNumber > 10000:
+            raise ValueError('Part number must be between 1 and 10000')
+        with file('%s.%05d' % (objectname, partNumber), 'wb') as part:
+            if compress == 'gzip':
+                chunk_decompress_copy(request, part)
+            else:
+                chunk_copy(request, part)
+        return rdict
+
+    @process_request(require_uploadId=True)
+    def delete(self, request, objectname, conn, **kwargs):
+        rdict = {}
+        self._delete_upload(objectname)
+        return rdict
+
+    def _initiate_upload(self, objectname):
+        uploadId = str(uuid.uuid4())
+        path = get_temp_path(uploadId)
+        os.makedirs(path)
+        touch(os.path.join(path, objectname))
+        return uploadId
+
+    def _get_parts(self, objectname):
+        filename = os.path.basename(objectname) + '.'
+        return sorted(part for part in os.listdir(os.path.dirname(objectname))
+                      if part.startswith(filename))
+
+    def _complete_upload(self, objectname, fullpath, repository):
+        parts = self._get_parts(objectname)
+        if len(parts) < 1 or len(parts) != int(parts[-1][-5:]):
+            raise Exception("Missing parts in multi-part upload")
+
+        def chunk_copy_to_repo(source, target, position):
+            chunk_size = getattr(settings, 'MPU_CHUNK_SIZE', 64 * 1024)
+            while True:
+                chunk = source.read(chunk_size)
+                if not chunk:
+                    break
+                target.write(chunk, position, len(chunk))
+                position += len(chunk)
+            return position
+
+        targetfile = repository.file(fullpath, 'rw')
+        try:
+            targetfile.truncate(0)
+            position = 0
+            for part in parts:
+                path = os.path.join(os.path.dirname(objectname), part)
+                with file(path) as source:
+                    position = chunk_copy_to_repo(
+                            source, targetfile, position)
+
+            _delete_upload(objectname)
+        finally:
+            targetfile.close()
+
+
+@require_POST
+@login_required()
+@jsonp
+def clean_incomplete_mpus(request, conn, **kwargs):
+    """
+    Remove incomplete multi-part uploads that have not been active in a
+    certain timeout period.  Returns a list of all uploads before any
+    are removed.
+    """
+    now = time.time()
+    rdict = dict()
+    path = get_temp_path()
+    for upload in os.listdir(path):
+        p = os.path.join(path, upload)
+        last_change = None
+        master = None
+        if os.path.isdir(p):
+            files = sorted(os.listdir(p), key=len)
+            if files:
+                master = os.path.join(p, files[0])
+                last_change = now - os.path.getatime(master)
+        rdict[upload] = last_change
+        if last_change > getattr(settings, 'MPU_TIMEOUT', 60 * 60):
+            _delete_upload(master)
+    return rdict
+
+
+@require_http_methods(["GET", "POST", "DELETE"])
+@login_required()
+@jsonp
+def annotate(request, klass, id, conn=None, **kwargs):
+
+    conn.SERVICE_OPTS.setOmeroGroup('-1')
+    obj = conn.getObject(str(klass), attributes=dict(id=long(id)))
+    if not obj:
+        return []
+    ns = request.GET.get('ns', 'omero.webgateway.annotate')
+
+    if request.method == 'GET':
+        return [
+            {
+                'type': type(ann).__name__,
+                'id': ann.id,
+                'value': ann.getValue(),
+            }
+            for ann in obj.listAnnotations(ns)
+        ]
+    elif request.method == 'POST':
+        ann = obj.getAnnotation(ns)
+        if not ann:
+            ann = CommentAnnotationWrapper(conn)
+            ann.setNs(ns)
+            ann.setValue(request.read())
+            obj.linkAnnotation(ann)
+        else:
+            ann.setValue(request.read())
+            ann.save()
+        return dict(result='ok')
+    elif request.method == 'DELETE':
+        obj.removeAnnotations(ns)
+        return dict(result='ok')
