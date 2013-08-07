@@ -1261,9 +1261,16 @@ def annotate_tags(request, conn=None, **kwargs):
 
     tags = []
 
-    filter_user_id = request.session.get('user_id')
     manager.annotationList()
-    selected_tags = [tag.id for tag in manager.tag_annotations]
+    self_id = conn.getEventContext().userId
+    selected_tags = [(tag.id,
+                      unwrap(tag.details.owner.id),
+                      "%s %s" % (unwrap(tag.details.owner.firstName), unwrap(tag.details.owner.lastName)),
+                      unwrap(tag.details.getPermissions().canDelete()),
+                      str(datetime.datetime.fromtimestamp(unwrap(tag.details.getCreationEvent().getTime()) / 1000)),
+                      self_id == unwrap(tag.details.owner.id),
+                      )
+                     for tag in manager.tag_annotations]
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
@@ -1276,9 +1283,9 @@ def annotate_tags(request, conn=None, **kwargs):
         except:
             offset = limit = None
         if jsonmode == 'tagcount':
-            tag_count = manager.getTagCount(filter_user_id)
+            tag_count = manager.getTagCount()
         else:
-            manager.loadTagsRecursive(filter_user_id, offset=offset, limit=limit)
+            manager.loadTagsRecursive(eid=-1, offset=offset, limit=limit)
             all_tags = manager.tags_recursive
             all_tags_owners = manager.tags_recursive_owners
 
