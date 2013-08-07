@@ -321,12 +321,12 @@ public class ScreenLogin
 	 */
 	private Long getGroupId(String value)
 	{
-		Entry entry;
-		Iterator i = groups.entrySet().iterator();
+		Entry<Long, String> entry;
+		Iterator<Entry<Long, String>> i = groups.entrySet().iterator();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
+			entry = i.next();
 			if (entry.getValue().equals(value))
-				return (Long) entry.getKey();
+				return entry.getKey();
 		}
 		return -1L;
 	}
@@ -928,8 +928,7 @@ public class ScreenLogin
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
 		String value = prefs.get(OMERO_TRANSFER_ENCRYPTED, null);
 		if (value == null || value.trim().length() == 0) return false;
-		if (value.equals("true")) return Boolean.valueOf(true);
-		return Boolean.valueOf(false); 
+		return value.equals("true"); 
 	}
 	
 	/** 

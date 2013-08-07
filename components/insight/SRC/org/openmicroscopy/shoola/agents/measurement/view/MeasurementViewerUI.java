@@ -1213,11 +1213,11 @@ class MeasurementViewerUI
 							handleROIException(e, RETRIEVE_MSG);
 						}
 						if (list != null) {
-							TreeMap map = list.getList();
-							Iterator i = map.values().iterator();
+							TreeMap<?, ROIShape> map = list.getList();
+							Iterator<ROIShape> i = map.values().iterator();
 							ROIShape shape;
 							while (i.hasNext()) {
-								shape = (ROIShape) i.next();
+								shape = i.next();
 								if (shape != null) {
 									figure = shape.getFigure();
 									drawing.add(figure);
