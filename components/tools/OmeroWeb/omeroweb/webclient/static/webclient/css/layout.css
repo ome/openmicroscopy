@@ -2414,6 +2414,11 @@ div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
     display: none;
 }
 
+.tagset-title {
+    color: #5d8499;
+    font-weight: normal;
+}
+
 /* #Progress Bar
 ================================================== */
 .ui-progressbar {
