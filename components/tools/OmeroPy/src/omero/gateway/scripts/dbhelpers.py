@@ -142,8 +142,7 @@ class UserEntry (object):
                 g = group
             UserEntry.check_group_perms(client, g, groupperms)
         except BadGroupPermissionsException:
-            a.changePermissions(g, omero.model.PermissionsI(groupperms))
-       
+            client._waitOnCmd(client.chmodGroup(g.id.val, groupperms))
 
     @staticmethod
     def _getOrCreateGroup (client, groupname, groupperms=None):
@@ -468,6 +467,7 @@ def bootstrap (onlyUsers=False, skipImages=True):
         for k, u in USERS.items():
             if not u.create(client, ROOT.passwd):
                 u.changePassword(client, u.passwd, ROOT.passwd)
+                u.assert_group_perms(client, u.groupname, u.groupperms)
         if onlyUsers:
             return
         for k, p in PROJECTS.items():
