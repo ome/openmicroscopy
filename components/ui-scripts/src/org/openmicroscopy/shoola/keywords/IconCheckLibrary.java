@@ -23,6 +23,8 @@ import java.awt.Component;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -44,24 +46,30 @@ public class IconCheckLibrary
     /**
      * <table>
      *   <td>Get Image Icon Name</td>
-     *   <td>name of <code>JXTaskPane</code></td>
+     *   <td>name of <code>JLabel</code> or <code>JXTaskPane</code></td>
      * </table>
-     * @param jxTaskPaneName the name of the <code>JXTaskPane</code> whose <code>ImageIcon</code>'s filename is required
+     * @param containerName the name of the <code>JLabel</code> or <code>JXTaskPane</code> whose <code>ImageIcon</code>'s filename is required
      * @return the filename of the <code>ImageIcon</code>
-     * @throws MultipleComponentsFoundException if multiple <code>JXTaskPane</code>s have the given name
-     * @throws ComponentNotFoundException if no <code>JXTaskPane</code>s have the given name
+     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
+     * @throws ComponentNotFoundException if no suitable components have the given name
      */
-    public String getImageIconName(final String jxTaskPaneName)
+    public String getImageIconName(final String containerName)
     throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final JXTaskPane taskPane = (JXTaskPane) new BasicFinder().find(new Matcher() {
+        final JComponent iconBearer = (JComponent) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
-                return component instanceof JXTaskPane && jxTaskPaneName.equals(component.getName());
+                return (component instanceof JLabel || component instanceof JXTaskPane)
+                        && containerName.equals(component.getName());
             }});
-        final Icon icon = taskPane.getIcon();
+        Icon icon = null;
+        if (iconBearer instanceof JLabel) {
+            icon = ((JLabel) iconBearer).getIcon();
+        } else if (iconBearer instanceof JXTaskPane) {
+            icon = ((JXTaskPane) iconBearer).getIcon();
+        }
         if (!(icon instanceof ImageIcon)) {
             throw new RuntimeException("not an ImageIcon");
         }
-        final String iconName = ((ImageIcon) taskPane.getIcon()).getDescription();
+        final String iconName = ((ImageIcon) icon).getDescription();
         final int lastSlash = iconName.lastIndexOf('/');
         return lastSlash < 0 ? iconName : iconName.substring(lastSlash + 1);
     }
