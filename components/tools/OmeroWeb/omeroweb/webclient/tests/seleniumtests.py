@@ -88,5 +88,82 @@ class WebClientTests (WebClientTestBase):
         self.assertEqual(parentId, "project-%s" % pid, "Dataset parentId %s should be project-%s" % (parentId, pid))
 
 
+    def testCreateContainersEnabled(self):
+        #self.stepPause = 3;
+        driver = self.driver
+
+        eid = self.createUserAndLogin()
+        self.getRelativeUrl("/webclient/")
+
+        def assertButtonEnabled(buttonId, enabled):
+            state = driver.find_element_by_id(buttonId).is_enabled()
+            self.assertEqual(state, enabled, "Button %s should be enabled: %s" % (buttonId, enabled))
+
+        # Tried to do a right-click via Selenium without success. (failed with jquery too)
+        # def rightClick(elementId):
+        #     # from selenium.webdriver.common.action_chains import ActionChains
+        #     # ac = ActionChains(driver)
+        #     # element = driver.find_element_by_css_selector(selector)
+        #     # ac.context_click(on_element=element)
+
+        #     from selenium.webdriver.remote.command import Command
+        #     from selenium.webdriver.common.keys import Keys
+        #     driver.execute(Command.MOVE_TO, {'element': elementId})
+        #     driver.execute(Command.CLICK, {'button': 2})
+
+        def selectNode(cssSelector):
+            #driver.execute_script("$('#dataTree').jstree('select_node', '%s')" % cssSelector)
+            driver.find_element_by_css_selector("%s>a" % cssSelector).click()
+
+        def assertContextMenuEnabled(rel, enabled):
+            # works on the currently selected node
+            driver.execute_script("$('#dataTree').jstree('show_contextmenu')")
+            disabled = driver.execute_script("return $('#vakata-contextmenu a[rel=\"%s\"]').parent().hasClass('jstree-contextmenu-disabled')" % rel)
+            self.assertNotEqual(disabled, enabled, "Context menu %s should be enabled: %s" % (rel, enabled))
+
+        # Start with Experimenter selected in jsTree: P/D buttons disabled.
+        self.startStep()
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", True)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", True)
+        assertContextMenuEnabled("dataset", True)
+        assertContextMenuEnabled("screen", True)
+        assertContextMenuEnabled("delete", False)
+
+        # Create a Project (selected)...
+        self.startStep()
+        self.createObject("project")
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", True)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", True)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
+
+        # Create a Dataset (selected)...
+        self.startStep()
+        self.createObject("dataset")
+        assertButtonEnabled("addprojectButton", False)
+        assertButtonEnabled("adddatasetButton", False)
+        assertButtonEnabled("addscreenButton", False)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", False)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
+
+        # Create a Screen (selected)...
+        self.startStep()
+        selectNode("#experimenter-0")
+        self.createObject("screen")
+        assertButtonEnabled("addprojectButton", True)
+        assertButtonEnabled("adddatasetButton", False)
+        assertButtonEnabled("addscreenButton", True)
+        assertContextMenuEnabled("project", False)
+        assertContextMenuEnabled("dataset", False)
+        assertContextMenuEnabled("screen", False)
+        assertContextMenuEnabled("delete", True)
+
 if __name__ == "__main__":
    Utils.runAsScript('webadmin')
