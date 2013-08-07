@@ -90,7 +90,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         $("#id_tags_selected").text(count ? count + " selected" : "");
         var tagset = get_selected_tagset();
         if (tagset) {
-            $("#id_selected_tag_set").text("Add a new tag in '" + tagset.text() + "' tag set:");
+            $("#id_selected_tag_set").html("Add a new tag in <span class='tagset-title'>" + tagset.text() + "</span> tag set:");
         } else {
             $("#id_selected_tag_set").text("Add a new tag:");
         }
