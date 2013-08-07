@@ -2413,7 +2413,15 @@ div.tag_selection div:hover {
 div.tag_selection div.filtered, div.tag_selection div.empty-tagset {
     display: none;
 }
-
+div.tag_selection span.alltags-take {
+    background: url(../image/icon-add-to-tags.png) no-repeat left center;
+    float: right;
+    width: 18px;
+    height: 16px;
+}
+div.tag_selection span.alltags-take:hover {
+    background-image: url(../image/icon-added-to-tags.png);
+}
 .tagset-title {
     color: #5d8499;
     font-weight: normal;
