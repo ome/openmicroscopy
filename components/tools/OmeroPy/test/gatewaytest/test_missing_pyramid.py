@@ -6,54 +6,44 @@
 
 """
 
-import unittest
 import omero
 import time
+import pytest
 
-import gatewaytest.library as lib
 
+class TestPyramid (object):
 
-class PyramidTest (lib.GTest):
-
-    def setUp (self):
-        super(PyramidTest, self).setUp()
-        self.loginAsAuthor()
-        self.TESTIMG = self.getTestImage()
-
+    @pytest.fixture(autouse=True)
+    def setUp (self, author_testimg_generated):
+        self.image = author_testimg_generated
 
     def testThrowException(self):
         """ test that image._prepareRE() throws MissingPyramidException """
-        
-        image = self.TESTIMG
-        image._conn.createRenderingEngine = lambda: MockRenderingEngine()
+        self.image._conn.createRenderingEngine = lambda: MockRenderingEngine()
 
         try:
-            image._prepareRE()
-            self.assertTrue(False, "_prepareRE should have thrown an exception")
+            self.image._prepareRE()
+            assert False, "_prepareRE should have thrown an exception"
         except omero.ConcurrencyException, ce:
             print "Handling MissingPyramidException with backoff: %s secs" % (ce.backOff/1000)
 
 
     def testPrepareRenderingEngine(self):
         """ We need image._prepareRenderingEngine() to raise MissingPyramidException"""
-
-        image = self.TESTIMG
-        image._conn.createRenderingEngine = lambda: MockRenderingEngine()
+        self.image._conn.createRenderingEngine = lambda: MockRenderingEngine()
         
         try:
-            image._prepareRenderingEngine()
-            self.assertTrue(False, "_prepareRenderingEngine() should have thrown an exception")
+            self.image._prepareRenderingEngine()
+            assert False, "_prepareRenderingEngine() should have thrown an exception"
         except omero.ConcurrencyException, ce:
             print "Handling MissingPyramidException with backoff: %s secs" % (ce.backOff/1000)
 
 
     def testGetChannels(self):
         """ Missing Pyramid shouldn't stop us from getting Channel Info """
-        
-        image = self.TESTIMG
-        image._conn.createRenderingEngine = lambda: MockRenderingEngine()
+        self.image._conn.createRenderingEngine = lambda: MockRenderingEngine()
 
-        channels = image.getChannels()
+        channels = self.image.getChannels()
         for c in channels:
             print c.getLabel()
             
@@ -81,5 +71,3 @@ class MockRenderingEngine(object):
         e.backOff = (3 * 60 * 60 * 1000) + (20 * 60 * 1000) + (45 * 1000) # 3 hours
         raise e
     
-if __name__ == '__main__':
-    unittest.main()
