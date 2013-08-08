@@ -40,14 +40,14 @@ class TestConnectionMethods (object):
         assert gatewaywrapper.getTestImage() !=  None
         gatewaywrapper.gateway.seppuku()
         pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
-        self._has_connected = False
-        self.doDisconnect()
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
         gatewaywrapper.loginAsAuthor()
         assert gatewaywrapper.getTestImage() !=  None
         gatewaywrapper.gateway.seppuku(softclose=False)
         pytest.raises(Ice.ConnectionLostException, gatewaywrapper.getTestImage)
-        self._has_connected = False
-        self.doDisconnect()
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
         # Also make sure softclose does the right thing
         gatewaywrapper.loginAsAuthor()
         g2 = gatewaywrapper.gateway.clone()
@@ -66,8 +66,8 @@ class TestConnectionMethods (object):
         g2.seppuku(softclose=False)
         pytest.raises(Ice.ConnectionLostException, g2_getTestImage)
         pytest.raises(Ice.ObjectNotExistException, gatewaywrapper.getTestImage)
-        self._has_connected = False
-        self.doDisconnect()
+        gatewaywrapper._has_connected = False
+        gatewaywrapper.doDisconnect()
 
     def testTopLevelObjects (self, gatewaywrapper, author_testimg):
         ##
@@ -99,19 +99,19 @@ class TestConnectionMethods (object):
         ##
         # Test getProject
         gatewaywrapper.loginAsAuthor()
-        assert gatewaywrapper.gateway.getObject("Project" ==  project_id).getId(), project_id
+        assert gatewaywrapper.gateway.getObject("Project", project_id).getId() == project_id
         ##
         # Test getDataset
         dataset_id = parents[0].getId()
-        assert gatewaywrapper.gateway.getObject("Dataset" ==  dataset_id).getId(), dataset_id
+        assert gatewaywrapper.gateway.getObject("Dataset", dataset_id).getId() == dataset_id
         ##
         # Test listExperimenters
         #exps = map(lambda x: x.omeName, gatewaywrapper.gateway.listExperimenters())  # removed from blitz gateway
         exps = map(lambda x: x.omeName, gatewaywrapper.gateway.getObjects("Experimenter"))
-        for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
+        for omeName in (gatewaywrapper.USER.name, gatewaywrapper.AUTHOR.name, gatewaywrapper.ADMIN.name.decode('utf-8')):
             assert omeName in exps
             assert len(list(gatewaywrapper.gateway.getObjects("Experimenter", attributes={'omeName':omeName}))) > 0
-        comboName = gatewaywrapper.USER.name+gatewaywrapper.AUTHOR.name+self.ADMIN.name
+        comboName = gatewaywrapper.USER.name+gatewaywrapper.AUTHOR.name+gatewaywrapper.ADMIN.name
         assert len(list(gatewaywrapper.gateway.getObjects("Experimenter", attributes={'omeName':comboName}))) ==  0
         ##
         # Test lookupExperimenter
@@ -144,7 +144,7 @@ class TestConnectionMethods (object):
         gatewaywrapper.gateway.setIdentity(gatewaywrapper.USER.name, gatewaywrapper.USER.passwd)
         setprop = gatewaywrapper.gateway.c.ic.getProperties().setProperty
         map(lambda x: setprop(x[0],str(x[1])), gatewaywrapper.gateway._ic_props.items())
-        gatewaywrapper.gateway.c.ic.getImplicitContext().put(omero.constants.GROUP, self.gateway.group)
+        gatewaywrapper.gateway.c.ic.getImplicitContext().put(omero.constants.GROUP, gatewaywrapper.gateway.group)
         # I'm not certain the following assertion is as intended.
         # This should be reviewed, see ticket #6037
         #assert gatewaywrapper.gateway._sessionUuid ==  None
@@ -152,6 +152,7 @@ class TestConnectionMethods (object):
         assert gatewaywrapper.gateway._sessionUuid !=  None
         #74 bug found while fixing this, the uuid passed to closeSession was not wrapped in rtypes, so logout didn't
         gatewaywrapper.gateway._closeSession() # was raising ValueError
+        gatewaywrapper.gateway = None
 
     def testMiscellaneous (self, gatewaywrapper):
         gatewaywrapper.loginAsUser()

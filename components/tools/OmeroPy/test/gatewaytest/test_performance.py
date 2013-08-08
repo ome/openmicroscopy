@@ -7,26 +7,17 @@
 
 """
 
-import unittest
 import omero
 import time
 
-import gatewaytest.library as lib
 
 from omero.rtypes import rstring, rlong
 
-class PerformanceTest (lib.GTest):
-
-    def setUp (self):
-        super(PerformanceTest, self).setUp()
-        self.loginAsAuthor()
-        self.TESTIMG = self.getTestImage()
-
-
-    def testListFileAnnotations(self):
+class TestPerformance (object):
+    def testListFileAnnotations(self, gatewaywrapper):
         """ testListFileAnnotations: test speed of getObjects('FileAnnotation') vv listFileAnnotations() """
-
-        updateService = self.gateway.getUpdateService()
+        gatewaywrapper.loginAsAuthor()
+        updateService = gatewaywrapper.gateway.getUpdateService()
 
         def createFileAnnotation(name, ns):
             originalFile = omero.model.OriginalFileI()
@@ -49,7 +40,7 @@ class PerformanceTest (lib.GTest):
         # test speed of listFileAnnotations
         startTime = time.time()
         fileCount = 0
-        fileAnns = self.gateway.listFileAnnotations(toInclude=[ns])
+        fileAnns = gatewaywrapper.gateway.listFileAnnotations(toInclude=[ns])
         for fa in fileAnns:
             name = fa.getFileName()
             fileCount +=1
@@ -59,7 +50,7 @@ class PerformanceTest (lib.GTest):
         # test speed of getOjbects("Annotation") - lazy loading file names
         startTime = time.time()
         fileCount = 0
-        fileAnns = self.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
+        fileAnns = gatewaywrapper.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
         for fa in fileAnns:
             name = fa.getFileName()
             fileCount +=1
@@ -69,21 +60,19 @@ class PerformanceTest (lib.GTest):
         # test speed of getOjbects("Annotation") - NO loading file names
         startTime = time.time()
         fileCount = 0
-        fileAnns = self.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
+        fileAnns = gatewaywrapper.gateway.getObjects("FileAnnotation", attributes={'ns':ns})
         for fa in fileAnns:
             fid = fa.getId()
             fileCount +=1
         t3 = time.time() - startTime
         print "getObjects, NO file names for %d files = %s secs" % (fileCount, t3)      # Typically 0.4 secs
 
-        self.assertTrue(t1 < t2, "Blitz listFileAnnotations() should be faster than getObjects('FileAnnotation')")
-        self.assertTrue(t3 < t2, "Blitz getObjects('FileAnnotation') should be faster without fa.getFileName()")
-        self.assertTrue(t3 < t1, "Blitz getting unloaded 'FileAnnotation' should be faster than listFileAnnotations()")
+        assert t1 < t2, "Blitz listFileAnnotations() should be faster than getObjects('FileAnnotation')"
+        assert t3 < t2, "Blitz getObjects('FileAnnotation') should be faster without fa.getFileName()"
+        assert t3 < t1, "Blitz getting unloaded 'FileAnnotation' should be faster than listFileAnnotations()"
 
         # now delete what we have created
-        handle = self.gateway.deleteObjects("Annotation", fileAnnIds)
-        self.waitOnCmd(self.gateway.c, handle)
+        handle = gatewaywrapper.gateway.deleteObjects("Annotation", fileAnnIds)
+        gatewaywrapper.waitOnCmd(gatewaywrapper.gateway.c, handle)
 
 
-if __name__ == '__main__':
-    unittest.main()
