@@ -927,8 +927,7 @@ public class ScreenLogin
 	{
 		Preferences prefs = Preferences.userNodeForPackage(ScreenLogin.class);
 		String value = prefs.get(OMERO_TRANSFER_ENCRYPTED, null);
-		if (value == null || value.trim().length() == 0) return false;
-		return value.equals("true"); 
+		return "true".equals(value); 
 	}
 	
 	/** 
