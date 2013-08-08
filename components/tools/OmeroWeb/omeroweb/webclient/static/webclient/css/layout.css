@@ -2426,6 +2426,14 @@ div.tag_selection span.alltags-take:hover {
     color: #5d8499;
     font-weight: normal;
 }
+#id_tag_info_button {
+    float: right;
+    border-radius: 3px;
+    width: 30px;
+    height: 30px;
+    background: hsl(210,8%,80%);
+    border: solid 1px hsl(210,8%,70%);
+}
 
 /* #Progress Bar
 ================================================== */
@@ -2517,4 +2525,15 @@ div.tag_selection span.alltags-take:hover {
 #add_tags_progress .progress-striped {
     width: 200px;
     margin: 0 10px;
+}
+
+/* tooltip formatting */
+#tooltip hr {
+    border: 0;
+    height: 1px;
+    background-color: #aaaaaa;
+}
+#tooltip img {
+    margin: 3px 10px 3px 5px;
+    vertical-align: middle;
 }
