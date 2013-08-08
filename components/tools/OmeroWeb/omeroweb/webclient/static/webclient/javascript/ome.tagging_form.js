@@ -475,6 +475,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     update_add_new_button_state();
     tag_input_filter.keyup(update_filter).change(update_filter);
 
+    $("#id_tag_info_button").on('click', function(event) { event.preventDefault(); }).tooltip();
+
     //load_tags();
     loader();
 };
