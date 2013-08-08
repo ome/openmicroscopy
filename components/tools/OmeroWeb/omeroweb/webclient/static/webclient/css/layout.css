@@ -2419,7 +2419,7 @@ div.tag_selection span.alltags-take {
     width: 18px;
     height: 16px;
 }
-div.tag_selection span.alltags-take:hover {
+div.tag_selection div.owner-tagged span.alltags-take {
     background-image: url(../image/icon-added-to-tags.png);
 }
 .tagset-title {
