@@ -270,7 +270,7 @@ public class ExporterTest
      * @throws Exception Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
-    @Test
+    @Test(groups = "broken")
     public void testExportAsOMETIFFDowngrade() 
     	throws Exception 
     {
