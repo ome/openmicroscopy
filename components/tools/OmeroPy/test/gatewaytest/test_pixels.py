@@ -6,60 +6,55 @@
 
 """
 
-import unittest
 import omero
 import time
+import pytest
 
-import gatewaytest.library as lib
+class TestPixels (object):
+    @pytest.fixture(autouse=True)
+    def setUp (self, author_testimg):
+        self.image = author_testimg
 
-
-class PixelsTest (lib.GTest):
-
-    def setUp (self):
-        super(PixelsTest, self).setUp()
-        self.loginAsAuthor()
-        self.TESTIMG = self.getTestImage()
-
-    def testReuseRawPixelsStore (self):
-        img1 = self.TESTIMG
-        img2 = self.getTestImage2()
-        rps = self.gateway.createRawPixelsStore()
+    def testReuseRawPixelsStore (self, gatewaywrapper, author_testimg_generated):
+        img1 = self.image
+        img2 = author_testimg_generated
+        rps = gatewaywrapper.gateway.createRawPixelsStore()
         rps.setPixelsId(img1.getPrimaryPixels().getId(), True, {'omero.group': '-1'})
-        self.assert_(rps.getByteWidth() > 0)
+        assert rps.getByteWidth() > 0
         rps.setPixelsId(img2.getPrimaryPixels().getId(), True, {'omero.group': '-1'})
-        self.assert_(rps.getByteWidth() > 0)
+        assert rps.getByteWidth() > 0
 
     def testPlaneInfo(self):
 
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
-        self.assertEqual(pixels.OMERO_CLASS, 'Pixels')
-        self.assertEqual(pixels._obj.__class__, omero.model.PixelsI)
+        assert pixels.OMERO_CLASS ==  'Pixels'
+        assert pixels._obj.__class__ ==  omero.model.PixelsI
         sizeZ = image.getSizeZ()
         sizeC = image.getSizeC()
         sizeT = image.getSizeT()
         planeInfo = list(pixels.copyPlaneInfo())
-        self.assertEqual(len(planeInfo), sizeZ*sizeC*sizeT)
+        assert len(planeInfo) ==  sizeZ*sizeC*sizeT
 
         # filter by 1 or more dimension
         planeInfo = list(pixels.copyPlaneInfo(theC=0))
         for p in planeInfo:
-            self.assertEqual(p.theC, 0)
+            assert p.theC ==  0
         planeInfo = list(pixels.copyPlaneInfo(theZ=1, theT=0))
         for p in planeInfo:
-            self.assertEqual(p.theZ, 1)
-            self.assertEqual(p.theT, 0)
+            assert p.theZ ==  1
+            assert p.theT ==  0
 
     def testPixelsType(self):
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         pixelsType = pixels.getPixelsType()
-        self.assertEqual(pixelsType.value, 'int16')
-        self.assertEqual(pixelsType.bitSize, 16)
+        assert pixelsType.value ==  'int16'
+        assert pixelsType.bitSize ==  16
 
     def testGetTile(self):
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         sizeZ = image.getSizeZ()
@@ -84,7 +79,7 @@ class PixelsTest (lib.GTest):
         for zctTile in zctTileList:
             z,c,t, Tile = zctTile
             tile = pixels.getTile(z,c,t, Tile)
-        self.assertEqual(lastTile, lastT)
+        assert lastTile ==  lastT
 
         # try stacking tiles together - check it's the same as getting the same region as 1 tile
         z, c, t = 0, 0, 0
@@ -93,10 +88,10 @@ class PixelsTest (lib.GTest):
         tile3 = pixels.getTile(z,c,t, (0, 0, 10, 3))  # should be same as tile1 and tile2 combined
         from numpy import hstack
         stacked = hstack((tile1, tile2))
-        self.assertEqual(str(tile3), str(stacked))  # bit of a hacked way to compare arrays, but seems to work
+        assert str(tile3) == str(stacked)  # bit of a hacked way to compare arrays, but seems to work
 
     def testGetPlane(self):
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         sizeZ = image.getSizeZ()
@@ -134,7 +129,7 @@ class PixelsTest (lib.GTest):
         lastPlane = pixels.getPlane(sizeZ-1, sizeC-1, sizeT-1)
         plane = pixels.getPlane()   # default is (0,0,0)
         firstPlane = pixels.getPlane(0,0,0)
-        self.assertEqual(plane[0][0], firstPlane[0][0])
+        assert plane[0][0] ==  firstPlane[0][0]
 
     def testGetPlanesExceptionOnGetPlane(self):
         """
@@ -142,7 +137,7 @@ class PixelsTest (lib.GTest):
 
         See #5156
         """
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         # Replace service creation with a mock
@@ -153,12 +148,12 @@ class PixelsTest (lib.GTest):
         try:
             for x in pixels.getPlanes(((0,0,0), (1,1,1))):
                 found += 1
-            self.fail("Should throw")
+            raise AssertionError("Should throw")
         except AssertionError:
             raise
         except Exception, e:
-            self.assert_(not e.close)
-            self.assertEquals(1, found)
+            assert not e.close
+            assert found == 1
 
     def testGetPlanesExceptionOnClose(self):
         """
@@ -166,7 +161,7 @@ class PixelsTest (lib.GTest):
 
         See #5156
         """
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         # Replace service creation with a mock
@@ -177,12 +172,12 @@ class PixelsTest (lib.GTest):
         try:
             for x in pixels.getPlanes(((0,0,0), (1,1,1))):
                 found += 1
-            self.fail("Should have failed on close")
+            raise AssertionError("Should have failed on close")
         except AssertionError:
             raise
         except Exception, e:
-            self.assert_(e.close)
-            self.assertEquals(2, found)
+            assert e.close
+            assert found == 2
 
     def testGetPlanesExceptionOnBoth(self):
         """
@@ -194,7 +189,7 @@ class PixelsTest (lib.GTest):
 
         See #5156
         """
-        image = self.TESTIMG
+        image = self.image
         pixels = image.getPrimaryPixels()
 
         # Replace service creation with a mock
@@ -205,12 +200,12 @@ class PixelsTest (lib.GTest):
         try:
             for x in pixels.getPlanes(((0,0,0), (1,1,1))):
                 found += 1
-            self.fail("Should have failed on getPlane and close")
+            raise AssertionError("Should have failed on getPlane and close")
         except AssertionError:
             raise
         except Exception, e:
-            self.assert_(not e.close)
-            self.assertEquals(1, found)
+            assert not e.close
+            assert found == 1
 
 
 class MockRawPixelsStore(object):
@@ -240,5 +235,3 @@ class MockRawPixelsStore(object):
             raise e
 
 
-if __name__ == '__main__':
-    unittest.main()

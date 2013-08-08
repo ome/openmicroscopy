@@ -29,7 +29,7 @@ class GatewayWrapper (TestDBHelper):
         return testimg
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='class')
 def gatewaywrapper (request):
     """
     Returns a test helper gateway object.
@@ -61,10 +61,37 @@ def author_testimg_tiny (request, gatewaywrapper):
     return rv
 
 @pytest.fixture(scope='function')
+def author_testimg_tiny2 (request, gatewaywrapper):
+    """
+    logs in as Author and returns the test image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.getTinyTestImage2(autocreate=True)
+    return rv
+
+@pytest.fixture(scope='function')
 def author_testimg (request, gatewaywrapper):
     """
     logs in as Author and returns the test image, creating it first if needed.
     """
     gatewaywrapper.loginAsAuthor()
     rv = gatewaywrapper.getTestImage(autocreate=True)
+    return rv
+
+@pytest.fixture(scope='function')
+def author_testimg_bad (request, gatewaywrapper):
+    """
+    logs in as Author and returns the test image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.getBadTestImage(autocreate=True)
+    return rv
+
+@pytest.fixture(scope='function')
+def author_testimg_big (request, gatewaywrapper):
+    """
+    logs in as Author and returns the test image, creating it first if needed.
+    """
+    gatewaywrapper.loginAsAuthor()
+    rv = gatewaywrapper.getBigTestImage(autocreate=True)
     return rv
