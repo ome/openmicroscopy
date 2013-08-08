@@ -362,21 +362,21 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         clearTimeout(update_timeout);
         var cleanup = function() {
             // make sure tagsets with unfiltered tags are also not filtered
-            var unfiltered_tagsets = {};
-            $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
-                unfiltered_tagsets[this.getAttribute("data-set")] = true;
-            });
-            $("div.alltags-tagset", div_all_tags).each(function() {
-                $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
-            });
-            // hide tag sets that have no unselected tags anymore
-            $("div.alltags-tagset + div.alltags-tagset, div.alltags-tagset:last-child", div_all_tags).prev().addClass('empty-tagset');
-            $("div.alltags-tagset + div.alltags-childtag", div_all_tags).prev().removeClass('empty-tagset');
+            if (!no_filter) {
+                var unfiltered_tagsets = {};
+                $("div.alltags-childtag:not(.filtered)", div_all_tags).each(function() {
+                    unfiltered_tagsets[this.getAttribute("data-set")] = true;
+                });
+                $("div.alltags-tagset", div_all_tags).each(function() {
+                    $(this).toggleClass('filtered', !unfiltered_tagsets[this.getAttribute("data-id")]);
+                });
+            }
             update_selected_labels();
         };
         var input = tag_input_filter.val();
         var filters = $.trim(input).toLowerCase().split(/ +/);
-        if (filters.length == 1 && filters[0] === "") {
+        var no_filter = filters.length == 1 && filters[0] === ""
+        if (no_filter) {
             $("div.filtered", div_all_tags).removeClass('filtered');
             cleanup();
         } else {
