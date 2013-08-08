@@ -32,7 +32,7 @@ public class SchemaResolver implements LSResourceResolver
     private static String GIT_MASTER_PATH  = "http://git.openmicroscopy.org/src/master/components/specification";
     private static String GIT_DEVELOP_PATH = "http://git.openmicroscopy.org/src/develop/components/specification";
     private static String MAIN_PATH = "http://www.openmicroscopy.org/Schemas/";
-    private static String MAIN_SEARCH_PATH = "/released-schema/";
+    private static String MAIN_SEARCH_PATH = "/Released-Schema/";
     private static String LEGACY_AC_PATH = "http://www.openmicroscopy.org/XMLschemas/AnalysisChain/RC1/";
     private static String LEGACY_AM_PATH = "http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/";
     private static String LEGACY_BF_PATH = "http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/";
@@ -42,7 +42,7 @@ public class SchemaResolver implements LSResourceResolver
     private static String LEGACY_ML_PATH = "http://www.openmicroscopy.org/XMLschemas/MLI/IR2/";
     private static String LEGACY_OM_PATH = "http://www.openmicroscopy.org/XMLschemas/OME/FC/";
     private static String LEGACY_ST_PATH = "http://www.openmicroscopy.org/XMLschemas/STD/RC2/";
-    private static String LEGACY_SEARCH_PATH = "/released-schema/2003-FC/";
+    private static String LEGACY_SEARCH_PATH = "/Released-Schema/2003-FC/";
 
     public SchemaResolver() throws ClassNotFoundException, InstantiationException, IllegalAccessException
     {
@@ -76,7 +76,7 @@ public class SchemaResolver implements LSResourceResolver
         // Match the requested schema locations and create the appropriate LSInput object
         if (systemId.equals("http://www.w3.org/2001/xml.xsd")) 
         {
-            theResult = makeSubstutionStream("/released-schema/additions/jar/xml.xsd", systemId);
+            theResult = makeSubstutionStream("/Released-Schema/additions/jar/xml.xsd", systemId);
         } 
         else if (systemId.startsWith(GIT_MASTER_PATH)) 
         {
