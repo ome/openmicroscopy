@@ -2329,25 +2329,26 @@ tr.figImageData:hover .rowDragHandle {
 
 
 input#id_tag_filter {
-    background: white url(../image/search.png) no-repeat right center;
-    width: 319px;
+    background: #fff url(../image/search.png) no-repeat right center;
+    width: 344px;
     height: 15px;
     margin-bottom: 0;
-    border: solid thin black;
+    border: 1px solid #9ea5ac;
 }
 input#id_tag {
+    float: left;
     width: 200px;
     vertical-align: top;
 }
 textarea#tag_description {
-    width: 420px;
-    height: 1.2em;
-    margin-top: 2px;
+    width: 494px;
+    height: 1.1em;
+    margin: 0 5px 0 10px;
     vertical-align: top;
 }
 button#id_add_new_tag {
     vertical-align: top;
-    margin-top: 2px;
+    margin-top: 0px;
     height: 25px;
 }
 div#id_move_tags {
@@ -2361,16 +2362,24 @@ div#id_move_tags button {
     width: 25px;
     height: 25px;
     margin-bottom: 10px;
+    border: 1px solid #9ea5ac;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    -moz-box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    -webkit-box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    box-shadow: 0px 1px 0px rgba(255,255,255,1);
+    
 }
 /* wrapper is a hack to make overflow:hidden work with .selectable()
    without it items become deselected when scrollbar is clicked */
 div.tag_selection_wrapper {
     height: 200px;
-    width: 320px;
+    width: 345px;
     overflow-y: scroll;
     overflow-x: hidden;
     font-size: larger;
-    border: thin solid black;
+    border: 1px solid #9ea5ac;
     padding: 3px;
     padding-right: 0;
     background-color: white;
@@ -2415,7 +2424,7 @@ div.tag_selection div.filtered {
 }
 div.tag_selection span.alltags-take {
     background: url(../image/icon-add-to-tags.png) no-repeat left center;
-    float: right;
+    float: relative; top: 1px; right: -322px;
     width: 18px;
     height: 16px;
 }
@@ -2433,6 +2442,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
     height: 30px;
     background: hsl(210,8%,80%);
     border: solid 1px hsl(210,8%,70%);
+    margin: 3px 0 0 0;
 }
 
 /* #Progress Bar
@@ -2447,7 +2457,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
   -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0px 0 rgba(0, 0, 0, 0.2);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  padding-right: 2px;
+  padding-right: 1px;
   width: 68px;
 }
 
@@ -2474,6 +2484,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
           transparent 75%, transparent);
   -webkit-animation: animate-stripes 3s linear infinite;
   -moz-animation: animate-stripes 3s linear infinite;
+
 }
 
 /*animates the stripes*/
@@ -2486,6 +2497,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
 }
 
 .ui-progressbar-value {
+  height: 15px !important;
   background-color: #619e47;
   background-image: -moz-linear-gradient(top, #add79a, #619e47);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#add79a), to(#619e47));
@@ -2494,7 +2506,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
   background-repeat: repeat-x;
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff80a1a2', endColorstr='#ff547879', GradientType=0);
   -moz-border-radius: 1px;
-  -webkit-border-radius: 12px;
+  -webkit-border-radius: 1px;
   border-right: 1px solid #628c51;
   border-left: 1px solid #628c51;
   border-radius: 1px;
@@ -2518,8 +2530,9 @@ div.tag_selection div.owner-tagged span.alltags-take {
 }
 
 #add_tags_progress .progress-label {
-    width: 120px;
-    text-align: right;
+    margin-top: 2px;
+    width: 95px;
+    text-align: left;
 }
 
 #add_tags_progress .progress-striped {
