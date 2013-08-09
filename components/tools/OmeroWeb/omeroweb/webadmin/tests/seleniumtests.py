@@ -26,7 +26,6 @@ from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from random import random
-from django.conf import settings
 
 
 class WebAdminTestBase (SeleniumTestBase):
@@ -130,13 +129,10 @@ class AdminTests (WebAdminTestBase):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             root_password = c.ic.getProperties().getProperty('omero.rootpass')
-            omero_host = c.ic.getProperties().getProperty('omero.host')
         finally:
             c.__del__()
 
-        from omeroweb.connector import Server
-        server_id = Server.find(host=omero_host)[0].id
-        self.login('root', root_password, server_id)
+        self.login('root', root_password, 1)
 
 
     def testPages (self):
