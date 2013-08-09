@@ -1248,29 +1248,19 @@ def annotate_tags(request, conn=None, **kwargs):
         elif o_type in ("share", "sharecomment"):
             manager = BaseShare(conn, o_id)
 
-    if manager is not None:
-#        tags = manager.getTagsByObject()
-        pass
+        manager.annotationList()
+        self_id = conn.getEventContext().userId
+        selected_tags = [(tag.id,
+                          unwrap(tag.link.details.owner.id),
+                          "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
+                          unwrap(tag.link.details.getPermissions().canDelete()),
+                          str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
+                          self_id == unwrap(tag.link.details.owner.id),
+                          )
+                         for tag in manager.tag_annotations]
     else:
         manager = BaseContainer(conn)
-        for dtype, objs in oids.items():
-            if len(objs) > 0:
-                # NB: we only support a single data-type now. E.g. 'image' OR 'dataset' etc.
-#                tags = manager.getTagsByObject(parent_type=dtype, parent_ids=[o.getId() for o in objs])
-                break
-
-    tags = []
-
-    manager.annotationList()
-    self_id = conn.getEventContext().userId
-    selected_tags = [(tag.id,
-                      unwrap(tag.link.details.owner.id),
-                      "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
-                      unwrap(tag.link.details.getPermissions().canDelete()),
-                      str(datetime.datetime.fromtimestamp(unwrap(tag.link.details.getCreationEvent().getTime()) / 1000)),
-                      self_id == unwrap(tag.link.details.owner.id),
-                      )
-                     for tag in manager.tag_annotations]
+        selected_tags = []
 
     initial = {'selected':selected, 'images':oids['image'], 'datasets': oids['dataset'], 'projects':oids['project'],
             'screens':oids['screen'], 'plates':oids['plate'], 'acquisitions':oids['acquisition'], 'wells':oids['well']}
