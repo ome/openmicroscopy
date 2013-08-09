@@ -2550,3 +2550,6 @@ div.tag_selection div.owner-tagged span.alltags-take {
     margin: 3px 10px 3px 5px;
     vertical-align: middle;
 }
+#tooltip {
+    color: #ffffff;
+}
