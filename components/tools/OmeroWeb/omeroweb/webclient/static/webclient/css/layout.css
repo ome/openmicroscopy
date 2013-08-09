@@ -2330,7 +2330,7 @@ tr.figImageData:hover .rowDragHandle {
 
 input#id_tag_filter {
     background: #fff url(../image/search.png) no-repeat right center;
-    width: 344px;
+    width: 334px;
     height: 15px;
     margin-bottom: 0;
     border: 1px solid #9ea5ac;
@@ -2341,7 +2341,7 @@ input#id_tag {
     vertical-align: top;
 }
 textarea#tag_description {
-    width: 494px;
+    width: 474px;
     height: 1.1em;
     margin: 0 5px 0 10px;
     vertical-align: top;
@@ -2354,7 +2354,7 @@ button#id_add_new_tag {
 div#id_move_tags {
     float: left;
     width: 40px;
-    padding-top: 100px;
+    padding: 120px 0 40px;
     margin: 10px;
     text-align: center;
 }
@@ -2375,7 +2375,7 @@ div#id_move_tags button {
    without it items become deselected when scrollbar is clicked */
 div.tag_selection_wrapper {
     height: 200px;
-    width: 345px;
+    width: 335px;
     overflow-y: scroll;
     overflow-x: hidden;
     font-size: larger;
@@ -2442,7 +2442,7 @@ div.tag_selection div.owner-tagged span.alltags-take {
     height: 30px;
     background: hsl(210,8%,80%);
     border: solid 1px hsl(210,8%,70%);
-    margin: 3px 0 0 0;
+    margin: 3px 5px 0 0;
 }
 
 /* #Progress Bar
