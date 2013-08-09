@@ -112,18 +112,22 @@
                 // set-up the tags form to use dialog
                 $("#add_tags_form").dialog({
                     autoOpen: false,
-                    resizable: true,
-                    height: 410,
-                    width:420,
+                    resizable: false,
+                    height: 470,
+                    width: 780,
                     modal: true,
                     buttons: {
-                        "Accept": function() {
+                        "Save": function() {
                             // simply submit the form (AJAX handling set-up above)
-                            $("#add_tags_form").submit();
+                            $("#add_tags_form").trigger('prepare-submit').submit();
                             $( this ).dialog( "close" );
                         },
                         "Cancel": function() {
                             $( this ).dialog( "close" );
+                        },
+                        "Reset": function() {
+                            // discard all changes and reload the form
+                            $("#add_tags_form").html('').load($("#launch_tags_form").attr('href'));
                         }
                     }
                 });
@@ -133,7 +137,7 @@
                         $("#add_tags_form").dialog( "close" );
                     },
                     success: function(data) {
-                        $("#tagann_spinner").hide();
+                        $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
                         var $tag = $(data);
                         $tag.filter(".tag_annotation_wrapper").each(function(){
