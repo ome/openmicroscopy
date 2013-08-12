@@ -54,7 +54,7 @@ public class IconCheckLibrary
      * @throws ComponentNotFoundException if no suitable components have the given name
      */
     public String getImageIconName(final String containerName)
-    throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JComponent iconBearer = (JComponent) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
                 return (component instanceof JLabel || component instanceof JXTaskPane)
