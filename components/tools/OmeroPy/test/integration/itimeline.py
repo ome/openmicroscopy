@@ -94,7 +94,7 @@ class TestITimeline(lib.ITest):
     def testCollaborativeTimeline(self):
         """ Create some images as one user - test if another user can see these events in timeline. """
 
-        group = self.new_group(perms = "rw----")
+        group = self.new_group(perms = "rwr---")
         client1 = self.new_client(group = group)
         client2 = self.new_client(group = group)
 
@@ -124,7 +124,7 @@ class TestITimeline(lib.ITest):
         ownerId = rlong(admin1.getEventContext().userId)
         groupId = rlong(admin1.getEventContext().groupId)
 
-        def assert_timeline(timeline, ownerId = None, groupId = None):
+        def assert_timeline(timeline, start, end, ownerId = None, groupId = None):
             p = omero.sys.Parameters()
             p.map = {}
             f = omero.sys.Filter()
@@ -139,11 +139,11 @@ class TestITimeline(lib.ITest):
             data = timeline.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
             self.assertEquals(10, len(data['Image']))
 
-        assert_timeline(timeline1, ownerId, groupId)
+        assert_timeline(timeline1, start, end, ownerId, groupId)
 
         # now log in as another user (default group is same as user-created images above)
         timeline2 = client2.sf.getTimelineService()
-        assert_timeline(timeline2, rlong(-1), None)
+        assert_timeline(timeline2, start, end, ownerId, groupId)
 
     def test1173(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
