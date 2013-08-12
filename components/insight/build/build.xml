@@ -50,15 +50,14 @@
   <!-- The build directory.  Every target outputs below this directory. -->  
   <property name="build.dir" location="OUT"/>
 
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * The following properties define the mappings to the artifacts relevant
    * to the build.  These artifacts are contained in the local git repository
    * hosting this build file.  Here's a short description of contents of the 
    * git dirs that are relevant to the build:
-   *   + root dir: Contains the license file.
+   *   + root dir: Contains the README file.
    *   + build: Contains this master build file and all its children.
    *   + config: Container and agents configuration files.
-   *   + docgen: Documentation artifacts used to build actual documents.
    *   + launch: Scripts for launching the app and install instructions.
    *   + SRC: All java source files and app resources.
    *   + TEST: All test code and relative resources.  
