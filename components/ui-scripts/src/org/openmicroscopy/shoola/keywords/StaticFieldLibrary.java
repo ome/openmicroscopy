@@ -46,7 +46,7 @@ public class StaticFieldLibrary
      * @throws NullPointerException if the field value is <code>null</code>
      */
     public String getJavaString(String classAndFieldName)
-    throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
+            throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         final int lastPeriod = classAndFieldName.lastIndexOf('.');
         final String className = PREFIX + classAndFieldName.substring(0, lastPeriod);
         final String fieldName = classAndFieldName.substring(lastPeriod + 1);
