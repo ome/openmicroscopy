@@ -7,23 +7,22 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 <project name="dist" default="usage">
  
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Fail at import time if the external properties this child depends upon
    * have not been defined. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
   <checkdef prop="build.dir"/> 
   <checkdef prop="base.launch.dir"/>
   <checkdef prop="base.lib.dir"/>
-  <checkdef prop="base.licensefile"/> 
-  <checkdef prop="app.compiled.dir"/>  
-  <checkdef prop="app.config.dir"/>  
+  <checkdef prop="app.compiled.dir"/>
+  <checkdef prop="app.config.dir"/>
   <checkdef prop="app.lib.dir"/>
   <checkdef prop="app.mainclass"/>
   <checkdef ref="app.config"/>
   <!-- <checkdef ref="app.libs"/> -->
 <checkdef prop="app.compiled.util.dir"/>
   
-  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Settings to create the deliverables:
    *   + dist.dir: The distribution directory, where deliverables are created.
    *   + dist.jar.file: The name of the file in which the whole app will be 
