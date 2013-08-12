@@ -69,6 +69,7 @@ class TestDBHelper(object):
             self._has_connected = True
         assert self.gateway.isConnected(), 'Can not connect'
         assert self.gateway.keepAlive(), 'Could not send keepAlive to connection'
+        self.gateway.setGroupForSession(self.gateway.getEventContext().memberOfGroups[0])
     
     def doDisconnect(self):
         if self._has_connected and self.gateway:
