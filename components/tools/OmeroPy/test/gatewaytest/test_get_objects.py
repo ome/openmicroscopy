@@ -161,7 +161,7 @@ class TestFindObject (object):
         fileObj = omero.gateway.OriginalFileWrapper(gatewaywrapper.gateway, fileObj)
         fileObj.setName(omero.rtypes.rstring('a'))
         fileObj.setPath(omero.rtypes.rstring('a'))
-        fileObj.setHash(omero.rtypes.rstring('a'))
+        fileObj._obj.sha1 = omero.rtypes.rstring('a')
         fileObj.setSize(omero.rtypes.rlong(0))
         fileObj.save()
         fileAnn.setFile(fileObj)
