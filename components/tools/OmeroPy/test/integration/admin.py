@@ -45,23 +45,6 @@ class TestAdmin(lib.ITest):
         dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
         self.assertEqual(dg.id.val, grp.id.val)
     
-    def testThumbnail(self):
-        q = self.client.getSession().getQueryService()
-
-        # Filter to only get one possible pixels
-        f = omero.sys.Filter()
-        f.offset = rint(0)
-        f.limit  = rint(1)
-        p = omero.sys.Parameters()
-        p.theFilter = f
-
-        pixel = q.findByQuery("select p from Pixels p join fetch p.thumbnails t", p)
-        tstore = self.client.getSession().createThumbnailStore()
-        if not tstore.setPixelsId(pixel.id.val):
-            tstore.resetDefaults()
-            tstore.setPixelsId(pixel.id.val)
-        tstore.getThumbnail(rint(16), rint(16))
-
     def testChangePassword(self):
         """
         See ticket:3201
