@@ -371,23 +371,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
         q = self.getQueryService()
 
-        sql = """
-            select aal.parent.id, aal.child.id
-            from AnnotationAnnotationLink aal
-            inner join aal.parent ann
-            where ann.ns=:ns
-            """
-        if eid is not None:
-            sql += " and ann.details.owner.id = :eid"
-
-        children = set()
-        mapping = dict()
-        for element in q.projection(sql, params, self.SERVICE_OPTS):
-            parent = unwrap(element[0])
-            child = unwrap(element[1])
-            children.add(child)
-            mapping.setdefault(parent, []).append(child)
-
         if offset is not None:
             params.page(offset, limit)
 
@@ -409,9 +392,33 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 description,
                 text,
                 owner,
-                mapping.get(tag_id) or 0,
+                None, # this will be filled in after next query
             ])
             owners[owner] = "%s %s" % (first, last)
+
+        ids = [tag[0] for tag in tags]
+
+        params.noPage()
+        params.addIds(ids)
+
+        sql = """
+            select aal.parent.id, aal.child.id
+            from AnnotationAnnotationLink aal
+            inner join aal.parent ann
+            where ann.ns=:ns
+            and aal.parent.id in (:ids)
+            """
+        if eid is not None:
+            sql += " and ann.details.owner.id = :eid"
+
+        mapping = dict()
+        for element in q.projection(sql, params, self.SERVICE_OPTS):
+            parent = unwrap(element[0])
+            child = unwrap(element[1])
+            mapping.setdefault(parent, []).append(child)
+
+        for idx in range(len(tags)):
+            tags[idx][4] = mapping.get(tags[idx][0], 0)
 
         return tags, owners
 
