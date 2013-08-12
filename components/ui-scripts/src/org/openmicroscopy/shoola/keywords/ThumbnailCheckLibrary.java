@@ -52,6 +52,7 @@ public class ThumbnailCheckLibrary
      * This is written so as to be scalable over arbitrary image sizes
      * and to not cause heap allocations during the iteration.
      * @author m.t.b.carroll@dundee.ac.uk
+     * @since 4.4.9
      */
     private static class IteratorIntPixel {
         final Raster raster;
@@ -126,7 +127,7 @@ public class ThumbnailCheckLibrary
      * @throws ComponentNotFoundException if no thumbnails are for the given image name
      */
     private static RenderedImage captureImage(final String panelType, final String imageFilename)
-        throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JPanel thumbnail = (JPanel) componentFinder(panelType, imageFilename);
         final int width = thumbnail.getWidth();
         final int height = thumbnail.getHeight();
@@ -151,7 +152,7 @@ public class ThumbnailCheckLibrary
      * @throws ComponentNotFoundException if no thumbnails exist for the given name
      */
     public String getThumbnailBorderColor(String imageFilename)
-    throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
         final RenderedImage image = captureImage("image node", imageFilename);
         final IteratorIntPixel pixels = new IteratorIntPixel(image);
         if (!pixels.hasNext()) {
@@ -171,7 +172,7 @@ public class ThumbnailCheckLibrary
      * @throws ComponentNotFoundException if no thumbnails exist for the given name
      */
     public boolean isThumbnailMonochromatic(String imageFilename)
-    throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
         final RenderedImage image = captureImage("thumbnail", imageFilename);
         final IteratorIntPixel pixels = new IteratorIntPixel(image);
         if (!pixels.hasNext()) {
@@ -197,7 +198,7 @@ public class ThumbnailCheckLibrary
      * @throws ComponentNotFoundException if no thumbnails exist for the given name
      */
     public String getThumbnailHash(String imageFilename)
-    throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
         final RenderedImage image = captureImage("thumbnail", imageFilename);
         final IteratorIntPixel pixels = new IteratorIntPixel(image);
         final Hasher hasher = Hashing.goodFastHash(128).newHasher();
