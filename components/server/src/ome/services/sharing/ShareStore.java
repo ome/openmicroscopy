@@ -44,6 +44,15 @@ public abstract class ShareStore {
 
     final protected Ice.Communicator ic = Ice.Util.initialize();
 
+    /**
+     * {@link Ice.Communicator} configured to use the old (pre-Ice3.5)
+     * protocol. If the data fails to parse (i.e. a null share is returned),
+     * then this object will be used as a fallback.
+     */
+    final protected Ice.Communicator ic10 = Ice.Util.initialize(
+            new String[]{"--Ice.Default.EncodingVersion=1.0"}
+            );
+
     // User Methods
     // =========================================================================
 
@@ -109,6 +118,15 @@ public abstract class ShareStore {
     }
 
     public final ShareData parse(long id, byte[] data) {
+        ShareData sd = parse(id, data, ic);
+        if (sd == null) {
+            sd = parse(id, data, ic10);
+            log.debug("Data found with 1.0 encoding");
+        }
+        return sd;
+    }
+
+    private ShareData parse(long id, byte[] data, Ice.Communicator ic) {
 
         if (data == null) {
             return null; // EARLY EXIT!
