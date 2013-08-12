@@ -24,11 +24,10 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.util.HashSet;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import javax.swing.JPanel;
+import javax.swing.JTree;
 
 import org.robotframework.abbot.finder.BasicFinder;
 import org.robotframework.abbot.finder.ComponentNotFoundException;
@@ -106,19 +105,19 @@ public class ThumbnailCheckLibrary
      * @throws MultipleComponentsFoundException if multiple thumbnails are for the given image name
      * @throws ComponentNotFoundException if no thumbnails are for the given image name
      */
-    private RenderedImage captureThumbnailImage(final String imageFilename)
+    private RenderedImage captureImage(final String panelType, final String imageFilename)
         throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JPanel thumbnailCanvas = (JPanel) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
                 if (component instanceof JPanel) {
                     final String name = component.getName();
-                    return name != null && name.startsWith("thumbnail for ") && name.endsWith("/" + imageFilename);
+                    return name != null && name.startsWith(panelType + " for ") && name.endsWith("/" + imageFilename);
                 }
                 return false;
             }});
         final int width = thumbnailCanvas.getWidth();
         final int height = thumbnailCanvas.getHeight();
-        final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D graphics = image.createGraphics();
         if (graphics == null) {
             throw new RuntimeException("thumbnail is not displayable");
@@ -126,6 +125,26 @@ public class ThumbnailCheckLibrary
         thumbnailCanvas.paint(graphics);
         graphics.dispose();
         return image;
+    }
+
+    /**
+     * <table>
+     *   <td>Get Thumbnail Border Color</td>
+     *   <td>name of image whose thumbnail is queried</td>
+     * </table>
+     * @param imageFilename the name of the image
+     * @return the color of the thumbnail's corner pixel
+     * @throws MultipleComponentsFoundException if multiple thumbnails exist for the given name
+     * @throws ComponentNotFoundException if no thumbnails exist for the given name
+     */
+    public String getThumbnailBorderColor(String imageFilename)
+    throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final RenderedImage image = captureImage("image node", imageFilename);
+        final IteratorIntPixel pixels = new IteratorIntPixel(image);
+        if (!pixels.hasNext()) {
+            throw new RuntimeException("image node has no pixels");
+        }
+        return Integer.toHexString(pixels.next());
     }
 
     /**
@@ -140,7 +159,7 @@ public class ThumbnailCheckLibrary
      */
     public boolean isThumbnailMonochromatic(String imageFilename)
     throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final RenderedImage image = captureThumbnailImage(imageFilename);
+        final RenderedImage image = captureImage("thumbnail", imageFilename);
         final IteratorIntPixel pixels = new IteratorIntPixel(image);
         if (!pixels.hasNext()) {
             throw new RuntimeException("thumbnail image has no pixels");
@@ -155,43 +174,23 @@ public class ThumbnailCheckLibrary
     }
 
     /**
-     * Generate a reasonable hash of the thumbnail canvas for an image.
-     * Intended for detecting if images are the same.
+     * <table>
+     *   <td>Get Thumbnail Hash</td>
+     *   <td>name of image whose thumbnail is queried</td>
+     * </table>
      * @param imageFilename the name of the image
      * @return the hash of the thumbnail canvas image
      * @throws MultipleComponentsFoundException if multiple thumbnails exist for the given name
      * @throws ComponentNotFoundException if no thumbnails exist for the given name
      */
-    private String getThumbnailHash(String imageFilename)
+    public String getThumbnailHash(String imageFilename)
     throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final RenderedImage image = captureThumbnailImage(imageFilename);
+        final RenderedImage image = captureImage("thumbnail", imageFilename);
         final IteratorIntPixel pixels = new IteratorIntPixel(image);
         final Hasher hasher = Hashing.goodFastHash(128).newHasher();
         while (pixels.hasNext()) {
             hasher.putInt(pixels.next());
         }
         return hasher.hash().toString();
-    }
-
-    /**
-     * <table>
-     *   <td>Are Thumbnails Identical</td>
-     *   <td>names of images whose thumbnails are queried</td>
-     * </table>
-     * @param imageFilenames the names of the images
-     * @return if the images' thumbnail canvases show identical images
-     * @throws MultipleComponentsFoundException if multiple thumbnails exist for a given name
-     * @throws ComponentNotFoundException if no thumbnails exist for a given name
-     */
-    public boolean areThumbnailsIdentical(String... imageFilenames)
-            throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final Set<String> hashes = new HashSet<String>();
-        for (final String imageFilename : imageFilenames) {
-            hashes.add(getThumbnailHash(imageFilename));
-            if (hashes.size() > 1) {
-                return false;
-            }
-        }
-        return true;
     }
 }
