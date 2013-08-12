@@ -7,12 +7,12 @@
     <conf name="build"/>
     <conf name="client"/>
   </configurations>
-<publications>
-  <artifact name="ui-scripts" type="jar"/>
-</publications>
-<dependencies defaultconfmapping="build,client->default">
-  <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>
-  <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
-  <dependency org="google" name="guava-jdk5" rev="${versions.guava}"/>
-</dependencies>
+  <publications>
+    <artifact name="ui-scripts" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="build,client->default">
+    <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>
+    <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="google" name="guava-jdk5" rev="${versions.guava}"/>
+  </dependencies>
 </ivy-module>
