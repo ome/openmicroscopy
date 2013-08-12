@@ -139,8 +139,8 @@ class CmdCallbackTest(lib.ITest):
 
     def doAllTiming(self, count):
         # 6 ms per timing
-        timings = [omero.cmd.Timing(None, 3, 2) for x in range(count)]
-        return self.mktestcb(omero.cmd.DoAll(None, timings))
+        timings = [omero.cmd.Timing(3, 2) for x in range(count)]
+        return self.mktestcb(omero.cmd.DoAll(timings, None))
 
     def testDoNothingFinishesOnLatch(self):
         cb = self.doAllOfNothing()
