@@ -27,7 +27,6 @@ import java.awt.image.RenderedImage;
 import java.util.NoSuchElementException;
 
 import javax.swing.JPanel;
-import javax.swing.JTree;
 
 import org.robotframework.abbot.finder.BasicFinder;
 import org.robotframework.abbot.finder.ComponentNotFoundException;
@@ -98,16 +97,16 @@ public class ThumbnailCheckLibrary
     }
 
     /**
-     * Convert the thumbnail canvas for the image of the given filename into rasterized pixel data.
-     * Each pixel is represented by an <code>int</code>.
-     * @param imageFilename the name of the image whose thumbnail canvas is to be rasterized
-     * @return the image on the thumbnail
+     * Find the thumbnail <code>Component</code> in the AWT hierarchy.
+     * @param panelType if the thumbnail should be the whole <code>"image node"</code> or just its <code>"thumbnail"</code> canvas
+     * @param imageFilename the name of the image whose thumbnail is to be rasterized
+     * @return the AWT <code>Component</code> for the thumbnail
      * @throws MultipleComponentsFoundException if multiple thumbnails are for the given image name
      * @throws ComponentNotFoundException if no thumbnails are for the given image name
      */
-    private RenderedImage captureImage(final String panelType, final String imageFilename)
-        throws ComponentNotFoundException, MultipleComponentsFoundException {
-        final JPanel thumbnailCanvas = (JPanel) new BasicFinder().find(new Matcher() {
+    private static Component componentFinder(final String panelType, final String imageFilename)
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        return new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
                 if (component instanceof JPanel) {
                     final String name = component.getName();
@@ -115,14 +114,28 @@ public class ThumbnailCheckLibrary
                 }
                 return false;
             }});
-        final int width = thumbnailCanvas.getWidth();
-        final int height = thumbnailCanvas.getHeight();
+    }
+
+    /**
+     * Convert the thumbnail for the image of the given filename into rasterized pixel data.
+     * Each pixel is represented by an <code>int</code>.
+     * @param panelType if the thumbnail should be the whole <code>"image node"</code> or just its <code>"thumbnail"</code> canvas
+     * @param imageFilename the name of the image whose thumbnail is to be rasterized
+     * @return the image on the thumbnail
+     * @throws MultipleComponentsFoundException if multiple thumbnails are for the given image name
+     * @throws ComponentNotFoundException if no thumbnails are for the given image name
+     */
+    private static RenderedImage captureImage(final String panelType, final String imageFilename)
+        throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final JPanel thumbnail = (JPanel) componentFinder(panelType, imageFilename);
+        final int width = thumbnail.getWidth();
+        final int height = thumbnail.getHeight();
         final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D graphics = image.createGraphics();
         if (graphics == null) {
             throw new RuntimeException("thumbnail is not displayable");
         }
-        thumbnailCanvas.paint(graphics);
+        thumbnail.paint(graphics);
         graphics.dispose();
         return image;
     }
@@ -192,5 +205,20 @@ public class ThumbnailCheckLibrary
             hasher.putInt(pixels.next());
         }
         return hasher.hash().toString();
+    }
+
+    /**
+     * <table>
+     *   <td>Get Name Of Thumbnail For Image</td>
+     *   <td>name of image whose thumbnail is queried</td>
+     * </table>
+     * @param imageFilename the name of the image
+     * @return the return value of the corresponding <code>ThumbnailCanvas.getName()</code>
+     * @throws MultipleComponentsFoundException if multiple thumbnails exist for the given name
+     * @throws ComponentNotFoundException if no thumbnails exist for the given name
+     */
+    public String getNameOfThumbnailForImage(final String imageFilename)
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        return componentFinder("thumbnail", imageFilename).getName();
     }
 }

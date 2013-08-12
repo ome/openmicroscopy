@@ -57,6 +57,7 @@ public class JTreeLibrary
      *   <td>regular expression</td>
      *   <td><code>JTree</code> component name</td>
      * <table>
+     * TODO: Wrap this method in Jemmy's waiter.
      * @param regExp a regular expression that the whole tree path must match
      * @param treeName the component name of the <code>JTree</code> instance to search
      * @return a tree path from the tree that matches the regular expression, or <code>null</code> if none exist
