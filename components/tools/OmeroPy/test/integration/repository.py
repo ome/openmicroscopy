@@ -15,17 +15,26 @@ from omero.rtypes import *
 
 class TestRepository(lib.ITest):
 
-    def testBasicUsage(self):
+    def testRepositoryAcquisition(self):
+
+        repoMap = self.client.sf.sharedResources().repositories()
+        self.assert_( len(repoMap.proxies) > 1 )
+        repoPrx = repoMap.proxies[0]
+        self.assert_( repoPrx )
+
+    # Not all repository methods are implemented in 4.4
+    # and so the test below is inavlid
+    def DISABLEDtestBasicUsage(self):
 
         test_file = "FIXME.dv"
         remote_file = "/root/dir1/test.dv"
 
         write_start = time.time()
 
-        repoMap = self.client.sf.acquireRepositories()
-        self.assert_( len(repoMap) > 1 )
+        repoMap = self.client.sf.sharedResources().repositories()
+        self.assert_( len(repoMap.proxies) > 1 )
 
-        repoPrx = repoMap.values()[0]
+        repoPrx = repoMap.proxies[0]
         self.assert_( repoPrx ) # Could be None
 
         # This is a write-only (no read, no config)
