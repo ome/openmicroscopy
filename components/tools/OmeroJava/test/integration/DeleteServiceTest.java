@@ -311,7 +311,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete an image w/o pixels.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -335,7 +334,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a simple plate i.e. w/o wells or acquisition.
-     * The <code>deletePlate</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -359,7 +357,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a populated plate.
-     * The <code>deletePlate</code> is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -453,7 +450,6 @@ public class DeleteServiceTest
     /**
      * Test to delete a populated plate.
      * The boolean flag indicates to create or no plate acquisition.
-     * The <code>deleteQueue</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -548,7 +544,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -597,7 +592,6 @@ public class DeleteServiceTest
 
     /**
      * Tests to delete a project containing a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -658,7 +652,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a screen containing 2 plates, one w/o plate acquisition
      * and one with plate acquisition.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -708,7 +701,6 @@ public class DeleteServiceTest
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -792,7 +784,6 @@ public class DeleteServiceTest
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -875,7 +866,6 @@ public class DeleteServiceTest
 
     /**
      * Test to delete an image with rendering settings.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -913,7 +903,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete an image with rendering settings.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1135,7 +1124,6 @@ public class DeleteServiceTest
     
     /**
      * Test to deletes rois as root.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1191,7 +1179,6 @@ public class DeleteServiceTest
     /**
      * Test to delete object with annotations that cannot be shared
      * e.g. Comments.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1229,7 +1216,6 @@ public class DeleteServiceTest
      * Test to delete object with annotations that cannot be shared
      * e.g. tags, terms. One run will delete the annotations, a second 
      * will keep them. This will test the usage of the option parameters.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1277,7 +1263,6 @@ public class DeleteServiceTest
     /**
      * Test to delete a plate with non sharable annotations linked to the well 
      * and well samples and plate with Plate acquisition and annotation.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1564,7 +1549,6 @@ public class DeleteServiceTest
 
     /**
      * Tests to delete a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1603,7 +1587,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a project with dataset and images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1662,7 +1645,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a screen.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1716,7 +1698,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete an image with a companion file. This is usually
      * the case when the image is imported.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1753,7 +1734,6 @@ public class DeleteServiceTest
      * Tests to delete an image with a shared Tag. 
      * The tag should not be deleted b/c of the <code>Soft</code> option
      * i.e. default option.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1837,7 +1817,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared tag as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1918,7 +1897,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared term as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1999,7 +1977,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared file annotation as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2081,7 +2058,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete screen with a plate and a reagent.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2137,7 +2113,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete plate with a reagent.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
