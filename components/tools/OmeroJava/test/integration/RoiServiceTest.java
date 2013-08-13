@@ -139,7 +139,7 @@ public class RoiServiceTest
 	 * This test uses the <code>getRoiMeasurements</code> method.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test
+    @Test(groups = "tables")
     public void testRoisMeasurementRetrieval() 
     	throws Exception
     {
@@ -229,7 +229,7 @@ public class RoiServiceTest
 	 * This test uses the <code>getMeasuredRoisMap</code> method.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test
+    @Test(groups = "tables")
     public void testMeasuredRoisMap() 
     	throws Exception
     {
@@ -311,7 +311,7 @@ public class RoiServiceTest
 	 * This test uses the <code>getTable</code> method.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test
+    @Test(groups = "tables")
     public void testTableResult() 
     	throws Exception
     {

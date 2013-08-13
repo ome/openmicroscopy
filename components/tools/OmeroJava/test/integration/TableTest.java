@@ -36,6 +36,7 @@ import omero.grid.TablePrx;
  * </small>
  * @since 3.0-Beta4
  */
+@Test(groups = "tables")
 public class TableTest 
 	extends AbstractServerTest
 {

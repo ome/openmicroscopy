@@ -95,7 +95,7 @@ public class RawFileStoreTest
      * @throws Exception Thrown if an error occurred.
      * @see #testUploadFile() 
      */
-    @Test
+    @Test(groups = "broken")
     public void testDownloadScript() 
     	throws Exception 
     {
