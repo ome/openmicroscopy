@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Copyright 2008-2013 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,7 +21,8 @@
 
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
-    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+    <property name="import.dir" value="${up-one}/antlib/resources"/>
+    <property name="integration.suite" value="integration.testng.xml"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
@@ -114,5 +115,31 @@
         </unjar>
     </target>
 
+    <target name="broken" depends="test-compile" unless="test.skip">
+        <property name="test.with.fail" value="false"/>
+        <suite testnames="broken">
+            <xmlfileset dir="${test.dir}">
+                <include name="${integration.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
+
+    <target name="integration" depends="test-compile" unless="test.skip">
+        <property name="test.with.fail" value="true"/>
+        <suite testnames="integration">
+            <xmlfileset dir="${test.dir}">
+                <include name="${integration.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
+
+    <target name="tables" depends="test-compile" unless="test.skip">
+        <property name="test.with.fail" value="true"/>
+        <suite testnames="integration">
+            <xmlfileset dir="${test.dir}">
+                <include name="${integration.suite}"/>
+            </xmlfileset>
+        </suite>
+    </target>
 
 </project>
