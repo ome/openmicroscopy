@@ -1,12 +1,12 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
 
 <suite name="OmeroJava.integration" time-out="30000">
-
-  <test name="OmeroJava.integration.active">
+  <test name="integration">
     <groups>
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
+        <exclude name="tables"/>
       </run>
     </groups>
     <packages>
@@ -15,5 +15,28 @@
       <package name="unit.*"/>
     </packages>
   </test>
-
+  <test name="broken">
+    <groups>
+      <run>
+        <include name="broken"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="coverage.*"/>
+      <package name="integration.*"/>
+      <package name="unit.*"/>
+    </packages>
+  </test>
+  <test name="tables">
+    <groups>
+      <run>
+        <include name="tables"/>
+      </run>
+    </groups>
+    <packages>
+      <package name="coverage.*"/>
+      <package name="integration.*"/>
+      <package name="unit.*"/>
+    </packages>
+  </test>
 </suite>
