@@ -29,6 +29,14 @@
         
         $(document).ready(function()
             {
+                var linkify = function(input) {
+                    var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
+                    return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
+                };
+                var linkify_element = function(element) {
+                    element.html(linkify(element.html()));
+                };
+
                 $("#comments_container").hide_if_empty();
                 $("#fileanns_container").hide_if_empty();
                 $("#tags_container").hide_if_empty();
@@ -46,7 +54,10 @@
                 $( "#{{ manager.obj_type }}description-{{ manager.obj_id }} button" )
                     .editable('{% url manage_action_containers "editdescription" manager.obj_type manager.obj_id %}'+idx,
                         '{% url manage_action_containers "savedescription" manager.obj_type manager.obj_id %}'+idx,
-                        "{{ manager.obj_type }}description-{{ manager.obj_id }}" );
+                        "{{ manager.obj_type }}description-{{ manager.obj_id }}", { post_save: linkify });
+                linkify_element($( "#{{ manager.obj_type }}description-{{ manager.obj_id }} > p > span" ));
+                {% else %}
+                linkify_element($( "#image_desc" ));
                 {% endif %}
 
                 var acquisition_load = false;
