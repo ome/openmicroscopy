@@ -19,6 +19,8 @@
 
 package org.openmicroscopy.shoola.keywords;
 
+import java.awt.Color;
+
 import org.testng.annotations.Test;
 
 import junit.framework.Assert;
@@ -29,14 +31,17 @@ import junit.framework.Assert;
  * @since 4.4.9
  */
 public class StaticFieldLibraryTest {
+    /** test color constant for use by {@link #testExpectedColorConstant()} */
+    public static final Color COLOR = new Color(0x11, 0x22, 0x33);
+
     /**
-     * Test that a static field's value is correctly retrieved.
+     * Test that a static field's String value is correctly retrieved.
      * @throws ClassNotFoundException unexpected
      * @throws IllegalAccessException unexpected
      * @throws NoSuchFieldException unexpected
      */
     @Test
-    public void testExpectedConstant() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
+    public void testExpectedStringConstant() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         final String expected = StaticFieldLibrary.PREFIX;
         final String actual = new StaticFieldLibrary().getJavaString("keywords.StaticFieldLibrary.PREFIX");
         Assert.assertEquals(expected, actual);
@@ -62,5 +67,18 @@ public class StaticFieldLibraryTest {
     @Test(expectedExceptions = ClassNotFoundException.class)
     public void testMissingClass() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         new StaticFieldLibrary().getJavaString("keywords.StaticFieldLibraryMissing.PREFIX");
+    }
+
+    /**
+     * Test that a static field's Color value is correctly retrieved.
+     * @throws ClassNotFoundException unexpected
+     * @throws IllegalAccessException unexpected
+     * @throws NoSuchFieldException unexpected
+     */
+    @Test
+    public void testExpectedColorConstant() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
+        final String expected = "ff112233";
+        final String actual = new StaticFieldLibrary().getAWTColor("keywords.StaticFieldLibraryTest.COLOR");
+        Assert.assertEquals(expected, actual);
     }
 }
