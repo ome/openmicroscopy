@@ -11,7 +11,6 @@
 import omero
 from omero.rtypes import rstring
 
-#from omero.gateway.scripts import dbhelpers
 from omero.gateway.scripts.testdb_create import *
 
 
