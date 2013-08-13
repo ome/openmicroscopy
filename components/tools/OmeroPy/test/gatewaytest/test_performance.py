@@ -2,8 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-   gateway tests - Testing speed of using Blitz gateway for various queries - particularly checking whether lazy loading
-   can hurt performance vv loading graphs.
+   gateway tests - Testing speed of using Blitz gateway for various queries
+                   particularly checking whether lazy loading can hurt
+                   performance vv loading graphs.
+
+   Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+                      All Rights Reserved.
+   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
 
 """
 

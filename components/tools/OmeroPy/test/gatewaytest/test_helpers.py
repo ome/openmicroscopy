@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+"""
+
 import omero
 import omero.gateway
 
