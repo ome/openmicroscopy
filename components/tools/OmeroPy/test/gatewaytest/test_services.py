@@ -4,9 +4,13 @@
 """
    gateway tests - Wrapped sercice methods
 
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
+   - author_testimg_generated
+   
 """
 
 import omero
@@ -18,16 +22,6 @@ from omero.grid import StringColumn
 class TestServices (object):
 
     TESTANN_NS = 'omero.gateway.test_services'
-
-#    def setUp (self):
-#        super(ServicesTest, self).setUp()
-#        gatewaywrapper.loginAsAuthor()
-#        ctxgroupname = gatewaywrapper.gateway.getEventContext().groupName
-#        gatewaywrapper.loginAsAdmin()
-#        dbhelpers.UserEntry.assert_group_perms(gatewaywrapper.gateway, ctxgroupname, dbhelpers.DEFAULT_GROUP_PERMS)
-#        gatewaywrapper.loginAsAuthor()
-#        self.TESTIMG = gatewaywrapper.getTestImage()
-#        assert self.TESTIMG !=  None, 'No test image found on database'
 
     def testDeleteServiceAuthor (self, author_testimg_generated):
         author_testimg_generated.removeAnnotations(self.TESTANN_NS)
