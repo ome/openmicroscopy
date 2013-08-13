@@ -168,6 +168,7 @@ omero.version=${omero.version}
 	<macrodef name="suite">
 		<attribute name="groups" default=""/>
 		<attribute name="methods" default=""/>
+		<attribute name="testnames" default=""/>
 		<element name="files" implicit="yes"/>
 		<sequential>
 		<testng outputDir="${testreports.dir}"
@@ -176,6 +177,7 @@ omero.version=${omero.version}
 			verbose="${testng.verbose}"
                         groups="@{groups}"
                         methods="@{methods}"
+                        testnames="@{testnames}"
                         useDefaultListeners="${testng.useDefaultListeners}"
                         listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
