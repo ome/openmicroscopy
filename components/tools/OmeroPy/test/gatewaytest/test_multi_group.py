@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#
-# Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
-#                      All Rights Reserved.
-# Use is subject to license terms supplied in LICENSE.txt
-#
+"""
+   Copyright (C) 2012 University of Dundee & Open Microscopy Environment.
+                      All Rights Reserved.
+   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
+
+"""
 
 import omero
 import omero.scripts

@@ -4,6 +4,13 @@
 """
    gateway tests - Testing the gateway image wrapper.getPrimaryPixels() and the pixels wrapper
 
+   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
+   - author_testimg_generated
+
 """
 
 import omero

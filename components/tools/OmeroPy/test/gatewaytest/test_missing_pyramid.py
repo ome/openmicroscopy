@@ -4,6 +4,9 @@
 """
    gateway tests - Testing various methods on a Big image when renderingEngine.load() etc throws MissingPyramidException
 
+   Copyright 2013 Glencoe Software, Inc. All rights reserved.
+   Use is subject to license terms supplied in LICENSE.txt
+
 """
 
 import omero

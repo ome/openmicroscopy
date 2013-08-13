@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-   gateway tests - Connection methods
-
-   Copyright 2009 Glencoe Software, Inc. All rights reserved.
+   Copyright 2009-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
+
+   pytest fixtures used as defined in conftest.py:
+   - gatewaywrapper
+   - author_testimg
 
 """
 
