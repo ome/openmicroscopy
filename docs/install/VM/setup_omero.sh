@@ -3,7 +3,7 @@
 set -e -u -x
 
 PGPASSWORD=${PGPASSWORD:-"omero"}
-OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
+OMERO_JOB=${OMERO_JOB:-"OMERO-stable-ice34"}
 URL_RELEASE="http://cvs.openmicroscopy.org.uk/snapshots/omero/"
 RELEASE_ARCHIVE="OMERO.server-Beta-4.3.4.zip"
 RELEASE_FOLDER=${RELEASE_ARCHIVE%.zip}
