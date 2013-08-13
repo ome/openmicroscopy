@@ -10,7 +10,6 @@
 """
 import unittest, time
 import integration.library as lib
-import Glacier2
 
 from omero.rtypes import *
 
