@@ -112,7 +112,8 @@
                                                 if ($(this).val().length === 0) {
                                                     $(this).val("Add Description");     // Reset to placeholder text
                                                 }
-                                                $("#"+field_id+"-"+$(this).attr('name')).html($(this).val().replace(/\n/g, "<br />"));
+                                                var encoded_val = $('<div/>').text($(this).val()).html();
+                                                $("#"+field_id+"-"+$(this).attr('name')).html(encoded_val.replace(/\n/g, "<br />"));
                                             }
                                         }); // this.each
                                         
