@@ -480,6 +480,12 @@ class TestPermissions(lib.ITest):
         group.details.permissions = omero.model.PermissionsI("rwr---")
         elapsed2, rv = self.timeit(admin.updateGroup, group)
 
+        # Locally this test always fails as the two times are
+        # the same order of magnitude. This may be an indication that
+        # the relevant ticket:
+        # http://trac.openmicroscopy.org/ome/ticket/3136
+        # is still valid. Does the ticket need re-opening
+        # or does the test condition need relaxing?
         self.assertTrue(elapsed1 < (0.1 * elapsed2),\
             "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2))
 
@@ -553,6 +559,7 @@ class TestPermissions(lib.ITest):
     # Write tests with omero.group set.
     # ==============================================
 
+    # See ticket 11374
     def testSaveWithNegOneExplicit(self):
 
         # Get a user and services
@@ -587,9 +594,10 @@ class TestPermissions(lib.ITest):
         # for the null group set on the obj.
         # This isn't optimal but will work for
         # the moment.
-        self.assertRaises(omero.InternalException, \
+        self.assertRaises(omero.ApiUsageException, \
                 update.saveAndReturnObject, tag, all_context)
 
+    # See ticket 11374
     def testSaveWithNegBadLink(self): # ticket:8194
 
         # Get a user and services
@@ -616,6 +624,34 @@ class TestPermissions(lib.ITest):
         # a security violation raised.
         self.assertRaises(omero.GroupSecurityViolation, \
                 update.saveAndReturnObject, image, all_context)
+
+    # The following test is spun off from the one above Without
+    # the -1 a GSV should be raised. See ticket 11375
+    def testSaveBadLink(self):
+
+        # Get a user and services
+        client, user = self.new_client_and_user()
+        admin = client.sf.getAdminService()
+        group1 = admin.getGroup(admin.getEventContext().groupId)
+        group2 = self.new_group(experimenters=[user])
+        for x in (group1, group2):
+            x.unload()
+        admin.getEventContext() # Refresh
+
+        # Create a new object with a bad link
+        image = self.new_image()
+        image.details.group = group1
+        tag = omero.model.TagAnnotationI()
+        tag.details.group = group2
+        link = image.linkAnnotation(tag)
+        link.details.group = group2
+
+        # Now try to save it
+        update = client.sf.getUpdateService()
+        # Bad links should be detected and
+        # a security violation raised.
+        self.assertRaises(omero.GroupSecurityViolation, \
+                update.saveAndReturnObject, image)
 
     # Reading with private groups
     # ==============================================
