@@ -26,7 +26,6 @@ OMERO_USER=${OMERO_USER:-"omero"}
 start() {	
 	echo -n $"Starting $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web start &> /dev/null && echo -n ' OMERO.web'
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh start
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
 }
@@ -34,7 +33,6 @@ start() {
 stop() {
 	echo -n $"Stopping $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web stop &> /dev/null && echo -n ' OMERO.web'
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh stop
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
 }
@@ -42,7 +40,6 @@ stop() {
 status() {
 	echo -n $"Status $prog:"
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web status
-  sudo -iu ${OMERO_USER} bash ${OMERO_HOME%OMERO.server}/nginx-control.sh status
 	RETVAL=$?
 }
 

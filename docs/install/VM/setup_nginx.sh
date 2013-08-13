@@ -2,15 +2,11 @@
 
 set -e -u -x
 
-PASSWORD=${PASSWORD:-"omero"}
+NGINX_CONF=/etc/nginx/sites-available/omero-web
+~omero/OMERO.server/bin/omero web config nginx --system --http 8080 > nginx.tmp
+sudo cp nginx.tmp ${NGINX_CONF}
+rm nginx.tmp
 
-echo $PASSWORD | sudo -S apt-get -q -y update 
-echo $PASSWORD | sudo -S apt-get -q -y install nginx
-# ugly -- but required for nginx to start
-# as of version 0.7.53, nginx will use a compiled-in default error log
-# location until it has read the config file. If the user running nginx
-# doesn't have write permission to this log location, nginx will raise
-# an alert
-echo $PASSWORD | sudo -S chown -R omero:omero /var/log/nginx
-/home/omero/OMERO.server/bin/omero web config nginx --http 8080 > /home/omero/OMERO.server/omero-web-nginx.conf
-/usr/sbin/nginx -c /home/omero/OMERO.server/omero-web-nginx.conf
+sudo rm /etc/nginx/sites-enabled/default
+sudo ln -s ${NGINX_CONF} /etc/nginx/sites-enabled/
+
