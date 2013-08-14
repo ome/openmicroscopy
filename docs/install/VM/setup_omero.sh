@@ -19,6 +19,7 @@ readAPIValue() {
     wget -q -O- $URL | sed 's/^<.*>\([^<].*\)<.*>$/\1/'
     }
 
+cd ~/
 echo "Grabbing last successful QA Build of OMERO.server"
 DL_ARCHIVE=""
 if [ "x$DL_ARCHIVE" == "x" ]; then
