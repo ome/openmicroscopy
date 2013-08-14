@@ -32,7 +32,6 @@ import omero.model.OriginalFile;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class RawFileStoreTest 
 	extends AbstractServerTest
 {

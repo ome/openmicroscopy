@@ -110,7 +110,6 @@ import spec.AbstractTest;
  *
  * @since Beta4.2
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class AbstractServerTest
 	extends AbstractTest
 {

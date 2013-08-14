@@ -49,7 +49,6 @@ import omero.model.Pixels;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class ThumbnailStoreTest 
 	extends AbstractServerTest
 {
