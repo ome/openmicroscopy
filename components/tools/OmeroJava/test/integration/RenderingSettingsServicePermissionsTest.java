@@ -35,7 +35,6 @@ import static org.testng.AssertJUnit.*;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class RenderingSettingsServicePermissionsTest
 	extends AbstractServerTest
 {

@@ -81,7 +81,6 @@ import pojos.ScreenData;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.0
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class PojosServiceTest 
 	extends AbstractServerTest
 {
