@@ -795,7 +795,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with one image w/o binary data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = true)
+	@Test
 	public void testImportSimpleImageMetadataOnlyNoBinaryInFile()
 		throws Exception
 	{
@@ -867,7 +867,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = true)
+	@Test
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{

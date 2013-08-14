@@ -1717,7 +1717,7 @@ public class UpdateServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = true)
+    @Test
     public void testDeleteCommentAnnotationLinkedToObject()
     	throws Exception
     {

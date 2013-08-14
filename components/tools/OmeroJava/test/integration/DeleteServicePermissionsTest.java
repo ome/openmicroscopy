@@ -185,7 +185,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRW--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRWRW()
     	throws Exception
     {
@@ -222,7 +222,7 @@ public class DeleteServicePermissionsTest
      * i.e. RW----. The data should not be deleted
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRW()
     	throws Exception
     {
@@ -900,7 +900,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRA--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRWRA()
     	throws Exception
     {
@@ -937,7 +937,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWR---
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWR()
     	throws Exception
     {
@@ -961,7 +961,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRA--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWRA()
     	throws Exception
     {
@@ -985,7 +985,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRW--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWRW()
     	throws Exception
     {
