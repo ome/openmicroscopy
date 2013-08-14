@@ -2205,7 +2205,7 @@ public class DeleteServiceTest
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2837")
+    @Test(groups = {"broken", "ticket:2837"})
     public void testDeleteObjectWithAnnotationWithNS()
         throws Exception
     {
@@ -2258,7 +2258,7 @@ public class DeleteServiceTest
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2837")
+    @Test(groups = {"broken", "ticket:2837"})
     public void testDeleteObjectWithAnnotationWithNSMultipleNS()
         throws Exception
     {
