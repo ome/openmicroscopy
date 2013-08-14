@@ -127,7 +127,6 @@ import spec.XMLWriter;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = {"delete", "integration"})
 public class DeleteServiceTest 
 	extends AbstractServerTest
 {

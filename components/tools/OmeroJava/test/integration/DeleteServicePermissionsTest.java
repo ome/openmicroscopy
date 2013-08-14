@@ -48,7 +48,6 @@ import omero.sys.ParametersI;
  *
  * @since 4.2.1
  */
-@Test(groups = {"delete", "integration"})
 public class DeleteServicePermissionsTest 
 	extends AbstractServerTest
 {

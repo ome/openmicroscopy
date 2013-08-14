@@ -64,7 +64,6 @@ import pojos.FileAnnotationData;
 * </small>
 * @since 3.0-Beta4
 */
-@Test(groups = {"delete", "integration"})
 public class DeleteServiceFilesTest 
    extends AbstractServerTest
 {
