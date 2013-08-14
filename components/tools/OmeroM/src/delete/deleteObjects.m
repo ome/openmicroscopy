@@ -42,10 +42,14 @@ ip.parse(session, ids, type);
 objectType = objectTypes(strcmp(type, objectNames));
 
 % Create a list of delete commands
-list = javaArray('omero.api.delete.DeleteCommand', numel(ids));
+deleteCommands(1 : numel(ids)) = omero.cmd.Delete();
 for i = 1 : numel(ids)
-    list(i) = omero.api.delete.DeleteCommand(objectType.delete, ids(i), []);
+    deleteCommands(i) = omero.cmd.Delete(objectType.delete, ids(i), []);
 end
 
-%Delete the object queue
-session.getDeleteService().queueDelete(list);
+% Create DoAll command object and add delete commands to the requests
+doAll = omero.cmd.DoAll();
+doAll.requests = toJavaList(deleteCommands);
+
+% Submit the delete commands
+session.submit(doAll);
