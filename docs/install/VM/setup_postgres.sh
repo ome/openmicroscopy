@@ -3,21 +3,21 @@
 set -e -u -x
 
 export PGPASSWORD=omero
+echo localhost:5432:omero:omero:$PGPASSWORD > ~/.pgpass
+chmod 600 ~/.pgpass
 
-FILE=.pgpass
-sudo -u omero cat > ${FILE} << EOF
-localhost:5432:omero:omero:omero
-EOF
-chmod 600 .pgpass
-
-echo "CREATE USER omero PASSWORD 'omero'" | sudo -u postgres psql
+echo "CREATE USER omero PASSWORD '${PGPASSWORD}'" | sudo -u postgres psql
 sudo -u postgres createdb -O omero omero
-sudo -u postgres createlang plpgsql omero
+
+# Might be setup by default
+set +e
+sudo -u postgres createlang -l omero | grep '[^\w]plpgsql[^w]' > /dev/null
+RET=$?
+set -e
+if [ $RET -ne 0 ]; then
+	sudo -u postgres createlang plpgsql omero
+fi
 
 echo `psql -h localhost -U omero -l`
-
-sudo sed '/127.0.0.1/s/md5/trust/' /etc/postgresql/8.4/main/pg_hba.conf > pg_hba.conf && sudo mv pg_hba.conf /etc/postgresql/8.4/main/pg_hba.conf
-
-sudo /etc/init.d/postgresql restart
 
 echo `netstat -an | egrep '5432.*LISTEN'`
