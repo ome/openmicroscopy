@@ -25,8 +25,6 @@ from omero.util.temp_files import create_path
 
 PUBLIC = omero.model.PermissionsI("rwrwrw")
 
-thumbnailFigurePath = "scripts/omero/figure_scripts/thumbnailFigure.py"
-
 if "DEBUG" in os.environ:
     omero.util.configure_logging(loglevel=10)
 
@@ -78,12 +76,40 @@ class TestScripts(lib.ITest):
         self.assertEquals("%s.py" % uuid, ofile.name.val)
         return svc, ofile
 
-    def testDelete6905(self):
+    # This test is disabled due to the bug referred to in
+    # testDelete11371
+    def DISABLEDtestDelete6905(self):
         """
         Delete of official scripts was broken in 4.3.2.
         """
         svc, ofile = self.testUpload2562()
         svc.deleteScript(ofile.id.val)
+
+    def testDelete11371(self):
+        """
+        Delete of official scripts was broken in 4.4.8.
+        """
+        # First upload a number of scripts to a single directory
+        noOfScripts = 5
+        svc = self.root.sf.getScriptService()
+        scrCount = len(svc.getScripts())
+        dirUuid = self.uuid()
+        ids = []
+        for x in range(noOfScripts):
+            uuid = self.uuid()
+            f = self.pingfile()
+            ids.append(svc.uploadOfficialScript("/%s/%s.py" % (dirUuid, uuid), f.text()))
+            ofile = self.query.get("OriginalFile", ids[x])
+            self.assertEquals("/%s/" % dirUuid, ofile.path.val)
+            self.assertEquals("%s.py" % uuid, ofile.name.val)
+        # There should now be five more
+        self.assertEqual(scrCount+noOfScripts, len(svc.getScripts()))
+
+        # Now delete just one script
+        svc.deleteScript(ids[0])
+        # There should now be one fewer
+        self.assertEqual(scrCount+noOfScripts-1, len(svc.getScripts()))
+
 
     def testParseErrorTicket2185(self):
         svc = self.root.sf.getScriptService()
@@ -359,9 +385,10 @@ client.closeSession()
 
     def testSpeedOfThumbnailFigure(self):
         svc = self.client.sf.getScriptService()
-        svc.getScripts()
-        pixID = self.import_image()[0]
         scriptID = svc.getScriptID("/omero/figure_scripts/Thumbnail_Figure.py")
+        if scriptID == -1:
+            self.fail("Script not found")
+        pixID = self.import_image()[0]
         process = svc.runScript(scriptID, wrap({"Data_Type":"Image", "IDs": [long(pixID)]}).val, None)
         wait_time, ignore = self.timeit(omero.scripts.wait, self.client, process)
         self.assertTrue(wait_time < 60, "wait_time over 1 min for TbFig!")
@@ -440,7 +467,8 @@ client.closeSession()
             while cb.block(500) is None:
                 pass
             results = process.getResults(0)
-            self.assertEquals(0, results["gid"].val)
+            gid = self.client.sf.getAdminService().getEventContext().groupId
+            self.assertEquals(gid, results["gid"].val)
         finally:
             impl.cleanup()
 
