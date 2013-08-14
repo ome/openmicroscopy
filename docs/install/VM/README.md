@@ -75,8 +75,57 @@ A number of utility scripts are included to enable you to easily start, stop, an
   ```
 
 
-- [setup_port_forwarding.sh](setup_port_forwarding.sh) - To automatically set up port forwarding settings for the nominated VM in VirtualBox: 
+- [setup_port_forwarding.sh](setup_port_forwarding.sh) - This should already be setup, if these settings are lost you can run:
 
   ```
   $ bash setup_port_forwarding.sh omero-vm
   ```
+
+
+Rebuilding the Base Image
+=========================
+
+TODO: write this properly
+
+The base image is created using [Veewee](https://github.com/jedi4ever/veewee).
+To rebuild the base image from scratch install Veewee, `cd` into the Veewee
+directory and clone the definition files:
+
+  ```
+  $ git clone https://github.com/manics/omero-veewee-definitions.git
+  $ git checkout ubuntu-13.04-64
+  ```
+
+Build the base box:
+
+  ```
+  $ veewee vbox build ubuntu-13.04-server-amd64-omerobase
+  $ veewee vbox halt ubuntu-13.04-server-amd64-omerobase
+  ```
+
+You should have a new VirtualBox machine in your VirtualBox directory, for
+example under `~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/`.
+If you want to keep the base VM then clone the VDI to another directory,
+do not just copy the VDI since it contains a UUID registered to the base
+image VM.
+Note the VDI will remain registered to VirtualBox as a storage object. E.g.:
+
+  ```
+  $ VBoxManage clonehd \
+      "~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/ubuntu-13.04-server-amd64-omerobase1.vdi" \
+      "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
+  ```
+
+Alternatively copy the VDI. E.g.:
+
+  ```
+  $ cp "~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/ubuntu-13.04-server-amd64-omerobase1.vdi" \
+      "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
+  ```
+
+and delete the original VM:
+
+  ```
+  $ veewee vbox build ubuntu-13.04-server-amd64-omerobase
+  ```
+
