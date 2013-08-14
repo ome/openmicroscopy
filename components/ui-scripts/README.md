@@ -21,12 +21,14 @@ Swing Explorer plug-in helpful; read http://www.swingexplorer.com/
 Read about SwingLibrary at
 http://github.com/robotframework/SwingLibrary
 
-The supplied SwingLibrary JAR has been adjusted by
+The supplied SwingLibrary JAR has been adjusted by the script from
 http://github.com/Rethought/swinglibrary_package so that it
 incorporates a later revision of Abbot that corrects an issue with
-Java 7.
+Java 7. Those wishing to repeat the adjustment on a Mac may wish to
+review the adjustment script and use homebrew to install wget and GNU
+sed: when the script runs correctly, no errors should be glimpsed.
 
-To actually run a script,
+To actually run a test script,
 
 export OMERO_CHECKOUT=~/src/openmicroscopy
 cd "$OMERO_CHECKOUT"/components/insight/OUT/app/
