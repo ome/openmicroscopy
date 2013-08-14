@@ -47,7 +47,7 @@ import static org.testng.AssertJUnit.*;
  * @see ticket:2994
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class AnnotationDeleteTest extends AbstractServerTest {
 
 	/** Reference to the <code>Rating</code> name space. */

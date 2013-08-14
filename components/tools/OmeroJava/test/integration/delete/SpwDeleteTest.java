@@ -35,7 +35,7 @@ import ome.specification.XMLWriter;
  *
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class SpwDeleteTest extends AbstractServerTest {
 
     @Test(groups = { "ticket:3102" })

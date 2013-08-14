@@ -50,7 +50,7 @@ import pojos.FileAnnotationData;
  *
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class RoiDeleteTest extends AbstractServerTest {
 
 	/**
