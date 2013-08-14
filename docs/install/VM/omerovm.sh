@@ -20,8 +20,8 @@ set -x
 VBOX="VBoxManage --nologo"
 OS=`uname -s`
 ATTEMPTS=0
-MAXATTEMPTS=5
-DELAY=2
+MAXATTEMPTS=20
+DELAY=60
 NATADDR="10.0.2.15"
 
 ##################
@@ -174,9 +174,9 @@ if [[ -z "$UP" ]]
 then
 	while [[ -z "$UP" && $ATTEMPTS -lt $MAXATTEMPTS ]]
 	do
-		rebootvm
-	    checknet
+	    #rebootvm
 	    sleep $DELAY
+	    checknet
 	done
 	if [[ -z "$UP" ]]
 	then
