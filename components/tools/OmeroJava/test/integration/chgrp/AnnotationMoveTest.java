@@ -441,7 +441,7 @@ public class AnnotationMoveTest
      * The image will be moved and the tag.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveTaggedImage()
 	throws Exception
     {

@@ -1149,7 +1149,7 @@ public class UpdateServiceTest
      * Tests the creation of an ROI not linked to an image.
      * @throws Exception  Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(groups = "broken")
     public void testCreateROIWithoutImage()
     	throws Exception
     {
@@ -1491,7 +1491,7 @@ public class UpdateServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = false, groups = {"ticket:2705"})
+    @Test(groups = {"broken", "ticket:2705"})
     public void testDeleteAnnotation() 
     	throws Exception
     {

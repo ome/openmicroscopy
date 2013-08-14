@@ -111,7 +111,7 @@ public class SpwDeleteTest extends AbstractServerTest {
      * This tests using the /Plate+Only specifier as opposed to the class name.
      * Currently not implemented.
      */
-    @Test(groups = {"ticket:3195", "UNSUPPORTED"}, enabled = false)
+    @Test(groups = {"broken", "ticket:3195", "UNSUPPORTED"})
     public void testScreenKeepPlateOnly() throws Exception {
 
         newUserAndGroup("rw----");
