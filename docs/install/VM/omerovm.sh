@@ -40,21 +40,24 @@ function installvm ()
 	chmod 600 ./omerovmkey
 	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
 	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
+
 	echo "Copying scripts to VM"
-	$SCP driver.sh omero@localhost:~/
-	$SCP setup_userspace.sh omero@localhost:~/
-	$SCP setup_postgres.sh omero@localhost:~/
-	$SCP setup_environment.sh omero@localhost:~/
-	$SCP setup_omero.sh omero@localhost:~/
-	$SCP setup_nginx.sh omero@localhost:~/
-	$SCP setup_omero_daemon.sh omero@localhost:~/
-	$SCP omero-init.d omero@localhost:~/
-	$SCP omero-web-init.d omero@localhost:~/
-	$SCP virtualbox-network-fix-init.d omero@localhost:~/
-  $SCP virtualbox_fix.sh omero@localhost:~/
-  $SCP nginx-control.sh omero@localhost:~/
+	$SSH omero@localhost "mkdir install"
+        $SCP \
+            driver.sh \
+            cleanup.sh \
+            install_deps.sh \
+            setup_environment.sh \
+            setup_nginx.sh \
+            setup_postgres.sh \
+            setup_omero.sh \
+            setup_omero_daemon.sh \
+            omero-init.d \
+            omero-web-init.d \
+            omero@localhost:install
+
 	echo "ssh : exec driver.sh"
-	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; bash /home/omero/driver.sh"
+	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; cd install; bash driver.sh"
 	sleep 10
 	
 	echo "ALL DONE!"
