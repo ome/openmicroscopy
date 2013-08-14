@@ -540,7 +540,7 @@ public class AdminServiceTest
 	 * using the <code>updateExperimenter</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testUpdateExperimenterByUserUsingUpdateExperimenter() 
     	throws Exception
     {
@@ -1165,7 +1165,7 @@ public class AdminServiceTest
 	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testOwnerAddExistingExperimenterToGroup()
     	throws Exception
     {
@@ -1221,7 +1221,7 @@ public class AdminServiceTest
 	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testOwnerRemoveExperimenterToGroup()
     	throws Exception
     {
