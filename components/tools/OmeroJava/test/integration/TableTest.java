@@ -36,7 +36,6 @@ import omero.grid.TablePrx;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = "tables")
 public class TableTest 
 	extends AbstractServerTest
 {
@@ -121,7 +120,7 @@ public class TableTest
      * Retrieve table's OriginalFile.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testGetOriginalFile() 
     	throws Exception
     {
@@ -132,7 +131,7 @@ public class TableTest
      * Retrieve table header.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testGetHeaders() 
     	throws Exception
     {
@@ -143,7 +142,7 @@ public class TableTest
      * Add two rows of data to the table.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testAddData() 
     	throws Exception 
     {
@@ -167,7 +166,7 @@ public class TableTest
      * Retrieves the number of rows.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testGetNumberOfRows() 
     	throws Exception
     {
@@ -194,7 +193,7 @@ public class TableTest
      * Tests the <code>WhereList</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testGetWhereListEmptyTable() 
     	throws Exception 
     {
@@ -210,7 +209,7 @@ public class TableTest
      * Tests the <code>WhereList</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testGetWhereListManyRows() 
     	throws Exception
     {
@@ -256,7 +255,7 @@ public class TableTest
      * an exception because there's no need to try to read zero data.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(expectedExceptions = ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class, groups = "tables")
     public void testReadCoordinates0Rows() 
     	throws Exception 
     {
@@ -268,7 +267,7 @@ public class TableTest
      * Tests <code>readCoordinates()</code> with one row in table.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testReadCoordinates1Rows()
     	throws Exception
     {
@@ -292,7 +291,7 @@ public class TableTest
      * Tests <code>readCoordinates()</code> with two row in table
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testReadCoordinates2Rows() 
     	throws Exception
     {
@@ -319,7 +318,7 @@ public class TableTest
      * Tests <code>read()</code> with no rows in table.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testRead0Rows() 
     	throws Exception
     {
@@ -331,7 +330,7 @@ public class TableTest
      * Tests <code>read</code> method with one row in table.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testRead1Rows()
     	throws Exception
     {
@@ -355,7 +354,7 @@ public class TableTest
      * Test <code>read</code> method with two rows in table
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testRead2Rows() 
     	throws Exception
     {
@@ -382,7 +381,7 @@ public class TableTest
      * Tests <code>slice</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(expectedExceptions = ApiUsageException.class)
+    @Test(expectedExceptions = ApiUsageException.class, groups = "tables")
     public void testSlice0Rows()
     	throws Exception 
     {
@@ -394,7 +393,7 @@ public class TableTest
      * Tests <code>slice</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testSlice1Rows() 
     	throws Exception
     {
@@ -418,7 +417,7 @@ public class TableTest
      * Tests <code>slice</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testSlice2Rows() 
     	throws Exception 
     {
@@ -446,7 +445,7 @@ public class TableTest
      * Add then update a table row, assert its validity
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testUpdateTableWith1Rows() 
     	throws Exception 
     {
@@ -505,7 +504,7 @@ public class TableTest
      * Add then update a table row, assert its validity.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "tables")
     public void testUpdateTableWith2Rows()
     	throws Exception
     {
