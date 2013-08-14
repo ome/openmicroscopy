@@ -928,7 +928,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWToRWRW()
     	throws Exception
     {
@@ -969,7 +969,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWRToRWRA()
     	throws Exception
     {
@@ -1010,7 +1010,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWAToRWRW()
     	throws Exception
     {
@@ -1049,7 +1049,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWToRWR()
     	throws Exception
     {
