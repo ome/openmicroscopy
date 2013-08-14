@@ -24,7 +24,6 @@ blitz_resources = os.path.abspath( os.path.join( top, "components", "blitz", "re
 blitz_generated = os.path.abspath( os.path.join( top, "components", "blitz", "generated") )
 tools_include = os.path.abspath( os.path.join( top, "components", "tools", "target", "include" ) )
 tools_library = os.path.abspath( os.path.join( top, "components", "tools", "target", "lib" ) )
-omerocpp_dir = os.path.abspath( os.path.join( top, "components", "tools", "OmeroCpp") )
 header = os.path.join( blitz_resources, "header.txt" )
 
 # Relative
@@ -52,11 +51,6 @@ if os.environ.has_key("SLICE2PY"):
     print "Using env[SLICE2PY] = %s" % (slice2py)
 else:
     slice2py = None
-if os.environ.has_key("SLICE2CPP"):
-    slice2cpp = os.environ["SLICE2CPP"]
-    print "Using env[SLICE2CPP] = %s" % (slice2cpp)
-else:
-    slice2cpp = None
 
 
 def jdep(DEPMAP, target):
@@ -90,7 +84,7 @@ def basenames(where, dir):
         yield names(dir, ice)
 
 #
-# Define calls to slice2java, slice2cpp, and slice2py
+# Define calls to slice2java and slice2py
 #
 
 def make_slice(command):
@@ -100,21 +94,6 @@ def make_slice(command):
         if rv != 0:
             raise Exception("%s returned %s" % (str(args), str(rv)) )
     return slice
-
-def slice_cpp(env, where, dir):
-    command = [slice2cpp, "--include-dir=%s"%dir] + common( "%s/%s" % (generated, dir) )
-    if sys.platform == "win32":
-        command.append("--dll-export")
-        command.append("OMERO_API")
-    actions = []
-    for basename, filename in basenames(where, dir):
-        c = env.Command(
-            [filename + '.h', filename + '.cpp'],                 # target
-            filename + '.ice',                                    # source
-            make_slice(command),                                  # command
-            chdir = where )                                       # dir
-        actions.append( c )
-    return actions
 
 def slice_java(env, where, dir):
     command  = [slice2java, "--tie"] + common()
@@ -145,7 +124,7 @@ def slice_py(env, where, dir):
 # Lists which can be used in a cross-product to generate
 # all necessary files.
 #
-methods = [slice_java, slice_cpp, slice_py]
+methods = [slice_java, slice_py]
 directories = ["omero", "omero/model", "omero/api", "omero/cmd"]
 where = [generated, resources]
 
@@ -277,27 +256,6 @@ class OmeroEnvironment(SConsEnvironment):
         # Now let user override
         if "LINKFLAGS" in os.environ:
             self.Append(CXXFLAGS=self.Split(os.environ["LINKFLAGS"]))
-
-        #
-        # CPPPATH
-        #
-        self.AppendUnique(CPPPATH = [blitz_generated] )
-        if os.environ.has_key("CPPPATH"):
-            self.AppendUnique(CPPPATH=os.environ["CPPPATH"].split(os.path.pathsep))
-        if ice_home:
-            self.Append(CPPPATH = [os.path.join(ice_home, "include")] )
-
-        #
-        # LIBPATH
-        #
-        self.AppendUnique(LIBPATH=omerocpp_dir)
-        if os.environ.has_key("LIBPATH"):
-            self.AppendUnique(LIBPATH=os.environ["LIBPATH"].split(os.path.pathsep))
-        if self.iswin32():
-            if "LIB" in os.environ:
-                # Only LIB contains the path to the Windows SDK x64 library when starting
-                # from the VS2008 x64 command line batch.
-                self.AppendUnique(LIBPATH=os.environ["LIB"].split(os.path.pathsep))
 
     def isdebug(self):
 
