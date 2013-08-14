@@ -135,7 +135,7 @@
 
     <target name="tables" depends="test-compile" unless="test.skip">
         <property name="test.with.fail" value="true"/>
-        <suite testnames="integration">
+        <suite testnames="tables">
             <xmlfileset dir="${test.dir}">
                 <include name="${integration.suite}"/>
             </xmlfileset>
