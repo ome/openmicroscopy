@@ -2504,11 +2504,11 @@ div.tag_selection div.owner-tagged span.alltags-take {
 
 .ui-progressbar-value {
   height: 15px !important;
-  background-color: #619e47;
-  background-image: -moz-linear-gradient(top, #add79a, #619e47);
-  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#add79a), to(#619e47));
-  background-image: -webkit-linear-gradient(top, #add79a, #619e47);
-  background-image: linear-gradient(to bottom, #add79a, #619e47);
+  background-color: #476a93;
+  background-image: -moz-linear-gradient(top, #98b8d7, #476a9e);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#98b8d7), to(#476a9e));
+  background-image: -webkit-linear-gradient(top, #98b8d7, #476a9e);
+  background-image: linear-gradient(to bottom, #98b8d7, #476a9e);
   background-repeat: repeat-x;
   filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff80a1a2', endColorstr='#ff547879', GradientType=0);
   -moz-border-radius: 1px;
