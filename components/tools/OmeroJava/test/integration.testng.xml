@@ -5,7 +5,6 @@
     <groups>
       <run>
         <exclude name="broken"/>
-        <exclude name="ignore"/>
         <exclude name="tables"/>
       </run>
     </groups>
