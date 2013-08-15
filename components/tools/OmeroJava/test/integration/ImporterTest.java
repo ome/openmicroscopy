@@ -100,7 +100,6 @@ import ome.specification.XMLWriter;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = {"import", "integration"})
 public class ImporterTest 
 	extends AbstractServerTest
 {

@@ -41,7 +41,6 @@ import Ice.Current;
 /**
  * Various uses of the {@link omero.cmd.CmdCallbackI} object.
  */
-@Test(groups = "integration")
 @SuppressWarnings("serial")
 public class CmdCallbackTest extends AbstractServerTest {
 

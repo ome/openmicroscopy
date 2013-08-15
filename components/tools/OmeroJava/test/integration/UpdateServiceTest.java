@@ -135,7 +135,7 @@ public class UpdateServiceTest
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions"})
+    @Test
     public void testVersionHandling() 
     	throws Exception
     {
@@ -156,7 +156,7 @@ public class UpdateServiceTest
      * after updating an annotation linked to the image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "ticket:118" })
+    @Test(groups = "ticket:118")
     public void tesVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
@@ -187,7 +187,7 @@ public class UpdateServiceTest
      * Object.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "ticket:118" })
+    @Test(groups = "ticket:118")
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
