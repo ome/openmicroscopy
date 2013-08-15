@@ -48,7 +48,7 @@ class TestThumbs(lib.ITest):
         tb.resetDefaults() # Sets new missingPyramid flag
         return tb
 
-    def testCreateThumbnails64x64(self):
+    def testCreateThumbnails(self):
         tb = self.pyr_tb()
         try:
             tb.createThumbnails()
