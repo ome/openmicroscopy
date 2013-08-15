@@ -2384,6 +2384,12 @@ div.tag_selection_wrapper {
     padding-right: 0;
     background-color: white;
     cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: moz-none;
+    -ms-user-select: none;
+    user-select: none;
 }
 div.tag_selection_wrapper.filtered {
     height: 175px;
