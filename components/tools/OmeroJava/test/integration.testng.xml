@@ -5,7 +5,6 @@
     <groups>
       <run>
         <exclude name="broken"/>
-        <exclude name="tables"/>
       </run>
     </groups>
     <packages>
@@ -18,18 +17,6 @@
     <groups>
       <run>
         <include name="broken"/>
-      </run>
-    </groups>
-    <packages>
-      <package name="coverage.*"/>
-      <package name="integration.*"/>
-      <package name="unit.*"/>
-    </packages>
-  </test>
-  <test name="tables">
-    <groups>
-      <run>
-        <include name="tables"/>
       </run>
     </groups>
     <packages>
