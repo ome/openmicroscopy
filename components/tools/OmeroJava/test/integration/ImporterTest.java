@@ -1254,7 +1254,7 @@ public class ImporterTest
      * two fully populated plates.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled=true)
+	@Test
 	public void testImportScreenWithTwoPlates()
 		throws Exception
 	{
