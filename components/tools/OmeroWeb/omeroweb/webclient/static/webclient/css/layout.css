@@ -2559,3 +2559,9 @@ div.tag_selection div.owner-tagged span.alltags-take {
 #tooltip {
     color: #ffffff;
 }
+
+/* disabled dialog button */
+.ui-dialog .ui-dialog-buttonpane button.ui-state-disabled, .ui-dialog .ui-dialog-buttonpane button.ui-state-disabled:hover {
+    background: hsl(210,8%,80%);
+    color: gray;
+}

@@ -156,6 +156,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             $.ajax({ url: url, cache: false, dataType: 'json', success: callback });
         };
 
+        $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).attr("disabled", "disabled").addClass( 'ui-state-disabled' );
+
         progressbar_label.text("Initializing");
         progressbar.progressbar("value", 0);
         $("#add_tags_progress").show();
@@ -278,6 +280,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 all_tags[id].d = raw_desc[id];
             }
             update_html();
+
+            $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).removeAttr("disabled").removeClass( 'ui-state-disabled' );
         };
 
         load('tagcount', tag_count_callback);
