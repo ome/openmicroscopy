@@ -349,10 +349,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 }
             }
         });
-        post_select_tags();
-    };
-
-    var post_select_tags = function() {
         sort_tag_list(div_selected_tags);
         update_filter();
         // scroll to first selected tag
@@ -438,7 +434,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
     var new_tag_counter = 0;
 
-    var add_new_tag = function() {
+    var add_new_tag = function(event) {
         var text = $.trim(tag_input.val());
         var description = $.trim(description_input.val());
         var tagset = get_selected_tagset();
