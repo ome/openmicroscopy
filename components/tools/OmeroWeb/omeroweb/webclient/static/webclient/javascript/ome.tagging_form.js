@@ -97,7 +97,15 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_selected_labels = function() {
-        var count = $(".ui-selected", div_all_tags).not(".filtered").length;
+        var count = 0;
+        $(".ui-selected", div_all_tags).not(".filtered").each(function() {
+            var $this = $(this);
+            if ($this.hasClass('alltags-tagset')) {
+                count += $this.nextUntil(":not(.alltags-childtag)").not(".filtered, .ui-selected").length;
+            } else {
+                count++;
+            }
+        });
         $("#id_tags_selected").text(count ? count + " selected" : "");
         var tagset = get_selected_tagset();
         if (tagset) {
