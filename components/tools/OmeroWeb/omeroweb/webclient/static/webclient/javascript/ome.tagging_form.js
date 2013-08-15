@@ -28,6 +28,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var all_tags = {};
     var owners = {};
 
+    var canceled = false;
+
     if ($("#add_tags_progress").length === 0) {
         $("#add_tags_form").next().append(
             "<div id='add_tags_progress' style='display:none;'>" +
@@ -43,11 +45,16 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                 $("#add_tags_progress .progress-value").text($("#add_tags_progress .progress-striped").progressbar("value") + "%");
             },
             complete: function() {
-                setTimeout(function() { $("#add_tags_progress").hide(); }, 2000);
+                setTimeout(function() { $("#add_tags_progress").remove(); }, 2000);
             },
             value: -1
         });
     var progressbar_label = $("#add_tags_progress .progress-label");
+    $("#add_tags_form").on("dialogclose", function() {
+        $("#add_tags_progress").remove();
+        progressbar_label = progressbar = $();
+        canceled = true;
+    });
 
     var get_selected_tagset = function() {
         var selected = $(".ui-selected", div_all_tags).not(".filtered");
@@ -149,11 +156,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             $.ajax({ url: url, cache: false, dataType: 'json', success: callback });
         };
 
-        $("#add_tags_progress").show();
         progressbar_label.text("Initializing");
         progressbar.progressbar("value", 0);
+        $("#add_tags_progress").show();
 
         var tag_count_callback = function(data) {
+            if (canceled) {
+                return;
+            }
             tag_count = data.tag_count;
             if (tag_count > 0) {
                 batch_steps = Math.ceil(tag_count / batch_size);
@@ -169,6 +179,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         var tags_callback = function(data) {
+            if (canceled) {
+                return;
+            }
             raw_tags = raw_tags.concat(data);
             /*jsl:ignore*/
             if (++num_tag_callbacks == batch_steps) {
@@ -181,6 +194,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         var owners_callback = function(data) {
+            if (canceled) {
+                return;
+            }
             process_owners(data);
             progressbar.progressbar("value", Math.ceil((batch_steps + 1) * step_weight));
             progressbar_label.text("Loading descriptions");
@@ -190,6 +206,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         };
 
         var desc_callback = function(data) {
+            if (canceled) {
+                return;
+            }
             $.extend(raw_desc, data);
             /*jsl:ignore*/
             if (++num_desc_callbacks == batch_steps) {
