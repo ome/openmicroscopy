@@ -1036,11 +1036,12 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove( self, parents, index):
+    def remove( self, parents, index, tag_owner_id=None):
         """
-        Removes the current object (file, tag, comment, dataset, plate, image) from it's parents by
+        Removes the current object (file, tag, comment, dataset, plate, image) from its parents by
         manually deleting the link.
         For Comments, we check whether it becomes an orphan & delete if true
+        If self.tag and owner_id is specified, only remove the tag if it is owned by that owner
         
         @param parents:     List of parent IDs, E.g. ['image-123']
         """
@@ -1056,7 +1057,9 @@ class BaseContainer(BaseController):
                 parentId = w.getWellSample(index=index).image().getId()
             if self.tag:
                 for al in self.tag.getParentLinks(dtype, [parentId]):
-                    if al is not None and al.canDelete():
+                    if al is not None and al.canDelete() and (
+                        tag_owner_id is None or
+                        unwrap(al.details.owner.id) == tag_owner_id):
                         self.conn.deleteObjectDirect(al._obj)
             elif self.file:
                 for al in self.file.getParentLinks(dtype, [parentId]):

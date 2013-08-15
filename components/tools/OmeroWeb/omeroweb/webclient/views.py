@@ -1228,6 +1228,7 @@ def annotate_tags(request, conn=None, **kwargs):
 
     # Get appropriate manager, either to list available Tags to add to single object, or list ALL Tags (multiple objects)
     manager = None
+    self_id = conn.getEventContext().userId
     if obj_count == 1:
         for t in selected:
             if len(selected[t]) > 0:
@@ -1247,7 +1248,6 @@ def annotate_tags(request, conn=None, **kwargs):
             manager = BaseShare(conn, o_id)
 
         manager.annotationList()
-        self_id = conn.getEventContext().userId
         selected_tags = [(tag.id,
                           unwrap(tag.link.details.owner.id),
                           "%s %s" % (unwrap(tag.link.details.owner.firstName), unwrap(tag.link.details.owner.lastName)),
@@ -1309,7 +1309,7 @@ def annotate_tags(request, conn=None, **kwargs):
                         "%s-%s" % (dtype, obj.id)
                         for dtype, objs in oids.items()
                         for obj in objs
-                    ], index)
+                    ], index, tag_owner_id=self_id)
             template = "webclient/annotations/tags.html"
             context = {}
             # Now we lookup the object-annotations (same as for def batch_annotate above)
