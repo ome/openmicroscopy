@@ -21,9 +21,8 @@ package org.openmicroscopy.shoola.keywords;
 
 import java.awt.Color;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import junit.framework.Assert;
 
 /**
  * Tests a Robot Framework SwingLibrary keyword library.
@@ -44,7 +43,7 @@ public class StaticFieldLibraryTest {
     public void testExpectedStringConstant() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         final String expected = StaticFieldLibrary.PREFIX;
         final String actual = new StaticFieldLibrary().getJavaString("keywords.StaticFieldLibrary.PREFIX");
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(actual, expected);
     }
 
     /**
@@ -79,6 +78,6 @@ public class StaticFieldLibraryTest {
     public void testExpectedColorConstant() throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         final String expected = "ff112233";
         final String actual = new StaticFieldLibrary().getAWTColor("keywords.StaticFieldLibraryTest.COLOR");
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals(actual, expected);
     }
 }
