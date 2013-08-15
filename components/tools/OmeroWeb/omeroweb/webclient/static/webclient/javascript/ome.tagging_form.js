@@ -61,7 +61,14 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var tag_click = function(event) {
         $(this).not('.alltags-locked').toggleClass('ui-selected').siblings('.ui-selected').removeClass('ui-selected');
         update_selected_labels();
+        event.stopPropagation();
     };
+
+    $(".tag_selection_wrapper").on('click', function(event) {
+        // when clicking in the blank space of the list, deselect all
+        $(".ui-selected", $(this)).removeClass('ui-selected');
+        update_selected_labels();
+    });
 
     var take_tag_click = function(event) {
         $(this).parent().toggleClass('owner-tagged');
