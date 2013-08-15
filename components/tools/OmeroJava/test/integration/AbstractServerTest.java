@@ -210,7 +210,7 @@ public class AbstractServerTest
      * @throws Exception Thrown if an error occurred.
      */
     @Override
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     protected void setUp() 
     	throws Exception
     {
