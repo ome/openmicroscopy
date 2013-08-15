@@ -310,7 +310,7 @@ public class AnnotationMoveTest
      *  to the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testMoveImageAnnotatedByUsersDestinationGroupRWRW()
 	throws Exception
     {

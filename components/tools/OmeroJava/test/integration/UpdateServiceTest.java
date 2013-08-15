@@ -1147,7 +1147,7 @@ public class UpdateServiceTest
      * Tests the creation of an ROI not linked to an image.
      * @throws Exception  Thrown if an error occurred.
      */
-    @Test(groups = "broken")
+    @Test
     public void testCreateROIWithoutImage()
     	throws Exception
     {
