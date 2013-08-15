@@ -92,40 +92,40 @@ To rebuild the base image from scratch install Veewee, `cd` into the Veewee
 directory and clone the definition files:
 
   ```
-  $ git clone https://github.com/manics/omero-veewee-definitions.git
-  $ git checkout ubuntu-13.04-64
+  $ git clone https://github.com/manics/omero-veewee-definitions.git definitions
+  $ git checkout debian-7.1.0-64
   ```
 
 Build the base box:
 
   ```
-  $ veewee vbox build ubuntu-13.04-server-amd64-omerobase
-  $ veewee vbox halt ubuntu-13.04-server-amd64-omerobase
+  $ veewee vbox build Debian-7.1.0-amd64-omerobase
+  $ veewee vbox halt Debian-7.1.0-amd64-omerobase
   ```
 
 You should have a new VirtualBox machine in your VirtualBox directory, for
-example under `~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/`.
+example under `~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/`.
 If you want to keep the base VM then clone the VDI to another directory,
 do not just copy the VDI since it contains a UUID registered to the base
 image VM.
-Note the VDI will remain registered to VirtualBox as a storage object. E.g.:
+Note the VDI will remain registered to VirtualBox as a hard disk. E.g.:
 
   ```
   $ VBoxManage clonehd \
-      "~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/ubuntu-13.04-server-amd64-omerobase1.vdi" \
+      "~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/Debian-7.1.0-amd64-omerobase1.vdi" \
       "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
   ```
 
 Alternatively copy the VDI. E.g.:
 
   ```
-  $ cp "~/VirtualBox VMs/ubuntu-13.04-server-amd64-omerobase/ubuntu-13.04-server-amd64-omerobase1.vdi" \
+  $ cp "~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/Debian-7.1.0-amd64-omerobase1.vdi" \
       "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
   ```
 
 and delete the original VM:
 
   ```
-  $ veewee vbox build ubuntu-13.04-server-amd64-omerobase
+  $ veewee vbox destroy Debian-7.1.0-amd64-omerobase
   ```
 
