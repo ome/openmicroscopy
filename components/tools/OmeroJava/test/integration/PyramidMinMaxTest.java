@@ -54,7 +54,6 @@ import org.testng.annotations.Test;
  * a pyramid file created. If that changes then it will be necessary 
  * to change the import.
  */
-@Test(groups = {"integration"})
 public class PyramidMinMaxTest 
     extends AbstractServerTest
 {

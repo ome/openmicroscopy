@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  * All configuration comes from the ICE_CONFIG
  * environment variable.
  */
-@Test(groups = "integration")
+@Test
 public class ClientUsageTest 
 	extends AbstractServerTest
 {

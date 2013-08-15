@@ -38,7 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
-@Test(groups = {"repo", "integration"})
+@Test
 public class BfPixelBufferTest extends AbstractServerTest {
 
     private BfPixelBuffer bf;
