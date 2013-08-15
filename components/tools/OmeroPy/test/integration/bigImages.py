@@ -48,8 +48,8 @@ class TestFigureExportScripts(lib.ITest):
 
         session = self.root.sf
         
-        sizeX = 3
-        sizeY = 2
+        sizeX = 4
+        sizeY = 3
         sizeZ = 1
         sizeC = 1
         sizeT = 1
