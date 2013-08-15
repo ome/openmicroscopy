@@ -47,7 +47,7 @@ class Fixture(object):
         self.update = self.client.sf.getUpdateService()
         self.context = self.admin.getEventContext()
         self.img = create_path("cliimportfixture.", ".png")
-        i = Image.new(mode="1", size=[1, 1])
+        i = Image.new(mode="1", size=[8,8])
         i.save(self.img)
 
     def dataset(self, name, ctx=None):
