@@ -2429,9 +2429,9 @@ div.tag_selection div.filtered {
     display: none;
 }
 div.tag_selection span.alltags-take {
-    background: url(../image/icon-add-to-tags.png) no-repeat left center;
+    background: url(../image/icon-add-to-tags.png) no-repeat center center;
     float: relative; top: 1px; right: -322px;
-    width: 18px;
+    width: 20px;
     height: 16px;
     vertical-align: middle;
 }
