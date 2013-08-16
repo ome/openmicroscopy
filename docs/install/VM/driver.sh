@@ -1,11 +1,10 @@
 #!/bin/bash
 
 set -e -u -x
+
+source omero_guest_settings.sh
+
 bash setup_environment.sh
-
-
-OMERO_PATH="/home/omero/OMERO.server"
-OMERO_BIN=$OMERO_PATH/bin
 
 bash install_deps.sh
 bash setup_postgres.sh

@@ -5,17 +5,11 @@ export VMNAME=${VMNAME:-"omerovm"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
-export OMERO_PORT=${OMERO_PORT:-"4063"}
-export OMERO_PF=${OMERO_PF:-"4063"}
-export OMEROS_PORT=${OMEROS_PORT:-"4064"}
-export OMEROS_PF=${OMEROS_PF:-"4064"}
-export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 
+export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"omero-base-img_2011-08-08.vdi"}
 
-set -e
-set -u
-set -x
+set -e -u -x
 
 VBOX="VBoxManage --nologo"
 OS=`uname -s`
@@ -49,6 +43,7 @@ function installvm ()
             driver.sh \
             cleanup.sh \
             install_deps.sh \
+            omero_guest_settings.sh \
             setup_environment.sh \
             setup_nginx.sh \
             setup_postgres.sh \

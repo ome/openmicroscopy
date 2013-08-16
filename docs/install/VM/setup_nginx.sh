@@ -3,7 +3,7 @@
 set -e -u -x
 
 NGINX_CONF=/etc/nginx/sites-available/omero-web
-~omero/OMERO.server/bin/omero web config nginx --system --http 8080 > nginx.tmp
+$OMERO_PREFIX/bin/omero web config nginx --system --http "$OMERO_WEB_PORT" > nginx.tmp
 sudo cp nginx.tmp ${NGINX_CONF}
 rm nginx.tmp
 
