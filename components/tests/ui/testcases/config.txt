@@ -1,0 +1,12 @@
+*** Variables ***
+${SERVER}         localhost
+${username}       root
+${password}       omero
+
+# Web config
+${PORT}           8000
+${BROWSER}        Firefox
+${DELAY}          0
+${LOGIN URL}      http://${SERVER}:${PORT}/webclient/login/
+${WELCOME URL}    http://${SERVER}:${PORT}/webclient/
+${ERROR URL}      http://${SERVER}:${PORT}/webclient/login/

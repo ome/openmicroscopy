@@ -1,0 +1,112 @@
+*** Keywords ***
+
+# All these keywords should be identical in Web and Insight
+Click Thumbnail
+    [Arguments]    ${imageId}
+    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
+    Click Element    ${thumbId}
+
+Thumbnail Should Be Selected
+    [Arguments]    ${imageId}    ${expected}=${true}
+    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
+    Run Keyword If    ${expected}    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and contains(@class, 'ui-selected')]
+    ...    ELSE    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and not(contains(@class, 'ui-selected'))]
+
+Thumbnail Should Not Be Selected
+    [Arguments]    ${imageId}
+    Thumbnail Should Be Selected    ${imageId}    ${false}
+
+Tree Should Be Visible
+    Element Should Be Visible    dataTree
+
+Node Should Be Visible
+    [Arguments]    ${nodeText}
+    # Node identified by text value
+    Element Should Be Visible    xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+
+Node Popup Menu Item Should Be Enabled
+    [Arguments]    ${menuItem}    ${nodeText}=${None}
+    Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
+    Popup Menu Item Should Be Enabled    ${menuItem}    ${true}
+
+Node Popup Menu Item Should Be Disabled
+    [Arguments]    ${menuItem}    ${nodeText}=${None}
+    Run Keyword If    '${nodeText}'!='None'    Select And Expand Node    ${nodeText}
+    Popup Menu Item Should Be Enabled    ${menuItem}    ${false}
+
+Select And Expand Node
+    [Arguments]    ${nodeText}
+    # Node identified by text value - needs to be visible
+    Click Element    xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+
+Select And Expand Project
+    ${firstNodeId}    Select First Node By Type    project
+    [Return]    ${firstNodeId}
+
+Select And Expand Dataset
+    ${firstNodeId}    Select First Node By Type    dataset
+    [Return]    ${firstNodeId}
+
+Select And Expand Image
+    Select First Node With Children in Tree    dataset
+    # Need to wait for data to load
+    Wait Until Page Contains Element    css=#dataTree li[rel='image']
+    ${firstNodeId}    Select First Node By Type    image
+    [Return]    ${firstNodeId}
+
+Create Project
+    Create Container    project
+
+Create Dataset
+    Create Container    dataset
+
+
+# Keywords Below are not available for Insight
+
+Create Container
+    [Arguments]    ${dType}
+    Click Button    add${dType}Button
+    Element Should Be Visible    new-container-form
+    Input Text    name    testCreateContainerRobot
+    Click Button    OK
+    Set Selenium Speed    1
+    Wait Until Page Contains Element    css=h2.data_heading_id
+    Set Selenium Speed    ${DELAY}
+    ${newId}    Get Text    css=h2.data_heading_id>strong
+    Wait Until Page Contains Element    css=#${dType}-${newId}>a.jstree-clicked
+
+Key Down
+    [Arguments]    ${keyCode}    ${cssSelector}=body
+    Execute Javascript    var e = jQuery.Event("keydown");e.which = 40;$("${cssSelector}").trigger(e);
+
+Popup Menu Item Should Be Enabled
+    [Arguments]    ${menuItem}    ${enabled}
+    Open Context Menu    xpath=//a[contains(@class, 'tree-clicked')]
+    Element Should Be Visible    vakata-contextmenu
+    Run Keyword If    ${enabled}    Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
+    ...    ELSE    Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
+    Execute Javascript    $.vakata.context.hide()
+
+Select Experimenter in Tree
+    Select Node By Id    experimenter-0
+
+Select First Node By Type
+    [Arguments]    ${nodeType}
+    ${firstNodeId}    Get Element Attribute    css=#dataTree li[rel='${nodeType}']@id
+    Select Node By Id    ${firstNodeId}
+    [Return]    ${firstNodeId}
+
+Select First Node With Children in Tree
+    [Arguments]    ${nodeType}
+    ${firstNodeId}    Execute Javascript    return $("#dataTree li[rel='${nodeType}']").filter(function(){return parseInt($(this).find(".children_count").text()) > 0}).attr('id');
+    Select Node By Id    ${firstNodeId}
+
+Select Node By Id
+    [Arguments]    ${nodeId}
+    # Make sure node is visible (by clicking parent node)
+    Execute Javascript    if(!$("#${nodeId}").is(":visible")){$("${nodeId}").parent().parent().children("a").click()}
+    Click Element    css=#${nodeId}>a
+
+Create Button Should Be Enabled
+    [Arguments]    ${oType}    ${enabled}
+    Run Keyword If    ${enabled}    Element Should Be Enabled    add${oType}Button    ELSE    Element Should Be Disabled    add${oType}Button
