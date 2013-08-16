@@ -1,0 +1,69 @@
+*** Settings ***
+
+Documentation     A test suite with a single test for valid login.
+...
+...               This test has a workflow that is created using keywords in
+...               the imported resource file.
+Resource          ../../../../resources/omeroweb/resource.txt
+
+*** Keywords ***
+
+
+*** Variables ***
+
+${WEBADMIN URL}     http://${WEBSERVER}/webadmin/experimenters/
+
+*** Test Cases ***
+
+Login Page
+    [Documentation]     Tests elements on the login page
+    
+    Open Browser To Webadmin Login Page
+    Page Should Contain Image    xpath=//div[@id='login-logo']/img
+    Page Should Contain Element    id_server
+    Page Should Contain Checkbox    id_ssl
+    Page Should Contain Element   id_username
+    Page Should Contain Element   id_password
+    Page Should Contain Button    xpath=//input[@value='Login']
+    [Teardown]    Close Browser
+
+Valid Login
+    [Documentation]     Tests logging in as root
+    
+    Open Browser To Webadmin Login Page
+    Log In As Root
+    Page Should Be Open    ${WEBADMIN URL}    OMERO Users
+    Log Out
+    [Teardown]    Close Browser
+
+Valid Secure Login
+    [Documentation]     Tests secure logging in as root
+    
+    Open Browser To Webadmin Login Page
+    Log In Secure As Root
+    Page Should Be Open    ${WEBADMIN URL}    OMERO Users
+    Log Out
+    [Teardown]    Close Browser
+
+
+Error Login
+    [Documentation]     Tests error messages on logging in as root
+    
+    Open Browser To Webadmin Login Page
+    Log In As    foo    secret    ${OMERO SERVER}    ${OMERO PORT}
+    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
+    Page Should Contain    Error: Connection not available, please check your user name and password.
+    [Teardown]    Close Browser
+
+Validation Error Messages
+    [Documentation]     Tests login form validation messages on logging in as root
+    
+    Open Browser To Webadmin Login Page
+    Log In As    foo    ${EMPTY}    ${OMERO SERVER}    ${OMERO PORT}
+    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
+    Page Should Contain    This field is required.
+    Log In As    ${EMPTY}    secret    ${OMERO SERVER}    ${OMERO PORT}
+    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
+    Page Should Contain    This field is required.
+    [Teardown]    Close Browser
+
