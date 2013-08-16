@@ -11,6 +11,8 @@ export OMEROS_PORT=${OMEROS_PORT:-"4064"}
 export OMEROS_PF=${OMEROS_PF:-"4064"}
 export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
 
+export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS}
+
 set -e
 set -u
 set -x
@@ -53,10 +55,16 @@ function installvm ()
 	$SCP virtualbox-network-fix-init.d omero@localhost:~/
   $SCP virtualbox_fix.sh omero@localhost:~/
   $SCP nginx-control.sh omero@localhost:~/
+
+	if [ -n "$OMERO_POST_INSTALL_SCRIPTS" ];
+	then
+		$SCP $OMERO_POST_INSTALL_SCRIPTS omero@localhost:~/
+	fi
+
 	echo "ssh : exec driver.sh"
-	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; bash /home/omero/driver.sh"
+	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; bash /home/omero/driver.sh $OMERO_POST_INSTALL_SCRIPTS"
 	sleep 10
-	
+
 	echo "ALL DONE!"
 }
 
