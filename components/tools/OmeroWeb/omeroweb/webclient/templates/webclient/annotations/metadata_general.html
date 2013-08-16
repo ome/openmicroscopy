@@ -243,7 +243,7 @@
                     success: function(data) {
                         $("#add_tags_form").dialog( "close" );      // hide in case it was submitted via 'Enter'
                         // update the list of tags
-                        var $tag = $(data);
+                        var $tag = $(data.trim());
                         $("#tags_container").empty().append($tag).hide_if_empty();
                         $(".tooltip", $tag).tooltip_init();
                     }
