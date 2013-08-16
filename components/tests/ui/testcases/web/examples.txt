@@ -1,0 +1,47 @@
+*** Settings ***
+Documentation     Test creation of Projects and Datasets
+...
+...               This test does not require any setup other than
+...               a valid login. Creates Projects and Datasets
+Resource          ../config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+
+*** Variables ***
+${DELAY}          0
+${username}       will
+${password}       ome
+${experimenterName}       Will Moore
+
+*** Test Cases ***
+
+Test Keywords
+    User "${username}" logs in with password "${password}"
+    Tree Should Be Visible
+    Node Should Be Visible    ${experimenterName}
+    Node Should Be Visible    Orphaned images
+    Node Popup Menu Item Should Be Enabled    Project    ${experimenterName}
+    Node Popup Menu Item Should Be Enabled    Dataset    ${experimenterName}
+    Node Popup Menu Item Should Be Enabled    Screen    ${experimenterName}
+    Node Popup Menu Item Should Be Disabled    Delete    ${experimenterName}
+    Select And Expand Project
+    Node Popup Menu Item Should Be Disabled    Project
+    Node Popup Menu Item Should Be Enabled    Dataset
+    Node Popup Menu Item Should Be Disabled    Screen
+    Node Popup Menu Item Should Be Enabled    Delete
+    Select And Expand Dataset
+    Node Popup Menu Item Should Be Disabled    Project
+    Node Popup Menu Item Should Be Disabled    Dataset
+    Node Popup Menu Item Should Be Disabled    Screen
+    Node Popup Menu Item Should Be Enabled    Delete
+    ${imageId}    Select And Expand Image
+    Node Popup Menu Item Should Be Disabled    Project
+    Node Popup Menu Item Should Be Disabled    Dataset
+    Node Popup Menu Item Should Be Disabled    Screen
+    Node Popup Menu Item Should Be Enabled    Delete
+    Thumbnail Should Be Selected    ${imageId}
+    Key Down    40    # down key    # Press Key    dataTree    /40
+    Thumbnail Should Not Be Selected    ${imageId}
+    Click Thumbnail    ${imageId}
+    Thumbnail Should Be Selected    ${imageId}
+    [Teardown]    Close Browser
