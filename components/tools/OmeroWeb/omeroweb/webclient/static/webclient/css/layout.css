@@ -2566,3 +2566,8 @@ div.tag_selection div.owner-tagged span.alltags-take {
     background: hsl(210,8%,80%);
     color: gray;
 }
+
+/* placeholders in input boxes */
+.standard_form input[type=text].placeholder, .standard_form textarea.placeholder {
+  color: #aaa;
+}

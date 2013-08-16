@@ -404,6 +404,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             update_selected_labels();
         };
         var input = tag_input_filter.val();
+        if (input == tag_input_filter.attr('placeholder')) {
+            input = '';
+        }
         var filters = $.trim(input).toLowerCase().split(/ +/);
         var no_filter = filters.length == 1 && filters[0] === "";
         if (no_filter) {
@@ -435,8 +438,16 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var new_tag_counter = 0;
 
     var add_new_tag = function(event) {
-        var text = $.trim(tag_input.val());
-        var description = $.trim(description_input.val());
+        var text = tag_input.val();
+        if (text == tag_input.attr('placeholder')) {
+            text = '';
+        }
+        text = $.trim(text);
+        var description = description_input.val();
+        if (description == description_input.attr('placeholder')) {
+            description = '';
+        }
+        description = $.trim(description);
         var tagset = get_selected_tagset();
         if (text.length > 0) {
             new_tag_counter -= 1;
@@ -490,7 +501,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_add_new_button_state = function() {
-        if (tag_input.val() !== '') {
+        if (tag_input.val() !== '' && tag_input.val() != tag_input.attr('placeholder')) {
             $("#id_add_new_tag").removeAttr('disabled');
         } else {
             $("#id_add_new_tag").attr('disabled','disabled');
@@ -509,4 +520,27 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
     //load_tags();
     loader();
+
+    // placeholder fixes - should probably be in a more generic place
+    console.log($('[placeholder]'));
+    $('[placeholder]').focus(function() {
+        var input = $(this);
+        if (input.val() == input.attr('placeholder')) {
+            input.val('');
+            input.removeClass('placeholder');
+        }
+      }).blur(function() {
+        var input = $(this);
+        if (input.val() == '' || input.val() == input.attr('placeholder')) {
+            input.addClass('placeholder');
+            input.val(input.attr('placeholder'));
+        }
+      }).blur().parents('form').submit(function() {
+        $(this).find('[placeholder]').each(function() {
+            var input = $(this);
+            if (input.val() == input.attr('placeholder')) {
+                input.val('');
+            }
+        })
+    });
 };
