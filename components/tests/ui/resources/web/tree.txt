@@ -69,6 +69,13 @@ Create Project
 Create Dataset
     Create Container    dataset
 
+Create Button Should Be Enabled
+    [Arguments]    ${oType}
+    Element Should Be Enabled    add${oType}Button
+
+Create Button Should Be Disabled
+    [Arguments]    ${oType}
+    Element Should Be Disabled    add${oType}Button
 
 # Keywords Below are not available for Insight
 
@@ -96,7 +103,7 @@ Popup Menu Item Should Be Enabled
     ...    ELSE    Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
     Execute Javascript    $.vakata.context.hide()
 
-Select Experimenter in Tree
+Select Experimenter
     Select Node By Id    experimenter-0
 
 Select First Node By Type
@@ -115,7 +122,3 @@ Select Node By Id
     # Make sure node is visible (by clicking parent node)
     Execute Javascript    if(!$("#${nodeId}").is(":visible")){$("${nodeId}").parent().parent().children("a").click()}
     Click Element    css=#${nodeId}>a
-
-Create Button Should Be Enabled
-    [Arguments]    ${oType}    ${enabled}
-    Run Keyword If    ${enabled}    Element Should Be Enabled    add${oType}Button    ELSE    Element Should Be Disabled    add${oType}Button
