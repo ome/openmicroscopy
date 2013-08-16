@@ -60,15 +60,16 @@ public class IconCheckLibrary
     private static final TreeSupport TREE_SUPPORT = new TreeSupport();
 
     /**
-     * @param iconBearer
-     * @return
+     * Get the icon name from the component's icon property's <code>ImageIcon</code> instance value.
+     * @param iconBearer the component that has an icon
+     * @return the name of the icon
      * @throws NoSuchMethodException if a <code>getIcon()</code> method is not available for calling
      * @throws InvocationTargetException if the <code>getIcon()</code> method threw an exception
      * @throws IllegalAccessException if a <code>getIcon()</code> method is not available for calling
      * @throws SecurityException if a <code>getIcon()</code> method is not available for calling
      * @throws IllegalArgumentException if a <code>getIcon()</code> method is not available for calling
      */
-    private String getIconName(Component iconBearer)
+    private static String getIconName(Component iconBearer)
             throws IllegalArgumentException, SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException
     {
         final Object icon = iconBearer.getClass().getMethod("getIcon").invoke(iconBearer);
@@ -78,6 +79,23 @@ public class IconCheckLibrary
         final String iconName = ((ImageIcon) icon).getDescription();
         final int lastSlash = iconName.lastIndexOf('/');
         return lastSlash < 0 ? iconName : iconName.substring(lastSlash + 1);
+    }
+
+    /**
+     * Get the icon name from the component's icon property's <code>ImageIcon</code> instance value.
+     * @param component iconBearer the component that has an icon
+     * @return the name of the icon, or <code>null</code> if it cannot be determined
+     */
+    static String getIconNameMaybe(Component component) {
+        final Class<? extends Component> componentClass = component.getClass();
+        for (final Class<? extends JComponent> iconBearerClass : ICON_BEARER_CLASSES) {
+            if (iconBearerClass.isAssignableFrom(componentClass)) {
+                try {
+                    return getIconName(component);
+                } catch (Exception e) { }
+            }
+        }
+        return null;
     }
 
     /**

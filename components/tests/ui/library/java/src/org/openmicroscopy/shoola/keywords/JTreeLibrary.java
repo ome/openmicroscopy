@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
@@ -44,6 +45,7 @@ import org.robotframework.swing.common.TimeoutCopier;
 import org.robotframework.swing.common.TimeoutName;
 import org.robotframework.swing.tree.NodeTextExtractor;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 
 /**
@@ -57,6 +59,41 @@ public class JTreeLibrary
     public static final String ROBOT_LIBRARY_SCOPE = "GLOBAL";
 
     /**
+     * Gets tree paths in a form suitable for SwingLibrary.
+     * @author m.t.b.carroll@dundee.ac.uk
+     * @since 4.4.9
+     */
+    private static class TreePathGetter {
+        private final NodeTextExtractor treeNodeTextExtractor;
+
+        /**
+         * Construct a tree path getter for the given tree.
+         * @param tree a tree
+         */
+        TreePathGetter(JTree tree) {
+            this.treeNodeTextExtractor = new NodeTextExtractor(tree);
+        }
+
+        /**
+         * Get the tree node path in a form suitable for SwingLibrary.
+         * @param path the Swing tree node path
+         * @return the specifier for the path
+         */
+        public String getTreeNodePath(TreePath path) {
+            final int pathLength = path.getPathCount();
+            final List<String> pathText = new ArrayList<String>(pathLength);
+            for (int nodeIndex = 0; nodeIndex < pathLength; nodeIndex++) {
+                final Object node = path.getPathComponent(nodeIndex);
+                final String nodeText = this.treeNodeTextExtractor.getText(node, path);
+                if (!Strings.isNullOrEmpty(nodeText)) {
+                    pathText.add(nodeText);
+                }
+            }
+            return Joiner.on('|').join(pathText);
+        }
+    }
+
+    /**
      * Wraps the <code>Get Matching Tree Path</code> keyword for Robot Framework
      * in a Jemmy {@link org.robotframework.org.netbeans.jemmy.Waiter}.
      * @author m.t.b.carroll@dundee.ac.uk
@@ -64,8 +101,8 @@ public class JTreeLibrary
      */
     private static class GetMatchingTreePathWaiter implements Waitable {
         private final JTree tree;
-        private final NodeTextExtractor treeNodeTextExtractor;
         private final Pattern pattern;
+        private final TreePathGetter treePathGetter;
 
         /**
          * Construct a new waiter with the <code>Get Matching Tree Path</code> arguments.
@@ -75,8 +112,8 @@ public class JTreeLibrary
          */
         GetMatchingTreePathWaiter(JTree tree, Pattern pattern) {
             this.tree = tree;
-            this.treeNodeTextExtractor = new NodeTextExtractor(this.tree);
             this.pattern = pattern;
+            this.treePathGetter = new TreePathGetter(tree);
         }
 
         /**
@@ -97,24 +134,10 @@ public class JTreeLibrary
                 final Iterator<List<Object>> treePathIterator = treePaths.iterator();
                 final List<Object> nextTreePath = treePathIterator.next();
                 treePathIterator.remove();
-                final StringBuffer treePathText = new StringBuffer();
-                /* work through the tree path's nodes to establish the path as a String */
-                for (int nodeIndex = 1; nodeIndex <= nextTreePath.size(); nodeIndex++) {
-                    final TreePath treePathInstance = new TreePath(nextTreePath.subList(0, nodeIndex).toArray());
-                    final Object lastNode = treePathInstance.getLastPathComponent();
-                    final String nodeText = this.treeNodeTextExtractor.getText(lastNode, treePathInstance);
-                    if (!Strings.isNullOrEmpty(nodeText)) {
-                        treePathText.append(nodeText);
-                        treePathText.append('|');
-                    }
-                }
                 /* check if the tree path string matches the regular expression */
-                if (treePathText.length() > 0) {
-                    treePathText.setLength(treePathText.length() - 1);
-                    final String treePathString = treePathText.toString();
-                    if (this.pattern.matcher(treePathString).matches()) {
-                        return treePathString;
-                    }
+                final String treePathString = this.treePathGetter.getTreeNodePath(new TreePath(nextTreePath.toArray()));
+                if (this.pattern.matcher(treePathString).matches()) {
+                    return treePathString;
                 }
                 /* if not, then note to check the path's children */
                 final Object nextNode = nextTreePath.get(nextTreePath.size() - 1);
@@ -151,6 +174,8 @@ public class JTreeLibrary
      *   <td>regular expression</td>
      *   <td><code>JTree</code> component name</td>
      * <table>
+     * @param regExp a regular expression against which to match whole paths, cf. {@link java.util.regex.Pattern}
+     * @param treeName the name of the tree whose paths are to be searched
      * @return a tree path from the tree that matches the regular expression
      * @throws InterruptedException if the matcher was interrupted while waiting for a suitable tree path
      * @throws MultipleComponentsFoundException if multiple suitable components have the given name
@@ -166,5 +191,58 @@ public class JTreeLibrary
         waiter.setTimeouts(new TimeoutCopier(new JTreeOperator(tree),
                 TimeoutName.J_TREE_OPERATOR_WAIT_NODE_VISIBLE_TIMEOUT).getTimeouts());
         return (String) waiter.waitAction(null);
+    }
+
+    /**
+     * <table>
+     *   <td>Get Selected Tree Path</td>
+     *   <td><code>JTree</code> component name</td>
+     * <table>
+     * @param treeName the name of the tree whose node selection is queried
+     * @return a tree path from the tree that is the first selected node, or <code>null</code> if none are selected
+     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
+     * @throws ComponentNotFoundException if no suitable components have the given name
+     */
+    public String getSelectedTreePath(final String treeName)
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
+            public boolean matches(Component component) {
+                return component instanceof JTree && treeName.equals(component.getName());
+            }});
+        final TreePath path = tree.getSelectionPath();
+        return path == null ? null : new TreePathGetter(tree).getTreeNodePath(path);
+    }
+
+    /**
+     * <table>
+     *   <td>Get Tree Path With Image Icon</td>
+     *   <td>the name of the sought path's icon</td>
+     *   <td><code>JTree</code> component name</td>
+     * <table>
+     * @param iconName the name of the icon sought among the tree nodes
+     * @param treeName the name of the tree among whose nodes to search
+     * @return a tree path from the tree whose node bears the given icon
+     * @throws MultipleComponentsFoundException if multiple suitable components have the given name
+     * @throws ComponentNotFoundException if no suitable components have the given name
+     */
+    public String getTreePathWithImageIcon(final String iconName, final String treeName)
+        throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
+            public boolean matches(Component component) {
+                return component instanceof JTree && treeName.equals(component.getName());
+            }});
+        final TreeCellRenderer renderer = tree.getCellRenderer();
+        final int rowCount = tree.getRowCount();
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            final TreePath path = tree.getPathForRow(rowIndex);
+            if (path != null) {
+                final Component rowComponent = renderer.getTreeCellRendererComponent(tree, path.getLastPathComponent(),
+                        false, false, false, tree.getRowForPath(path), false);
+                if (iconName.equals(IconCheckLibrary.getIconNameMaybe(rowComponent))) {
+                    return new TreePathGetter(tree).getTreeNodePath(tree.getPathForRow(rowIndex));
+                }
+            }
+        }
+        throw new RuntimeException("no such ImageIcon is visible");
     }
 }
