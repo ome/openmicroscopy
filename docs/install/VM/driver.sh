@@ -6,7 +6,6 @@ source omero_guest_settings.sh
 
 bash setup_environment.sh
 
-bash install_deps.sh
 bash setup_postgres.sh
 bash setup_omero.sh
 bash setup_omero_daemon.sh

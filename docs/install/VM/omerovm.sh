@@ -7,7 +7,8 @@ export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
 
 export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
-export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"omero-base-img_2011-08-08.vdi"}
+export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase1.vdi"}
+export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS:-""}
 
 set -e -u -x
 
@@ -42,7 +43,6 @@ function installvm ()
         $SCP \
             driver.sh \
             cleanup.sh \
-            install_deps.sh \
             omero_guest_settings.sh \
             setup_environment.sh \
             setup_nginx.sh \
