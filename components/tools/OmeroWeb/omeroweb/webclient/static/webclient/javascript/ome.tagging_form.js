@@ -471,6 +471,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         update_filter();
         // scroll to first selected tag
         div_selected_tags.parent().scrollTop($("div.ui-selected", div_selected_tags).offset().top - div_selected_tags.offset().top - 40);
+        update_add_new_button_state();
         event.preventDefault();
     };
 
