@@ -16,7 +16,7 @@ by overriding the `BROWSER` variable as illustrated above. Similarly it is
 possible to slow down the test execution by overriding the `DELAY` variable
 with a non-zero value.
 
-Running the demo requires that Robot Framework, Selenium2Library, Python, and
+Running the tests requires that Robot Framework, Selenium2Library, Python, and
 Java to be installed.
 """
 
@@ -33,10 +33,9 @@ except ImportError, e:
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-DEMOAPP = os.path.join(ROOT, 'demoapp', 'server.py')
 
 
-def run_tests(args):
+def run_web_tests(args):
     call(['pybot'] + args, shell=(os.sep == '\\'))
 
 def print_help():
@@ -53,4 +52,4 @@ if __name__ == '__main__':
     if action:
         action()
     else:
-        run_tests(sys.argv[1:])
+        run_web_tests(sys.argv[1:])
