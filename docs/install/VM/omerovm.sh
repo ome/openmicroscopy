@@ -37,8 +37,8 @@ function installvm ()
 	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
 	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
 
-	echo "Copying scripts to VM"
-	$SSH omero@localhost "mkdir install"
+        echo "Copying scripts to VM"
+        $SSH omero@localhost "mkdir install"
         $SCP \
             driver.sh \
             cleanup.sh \
@@ -53,11 +53,16 @@ function installvm ()
             omero-web-init.d \
             omero@localhost:install
 
-	echo "ssh : exec driver.sh"
-	$SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; cd install; bash driver.sh"
-	sleep 10
-	
-	echo "ALL DONE!"
+        if [ -n "$OMERO_POST_INSTALL_SCRIPTS" ]; then
+            $SSH omero@localhost "mkdir install/post"
+            $SCP $OMERO_POST_INSTALL_SCRIPTS omero@localhost:install/post
+        fi
+
+        echo "ssh : exec driver.sh"
+        $SSH omero@localhost "export OMERO_JOB=$OMERO_JOB; cd install; bash driver.sh"
+        sleep 10
+
+        echo "ALL DONE!"
 }
 
 function failfast ()
