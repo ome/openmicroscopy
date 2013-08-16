@@ -20,11 +20,73 @@
         keywords.
     </description>
 
+    <macrodef name="run_py">
+        <attribute name="failonerror" default="true"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="python" failonerror="@{failonerror}">
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- reports for the web tests. -->
+    <property name="reports.web" value="${basedir}/target/reports/web"/>
+
+    <!-- reports for the insight tests. -->
+    <property name="reports.insight" value="${basedir}/target/reports/insight"/>
+
+
     <property name="main.class" value="NONE"/>
 
-    <property name="import.dir"       value="${basedir}/../../antlib/resources"/>
+    <property name="import.dir" value="${basedir}/../../antlib/resources"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
+    <!--  run the web and insight tests -->
+    <target name="ui-test-all" unless="env.NOPYTHON" depends="clean">
+        <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
+        <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+    <target name="ui-test-insight">
+        <mkdir dir="${reports.insight}" />
+    </target>
+
+    <!--  run the web tests -->
+    <target name="ui-test-web">
+        <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+   <!-- test with firefox -->
+    <target name="web-firefox">
+        <mkdir dir="${reports.web}/firefox" />
+        <run_py>
+            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <arg file="${basedir}/run.py"/>
+            <arg value="--outputdir"/>
+            <arg value="${reports.web}/firefox"/>
+            <arg value="${basedir}/testcases/web/"/>
+        </run_py>
+    </target>
+
+    <!-- test with chrome This requires chrome driver-->
+    <target name="web-chrome"> 
+        <mkdir dir="${reports.web}/chrome" />
+        <run_py>
+            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <arg file="${basedir}/run.py"/>
+            <arg value="--variable"/>
+            <arg value="browser:chrome"/>
+            <arg value="--outputdir"/>
+            <arg value="${reports.web}/chrome"/>
+            <arg value="${basedir}/testcases/web/"/>
+        </run_py>
+    </target>
+   <!-- delete the reports directory -->
+    <target name="tests-clean" depends="clean">
+    <delete dir="${basedir}/target"/>
+    </target>
 </project>
