@@ -42,6 +42,8 @@ Test Keywords
     Thumbnail Should Be Selected    ${imageId}
     Key Down    40    # down key    # Press Key    dataTree    /40
     Thumbnail Should Not Be Selected    ${imageId}
+    Node Should Not Be Selected    ${imageId}
     Click Thumbnail    ${imageId}
     Thumbnail Should Be Selected    ${imageId}
+    Node Should Be Selected    ${imageId}
     [Teardown]    Close Browser
