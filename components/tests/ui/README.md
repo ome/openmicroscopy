@@ -32,7 +32,7 @@ To actually run a test script,
 
 export OMERO_CHECKOUT=~/src/openmicroscopy
 cd "$OMERO_CHECKOUT"/components/insight/OUT/app/
-CLASSPATH=compiled/:libs/'*':"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/ui-scripts-4.4.8-DEV-ice33.jar jybot "$OMERO_CHECKOUT"/components/ui-scripts/resources/scripts/insight/experiments/test-11210.rest
+CLASSPATH=compiled/:libs/'*':"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/ui-scripts-4.4.8-DEV-ice33.jar jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/experiments/test-11210.rest
 
 This horror will be addressed in due course.
 
