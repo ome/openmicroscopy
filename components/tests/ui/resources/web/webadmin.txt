@@ -19,6 +19,9 @@ ${WEBADMIN LOGIN URL}        http://${WEBSERVER}/webclient/login/?url=%2Fwebadmi
 ${WEBCLIENT MAIN URL}         http://${WEBSERVER}/webclient/
 ${WEBCLIENT LOGIN URL}        http://${WEBSERVER}/webclient/login/?url=%2Fwebclient%2F
 
+${WEBADMIN URL}     http://${WEBSERVER}/webadmin/experimenters/
+
+
 ${ROOT USERNAME}    root
 ${ROOT PASSWORD}    omero
 ${OMERO SERVER}     localhost
