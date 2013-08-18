@@ -41,6 +41,8 @@
 
     <property name="import.dir" value="${basedir}/../../antlib/resources"/>
 
+    <property name="target.dir" value="${basedir}/../../../target/repository"/>
+
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
@@ -52,6 +54,16 @@
 
     <target name="ui-test-insight">
         <mkdir dir="${reports.insight}" />
+        <run_py>
+            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <env key="CLASSPATH" path="${lib.dir}/repository/*:${target.dir}/*"/>
+            <arg file="${basedir}/run.py"/>
+            <arg value="-t"/>
+            <arg value="insight"/>
+            <arg value="--outputdir"/>
+            <arg value="${reports.insight}"/>
+            <arg value="${basedir}/testcases/insight/"/>
+        </run_py>
     </target>
 
     <!--  run the web tests -->
@@ -66,21 +78,25 @@
         <run_py>
             <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
             <arg file="${basedir}/run.py"/>
-            <arg value="--outputdir"/>
+            <arg value="-t"/>
+            <arg value="web"/>
+            <arg value="-d"/>
             <arg value="${reports.web}/firefox"/>
             <arg value="${basedir}/testcases/web/"/>
         </run_py>
     </target>
 
-    <!-- test with chrome This requires chrome driver-->
+    <!-- test with chrome This requires the chrome driver-->
     <target name="web-chrome"> 
         <mkdir dir="${reports.web}/chrome" />
         <run_py>
             <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
             <arg file="${basedir}/run.py"/>
-            <arg value="--variable"/>
+            <arg value="-t"/>
+            <arg value="web"/>
+            <arg value="-v"/>
             <arg value="browser:chrome"/>
-            <arg value="--outputdir"/>
+            <arg value="-o"/>
             <arg value="${reports.web}/chrome"/>
             <arg value="${basedir}/testcases/web/"/>
         </run_py>
