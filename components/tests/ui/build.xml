@@ -46,12 +46,16 @@
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
+   <!-- compile the unit tests under library/java/test -->
+    <target name="test-compile" description=""/>
+
     <!--  run the web and insight tests -->
     <target name="ui-test-all" unless="env.NOPYTHON" depends="clean">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
         <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
     </target>
 
+    <!--  run the insight tests -->
     <target name="ui-test-insight">
         <mkdir dir="${reports.insight}" />
         <run_py>
@@ -86,7 +90,7 @@
         </run_py>
     </target>
 
-    <!-- test with chrome This requires the chrome driver-->
+    <!-- test with chrome This requires the chrome driver to be installed-->
     <target name="web-chrome"> 
         <mkdir dir="${reports.web}/chrome" />
         <run_py>
