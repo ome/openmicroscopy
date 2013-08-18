@@ -124,6 +124,11 @@
 	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
 	<property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
 
+    <!-- Tests -->
+	<property name="tests.dest"    value="${components.dir}/tests/target"/>
+	<property name="tests.jars"    value="${components.dir}/tests/target/jars"/>
+	<property name="tests.classes" value="${components.dir}/tests/target/service-classes"/>
+
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>
 	<property name="classes.rel"   value="${target.rel}/classes"/>
