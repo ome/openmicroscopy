@@ -82,7 +82,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         </then></if>
         <installIvy/>
         <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**"/>
+            <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/tools/**, **/tests/**"/>
         </ivy:buildlist>
         <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/blitz/" includes="build.xml"/>
@@ -177,6 +177,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <iterate buildpathref="tests.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -185,6 +186,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all.buildpath" target="dist"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <iterate buildpathref="tests.buildpath" target="build"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -316,12 +318,13 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml"/>
+        <attribute name="excludes" default="**/tools/build.xml,**/tests/build.xml"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
             <fileset dir="${omero.home}/components" includes="*/build.xml" excludes="**/insight/*/**/*.xml,@{excludes}"/>
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
+            <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
@@ -507,6 +510,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
     <target name="release-headers" description="Generates headers.xml for all components" depends="init">
        <iterate buildpathref="all.buildpath"   target="headers"/>
        <iterate buildpathref="tools.buildpath" target="headers"/>
+       <iterate buildpathref="tests.buildpath" target="headers"/>
        <taskdef resource="checkstyletask.properties" classpathref="omero.classpath"/>
         <checkstyle config="${omero.home}/docs/styles/checkstyle-header.xml" failOnViolation="true">
             <fileset dir="${basedir}" includes="*,docs/**/*,etc/**/*,sql/**/*"/>
