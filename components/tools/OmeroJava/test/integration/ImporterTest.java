@@ -570,7 +570,7 @@ public class ImporterTest
 				xml.getPositionX().doubleValue());
 		assertEquals(ws.getPosY().getValue(), 
 				xml.getPositionY().doubleValue());
-		Timestamp ts = new Timestamp(xml.getTimepoint().asDate().getTime());
+		Timestamp ts = new Timestamp(xml.getTimepoint().asInstant().getMillis());
 		assertEquals(ws.getTimepoint().getValue(), ts.getTime());
 	}
 
@@ -586,11 +586,11 @@ public class ImporterTest
 		assertEquals(pa.getName().getValue(), xml.getName());
 		assertEquals(pa.getDescription().getValue(), 
 				xml.getDescription());
-		Timestamp ts = new Timestamp(xml.getEndTime().asDate().getTime());
+		Timestamp ts = new Timestamp(xml.getEndTime().asInstant().getMillis());
 		assertNotNull(ts);
 		assertNotNull(pa.getEndTime());
 		assertEquals(pa.getEndTime().getValue(), ts.getTime());
-		ts = new Timestamp(xml.getStartTime().asDate().getTime());
+		ts = new Timestamp(xml.getStartTime().asInstant().getMillis());
 		assertNotNull(ts);
 		assertNotNull(pa.getStartTime());
 		assertEquals(pa.getStartTime().getValue(), ts.getTime());

@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.text.SimpleDateFormat;
 
 import loci.formats.meta.DummyMetadata;
 import loci.formats.meta.MetadataRetrieve;
@@ -86,6 +85,8 @@ import omero.model.Pixels;
 import omero.model.PlaneInfo;
 import omero.util.IceMapper;
 
+import org.joda.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,10 +101,6 @@ import org.slf4j.LoggerFactory;
 public class OmeroMetadata extends DummyMetadata {
 
     private final static Logger log = LoggerFactory.getLogger(OmeroMetadata.class);
-
-    /** The base format string for xsd:dateTime. */
-    private SimpleDateFormat xsdDateTimeFormat =
-            new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 
     // -- State --
 
@@ -423,8 +420,7 @@ public class OmeroMetadata extends DummyMetadata {
     public Timestamp getImageAcquisitionDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new Timestamp(new java.util.Date(
-                o.getAcquisitionDate().getValue())) : null;
+        return o != null? new Timestamp(new Instant(o.getAcquisitionDate().getValue())) : null;
     }
 
     @Override
@@ -1144,8 +1140,7 @@ public class OmeroMetadata extends DummyMetadata {
     {
         TimestampAnnotation o = getAnnotation(
                 TimestampAnnotation.class, timestampAnnotationIndex);
-        return o != null? new Timestamp(
-                new java.sql.Date(o.getTimeValue().getValue())) : null;
+        return o != null? new Timestamp(new Instant(o.getTimeValue().getValue())) : null;
     }
 
     @Override
