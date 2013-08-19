@@ -60,7 +60,7 @@
         <mkdir dir="${reports.insight}" />
         <run_py>
             <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <env key="CLASSPATH" path="${lib.dir}/repository/*:${target.dir}/*"/>
+            <env key="CLASSPATH" path="${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar:${target.dir}/*"/>
             <arg file="${basedir}/run.py"/>
             <arg value="-t"/>
             <arg value="insight"/>
@@ -105,8 +105,18 @@
             <arg value="${basedir}/testcases/web/"/>
         </run_py>
     </target>
-   <!-- delete the reports directory -->
+
+
+    <target name="compile" depends="lifecycle.compile"/>
+
+    <target name="tests-init"/>
+
+    <target name="tests-build" depends="tests-init,install" description="Creates all artifacts for tests/target"/>
+
+    <target name="tests-dist" depends="tests-build" description="Copy artifacts to tests/target"/>
+
+    <!-- delete the reports directory -->
     <target name="tests-clean" depends="clean">
-    <delete dir="${basedir}/target"/>
+    <delete dir="${tests.dest}"/>
     </target>
 </project>
