@@ -24,7 +24,5 @@
 	</target>
 
 	<target name="dist" description="Copies target onto an existing dist">
-		<mkdir dir="${tests.classes}/META-INF"/>
-		<mkdir dir="target/lib/server"/>
 	</target>
 </project>
