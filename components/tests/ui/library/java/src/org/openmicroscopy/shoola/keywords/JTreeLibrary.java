@@ -232,24 +232,46 @@ public class JTreeLibrary
      * @throws ComponentNotFoundException if no suitable components have the given name
      */
     public String getTreePathWithImageIcon(final String iconName, final String treeName)
-        throws ComponentNotFoundException, MultipleComponentsFoundException {
+            throws ComponentNotFoundException, MultipleComponentsFoundException {
+        final Set<TreePath> wrongIconPaths = new HashSet<TreePath>();
+        final Set<TreePath> pathsToExpand = new HashSet<TreePath>();
         final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
                 return component instanceof JTree && treeName.equals(component.getName());
             }});
+        final TreeModel model = tree.getModel();
         final TreeCellRenderer renderer = tree.getCellRenderer();
-        final int rowCount = tree.getRowCount();
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-            final TreePath path = tree.getPathForRow(rowIndex);
-            if (path != null) {
-                final Component rowComponent = renderer.getTreeCellRendererComponent(tree, path.getLastPathComponent(),
-                        false, false, false, tree.getRowForPath(path), false);
-                if (iconName.equals(IconCheckLibrary.getIconNameMaybe(rowComponent))) {
-                    return new TreePathGetter(tree).getTreeNodePath(tree.getPathForRow(rowIndex));
+        while (true) {
+            final int rowCount = tree.getRowCount();
+            for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                final TreePath path = tree.getPathForRow(rowIndex);
+                if (path == null || wrongIconPaths.contains(path)) {
+                    continue;
                 }
+                final Object node = path.getLastPathComponent();
+                final Component rowComponent =
+                        renderer.getTreeCellRendererComponent(tree, node, false, false, false, rowIndex, false);
+                if (iconName.equals(IconCheckLibrary.getIconNameMaybe(rowComponent))) {
+                    tree.setSelectionRow(rowIndex);
+                    return new TreePathGetter(tree).getTreeNodePath(path);
+                }
+                if (!(pathsToExpand.contains(path) || model.isLeaf(path.getLastPathComponent()) || tree.isExpanded(rowIndex))) {
+                    pathsToExpand.add(path);
+                }
+                wrongIconPaths.add(path);
+            }
+            final Iterator<TreePath> pathIterator = pathsToExpand.iterator();
+            if (pathIterator.hasNext()) {
+                tree.expandPath(pathIterator.next());
+                pathIterator.remove();
+                try {
+                    /* TODO: perhaps some specific component state can be awaited */
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) { }
+            } else {
+                throw new RuntimeException("no tree paths with ImageIcon " + iconName);
             }
         }
-        throw new RuntimeException("no such ImageIcon is visible");
     }
 
     /**
