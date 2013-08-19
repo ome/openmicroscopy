@@ -78,32 +78,26 @@
 
    <!-- test with firefox -->
     <target name="web-firefox">
-        <mkdir dir="${reports.web}/firefox" />
-        <run_py>
-            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${basedir}/run.py"/>
-            <arg value="-t"/>
-            <arg value="web"/>
+        <mkdir dir="${reports.web}/firefox"/>
+        <exec executable="pybot" failonerror="false">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
             <arg value="-d"/>
             <arg value="${reports.web}/firefox"/>
             <arg value="${basedir}/testcases/web/"/>
-        </run_py>
+        </exec>
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed-->
     <target name="web-chrome"> 
-        <mkdir dir="${reports.web}/chrome" />
-        <run_py>
-            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${basedir}/run.py"/>
-            <arg value="-t"/>
-            <arg value="web"/>
+        <mkdir dir="${reports.web}/chrome"/>
+        <exec executable="pybot" failonerror="false">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+            <arg value="-d"/>
+            <arg value="${reports.web}/chrome"/>
             <arg value="-v"/>
             <arg value="browser:chrome"/>
-            <arg value="-o"/>
-            <arg value="${reports.web}/chrome"/>
             <arg value="${basedir}/testcases/web/"/>
-        </run_py>
+        </exec>
     </target>
 
     <!-- point the build file used to generate the ui libraries -->
