@@ -1,0 +1,35 @@
+*** Settings ***
+Documentation     Test creation of Projects and Datasets
+...
+...               This test does not require any setup other than
+...               a valid login. Creates Projects and Datasets
+Resource          ../config.txt
+Resource          ../../resources/web/login.txt
+Resource          ../../resources/web/tree.txt
+Resource          ../../resources/web/thumbs.txt
+
+# Library           Screenshot
+Library           ImageCheckLibrary
+
+
+*** Variables ***
+${DELAY}          0
+${username}       will
+${password}       ome
+${experimenterName}       Will Moore
+
+*** Test Cases ***
+
+Test Keywords
+    User "${username}" logs in with password "${password}"
+
+    ${imageId}    Select And Expand Image
+
+    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
+
+    Capture Image Element    //li[@id='${thumbId}']//img    image_check_test.jpg
+
+    Image Should Be Blank    image_check_test.jpg
+
+
+    [Teardown]    Close Browser
