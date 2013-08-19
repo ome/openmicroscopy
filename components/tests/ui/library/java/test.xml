@@ -1,13 +1,13 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="ui-libraries"
+      module="java-ui-libraries"
       status="integration"/>
   <configurations>
     <conf name="test"/>
   </configurations>
   <publications>
-    <artifact name="ui-libraries-test" type="jar"/>
+    <artifact name="java-ui-libraries-test" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
