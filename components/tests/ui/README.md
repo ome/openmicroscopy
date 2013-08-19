@@ -31,10 +31,15 @@ sed: when the script runs correctly, no errors should be glimpsed.
 To actually run a test script,
 
 export OMERO_CHECKOUT=~/src/openmicroscopy
-cd "$OMERO_CHECKOUT"/components/insight/OUT/app/
-CLASSPATH=compiled/:libs/'*':"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/ui-scripts-4.4.8-DEV-ice33.jar jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/experiments/test-11210.rest
+CLASSPATH=c"$OMERO_CHECKOUT"/lib/repository/*:"$OMERO_CHECKOUT"/target/repository/* jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/experiments/test-11210.rest
 
-This horror will be addressed in due course.
+
+To run all the tests, from the top level
+
+./build.py -f components/tests/ui/build.xml ui-test-insight
+
+The output of the tests can be found under 
+components/tests/ui/target/insight.
 
 
 OMERO.web
