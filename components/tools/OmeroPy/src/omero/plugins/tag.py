@@ -398,7 +398,7 @@ class TagControl(BaseControl):
         """
         create a tag command.
         """
-        tag = create_tag(args.name, args.desc)
+        tag = self.create_tag(args.name, args.desc)
 
         client = self.ctx.conn(args)
         session = client.getSession()
