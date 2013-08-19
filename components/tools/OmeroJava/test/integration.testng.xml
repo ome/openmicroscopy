@@ -8,7 +8,6 @@
       </run>
     </groups>
     <packages>
-      <package name="coverage.*"/>
       <package name="integration.*"/>
       <package name="unit.*"/>
     </packages>
@@ -20,7 +19,6 @@
       </run>
     </groups>
     <packages>
-      <package name="coverage.*"/>
       <package name="integration.*"/>
       <package name="unit.*"/>
     </packages>
