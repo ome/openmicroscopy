@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -33,11 +33,7 @@ import omero.grid.Column;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
-import omero.model.BooleanAnnotation;
-import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetAnnotationLink;
 import omero.model.DatasetAnnotationLinkI;
@@ -64,8 +60,6 @@ import omero.model.LightPath;
 import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
-import omero.model.LongAnnotation;
-import omero.model.LongAnnotationI;
 import omero.model.Microscope;
 import omero.model.OTF;
 import omero.model.Objective;
@@ -77,8 +71,6 @@ import omero.model.PixelsOriginalFileMapI;
 import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
-import omero.model.PlateAcquisitionAnnotationLink;
-import omero.model.PlateAcquisitionAnnotationLinkI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
@@ -110,11 +102,7 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 import omero.model.Thumbnail;
 import omero.model.Well;
-import omero.model.WellAnnotationLink;
-import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
-import omero.model.WellSampleAnnotationLink;
-import omero.model.WellSampleAnnotationLinkI;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
@@ -139,7 +127,6 @@ import spec.XMLWriter;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = {"delete", "integration"})
 public class DeleteServiceTest 
 	extends AbstractServerTest
 {
@@ -319,7 +306,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete an image w/o pixels.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -330,7 +316,7 @@ public class DeleteServiceTest
     			mmFactory.simpleImage(0));
     	assertNotNull(img);
     	long id = img.getId().getValue();
-    	iDelete.deleteImage(id, false); //do not force.
+	delete(new Delete(REF_IMAGE, id, null));
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -343,7 +329,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a simple plate i.e. w/o wells or acquisition.
-     * The <code>deletePlate</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -354,7 +339,7 @@ public class DeleteServiceTest
     			mmFactory.simplePlateData().asIObject());
     	assertNotNull(p);
     	long id = p.getId().getValue();
-    	iDelete.deletePlate(id);
+	delete(new Delete(REF_PLATE, id, null));
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -367,7 +352,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a populated plate.
-     * The <code>deletePlate</code> is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -412,7 +396,7 @@ public class DeleteServiceTest
 				}
 			}
 	        //Now delete the plate
-	        iDelete.deletePlate(p.getId().getValue());
+	        delete(new Delete(REF_PLATE, p.getId().getValue(), null));
 	        
 	        param = new ParametersI();
 	        param.addId(p.getId().getValue());
@@ -461,7 +445,6 @@ public class DeleteServiceTest
     /**
      * Test to delete a populated plate.
      * The boolean flag indicates to create or no plate acquisition.
-     * The <code>deleteQueue</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -556,7 +539,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -605,7 +587,6 @@ public class DeleteServiceTest
 
     /**
      * Tests to delete a project containing a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -666,7 +647,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a screen containing 2 plates, one w/o plate acquisition
      * and one with plate acquisition.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -716,7 +696,6 @@ public class DeleteServiceTest
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -751,7 +730,7 @@ public class DeleteServiceTest
 			infos.add(info.getId().getValue());
 		}
     	
-    	iDelete.deleteImage(id, false); //do not force.
+	delete(new Delete(REF_IMAGE, id, null)); //do not force.
     	ParametersI param = new ParametersI();
     	param.addId(id);
 
@@ -800,7 +779,6 @@ public class DeleteServiceTest
     /**
      * Test to delete an image with pixels, channels, logical channels 
      * and statistics.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -883,7 +861,6 @@ public class DeleteServiceTest
 
     /**
      * Test to delete an image with rendering settings.
-     * The <code>deleteImage</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -905,7 +882,7 @@ public class DeleteServiceTest
     	List<IObject> settings = iQuery.findAllByQuery(sql, param);
     	//now delete the image
     	assertTrue(settings.size() > 0);
-    	iDelete.deleteImage(img.getId().getValue(), false); //do not force.
+	delete(new Delete(REF_IMAGE, img.getId().getValue(), null)); //do not force.
     	//check if the settings have been deleted.
     	Iterator<IObject> i = settings.iterator();
     	IObject o;
@@ -921,7 +898,6 @@ public class DeleteServiceTest
     
     /**
      * Test to delete an image with rendering settings.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1036,7 +1012,7 @@ public class DeleteServiceTest
 		}
     	
     	//Now we try to delete the image.
-    	iDelete.deleteImage(img.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, img.getId().getValue(), null));
     	//Follow the section with acquisition data.
     	//Now check if the settings are still there.
 
@@ -1124,7 +1100,7 @@ public class DeleteServiceTest
     		shapeIds.add(shape.getId().getValue());
     	}
     	//Delete the image.
-    	iDelete.deleteImage(image.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, image.getId().getValue(), null));
     	//check if the objects have been delete.
 
     	ParametersI param = new ParametersI();
@@ -1143,7 +1119,6 @@ public class DeleteServiceTest
     
     /**
      * Test to deletes rois as root.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1199,7 +1174,6 @@ public class DeleteServiceTest
     /**
      * Test to delete object with annotations that cannot be shared
      * e.g. Comments.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1237,7 +1211,6 @@ public class DeleteServiceTest
      * Test to delete object with annotations that cannot be shared
      * e.g. tags, terms. One run will delete the annotations, a second 
      * will keep them. This will test the usage of the option parameters.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1285,7 +1258,6 @@ public class DeleteServiceTest
     /**
      * Test to delete a plate with non sharable annotations linked to the well 
      * and well samples and plate with Plate acquisition and annotation.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1572,7 +1544,6 @@ public class DeleteServiceTest
 
     /**
      * Tests to delete a dataset with images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1611,7 +1582,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a project with dataset and images.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1670,7 +1640,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete a screen.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1724,7 +1693,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete an image with a companion file. This is usually
      * the case when the image is imported.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1761,7 +1729,6 @@ public class DeleteServiceTest
      * Tests to delete an image with a shared Tag. 
      * The tag should not be deleted b/c of the <code>Soft</code> option
      * i.e. default option.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1845,7 +1812,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared tag as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -1926,7 +1892,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared term as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2007,7 +1972,6 @@ public class DeleteServiceTest
     /**
      * Tests to delete a shared file annotation as root.
      * The tag should be deleted but no the objects linked to it.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2089,7 +2053,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete screen with a plate and a reagent.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2145,7 +2108,6 @@ public class DeleteServiceTest
     
     /**
      * Tests to delete plate with a reagent.
-     * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -2242,7 +2204,7 @@ public class DeleteServiceTest
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2837")
+    @Test(groups = {"broken", "ticket:2837"})
     public void testDeleteObjectWithAnnotationWithNS()
         throws Exception
     {
@@ -2295,7 +2257,7 @@ public class DeleteServiceTest
      *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2837")
+    @Test(groups = {"broken", "ticket:2837"})
     public void testDeleteObjectWithAnnotationWithNSMultipleNS()
         throws Exception
     {
@@ -3691,7 +3653,7 @@ public class DeleteServiceTest
                 mmFactory.createImage());
     	
     	List<Long> ids = createNonSharableAnnotation(image, null);
-    	iDelete.deleteImage(image.getId().getValue(), true);
+	delete(new Delete(REF_IMAGE, image.getId().getValue(), null));
     	String sql = "select a from Annotation as a where a.id in (:ids)";
     	ParametersI p = new ParametersI();
     	p.addIds(ids);
@@ -3882,7 +3844,7 @@ public class DeleteServiceTest
      * Simulates an SVS import in which many Pixels are attached to a
      * single, archived OriginalFile.
      */
-    @Test(groups = "ticket:5237")
+    @Test(groups = {"ticket:5237", "ticket:11348", "broken"})
     public void testDeletePixelsAndFiles()
         throws Exception
     {

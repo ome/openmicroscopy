@@ -48,7 +48,6 @@ import pojos.GroupData;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class AdminServiceTest 
 	extends AbstractServerTest
 {
@@ -540,7 +539,7 @@ public class AdminServiceTest
 	 * using the <code>updateExperimenter</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testUpdateExperimenterByUserUsingUpdateExperimenter() 
     	throws Exception
     {
@@ -929,7 +928,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWToRWRW()
     	throws Exception
     {
@@ -970,7 +969,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWRToRWRA()
     	throws Exception
     {
@@ -1011,7 +1010,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWAToRWRW()
     	throws Exception
     {
@@ -1050,7 +1049,7 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(groups = "changePermissions")
+	@Test
     public void testChangePermissionsRWToRWR()
     	throws Exception
     {
@@ -1165,7 +1164,7 @@ public class AdminServiceTest
 	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testOwnerAddExistingExperimenterToGroup()
     	throws Exception
     {
@@ -1221,7 +1220,7 @@ public class AdminServiceTest
 	 * The owner is NOT an administrator.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test(enabled = true)
+	@Test
     public void testOwnerRemoveExperimenterToGroup()
     	throws Exception
     {

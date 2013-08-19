@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  * All configuration comes from the ICE_CONFIG
  * environment variable.
  */
-@Test(groups = "integration")
+@Test
 public class ClientUsageTest 
 	extends AbstractServerTest
 {
@@ -38,7 +38,6 @@ public class ClientUsageTest
      * Closes automatically the session.
      * @throws Exception If an error occurred.
      */
-    @Test
     public void testClientClosedAutomatically() 
     	throws Exception
     {
@@ -62,7 +61,6 @@ public class ClientUsageTest
      * Tests the usage of memory.
      * @throws Exception If an error occurred.
      */
-    @Test
     public void testUseSharedMemory()
     	throws Exception
     {
@@ -93,7 +91,6 @@ public class ClientUsageTest
      * Test the creation of an insecure client.
      * @throws Exception If an error occurred.
      */
-    @Test
     public void testCreateInsecureClientTicket2099()
     	throws Exception
     {
@@ -133,7 +130,6 @@ public class ClientUsageTest
      *
      * @throws Exception If an error occurred.
      */
-    @Test
     public void testGetStatefulServices() throws Exception
     {
         ServiceFactoryPrx sf = root.getSession();

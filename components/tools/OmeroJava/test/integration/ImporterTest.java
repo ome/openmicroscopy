@@ -89,7 +89,8 @@ import spec.XMLMockObjects;
 import spec.XMLWriter;
 
 /** 
- * Collection of tests to import images.
+ * Collection of tests to import images. The imported images are not currently
+ * deleted after the test.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -101,7 +102,6 @@ import spec.XMLWriter;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = {"import", "integration"})
 public class ImporterTest 
 	extends AbstractServerTest
 {
@@ -111,55 +111,6 @@ public class ImporterTest
 	
 	/** {@link EventContext} that is set on {@link #loginMethod()} */
 	private EventContext ownerEc;
-
-    /**
-     * Delete an Image (via a Pixels) assuming a successful outcome.
-     */
-    private void delete(Pixels p) throws Exception{
-        delete(true, client,
-            new Delete(DeleteServiceTest.REF_IMAGE,
-                    p.getImage().getId().getValue(), null));
-    }
-
-    /**
-     * Delete an Image (via a list of Pixels) assuming a successful outcome.
-     */
-    private void delete(List<Pixels> pix) throws Exception{
-        if (pix != null) {
-            for (Pixels p : pix) {
-                delete(true, client,
-                        new Delete(DeleteServiceTest.REF_IMAGE,
-                                p.getImage().getId().getValue(), null));
-            }
-        }
-    }
-
-    /**
-     * Delete a Dataset assuming a successful outcome.
-     */
-    private void delete(Dataset d) throws Exception{
-        delete(true, client,
-            new Delete(DeleteServiceTest.REF_DATASET,
-                   d.getId().getValue(), null));
-    }
-
-    /**
-     * Delete a plate assuming a successful outcome.
-     */
-    private void delete(Plate plate) throws Exception{
-        delete(true, client,
-            new Delete(DeleteServiceTest.REF_PLATE,
-                    plate.getId().getValue(), null));
-    }
-
-    /**
-     * Delete a screen assuming a successful outcome.
-     */
-    private void delete(Screen screen) throws Exception{
-        delete(true, client,
-            new Delete(DeleteServiceTest.REF_SCREEN,
-                    screen.getId().getValue(), null));
-    }
 
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
@@ -694,7 +645,6 @@ public class ImporterTest
 			} catch (Throwable e) {
 				failures.add(ModelMockFactory.FORMATS[i]);
 			}
-			delete(pix);
 		}
 		if (failures.size() > 0) {
 			Iterator<String> j = failures.iterator();
@@ -766,7 +716,6 @@ public class ImporterTest
 			}
 		}
 		assertEquals(found, size);
-		delete(p);
 	}
 	
 	/**
@@ -789,14 +738,13 @@ public class ImporterTest
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
-		delete(pix);
 	}
 	
 	/**
      * Tests the import of an OME-XML file with one image w/o binary data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = true)
+	@Test
 	public void testImportSimpleImageMetadataOnlyNoBinaryInFile()
 		throws Exception
 	{
@@ -813,7 +761,6 @@ public class ImporterTest
 		} catch (Throwable e) {
 			throw new Exception("cannot import image", e);
 		}
-		delete(pix);
 	}
 
 	/**
@@ -861,14 +808,13 @@ public class ImporterTest
 			else if (a instanceof LongAnnotation) count++;
 		}
 		assertEquals(XMLMockObjects.ANNOTATIONS.length, count);
-		delete(p);
 	}
 	
 	/**
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = true)
+	@Test
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
@@ -1060,7 +1006,6 @@ public class ImporterTest
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());
 		}
-        delete(p);
 	}
 
 	/**
@@ -1116,7 +1061,6 @@ public class ImporterTest
 			}
 			assertEquals(count, XMLMockObjects.SHAPES.length);
 		}
-		delete(p);
 	}
 
 	/**
@@ -1148,7 +1092,6 @@ public class ImporterTest
 		Plate plate = ws.getWell().getPlate();
 		assertNotNull(plate);
 		validatePlate(plate, ome.getPlate(0));
-		delete(plate);
 	}
 	
 	/**
@@ -1248,7 +1191,6 @@ public class ImporterTest
 			}
 		}
 		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
-		delete(plate.copyScreenLinks().get(0).getParent());
 	}
 	
 	/**
@@ -1256,7 +1198,7 @@ public class ImporterTest
      * two fully populated plates.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled=true)
+	@Test
 	public void testImportScreenWithTwoPlates()
 		throws Exception
 	{
@@ -1343,7 +1285,6 @@ public class ImporterTest
 			}
 		}
 		assertEquals(rows*columns*fields*plates*acquisition, wsListIds.size());
-		delete(plate.copyScreenLinks().get(0).getParent());
 	}
 	
 	/**
@@ -1385,7 +1326,6 @@ public class ImporterTest
 		PlateAcquisition pa = ws.getPlateAcquisition();
 		assertNotNull(pa);
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
-		delete(ws.getWell().getPlate());
 	}
 
 	/**
@@ -1453,7 +1393,6 @@ public class ImporterTest
 			param.addId(obj.getId().getValue());
 			assertEquals(fields, iQuery.findAllByQuery(sql, param).size());
 		}
-		delete(plate);
 	}
 	
 	/**
@@ -1516,7 +1455,6 @@ public class ImporterTest
 		assertEquals(1, screen.sizeOfReagents());
 		assertEquals(wr.getChild().getId().getValue(),
 				screen.copyReagents().get(0).getId().getValue());
-		delete(screen);
 	}
 	
 	/**
@@ -1554,7 +1492,6 @@ public class ImporterTest
     	iQuery.findByQuery(sql, param);
     	assertNotNull(link);
     	assertEquals(link.getChild().getId().getValue(), id);
-    	delete(d);
 	}
 
 	/**
@@ -1599,7 +1536,6 @@ public class ImporterTest
     	iQuery.findByQuery(sql, param);
     	assertNotNull(link);
     	assertEquals(link.getChild().getId().getValue(), id);
-    	delete(d);
 	}
 
     /**

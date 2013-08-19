@@ -64,7 +64,6 @@ import omero.sys.ParametersI;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class PixelsServiceTest 
 	extends AbstractServerTest
 {

@@ -173,7 +173,7 @@ public class AnnotationMoveTest
      *  to the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersDestinationGroupRW()
 	throws Exception
     {
@@ -243,7 +243,7 @@ public class AnnotationMoveTest
      *  to the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersDestinationGroupRWR()
 	throws Exception
     {
@@ -379,7 +379,7 @@ public class AnnotationMoveTest
      *  destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveImageAnnotatedByUsersOneNotInDestinationGroupDestinationGroupRWRW()
 	throws Exception
     {
@@ -440,7 +440,7 @@ public class AnnotationMoveTest
      * The image will be moved and the tag.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveTaggedImage()
 	throws Exception
     {
