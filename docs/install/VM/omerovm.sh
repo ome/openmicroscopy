@@ -33,10 +33,10 @@ function checknet ()
 
 function installvm ()
 {
-	ssh-keygen -R [localhost]:2222 -f ~/.ssh/known_hosts
 	chmod 600 ./omerovmkey
-	SCP="scp -2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey -P $SSH_PF"
-	SSH="ssh -2 -o StrictHostKeyChecking=no -i omerovmkey -p $SSH_PF -t"
+        SSH_ARGS="-2 -o NoHostAuthenticationForLocalhost=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o CheckHostIP=no -o PasswordAuthentication=no -o ChallengeResponseAuthentication=no -o PreferredAuthentications=publickey -i omerovmkey"
+        SCP="scp $SSH_ARGS -P $SSH_PF"
+        SSH="ssh $SSH_ARGS -p $SSH_PF -t"
 
         echo "Copying scripts to VM"
         $SSH omero@localhost "mkdir install"
