@@ -1,11 +1,11 @@
 <project name="javalibrary" default="install" basedir=".">
 
-    <property name="import.dir" value="${basedir}/../antlib/resources"/>
+    <property name="import.dir" value="${basedir}/../../../../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
-    <target name="compile" depends="pre-compile,lifecycle.compile"/>
+    <target name="compile" depends="lifecycle.compile"/>
 
 	<target name="init"/>
 

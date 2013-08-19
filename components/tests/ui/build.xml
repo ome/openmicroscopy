@@ -106,17 +106,25 @@
         </run_py>
     </target>
 
+    <macrodef name="librarybuild">
+        <attribute name="target"/>
+        <sequential>
+            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
+            </ant>
+        </sequential>
+    </macrodef>
 
-    <target name="compile" depends="lifecycle.compile"/>
+    <!-- delete the reports directory -->
+    <target name="tests-dist">
+        <librarybuild target="dist"/>
+    </target>
 
-    <target name="tests-init"/>
-
-    <target name="tests-build" depends="tests-init,install" description="Creates all artifacts for tests/target"/>
-
-    <target name="tests-dist" depends="tests-build" description="Copy artifacts to tests/target"/>
+    <target name="package" depends="lifecycle.package">
+        <librarybuild target="jar"/>
+    </target>
 
     <!-- delete the reports directory -->
     <target name="tests-clean" depends="clean">
-    <delete dir="${tests.dest}"/>
+    <delete dir="*/target"/>
     </target>
 </project>
