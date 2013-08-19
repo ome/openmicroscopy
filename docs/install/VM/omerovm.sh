@@ -114,9 +114,9 @@ function killallvbox ()
 function checkhddfolder ()
 {
 	if test -e $HOME/Library/VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+	    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks"}
 	elif test -e $HOME/.VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
+	    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks"}
 	else
 	    echo "Cannot find harddisks! Trying setting HARDDISKS"
 	    failfast
@@ -130,17 +130,17 @@ function deletevm ()
 	$VBOX list vms | grep "$VMNAME" && {
 		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
 		VBoxManage unregistervm "$VMNAME" --delete
-		VBoxManage closemedium disk "$HARDDISKS$VMNAME.vdi" --delete
+		VBoxManage closemedium disk "$HARDDISKS/$VMNAME.vdi" --delete
 	} || true
 }
 
 function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
-		VBoxManage clonehd "$HARDDISKS$OMERO_BASE_IMAGE" "$HARDDISKS$VMNAME.vdi"
+		VBoxManage clonehd "$HARDDISKS/$OMERO_BASE_IMAGE" "$HARDDISKS/$VMNAME.vdi"
 		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium "$HARDDISKS$VMNAME.vdi"
+		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium "$HARDDISKS/$VMNAME.vdi"
 			
 		VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
 		VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
