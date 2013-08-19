@@ -98,6 +98,9 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <ivy:buildlist reference="all-tools.buildpath" settingsRef="ivy.toplevel">
             <fileset dir="${omero.home}/components/tools" includes="*/build.xml"/>
         </ivy:buildlist>
+        <ivy:buildlist reference="all-tests.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${omero.home}/components/tests" includes="*/build.xml"/>
+        </ivy:buildlist>
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
 
@@ -180,6 +183,7 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
         <iterate buildpathref="all-tools.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <iterate buildpathref="tests.buildpath" target="dist"/>
+        <iterate buildpathref="all-tests.buildpath" target="tests-dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
