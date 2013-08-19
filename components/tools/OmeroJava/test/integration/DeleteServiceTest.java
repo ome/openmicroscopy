@@ -1355,7 +1355,7 @@ public class DeleteServiceTest
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "tables")
+    @Test
     public void testDeletePlateWithROIMeasurements() 
 		throws Exception
 	{

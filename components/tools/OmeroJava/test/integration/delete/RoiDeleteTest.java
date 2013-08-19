@@ -83,7 +83,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 	 * Test to delete ROI with measurement.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-    @Test(groups = "tables")
+    @Test
     public void testDeleteROIAndResults()
     	throws Exception 
     {
@@ -156,7 +156,7 @@ public class RoiDeleteTest extends AbstractServerTest {
 	 * Test to delete ROI with measurement.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-    @Test(groups = "tables")
+    @Test
     public void testDeletePlateWithROIAndResults()
     	throws Exception 
     {
