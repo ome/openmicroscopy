@@ -1,21 +1,9 @@
-<project name="javalibrary" default="install" basedir=".">
+<project name="javauilibrary" default="install" basedir=".">
 
     <property name="import.dir" value="${basedir}/../../../../antlib/resources"/>
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
-
-    <target name="compile" depends="lifecycle.compile"/>
-
-	<target name="init"/>
-
-    <target name="build" depends="init,install" description="Creates all artifacts for tests/target"/>
-
-    <target name="dist" depends="build" description="Copy artifacts to library/target"/>
-
-    <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
-	<jar update="true" destfile="${target.dir}/${ivy.module}.jar"/>
-    </target>
 
     <target name="clean">
         <delete dir="${basedir}/target"/>
