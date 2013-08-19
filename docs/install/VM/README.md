@@ -85,47 +85,65 @@ A number of utility scripts are included to enable you to easily start, stop, an
 Rebuilding the Base Image
 =========================
 
-TODO: write this properly
+TODO: write this properly, and add RVM/Ruby install instructions
 
 The base image is created using [Veewee](https://github.com/jedi4ever/veewee).
-To rebuild the base image from scratch install Veewee, `cd` into the Veewee
-directory and clone the definition files:
+To rebuild the base image from scratch install RVM and activate Ruby 1.9.2
+(later versions may also work).
+Clone the `ome-veewee` repository:
 
   ```
-  $ git clone https://github.com/manics/omero-veewee-definitions.git definitions
-  $ git checkout debian-7.1.0-64
+  $ git clone https://github.com/manics/ome-veewee.git
   ```
 
-Build the base box:
+And run
 
   ```
-  $ veewee vbox build Debian-7.1.0-amd64-omerobase
-  $ veewee vbox halt Debian-7.1.0-amd64-omerobase
+  $ ./build_base_image.sh Debian-7.1.0-amd64-omerobase
   ```
 
-You should have a new VirtualBox machine in your VirtualBox directory, for
-example under `~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/`.
-If you want to keep the base VM then clone the VDI to another directory,
-do not just copy the VDI since it contains a UUID registered to the base
-image VM.
-Note the VDI will remain registered to VirtualBox as a hard disk. E.g.:
+Read the comments in `build_base_image.sh` for more information.
 
-  ```
-  $ VBoxManage clonehd \
-      "~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/Debian-7.1.0-amd64-omerobase1.vdi" \
-      "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
-  ```
+Creating a new base image
+=========================
 
-Alternatively copy the VDI. E.g.:
+Note if you want to use the development version of Veewee follow the
+[Veewee installation instructions]
+(https://github.com/jedi4ever/veewee/blob/master/README.md)
+and copy or symlink the `definitions` directory from
+https://github.com/manics/ome-veewee.git .
 
+To create a new definition list the existing templates:
   ```
-  $ cp "~/VirtualBox VMs/Debian-7.1.0-amd64-omerobase/Debian-7.1.0-amd64-omerobase1.vdi" \
-      "~/Library/VirtualBox/HardDisks/NEW_BASE_IMAGE_NAME.vdi"
+  $ veewee vbox templates
   ```
 
-and delete the original VM:
+Select a template (this will create a copy under `definitions`):
+  ```
+  $ veewee vbox define NEW_BOX_NAME TEMPLATE_NAME
+  ```
+
+Edit the files under `definitions/NEW_BOX_NAME` to change how the base image is
+created.
+Finally build the image:
 
   ```
-  $ veewee vbox destroy Debian-7.1.0-amd64-omerobase
+  $ veewee vbox build NEW_BOX_NAME --nogui
   ```
+
+At this point you can explore the built VM to help with testing or debugging
+(obviously avoid this when creating the final VM):
+
+  ```
+  $ veewee vbox ssh NEW_BOX_NAME
+  ```
+
+Finally shutdown the VM:
+
+  ```
+  $ veewee vbox halt NEW_BOX_NAME
+  ```
+
+And clone/copy the hard disk image, which should be under your VirtualBox
+directory, for example `$HOME/VirtualBox VMs/NEW_BOX_NAME/NEW_BOX_NAME.vdi`.
 
