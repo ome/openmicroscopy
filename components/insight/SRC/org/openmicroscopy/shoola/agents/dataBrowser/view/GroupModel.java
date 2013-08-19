@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.GroupModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ class GroupModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
@@ -136,8 +136,10 @@ class GroupModel
 			}
 		}
 		if (imgs.size() == 0) return null;
-		return new ThumbnailLoader(component, ctx, sorter.sort(imgs), 
-				ThumbnailLoader.EXPERIMENTER);
+		List<DataBrowserLoader> loaders = new ArrayList<DataBrowserLoader>();
+		loaders.add(new ThumbnailLoader(component, ctx, sorter.sort(imgs),
+				ThumbnailLoader.EXPERIMENTER, imgs.size()));
+		return loaders;
 	}
 	
 	/**

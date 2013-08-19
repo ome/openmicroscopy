@@ -140,7 +140,7 @@ class ImporterUIElement
 	private static final String MESSAGE = 
 			"When upload is complete, the import\n" +
 			"window and OMERO session can be closed.\n" +
-			"Processing will continue on the server.";
+			"Reading will continue on the server.";
 	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
@@ -889,7 +889,7 @@ class ImporterUIElement
 	boolean hasImportToCancel()
 	{
 	    for (final FileImportComponent fic : components.values()) {
-	        if (!(fic.hasImportStarted() || fic.isCancelled())) {
+	    	if (!(fic.hasImportStarted() || fic.isCancelled())) {
 	            return true;
 	        }
 	    }

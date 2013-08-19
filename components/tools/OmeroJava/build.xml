@@ -73,7 +73,11 @@
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
         </copy>
-        <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/generated-classes"/>
+        <unjar dest="${target.dir}/generated-classes">
+            <fileset dir="${target.dir}/libs">
+                <include name="ice*.jar"/>
+            </fileset>
+        </unjar>
     </target>
 
     <target name="compile" depends="pre-compile,lifecycle.compile"/>

@@ -31,6 +31,7 @@ import java.util.List;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
@@ -60,88 +61,91 @@ public class ThumbnailLoader
 {
 
 	/** 
-	 * Indicates that the thumbnails are associated to an 
+	 * Indicates that the thumbnails are associated to an
 	 * <code>ExperimenterData</code>.
 	 */
-	public static final int 		EXPERIMENTER = 
-			HierarchyBrowsingView.EXPERIMENTER;
+	public static final int EXPERIMENTER = HierarchyBrowsingView.EXPERIMENTER;
 	
 	/** 
 	 * Indicates that the thumbnails are associated to an <code>FileData</code>.
 	 */
-	public static final int 		FS_FILE = HierarchyBrowsingView.FS_FILE;
+	public static final int FS_FILE = HierarchyBrowsingView.FS_FILE;
 	
 	/** 
-	 * Indicates that the thumbnails are associated to an 
+	 * Indicates that the thumbnails are associated to an
 	 * <code>ImageData</code>.
 	 */
-	public static final int 		IMAGE = HierarchyBrowsingView.IMAGE;
+	public static final int IMAGE = HierarchyBrowsingView.IMAGE;
 
 	/** The number of thumbnails to load. */
-	private int                     max;
+	private int max;
 	
 	/** 
-	 * The <code>ImageData</code> objects for the images whose thumbnails 
+	 * The <code>ImageData</code> objects for the images whose thumbnails
 	 * have to be fetched.
 	 */
-    private Collection<DataObject>	objects;
+    private Collection<DataObject> objects;
     
     /**  
      * Indicates the types of thumbnails to retrieve. One of the constants
      * defined by this class.
      */
-    private int						type;
+    private int type;
     
     /** Flag indicating to retrieve thumbnail. */
-    private boolean					thumbnail;
+    private boolean thumbnail;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle 	 			handle;
+    private CallHandle handle;
 
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     * Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param objects 	The <code>DataObject</code>s associated to the images
+     * @param objects The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
+     * @param max The maximum number of entries.
      */
     public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
-    		Collection<DataObject> objects, int type)
+    		Collection<DataObject> objects, int type, int max)
     {
-        this(viewer, ctx, objects, true, type);
+        this(viewer, ctx, objects, true, type, max);
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param objects 	The <code>DataObject</code>s associated to the images
-     *					to fetch. Mustn't be <code>null</code>.
+     * @param objects The <code>DataObject</code>s associated to the images
+     * to fetch. Mustn't be <code>null</code>.
+     * @param max The maximum number of entries.
      */
     public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
-    		Collection<DataObject> objects)
+    		Collection<DataObject> objects, int max)
     {
-        this(viewer, ctx, objects, true, IMAGE);
+        this(viewer, ctx, objects, true, IMAGE, max);
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     * Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param objects 	The <code>DataObject</code>s associated to the images
+     * @param objects The <code>DataObject</code>s associated to the images
      *					to fetch. Mustn't be <code>null</code>.
-     * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
+     * @param thumbnail Pass <code>true</code> to retrieve image at a thumbnail
      * 					size, <code>false</code> otherwise.
-     * @param type		The type of thumbnails to load.
+     * @param type The type of thumbnails to load.
+     * @param max The maximum number of entries.
      */
     public ThumbnailLoader(DataBrowser viewer, SecurityContext ctx,
-    		Collection<DataObject> objects, boolean thumbnail, int type)
+    		Collection<DataObject> objects, boolean thumbnail, int type,
+    		int max)
     {
         super(viewer, ctx);
         if (objects == null)
@@ -150,7 +154,8 @@ public class ThumbnailLoader
         else this.type = type;
         this.objects = objects;
         this.thumbnail = thumbnail;
-        max = objects.size();
+        if (max < objects.size()) max = objects.size();
+        this.max = max;
     }
     
     /**
@@ -159,14 +164,14 @@ public class ThumbnailLoader
      */
     public void load()
     {
-    	long userID = DataBrowserAgent.getUserDetails().getId();
+    	long userID = -1;
     	if (thumbnail) 
-    		handle = hiBrwView.loadThumbnails(ctx, objects, 
+    		handle = hiBrwView.loadThumbnails(ctx, objects,
                     ThumbnailProvider.THUMB_MAX_WIDTH,
                     ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, type, this);
     	else 
-    		handle = hiBrwView.loadThumbnails(ctx, objects, 
+    		handle = hiBrwView.loadThumbnails(ctx, objects,
                     3*ThumbnailProvider.THUMB_MAX_WIDTH,
                     3*ThumbnailProvider.THUMB_MAX_HEIGHT,
                     userID, type, this);
@@ -192,34 +197,42 @@ public class ThumbnailLoader
         	if (status == null) 
                 status = (percDone == 100) ? "Done" :  //Else
                                          ""; //Description wasn't available.   
-            viewer.setStatus(status, percDone);
-            List l = (List) fe.getPartialResult();
-            if (l != null && l.size()  > 0) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	Object ref;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		ref = td.getRefObject();
-            		if (ref == null) ref = td.getImageID();
-            		viewer.setThumbnail(ref, td.getThumbnail(), 
-            				td.isValidImage(), max);
-				}
+            //viewer.setStatus(status, percDone);
+            ThumbnailData td;
+            Object ref;
+            if (type == EXPERIMENTER) {
+            	List<ThumbnailData> l =
+            			(List<ThumbnailData>) fe.getPartialResult();
+                if (!CollectionUtils.isEmpty(l)) {
+                	Iterator<ThumbnailData> i = l.iterator();
+                	while (i.hasNext()) {
+                		td = i.next();
+                		ref = td.getRefObject();
+                		if (ref == null) ref = td.getImageID();
+                		viewer.setThumbnail(ref, td.getThumbnail(),
+                				td.isValidImage(), max);
+    				}
+                }
+            } else {
+            	td = (ThumbnailData) fe.getPartialResult();
+                if (td != null) {
+                	ref = td.getRefObject();
+                	if (ref == null) ref = td.getImageID();
+                	viewer.setThumbnail(ref, td.getThumbnail(),
+                			td.isValidImage(), max);
+                }
             }
+            
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else
         			""; //Description wasn't available.   
         	viewer.setSlideViewStatus(status, percDone);
-        	List l = (List) fe.getPartialResult();
-            if (l != null) {
-            	Iterator i = l.iterator();
-            	ThumbnailData td;
-            	while (i.hasNext()) {
-            		td = (ThumbnailData) i.next();
-            		viewer.setSlideViewImage(td.getImageID(), 
-            				td.getThumbnail());
-				}
+        	ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null) {
+            	Object ref = td.getRefObject();
+            	if (ref == null) ref = td.getImageID();
+            	viewer.setSlideViewImage(td.getImageID(), td.getThumbnail());
             }
         }
     }
@@ -232,6 +245,9 @@ public class ThumbnailLoader
      */
     public void handleNullResult() {}
     
+    /** Does nothing.*/
+    public void onEnd() {}
+    
     /**
      * Notifies the user that an error has occurred.
      * @see DataBrowserLoader#handleException(Throwable)
@@ -240,7 +256,7 @@ public class ThumbnailLoader
     {
         String s = "Thumbnail Retrieval Failure: ";
         registry.getLogger().error(this, s+exc);
-        registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure", 
+        registry.getUserNotifier().notifyError("Thumbnail Retrieval Failure",
                                                s, exc);
     }
     

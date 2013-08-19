@@ -275,11 +275,12 @@ class DataBrowserComponent
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setThumbnail(Object, BufferedImage, boolean, int)
 	 */
-	public void setThumbnail(Object ref, BufferedImage thumb, boolean valid, 
+	public void setThumbnail(Object ref, BufferedImage thumb, boolean valid,
 			int maxEntries)
 	{
 		int previousState = model.getState();
-		model.setThumbnail(ref, thumb, valid, maxEntries);
+		int perc = model.setThumbnail(ref, thumb, valid, maxEntries);
+		view.setStatus((perc == 100) ? "Done" : "", perc == 100, perc);
 		if (previousState != model.getState()) fireStateChange();
 	}
 
@@ -1046,12 +1047,6 @@ class DataBrowserComponent
 						"invoked in the DISCARDED state.");
 			case NEW:
 				return;
-		}
-		//flush the previous one first
-		Browser browser = model.getBrowser();
-		if (browser != null) {
-			browser.accept(new FlushVisitor(),
-					ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		}
 		model.loadData(true, ids);
 		fireStateChange();

@@ -2389,6 +2389,8 @@ def script_ui(request, scriptId, conn=None, **kwargs):
             i["options"] = [v.getValue() for v in param.values.getValue()]
         if param.useDefault:
             i["default"] = unwrap(param.prototype)
+            if isinstance(i["default"], omero.model.IObject):
+                i["default"] = None
         pt = unwrap(param.prototype)
         if pt.__class__.__name__ == 'dict':
             i["map"] = True

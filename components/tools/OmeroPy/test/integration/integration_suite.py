@@ -30,7 +30,6 @@ if __name__ == "__main__":
         "integration.cmdcallback",
         "integration.counts",
         "integration.delete",
-        "integration.emanScripts",
         "integration.exporter",
         "integration.figureExportScripts",
         "integration.files",

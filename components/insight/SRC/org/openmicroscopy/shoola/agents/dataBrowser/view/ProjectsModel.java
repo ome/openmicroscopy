@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.ProjectsModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-
-
 
 //Third-party libraries
 
@@ -36,8 +33,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
-
-import pojos.ProjectData;
 
 /** 
  * A concrete Model for a collection of datasets.
@@ -66,10 +61,13 @@ class ProjectsModel
 		super(ctx);
 	}
 	
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	/**
+	 * Creates a concrete loader.
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
+	 */
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh,
 			Collection ids)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

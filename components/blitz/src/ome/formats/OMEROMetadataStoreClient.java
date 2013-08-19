@@ -219,6 +219,7 @@ import omero.sys.ParametersI;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -306,6 +307,9 @@ public class OMEROMetadataStoreClient
 
     /** Image/Plate description the user specified for use by model processors. */
     private String userSpecifiedDescription;
+
+    /** Filename of the log file where services will save logging output. */
+    private String logFilename;
 
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
@@ -405,6 +409,11 @@ public class OMEROMetadataStoreClient
         if (groupID != null) {
             callCtx.put("omero.group", groupID.toString());
             log.info(String.format("Call context: {omero.group:%s}", groupID));
+        }
+        if (logFilename != null) {
+            callCtx.put("omero.logfilename", logFilename);
+            log.info(String.format("Call context: {omero.logfilename:%s}",
+                    logFilename));
         }
 
         // Blitz services
@@ -3154,9 +3163,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsIntegration(ome.xml.model.primitives.PositiveInteger,int,int)
      */
-    public void  setDetectorSettingsIntegration(PositiveInteger value, int value2, int index)
+    public void  setDetectorSettingsIntegration(PositiveInteger integration, int imageIndex, int channelIndex)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setIntegration(toRType(integration));
     }
 
     /* (non-Javadoc)
@@ -3192,9 +3202,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDetectorSettingsZoom(java.lang.Double,int,int)
      */
-    public void  setDetectorSettingsZoom(Double value, int value2, int index)
+    public void  setDetectorSettingsZoom(Double zoom, int imageIndex, int channelIndex)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        DetectorSettings o = getDetectorSettings(imageIndex, channelIndex);
+        o.setZoom(toRType(zoom));
     }
 
     ////////Dichroic/////////
@@ -5309,7 +5320,9 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsBigEndian(Boolean value,  int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setBigEndian(value);
     }
 
     /* (non-Javadoc)
@@ -5319,6 +5332,8 @@ public class OMEROMetadataStoreClient
             int binDataIndex)
     {
         // TODO : not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setBinDataBigEndian(value);
     }
 
     /* (non-Javadoc)
@@ -5339,7 +5354,9 @@ public class OMEROMetadataStoreClient
      */
     public void  setPixelsInterleaved(Boolean value,  int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO: not in OMERO model
+        //Pixels o = getPixels(imageIndex);
+        //o.setInterleaved(value);
     }
 
 
@@ -5373,9 +5390,10 @@ public class OMEROMetadataStoreClient
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPixelsSignificantBits(ome.xml.model.primitives.PositiveInteger,int)
      */
-    public void  setPixelsSignificantBits(PositiveInteger value,  int index)
+    public void  setPixelsSignificantBits(PositiveInteger value,  int imageIndex)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        Pixels o = getPixels(imageIndex);
+        o.setSignificantBits(toRType(value));
     }
 
     /* (non-Javadoc)
@@ -5489,6 +5507,8 @@ public class OMEROMetadataStoreClient
     public void setPlaneHashSHA1(String hashSHA1, int imageIndex, int planeIndex)
     {
         // TODO : not in the OMERO model
+        //PlaneInfo o = getPlane(imageIndex, planeIndex);
+        //o.setHashSHA1(toRType(exposureTime));
     }
 
     /* (non-Javadoc)
@@ -6635,7 +6655,9 @@ public class OMEROMetadataStoreClient
      */
     public void  setCommentAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
+        //CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
+        //o.setAnnotator(toRType(value));
     }
 
     /* (non-Javadoc)
@@ -7240,7 +7262,27 @@ public class OMEROMetadataStoreClient
      */
     public void  setXMLAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotationRef(java.lang.String, int, int)
+     */
+    public void setXMLAnnotationAnnotationRef(String annotation,
+            int XMLAnnotationIndex, int annotationRefIndex)
+    {
+        LSID key = new LSID(XmlAnnotation.class, XMLAnnotationIndex);
+        addReference(key, new LSID(annotation));
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setXMLAnnotationDescription(java.lang.String, int)
+     */
+    public void setXMLAnnotationDescription(String description,
+            int XMLAnnotationIndex)
+    {
+        XmlAnnotation o = getXMLAnnotation(XMLAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7259,8 +7301,8 @@ public class OMEROMetadataStoreClient
     public void setBooleanAnnotationDescription(String description,
             int booleanAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        BooleanAnnotation o = getBooleanAnnotation(booleanAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7268,7 +7310,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setBooleanAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7287,8 +7329,8 @@ public class OMEROMetadataStoreClient
     public void setCommentAnnotationDescription(String description,
             int commentAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        CommentAnnotation o = getCommentAnnotation(commentAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7307,8 +7349,8 @@ public class OMEROMetadataStoreClient
     public void setDoubleAnnotationDescription(String description,
             int doubleAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        DoubleAnnotation o = getDoubleAnnotation(doubleAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7316,7 +7358,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setDoubleAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7335,8 +7377,8 @@ public class OMEROMetadataStoreClient
     public void setFileAnnotationDescription(String description,
             int fileAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        FileAnnotation o = getFileAnnotation(fileAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7344,7 +7386,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setFileAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7353,8 +7395,8 @@ public class OMEROMetadataStoreClient
     public void setListAnnotationDescription(String description,
             int listAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        ListAnnotation o = getListAnnotation(listAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7362,7 +7404,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setListAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
 
@@ -7382,8 +7424,8 @@ public class OMEROMetadataStoreClient
     public void setLongAnnotationDescription(String description,
             int longAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        LongAnnotation o = getLongAnnotation(longAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7391,7 +7433,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setLongAnnotationAnnotator(String value, int XMLAnnotationIndex)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /**
@@ -7423,8 +7465,8 @@ public class OMEROMetadataStoreClient
     public void setTagAnnotationDescription(String description,
             int tagAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TagAnnotation o = getTagAnnotation(tagAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7456,7 +7498,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTagAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7497,8 +7539,8 @@ public class OMEROMetadataStoreClient
     public void setTermAnnotationDescription(String description,
             int termAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TermAnnotation o = getTermAnnotation(termAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7530,7 +7572,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTermAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -7558,8 +7600,8 @@ public class OMEROMetadataStoreClient
     public void setTimestampAnnotationDescription(String description,
             int timestampAnnotationIndex)
     {
-        // TODO Auto-generated method stub
-
+        TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+        o.setDescription(toRType(description));
     }
 
     /* (non-Javadoc)
@@ -7567,27 +7609,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setTimestampAnnotationAnnotator(String value, int index)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setXMLAnnotationAnnotationRef(java.lang.String, int, int)
-     */
-    public void setXMLAnnotationAnnotationRef(String annotation,
-            int XMLAnnotationIndex, int annotationRefIndex)
-    {
-        LSID key = new LSID(XmlAnnotation.class, XMLAnnotationIndex);
-        addReference(key, new LSID(annotation));
-    }
-
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setXMLAnnotationDescription(java.lang.String, int)
-     */
-    public void setXMLAnnotationDescription(String description,
-            int XMLAnnotationIndex)
-    {
-        // TODO Auto-generated method stub
-
+        // TODO : not in OMERO model
     }
 
     //
@@ -8293,7 +8315,7 @@ public class OMEROMetadataStoreClient
      */
     public void  setRightsRightsHeld(String value)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
     }
 
     /* (non-Javadoc)
@@ -8301,7 +8323,11 @@ public class OMEROMetadataStoreClient
      */
     public void  setRightsRightsHolder(String value)
     {
-        throw new org.apache.commons.lang.NotImplementedException("TODO");
+        // TODO : not in OMERO model
+    }
+
+    public void setCurrentLogFile(String logFilename) {
+        this.logFilename = logFilename;
     }
 
 }

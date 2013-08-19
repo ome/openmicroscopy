@@ -160,12 +160,14 @@ public final class SplashScreenInit
         int index = max;
         UserCredentials uc;
         UserNotifier un = UIFactory.makeUserNotifier(container);
+
         while (0 < max--) {
             uc = splashScreen.getUserCredentials((max == index-1));
+            //needed b/c need to retrieve user's details later.
+            reg.bind(LookupNames.USER_CREDENTIALS, uc);
+
             switch (loginSvc.login(uc)) {
 				case LoginService.CONNECTED:
-					//needed b/c need to retrieve user's details later.
-	                reg.bind(LookupNames.USER_CREDENTIALS, uc);
 	                max = 0;
 	                break;
 	

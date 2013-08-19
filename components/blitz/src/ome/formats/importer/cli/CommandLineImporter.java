@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2009-2011 University of Dundee & Open Microscopy Environment.
+ *   Copyright (C) 2009-2013 University of Dundee & Open Microscopy Environment.
  *   All rights reserved.
  *
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -138,7 +138,8 @@ public class CommandLineImporter {
 
         else {
             library.addObserver(new LoggingImportMonitor());
-            library.addObserver(new ErrorHandler(config));
+            // error handler has been configured in constructor from main args
+            library.addObserver(this.handler);
             successful = library.importCandidates(config, candidates);
             report();
         }
@@ -206,14 +207,16 @@ public class CommandLineImporter {
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
                                         + "  --no_thumbnails\tDo not perform thumbnailing after import\n"
-                                        + "  --debug[=ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
+                                        + "  --plate_name\t\tPlate name to use\n"
+                                        + "  --plate_description\tPlate description to use\n"
+                                        + "  --debug[ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
                                         + "  --report\t\tReport errors to the OME team\n"
                                         + "  --upload\t\tUpload broken files with report\n"
                                         + "  --logs\t\tUpload log file with report\n"
-                                        + "  --email=...\tEmail for reported errors\n"
-                                        + "  --annotation_ns=...\tNamespace to use for subsequent annotation\n"
-                                        + "  --annotation_text=...\tContent for a text annotation (requires namespace)\n"
-                                        + "  --annotation_link=...\tComment annotation ID to link all images to\n"
+                                        + "  --email\t\tEmail for reported errors\n"
+                                        + "  --annotation_ns\tNamespace to use for subsequent annotation\n"
+                                        + "  --annotation_text\tContent for a text annotation (requires namespace)\n"
+                                        + "  --annotation_link\tComment annotation ID to link all images to\n"
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"

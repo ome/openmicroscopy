@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -49,7 +51,7 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class ThumbnailFieldsLoader 
+public class ThumbnailFieldsLoader
 	extends DataBrowserLoader
 {
 
@@ -57,17 +59,20 @@ public class ThumbnailFieldsLoader
 	 * The <code>DataObject</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Collection<DataObject>	images;
+    private Collection<DataObject> images;
     
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle 	 			handle;
+    private CallHandle handle;
 
     /** The row identifying the well. */
-    private int 					row;
+    private int row;
     
     /** The column identifying the well. */
-    private int 					column;
+    private int column;
     
+	/** The loaded thumbnails.*/
+	private List<Object> result;
+	
     /**
      * Creates a new instance.
      * 
@@ -117,9 +122,13 @@ public class ThumbnailFieldsLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-        List l = (List) fe.getPartialResult();
-        if (l != null) 
-        	viewer.setThumbnailsFieldsFor(l, row, column);
+        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+    	if (td != null) {
+    		if (result == null) result = new ArrayList<Object>();
+        	result.add(td);
+    		if (result.size() == images.size())
+    			viewer.setThumbnailsFieldsFor(result, row, column);
+    	}
     }
     
     /**

@@ -178,8 +178,8 @@
             <list>
                 <value>/Instrument/Detector</value>
                 <value>/Instrument/Dichroic</value>
-                <value>/Instrument/Filter/TransmittanceRange</value>
                 <value>/Instrument/Filter</value>
+                <value>/Instrument/Filter/TransmittanceRange</value>
                 <value>/LightSource;SOFT;/Instrument</value>
                 <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
                 <value>/Instrument/Objective</value>

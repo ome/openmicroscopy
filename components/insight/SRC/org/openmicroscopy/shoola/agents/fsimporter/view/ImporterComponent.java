@@ -100,6 +100,9 @@ class ImporterComponent
 	/** Title displayed in dialog box when cancelling import.*/
 	private static final String CANCEL_TITLE = "Cancel Import";
 	
+	/** If a given plane is larger than the size, the thumbnail is not loaded.*/
+	private static final int MAX_SIZE = 2000*2000;
+	
 	/** The Model sub-component. */
 	private ImporterModel 	model;
 	
@@ -495,41 +498,7 @@ class ImporterComponent
 			bus.post(new ExitApplication());
 			return;
 		}
-		Collection<ImporterUIElement> list = view.getImportElements();
-		List<ImporterUIElement> 
-		toImport = new ArrayList<ImporterUIElement>();
-		if (CollectionUtils.isEmpty(list)) {
-			 view.setVisible(false);
-			return;
-		}
-		Iterator<ImporterUIElement> i = list.iterator();
-		ImporterUIElement element;
-		ImporterUIElement started = null;
-		while (i.hasNext()) {
-			element = i.next();
-			if (element.hasStarted()) started = element;
-			if (!element.isUploadComplete())
-				toImport.add(element);
-		}
-		if (toImport.size() > 0) {
-			MessageBox box = new MessageBox(view, CANCEL_TITLE,
-					CANCEL_TEXT+"\n" +
-					"If Yes, the window will close when the on-going " +
-					"upload is completed.");
-			if (box.centerMsgBox() == MessageBox.NO_OPTION)
-				return;
-			markToclose = true;
-			i = toImport.iterator();
-			while (i.hasNext()) {
-				element = i.next();
-				element.cancelLoading();
-				model.cancel(element.getID());
-			}
-			if (started != null && started.isUploadComplete()) {
-				markToclose = false;
-			}
-		} else markToclose = false;
-		if (!markToclose) view.setVisible(false);
+		view.setVisible(false);
 	}
 	
 	/** 
@@ -645,7 +614,7 @@ class ImporterComponent
 			Collection<ImporterUIElement> list = view.getImportElements();
 			List<ImporterUIElement> 
 			toImport = new ArrayList<ImporterUIElement>();
-			if (list == null || list.size() == 0) return;
+			if (CollectionUtils.isEmpty(list)) return;
 			Iterator<ImporterUIElement> i = list.iterator();
 			ImporterUIElement element;
 			while (i.hasNext()) {
@@ -654,17 +623,9 @@ class ImporterComponent
 					toImport.add(element);
 			}
 			if (toImport.size() > 0) {
-				MessageBox box = new MessageBox(view, CANCEL_TITLE,
-						CANCEL_TEXT);
-				if (box.centerMsgBox() == MessageBox.NO_OPTION)
-					return;
 				i = toImport.iterator();
 				while (i.hasNext()) {
-					element = i.next();
-					//if (element.hasImportToCancel()) {
-						element.cancelLoading();
-						//model.cancel(element.getID());
-					//}
+					i.next().cancelLoading();
 				}
 			}
 		}
@@ -864,12 +825,17 @@ class ImporterComponent
 			klass = PlateData.class;
 		}
 		int index = 0;
+		PixelsData pxd;
 		while (i.hasNext()) {
 			if (index == n) break;
-			l.add(i.next());
-			index++;
+			pxd = i.next();
+			if (pxd.getSizeX()*pxd.getSizeY() < MAX_SIZE) {
+				l.add(pxd);
+				index++;
+			}
 		}
-		model.fireImportResultLoading(l, klass, component);
+		if (l.size() > 0)
+			model.fireImportResultLoading(l, klass, component);
 	}
 
 	/** 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.dataBrowser.view.SearchModel 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
@@ -158,13 +157,15 @@ class SearchModel
 			}
 		}
 		if (map.size() == 0) return;
-		Entry e;
-		Iterator j = map.entrySet().iterator();
+		Entry<Long, List<ImageData>> e;
+		Iterator<Entry<Long, List<ImageData>>> j = map.entrySet().iterator();
 		DataBrowserLoader loader;
+		Collection<DataObject> l;
 		while (j.hasNext()) {
-			e = (Entry) j.next();
+			e = j.next();
+			l = sorter.sort(e.getValue());
 			loader = new ThumbnailLoader(component, new SecurityContext(
-					(Long) e.getKey()), sorter.sort((List) e.getValue()));
+					e.getKey()), l, l.size());
 			loader.load();
 		}
 		state = DataBrowser.LOADING;
@@ -174,7 +175,7 @@ class SearchModel
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh, 
+	protected  List<DataBrowserLoader> createDataLoader(boolean refresh, 
 			Collection ids)
 	{
 		return null;

@@ -67,5 +67,5 @@ cb.close(True)      # close handle too
 
 # Close connection:
 # =================================================================
-# When you're done, close the session to free up server resources.
+# When you are done, close the session to free up server resources.
 conn._closeSession()

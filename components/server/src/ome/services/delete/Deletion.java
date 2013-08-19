@@ -326,6 +326,7 @@ public class Deletion {
      * processing step.
      */
     public void finish() throws GraphException {
+        // TODO: should implement validate in DeleteStep
         Set<Long> filesets = new HashSet<Long>();
         for (int i = 0; i < state.getTotalFoundCount(); i++) {
             DeleteStep step = (DeleteStep) state.getStep(i);

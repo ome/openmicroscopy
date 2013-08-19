@@ -167,10 +167,11 @@ public class FileUploader
 				if (b || id > 0) {
 					directory = Files.createTempDir();
 					//Add the file to the directory.
-					directory = new File(directory.getParentFile(),
-							FilenameUtils.removeExtension(f.getName()));
-					if (f != null)
+					if (f != null) {
+						directory = new File(directory.getParentFile(),
+								FilenameUtils.removeExtension(f.getName()));
 						FileUtils.copyFileToDirectory(f, directory, true);
+					}
 					usedFiles = object.getUsedFiles();
 					if (usedFiles != null) {
 						for (int i = 0; i < usedFiles.length; i++) {

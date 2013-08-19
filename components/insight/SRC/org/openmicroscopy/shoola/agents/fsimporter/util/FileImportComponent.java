@@ -517,7 +517,7 @@ public class FileImportComponent
 			statusLabel.markedAsCancel();
 			cancelButton.setEnabled(false);
 			cancelButton.setVisible(false);
-			if (fire)
+			//if (fire)
 				firePropertyChange(CANCEL_IMPORT_PROPERTY, null, this);
 		}
 	}
@@ -1036,7 +1036,15 @@ public class FileImportComponent
 	 */
 	public boolean isCancelled()
 	{
-		return statusLabel.isMarkedAsCancel();
+		boolean b = statusLabel.isMarkedAsCancel();
+		if (b || getFile().isFile()) return b;
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().isCancelled())
+				return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -1047,11 +1055,11 @@ public class FileImportComponent
 	 */
 	public boolean hasFailuresToReimport()
 	{
-		if (getFile().isFile()) return hasImportFailed() && !reimported;
+		if (getFile().isFile()) return hasUploadFailed() && !reimported;
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
-			if (i.next().hasFailuresToReimport())
+			if (i.next().hasUploadFailed())
 				return true;
 		}
 		return false;
@@ -1333,7 +1341,7 @@ public class FileImportComponent
 	{
 		List<FileImportComponent> l = null;
 		if (getFile().isFile()) {
-			if (resultIndex == ImportStatus.UPLOAD_FAILURE && !reimported) {
+			if (hasFailuresToReupload() && !reimported) {
 				return Arrays.asList(this);
 			}
 		} else {

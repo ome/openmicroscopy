@@ -11,6 +11,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import ome.conditions.InternalException;
 import ome.security.basic.CurrentDetails;
@@ -52,10 +53,18 @@ public class CallContext implements MethodInterceptor {
                     final Map<String, String> ctx = current.ctx;
                     if (ctx != null && ctx.size() > 0) {
                         cd.setContext(ctx);
+                        if (ctx.containsKey("omero.logfilename")) {
+                            MDC.put("fileset", ctx.get("omero.logfilename"));
+                        }
                     }
                 }
             }
         }
-        return arg0.proceed();
+
+        try {
+            return arg0.proceed();
+        } finally {
+            MDC.clear();
+        }
     }
 }
