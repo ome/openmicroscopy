@@ -1,21 +1,6 @@
 *** Keywords ***
 
 # All these keywords should be identical in Web and Insight
-Click Thumbnail
-    [Arguments]    ${imageId}
-    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
-    Click Element    ${thumbId}
-
-Thumbnail Should Be Selected
-    [Arguments]    ${imageId}    ${expected}=${true}
-    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
-    Run Keyword If    ${expected}    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and contains(@class, 'ui-selected')]
-    ...    ELSE    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and not(contains(@class, 'ui-selected'))]
-
-Thumbnail Should Not Be Selected
-    [Arguments]    ${imageId}
-    Thumbnail Should Be Selected    ${imageId}    ${false}
-
 Tree Should Be Visible
     Element Should Be Visible    dataTree
 
