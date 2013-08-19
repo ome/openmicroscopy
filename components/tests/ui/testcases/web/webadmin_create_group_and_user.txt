@@ -20,19 +20,13 @@ Check Group Form
     Page Should Contain    Add group
     Page Should Contain    Fields marked in red are mandatory.
     
-    Page Should Contain    Name
-    Page Should Contain Textfield    name=name
-    Page Should Contain    Description
-    Page Should Contain Textfield    name=description
+    Page Should Contain Field    Name   name
+    Page Should Contain Field    Description    description
     
-    Page Should Contain    Owners
-    Page Should Contain Textfield    Choose one or more owners
-    Page Should Contain    Members
-    Page Should Contain Textfield    Choose one or more members
+    Page Should Contain Choice Field    Owners    Choose one or more owners
+    Page Should Contain Choice Field    Members    Choose one or more members
     
-    Page Should Contain    Permissions
-    Page Should Contain Radio Button    permissions
-    Radio Button Should Be Set To    permissions    0
+    Page Should Contain Radio    Permissions    permissions    0
     
     Page Should Contain    Private
     Page Should Contain    Read-Only
@@ -57,32 +51,19 @@ Check User Form
     Page Should Contain    New User
     Page Should Contain    Fields marked in red are mandatory.
     
-    Page Should Contain    Username
-    Page Should Contain Textfield    name=omename
-    Page Should Contain    Password
-    Page Should Contain Element    name=password
-    Page Should Contain    Confirmation
-    Page Should Contain Element    name=confirmation
-    Page Should Contain    First name
-    Page Should Contain Textfield    name=first_name
-    Page Should Contain    Middle name
-    Page Should Contain Textfield    name=middle_name
-    Page Should Contain    Last name
-    Page Should Contain Textfield    name=last_name
-    Page Should Contain    Email
-    Page Should Contain Textfield    name=email
-    Page Should Contain    Institution
-    Page Should Contain Textfield    name=institution
+    Page Should Contain Field    Username   omename
+    Page Should Contain Password Field    Password    password
+    Page Should Contain Password Field    Confirmation    confirmation
+    Page Should Contain Field    First name    first_name
+    Page Should Contain Field    Middle name    middle_name
+    Page Should Contain Field    Last name    last_name
+    Page Should Contain Field    Email    email
+    Page Should Contain Field    Institution    institution
     
-    Page Should Contain    Administrator
-    Page Should Contain Checkbox    administrator
-    Checkbox Should Not Be Selected    administrator
-    Page Should Contain    Active
-    Page Should Contain Checkbox    active
-    Checkbox Should Be Selected    active
+    Page Should Contain Checkbox Field    Administrator    administrator
+    Page Should Contain Checkbox Field    Active    active    selected=${True}
     
-    Page Should Contain    Group
-    Page Should Contain Textfield    Choose one or more groups
+    Page Should Contain Choice Field    Group    Choose one or more groups
     
     Page Should Contain Button    Save
     
@@ -128,3 +109,4 @@ Create Group
     
     Log Out
     [Teardown]    Close Browser
+
