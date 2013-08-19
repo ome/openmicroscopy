@@ -106,6 +106,7 @@
         </run_py>
     </target>
 
+    <!-- point the build file used to generate the ui libraries -->
     <macrodef name="librarybuild">
         <attribute name="target"/>
         <sequential>
@@ -125,6 +126,7 @@
 
     <!-- delete the reports directory -->
     <target name="tests-clean" depends="clean">
-    <delete dir="*/target"/>
+    <delete dir="${basedir}/target"/>
+    <librarybuild target="clean"/>
     </target>
 </project>

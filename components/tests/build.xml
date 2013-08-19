@@ -15,6 +15,7 @@
 
 	<target name="clean" depends="buildlist" description="Calls 'tests-clean' on all components.">
 		<iterate target="tests-clean"/>
+		<delete dir="${tests.dest}"/>
 	</target>
 
 	<target name="build" depends="buildlist" description="Calls 'tools-build' on all components to fill target">

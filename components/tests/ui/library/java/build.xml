@@ -16,4 +16,8 @@
     <target name="package" depends="compile"> <!-- depending on compile like lifecycle.package does -->
 	<jar update="true" destfile="${target.dir}/${ivy.module}.jar"/>
     </target>
+
+    <target name="clean">
+        <delete dir="${basedir}/target"/>
+    </target>
 </project>
