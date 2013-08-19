@@ -1,14 +1,14 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="ui-scripts"
+      module="ui-libraries"
       status="integration"/>
   <configurations>
     <conf name="build"/>
     <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="ui-scripts" type="jar"/>
+    <artifact name="ui-libraries" type="jar"/>
   </publications>
   <dependencies defaultconfmapping="build,client->default">
     <dependency org="robot-framework" name="swinglibrary" rev="${versions.robotframework.swinglibrary}"/>
