@@ -69,3 +69,32 @@ Unique name
     [Arguments]    ${name}
     ${unique}    Get Time    epoch
     [Return]    ${name}_${unique}
+
+
+Page Should Contain Field 
+    [Arguments]    ${label}    ${value}
+    Page Should Contain    ${label}
+    Page Should Contain Textfield    name=${value}
+
+Page Should Contain Choice Field
+    [Arguments]    ${label}    ${name}
+    Page Should Contain    ${label}
+    Page Should Contain Textfield    ${name}
+
+Page Should Contain Password Field
+    [Arguments]    ${label}    ${name}
+    Page Should Contain    ${label}
+    Page Should Contain Element    name=${name}
+
+Page Should Contain Checkbox Field
+    [Arguments]    ${label}    ${name}    ${selected}=${False}
+    Page Should Contain    ${label}
+    Page Should Contain Checkbox    ${name}
+    Run Keyword If    ${selected}    Checkbox Should Be Selected    ${name}    ELSE    Checkbox Should Not Be Selected    ${name}
+
+Page Should Contain Radio
+    [Arguments]    ${label}    ${name}    ${value}
+    Page Should Contain    ${label}
+    Page Should Contain Radio Button    ${name}
+    Radio Button Should Be Set To    ${name}    ${value}
+
