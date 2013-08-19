@@ -16,6 +16,14 @@
 	<target name="clean" depends="buildlist" description="Calls 'tests-clean' on all components.">
 		<iterate target="tests-clean"/>
 	</target>
+
+	<target name="build" depends="buildlist" description="Calls 'tools-build' on all components to fill target">
+		<mkdir dir="${tests.classes}"/>
+		<iterate target="tests-dist"/>
+	</target>
+
 	<target name="dist" description="Copies target onto an existing dist">
+		<mkdir dir="${tests.classes}/META-INF"/>
+		<mkdir dir="target/lib/server"/>
 	</target>
 </project>

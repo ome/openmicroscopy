@@ -73,6 +73,9 @@
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
+	<property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
+	<property name="tests.comp"     value="${components.dir}/tests"/>
+
 
 	<!-- Build Path References -->
 	<path id="blitz.buildpath">
@@ -113,6 +116,14 @@
 	</path>
 	<path id="tools.buildpath">
 	  <pathelement location="${tools.comp}/build.xml"/>
+	</path>
+
+	<path id="tests.buildpath">
+	  <pathelement location="${tests.comp}/build.xml"/>
+	</path>
+
+	<path id="uiLibrary.buildpath">
+	  <pathelement location="${uiLibrary.comp}/build.xml"/>
 	</path>
 
 	<!-- Tools -->
