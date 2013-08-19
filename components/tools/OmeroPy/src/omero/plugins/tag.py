@@ -345,6 +345,9 @@ class TagControl(BaseControl):
         lines = []
         for key in mapping.keys():
             lines.append("+- %s:'%s'" % (str(key), tags[key].name))
+            if args.desc:
+                lines.append("|   '%s'" % tags[key].description)
+                lines.append("|")
             lines.append('|\\')
             for tag_key in mapping[key]:
                 lines.append("| +- %s:'%s'" % (str(tag_key), tags[tag_key].name))
