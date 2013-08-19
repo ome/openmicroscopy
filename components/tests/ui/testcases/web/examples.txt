@@ -6,6 +6,7 @@ Documentation     Test creation of Projects and Datasets
 Resource          ../config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
+Resource          ../../resources/web/thumbs.txt
 
 *** Variables ***
 ${DELAY}          0
