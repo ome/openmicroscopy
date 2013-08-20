@@ -528,6 +528,13 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
+			if (ns != null) {
+			    buf.append("<b>");
+			    buf.append("Namespace: ");
+			    buf.append("</b>");
+			    buf.append(ns);
+			    buf.append("<br>");
+			}
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
