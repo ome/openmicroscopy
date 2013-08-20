@@ -643,7 +643,6 @@ public class AbstractServerTest extends AbstractTest {
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
-        iDelete = factory.getDeleteService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
 
         importer = new OMEROMetadataStoreClient();
