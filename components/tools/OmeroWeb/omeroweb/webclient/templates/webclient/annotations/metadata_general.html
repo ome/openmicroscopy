@@ -33,8 +33,8 @@
                     var regex = /(https?|ftp|file):\/\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]/g;
                     return input.replace(regex, "<a href='$&' target='_blank'>$&</a>");
                 };
-                var linkify_element = function(element) {
-                    element.html(linkify(element.html()));
+                var linkify_element = function(elements) {
+                    elements.each(function() { var $this = $(this); $this.html(linkify($this.html())); });
                 };
 
                 $("#comments_container").hide_if_empty();
@@ -59,6 +59,7 @@
                 {% else %}
                 linkify_element($( "#image_desc" ));
                 {% endif %}
+                linkify_element($( ".commentText" ));
 
                 var acquisition_load = false;
                 var preview_load = false;
@@ -161,6 +162,7 @@
                     },
                     success: function(html) {
                         var $comment = $(html)
+                        linkify_element($comment);
                         $('#comments_container').prepend( $comment ).show();
                         var textArea = $('#add_comment_form textarea');
                         textArea.val('');
