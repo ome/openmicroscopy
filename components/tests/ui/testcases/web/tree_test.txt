@@ -16,15 +16,15 @@ Resource          ../../resources/web/thumbs.txt
 Test Keywords
     User "${username}" logs in with password "${password}"
     Tree Should Be Visible
-    Node Should Be Visible    ${experimenterName}
+    Node Should Be Visible    ${experimenter_name}
     Node Should Be Visible    Orphaned images
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
     Create Button Should Be Enabled    screen
-    Node Popup Menu Item Should Be Enabled    Project    ${experimenterName}
-    Node Popup Menu Item Should Be Enabled    Dataset    ${experimenterName}
-    Node Popup Menu Item Should Be Enabled    Screen    ${experimenterName}
-    Node Popup Menu Item Should Be Disabled    Delete    ${experimenterName}
+    Node Popup Menu Item Should Be Enabled    Project    ${experimenter_name}
+    Node Popup Menu Item Should Be Enabled    Dataset    ${experimenter_name}
+    Node Popup Menu Item Should Be Enabled    Screen    ${experimenter_name}
+    Node Popup Menu Item Should Be Disabled    Delete    ${experimenter_name}
     Select And Expand Project
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
