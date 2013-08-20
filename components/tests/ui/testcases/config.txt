@@ -1,13 +1,28 @@
 *** Variables ***
-${SERVER}         localhost
-${username}       root
-${password}       omero
-${experimenter_name}       root root
+
+# OMERO config
+${OMERO HOST}           localhost
+${OMERO PORT}           4064
+
+${ROOT USERNAME}        root
+${ROOT PASSWORD}        omero
+
+${USERNAME}             ola
+${PASSWORD}             ome
 
 # Web config
-${PORT}           8000
-${BROWSER}        Firefox
-${DELAY}          0
-${LOGIN URL}      http://${SERVER}:${PORT}/webclient/login/
-${WELCOME URL}    http://${SERVER}:${PORT}/webclient/
-${ERROR URL}      http://${SERVER}:${PORT}/webclient/login/
+${HOST}                 localhost
+${PORT}                 8080
+${BROWSER}              Firefox
+${DELAY}                1
+
+${LOGIN URL}            http://${HOST}:${PORT}/webclient/login/
+${WELCOME URL}          http://${HOST}:${PORT}/webclient/
+
+${WEBADMIN WELCOME URL}     http://${HOST}:${PORT}/webadmin/
+${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%2Fwebadmin%2F
+
+${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/
+${GROUPS URL}           ${WEBADMIN WELCOME URL}groups/
+
+${experimenter_name}       root root
