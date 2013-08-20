@@ -33,6 +33,10 @@ import omero.model.GroupExperimenterMap;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
+
+//Third-party libraries
+import org.testng.annotations.Test;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 

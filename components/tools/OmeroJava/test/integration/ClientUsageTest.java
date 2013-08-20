@@ -6,7 +6,7 @@
  */
 package integration;
 
-import static omero.rtypes.*;
+import static omero.rtypes.rstring;
 
 import java.util.List;
 import java.util.UUID;

@@ -55,7 +55,6 @@ import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
 import omero.model.PlateAcquisitionAnnotationLinkI;
-import omero.model.PlateAcquisitionI;
 import omero.model.PlateAnnotationLink;
 import omero.model.PlateAnnotationLinkI;
 import omero.model.PlateI;
@@ -87,8 +86,8 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
-import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
@@ -99,7 +98,6 @@ import pojos.ImageData;
 import pojos.LineData;
 import pojos.LongAnnotationData;
 import pojos.MaskData;
-import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.PointData;
 import pojos.PolygonData;

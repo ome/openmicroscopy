@@ -158,9 +158,6 @@ public class AbstractServerTest
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
     
-    /** Helper reference to the <code>IDelete</code> service. */
-    protected IDeletePrx iDelete;
-
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 

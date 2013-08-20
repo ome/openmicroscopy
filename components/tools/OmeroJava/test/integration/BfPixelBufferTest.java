@@ -7,32 +7,20 @@
 package integration;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import junit.framework.TestCase;
-
 import loci.formats.ImageReader;
-
-import ome.io.nio.AbstractFileSystemService;
+import ome.io.bioformats.BfPixelBuffer;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
-import ome.io.bioformats.BfPixelBuffer;
-import ome.util.PixelData;
-import omero.api.IPixelsPrx;
-import omero.api.IQuery;
+import omero.ServerError;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Pixels;
-import omero.ServerError;
-import omero.util.IceMapper;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.ResourceUtils;

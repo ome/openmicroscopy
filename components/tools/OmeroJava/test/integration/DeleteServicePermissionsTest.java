@@ -42,6 +42,9 @@ import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
 /** 
  * Collections of tests for the <code>Delete</code> service related to permissions.
  * Unlike {@link DeleteServiceTest} we are <em>not</em> creating a new user before

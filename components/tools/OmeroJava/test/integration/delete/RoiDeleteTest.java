@@ -8,13 +8,13 @@ package integration.delete;
 
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.cmd.Delete;
