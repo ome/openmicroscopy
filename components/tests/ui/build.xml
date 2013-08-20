@@ -43,6 +43,8 @@
 
     <property name="target.dir" value="${basedir}/../../../target/repository"/>
 
+    <property name="google.log" value="${basedir}/libpeerconnection.log"/>
+
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
@@ -94,6 +96,13 @@
             <arg value="browser:chrome"/>
             <arg value="${basedir}/testcases/web/"/>
         </exec>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/chrome"/>
+            </then>
+        </if>
+        
     </target>
 
     <!-- point the build file used to generate the ui libraries -->
