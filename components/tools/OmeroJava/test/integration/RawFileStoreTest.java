@@ -32,7 +32,6 @@ import omero.model.OriginalFile;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class RawFileStoreTest 
 	extends AbstractServerTest
 {
@@ -94,7 +93,7 @@ public class RawFileStoreTest
      * @throws Exception Thrown if an error occurred.
      * @see #testUploadFile() 
      */
-    @Test
+    @Test(groups = "broken")
     public void testDownloadScript() 
     	throws Exception 
     {

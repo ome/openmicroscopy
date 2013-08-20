@@ -77,7 +77,6 @@ import pojos.ScreenData;
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 2.0
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class PojosServiceTest 
 	extends AbstractServerTest
 {
@@ -761,7 +760,7 @@ public class PojosServiceTest
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testFindContainerHierarchiesProjectAsRootFilterByOwner() 
     	throws Exception
     {
@@ -1021,7 +1020,7 @@ public class PojosServiceTest
      * counted.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testLoadContainerHierarchyProjectDatasetWithAnnotations() 
     	throws Exception 
     {
@@ -1101,7 +1100,7 @@ public class PojosServiceTest
      * counted.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testLoadContainerHierarchyScreenPlatePlateAcquisitionWithAnnotations() 
     	throws Exception 
     {
@@ -1209,7 +1208,7 @@ public class PojosServiceTest
      * Test to find the P/D the specified images are in.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testFindContainerHierarchyFromProject() 
     	throws Exception 
     {
@@ -1262,7 +1261,7 @@ public class PojosServiceTest
      * Test to find the P/D the specified images are in.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testFindContainerHierarchyFromDataset() 
     	throws Exception 
     {
@@ -1299,7 +1298,7 @@ public class PojosServiceTest
      * Test to find the P/D the specified images are in.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testFindContainerHierarchyFromImage() 
     	throws Exception 
     {
@@ -1320,7 +1319,7 @@ public class PojosServiceTest
      * Test to find the P/D the specified images are in.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testFindContainerHierarchyWrongType() 
     	throws Exception 
     {

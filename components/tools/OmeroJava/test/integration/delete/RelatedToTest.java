@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
  *
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class RelatedToTest extends AbstractServerTest {
 
     @Test(groups = { "ticket:1228", "ticket:2776" })

@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -48,7 +48,6 @@ import omero.sys.ParametersI;
  *
  * @since 4.2.1
  */
-@Test(groups = {"delete", "integration"})
 public class DeleteServicePermissionsTest 
 	extends AbstractServerTest
 {
@@ -184,7 +183,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRW--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRWRW()
     	throws Exception
     {
@@ -221,25 +220,25 @@ public class DeleteServicePermissionsTest
      * i.e. RW----. The data should not be deleted
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRW()
     	throws Exception
     {
         EventContext ownerEc = newUserAndGroup("rw----");
 
-    	//owner creates the image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
-		
-    	//group owner deletes it
-		disconnect();
-		newUserInGroup(ownerEc);
-		makeGroupOwner();
+        //owner creates the image
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
 
-		delete(client, new Delete(
-    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+        //group owner deletes it
+        disconnect();
+        newUserInGroup(ownerEc);
+        makeGroupOwner();
 
-		assertDoesNotExist(img); // Deletion permitted in 4.4
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE,
+                img.getId().getValue(), null));
+
+        assertDoesNotExist(img); // Deletion permitted in 4.4
     }
     
     /**
@@ -899,7 +898,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRA--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByGroupOwnerRWRA()
     	throws Exception
     {
@@ -936,7 +935,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWR---
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWR()
     	throws Exception
     {
@@ -960,7 +959,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRA--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWRA()
     	throws Exception
     {
@@ -984,7 +983,7 @@ public class DeleteServicePermissionsTest
      * i.e. RWRW--
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testDeleteObjectByMemberRWRW()
     	throws Exception
     {
