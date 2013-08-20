@@ -16,7 +16,7 @@ Resource          ../../resources/web/thumbs.txt
 Test Keywords
     User "${username}" logs in with password "${password}"
     Tree Should Be Visible
-    Node Should Be Visible    ${experimenter_name}
+    Wait For Node To Be Visible    ${experimenter_name}
     Node Should Be Visible    Orphaned images
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
