@@ -2,6 +2,7 @@
 ${SERVER}         localhost
 ${username}       root
 ${password}       omero
+${experimenter_name}       root root
 
 # Web config
 ${PORT}           8000
