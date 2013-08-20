@@ -11,14 +11,10 @@ Resource          ../../resources/web/thumbs.txt
 # Library           Screenshot
 Library           ImageCheckLibrary
 
-
-*** Variables ***
-# ${DELAY}          0
-
 *** Test Cases ***
 
 Test Keywords
-    User "${username}" logs in with password "${password}"
+    User "${USERNAME}" logs in with password "${PASSWORD}"
 
     ${imageId}    Select And Expand Image
 
