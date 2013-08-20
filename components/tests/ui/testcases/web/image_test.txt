@@ -13,10 +13,7 @@ Library           ImageCheckLibrary
 
 
 *** Variables ***
-${DELAY}          0
-${username}       will
-${password}       ome
-${experimenterName}       Will Moore
+# ${DELAY}          0
 
 *** Test Cases ***
 
