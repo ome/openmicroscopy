@@ -7,8 +7,8 @@ ${OMERO PORT}           4064
 ${ROOT USERNAME}        root
 ${ROOT PASSWORD}        omero
 
-${USERNAME}             ola
-${PASSWORD}             ome
+${USERNAME}             root
+${PASSWORD}             omero
 
 # Web config
 ${HOST}                 localhost
