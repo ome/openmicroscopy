@@ -8,14 +8,16 @@ Documentation     A test suite with a single test for valid login.
 Resource          ../../resources/web/webadmin.txt
 Resource          ../config.txt
 
+Suite Setup       Open Browser To Webadmin And Log In As Root
+
+Suite Teardown    Logout and Teardown
+
 
 *** Test Cases ***
 
 Check Group Form
     [Documentation]     Tests elements on the create group page
 
-    Open Browser To Webadmin Login Page
-    Log In As Root
     Page Should Be Open    ${USERS URL}
     Click Link    link=Groups
     Click Link    link=Add new Group
@@ -38,16 +40,12 @@ Check Group Form
     Page Should Contain Button    Save
     
     Page Should Contain Link    OMERO Permissions
-    
-    Log Out
-    [Teardown]    Close Browser
 
 
 Check User Form
     [Documentation]     Tests elements on the create user page
     
-    Open Browser To Webadmin Login Page
-    Log In As Root
+    Go To    ${USERS URL}
     Page Should Be Open    ${USERS URL}
     Click Link    link=Add new User
     
@@ -69,16 +67,12 @@ Check User Form
     Page Should Contain Choice Field    Group    Choose one or more groups
     
     Page Should Contain Button    Save
-    
-    Log Out
-    [Teardown]    Close Browser
 
 
 Create Group
     [Documentation]     Tests group creation
     
-    Open Browser To Webadmin Login Page
-    Log In As Root
+    Go To    ${USERS URL}
     Page Should Be Open    ${USERS URL}
     Click Link    link=Groups
     Click Link    link=Add new Group
@@ -109,7 +103,4 @@ Create Group
     Click Element    xpath=//ul[@class='chzn-results']/li[contains(text(),'${group_name}')]
     
     Click Button    Save
-    
-    Log Out
-    [Teardown]    Close Browser
 
