@@ -14,11 +14,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import omero.api.IAdminPrx;
 import omero.api.IMetadataPrx;
@@ -95,6 +91,10 @@ import omero.model.XmlAnnotation;
 import omero.model.XmlAnnotationI;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import pojos.BooleanAnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.DoubleAnnotationData;

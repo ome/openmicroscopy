@@ -23,6 +23,9 @@
  */
 package integration.chgrp;
 
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,9 +44,6 @@ import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 /**
  * Tests the move of data objects containing others members data.

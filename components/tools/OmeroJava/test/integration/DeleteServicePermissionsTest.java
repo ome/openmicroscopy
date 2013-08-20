@@ -10,18 +10,11 @@ package integration;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-
-import omero.ApiUsageException;
-import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.cmd.Delete;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -40,6 +33,9 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
 
 /** 
  * Collections of tests for the <code>Delete</code> service related to permissions.

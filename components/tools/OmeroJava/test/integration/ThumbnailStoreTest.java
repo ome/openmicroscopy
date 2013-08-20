@@ -23,18 +23,18 @@
 package integration;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.ArrayList;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import ome.formats.OMEROMetadataStoreClient;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.model.Pixels;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /** 
  * Collections of tests for the <code>ThumbnailStore</code> service.

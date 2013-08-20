@@ -110,7 +110,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import pojos.FileAnnotationData;
-
 import spec.XMLMockObjects;
 import spec.XMLWriter;
 

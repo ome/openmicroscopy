@@ -6,9 +6,11 @@
  */
 package integration.chgrp;
 
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Arrays;
 
 import omero.cmd.Chgrp;
 import omero.model.Dataset;
@@ -16,16 +18,10 @@ import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.ExperimenterGroup;
 import omero.model.Image;
-import omero.model.Project;
-import omero.model.ProjectDatasetLink;
-import omero.model.ProjectDatasetLinkI;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
-
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 
 /**

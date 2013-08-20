@@ -29,9 +29,6 @@ import omero.api.IDeletePrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.api.delete.DeleteReport;
 import omero.cmd.Chmod;
 import omero.cmd.CmdCallbackI;
 import omero.cmd.Delete;
@@ -45,7 +42,6 @@ import omero.cmd.Request;
 import omero.cmd.Response;
 import omero.cmd.State;
 import omero.cmd.Status;
-import omero.grid.DeleteCallbackI;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.ChannelBinding;
@@ -100,7 +96,6 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import spec.AbstractTest;
 //Application-internal dependencies
@@ -153,9 +148,6 @@ public class AbstractServerTest
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
     
-    /** Helper reference to the <code>IDelete</code> service. */
-    protected IDeletePrx iDelete;
-
     /** Reference to the importer store. */
     protected OMEROMetadataStoreClient importer;
 

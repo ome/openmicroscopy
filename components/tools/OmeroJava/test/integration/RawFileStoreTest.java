@@ -11,13 +11,13 @@ package integration;
 import java.util.Iterator;
 import java.util.List;
 
-//Third-party libraries
-import org.testng.annotations.Test;
-
 //Application-internal dependencies
 import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
+
+//Third-party libraries
+import org.testng.annotations.Test;
 
 /** 
  * Collections of tests for the <code>RawFileStore</code> service.

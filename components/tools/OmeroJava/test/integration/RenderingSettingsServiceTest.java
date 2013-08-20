@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
-
 import omero.api.IRenderingSettingsPrx;
 import omero.model.Channel;
 import omero.model.ChannelBinding;
@@ -39,6 +37,8 @@ import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.Test;
 
 /** 
  * Collections of tests for the <code>RenderingSettingsService</code> service.

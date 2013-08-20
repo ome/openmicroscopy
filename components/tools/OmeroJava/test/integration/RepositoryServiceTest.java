@@ -10,11 +10,11 @@ package integration;
 //Java imports
 
 //Third-party libraries
-import org.testng.annotations.Test;
-
 //Application-internal dependencies
 import omero.InternalException;
 import omero.api.IRepositoryInfoPrx;
+
+import org.testng.annotations.Test;
 
 /** 
  *  Collections of tests for the <code>Repository</code> service.

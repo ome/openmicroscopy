@@ -8,6 +8,8 @@
 
 package integration;
 
+import static omero.rtypes.rlong;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -15,12 +17,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
-
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import omero.RType;
 import omero.api.IAdminPrx;
@@ -58,14 +57,17 @@ import omero.model.ScreenAnnotationLinkI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.StageLabel;
-import static omero.rtypes.rlong;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.PlateData;
 import pojos.PlateAcquisitionData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 

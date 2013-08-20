@@ -9,28 +9,20 @@ package integration;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import java.util.Set;
 
 import ome.xml.model.OME;
 import ome.xml.model.primitives.Color;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
-import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.BooleanAnnotation;
@@ -84,6 +76,11 @@ import omero.model.WellReagentLink;
 import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import spec.XMLMockObjects;
 import spec.XMLWriter;

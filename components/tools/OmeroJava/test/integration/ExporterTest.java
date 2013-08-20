@@ -17,30 +17,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import loci.common.RandomAccessInputStream;
 import loci.formats.tiff.TiffParser;
 import loci.formats.tiff.TiffSaver;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.w3c.dom.Document;
-
-
 import omero.api.ExporterPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.FileAnnotation;
@@ -53,7 +37,13 @@ import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
 import omero.sys.ParametersI;
-import spec.SchemaResolver;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.RandomStringUtils;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import spec.OmeValidator;
 
 /** 

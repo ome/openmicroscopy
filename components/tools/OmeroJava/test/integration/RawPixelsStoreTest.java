@@ -27,15 +27,15 @@ package integration;
 import java.util.Arrays;
 import java.util.List;
 
-//Third-party libraries
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
 //Application-internal dependencies
 import ome.io.nio.RomioPixelBuffer;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
+
+//Third-party libraries
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /** 
  * Collections of tests for the <code>RawPixelsStore</code> service.

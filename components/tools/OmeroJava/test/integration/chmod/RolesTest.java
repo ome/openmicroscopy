@@ -24,13 +24,12 @@
 package integration.chmod;
 
 
+import static omero.rtypes.rstring;
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
+
 import java.util.List;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
-
-
-import static omero.rtypes.rstring;
 import omero.cmd.Delete;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
@@ -46,9 +45,11 @@ import omero.model.Image;
 import omero.model.Permissions;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
 import pojos.DatasetData;
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
 
 /** 
  * Tests the can edit, can annotate.

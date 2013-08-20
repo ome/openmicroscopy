@@ -17,14 +17,11 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-
-import org.testng.annotations.Test;
 
 import omero.api.IPixelsPrx;
 import omero.api.RenderingEnginePrx;
@@ -40,10 +37,12 @@ import omero.romio.PlaneDef;
 import omero.romio.RGBBuffer;
 import omero.romio.RegionDef;
 import omero.sys.EventContext;
-import sun.awt.image.IntegerInterleavedRaster;
+
+import org.testng.annotations.Test;
 
 import spec.XMLMockObjects;
 import spec.XMLWriter;
+import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.

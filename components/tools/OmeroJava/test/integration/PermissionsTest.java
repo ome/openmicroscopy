@@ -5,8 +5,6 @@
 package integration;
 
 
-import org.testng.annotations.Test;
-
 import omero.model.CommentAnnotationI;
 import omero.model.DetailsI;
 import omero.model.PermissionsI;

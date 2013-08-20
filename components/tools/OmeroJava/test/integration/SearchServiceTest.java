@@ -11,12 +11,12 @@ package integration;
 
 
 //Third-party libraries
-import org.testng.annotations.Test;
-
 //Application-internal dependencies
 import omero.api.SearchPrx;
 import omero.model.Image;
 import omero.model.Project;
+
+import org.testng.annotations.Test;
 
 /** 
  * Collection of tests for the <code>Search</code> service.

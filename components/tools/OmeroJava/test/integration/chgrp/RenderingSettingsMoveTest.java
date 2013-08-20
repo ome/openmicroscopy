@@ -20,7 +20,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.RenderingDef;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
