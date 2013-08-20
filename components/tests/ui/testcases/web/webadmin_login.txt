@@ -4,7 +4,9 @@ Documentation     A test suite with a single test for valid login.
 ...
 ...               This test has a workflow that is created using keywords in
 ...               the imported resource file.
+
 Resource          ../../resources/web/webadmin.txt
+Resource          ../config.txt
 
 *** Test Cases ***
 
@@ -25,7 +27,7 @@ Valid Login
     
     Open Browser To Webadmin Login Page
     Log In As Root
-    Page Should Be Open    ${WEBADMIN URL}    OMERO Users
+    Page Should Be Open    ${USERS URL}    OMERO Users
     Log Out
     [Teardown]    Close Browser
 
@@ -34,7 +36,7 @@ Valid Secure Login
     
     Open Browser To Webadmin Login Page
     Log In Secure As Root
-    Page Should Be Open    ${WEBADMIN URL}    OMERO Users
+    Page Should Be Open    ${USERS URL}    OMERO Users
     Log Out
     [Teardown]    Close Browser
 
@@ -43,7 +45,7 @@ Error Login
     [Documentation]     Tests error messages on logging in as root
     
     Open Browser To Webadmin Login Page
-    Log In As    foo    secret    ${OMERO SERVER}    ${OMERO PORT}
+    Log In As    foo    secret    ${OMERO HOST}    ${OMERO PORT}
     Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
     Page Should Contain    Error: Connection not available, please check your user name and password.
     [Teardown]    Close Browser
@@ -52,10 +54,10 @@ Validation Error Messages
     [Documentation]     Tests login form validation messages on logging in as root
     
     Open Browser To Webadmin Login Page
-    Log In As    foo    ${EMPTY}    ${OMERO SERVER}    ${OMERO PORT}
+    Log In As    foo    ${EMPTY}    ${OMERO HOST}    ${OMERO PORT}
     Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
     Page Should Contain    This field is required.
-    Log In As    ${EMPTY}    secret    ${OMERO SERVER}    ${OMERO PORT}
+    Log In As    ${EMPTY}    secret    ${OMERO HOST}    ${OMERO PORT}
     Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
     Page Should Contain    This field is required.
     [Teardown]    Close Browser
