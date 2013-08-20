@@ -36,8 +36,8 @@ public class SHA1ChecksumProviderImplTest
     public void setUp() {
         map.put(ChecksumTestVector.ABC, "a9993e364706816aba3e25717850c26c9cd0d89d");
         map.put(ChecksumTestVector.EMPTYARRAY, "da39a3ee5e6b4b0d3255bfef95601890afd80709");
-        map.put(ChecksumTestVector.SMALLFILE, "89336a1baf365cf51b67105019beca71b858c227");
-        map.put(ChecksumTestVector.MEDIUMFILE, "733982976662e28c682650f1066d62071cd7538a");
+        map.put(ChecksumTestVector.SMALLFILE, "e0cd96d729092977366c136f115696d1df7946f6");
+        map.put(ChecksumTestVector.MEDIUMFILE, "7bfd66e82aefb371d3a57da52346546e9417115a");
         map.put(ChecksumTestVector.BIGFILE, "c5362b32b0fbacb6ec4be7bc40b647405a8f73ce");
     }
 
