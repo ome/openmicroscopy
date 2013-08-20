@@ -20,6 +20,7 @@ import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import omero.model.ArcI;
+import omero.model.ChannelI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.Event;
@@ -233,5 +234,18 @@ public class ModelTest extends TestCase {
         assertEquals(1, i.sizeOfDatasetLinks());
         assertEquals(-1, i2.sizeOfDatasetLinks());
         
+    }
+
+    @Test(groups = "ticket:2547")
+    public void testOrderedCollectionsTicket2547() {
+        PixelsI pixels = new PixelsI();
+        ChannelI channel0 = new ChannelI();
+        ChannelI channel1 = new ChannelI();
+        ChannelI channel2 = new ChannelI();
+        pixels.addChannel(channel0);
+        this.assertEquals(1, pixels.sizeOfChannels());
+        ChannelI old = (ChannelI) pixels.setChannel(0, channel1);
+        this.assertEquals(old, channel0);
+        this.assertEquals(1, pixels.sizeOfChannels());
     }
 }
