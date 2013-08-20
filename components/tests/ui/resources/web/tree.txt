@@ -9,6 +9,11 @@ Node Should Be Visible
     # Node identified by text value
     Element Should Be Visible    xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
 
+Wait For Node To Be Visible
+    [Arguments]    ${nodeText}
+    # Node identified by text value
+    Wait Until Page Contains Element    xpath=//div[@id='dataTree']//a[contains(text(),'${nodeText}')]
+
 Node Should Be Selected
     [Arguments]    ${imageId}    ${expected}=${true}
     Run Keyword If    ${expected}    Wait Until Page Contains Element    xpath=//li[@id='${imageId}']/a[contains(@class, 'jstree-clicked')]
@@ -82,11 +87,13 @@ Key Down
 
 Popup Menu Item Should Be Enabled
     [Arguments]    ${menuItem}    ${enabled}
+    # Right Click on the currently selected tree node ('tree-clicked')
     Open Context Menu    xpath=//a[contains(@class, 'tree-clicked')]
     Element Should Be Visible    vakata-contextmenu
     Run Keyword If    ${enabled}    Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    0
     ...    ELSE    Xpath Should Match X Times    //li[contains(@class, 'jstree-contextmenu-disabled')]/a[contains(text(), '${menuItem}')]    1
-    Execute Javascript    $.vakata.context.hide()
+    # Click elsewhere to hide the context menu
+    Click Element    content
 
 Select Experimenter
     Select Node By Id    experimenter-0
