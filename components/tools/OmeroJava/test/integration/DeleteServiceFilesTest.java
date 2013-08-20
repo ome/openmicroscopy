@@ -229,7 +229,6 @@ public class DeleteServiceFilesTest extends AbstractServerTest {
     @BeforeMethod
     public void createNewUser() throws Exception {
         newUserAndGroup("rw----");
-        iDelete = factory.getDeleteService();
     }
 
     /**

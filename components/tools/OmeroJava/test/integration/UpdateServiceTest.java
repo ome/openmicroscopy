@@ -1821,7 +1821,6 @@ public class UpdateServiceTest extends AbstractServerTest {
         o = iUpdate.saveAndReturnObject(link);
         iUpdate.deleteObject(o);
         iUpdate.deleteObject(c);
-        // delete(iDelete, client, new DeleteCommand("/Annotation", id, null));
         sql = "select a from Annotation as a ";
         sql += "where a.id = :id";
         param = new ParametersI();

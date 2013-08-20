@@ -110,7 +110,8 @@ public class RelatedToTest extends AbstractServerTest {
         Pixels pixels = pixels1.getRelatedTo();
         assertNotNull(pixels);
         assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        iDelete.deleteImage(img2.getId().getValue(), true);
+        delete(client, new Delete(DeleteServiceTest.REF_IMAGE, img2.getId()
+                .getValue(), null));
 
         String sql = "select i from Image i where i.id = :id";
         ParametersI param = new ParametersI();
