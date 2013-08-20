@@ -956,7 +956,7 @@ public class OMEROMetadataStoreClient
      */
     public RTime toRType(Timestamp value)
     {
-        return value == null? null : rtime(value.asDate().getTime());
+        return value == null? null : rtime(value.asInstant().getMillis());
     }
 
     /**
