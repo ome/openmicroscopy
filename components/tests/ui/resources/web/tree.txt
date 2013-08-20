@@ -112,5 +112,5 @@ Select First Node With Children in Tree
 Select Node By Id
     [Arguments]    ${nodeId}
     # Make sure node is visible (by clicking parent node)
-    Execute Javascript    if(!$("#${nodeId}").is(":visible")){$("${nodeId}").parent().parent().children("a").click()}
+    Execute Javascript    if(!$("#${nodeId}").is(":visible")){$("#${nodeId}").parent().parent().children("a").click()}
     Click Element    css=#${nodeId}>a

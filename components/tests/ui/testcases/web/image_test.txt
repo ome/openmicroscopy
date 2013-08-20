@@ -22,7 +22,8 @@ Test Keywords
 
     Capture Image Element    //li[@id='${thumbId}']//img    image_check_test.jpg
 
-    Image Should Be Blank    image_check_test.jpg
+    # Image Should Be Blank    image_check_test.jpg
+    Image Should Not Be Blank    image_check_test.jpg
 
 
     [Teardown]    Close Browser

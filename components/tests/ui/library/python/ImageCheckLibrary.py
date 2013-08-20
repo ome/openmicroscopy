@@ -25,3 +25,21 @@ def image_should_be_blank(path):
         # print pMin, pMax
         if pMin != pMax:
             raise AssertionError("Image %s is not blank. min: %s, max: %s" % (path, pMin, pMax))
+
+
+def image_should_not_be_blank(path):
+
+    image = Image.open(path)
+    image.save(path)    # avoids errors on .split
+
+    blank = True
+    for channel in image.split():
+        plane = asarray(channel)
+        pMin = plane.min()
+        pMax = plane.max()
+        print "pMin:", pMin, "pMax:", pMax
+        if pMin != pMax:
+            blank = False
+
+    if blank:
+        raise AssertionError("Image %s is blank. min: %s, max: %s" % (path, pMin, pMax))
