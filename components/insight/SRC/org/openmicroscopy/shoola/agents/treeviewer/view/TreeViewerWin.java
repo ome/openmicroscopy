@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -73,6 +72,8 @@ import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
+import com.google.common.collect.Lists;
 
 /**
  * The {@link TreeViewer}'s View. Embeds the different <code>Browser</code>'s UI
@@ -201,63 +202,23 @@ class TreeViewerWin
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		switch (TreeViewerAgent.getDefaultHierarchy()) {
-				case Browser.PROJECTS_EXPLORER:
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
+            final List<Integer> browserOrder = Lists.newArrayList(
+                    Browser.PROJECTS_EXPLORER, Browser.SCREENS_EXPLORER, Browser.FILES_EXPLORER, Browser.TAGS_EXPLORER);
+            int browserIndex = browserOrder.indexOf(TreeViewerAgent.getDefaultHierarchy());
+            switch (Integer.signum(browserIndex)) {
+            case 1:
+                browserOrder.add(0, browserOrder.remove(browserIndex));
+                /* intentional fall-through */
+            case 0:
+                for (browserIndex = 0; browserIndex < browserOrder.size(); browserIndex++) {
+                    pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)));
+                    if (browserIndex == 0) {
+                        firstPane = pane;
+                    }
+                    container.add(pane);
+                }
+            }
 
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.SCREENS_EXPLORER:
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.TAGS_EXPLORER:
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					break;
-				case Browser.FILES_EXPLORER:
-					browser = browsers.get(Browser.FILES_EXPLORER);
-					pane = new TaskPaneBrowser(browser);
-					firstPane = pane;
-					container.add(pane);
-					browser = browsers.get(Browser.PROJECTS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-
-					browser = browsers.get(Browser.SCREENS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-					browser = browsers.get(Browser.TAGS_EXPLORER);
-					container.add(new TaskPaneBrowser(browser));
-			}
-    		
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
@@ -1044,13 +1005,9 @@ class TreeViewerWin
     { 
     	Map<Integer, Browser> browsers = model.getBrowsers();
         if (browsers != null) {
-        	Entry entry;
-            Iterator i = browsers.entrySet().iterator();
-            while (i.hasNext()) {
-            	entry = (Entry) i.next();
-            	((Browser) entry.getValue()).onComponentStateChange(b);
-            }    
-
+            for (final Browser browser : browsers.values()) {
+                browser.onComponentStateChange(b);
+            }
         }
         //if (browser != null) browser.onComponentStateChange(b);
         if (container != null) container.setExpandable(b);
@@ -1089,11 +1046,11 @@ class TreeViewerWin
      */
     void updateMenuItems()
     {
-    	Iterator i = menuItems.iterator();
+    	Iterator<JMenuItem> i = menuItems.iterator();
     	JMenuItem item;
     	TreeViewerAction a;
     	while (i.hasNext()) {
-    		item = (JMenuItem) i.next();
+    		item = i.next();
     		a = (TreeViewerAction) item.getAction();
 			item.setText(a.getActionName());
 			item.setToolTipText(a.getActionDescription());
