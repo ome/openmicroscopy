@@ -43,6 +43,7 @@
 
     <property name="target.dir" value="${basedir}/../../../target/repository"/>
 
+    <!-- file created while running the web-chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
     <import file="${import.dir}/global.xml"/>
