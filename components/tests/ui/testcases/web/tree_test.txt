@@ -8,23 +8,20 @@ Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
 Resource          ../../resources/web/thumbs.txt
 
-*** Variables ***
-#${DELAY}          0
-
 *** Test Cases ***
 
 Test Keywords
-    User "${username}" logs in with password "${password}"
+    User "${USERNAME}" logs in with password "${PASSWORD}"
     Tree Should Be Visible
-    Wait For Node To Be Visible    ${experimenter_name}
+    Wait For Node To Be Visible    ${FULLNAME}
     Node Should Be Visible    Orphaned images
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
     Create Button Should Be Enabled    screen
-    Node Popup Menu Item Should Be Enabled    Project    ${experimenter_name}
-    Node Popup Menu Item Should Be Enabled    Dataset    ${experimenter_name}
-    Node Popup Menu Item Should Be Enabled    Screen    ${experimenter_name}
-    Node Popup Menu Item Should Be Disabled    Delete    ${experimenter_name}
+    Node Popup Menu Item Should Be Enabled    Project    ${FULLNAME}
+    Node Popup Menu Item Should Be Enabled    Dataset    ${FULLNAME}
+    Node Popup Menu Item Should Be Enabled    Screen    ${FULLNAME}
+    Node Popup Menu Item Should Be Disabled    Delete    ${FULLNAME}
     Select And Expand Project
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
