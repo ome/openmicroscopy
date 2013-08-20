@@ -4,7 +4,10 @@ Documentation     A test suite with a single test for valid login.
 ...
 ...               This test has a workflow that is created using keywords in
 ...               the imported resource file.
+
 Resource          ../../resources/web/webadmin.txt
+Resource          ../config.txt
+
 
 *** Test Cases ***
 
@@ -13,20 +16,20 @@ Check Group Form
 
     Open Browser To Webadmin Login Page
     Log In As Root
-    Page Should Be Open    ${WEBADMIN URL}
+    Page Should Be Open    ${USERS URL}
     Click Link    link=Groups
     Click Link    link=Add new Group
     
     Page Should Contain    Add group
     Page Should Contain    Fields marked in red are mandatory.
     
-    Page Should Contain Field    Name   name
-    Page Should Contain Field    Description    description
+    Page Should Contain Input Field    Name   name
+    Page Should Contain Input Field    Description    description
     
     Page Should Contain Choice Field    Owners    Choose one or more owners
     Page Should Contain Choice Field    Members    Choose one or more members
     
-    Page Should Contain Radio    Permissions    permissions    0
+    Page Should Contain Radio Field     Permissions    permissions    0
     
     Page Should Contain    Private
     Page Should Contain    Read-Only
@@ -45,20 +48,20 @@ Check User Form
     
     Open Browser To Webadmin Login Page
     Log In As Root
-    Page Should Be Open    ${WEBADMIN URL}
+    Page Should Be Open    ${USERS URL}
     Click Link    link=Add new User
     
     Page Should Contain    New User
     Page Should Contain    Fields marked in red are mandatory.
     
-    Page Should Contain Field    Username   omename
+    Page Should Contain Input Field    Username   omename
     Page Should Contain Password Field    Password    password
     Page Should Contain Password Field    Confirmation    confirmation
-    Page Should Contain Field    First name    first_name
-    Page Should Contain Field    Middle name    middle_name
-    Page Should Contain Field    Last name    last_name
-    Page Should Contain Field    Email    email
-    Page Should Contain Field    Institution    institution
+    Page Should Contain Input Field    First name    first_name
+    Page Should Contain Input Field    Middle name    middle_name
+    Page Should Contain Input Field    Last name    last_name
+    Page Should Contain Input Field    Email    email
+    Page Should Contain Input Field    Institution    institution
     
     Page Should Contain Checkbox Field    Administrator    administrator
     Page Should Contain Checkbox Field    Active    active    selected=${True}
@@ -76,7 +79,7 @@ Create Group
     
     Open Browser To Webadmin Login Page
     Log In As Root
-    Page Should Be Open    ${WEBADMIN URL}
+    Page Should Be Open    ${USERS URL}
     Click Link    link=Groups
     Click Link    link=Add new Group
     
