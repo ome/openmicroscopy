@@ -7,7 +7,7 @@ export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
 
 export OMERO_JOB=${OMERO_JOB:-"OMERO-stable"}
-export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase1.vdi"}
+export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase.vdi"}
 export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS:-""}
 
 set -e -u -x
@@ -111,16 +111,23 @@ function killallvbox ()
 	} || true
 }
 
-function checkhddfolder ()
+function checkbaseimage ()
 {
-	if test -e $HOME/Library/VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks"}
-	elif test -e $HOME/.VirtualBox; then
-	    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks"}
-	else
-	    echo "Cannot find harddisks! Trying setting HARDDISKS"
-	    failfast
-	fi
+    # Check the old locations in case anyone is still relying on them
+    # TODO: Remove during the next refactoring?
+    FILE="$OMERO_BASE_IMAGE"
+    if [ ! -f "$FILE" ]; then
+        FILE="$HOME/Library/VirtualBox/HardDisks/$OMERO_BASE_IMAGE"
+    fi
+    if [ ! -f "$FILE" ]; then
+        FILE="$HOME/.VirtualBox/HardDisks/$OMERO_BASE_IMAGE"
+    fi
+    if [ ! -f "$FILE" ]; then
+        echo "$OMERO_BASE_IMAGE not found, try specifying the full path"
+        failfast
+    fi
+
+    export OMERO_BASE_IMAGE="$FILE"
 }
 
 function deletevm ()
@@ -130,17 +137,17 @@ function deletevm ()
 	$VBOX list vms | grep "$VMNAME" && {
 		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
 		VBoxManage unregistervm "$VMNAME" --delete
-		VBoxManage closemedium disk "$HARDDISKS/$VMNAME.vdi" --delete
+		VBoxManage closemedium disk "$VMNAME.vdi" --delete
 	} || true
 }
 
 function createvm ()
 {
 		$VBOX list vms | grep "$VMNAME" || {
-		VBoxManage clonehd "$HARDDISKS/$OMERO_BASE_IMAGE" "$HARDDISKS/$VMNAME.vdi"
+		VBoxManage clonehd "$OMERO_BASE_IMAGE" "$VMNAME.vdi"
 		VBoxManage createvm --name "$VMNAME" --register --ostype "Debian"
 		VBoxManage storagectl "$VMNAME" --name "SATA CONTROLLER" --add sata
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium "$HARDDISKS/$VMNAME.vdi"
+		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium "$VMNAME.vdi"
 			
 		VBoxManage modifyvm "$VMNAME" --nic1 nat --nictype1 "82545EM"
 		VBoxManage modifyvm "$VMNAME" --memory $MEMORY --acpi on
@@ -158,7 +165,7 @@ function createvm ()
 ####################
 ####################
 
-checkhddfolder
+checkbaseimage
 
 killallvbox
 
