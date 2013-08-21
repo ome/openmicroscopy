@@ -20,11 +20,130 @@
         keywords.
     </description>
 
+    <macrodef name="run_py">
+        <attribute name="failonerror" default="true"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="python" failonerror="@{failonerror}">
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- reports for the web tests. -->
+    <property name="reports.web" value="${basedir}/target/reports/web"/>
+
+    <!-- reports for the insight tests. -->
+    <property name="reports.insight" value="${basedir}/target/reports/insight"/>
+
+
     <property name="main.class" value="NONE"/>
 
-    <property name="import.dir"       value="${basedir}/../../antlib/resources"/>
+    <property name="import.dir" value="${basedir}/../../antlib/resources"/>
+
+    <property name="target.dir" value="${basedir}/../../../target/repository"/>
+
+    <property name="insight.dir" value="${basedir}/../../insight"/>
+
+    <!-- file created while running the web-chrome target -->
+    <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
+   <!-- compile the unit tests under library/java/test -->
+    <target name="test-compile" description=""/>
+
+    <!--  run the web and insight tests -->
+    <target name="ui-test-all" unless="env.NOPYTHON" depends="clean">
+        <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
+        <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+
+    <!--  run the insight tests -->
+    <target name="ui-test-insight">
+        <mkdir dir="${reports.insight}" />
+        <!-- copy the config folder. This should be modified later -->
+        <mkdir dir="${reports.insight}/config"/>
+        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${insight.dir}/config"/>
+        </copy>
+        <!-- copy the jars -->
+        <mkdir dir="${reports.insight}/jars" />
+        <copy todir="${reports.insight}/jars" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${target.dir}">
+                <include name="**/*.jar" />
+                <exclude name="**/insight-${omero.version}.jar"/>
+                <exclude name="**/OmeroImporter-${omero.version}.jar"/>
+            </fileset>
+        </copy>
+        <exec executable="jybot" failonerror="false" dir="${reports.insight}">
+            <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${lib.dir}/repository/*:${reports.insight}/jars/*"/>
+            <arg value="-d"/>
+            <arg value="${reports.insight}"/>
+            <arg value="${basedir}/testcases/insight/"/>
+        </exec>
+    </target>
+
+    <!--  run the web tests -->
+    <target name="ui-test-web">
+        <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
+        <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
+    </target>
+
+   <!-- test with firefox -->
+    <target name="web-firefox">
+        <mkdir dir="${reports.web}/firefox"/>
+        <exec executable="pybot" failonerror="false">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+            <arg value="-d"/>
+            <arg value="${reports.web}/firefox"/>
+            <arg value="${basedir}/testcases/web/"/>
+        </exec>
+    </target>
+
+    <!-- test with chrome This requires the chrome driver to be installed-->
+    <target name="web-chrome"> 
+        <mkdir dir="${reports.web}/chrome"/>
+        <exec executable="pybot" failonerror="false">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+            <arg value="-d"/>
+            <arg value="${reports.web}/chrome"/>
+            <arg value="-v"/>
+            <arg value="browser:chrome"/>
+            <arg value="${basedir}/testcases/web/"/>
+        </exec>
+        <if>
+            <available file="${google.log}"/>
+            <then>
+                <move file="${google.log}" todir="${reports.web}/chrome"/>
+            </then>
+        </if>
+        
+    </target>
+
+    <!-- point the build file used to generate the ui libraries -->
+    <macrodef name="librarybuild">
+        <attribute name="target"/>
+        <sequential>
+            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
+            </ant>
+        </sequential>
+    </macrodef>
+
+    <!-- delete the reports directory -->
+    <target name="tests-dist">
+        <librarybuild target="dist"/>
+    </target>
+
+    <target name="package" depends="lifecycle.package">
+        <librarybuild target="jar"/>
+    </target>
+
+    <!-- delete the reports directory -->
+    <target name="tests-clean" depends="clean">
+    <delete dir="${basedir}/target"/>
+    <librarybuild target="clean"/>
+    </target>
 </project>
