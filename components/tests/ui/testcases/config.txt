@@ -14,6 +14,8 @@ ${FULL NAME}            root root
 # Web config
 ${WEB HOST}             localhost
 ${WEB PORT}             8080
+${SERVER_ID}            1
+
 ${BROWSER}              Firefox
 ${DELAY}                0
 

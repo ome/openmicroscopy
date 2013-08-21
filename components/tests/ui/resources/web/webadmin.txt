@@ -15,15 +15,15 @@ Unique name
     [Return]    ${name}_${unique}
 
 Log In As
-    [Arguments]    ${username}    ${password}    ${server}    ${port}    ${ssl}=${False}
-    Select From List By Label    id_server    ${server}:${port}
+    [Arguments]    ${username}    ${password}    ${server_id}    ${ssl}=${False}
+    Select From List By Value    id_server    ${server_id}
     Run Keyword If    ${ssl}    Select Checkbox    id_ssl
     Input Text  username  ${username}
     Input Text  password  ${password}
     Click Button    Login
 
 Log In As Root
-    Log In As    ${ROOT USERNAME}    ${ROOT PASSWORD}    ${OMERO HOST}    ${OMERO PORT}
+    Log In As    ${ROOT USERNAME}    ${ROOT PASSWORD}    ${SERVER_ID}
 
 Open Browser To Login Page
     [Arguments]    ${main url}    ${login url}
@@ -33,7 +33,7 @@ Open Browser To Login Page
 
 Open Browser And Log In As User
     Open Browser To Login Page    ${WELCOME URL}    ${LOGIN URL}
-    Log In As    ${USERNAME}    ${PASSWORD}    ${OMERO HOST}    ${OMERO PORT}
+    Log In As    ${USERNAME}    ${PASSWORD}    ${SERVER_ID}
     Page Should Be Open    ${WELCOME URL}    Webclient
 
 Open Browser To Webadmin And Log In As Root
