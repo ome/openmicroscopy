@@ -13,15 +13,15 @@ Resource          ../../resources/web/thumbs.txt
 Test Keywords
     User "${USERNAME}" logs in with password "${PASSWORD}"
     Tree Should Be Visible
-    Wait For Node To Be Visible    ${FULLNAME}
+    Wait For Node To Be Visible    ${FULL NAME}
     Node Should Be Visible    Orphaned images
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
     Create Button Should Be Enabled    screen
-    Node Popup Menu Item Should Be Enabled    Project    ${FULLNAME}
-    Node Popup Menu Item Should Be Enabled    Dataset    ${FULLNAME}
-    Node Popup Menu Item Should Be Enabled    Screen    ${FULLNAME}
-    Node Popup Menu Item Should Be Disabled    Delete    ${FULLNAME}
+    Node Popup Menu Item Should Be Enabled    Project    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled    Dataset    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled    Screen    ${FULL NAME}
+    Node Popup Menu Item Should Be Disabled    Delete    ${FULL NAME}
     Select And Expand Project
     Create Button Should Be Enabled    project
     Create Button Should Be Enabled    dataset
