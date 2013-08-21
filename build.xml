@@ -511,52 +511,6 @@ To get started using Eclipse, execute "./build.py build-dev" and import the top-
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
 
-    <target name="release-jdepend" description="Generates jdepend.xml for all components" depends="init">
-       <path id="omero.classpath">
-           <fileset dir="${omero.home}/lib/repository"/>
-       </path>
-
-       <jdepend outputfile="target/jdepend.txt" fork="yes" classpathref="omero.classpath">
-           <exclude name="java.*"/>
-           <exclude name="java.lang.*"/>
-           <exclude name="java.io.*"/>
-           <exclude name="java.util.*"/>
-           <exclude name="javax.*"/>
-           <exclude name="org.springframework.*"/>
-           <exclude name="org.springframework.orm.*"/>
-           <exclude name="org.apache.*"/>
-           <exclude name="net.ehcache.*"/>
-           <classespath>
-               <!--pathelement location="components/model/target/classes"/-->
-               <pathelement location="components/server/target/classes"/>
-               <!--pathelement location="components/blitz/target/classes"/-->
-           </classespath>
-       </jdepend>
-       <jdepend outputfile="target/jdepend.xml" fork="yes" format="xml" classpathref="omero.classpath">
-           <exclude name="java.*"/>
-           <exclude name="java.lang.*"/>
-           <exclude name="java.io.*"/>
-           <exclude name="java.util.*"/>
-           <exclude name="javax.*"/>
-           <exclude name="org.springframework.*"/>
-           <exclude name="org.springframework.orm.*"/>
-           <exclude name="org.apache.*"/>
-           <exclude name="net.ehcache.*"/>
-           <classespath>
-               <!--pathelement location="components/model/target/classes"/-->
-               <pathelement location="components/server/target/classes"/>
-               <!--pathelement location="components/blitz/target/classes"/-->
-           </classespath>
-       </jdepend>
-       <style in="target/jdepend.xml" out="target/jdepend.dot" style="lib/repository/jdepend2dot.xsl"/>
-       <exec executable="dot" failifexecutionfails="false"> <!-- In case dot is missing -->
-           <arg value="-Tpng"/>
-           <arg value="target/jdepend.dot"/>
-           <arg value="-o"/>
-           <arg value="target/jdepend.png"/>
-       </exec>
-    </target>
-
     <target name="release-coverage" depends="build-eclipse"
         description="Merge code coverage reports into single top-level report">
         <path id="omero.classpath">

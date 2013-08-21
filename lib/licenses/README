@@ -335,14 +335,6 @@
   License File: lgpl.txt
 
 
-  Artifacts:    jdepend-*.jar, jdepend2dot.xsl
-  Project:      JDepends, travers Java class file directories and generates design quality metrics
-                for each Java package.
-  Web Site:     http://clarkware.com/software/JDepend.html
-  License:      BSD
-  License File: jdepend.txt
-
-
   Artifacts:    jhotdraw-*.jar
   Project:      The JHotDraw project. A two-dimensional graphics framework for
                 structured drawing editors
