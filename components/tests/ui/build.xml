@@ -43,6 +43,8 @@
 
     <property name="target.dir" value="${basedir}/../../../target/repository"/>
 
+    <property name="insight.dir" value="${basedir}/../../insight"/>
+
     <!-- file created while running the web-chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
 
@@ -58,15 +60,32 @@
         <antcall target="ui-test-web" inheritRefs="true" inheritAll="true"/>
     </target>
 
+
     <!--  run the insight tests -->
     <target name="ui-test-insight">
+        <!-- copy the config folder. This should be modified later -->
+        <mkdir dir="${basedir}/config"/>
+        <copy todir="${basedir}/config" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${insight.dir}/config"/>
+        </copy>
         <mkdir dir="${reports.insight}" />
+        <!-- copy the jar -->
+        <mkdir dir="${reports.insight}/jars" />
+        <copy todir="${reports.insight}/jars" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${target.dir}">
+                <include name="**/*.jar" />
+                <exclude name="**/insight-${omero.version}.jar"/>
+                <exclude name="**/OmeroImporter-${omero.version}.jar"/>
+            </fileset>
+        </copy>
         <exec executable="jybot" failonerror="false">
-            <env key="CLASSPATH" path="${lib.dir}/repository/*:${target.dir}/*"/>
+            <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${lib.dir}/repository/*:${reports.insight}/jars/*"/>
             <arg value="-d"/>
             <arg value="${reports.insight}"/>
             <arg value="${basedir}/testcases/insight/"/>
         </exec>
+        <!-- Delete the copy of the config folder -->
+        <delete dir="${basedir}/config"/>
     </target>
 
     <!--  run the web tests -->
