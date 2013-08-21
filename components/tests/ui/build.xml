@@ -63,13 +63,13 @@
 
     <!--  run the insight tests -->
     <target name="ui-test-insight">
+        <mkdir dir="${reports.insight}" />
         <!-- copy the config folder. This should be modified later -->
-        <mkdir dir="${basedir}/config"/>
-        <copy todir="${basedir}/config" verbose="yes" flatten="yes" failonerror="no">
+        <mkdir dir="${reports.insight}/config"/>
+        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
             <fileset dir="${insight.dir}/config"/>
         </copy>
-        <mkdir dir="${reports.insight}" />
-        <!-- copy the jar -->
+        <!-- copy the jars -->
         <mkdir dir="${reports.insight}/jars" />
         <copy todir="${reports.insight}/jars" verbose="yes" flatten="yes" failonerror="no">
             <fileset dir="${target.dir}">
@@ -78,14 +78,12 @@
                 <exclude name="**/OmeroImporter-${omero.version}.jar"/>
             </fileset>
         </copy>
-        <exec executable="jybot" failonerror="false">
+        <exec executable="jybot" failonerror="false" dir="${reports.insight}">
             <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${lib.dir}/repository/*:${reports.insight}/jars/*"/>
             <arg value="-d"/>
             <arg value="${reports.insight}"/>
             <arg value="${basedir}/testcases/insight/"/>
         </exec>
-        <!-- Delete the copy of the config folder -->
-        <delete dir="${basedir}/config"/>
     </target>
 
     <!--  run the web tests -->
