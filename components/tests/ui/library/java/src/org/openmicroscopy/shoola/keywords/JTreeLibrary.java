@@ -285,7 +285,7 @@ public class JTreeLibrary
      * @throws MultipleComponentsFoundException if multiple suitable components could be found
      * @throws ComponentNotFoundException if no suitable components could be found
      */
-    private boolean treeNodeMenuItemIsEnabled(final String menuItemText, final String treePath, final String treeName)
+    private boolean isTreeNodeMenuItemEnabled(final String menuItemText, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
         final JTree tree = (JTree) new BasicFinder().find(new Matcher() {
             public boolean matches(Component component) {
@@ -325,7 +325,7 @@ public class JTreeLibrary
      */
     public void treeNodeMenuItemShouldBeEnabled(final String menuItemText, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
-        if (!treeNodeMenuItemIsEnabled(menuItemText, treePath, treeName)) {
+        if (!isTreeNodeMenuItemEnabled(menuItemText, treePath, treeName)) {
             throw new RuntimeException("Menu item '" + menuItemText + "' was disabled");
         }
     }
@@ -345,7 +345,7 @@ public class JTreeLibrary
      */
     public void treeNodeMenuItemShouldBeDisabled(final String menuItemText, final String treePath, final String treeName)
             throws ComponentNotFoundException, MultipleComponentsFoundException {
-        if (treeNodeMenuItemIsEnabled(menuItemText, treePath, treeName)) {
+        if (isTreeNodeMenuItemEnabled(menuItemText, treePath, treeName)) {
             throw new RuntimeException("Menu item '" + menuItemText + "' was enabled");
         }
     }
