@@ -81,12 +81,24 @@
                 <exclude name="**/ice-*.jar"/>
             </fileset>
         </copy>
-        <exec executable="jybot" failonerror="false" dir="${reports.insight}">
-            <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${reports.insight}/jars/*"/>
-            <arg value="-d"/>
-            <arg value="${reports.insight}"/>
-            <arg value="${basedir}/testcases/insight/"/>
-        </exec>
+        <!-- execute sub-directory per sub-directory -->
+        <for param="file">
+            <path>
+                <dirset dir="${basedir}/testcases/insight" includes="*"/>
+            </path>
+            <sequential>
+                <local name="filename" />
+                <basename property="filename" file="@{file}"/>
+                <mkdir dir="${reports.insight}/${filename}" />
+                <!-- execute -->
+                <exec executable="jybot" failonerror="false" dir="${reports.insight}">
+                    <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${reports.insight}/jars/*"/>
+                    <arg value="-d"/>
+                    <arg value="${reports.insight}/${filename}"/>
+                    <arg value="${basedir}/testcases/insight/${filename}"/>
+                </exec>
+            </sequential>
+        </for>
     </target>
 
     <!--  run the web tests -->
