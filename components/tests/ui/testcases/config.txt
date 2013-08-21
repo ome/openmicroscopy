@@ -9,18 +9,18 @@ ${ROOT PASSWORD}        omero
 
 ${USERNAME}             root
 ${PASSWORD}             omero
-${FULLNAME}             root root
+${FULL NAME}            root root
 
 # Web config
-${HOST}                 localhost
-${PORT}                 8080
+${WEB HOST}             localhost
+${WEB PORT}             8080
 ${BROWSER}              Firefox
 ${DELAY}                0
 
-${LOGIN URL}            http://${HOST}:${PORT}/webclient/login/
-${WELCOME URL}          http://${HOST}:${PORT}/webclient/
+${LOGIN URL}            http://${WEB HOST}:${WEB PORT}/webclient/login/
+${WELCOME URL}          http://${WEB HOST}:${WEB PORT}/webclient/
 
-${WEBADMIN WELCOME URL}     http://${HOST}:${PORT}/webadmin/
+${WEBADMIN WELCOME URL}     http://${WEB HOST}:${WEB PORT}/webadmin/
 ${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%2Fwebadmin%2F
 
 ${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/
