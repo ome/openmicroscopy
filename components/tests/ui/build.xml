@@ -81,8 +81,10 @@
                 <!-- execute -->
                 <exec executable="jybot" failonerror="false" dir="${reports.insight}">
                     <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
-                     <arg value="-d"/>
+                    <arg value="-d"/>
                     <arg value="${reports.insight}/${filename}"/>
+                    <arg value="--loglevel"/>
+                    <arg value="debug"/>
                     <arg value="${basedir}/testcases/insight/${filename}"/>
                 </exec>
             </sequential>
@@ -102,6 +104,8 @@
             <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
             <arg value="-d"/>
             <arg value="${reports.web}/firefox"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
             <arg value="${basedir}/testcases/web/"/>
         </exec>
     </target>
@@ -115,6 +119,8 @@
             <arg value="${reports.web}/chrome"/>
             <arg value="-v"/>
             <arg value="browser:chrome"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
             <arg value="${basedir}/testcases/web/"/>
         </exec>
         <if>
