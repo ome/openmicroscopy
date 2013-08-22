@@ -36,8 +36,8 @@ public class Adler32ChecksumProviderImplTest
     public void setUp() {
         map.put(ChecksumTestVector.ABC, "024d0127");
         map.put(ChecksumTestVector.EMPTYARRAY, "00000001");
-        map.put(ChecksumTestVector.SMALLFILE, "0ef52fb4");
-        map.put(ChecksumTestVector.MEDIUMFILE, "c960c1fc");
+        map.put(ChecksumTestVector.SMALLFILE, "c1ec9857");
+        map.put(ChecksumTestVector.MEDIUMFILE, "2c9474a0");
         map.put(ChecksumTestVector.BIGFILE, "3b1bb373");
     }
 
