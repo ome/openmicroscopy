@@ -202,16 +202,18 @@ class TreeViewerWin
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
+            final List<String>  browserNames = Lists.newArrayList("project", "screen", "file", "tag");
             final List<Integer> browserOrder = Lists.newArrayList(
                     Browser.PROJECTS_EXPLORER, Browser.SCREENS_EXPLORER, Browser.FILES_EXPLORER, Browser.TAGS_EXPLORER);
             int browserIndex = browserOrder.indexOf(TreeViewerAgent.getDefaultHierarchy());
             switch (Integer.signum(browserIndex)) {
             case 1:
+                browserNames.add(0, browserNames.remove(browserIndex));
                 browserOrder.add(0, browserOrder.remove(browserIndex));
                 /* intentional fall-through */
             case 0:
                 for (browserIndex = 0; browserIndex < browserOrder.size(); browserIndex++) {
-                    pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)));
+                    pane = new TaskPaneBrowser(browsers.get(browserOrder.get(browserIndex)), browserNames.get(browserIndex));
                     if (browserIndex == 0) {
                         firstPane = pane;
                     }
@@ -225,14 +227,15 @@ class TreeViewerWin
             
             
             browser = browsers.get(Browser.IMAGES_EXPLORER);
-            container.add(new TaskPaneBrowser(browser));
+            container.add(new TaskPaneBrowser(browser, "image"));
             if (model.isLeader() || model.isAdministrator()) {
-            	browser = browsers.get(Browser.ADMIN_EXPLORER);
-                container.add(new TaskPaneBrowser(browser));
+                browser = browsers.get(Browser.ADMIN_EXPLORER);
+                final TaskPaneBrowser tpb = new TaskPaneBrowser(browser, "administration");
+                container.add(tpb);
             }
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
-    		searchPane = new TaskPaneBrowser(new JScrollPane(finder));
+    		searchPane = new TaskPaneBrowser(new JScrollPane(finder), "search");
     		container.add(searchPane);
     		JScrollPane s = new JScrollPane(container);
     		s.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -281,6 +284,7 @@ class TreeViewerWin
         menus.add(createEditMenu());
         menus.add(createViewMenu());
         JMenuBar bar = tb.getTaskBarMenuBar();
+        bar.setName("menu bar");
         List<JMenu> existingMenus = new ArrayList<JMenu>();
         for (int i = 0; i < bar.getMenuCount(); i++) {
         	if (i != TaskBar.FILE_MENU)
@@ -639,6 +643,7 @@ class TreeViewerWin
     	buildGUI();
     	controller.attachUIListeners(browsersDisplay);
     	createTitle();
+    	setName("tree viewer window");
     }
 
     /** Creates and displays the title of the window. */

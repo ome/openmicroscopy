@@ -156,6 +156,11 @@ public class ImageNode
             setCanvasSize(t.getWidth(), t.getHeight());
             //setCanvasToolTip(getNodeName());
             setCanvasToolTip(getToolTipText());
+            if (hierarchyObject instanceof ImageData) {
+                final String imageName = ((ImageData) hierarchyObject).getName();
+                setName("image node for " + imageName);
+                canvas.setName("thumbnail for " + imageName);
+            }
         }
         setTitleBarType(titleBar);
     }
