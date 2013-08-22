@@ -53,6 +53,9 @@ To run all the insight tests, from the top level
 
 ./build.py -f components/tests/ui/build.xml ui-test-insight
 
+To run the tests in a given folder under testcases/insight
+./build.py -f components/tests/ui/build.xml ui-test-insight -DFOLDER=icons
+
 The output of the tests can be found under 
 components/tests/ui/target/insight/*. One output directory will be created for each testcases directory.
 
@@ -78,3 +81,16 @@ If you are running the tests on Mac OS X, you can install install with the follo
 brew install chromedriver
 
 
+To run all the web tests on both firefox and chrom, from the top level
+
+./build.py -f components/tests/ui/build.xml ui-test-web
+
+To run all the web tests on firefox (respectively chrome) only
+
+./build.py -f components/tests/ui/build.xml web-firefox
+
+./build.py -f components/tests/ui/build.xml web-chrome
+
+To run a single test under testcases/web
+
+./build.py -f components/tests/ui/build.xml web-firefox -DTEST=tree.txt
