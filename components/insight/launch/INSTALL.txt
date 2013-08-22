@@ -5,8 +5,8 @@
   Preamble
 
   The client software requires a J2SE Java Runtime Environment (JRE) to
-  run (version 1.5 or higher).
-  If you don't have one already, you can download the J2SE JRE install bundle
+  run (version 1.6 or higher). 
+  If you don't have one already, you can download the J2SE JRE install bundle 
   from:
 
     http://java.sun.com/j2se/downloads/
@@ -47,5 +47,7 @@
   Enjoy OMERO!
 
   If you want to run the editor as a standalone application,
-  double-click on the startup script (for example "OMEROeditor_windows.bat")
-  file within the installation directory. A splash screen will pop up.
+  double-click on the startup script (for example "OMEROeditor_windows.bat") 
+  file within the installation directory. A splash screen will pop up. 
+  
+  
