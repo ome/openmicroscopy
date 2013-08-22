@@ -372,8 +372,6 @@ class TagControl(BaseControl):
                 lines.append('')
         return lines
 
-
-    # Actual command methods
     def create_tag(self, name, description, text="tag"):
         """
         Creates a new tag object. Returns the new tag object.
@@ -397,6 +395,8 @@ class TagControl(BaseControl):
 
         return tag
 
+
+    # Actual command methods
     def create(self, args):
         """
         create a tag command.
