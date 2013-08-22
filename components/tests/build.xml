@@ -18,7 +18,7 @@
 		<delete dir="${tests.dest}"/>
 	</target>
 
-	<target name="build" depends="buildlist" description="Calls 'tools-build' on all components to fill target">
+	<target name="build" depends="buildlist" description="Calls 'tests-build' on all components to fill target">
 		<mkdir dir="${tests.classes}"/>
 		<iterate target="tests-dist"/>
 	</target>
