@@ -515,10 +515,12 @@ public class ScreenLogin
 		
 		originalName = userName;
 		user = new JTextField();
+		user.setName("user");
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
 		user.setColumns(TEXT_COLUMN);
 		pass = new JPasswordField();
+		pass.setName("pass");
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
@@ -576,6 +578,7 @@ public class ScreenLogin
 		connectionSpeedText.setBorder(
 				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
+		serverText.setName("server host name");
 		
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
@@ -584,6 +587,7 @@ public class ScreenLogin
 		initializeGroups();
 		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
+		login.setName("login button");
 		defaultForeground = login.getForeground();
 		login.setMnemonic('L');
 		login.setToolTipText("Login");
@@ -597,6 +601,7 @@ public class ScreenLogin
 		setButtonDefault(cancel);
 		UIUtilities.opacityCheck(cancel);
 		configButton = new JButton();
+		configButton.setName("config server button");
 		configButton.setMnemonic('X');
 		configButton.setToolTipText("Enter the server's address.");
 		configButton.setBorderPainted(false);
@@ -1025,9 +1030,9 @@ public class ScreenLogin
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
 			String defaultPort, String hostName, boolean serverAvailable)
 	{
-		super();
+		super(title);
+		setName("login window");
 		selectedPort = -1;
-		setTitle(title);
 		Dimension d;
 		if (logo != null)
 			d = new Dimension(logo.getIconWidth(), logo.getIconHeight());
