@@ -561,7 +561,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     loader();
 
     // placeholder fixes - should probably be in a more generic place
-    console.log($('[placeholder]'));
     $('[placeholder]').focus(function() {
         var input = $(this);
         if (input.val() == input.attr('placeholder')) {
