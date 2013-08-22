@@ -1,14 +1,11 @@
 *** Settings ***
-
-Documentation  A resource file containing the application specific keywords
-...            that create our own domain specific language. This resource
-...            implements keywords for testing HTML version of the test
-...            application.
-Library        Selenium2Library
-
+Documentation     A resource file containing the application specific keywords
+...               that create our own domain specific language. This resource
+...               implements keywords for testing HTML version of the test
+...               application.
+Library           Selenium2Library
 
 *** Keywords ***
-
 Unique name
     [Arguments]    ${name}
     ${unique}    Get Time    epoch
@@ -18,8 +15,8 @@ Log In As
     [Arguments]    ${username}    ${password}    ${server_id}    ${ssl}=${False}
     Select From List By Value    id_server    ${server_id}
     Run Keyword If    ${ssl}    Select Checkbox    id_ssl
-    Input Text  username  ${username}
-    Input Text  password  ${password}
+    Input Text    username    ${username}
+    Input Text    password    ${password}
     Click Button    Login
 
 Log In As Root
@@ -27,7 +24,7 @@ Log In As Root
 
 Open Browser To Login Page
     [Arguments]    ${main url}    ${login url}
-    Open Browser    ${main url}  ${BROWSER}
+    Open Browser    ${main url}    ${BROWSER}
     Set Selenium Speed    ${DELAY}
     Page Should Be Open    ${login url}    OMERO.web - Login
 
@@ -55,7 +52,7 @@ Page Should Be Open
     Location Should Be    ${page url}
     Run Keyword If    '${title}'!='None'    Title Should Be    ${title}
 
-Page Should Contain Input Field 
+Page Should Contain Input Field
     [Arguments]    ${label}    ${value}
     Page Should Contain    ${label}
     Page Should Contain Textfield    name=${value}
@@ -81,4 +78,3 @@ Page Should Contain Radio Field
     Page Should Contain    ${label}
     Page Should Contain Radio Button    ${name}
     Radio Button Should Be Set To    ${name}    ${value}
-
