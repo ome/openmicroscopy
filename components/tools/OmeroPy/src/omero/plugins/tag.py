@@ -103,9 +103,9 @@ class TagControl(BaseControl):
         self.add_newtag_params(createset)
         createset.add_login_arguments()
 
-        importjson = parser.add(sub, self.importjson, help="Import new tag(s) from json")
-        importjson.add_argument("filename", nargs="?", help="The filename containing tag json")
-        importjson.add_login_arguments()
+        loadj = parser.add(sub, self.load, help="Import new tag(s) from JSON file")
+        loadj.add_argument("filename", nargs="?", help="The filename containing tag JSON")
+        loadj.add_login_arguments()
 
 
     # Recurring parameter methods
@@ -449,7 +449,7 @@ class TagControl(BaseControl):
             self.ctx.err("Check that tag '%s' exists." % t)
             sys.exit(1)
 
-    def importjson(self, args):
+    def load(self, args):
         """
         Import new tag(s) from json.
         """
