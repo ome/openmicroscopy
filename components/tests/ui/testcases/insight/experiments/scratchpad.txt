@@ -1,0 +1,64 @@
+*** Settings ***
+
+Library   SwingLibrary
+Library   org.openmicroscopy.shoola.keywords.JTreeLibrary
+Library   org.openmicroscopy.shoola.keywords.StaticFieldLibrary
+Library   org.openmicroscopy.shoola.keywords.ThumbnailCheckLibrary
+Resource  ../../config.txt
+Resource  ../../../resources/insight/thumbnail.txt
+
+
+*** Test Cases ***
+
+Experiments
+        [Documentation]                   try out ideas before using them in proper test case scripts
+        Select Window                     tree viewer window
+        Component Should Be Visible       tree
+        Tree Node Should Be Visible       tree                           ${FULL NAME}
+        Expand Tree Node                  tree                           ${FULL NAME}
+        Tree Node Should Be Visible       tree                           ${FULL NAME}|Orphaned Images
+        Expand Tree Node                  tree                           ${FULL NAME}|Orphaned Images
+        ${orphaned images node}=          Get Matching Tree Path         .*\\|Orphaned Images \\[\\d+\\]   tree
+        Expand Tree Node                  tree                           ${orphaned images node}
+        ${selected tree path}=            Get Selected Tree Path         tree
+        Should Be Equal                   ${selected tree path}          ${orphaned images node}
+        Pass Execution                    needs known images from setup
+        Sleep                             2s
+        Thumbnail Should Be Blank         green.png
+        Thumbnail Should Not Be Blank     ankle.dcm
+        ${ankle thumbnail hash}=          Get Thumbnail Hash             ankle.dcm
+        ${green thumbnail hash}=          Get Thumbnail Hash             green.png
+        ${ankle thumbnail hash}=          Get Thumbnail Hash             ankle.dcm
+        Should Be Equal                   ${ankle thumbnail hash}        ${ankle thumbnail hash}
+        Should Not Be Equal               ${ankle thumbnail hash}        ${green thumbnail hash}
+        ${ankle tree path}=               Get Matching Tree Path         .*/ankle.dcm$                             tree
+        ${green tree path}=               Get Matching Tree Path         .*/green.png$                             tree
+        Click On Tree Node                tree                           ${ankle tree path}
+        ${selected border color}=         Get Thumbnail Border Color     ankle.dcm
+        ${unselected border color}=       Get AWT Color                  util.ui.border.FrameBorder.DEFAULT_COLOR
+        Should Not Be Equal               ${selected border color}       ${unselected border color}
+        Thumbnail Should Not Be Selected  green.png
+        Tree Node Should Not Be Selected  tree                           ${green tree path}
+        Tree Node Should Be Selected      tree                           ${ankle tree path}
+        Click On Tree Node                tree                           ${green tree path}
+        ${green border color}=            Get Thumbnail Border Color     green.png
+        Should Be Equal                   ${green border color}          ${selected border color}
+        Thumbnail Should Not Be Selected  ankle.dcm
+        Tree Node Should Be Selected      tree                           ${green tree path}
+        Tree Node Should Not Be Selected  tree                           ${ankle tree path}
+        Click Thumbnail                   ankle.dcm
+        ${green border color}=            Get Thumbnail Border Color     green.png
+        Should Be Equal                   ${green border color}          ${unselected border color}
+        ${ankle border color}=            Get Thumbnail Border Color     ankle.dcm
+        Should Be Equal                   ${ankle border color}          ${selected border color}
+        Tree Node Should Not Be Selected  tree                           ${green tree path}
+        Tree Node Should Be Selected      tree                           ${ankle tree path}
+        Click Thumbnail                   green.png
+        ${green border color}=            Get Thumbnail Border Color     green.png
+        Should Be Equal                   ${green border color}          ${selected border color}
+        Thumbnail Should Not Be Selected  ankle.dcm
+        Tree Node Should Be Selected      tree                           ${green tree path}
+        Tree Node Should Not Be Selected  tree                           ${ankle tree path}
+
+
+# pick whichever image names you have loaded; green.png is attached to ticket 11210
