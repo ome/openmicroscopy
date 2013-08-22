@@ -255,6 +255,9 @@ class TagControl(BaseControl):
                     where ts.ns = 'openmicroscopy.org/omero/insight/tagset')
                 and ann.ns is null
                 """
+            if args.uid:
+                sql += " and ann.details.owner.id = :eid"
+
             for element in q.projection(sql, params, ice_map):
                 tag_id, text, description = map(unwrap, element)
                 tc.orphans.append(Tag(
