@@ -141,7 +141,6 @@
         </sequential>
     </macrodef>
 
-    <!-- delete the reports directory -->
     <target name="tests-dist">
         <librarybuild target="dist"/>
     </target>
