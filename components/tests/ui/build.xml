@@ -20,11 +20,10 @@
         keywords.
     </description>
 
-    <!-- run jybot with various arguments -->
+    <!-- run jybot with various arguments. Used to run insight tests.-->
     <macrodef name="run_jybot">
         <attribute name="filename"/>
         <sequential>
-            <echo message="${filename}"/>
             <exec executable="jybot" failonerror="false" dir="${reports.insight}">
                 <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
                     <arg value="-d"/>
@@ -88,7 +87,7 @@
         <local name="filename" />
         <basename property="filename" file="${FOLDER}"/>
         <mkdir dir="${reports.insight}/${filename}" />
-        <run_jybot filename="${filename}"/>
+        <run_jybot filename="testcases/insight/${filename}"/>
     </target>
 
     <!--  run the insight tests -->
@@ -104,8 +103,7 @@
             <else>
                 <antcall target="run_all_insight" inheritRefs="true" inheritAll="true"/>
             </else>
-        </if>
-        
+        </if>  
     </target>
 
     <!--  run all the web tests -->
@@ -117,19 +115,32 @@
    <!-- test with firefox -->
     <target name="web-firefox">
         <mkdir dir="${reports.web}/firefox"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if> 
+        <echo message="${target}"/>
         <exec executable="pybot" failonerror="false">
             <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
             <arg value="-d"/>
             <arg value="${reports.web}/firefox"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
-            <arg value="${basedir}/testcases/web/"/>
+            <arg value="${basedir}/testcases/${target}"/>
         </exec>
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed-->
     <target name="web-chrome"> 
         <mkdir dir="${reports.web}/chrome"/>
+        <var name="target" value="web/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="web/${TEST}"/>
+            </then>
+        </if> 
         <exec executable="pybot" failonerror="false">
             <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
             <arg value="-d"/>
@@ -138,7 +149,7 @@
             <arg value="browser:chrome"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
-            <arg value="${basedir}/testcases/web/"/>
+            <arg value="${basedir}/testcases/${target}"/>
         </exec>
         <if>
             <available file="${google.log}"/>
