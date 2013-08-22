@@ -43,7 +43,7 @@
 
     <property name="target.dir" value="${basedir}/../../../target/repository"/>
 
-    <property name="insight.dir" value="${basedir}/../../insight"/>
+    <property name="insight.dir" value="${basedir}/../../insight/OUT"/>
 
     <!-- file created while running the web-chrome target -->
     <property name="google.log" value="${basedir}/libpeerconnection.log"/>
@@ -69,18 +69,6 @@
         <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
             <fileset dir="${insight.dir}/config"/>
         </copy>
-        <!-- copy the jars -->
-        <mkdir dir="${reports.insight}/jars" />
-        <copy todir="${reports.insight}/jars" verbose="yes" flatten="yes" failonerror="no">
-            <fileset dir="${target.dir}">
-                <include name="**/*.jar" />
-                <exclude name="**/OmeroImporter-${omero.version}.jar"/>
-            </fileset>
-             <fileset dir="${lib.dir}">
-                <include name="**/*.jar"/>
-                <exclude name="**/ice-*.jar"/>
-            </fileset>
-        </copy>
         <!-- execute sub-directory per sub-directory -->
         <for param="file">
             <path>
@@ -92,8 +80,8 @@
                 <mkdir dir="${reports.insight}/${filename}" />
                 <!-- execute -->
                 <exec executable="jybot" failonerror="false" dir="${reports.insight}">
-                    <env key="CLASSPATH" value="${insight.dir}/OUT/dist/*:${reports.insight}/jars/*"/>
-                    <arg value="-d"/>
+                    <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
+                     <arg value="-d"/>
                     <arg value="${reports.insight}/${filename}"/>
                     <arg value="${basedir}/testcases/insight/${filename}"/>
                 </exec>
