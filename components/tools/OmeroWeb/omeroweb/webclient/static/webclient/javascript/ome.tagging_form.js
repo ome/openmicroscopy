@@ -464,6 +464,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
                         if (all_tags[id].d == description) {
                             if ($("[data-id=" + id + "]", div_selected_tags).length > 0) {
                                 OME.alert_dialog("A tag with the same name and description already exists and is selected.");
+                            } else if (all_tags[id].s) {
+                                OME.alert_dialog("A tag set with the same name and description already exists.");
                             } else {
                                 var select_dialog = OME.confirm_dialog("A tag with the same name and description already exists. " +
                                     "Would you like to select the existing tag?", function() {
