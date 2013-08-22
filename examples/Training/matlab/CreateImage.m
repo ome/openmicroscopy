@@ -113,6 +113,8 @@ try
     store.close(); %close
 catch err
     disp(err.message);
+    client.closeSession();
+    exit(1)
 end
 
 %Close the session

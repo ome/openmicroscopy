@@ -131,6 +131,8 @@ try
     end
 catch err
     disp(err.message);
+    client.closeSession();
+    exit(1)
 end
 
 % close the session
