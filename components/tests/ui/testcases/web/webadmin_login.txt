@@ -1,20 +1,20 @@
 *** Settings ***
 
-Documentation     A test suite with a single test for valid login.
+Documentation       A test suite with a single test for valid login.
 ...
-...               This test has a workflow that is created using keywords in
-...               the imported resource file.
+...                 This test has a workflow that is created using keywords in
+...                 the imported resource file.
 
-Resource          ../../resources/web/webadmin.txt
-Resource          ../config.txt
+Resource            ../../resources/web/webadmin.txt
+Resource            ../config.txt
 
-Suite Setup        Open Browser To Login Page    ${WEBADMIN WELCOME URL}    ${WEBADMIN LOGIN URL}
-Suite Teardown     Close all browsers
+Suite Setup         Open Browser To Login Page      ${WEBADMIN WELCOME URL}     ${WEBADMIN LOGIN URL}
+Suite Teardown      Close all browsers
 
 *** Test Cases ***
 
 Login Page
-    [Documentation]     Tests elements on the login page
+    [Documentation]    Tests elements on the login page
     
     Page Should Contain Image       xpath=//div[@id='login-logo']/img
     Page Should Contain Element     id_server
@@ -24,32 +24,32 @@ Login Page
     Page Should Contain Button      xpath=//input[@value='Login']
 
 Valid Login
-    [Documentation]     Tests logging in as root
+    [Documentation]    Tests logging in as root
     
     Log In As Root
-    Page Should Be Open    ${USERS URL}    OMERO Users
+    Page Should Be Open     ${USERS URL}                    OMERO Users
     Log Out
     
-    Go To    ${WEBADMIN WELCOME URL}
-    Log In As    ${ROOT USERNAME}    ${ROOT PASSWORD}    ${SERVER_ID}    ${True}
-    Page Should Be Open    ${USERS URL}    OMERO Users
+    Go To                   ${WEBADMIN WELCOME URL}
+    Log In As               ${ROOT USERNAME}                ${ROOT PASSWORD}    ${SERVER_ID}    ${True}
+    Page Should Be Open     ${USERS URL}                    OMERO Users
     Log Out
 
 Invalid Login
-    [Documentation]     Tests login form validation messages on logging in as root
+    [Documentation]    Tests login form validation messages on logging in as root
     
-    Go To    ${WEBADMIN WELCOME URL}
-    Log In As    foo    secret    ${SERVER_ID}
-    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
-    Page Should Contain    Error: Connection not available, please check your user name and password.
+    Go To                   ${WEBADMIN WELCOME URL}
+    Log In As               foo                             secret              ${SERVER_ID}
+    Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
+    Page Should Contain     Error: Connection not available, please check your user name and password.
     
-    Go To    ${WEBADMIN WELCOME URL}
+    Go To                   ${WEBADMIN WELCOME URL}
     
-    Log In As    foo    ${EMPTY}    ${SERVER_ID}
-    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
-    Page Should Contain    This field is required.
+    Log In As               foo                             ${EMPTY}            ${SERVER_ID}
+    Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
+    Page Should Contain     This field is required.
     
-    Log In As    ${EMPTY}    secret    ${SERVER_ID}
-    Page Should Be Open    ${WEBADMIN LOGIN URL}    OMERO.web - Login
-    Page Should Contain    This field is required.
+    Log In As               ${EMPTY}                        secret              ${SERVER_ID}
+    Page Should Be Open     ${WEBADMIN LOGIN URL}           OMERO.web - Login
+    Page Should Contain     This field is required.
 
