@@ -29,6 +29,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     var owners = {};
 
     var canceled = false;
+    var loaded = false;
 
     if ($("#add_tags_progress").length === 0) {
         $("#add_tags_form").next().append(
@@ -282,6 +283,8 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             update_html();
 
             $(":button:contains('Reset'),:button:contains('Save')", $("#add_tags_form").parent()).removeAttr("disabled").removeClass( 'ui-state-disabled' );
+            loaded = true;
+            update_add_new_button_state();
         };
 
         load('tagcount', tag_count_callback);
@@ -437,7 +440,9 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
 
     var new_tag_counter = 0;
 
-    var add_new_tag = function(event) {
+    var add_new_tag = function(event, force) {
+        event.preventDefault();
+
         var text = tag_input.val();
         if (text == tag_input.attr('placeholder')) {
             text = '';
@@ -448,8 +453,42 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
             description = '';
         }
         description = $.trim(description);
+
         var tagset = get_selected_tagset();
         if (text.length > 0) {
+
+            // check for tag with same name
+            if (!force) {
+                for (var id in all_tags) {
+                    if (all_tags[id].t == text) {
+                        if (all_tags[id].d == description) {
+                            if ($("[data-id=" + id + "]", div_selected_tags).length > 0) {
+                                OME.alert_dialog("A tag with the same name and description already exists and is selected.");
+                            } else {
+                                var select_dialog = OME.confirm_dialog("A tag with the same name and description already exists. " +
+                                    "Would you like to select the existing tag?", function() {
+                                        if (select_dialog.data("clicked_button") == "Yes") {
+                                            $("div.ui-selected", div_all_tags).removeClass("ui-selected");
+                                            $("[data-id=" + id + "]", div_all_tags).addClass("ui-selected");
+                                            select_tags(event);
+                                            tag_input.val('');
+                                            description_input.val('');
+                                        }
+                                    }, "Add new tag", ["Yes", "No"]);
+                            }
+                        } else {
+                            var select_dialog = OME.confirm_dialog("A tag with the same name and a different description already exists. " +
+                                "Would you still like to add a new tag?", function() {
+                                    if (select_dialog.data("clicked_button") == "Yes") {
+                                        add_new_tag(event, true);
+                                    }
+                                }, "Add new tag", ["Yes", "No"]);
+                        }
+                        return;
+                    }
+                }
+            }
+
             new_tag_counter -= 1;
             var tagset_id = tagset ? parseInt(tagset.attr('data-id'), 10) : false;
             all_tags[new_tag_counter] = {
@@ -472,7 +511,6 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
         // scroll to first selected tag
         div_selected_tags.parent().scrollTop($("div.ui-selected", div_selected_tags).offset().top - div_selected_tags.offset().top - 40);
         update_add_new_button_state();
-        event.preventDefault();
     };
 
     var save_tags = function() {
@@ -502,7 +540,7 @@ var tagging_form = function(selected_tags, formset_prefix, tags_field_id) {
     };
 
     var update_add_new_button_state = function() {
-        if (tag_input.val() !== '' && tag_input.val() != tag_input.attr('placeholder')) {
+        if (loaded && tag_input.val() !== '' && tag_input.val() != tag_input.attr('placeholder')) {
             $("#id_add_new_tag").removeAttr('disabled');
         } else {
             $("#id_add_new_tag").attr('disabled','disabled');
