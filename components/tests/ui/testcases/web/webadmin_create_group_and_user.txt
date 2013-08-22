@@ -1,72 +1,71 @@
 *** Settings ***
 
-Documentation     A test suite with a single test for valid login.
+Documentation       A test suite with a single test for valid login.
 ...
-...               This test has a workflow that is created using keywords in
-...               the imported resource file.
+...                 This test has a workflow that is created using keywords in
+...                 the imported resource file.
 
-Resource          ../../resources/web/webadmin.txt
-Resource          ../config.txt
+Resource            ../../resources/web/webadmin.txt
+Resource            ../config.txt
 
-Suite Setup       Open Browser To Webadmin And Log In As Root
-
-Suite Teardown    Logout and Teardown
+Suite Setup         Open Browser To Webadmin And Log In As Root
+Suite Teardown      Logout and Teardown
 
 
 *** Test Cases ***
 
 Check Group Form
-    [Documentation]     Tests elements on the create group page
+    [Documentation]    Tests elements on the create group page
 
-    Page Should Be Open    ${USERS URL}
-    Click Link    link=Groups
-    Click Link    link=Add new Group
+    Page Should Be Open                 ${USERS URL}
+    Click Link                          link=Groups
+    Click Link                          link=Add new Group
     
-    Page Should Contain    Add group
-    Page Should Contain    Fields marked in red are mandatory.
+    Page Should Contain                 Add group
+    Page Should Contain                 Fields marked in red are mandatory.
     
-    Page Should Contain Input Field    Name   name
-    Page Should Contain Input Field    Description    description
+    Page Should Contain Input Field     Name            name
+    Page Should Contain Input Field     Description     description
     
-    Page Should Contain Choice Field    Owners    Choose one or more owners
-    Page Should Contain Choice Field    Members    Choose one or more members
+    Page Should Contain Choice Field    Owners          Choose one or more owners
+    Page Should Contain Choice Field    Members         Choose one or more members
     
-    Page Should Contain Radio Field     Permissions    permissions    0
+    Page Should Contain Radio Field     Permissions     permissions                     0
     
-    Page Should Contain    Private
-    Page Should Contain    Read-Only
-    Page Should Contain    Read-Annotate
+    Page Should Contain                 Private
+    Page Should Contain                 Read-Only
+    Page Should Contain                 Read-Annotate
     
-    Page Should Contain Button    Save
+    Page Should Contain Button          Save
     
-    Page Should Contain Link    OMERO Permissions
+    Page Should Contain Link            OMERO Permissions
 
 
 Check User Form
-    [Documentation]     Tests elements on the create user page
+    [Documentation]    Tests elements on the create user page
     
-    Go To    ${USERS URL}
-    Page Should Be Open    ${USERS URL}
-    Click Link    link=Add new User
+    Go To                                   ${USERS URL}
+    Page Should Be Open                     ${USERS URL}
+    Click Link                              link=Add new User
     
-    Page Should Contain    New User
-    Page Should Contain    Fields marked in red are mandatory.
+    Page Should Contain                     New User
+    Page Should Contain                     Fields marked in red are mandatory.
     
-    Page Should Contain Input Field    Username   omename
-    Page Should Contain Password Field    Password    password
-    Page Should Contain Password Field    Confirmation    confirmation
-    Page Should Contain Input Field    First name    first_name
-    Page Should Contain Input Field    Middle name    middle_name
-    Page Should Contain Input Field    Last name    last_name
-    Page Should Contain Input Field    Email    email
-    Page Should Contain Input Field    Institution    institution
+    Page Should Contain Input Field         Username        omename
+    Page Should Contain Password Field      Password        password
+    Page Should Contain Password Field      Confirmation    confirmation
+    Page Should Contain Input Field         First name      first_name
+    Page Should Contain Input Field         Middle name     middle_name
+    Page Should Contain Input Field         Last name       last_name
+    Page Should Contain Input Field         Email           email
+    Page Should Contain Input Field         Institution     institution
     
-    Page Should Contain Checkbox Field    Administrator    administrator
-    Page Should Contain Checkbox Field    Active    active    selected=${True}
+    Page Should Contain Checkbox Field      Administrator   administrator
+    Page Should Contain Checkbox Field      Active          active          selected=${True}
     
-    Page Should Contain Choice Field    Group    Choose one or more groups
+    Page Should Contain Choice Field        Group           Choose one or more groups
     
-    Page Should Contain Button    Save
+    Page Should Contain Button              Save
 
 
 Create Group
