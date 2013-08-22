@@ -62,6 +62,9 @@
             <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
             <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
             <b>Description:</b> {{ fileann.description|default:""|truncatewords:10  }}
+            {% if fileann.getNs %}
+                <br/><b>Namespace:</b> {{ fileann.getNs }}
+            {% endif %}
         </span>
     {% endif %}
 	

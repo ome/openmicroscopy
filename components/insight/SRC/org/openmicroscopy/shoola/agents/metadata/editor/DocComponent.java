@@ -55,7 +55,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 //Third-party libraries
-
+import org.apache.commons.lang.StringUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -528,6 +528,13 @@ class DocComponent
 			buf.append(UIUtilities.formatFileSize(size));
 			buf.append("<br>");
 			checkAnnotators(buf, annotation);
+			if (!StringUtils.isBlank(ns)) {
+			    buf.append("<b>");
+			    buf.append("Namespace: ");
+			    buf.append("</b>");
+			    buf.append(ns);
+			    buf.append("<br>");
+			}
 		} else if (data instanceof TagAnnotationData || data instanceof
 				XMLAnnotationData || data instanceof TermAnnotationData ||
 				data instanceof LongAnnotationData ||
