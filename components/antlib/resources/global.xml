@@ -209,7 +209,6 @@
         <taskdef resource="net/sf/antcontrib/antlib.xml"
                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
-        <available property="jdk1.5+" classname="java.net.Proxy"/>
         <available property="jdk1.6+" classname="java.util.ServiceLoader"/>
 
         <if>
