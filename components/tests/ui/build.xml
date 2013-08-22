@@ -20,12 +20,18 @@
         keywords.
     </description>
 
-    <macrodef name="run_py">
-        <attribute name="failonerror" default="true"/>
-        <element name="args" implicit="true"/>
+    <!-- run jybot with various arguments -->
+    <macrodef name="run_jybot">
+        <attribute name="filename"/>
         <sequential>
-            <exec executable="python" failonerror="@{failonerror}">
-                <args/>
+            <echo message="${filename}"/>
+            <exec executable="jybot" failonerror="false" dir="${reports.insight}">
+                <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
+                    <arg value="-d"/>
+                    <arg value="${reports.insight}/${filename}"/>
+                    <arg value="--loglevel"/>
+                    <arg value="debug"/>
+                    <arg value="${basedir}/testcases/insight/${filename}"/>
             </exec>
         </sequential>
     </macrodef>
@@ -61,14 +67,8 @@
     </target>
 
 
-    <!--  run the insight tests -->
-    <target name="ui-test-insight">
-        <mkdir dir="${reports.insight}" />
-        <!-- copy the config folder. This should be modified later -->
-        <mkdir dir="${reports.insight}/config"/>
-        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
-            <fileset dir="${insight.dir}/config"/>
-        </copy>
+    <!-- run all the tests for insight -->
+    <target name="run_all_insight">
         <!-- execute sub-directory per sub-directory -->
         <for param="file">
             <path>
@@ -78,20 +78,37 @@
                 <local name="filename" />
                 <basename property="filename" file="@{file}"/>
                 <mkdir dir="${reports.insight}/${filename}" />
-                <!-- execute -->
-                <exec executable="jybot" failonerror="false" dir="${reports.insight}">
-                    <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
-                    <arg value="-d"/>
-                    <arg value="${reports.insight}/${filename}"/>
-                    <arg value="--loglevel"/>
-                    <arg value="debug"/>
-                    <arg value="${basedir}/testcases/insight/${filename}"/>
-                </exec>
+                <run_jybot filename="${filename}"/>
             </sequential>
         </for>
     </target>
 
-    <!--  run the web tests -->
+    <!-- run the specified folder -->
+    <target name="run_folder_insight">
+        <local name="filename" />
+        <basename property="filename" file="${FOLDER}"/>
+        <mkdir dir="${reports.insight}/${filename}" />
+        <run_jybot filename="${filename}"/>
+    </target>
+
+    <!--  run the insight tests -->
+    <target name="ui-test-insight">
+        <mkdir dir="${reports.insight}" />
+        <!-- copy the config folder. This should be modified later -->
+        <mkdir dir="${reports.insight}/config"/>
+        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${insight.dir}/../config"/>
+        </copy>
+        <if><isset property="FOLDER"/><then>
+            <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
+            <else>
+                <antcall target="run_all_insight" inheritRefs="true" inheritAll="true"/>
+            </else>
+        </if>
+        
+    </target>
+
+    <!--  run all the web tests -->
     <target name="ui-test-web">
         <antcall target="web-firefox" inheritRefs="true" inheritAll="true"/>
         <antcall target="web-chrome" inheritRefs="true" inheritAll="true"/>
