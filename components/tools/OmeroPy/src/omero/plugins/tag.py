@@ -388,12 +388,17 @@ class TagControl(BaseControl):
 
         if description is None:
             description = raw_input("Please enter a description for this %s: " % text)
-        tag = TagAnnotationI()
-        tag.textValue = rstring(name)
-        if description is not None and len(description) > 0:
-            tag.description = rstring(description)
 
-        return tag
+        if name is not None and description is not None:
+            tag = TagAnnotationI()
+            tag.textValue = rstring(name)
+            if description is not None and len(description) > 0:
+                tag.description = rstring(description)
+
+            return tag
+        else:
+            self.ctx.err("Tag/tagset name or description cannot be 'None'")
+            sys.exit(1)
 
 
     # Actual command methods
