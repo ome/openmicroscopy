@@ -52,6 +52,8 @@ try
     fprintf(1, 'Image %g deleted\n', imageId);
 catch err
     disp(err.message);
+    client.closeSession();
+    exit(1)
 end
 
 %Close the session
