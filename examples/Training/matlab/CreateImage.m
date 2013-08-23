@@ -114,7 +114,7 @@ try
 catch err
     disp(err.message);
     client.closeSession();
-    exit(1)
+    rethrow(err);
 end
 
 %Close the session
