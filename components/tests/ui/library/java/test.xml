@@ -1,7 +1,7 @@
 <ivy-module version="1.0">
   <info
       organisation="omero"
-      module="java-ui-libraries"
+      module="java-ui-libraries-test"
       status="integration"/>
   <configurations>
     <conf name="test"/>
@@ -11,5 +11,8 @@
   </publications>
   <dependencies defaultconfmapping="test->*">
     <dependency name="common-test" rev="${omero.version}" changing="true"/>
+    <dependency name="java-ui-libraries" rev="${omero.version}" changing="true"/>
+    <dependency org="emma" name="emma" rev="${versions.emma}"/>
+    <dependency org="emma" name="emma_ant" rev="${versions.emma}"/>
   </dependencies>
 </ivy-module>

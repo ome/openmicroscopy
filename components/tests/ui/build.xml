@@ -80,9 +80,6 @@
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
-   <!-- compile the unit tests under library/java/test -->
-    <target name="test-compile" description=""/>
-
     <!-- set up the directory for insight reports -->
     <target name="setup-dir">
         <mkdir dir="${reports.insight}" />
@@ -214,5 +211,15 @@
     <target name="tests-clean" depends="clean">
     <delete dir="${basedir}/target"/>
     <librarybuild target="clean"/>
+    </target>
+
+       <!-- compile the unit tests under library/java/test -->
+    <target name="test-compile" description=""/>
+
+    <!-- no-operation -->
+    <target name="integration" description=""/>
+
+    <target name="test">
+        <librarybuild target="test"/>
     </target>
 </project>
