@@ -81,7 +81,7 @@ class TagControl(BaseControl):
         parser.add_login_arguments()
         sub = parser.sub()
 
-        listtags = parser.add(sub, self.list, help="List tags")
+        listtags = parser.add(sub, self.list, help="List all the tags, grouped by tagset")
         self.add_standard_params(listtags)
         listtags.add_argument("--tagset", nargs="+", help="One or more tagset IDs")
         self.add_tag_common_params(listtags)
@@ -89,7 +89,7 @@ class TagControl(BaseControl):
 
         listsets = parser.add(sub, self.listsets, help="List tag sets")
         self.add_standard_params(listsets)
-        listsets.add_argument("--tag", nargs="+", help="One or more tag IDs")
+        listsets.add_argument("--tag", nargs="+", help="List only tagsets containing the following tag IDs")
         self.add_tag_common_params(listsets)
         listsets.add_login_arguments()
 
@@ -103,7 +103,28 @@ class TagControl(BaseControl):
         self.add_newtag_params(createset)
         createset.add_login_arguments()
 
-        loadj = parser.add(sub, self.load, help="Import new tag(s) from JSON file")
+        loadj = sub.add_parser(self.load.im_func.__name__, \
+            help="Import new tag(s) and tagset(s) from JSON file", \
+            description="Import new tag(s) and tagset(s) from JSON file", \
+            epilog="""
+JSON File Format:
+  The format of the JSON file should be as follows:
+
+  [{
+    "name" : "Name of the tagset",
+    "desc" : "Description of the tagset",
+    "set" : [{
+        "name" : "Name of tag",
+        "desc" : "Description of tag"
+    },{
+        "name" : "Name of tag",
+        "desc" : "Description of tag"
+    },{
+        ....
+  },{
+    ....
+  }]
+            """)
         loadj.add_argument("filename", nargs="?", help="The filename containing tag JSON")
         loadj.add_login_arguments()
 
@@ -115,7 +136,7 @@ class TagControl(BaseControl):
             help="The description of the new tag or tagset")
 
     def add_tag_common_params(self, parser):
-        parser.add_argument("--uid", help="The effective user ID")
+        parser.add_argument("--uid", help="List only tags/tagsets belonging to the following user ID")
         parser.add_argument("--desc", "--description", "--descriptions", \
                 action="store_true", default=False, \
                 help="Display descriptions of tags")
