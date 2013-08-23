@@ -49,8 +49,8 @@ public abstract class AbstractChecksumProviderIntegrationTest {
     public AbstractChecksumProviderIntegrationTest(ChecksumProvider cp,
             EnumMap<ChecksumTestVector, String> checksumValues) {
         try {
-            this.smallFile = ResourceUtils.getFile("classpath:cruisecontrol-test.txt");
-            this.mediumFile = ResourceUtils.getFile("classpath:test.txt");
+            this.smallFile = ResourceUtils.getFile("classpath:tinyTest.d3d.dv");
+            this.mediumFile = ResourceUtils.getFile("classpath:test.jpg");
             this.bigFile = ResourceUtils.getFile("classpath:test.bmp");
         } catch (FileNotFoundException e) {
             throw new RuntimeException("IOException during test set up.");

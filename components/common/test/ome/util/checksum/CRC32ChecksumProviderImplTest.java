@@ -36,8 +36,8 @@ public class CRC32ChecksumProviderImplTest
     public void setUp() {
         map.put(ChecksumTestVector.ABC, "352441c2");
         map.put(ChecksumTestVector.EMPTYARRAY, "00000000");
-        map.put(ChecksumTestVector.SMALLFILE, "d6447dbc");
-        map.put(ChecksumTestVector.MEDIUMFILE, "82405698");
+        map.put(ChecksumTestVector.SMALLFILE, "12490048");
+        map.put(ChecksumTestVector.MEDIUMFILE, "25da8800");
         map.put(ChecksumTestVector.BIGFILE, "bd452902");
     }
 
