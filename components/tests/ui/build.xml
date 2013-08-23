@@ -31,10 +31,33 @@
                     <arg value="@{output}"/>
                     <arg value="--loglevel"/>
                     <arg value="debug"/>
+                    <element name="args" implicit="true"/>
                     <arg value="${basedir}/testcases/insight/${filename}"/>
             </exec>
         </sequential>
     </macrodef>
+
+    <!-- run pybot with various arguments. Used to run web tests.-->
+    <macrodef name="run_pybot">
+        <attribute name="output"/>
+        <element name="args" implicit="true"/>
+        <sequential>
+            <exec executable="pybot" failonerror="false" dir="${output}">
+                <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+                 <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- point the build file used to generate the ui libraries -->
+    <macrodef name="librarybuild">
+        <attribute name="target"/>
+        <sequential>
+            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
+            </ant>
+        </sequential>
+    </macrodef>
+
 
     <!-- reports for the web tests. -->
     <property name="reports.web" value="${basedir}/target/reports/web"/>
@@ -133,43 +156,43 @@
 
    <!-- test with firefox -->
     <target name="web-firefox">
-        <mkdir dir="${reports.web}/firefox"/>
+        <var name="output" value="${reports.web}/firefox"/>
+        <mkdir dir="${output}"/>
         <var name="target" value="web/"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
             </then>
-        </if> 
-        <echo message="${target}"/>
-        <exec executable="pybot" failonerror="false">
-            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+        </if>
+        
+        <run_pybot output="${output}">
             <arg value="-d"/>
-            <arg value="${reports.web}/firefox"/>
+            <arg value="${output}"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
             <arg value="${basedir}/testcases/${target}"/>
-        </exec>
+        </run_pybot>
     </target>
 
     <!-- test with chrome This requires the chrome driver to be installed-->
     <target name="web-chrome"> 
-        <mkdir dir="${reports.web}/chrome"/>
+        <var name="output" value="${reports.web}/chrome"/>
+        <mkdir dir="${output}"/>
         <var name="target" value="web/"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="web/${TEST}"/>
             </then>
-        </if> 
-        <exec executable="pybot" failonerror="false">
-            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
+        </if>
+        <run_pybot output="${output}">
             <arg value="-d"/>
-            <arg value="${reports.web}/chrome"/>
+            <arg value="${output}"/>
             <arg value="-v"/>
             <arg value="browser:chrome"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
             <arg value="${basedir}/testcases/${target}"/>
-        </exec>
+        </run_pybot>
         <if>
             <available file="${google.log}"/>
             <then>
@@ -178,15 +201,6 @@
         </if>
         
     </target>
-
-    <!-- point the build file used to generate the ui libraries -->
-    <macrodef name="librarybuild">
-        <attribute name="target"/>
-        <sequential>
-            <ant antfile="${basedir}/library/java/build.xml" inheritAll="false" inheritRefs="false" target="@{target}">
-            </ant>
-        </sequential>
-    </macrodef>
 
     <target name="tests-dist">
         <librarybuild target="dist"/>
