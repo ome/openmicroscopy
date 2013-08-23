@@ -22,7 +22,7 @@ Choose Server
         Button Should Be Enabled   cancel button
         ${sought row}=             Find Table Row      server table         ${server}         host
         Run Keyword If             ${sought row} >= 0  Click On Table Cell  server table      ${sought row}  0
-        Else                       ${sought row} >= 0  Add New Server       server=${server}
+        Run Keyword Unless         ${sought row} >= 0  Add New Server       server=${server}
         Button Should Be Enabled   apply button
         Button Should Be Enabled   cancel button
         Push Button                apply button
@@ -33,21 +33,19 @@ First Login
         [Arguments]                ${user}                          ${pass}           ${host}         ${port}
         Start Application          org.openmicroscopy.shoola.Main
         Select Window              login window
-        Complete Login             ${user}                          ${pass}           ${host}         ${port}
+        Button Should Be Enabled   config server button
+        ${previous host}=          Get Text Field Value             server host name
+        Run Keyword If             '${previous host}' != '${host}'  Choose Server     server=${host}
+        Clear Text Field           user
+        Type Into Text Field       user                             ${user}
+        Type Into Text Field       pass                             ${pass}
+        Push Button                login button
         Return To Login
         
 Log In As
         [Documentation]            log in to an OMERO server to switch user
-        [Arguments]                ${user}                          ${pass}           ${host}         ${port}
+        [Arguments]                ${user}                          ${pass}
         Select Dialog              login dialog
-        Complete Login             ${user}                          ${pass}           ${host}         ${port}
-
-Complete Login
-        [Documentation]            log in to an OMERO server given the login container as context
-        [Arguments]                ${user}                          ${pass}           ${host}         ${port}
-        Button Should Be Enabled   config server button
-        ${previous host}=          Get Text Field Value             server host name
-        Run Keyword If             '${previous host}' != '${host}'  Choose Server     server=${host}
         Clear Text Field           user
         Type Into Text Field       user                             ${user}
         Type Into Text Field       pass                             ${pass}
