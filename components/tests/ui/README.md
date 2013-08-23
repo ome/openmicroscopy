@@ -53,12 +53,19 @@ To run all the insight tests, from the top level
 
 ./build.py -f components/tests/ui/build.xml ui-test-insight
 
-To run the tests in a given folder under testcases/insight
+To run the tests in a given folder under testcases/insight e.g.
 ./build.py -f components/tests/ui/build.xml ui-test-insight -DFOLDER=icons
 
 The output of the tests can be found under 
-components/tests/ui/target/insight/*. One output directory will be created for each testcases directory.
+components/tests/ui/target/reports/insight/*. One output directory will be created for each testcases directory.
 
+
+To run the tests in a given test e.g.
+./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=experiments/scratchpad.txt
+
+The output of the test can be found under 
+components/tests/ui/target/reports/insight/experiments
+i.e. The parent directory of the test itself.
 
 OMERO.web
 ---------
@@ -89,7 +96,14 @@ To run all the web tests on firefox (respectively chrome) only
 
 ./build.py -f components/tests/ui/build.xml web-firefox
 
+The output of the tests can be found under
+components/tests/ui/target/reports/web/firefox
+
 ./build.py -f components/tests/ui/build.xml web-chrome
+
+The output of the tests can be found under
+components/tests/ui/target/reports/web/chrome
+
 
 To run a single test under testcases/web
 
