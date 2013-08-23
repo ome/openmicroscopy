@@ -265,7 +265,7 @@ public class JTreeLibrary
                 tree.expandPath(pathIterator.next());
                 pathIterator.remove();
                 try {
-                    /* TODO: perhaps some specific component state can be awaited */
+                    /* TODO: perhaps some specific component state can be awaited, applying Jemmy timeouts */
                     Thread.sleep(2000);
                 } catch (InterruptedException e) { }
             } else {
