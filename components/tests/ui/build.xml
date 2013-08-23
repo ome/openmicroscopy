@@ -60,6 +60,16 @@
    <!-- compile the unit tests under library/java/test -->
     <target name="test-compile" description=""/>
 
+    <!-- set up the directory for insight reports -->
+    <target name="setup-dir">
+        <mkdir dir="${reports.insight}" />
+        <!-- copy the config folder. This should be modified later -->
+        <mkdir dir="${reports.insight}/config"/>
+        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
+            <fileset dir="${insight.dir}/../config"/>
+        </copy>
+    </target>
+
     <!--  run the web and insight tests -->
     <target name="ui-test-all" unless="env.NOPYTHON" depends="clean">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>
@@ -68,7 +78,7 @@
 
 
     <!-- run all the tests for insight -->
-    <target name="run_all_insight">
+    <target name="run_all_insight" depends="setup-dir">
         <!-- execute sub-directory per sub-directory -->
         <for param="file">
             <path>
@@ -85,7 +95,7 @@
     </target>
 
     <!-- run the tests in the specified folder -->
-    <target name="run_folder_insight">
+    <target name="run_folder_insight" depends="setup-dir">
         <var name="filename" value="${FOLDER}"/>
         <var name="output" value="${reports.insight}/${filename}"/>
         <mkdir dir="${output}" />
@@ -93,7 +103,7 @@
     </target>
 
     <!-- run the specified test -->
-    <target name="run_single_insight">
+    <target name="run_single_insight" depends="setup-dir">
         <var name="filename" value="${TEST}"/>
         <dirname file="${filename}" property="filename.parent" />
         <basename property="parent" file="${filename.parent}"/>
@@ -103,13 +113,7 @@
     </target>
 
     <!--  run the insight tests -->
-    <target name="ui-test-insight">
-        <mkdir dir="${reports.insight}" />
-        <!-- copy the config folder. This should be modified later -->
-        <mkdir dir="${reports.insight}/config"/>
-        <copy todir="${reports.insight}/config" verbose="yes" flatten="yes" failonerror="no">
-            <fileset dir="${insight.dir}/../config"/>
-        </copy>
+    <target name="ui-test-insight" depends="setup-dir">
         <if><isset property="FOLDER"/><then>
             <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
             <elseif><isset property="TEST"/><then>
