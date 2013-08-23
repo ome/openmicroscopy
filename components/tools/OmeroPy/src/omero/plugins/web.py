@@ -16,6 +16,7 @@ import time
 import sys
 import os
 import re
+from subprocess import Popen, PIPE
 
 try:
     from omeroweb import settings
@@ -115,7 +116,20 @@ class WebControl(BaseControl):
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
         unittest.add_argument("--texec", action="store", help = "Alternative executable.")
 
-
+        pytest = parser.add(sub, self.pytest, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
+        pytest.add_argument("--config", action="store", help = "ice.config location")
+        pytest.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
+        pytest.add_argument("--testpath", action="store", help = "Path for test collection (relative to basepath)")
+        pytest.add_argument("--string", action="store", help = "Only run tests including string.")
+        pytest.add_argument("--failfast", action="store_true", default=False, help = "Exit on first error")
+        pytest.add_argument("--verbose", action="store_true", default=False, help = "More verbose output")
+        pytest.add_argument("--quiet", action="store_true", default=False, help = "Less verbose output")
+        pytest.add_argument("--pdb", action="store_true", default=False, help = "Fallback to pdb on error")
+        pytest.add_argument('--cov', action='append', default=[],
+                            help='measure coverage for filesystem path (multi-allowed)')
+        pytest.add_argument('--cov-report', action='append', default=[],
+                            choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
+                            help='type of report to generate: term, term-missing, annotate, html, xml (multi-allowed)')
     def config(self, args):
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
@@ -268,6 +282,44 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
+    def pytest(self, args):
+        try:
+            pass
+        except:
+            self.ctx.die(121, 'pytest: wrong arguments, run pytest -h for a list')
+
+        cargs = ['py.test']
+
+        if args.config:
+            self.set_environ(ice_config=args.config)
+        else:
+            self.set_environ(ice_config=self.ctx.dir / 'etc' / 'ice.config')
+
+        if args.basepath:
+            cwd = args.basepath
+        else:
+            cwd = self.ctx.dir / 'lib' / 'python' / 'omeroweb'    
+
+        if args.testpath:
+            cargs.extend(['-s', args.testpath])
+        if args.string:
+            cargs.extend(['-k', args.string])
+        if args.failfast:
+            cargs.append('-x')
+        if args.verbose:
+            cargs.append('-v')
+        if args.quiet:
+            cargs.append('-q')
+        if args.pdb:
+            cargs.append('--pdb')
+        for cov in args.cov:
+            cargs.extend(['--cov', cov])
+        for cov_rep in args.cov_report:
+            cargs.extend(['--cov-report', cov_rep])
+            
+        rv = self.ctx.call(cargs, cwd = cwd)
+
+        
     def unittest(self, args):
         try:
             ice_config = args.config
