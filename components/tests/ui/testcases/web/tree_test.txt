@@ -1,8 +1,8 @@
 *** Settings ***
 Documentation     Test creation of Projects and Datasets
 ...
-...               This test does not require any setup other than
-...               a valid login. Creates Projects and Datasets
+...               This test requires P/D/I in hierarchy.
+
 Resource          ../config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
@@ -10,7 +10,11 @@ Resource          ../../resources/web/thumbs.txt
 
 *** Test Cases ***
 
-Test Keywords
+Test Container Creation Enabled
+    [Documentation]     Select User, Project, Dataset, Image and checks
+    ...                 whether the toolbar/right-click menu options for
+    ...                 creating various containers are enabled.
+
     User "${USERNAME}" logs in with password "${PASSWORD}"
 
     Tree Should Be Visible
@@ -56,6 +60,9 @@ Test Keywords
     Thumbnail Should Be Selected                ${imageId}
     Node Should Be Selected                     ${imageId}
 
+Test Create Project Dataset
+    [Documentation]     Test Creation of Project & Dataset, wait for right panel to load
+    ...                 and check that the new container is selected in the tree
     Select Experimenter
     Create Project
     Create Dataset
