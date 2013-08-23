@@ -16,12 +16,12 @@ Library           ImageCheckLibrary
 Test Keywords
     User "${USERNAME}" logs in with password "${PASSWORD}"
 
-    ${imageId}    Select And Expand Image
+    ${imageId}=                     Select And Expand Image
 
-    Capture Image Element    //li[@id='${imageId.replace('image', 'image_icon')}']//img    image_check_test.jpg
+    Capture Image Element           //li[@id='${imageId.replace('image', 'image_icon')}']//img    image_check_test.jpg
 
-    # Image Should Be Blank    image_check_test.jpg
-    Image Should Not Be Blank    image_check_test.jpg
+    # Image Should Be Blank         image_check_test.jpg
+    Image Should Not Be Blank       image_check_test.jpg
 
 
     [Teardown]    Close Browser

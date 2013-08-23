@@ -12,47 +12,49 @@ Resource          ../../resources/web/thumbs.txt
 
 Test Keywords
     User "${USERNAME}" logs in with password "${PASSWORD}"
+
     Tree Should Be Visible
-    Wait For Node To Be Visible    ${FULLNAME}
-    Node Should Be Visible    Orphaned images
-    Create Button Should Be Enabled    project
-    Create Button Should Be Enabled    dataset
-    Create Button Should Be Enabled    screen
-    Node Popup Menu Item Should Be Enabled    Project    ${FULLNAME}
-    Node Popup Menu Item Should Be Enabled    Dataset    ${FULLNAME}
-    Node Popup Menu Item Should Be Enabled    Screen    ${FULLNAME}
-    Node Popup Menu Item Should Be Disabled    Delete    ${FULLNAME}
+    Wait For Node To Be Visible                 ${FULL NAME}
+    Node Should Be Visible                      Orphaned images
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Enabled      Project    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled      Dataset    ${FULL NAME}
+    Node Popup Menu Item Should Be Enabled      Screen     ${FULL NAME}
+    Node Popup Menu Item Should Be Disabled     Delete     ${FULL NAME}
     Select And Expand Project
-    Create Button Should Be Enabled    project
-    Create Button Should Be Enabled    dataset
-    Create Button Should Be Enabled    screen
-    Node Popup Menu Item Should Be Disabled    Project
-    Node Popup Menu Item Should Be Enabled    Dataset
-    Node Popup Menu Item Should Be Disabled    Screen
-    Node Popup Menu Item Should Be Enabled    Delete
+    Create Button Should Be Enabled             project
+    Create Button Should Be Enabled             dataset
+    Create Button Should Be Enabled             screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Enabled      Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Delete
     Select And Expand Dataset
-    Create Button Should Be Disabled    project
-    Create Button Should Be Disabled    dataset
-    Create Button Should Be Disabled    screen
-    Node Popup Menu Item Should Be Disabled    Project
-    Node Popup Menu Item Should Be Disabled    Dataset
-    Node Popup Menu Item Should Be Disabled    Screen
-    Node Popup Menu Item Should Be Enabled    Delete
-    ${imageId}    Select And Expand Image
-    Create Button Should Be Disabled    project
-    Create Button Should Be Disabled    dataset
-    Create Button Should Be Disabled    screen
-    Node Popup Menu Item Should Be Disabled    Project
-    Node Popup Menu Item Should Be Disabled    Dataset
-    Node Popup Menu Item Should Be Disabled    Screen
-    Node Popup Menu Item Should Be Enabled    Delete
-    Thumbnail Should Be Selected    ${imageId}
-    Key Down    40    # down key    # Press Key    dataTree    /40
-    Thumbnail Should Not Be Selected    ${imageId}
-    Node Should Not Be Selected    ${imageId}
-    Click Thumbnail    ${imageId}
-    Thumbnail Should Be Selected    ${imageId}
-    Node Should Be Selected    ${imageId}
+    Create Button Should Be Disabled            project
+    Create Button Should Be Disabled            dataset
+    Create Button Should Be Disabled            screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Disabled     Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Delete
+    ${imageId}=    Select And Expand Image
+    Create Button Should Be Disabled            project
+    Create Button Should Be Disabled            dataset
+    Create Button Should Be Disabled            screen
+    Node Popup Menu Item Should Be Disabled     Project
+    Node Popup Menu Item Should Be Disabled     Dataset
+    Node Popup Menu Item Should Be Disabled     Screen
+    Node Popup Menu Item Should Be Enabled      Delete
+
+    Thumbnail Should Be Selected                ${imageId}
+    Key Down    40    # '40' is 'down' key    # Press Key    dataTree    /40
+    Thumbnail Should Not Be Selected            ${imageId}
+    Node Should Not Be Selected                 ${imageId}
+    Click Thumbnail                             ${imageId}
+    Thumbnail Should Be Selected                ${imageId}
+    Node Should Be Selected                     ${imageId}
 
     Select Experimenter
     Create Project
