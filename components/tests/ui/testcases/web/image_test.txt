@@ -1,8 +1,8 @@
 *** Settings ***
-Documentation     Test creation of Projects and Datasets
+Documentation     Use PIL to crop screenshots and numpy to analyse images
 ...
-...               This test does not require any setup other than
-...               a valid login. Creates Projects and Datasets
+...               This test needs a Dataset/Image (or P/D/I)
+
 Resource          ../config.txt
 Resource          ../../resources/web/login.txt
 Resource          ../../resources/web/tree.txt
