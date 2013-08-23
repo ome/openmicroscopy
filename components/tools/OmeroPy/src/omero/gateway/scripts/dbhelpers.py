@@ -22,7 +22,10 @@ DEFAULT_GROUP_PERMS = 'rwr---'
 if not omero.gateway.BlitzGateway.ICE_CONFIG:
     try:
         import settings
-        omero.gateway.BlitzGateway.ICE_CONFIG = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
+        iceconfig = os.environ.get('ICE_CONFIG', None)
+        if iceconfig is None:
+            iceconfig = os.path.join(settings.OMERO_HOME, 'etc', 'ice.config')
+        omero.gateway.BlitzGateway.ICE_CONFIG = iceconfig
     except ImportError:
         pass
     except AttributeError:
