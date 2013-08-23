@@ -252,6 +252,7 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
 				button = new JButton(a);
+				button.setName("new container button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
@@ -260,6 +261,7 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_ADMIN);
 				button = new JButton(a);
+				button.setName("new group or user button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
@@ -268,23 +270,29 @@ class BrowserUI
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_TAG);
 				button = new JButton(a);
+				button.setName("new tag button");
 				button.setBorderPainted(false);
 				button.addMouseListener(a);
 				rightMenuBar.add(button);
 		}
         button = new JButton(controller.getAction(BrowserControl.CUT));
+        button.setName("cut button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.COPY));
+        button.setName("copy button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.PASTE));
+        button.setName("paste button");
         button.setBorderPainted(false);
         rightMenuBar.add(button);
         button = new JButton(controller.getAction(BrowserControl.DELETE));
+        button.setName("delete button");
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
 		button = new JButton(controller.getAction(BrowserControl.REFRESH));
+		button.setName("refresh button");
 		button.setBorderPainted(false);
 		rightMenuBar.add(button);
 		
