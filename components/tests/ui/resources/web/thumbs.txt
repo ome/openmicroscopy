@@ -15,14 +15,12 @@ Capture Image Element
 
 Click Thumbnail
     [Arguments]    ${imageId}
-    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
-    Click Element    ${thumbId}
+    Click Element    ${imageId.replace('image', 'image_icon')}
 
 Thumbnail Should Be Selected
     [Arguments]    ${imageId}    ${expected}=${true}
-    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
-    Run Keyword If    ${expected}    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and contains(@class, 'ui-selected')]
-    ...    ELSE    Wait Until Page Contains Element    xpath=//li[@id='${thumbId}' and not(contains(@class, 'ui-selected'))]
+    Run Keyword If    ${expected}    Wait Until Page Contains Element    xpath=//li[@id='${imageId.replace('image', 'image_icon')}' and contains(@class, 'ui-selected')]
+    ...    ELSE    Wait Until Page Contains Element    xpath=//li[@id='${imageId.replace('image', 'image_icon')}' and not(contains(@class, 'ui-selected'))]
 
 Thumbnail Should Not Be Selected
     [Arguments]    ${imageId}
