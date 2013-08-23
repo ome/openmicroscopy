@@ -19,7 +19,7 @@ Experiments
         Expand Tree Node                  tree                           ${FULL NAME}
         Tree Node Should Be Visible       tree                           ${FULL NAME}|Orphaned Images
         Expand Tree Node                  tree                           ${FULL NAME}|Orphaned Images
-        ${orphaned images node}=          Get Matching Tree Path         .*\\|Orphaned Images \\[\\d+\\]   tree
+        ${orphaned images node}=          Get Matching Tree Path         .*\\|Orphaned Images \\[\\d+\\]           tree
         Expand Tree Node                  tree                           ${orphaned images node}
         ${selected tree path}=            Get Selected Tree Path         tree
         Should Be Equal                   ${selected tree path}          ${orphaned images node}
