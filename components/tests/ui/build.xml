@@ -37,7 +37,7 @@
         </sequential>
     </macrodef>
 
-    <!-- run pybot with various arguments. Used to run web tests.-->
+    <!-- run pybot with various arguments. Used to run web/cli tests.-->
     <macrodef name="run_pybot">
         <attribute name="output"/>
         <element name="args" implicit="true"/>
@@ -64,6 +64,9 @@
 
     <!-- reports for the insight tests. -->
     <property name="reports.insight" value="${basedir}/target/reports/insight"/>
+
+    <!-- reports for the cli tests. -->
+    <property name="reports.cli" value="${basedir}/target/reports/cli"/>
 
 
     <property name="main.class" value="NONE"/>
@@ -97,6 +100,23 @@
     </target>
 
 
+    <!-- run the cli tests. -->
+    <target name="test-cli">
+        <mkdir dir="${reports.cli}" />
+        <var name="target" value="cli/"/>
+        <if><isset property="TEST"/>
+            <then>
+                <var name="target" value="cli/${TEST}"/>
+            </then>
+        </if>
+        <run_pybot output="${output}">
+            <arg value="-d"/>
+            <arg value="${output}"/>
+            <arg value="--loglevel"/>
+            <arg value="debug"/>
+            <arg value="${basedir}/testcases/${target}"/>
+        </run_pybot>
+    </target>
     <!-- run all the tests for insight -->
     <target name="run_all_insight" depends="setup-dir">
         <!-- execute sub-directory per sub-directory -->
