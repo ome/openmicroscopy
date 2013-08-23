@@ -18,9 +18,7 @@ Test Keywords
 
     ${imageId}    Select And Expand Image
 
-    ${thumbId}    Execute Javascript    return "${imageId}".replace("image","image_icon")
-
-    Capture Image Element    //li[@id='${thumbId}']//img    image_check_test.jpg
+    Capture Image Element    //li[@id='${imageId.replace('image', 'image_icon')}']//img    image_check_test.jpg
 
     # Image Should Be Blank    image_check_test.jpg
     Image Should Not Be Blank    image_check_test.jpg
