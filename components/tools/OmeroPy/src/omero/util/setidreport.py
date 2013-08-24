@@ -32,11 +32,7 @@ from subprocess import Popen
 from getopt import getopt, GetoptError
 from glob import glob
 
-# Handle Python 2.5 built-in ElementTree
-try:
-        from xml.etree.ElementTree import XML, ElementTree, tostring
-except ImportError:
-        from elementtree.ElementTree import XML, ElementTree, tostring
+from xml.etree.ElementTree import XML, ElementTree, tostring
 
 def usage(error=None):
     """Prints usage so that we don't have to. :)"""

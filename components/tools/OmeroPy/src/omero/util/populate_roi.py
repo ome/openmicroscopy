@@ -43,11 +43,7 @@ from omero.grid import ImageColumn, WellColumn, RoiColumn, LongColumn, DoubleCol
 from omero.util.temp_files import create_path, remove_path
 from omero import client
 
-# Handle Python 2.5 built-in ElementTree
-try:
-        from xml.etree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
-except ImportError:
-        from cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
+from xml.etree.cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 
 log = logging.getLogger("omero.util.populate_roi")
 

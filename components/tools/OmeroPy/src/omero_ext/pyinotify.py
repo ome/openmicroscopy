@@ -45,7 +45,7 @@ class UnsupportedPythonVersionError(PyinotifyError):
         """
         PyinotifyError.__init__(self,
                                 ('Python %s is unsupported, requires '
-                                 'at least Python 2.4') % version)
+                                 'at least Python 2.6') % version)
 
 
 class UnsupportedLibcVersionError(PyinotifyError):
@@ -60,7 +60,7 @@ class UnsupportedLibcVersionError(PyinotifyError):
 
 # Check Python version
 import sys
-if sys.version < '2.4':
+if sys.version < '2.6':
     raise UnsupportedPythonVersionError(sys.version)
 
 
@@ -85,10 +85,7 @@ import ctypes.util
 import asyncore
 import glob
 
-try:
-    from functools import reduce
-except ImportError:
-    pass  # Will fail on Python 2.4 which has reduce() builtin anyway.
+from functools import reduce
 
 __author__ = "seb@dbzteam.org (Sebastien Martini)"
 
@@ -154,14 +151,8 @@ class PyinotifyLogger(logging.Logger):
 class UnicodeLogRecord(logging.LogRecord):
     def __init__(self, name, level, pathname, lineno,
                  msg, args, exc_info, func=None):
-        py_version = sys.version_info
-        # func argument was added in Python 2.5, just ignore it otherwise.
-        if py_version[0] >= 2 and py_version[1] >= 5:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info, func)
-        else:
-            logging.LogRecord.__init__(self, name, level, pathname, lineno,
-                                       msg, args, exc_info)
+        logging.LogRecord.__init__(self, name, level, pathname, lineno,
+                                   msg, args, exc_info, func)
 
     def getMessage(self):
         msg = self.msg
