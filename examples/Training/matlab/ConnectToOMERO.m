@@ -67,11 +67,16 @@ try
         assert(groupId == adminService.getEventContext().groupId);
     end
     
+    rc = 0;
 catch err
     disp(err.message);
-    client.closeSession();
-    rethrow(err);
+    rc =  1;
 end
 
-% REMEMBER TO CLOSE SESSION
-client.closeSession();
+% Close the session
+try
+    client.closeSession();
+catch err
+    disp(err.message);
+    rc = 2;
+end

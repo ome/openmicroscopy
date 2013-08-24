@@ -23,10 +23,10 @@ try
     fprintf(1, 'Created session for user %s using group %s\n',...
         char(session.getAdminService().getEventContext().userName),...
         char(session.getAdminService().getEventContext().groupName));
-        
+    
     % Information to edit
     imageId = str2double(client.getProperty('image.id'));
-
+    
     % Load image acquisition data.
     fprintf(1, 'Reading image: %g\n', imageId);
     image = getImages(session, imageId);
@@ -42,12 +42,17 @@ try
         channel = channels.get(j);
         fprintf(1, 'Reading channel %g: %g\n',j+1, channel.getId().getValue());
     end
+    
+    rc = 0;
 catch err
     disp(err.message);
-    client.closeSession();
-    rethrow(err);
+    rc = 1;
 end
 
-
-% close the session
-client.closeSession();
+% Close the session
+try
+    client.closeSession();
+catch err
+    disp(err.message);
+    rc = 2;
+end
