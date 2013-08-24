@@ -129,11 +129,17 @@ try
             pa = wellSamples(j).getPlateAcquisition();
         end
     end
+    
+    rc = 0;
 catch err
     disp(err.message);
-    client.closeSession();
-    rethrow(err);
+    rc =  1;
 end
 
-% close the session
-client.closeSession();
+% Close the session
+try
+    client.closeSession();
+catch err
+    disp(err.message);
+    rc = 2;
+end

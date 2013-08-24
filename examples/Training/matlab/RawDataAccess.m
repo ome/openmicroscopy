@@ -104,12 +104,16 @@ try
     % close the store
     store.close();
     
+    rc = 0;
 catch err
     disp(err.message);
-    client.closeSession();
-    rethrow(err);    
+    rc =  1;
 end
 
-%Close the session
-client.closeSession();
-
+% Close the session
+try
+    client.closeSession();
+catch err
+    disp(err.message);
+    rc = 2;
+end
