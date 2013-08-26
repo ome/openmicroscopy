@@ -103,19 +103,22 @@
     <!-- run the cli tests. -->
     <target name="test-cli">
         <mkdir dir="${reports.cli}" />
+        <!--<touch file="${reports.cli}/error.log"/>-->
         <var name="target" value="cli/"/>
         <if><isset property="TEST"/>
             <then>
                 <var name="target" value="cli/${TEST}"/>
             </then>
         </if>
-        <run_pybot output="${output}">
+        <exec executable="pybot" failonerror="false" dir="../../../dist/">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
+            <redirector error="${reports.cli}/cli.log" alwayslog="false"/>       
             <arg value="-d"/>
-            <arg value="${output}"/>
+            <arg value="${reports.cli}"/>
             <arg value="--loglevel"/>
             <arg value="debug"/>
             <arg value="${basedir}/testcases/${target}"/>
-        </run_pybot>
+        </exec>
     </target>
     <!-- run all the tests for insight -->
     <target name="run_all_insight" depends="setup-dir">
