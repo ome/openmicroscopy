@@ -13,14 +13,14 @@ Enabled Menu Items
         [Documentation]                         check that context menu items are correctly enabled or disabled
         ${import text}=                         Get Java String     agents.treeviewer.actions.ImportAction.NAME
         Select Window                           tree viewer window
-        Tree Node Should Be Visible             tree                ${FULL NAME}|Orphaned Images
-        Tree Node Menu Item Should Be Enabled   Open with           ${FULL NAME}                  tree
-        Tree Node Menu Item Should Be Enabled   ${import text}      ${FULL NAME}                  tree
-        Tree Node Menu Item Should Be Disabled  New...              ${FULL NAME}                  tree
-        Tree Node Menu Item Should Be Enabled   Refresh User        ${FULL NAME}                  tree
-        Expand Tree Node                        tree                ${FULL NAME}
-        Tree Node Should Be Visible             tree                ${FULL NAME}|Orphaned Images
-        Tree Node Menu Item Should Be Enabled   Open with           ${FULL NAME}|Orphaned Images  tree
-        Tree Node Menu Item Should Be Disabled  ${import text}      ${FULL NAME}|Orphaned Images  tree
-        Tree Node Menu Item Should Be Disabled  New...              ${FULL NAME}|Orphaned Images  tree
-        Tree Node Menu Item Should Be Disabled  Refresh User        ${FULL NAME}|Orphaned Images  tree
+        Tree Node Should Be Visible             project tree        ${FULL NAME}|Orphaned Images
+        Tree Node Menu Item Should Be Enabled   Open with           ${FULL NAME}                  project tree
+        Tree Node Menu Item Should Be Enabled   ${import text}      ${FULL NAME}                  project tree
+        Tree Node Menu Item Should Be Disabled  New...              ${FULL NAME}                  project tree
+        Tree Node Menu Item Should Be Enabled   Refresh User        ${FULL NAME}                  project tree
+        Expand Tree Node                        project tree        ${FULL NAME}
+        Tree Node Should Be Visible             project tree        ${FULL NAME}|Orphaned Images
+        Tree Node Menu Item Should Be Enabled   Open with           ${FULL NAME}|Orphaned Images  project tree
+        Tree Node Menu Item Should Be Disabled  ${import text}      ${FULL NAME}|Orphaned Images  project tree
+        Tree Node Menu Item Should Be Disabled  New...              ${FULL NAME}|Orphaned Images  project tree
+        Tree Node Menu Item Should Be Disabled  Refresh User        ${FULL NAME}|Orphaned Images  project tree

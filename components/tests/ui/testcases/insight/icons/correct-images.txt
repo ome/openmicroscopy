@@ -12,13 +12,12 @@ Resource  ../../../resources/insight/login.txt
 Icon Images
         [Documentation]                check that GUI elements have the correct icon image
         Select Window                  tree viewer window
-#       Click On Component             project browser
         ${icon name}=                  Get Image Icon Name            new container button
         Should Be Equal                ${icon name}                   nuvola_filenew16.png
         ${icon name}=                  Get Image Icon Name            administration browser
         Should Be Equal                ${icon name}                   nuvola_personal16.png
-        Tree Node Should Be Visible    tree                           ${FULL NAME}
-        Expand Tree Node               tree                           ${FULL NAME}
-        Tree Node Should Be Visible    tree                           ${FULL NAME}|Orphaned Images
-        ${orphaned images icon name}=  Get Tree Node Image Icon Name  ${FULL NAME}|Orphaned Images  tree
+        Tree Node Should Be Visible    project tree                   ${FULL NAME}
+        Expand Tree Node               project tree                   ${FULL NAME}
+        Tree Node Should Be Visible    project tree                   ${FULL NAME}|Orphaned Images
+        ${orphaned images icon name}=  Get Tree Node Image Icon Name  ${FULL NAME}|Orphaned Images  project tree
         Should Be Equal                ${orphaned images icon name}   nuvola_trashcan_empty16.png
