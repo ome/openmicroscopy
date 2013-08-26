@@ -49,7 +49,7 @@ public class StaticFieldLibrary
      * @throws NoSuchFieldException if the named class does not have the named field
      * @throws NullPointerException if the field value is <code>null</code>
      */
-    private Object getJavaField(String classAndFieldName)
+    private static Object getJavaField(String classAndFieldName)
             throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
         final int lastPeriod = classAndFieldName.lastIndexOf('.');
         final String className = PREFIX + classAndFieldName.substring(0, lastPeriod);
@@ -98,5 +98,5 @@ public class StaticFieldLibrary
         graphics.dispose();
         final int[] pixel = (int[]) image.getData().getDataElements(0, 0, null);
         return Integer.toHexString(pixel[0]);
-     }
+    }
 }
