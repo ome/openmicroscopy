@@ -397,7 +397,7 @@ public class DnDTree
 	public DnDTree(long userID, boolean administrator)
 	{
 		super();
-		setName("tree");
+		setName("project tree");
 		defaultCursor = getCursor();
 		dropLocation = -1;
 		reset(userID, administrator);
