@@ -19,6 +19,10 @@
 
 package org.openmicroscopy.shoola.keywords;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
 /**
  * Robot Framework SwingLibrary keyword library offering access to Java static fields.
  * @author m.t.b.carroll@dundee.ac.uk
@@ -31,6 +35,27 @@ public class StaticFieldLibrary
 
     /** Automatic prefix for all given class names. */
     public static final String PREFIX = "org.openmicroscopy.shoola.";
+
+    /** How to pack pixels into integers for translating colors to numbers. */
+    static final int IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB;
+
+    /**
+     * Get the value of a static field from Insight.
+     * @param classAndFieldName the class and static field name,
+     * e.g., <code>keywords.StaticFieldLibrary.PREFIX</code>
+     * @return the value of the field as a String
+     * @throws ClassNotFoundException if the named class could not be found
+     * @throws IllegalAccessException if the named field is not accessible
+     * @throws NoSuchFieldException if the named class does not have the named field
+     * @throws NullPointerException if the field value is <code>null</code>
+     */
+    private Object getJavaField(String classAndFieldName)
+            throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
+        final int lastPeriod = classAndFieldName.lastIndexOf('.');
+        final String className = PREFIX + classAndFieldName.substring(0, lastPeriod);
+        final String fieldName = classAndFieldName.substring(lastPeriod + 1);
+        return Class.forName(className).getField(fieldName).get(null);
+    }
 
     /**
      * <table>
@@ -47,9 +72,31 @@ public class StaticFieldLibrary
      */
     public String getJavaString(String classAndFieldName)
             throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
-        final int lastPeriod = classAndFieldName.lastIndexOf('.');
-        final String className = PREFIX + classAndFieldName.substring(0, lastPeriod);
-        final String fieldName = classAndFieldName.substring(lastPeriod + 1);
-        return Class.forName(className).getField(fieldName).get(null).toString();
+        return getJavaField(classAndFieldName).toString();
     }
+
+    /**
+     * <table>
+     *   <td>Get AWT Color</td>
+     *   <td>class.field</td>
+     * </table>
+     * @param classAndFieldName the class and static field name,
+     * e.g., <code>keywords.StaticFieldLibrary.PREFIX</code>
+     * @return the color, comparable with those from {@link ThumbnailCheckLibrary#getThumbnailBorderColor(String)}
+     * @throws ClassNotFoundException if the named class could not be found
+     * @throws IllegalAccessException if the named field is not accessible
+     * @throws NoSuchFieldException if the named class does not have the named field
+     * @throws NullPointerException if the field value is <code>null</code>
+     */
+    public String getAWTColor(String classAndFieldName)
+            throws ClassNotFoundException, IllegalAccessException, NoSuchFieldException {
+        final Color color = (Color) getJavaField(classAndFieldName);
+        final BufferedImage image = new BufferedImage(1, 1, IMAGE_TYPE);
+        final Graphics2D graphics = image.createGraphics();
+        graphics.setColor(color);
+        graphics.drawLine(0, 0, 0, 0);
+        graphics.dispose();
+        final int[] pixel = (int[]) image.getData().getDataElements(0, 0, null);
+        return Integer.toHexString(pixel[0]);
+     }
 }
