@@ -165,7 +165,5 @@ Test Cases
 +-------------+----------------------------------------+-----------------------------------+---------------------------------------------+----------+
 | ..          | Should Be Equal                        | ${path_with_orphaned_images_icon} | ${orphaned_images_node}                     |          |
 +-------------+----------------------------------------+-----------------------------------+---------------------------------------------+----------+
->>>>>>> 5535130... fix #11326 to address #11214: popup menu items enabled
-
 
 # pick whichever image names you have loaded; green.png is attached to ticket 11210
