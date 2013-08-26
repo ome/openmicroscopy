@@ -25,3 +25,5 @@ ${WEBADMIN LOGIN URL}       ${LOGIN URL}?url=%2Fwebadmin%2F
 
 ${USERS URL}            ${WEBADMIN WELCOME URL}experimenters/
 ${GROUPS URL}           ${WEBADMIN WELCOME URL}groups/
+
+${COMMAND}       		bin/omero
