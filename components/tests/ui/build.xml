@@ -31,7 +31,6 @@
                     <arg value="@{output}"/>
                     <arg value="--loglevel"/>
                     <arg value="debug"/>
-                    <element name="args" implicit="true"/>
                     <arg value="${basedir}/testcases/insight/${filename}"/>
             </exec>
         </sequential>
