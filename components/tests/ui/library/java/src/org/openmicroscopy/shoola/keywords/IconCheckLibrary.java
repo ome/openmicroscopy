@@ -21,6 +21,7 @@ package org.openmicroscopy.shoola.keywords;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 
 import javax.swing.AbstractButton;
@@ -60,6 +61,17 @@ public class IconCheckLibrary
     private static final TreeSupport TREE_SUPPORT = new TreeSupport();
 
     /**
+     * Get the icon name from the given image icon.
+     * @param icon the image icon
+     * @return the name of the icon
+     */
+    private static String getIconName(ImageIcon icon) {
+        final String iconName = ((ImageIcon) icon).getDescription();
+        final int lastSlash = iconName.lastIndexOf('/');
+        return lastSlash < 0 ? iconName : iconName.substring(lastSlash + 1);
+    }
+
+    /**
      * Get the icon name from the component's icon property's <code>ImageIcon</code> instance value.
      * @param iconBearer the component that has an icon
      * @return the name of the icon
@@ -76,9 +88,7 @@ public class IconCheckLibrary
         if (!(icon instanceof ImageIcon)) {
             throw new RuntimeException("not an ImageIcon");
         }
-        final String iconName = ((ImageIcon) icon).getDescription();
-        final int lastSlash = iconName.lastIndexOf('/');
-        return lastSlash < 0 ? iconName : iconName.substring(lastSlash + 1);
+        return getIconName((ImageIcon) icon);
     }
 
     /**
@@ -160,5 +170,39 @@ public class IconCheckLibrary
         final TreeCellRenderer renderer = treeOperator.getTreeOperator().getCellRenderer();
         return getIconName(renderer.getTreeCellRendererComponent(tree, path.getLastPathComponent(),
                 false, false, false, tree.getRowForPath(path), false));
+    }
+
+    /**
+     * <table>
+     *   <td>Get Insight Image Icon Name</td>
+     *   <td>name of the Insight agent</td>
+     *   <td>name of the icon index</td>
+     * </table>
+     * @param agent the agent as named by the Java package
+     * @param constantName the icon index in that agent's <code>IconManager</code>
+     * @return the filename of the <code>ImageIcon</code>
+     * @throws ClassNotFoundException if the given agent does not have an <code>IconManager</code>
+     * @throws IllegalArgumentException if the <code>IconManager</code> code is not as expected
+     * @throws SecurityException if the <code>IconManager</code> code is not as expected
+     * @throws IllegalAccessException if the <code>IconManager</code> code is not as expected
+     * @throws InvocationTargetException if the <code>IconManager</code> code is not as expected
+     * @throws NoSuchMethodException if the <code>IconManager</code> code is not as expected
+     * @throws NoSuchFieldException if the given icon index is not available from the <code>IconManager</code>
+     */
+    public String getInsightImageIconName(String agent, String constantName)
+            throws ClassNotFoundException, IllegalArgumentException, SecurityException, IllegalAccessException,
+                InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
+        Class<?> iconManagerClass = Class.forName(StaticFieldLibrary.PREFIX + "agents." + agent + ".IconManager");
+        final int iconIndex = (Integer) iconManagerClass.getField(constantName).get(null);
+        final Object iconManager = iconManagerClass.getMethod("getInstance").invoke(null);
+        Method getImageIconMethod = null;
+        do {
+            try {
+                getImageIconMethod = iconManagerClass.getMethod("getImageIcon", int.class);
+            } catch (NoSuchMethodException e) {
+                iconManagerClass = iconManagerClass.getSuperclass();
+            }
+        } while (getImageIconMethod == null && iconManagerClass != null);
+        return getIconName((ImageIcon) getImageIconMethod.invoke(iconManager, iconIndex));
     }
 }
