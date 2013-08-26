@@ -131,7 +131,7 @@ public class ThumbnailCheckLibrary
         final JPanel thumbnail = (JPanel) componentFinder(panelType, imageFilename);
         final int width = thumbnail.getWidth();
         final int height = thumbnail.getHeight();
-        final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final BufferedImage image = new BufferedImage(width, height, StaticFieldLibrary.IMAGE_TYPE);
         final Graphics2D graphics = image.createGraphics();
         if (graphics == null) {
             throw new RuntimeException("thumbnail is not displayable");
