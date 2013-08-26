@@ -1,0 +1,47 @@
+*** Settings ***
+Documentation     A resource file with reusable keywords and variables.
+...
+...               The system specific keywords created here form our own
+...               domain specific language. They utilize keywords provided
+...               by the imported Selenium2Library.
+Library           Selenium2Library
+
+
+*** Keywords ***
+User "${username}" logs in with password "${password}"
+    Open Browser To Login Page
+    Input username    ${username}
+    Input password    ${password}
+    Submit credentials
+    Welcome Page Should Be Open
+
+Open Browser To Login Page
+    Open Browser    ${LOGIN URL}    ${BROWSER}
+    Set Selenium Speed    ${DELAY}
+    Login Page Should Be Open
+
+Login Page Should Be Open
+    Title Should Be    OMERO.web - Login
+
+Go To Login Page
+    Go To    ${LOGIN URL}
+    Login Page Should Be Open
+
+Input Username
+    [Arguments]    ${username}
+    Input Text    username    ${username}
+
+Input Password
+    [Arguments]    ${password}
+    Input Text    password    ${password}
+
+Select Server
+    [Arguments]    ${server}
+    Select From List    id_server    ${server}
+
+Submit Credentials
+    Click Button    Login
+
+Welcome Page Should Be Open
+    Location Should Be    ${WELCOME URL}
+    Title Should Be    Webclient

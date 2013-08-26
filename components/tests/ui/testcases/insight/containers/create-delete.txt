@@ -1,0 +1,50 @@
+*** Settings ***
+
+Library   SwingLibrary
+Resource  ../../config.txt
+Resource  ../../../resources/insight/login.txt
+
+
+*** Test Cases ***
+
+Create And Delete Project
+        [Documentation]              create and delete a project
+        ${project name}=             Get Time
+        Select Window                tree viewer window
+        Click On Tree Node           tree                  ${FULL NAME}
+        Select From Popup Menu       new container button  New Project...
+        Tree Node Should Not Exist   tree                  ${FULL NAME}|${project name} [0]
+        Select Dialog                editor dialog
+        Button Should Be Enabled     cancel button
+        Button Should Be Disabled    create button
+        Type Into Text Field         name field            ${project name}
+        Button Should Be Enabled     cancel button
+        Button Should Be Enabled     create button
+        Push Button                  cancel button
+        Select Window                tree viewer window
+        Tree Node Should Not Exist   tree                  ${FULL NAME}|${project name} [0]
+        Select From Popup Menu       new container button  New Project...
+        Select Dialog                editor dialog
+        Button Should Be Enabled     cancel button
+        Button Should Be Disabled    create button
+        Type Into Text Field         name field            ${project name}
+        Button Should Be Enabled     cancel button
+        Button Should Be Enabled     create button
+        Push Button                  create button
+        Select Window                tree viewer window
+        Tree Node Should Be Visible  tree                  ${FULL NAME}|${project name} [0]
+        Click On Tree Node           tree                  ${FULL NAME}|${project name} [0]
+        Push Button                  delete button
+        Select Dialog                options dialog
+        Button Should Be Enabled     yes button
+        Button Should Be Enabled     no button
+        Push Button                  no button
+        Select Window                tree viewer window
+        Tree Node Should Be Visible  tree                  ${FULL NAME}|${project name} [0]
+        Push Button                  delete button
+        Select Dialog                options dialog
+        Button Should Be Enabled     yes button
+        Button Should Be Enabled     no button
+        Push Button                  yes button
+        Select Window                tree viewer window
+        Tree Node Should Not Exist   tree                  ${FULL NAME}|${project name} [0]

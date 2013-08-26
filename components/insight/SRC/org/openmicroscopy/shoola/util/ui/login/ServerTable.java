@@ -97,7 +97,7 @@ class ServerTable
 	 */
 	private void initComponents(Map<String, String> servers, Icon icon)
 	{
-		String[] columnNames = {"", "", ""};
+		String[] columnNames = {"icon", "host", "port"};
 		final Object[][] objects;
 		Boolean focus = Boolean.valueOf(true);
 		if (servers == null || servers.size() == 0) {
@@ -174,12 +174,13 @@ class ServerTable
 	 * @param icon		The icon to display next to the server's name.
 	 */
 	ServerTable(ServerEditor parent, Map<String, String> servers, Icon icon)
-	{	
+	{
 		if (parent == null)
 			throw new IllegalArgumentException("No model");
 		this.parent = parent;
 		previousRow = -1;
 		manual = false;
+		setName("server table");
 		initComponents(servers, icon);
 	}
 	

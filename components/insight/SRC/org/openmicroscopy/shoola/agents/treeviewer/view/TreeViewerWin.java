@@ -227,8 +227,10 @@ class TreeViewerWin
             browser = browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             if (model.isLeader() || model.isAdministrator()) {
-            	browser = browsers.get(Browser.ADMIN_EXPLORER);
-                container.add(new TaskPaneBrowser(browser));
+                browser = browsers.get(Browser.ADMIN_EXPLORER);
+                final TaskPaneBrowser tpb = new TaskPaneBrowser(browser);
+                tpb.setName("administration browser");
+                container.add(tpb);
             }
             AdvancedFinder finder = model.getAdvancedFinder();
     		finder.addPropertyChangeListener(controller);
@@ -281,6 +283,7 @@ class TreeViewerWin
         menus.add(createEditMenu());
         menus.add(createViewMenu());
         JMenuBar bar = tb.getTaskBarMenuBar();
+        bar.setName("menu bar");
         List<JMenu> existingMenus = new ArrayList<JMenu>();
         for (int i = 0; i < bar.getMenuCount(); i++) {
         	if (i != TaskBar.FILE_MENU)
@@ -639,6 +642,7 @@ class TreeViewerWin
     	buildGUI();
     	controller.attachUIListeners(browsersDisplay);
     	createTitle();
+    	setName("tree viewer window");
     }
 
     /** Creates and displays the title of the window. */
