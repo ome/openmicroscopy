@@ -6,13 +6,11 @@
  */
 package integration;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-//Application-internal dependencies
 import omero.RLong;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
@@ -47,7 +45,6 @@ import omero.model.RenderingDef;
 import omero.model.RenderingModel;
 import omero.sys.ParametersI;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
 /**

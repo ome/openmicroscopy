@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-//Application-internal dependencies
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -40,8 +39,7 @@ import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Well;
-//Java imports
-//Third-party libraries
+
 import org.testng.annotations.Test;
 
 import pojos.FileAnnotationData;

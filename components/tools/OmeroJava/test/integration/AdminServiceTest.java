@@ -6,7 +6,6 @@
  */
 package integration;
 
-//Java imports
 import static omero.rtypes.rstring;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-//Application-internal dependencies
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.cmd.Chmod;
@@ -28,7 +26,6 @@ import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.sys.ParametersI;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
 import pojos.ExperimenterData;

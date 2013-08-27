@@ -22,17 +22,14 @@
  */
 package integration;
 
-//Java imports
 import java.util.Arrays;
 import java.util.List;
 
-//Application-internal dependencies
 import ome.io.nio.RomioPixelBuffer;
 import omero.api.RawPixelsStorePrx;
 import omero.model.Image;
 import omero.model.Pixels;
 
-//Third-party libraries
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

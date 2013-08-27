@@ -427,7 +427,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetForImageByMemberOwnerRW()
             throws Exception {
-        applySettingsToSetForImage("rw----", DATA_OWNER);
+        applySettingsToSetForImage("rw----", MEMBER);
     }
 
     /**
@@ -464,7 +464,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testApplySettingsToSetForImageByMemberRWR() throws Exception {
-        applySettingsToSetForImage("rwr---", DATA_OWNER);
+        applySettingsToSetForImage("rwr---", MEMBER);
     }
 
     /**
@@ -501,7 +501,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testApplySettingsToSetForImageByMemberRWRA() throws Exception {
-        applySettingsToSetForImage("rwra--", DATA_OWNER);
+        applySettingsToSetForImage("rwra--", MEMBER);
     }
 
     /**
@@ -538,7 +538,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testApplySettingsToSetForImageByMemberRWRW() throws Exception {
-        applySettingsToSetForImage("rwrw--", DATA_OWNER);
+        applySettingsToSetForImage("rwrw--", MEMBER);
     }
 
     /**
@@ -552,7 +552,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWR()
             throws Exception {
-        applySettingsToSetTargetImageViewedByOther("rwr---", DATA_OWNER);
+        applySettingsToSetTargetImageViewedByOther("rwr---", MEMBER);
     }
 
     /**
@@ -594,7 +594,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWRA()
             throws Exception {
-        applySettingsToSetTargetImageViewedByOther("rwra--", DATA_OWNER);
+        applySettingsToSetTargetImageViewedByOther("rwra--", MEMBER);
     }
 
     /**
@@ -636,7 +636,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageViewedByOtherByMemberRWRW()
             throws Exception {
-        applySettingsToSetTargetImageViewedByOther("rwrw--", DATA_OWNER);
+        applySettingsToSetTargetImageViewedByOther("rwrw--", MEMBER);
     }
 
     /**
@@ -706,7 +706,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWR()
             throws Exception {
-        applySettingsToSetSourcetImageViewedByOther("rwr---", DATA_OWNER);
+        applySettingsToSetSourcetImageViewedByOther("rwr---", MEMBER);
     }
 
     /**
@@ -748,7 +748,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWRA()
             throws Exception {
-        applySettingsToSetSourcetImageViewedByOther("rwra--", DATA_OWNER);
+        applySettingsToSetSourcetImageViewedByOther("rwra--", MEMBER);
     }
 
     /**
@@ -790,7 +790,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetSourcetImageViewedByOtherByMemberRWRW()
             throws Exception {
-        applySettingsToSetSourcetImageViewedByOther("rwrw--", DATA_OWNER);
+        applySettingsToSetSourcetImageViewedByOther("rwrw--", MEMBER);
     }
 
     /**
@@ -907,7 +907,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsByMemberRW()
             throws Exception {
-        applySettingsToSetTargetImageNoSettings("rw----", DATA_OWNER);
+        applySettingsToSetTargetImageNoSettings("rw----", MEMBER);
     }
 
     /**
@@ -946,7 +946,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsByMemberRWR()
             throws Exception {
-        applySettingsToSetTargetImageNoSettings("rwr---", DATA_OWNER);
+        applySettingsToSetTargetImageNoSettings("rwr---", MEMBER);
     }
 
     /**
@@ -985,7 +985,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsByMemberRWRA()
             throws Exception {
-        applySettingsToSetTargetImageNoSettings("rwra--", DATA_OWNER);
+        applySettingsToSetTargetImageNoSettings("rwra--", MEMBER);
     }
 
     /**
@@ -1024,7 +1024,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
     @Test
     public void testApplySettingsToSetTargetImageNoSettingsByMemberRWRW()
             throws Exception {
-        applySettingsToSetTargetImageNoSettings("rwrw--", DATA_OWNER);
+        applySettingsToSetTargetImageNoSettings("rwrw--", MEMBER);
     }
 
     /**
@@ -1143,7 +1143,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testSaveSettingsImageOtherUserByMemberRWRW() throws Exception {
-        saveSettingsOtherUserImage("rwrw--", DATA_OWNER);
+        saveSettingsOtherUserImage("rwrw--", MEMBER);
     }
 
     /**
@@ -1180,7 +1180,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testSaveSettingsImageOtherUserByMemberRWRA() throws Exception {
-        saveSettingsOtherUserImage("rwra--", DATA_OWNER);
+        saveSettingsOtherUserImage("rwra--", MEMBER);
     }
 
     /**
@@ -1260,7 +1260,7 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testResetDefaultByOwnerInSetRWRA() throws Exception {
-        resetDefaultByOwnerInSetFor("rwra--", DATA_OWNER);
+        resetDefaultByOwnerInSetFor("rwra--", MEMBER);
     }
 
     /**
@@ -1293,6 +1293,6 @@ public class RenderingSettingsServicePermissionsTest extends AbstractServerTest 
      */
     @Test
     public void testResetDefaultByOwnerInSetRWRW() throws Exception {
-        resetDefaultByOwnerInSetFor("rwrw--", DATA_OWNER);
+        resetDefaultByOwnerInSetFor("rwrw--", MEMBER);
     }
 }

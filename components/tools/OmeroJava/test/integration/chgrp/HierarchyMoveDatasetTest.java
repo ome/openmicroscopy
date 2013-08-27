@@ -126,7 +126,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Step 2: log into source group to perform the move // No. See below.
         switch (memberLevel) {
-            case DATA_OWNER:
+            case MEMBER:
             case GROUP_OWNER:
             default:
                 loginUser(ctx);
@@ -141,7 +141,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         Experimenter o = null;
         if (target.equals("rw----") && chownLink) {
             switch (memberLevel) {
-                case DATA_OWNER:
+                case MEMBER:
                 default:
                     // no-op
                     break;
@@ -206,7 +206,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Step 2: log into source group to perform the move
         switch (memberLevel) {
-            case DATA_OWNER:
+            case MEMBER:
             case GROUP_OWNER:
             default:
                 loginUser(g);
@@ -318,7 +318,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetToProjectRWtoRW() throws Exception {
-        moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -331,7 +331,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRWR() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -344,7 +344,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRW() throws Exception {
-        moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -357,7 +357,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRAtoRW() throws Exception {
-        moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -370,7 +370,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRAtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -383,7 +383,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWtoRWR() throws Exception {
-        moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -396,7 +396,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWtoRWRA() throws Exception {
-        moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -409,7 +409,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
@@ -422,7 +422,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRW() throws Exception {
-        moveDataDatasetToProject("rw----", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
@@ -435,7 +435,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRWR() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, MEMBER);
     }
 
     /**
@@ -448,7 +448,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRW() throws Exception {
-        moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
@@ -461,7 +461,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRAtoRW() throws Exception {
-        moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
@@ -474,7 +474,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRAtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**
@@ -487,7 +487,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRWR() throws Exception {
-        moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, MEMBER);
     }
 
     /**
@@ -500,7 +500,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRWRA() throws Exception {
-        moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**
@@ -513,7 +513,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**

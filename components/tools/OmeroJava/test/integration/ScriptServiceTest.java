@@ -22,16 +22,13 @@
  */
 package integration;
 
-//Java imports
 import java.util.Iterator;
 import java.util.List;
 
-//Application-internal dependencies
 import omero.api.IScriptPrx;
 import omero.grid.JobParams;
 import omero.model.OriginalFile;
 
-//Third-party libraries
 import org.testng.annotations.Test;
 
 /**
