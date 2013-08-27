@@ -515,12 +515,12 @@ public class ScreenLogin
 		
 		originalName = userName;
 		user = new JTextField();
-		user.setName("user");
+		user.setName("username field");
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
 		user.setColumns(TEXT_COLUMN);
 		pass = new JPasswordField();
-		pass.setName("pass");
+		pass.setName("password field");
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
@@ -578,7 +578,7 @@ public class ScreenLogin
 		connectionSpeedText.setBorder(
 				BorderFactory.createEmptyBorder(5, 0, 0, 0));
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
-		serverText.setName("server host name");
+		serverText.setName("server name text pane");
 		
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);
