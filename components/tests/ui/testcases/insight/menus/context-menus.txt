@@ -5,6 +5,7 @@ Library   org.openmicroscopy.shoola.keywords.JTreeLibrary
 Library   org.openmicroscopy.shoola.keywords.StaticFieldLibrary
 Resource  ../../config.txt
 Resource  ../../../resources/insight/login.txt
+Resource  ../../../resources/insight/state.txt
 
 
 *** Test Cases ***
@@ -13,6 +14,7 @@ Enabled Menu Items
         [Documentation]                         check that context menu items are correctly enabled or disabled
         ${import text}=                         Get Java String     agents.treeviewer.actions.ImportAction.NAME
         Select Window                           tree viewer window
+        Expand Browser                          project
         Tree Node Should Be Visible             project tree        ${FULL NAME}|Orphaned Images
         Tree Node Menu Item Should Be Enabled   Open with           ${FULL NAME}                  project tree
         Tree Node Menu Item Should Be Enabled   ${import text}      ${FULL NAME}                  project tree
