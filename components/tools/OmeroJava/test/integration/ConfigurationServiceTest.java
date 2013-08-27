@@ -6,10 +6,6 @@
  */
 package integration;
 
-//Java imports
-
-//Third-party libraries
-//Application-internal dependencies
 import omero.api.IConfigPrx;
 
 import org.testng.annotations.BeforeClass;

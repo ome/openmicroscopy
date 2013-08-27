@@ -6,9 +6,6 @@
  */
 package integration.delete;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 import omero.cmd.Delete;

@@ -6,7 +6,6 @@
  */
 package integration;
 
-//Java imports
 import static omero.rtypes.rstring;
 import static omero.rtypes.rtime;
 

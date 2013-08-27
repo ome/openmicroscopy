@@ -123,7 +123,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         // Step 4
         // reconnect to the source group.
         switch (sourceRole) {
-            case DATA_OWNER:
+            case MEMBER:
             case GROUP_OWNER:
             default:
                 loginUser(ctx);
@@ -164,7 +164,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
         // Step 5
         // log into source group to perform the move
         switch (sourceRole) {
-            case DATA_OWNER:
+            case MEMBER:
             case GROUP_OWNER:
             default:
                 loginUser(g);
@@ -205,7 +205,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetByGroupOwnerRWRAtoRWRA() throws Exception {
-        moveDatasetAndImage("rwra--", "rwra--", GROUP_OWNER, DATA_OWNER);
+        moveDatasetAndImage("rwra--", "rwra--", GROUP_OWNER, MEMBER);
     }
 
     /**
@@ -218,7 +218,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetByGroupOwnerRWRtoRWR() throws Exception {
-        moveDatasetAndImage("rwr---", "rwr---", GROUP_OWNER, DATA_OWNER);
+        moveDatasetAndImage("rwr---", "rwr---", GROUP_OWNER, MEMBER);
     }
 
     /**
@@ -231,7 +231,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetByGroupOwnerRWRWtoRWRW() throws Exception {
-        moveDatasetAndImage("rwrw--", "rwrw--", GROUP_OWNER, DATA_OWNER);
+        moveDatasetAndImage("rwrw--", "rwrw--", GROUP_OWNER, MEMBER);
     }
 
     /**
@@ -243,7 +243,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetByAdminRWRWtoRWRW() throws Exception {
-        moveDatasetAndImage("rwrw--", "rwrw--", ADMIN, DATA_OWNER);
+        moveDatasetAndImage("rwrw--", "rwrw--", ADMIN, MEMBER);
     }
 
     /**
@@ -256,7 +256,7 @@ public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
      */
     @Test
     public void testMoveDatasetByMemberRWRWtoRWRW() throws Exception {
-        moveDatasetAndImage("rwrw--", "rwrw--", DATA_OWNER, DATA_OWNER);
+        moveDatasetAndImage("rwrw--", "rwrw--", MEMBER, MEMBER);
     }
 
 }

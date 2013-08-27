@@ -30,7 +30,6 @@ import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
-import omero.api.IDeletePrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
@@ -108,8 +107,6 @@ import static org.testng.AssertJUnit.*;
 
 import spec.AbstractTest;
 
-//Application-internal dependencies
-
 /**
  * Base test for integration tests.
  *
@@ -118,7 +115,7 @@ import spec.AbstractTest;
 public class AbstractServerTest extends AbstractTest {
 
     /** Performs the move as data owner. */
-    public static final int DATA_OWNER = 100;
+    public static final int MEMBER = 100;
 
     /** Performs the move as group owner. */
     public static final int GROUP_OWNER = 101;
