@@ -105,9 +105,9 @@ try
     store.close();
     
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-%Close the session
+% Close the session
 client.closeSession();
-

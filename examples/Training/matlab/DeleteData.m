@@ -50,9 +50,11 @@ try
     image = getImages(session, imageId);
     assert(isempty(image), 'OMERO:LoadMetadataAdvanced', 'Image not deleted');
     fprintf(1, 'Image %g deleted\n', imageId);
+    
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-%Close the session
+% Close the session
 client.closeSession();
