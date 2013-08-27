@@ -46,7 +46,7 @@ To actually run a tests in a given folder,
 Replace ${omero.version} by the current version e.g. 4.4.8-DEV-ice34
 
 export OMERO_CHECKOUT=~/src/openmicroscopy
-CLASSPATH="$OMERO_CHECKOUT"/components/insight/OUT/app/libs/*:"$OMERO_CHECKOUT"/components/insight/OUT/dist/omero.insight.jar:"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/java-ui-libraries-${omero.version} jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/experiments
+CLASSPATH="$OMERO_CHECKOUT"/components/insight/OUT/app/libs/*:"$OMERO_CHECKOUT"/components/insight/OUT/dist/omero.insight.jar:"$OMERO_CHECKOUT"/lib/repository/swinglibrary-1.6.0a.jar:"$OMERO_CHECKOUT"/target/repository/java-ui-libraries-${omero.version} jybot "$OMERO_CHECKOUT"/components/tests/ui/testcases/insight/menus
 
 
 To run all the insight tests, from the top level
@@ -61,10 +61,10 @@ components/tests/ui/target/reports/insight/*. One output directory will be creat
 
 
 To run the tests in a given test e.g.
-./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=experiments/scratchpad.txt
+./build.py -f components/tests/ui/build.xml ui-test-insight -DTEST=menus/context-menus.txt
 
 The output of the test can be found under 
-components/tests/ui/target/reports/insight/experiments
+components/tests/ui/target/reports/insight/menus
 i.e. The parent directory of the test itself.
 
 OMERO.web
