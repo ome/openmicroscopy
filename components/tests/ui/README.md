@@ -34,6 +34,11 @@ Swing Explorer plug-in helpful; read http://www.swingexplorer.com/
 Read about SwingLibrary at
 http://github.com/robotframework/SwingLibrary
 
+Note that the convention in Insight is to name Swing components for
+the kind of component that they are. For instance, the first window to
+pop up is the "server window" and it includes a "username field" and a
+"config server button" and similar.
+
 The supplied SwingLibrary JAR has been adjusted by the script from
 http://github.com/Rethought/swinglibrary_package so that it
 incorporates a later revision of Abbot that corrects an issue with

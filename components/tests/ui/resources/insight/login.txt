@@ -10,7 +10,7 @@ Add New Server
         [Arguments]                ${server}
         Button Should Be Enabled   add server button
         Push Button                add server button
-        Type Into Text Field       server name        ${server}
+        Type Into Text Field       server name field   ${server}
 
 Choose Server
         [Documentation]            when the login window is shown, use the server dialog to select the given server
@@ -35,11 +35,11 @@ First Login
         Set Jemmy Timeouts         10
         Select Window              login window
         Button Should Be Enabled   config server button
-        ${previous host}=          Get Text Field Value             server host name
+        ${previous host}=          Get Text Field Value             server name text pane
         Run Keyword If             '${previous host}' != '${host}'  Choose Server     server=${host}
-        Clear Text Field           user
-        Type Into Text Field       user                             ${user}
-        Type Into Text Field       pass                             ${pass}
+        Clear Text Field           username field
+        Type Into Text Field       username field                   ${user}
+        Type Into Text Field       password field                   ${pass}
         Push Button                login button
         Sleep                      5s
         Return To Login
@@ -48,9 +48,9 @@ Log In As
         [Documentation]            log in to an OMERO server to switch user
         [Arguments]                ${user}                          ${pass}
         Select Dialog              login dialog
-        Clear Text Field           user
-        Type Into Text Field       user                             ${user}
-        Type Into Text Field       pass                             ${pass}
+        Clear Text Field           username field
+        Type Into Text Field       username field                   ${user}
+        Type Into Text Field       password field                   ${pass}
         Push Button                login button
 
 Return To Login
