@@ -5,6 +5,7 @@ Library   org.openmicroscopy.shoola.keywords.IconCheckLibrary
 Library   org.openmicroscopy.shoola.keywords.JTreeLibrary
 Resource  ../../config.txt
 Resource  ../../../resources/insight/login.txt
+Resource  ../../../resources/insight/state.txt
 
 
 *** Test Cases ***
@@ -12,6 +13,7 @@ Resource  ../../../resources/insight/login.txt
 Icon Images
         [Documentation]                check that GUI elements have the correct icon image
         Select Window                  tree viewer window
+        Expand Browser                 project
         ${icon name}=                  Get Image Icon Name            new container button
         Should Be Equal                ${icon name}                   nuvola_filenew16.png
         Tree Node Should Be Visible    project tree                   ${FULL NAME}
