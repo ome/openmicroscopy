@@ -68,8 +68,9 @@ try
     end
     
 catch err
-    disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-% REMEMBER TO CLOSE SESSION
+% Close the session
 client.closeSession();
