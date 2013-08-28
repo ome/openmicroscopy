@@ -5,6 +5,9 @@
 # Copyright (C) 2011 University of Dundee & Open Microscopy Environment.
 # All rights reserved.
 #
+# Copyright 2013 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -18,14 +21,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# pytest fixtures used as defined in pytest_fixtures.py:
+# - gatewaywrapper
+#
 
-from webgateway.tests.unittests import WGTest
+from omero.gateway.pytest_fixtures import *
 
-class UserProxyTest (WGTest):
-    def test (self):
-        self.loginAsAuthor()
-        user = self.gateway.user
-        self.assertEqual(user.isAdmin(), False)
-        int(user.getId())
-        self.assertEqual(user.getName(), self.AUTHOR.name)
-        self.assertEqual(user.getFirstName(), self.AUTHOR.firstname)
+def testUserProxy (gatewaywrapper):
+    gatewaywrapper.loginAsAuthor()
+    user = gatewaywrapper.gateway.getUser()
+    assert user.isAdmin() is False
+    int(user.getId())
+    assert user.getName() == gatewaywrapper.AUTHOR.name
+    assert user.getFirstName() == gatewaywrapper.AUTHOR.firstname
