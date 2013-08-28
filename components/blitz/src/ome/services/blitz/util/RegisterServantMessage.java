@@ -8,6 +8,7 @@
 package ome.services.blitz.util;
 
 import ome.util.messages.InternalMessage;
+import omero.util.ServantHolder;
 
 /**
  * {@link InternalMessage} raised when a servant should be registered for clean.
@@ -27,6 +28,14 @@ public class RegisterServantMessage extends InternalMessage {
 
     private transient Ice.ObjectPrx prx;
 
+    private transient ServantHolder holder;
+
+    /**
+     * Create a new message
+     * @param source the source of the message
+     * @param servant the servant that is to be registered
+     * @param current the Ice context
+     */
     public RegisterServantMessage(Object source, Ice.Object servant,
             Ice.Current current) {
         super(source);
@@ -34,22 +43,51 @@ public class RegisterServantMessage extends InternalMessage {
         this.curr = current;
     }
 
+    /**
+     * @return the servant to register
+     */
     public Ice.Object getServant() {
         return this.servant;
     }
 
+    /**
+     * @return the Ice context
+     */
     public Ice.Current getCurrent() {
         return this.curr;
     }
 
+    /**
+     * @param prx the proxy object to set
+     */
     public void setProxy(Ice.ObjectPrx prx) {
         if (this.prx != null) {
-            throw new RuntimeException("Proxy can only be set once!");
+            throw new RuntimeException("Proxy can be set only once!");
         }
         this.prx = prx;
     }
 
+    /**
+     * @return the proxy object
+     */
     public Ice.ObjectPrx getProxy() {
         return this.prx;
+    }
+
+    /**
+     * @param holder the servant holder to set
+     */
+    public void setHolder(ServantHolder holder) {
+        if (this.holder != null) {
+            throw new RuntimeException("Holder can be set only once!");
+        }
+        this.holder = holder;
+    }
+
+    /**
+     * @return the servant holder
+     */
+    public ServantHolder getHolder() {
+        return this.holder;
     }
 }

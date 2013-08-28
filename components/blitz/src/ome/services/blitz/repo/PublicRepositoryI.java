@@ -61,6 +61,7 @@ import ome.formats.importer.OMEROWrapper;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.util.SqlAction;
@@ -721,7 +722,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
         _RawFileStoreTie tie = new _RawFileStoreTie(rfs);
         RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
         try {
-            this.executor.getContext().publishMessage(msg);
+            final OmeroContext ctx = this.executor.getContext();
+            ctx.publishMessage(msg);
+            rfs.setHolder(msg.getHolder());
+            rfs.setApplicationContext(ctx);
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;

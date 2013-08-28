@@ -87,7 +87,6 @@ public class RawFileStoreTest extends AbstractServerTest {
      *             Thrown if an error occurred.
      * @see #testUploadFile()
      */
-    @Test(groups = "broken")
     public void testDownloadScript() throws Exception {
         IScriptPrx svc = factory.getScriptService();
         List<OriginalFile> scripts = svc.getScripts();
@@ -108,5 +107,4 @@ public class RawFileStoreTest extends AbstractServerTest {
             store.close();
         }
     }
-
 }
