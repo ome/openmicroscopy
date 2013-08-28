@@ -8,9 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import os
-
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 
 from omero.gateway.pytest_fixtures import *
 
