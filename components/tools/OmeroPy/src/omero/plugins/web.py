@@ -316,7 +316,8 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
             cargs.extend(['--cov', cov])
         for cov_rep in args.cov_report:
             cargs.extend(['--cov-report', cov_rep])
-            
+
+        os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(cargs, cwd = cwd)
 
         
