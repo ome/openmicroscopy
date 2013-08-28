@@ -241,11 +241,10 @@ public class ModelTest extends TestCase {
         PixelsI pixels = new PixelsI();
         ChannelI channel0 = new ChannelI();
         ChannelI channel1 = new ChannelI();
-        ChannelI channel2 = new ChannelI();
         pixels.addChannel(channel0);
-        this.assertEquals(1, pixels.sizeOfChannels());
+        assertEquals(1, pixels.sizeOfChannels());
         ChannelI old = (ChannelI) pixels.setChannel(0, channel1);
-        this.assertEquals(old, channel0);
-        this.assertEquals(1, pixels.sizeOfChannels());
+        assertEquals(old, channel0);
+        assertEquals(1, pixels.sizeOfChannels());
     }
 }
