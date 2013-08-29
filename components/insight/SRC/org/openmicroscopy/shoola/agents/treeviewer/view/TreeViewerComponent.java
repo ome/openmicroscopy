@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerComponent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -116,6 +116,9 @@ import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -3255,7 +3258,14 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				browser.removeTreeNodes(finder.getNodes());
+				final Set<TreeImageDisplay> nodesToRemove = finder.getNodes();
+				browser.removeTreeNodes(nodesToRemove);
+				final Set<TreeImageDisplay> oldSelected = ImmutableSet.copyOf(browser.getSelectedDisplays());
+				final Set<TreeImageDisplay> newSelected = Sets.difference(oldSelected, nodesToRemove);
+				if (!newSelected.equals(oldSelected)) {
+				    browser.setSelectedDisplay(null);
+				    browser.setSelectedDisplays(newSelected.toArray(new TreeImageDisplay[newSelected.size()]), false);
+				}
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
@@ -3271,7 +3281,7 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
