@@ -51,6 +51,7 @@ function installvm ()
             setup_omero_daemon.sh \
             omero-init.d \
             omero-web-init.d \
+            no_processor_8266.sh \
             omero@localhost:install
 
         if [ -n "$OMERO_POST_INSTALL_SCRIPTS" ]; then

@@ -17,6 +17,8 @@ sudo /etc/init.d/nginx start
 
 sleep 10
 
+bash no_processor_8266.sh
+
 bash cleanup.sh
 
 for SCRIPT in post/*.sh; do
