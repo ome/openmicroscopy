@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="ui-scripts" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="ui-tests" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -22,10 +22,11 @@
 
     <!-- run jybot with various arguments. Used to run insight tests.-->
     <macrodef name="run_jybot">
+        <attribute name="failonerror" default="true"/>
         <attribute name="filename"/>
         <attribute name="output"/>
         <sequential>
-            <exec executable="jybot" failonerror="false" dir="${reports.insight}">
+            <exec executable="jybot" failonerror="@{failonerror}" dir="${reports.insight}">
                 <env key="CLASSPATH" value="${insight.dir}/app/libs/*:${insight.dir}/dist/omero.insight.jar:${target.dir}/java-ui-libraries-${omero.version}.jar:${lib.dir}/repository/swinglibrary-${versions.robotframework.swinglibrary}.jar"/>
                     <arg value="-d"/>
                     <arg value="@{output}"/>
@@ -38,10 +39,11 @@
 
     <!-- run pybot with various arguments. Used to run web/cli tests.-->
     <macrodef name="run_pybot">
+        <attribute name="failonerror" default="true"/>
         <attribute name="output"/>
         <element name="args" implicit="true"/>
         <sequential>
-            <exec executable="pybot" failonerror="false" dir="${output}">
+            <exec executable="pybot" failonerror="@{failonerror}" dir="${output}">
                 <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>
                  <args/>
             </exec>
@@ -110,7 +112,7 @@
                 <var name="target" value="cli/${TEST}"/>
             </then>
         </if>
-        <exec executable="pybot" failonerror="false" dir="../../../dist/">
+        <exec executable="pybot" failonerror="${test.with.fail}" dir="../../../dist/">
             <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
             <redirector error="${reports.cli}/cli.log" alwayslog="false"/>       
             <arg value="-d"/>
@@ -132,7 +134,7 @@
                 <basename property="filename" file="@{file}"/>
                 <var name="output" value="${reports.insight}/${filename}"/>
                 <mkdir dir="${output}" />
-                <run_jybot filename="${filename}" output="${output}"/>
+                <run_jybot failonerror="${test.with.fail}" filename="${filename}" output="${output}"/>
             </sequential>
         </for>
     </target>
@@ -142,7 +144,7 @@
         <var name="filename" value="${FOLDER}"/>
         <var name="output" value="${reports.insight}/${filename}"/>
         <mkdir dir="${output}" />
-        <run_jybot filename="testcases/insight/${filename}" output="${output}"/>
+        <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
     </target>
 
     <!-- run the specified test -->
@@ -152,7 +154,7 @@
         <basename property="parent" file="${filename.parent}"/>
         <var name="output" value="${reports.insight}/${parent}"/>
         <mkdir dir="${output}" />
-        <run_jybot filename="testcases/insight/${filename}" output="${output}"/>
+        <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
     </target>
 
     <!--  run the insight tests -->
@@ -185,7 +187,7 @@
             </then>
         </if>
         
-        <run_pybot output="${output}">
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
             <arg value="-d"/>
             <arg value="${output}"/>
             <arg value="--loglevel"/>
@@ -204,7 +206,7 @@
                 <var name="target" value="web/${TEST}"/>
             </then>
         </if>
-        <run_pybot output="${output}">
+        <run_pybot failonerror="${test.with.fail}" output="${output}">
             <arg value="-d"/>
             <arg value="${output}"/>
             <arg value="-v"/>
