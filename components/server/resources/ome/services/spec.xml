@@ -326,7 +326,8 @@
                 <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
-                 <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/Image;;/PlateAcquisition/WellSample</value>
+                <value>/PlateAcquisition/WellSample/Well;SOFT</value>
                 <value>/PlateAcquisition</value>
             </list>
         </constructor-arg>
