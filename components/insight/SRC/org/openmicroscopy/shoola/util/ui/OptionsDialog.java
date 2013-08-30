@@ -134,7 +134,9 @@ public class OptionsDialog
     	controlPanel = new JPanel();
         contentPanel = new JXHeader();
         noButton = new JButton("No");
+        noButton.setName("no button");
         yesButton = new JButton("Yes");
+        yesButton.setName("yes button");
         getRootPane().setDefaultButton(yesButton);
     }
     
@@ -246,6 +248,7 @@ public class OptionsDialog
 		attachListeners();
 		buildGUI(message, messageIcon);
 		pack();
+		setName("options dialog");
 		//setResizable(false);
     }
     
@@ -355,6 +358,7 @@ public class OptionsDialog
 	{
 		if (cancelButton == null) {
 			cancelButton = new JButton("Cancel");
+			cancelButton.setName("cancel button");
 			//cancelButton.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
 			cancelButton.addActionListener(new ActionListener() {
 	            public void actionPerformed(ActionEvent e) { cancel(); }

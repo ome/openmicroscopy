@@ -233,6 +233,7 @@ class EditorUI
 		setJMenuBar(createMenuBar());
 		buildGUI();
 		setOnScreen();
+		setName("editor window");
 	}
     
 	/** 

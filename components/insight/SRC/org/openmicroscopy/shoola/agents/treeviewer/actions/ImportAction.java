@@ -69,7 +69,7 @@ public class ImportAction
     	"Launch the Importer. Import data to Screen...";
     
 	/** The name of the action. */
-    private static final String NAME = "Import...";
+    public static final String NAME = "Import...";
     
     /** Flag indicating not to select any node. */
     private boolean noNode;
