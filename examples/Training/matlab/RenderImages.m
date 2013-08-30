@@ -25,29 +25,29 @@ try
     
     % Information to edit
     imageId = str2double(client.getProperty('image.id'));
-
+    
     % Load image acquisition data.
     fprintf(1, 'Reading image: %g\n', imageId);
     image = getImages(session, imageId);
     assert(~isempty(image), 'OMERO:RenderImages', 'Image Id not valid');
     pixels = image.getPrimaryPixels();
     pixelsId = pixels.getId().getValue();
-   
-    % Rendering 
-
+    
+    % Rendering
+    
     % Follow an example indicating, how to create a rendering engine.
     disp('Rendering the image');
     % Create rendering engine.
     re = session.createRenderingEngine();
     re.lookupPixels(pixelsId);
     % Check if default required.
-    if (~re.lookupRenderingDef(pixelsId)) 
+    if (~re.lookupRenderingDef(pixelsId))
         re.resetDefaults();
         re.lookupRenderingDef(pixelsId);
     end
     % start the rendering engine
     re.load();
-
+    
     % render a plane as compressed. Possible to render it uncompressed.
     pDef = omero.romio.PlaneDef;
     pDef.z = re.getDefaultZ();
@@ -57,45 +57,55 @@ try
     sizeC = pixels.getSizeC().getValue()-1;
     if (sizeC == 0)
         re.setActive(0, 1);
-    else 
+    else
         for k = 0:sizeC,
             re.setActive(k, 0);
             values = re.renderCompressed(pDef);
             stream = java.io.ByteArrayInputStream(values);
             image = javax.imageio.ImageIO.read(stream);
             stream.close();
-            figure(k+1);
-            imshow(JavaImageToMatlab(image));
+            if feature('ShowFigureWindows')
+                figure(k+1);
+                imshow(JavaImageToMatlab(image));
+            end
             %make all the channels active.
             for i = 0:sizeC,
-               re.setActive(i, 1);
+                re.setActive(i, 1);
             end
         end
     end
     % All channels active and save the image as a JPEG.
-    figure(pixels.getSizeC().getValue()+1);
     values = re.renderCompressed(pDef);
     stream = java.io.ByteArrayInputStream(values);
     image = javax.imageio.ImageIO.read(stream);
     stream.close();
-    imshow(JavaImageToMatlab(image));
-
+    if feature('ShowFigureWindows')
+        figure(pixels.getSizeC().getValue()+1);
+        imshow(JavaImageToMatlab(image));
+    end
+    
     %Close the rendering engine.
     re.close();
     
     % Load cache thumbnail
     disp('Loading the cache thumbnail');
     thumbnail = getThumbnail(session, imageId);
-    figure; 
-    imshow(thumbnail, []);
+    if feature('ShowFigureWindows')
+        figure;
+        imshow(thumbnail, []);
+    end
     
     % Load cache thumbnail and set the longest side
     thumbnail = getThumbnailByLongestSide(session, imageId, 96);
-    figure; 
-    imshow(thumbnail, []);
+    if feature('ShowFigureWindows')
+        figure;
+        imshow(thumbnail, []);
+    end
+    
 catch err
-     disp(err.message);
+    client.closeSession();
+    throw(err);
 end
 
-% close the session
+% Close the session
 client.closeSession();
