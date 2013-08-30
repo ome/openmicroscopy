@@ -900,22 +900,23 @@
                                     {% endifnotequal %}
                                 {% endfor %}
                             }
-                            // if experimenter is selected, use 'locked' flag to decide permissions
-                            if(obj.attr("id").indexOf("experimenter")>=0) {
+                            // if experimenter or orphaned is selected, use 'locked' flag to decide permissions
+                            if(obj.attr("id").indexOf("experimenter")>=0 || obj.attr("rel") == 'orphaned') {
+                                var canCreate = $("#experimenter-0").attr("rel").indexOf("locked")>=0;
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["copy"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["unlink"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["paste"]["_disabled"] = true;
                                 config["ccp"]["submenu"]["cut"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
-                                if(obj.attr("rel").indexOf("locked")>=0) {
+                                if(canCreate) {
                                     // see #8879 config["create"]["_disabled"] = true;
                                     config["create"]["submenu"]["project"]["_disabled"] = true;
                                     config["create"]["submenu"]["dataset"]["_disabled"] = true;
                                     config["create"]["submenu"]["screen"]["_disabled"] = true;
                                 }
                             // if we DON'T have canLink, everything else is disabled
-                            } else if(!obj.hasClass('canLink')) {   // this will include 'orphaned' node
+                            } else if(!obj.hasClass('canLink')) {
                                 // see #8879 config["ccp"]["_disabled"] = true;
                                 config["create"]["_disabled"] = true;
                                 config["basket"]["_disabled"] = true;
