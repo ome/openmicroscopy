@@ -1,7 +1,7 @@
 # Source this file to set environment variables used by the OMERO VM
 # install scripts inside the guest.
 
-export OMERO_JOB="${OMERO_JOB:-OMERO-stable}"
+export OMERO_JOB="${OMERO_JOB:-OMERO-stable-ice34}"
 export OMERO_PREFIX="${OMERO_PREFIX:-/home/omero/OMERO.server}"
 
 export OMERO_DB_NAME="${OMERO_DB_NAME:-omero}"
