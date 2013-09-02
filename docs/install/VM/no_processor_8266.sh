@@ -6,11 +6,15 @@
 
 set -e -u -x
 
+if [ "$ENABLE_OMERO_NO_PROCESSOR_FIX" -eq 0 ]; then
+    exit 0
+fi
+
 "$OMERO_PREFIX/bin/omero" admin ice server stop Processor-0
 
 set +e
 for n in `seq 10`; do
-    "$OMERO_PREFIX/bin/omero" admin ice server state Processor-0 | grep active
+    "$OMERO_PREFIX/bin/omero" admin ice server state Processor-0 | grep '^active'
     RET=$?
     if [ $RET -eq 0 ]; then
         break
