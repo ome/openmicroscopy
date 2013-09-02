@@ -352,16 +352,18 @@
                         alert("Please enter a Name");
                         return;
                     }
-                    // if "project" is selected, createDataset under it
+                    // if images under orphaned are selected, note IDs (for adding to new Dataset)
                     var selected = $.jstree._focused().get_selected();
                     var img_ids = [];
                     selected.each(function(){
-                        if (this.id.split("-")[0] == "image"){
-                            if ($(this).hasClass("canLink")) {
+                        var $this = $(this);
+                        if (this.id.split("-")[0] == "image" && $this.parent().parent().attr('rel') == 'orphaned'){
+                            if ($this.hasClass("canLink")) {
                                 img_ids.push(this.id.split("-")[1]);
                             }
                         }
                     });
+                    // if "project" is selected, createDataset under it
                     var url, position = 0;
                     if(selected.length==1 && selected.attr("rel") == "project" && cont_type == "dataset") {
                         url = '{% url manage_action_containers "addnewcontainer" %}project/'+selected.attr("id").split("-")[1]+'/';
