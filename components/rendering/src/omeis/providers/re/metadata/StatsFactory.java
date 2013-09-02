@@ -313,7 +313,17 @@ public class StatsFactory {
         
         Dimension tileSize = pixelsData.getTileSize();
         double range = gMax-gMin;
-        if (range <= RANGE_RGB) {
+        int resolutionLevels = pixelsData.getResolutionLevels();
+        if (range <= RANGE_RGB || resolutionLevels > 1) {
+            // A number of resolution levels greater than one tends to
+            // signify a big image.  We *really* do not want to be
+            // iterating through potentially GBs of data on every big image
+            // whenever a calculation of the location statistics is requested.
+            //
+            // Furthermore, as this computation is exclusively used to
+            // prime "pretty good image" rendering settings calculating
+            // them is pointless when the range does not exceed that
+            // available in the device space.
             inputEnd = gMax;
             inputStart = gMin;
             return;
