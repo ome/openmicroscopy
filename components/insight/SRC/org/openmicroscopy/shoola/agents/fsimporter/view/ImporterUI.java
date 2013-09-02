@@ -399,6 +399,7 @@ class ImporterUI extends TopWindow
 		initComponents();
 		setJMenuBar(createMenuBar());
 		buildGUI();
+		setName("importer window");
 	}
 	
 	/**

@@ -59,7 +59,7 @@ public class FrameBorder
 {
 
     /** Default color for the margin. */
-    private static Color    DEFAULT_COLOR = Color.WHITE;
+    public static Color DEFAULT_COLOR = Color.WHITE;
     
     /** The margin thickness in pixels. */
     private int     margin;

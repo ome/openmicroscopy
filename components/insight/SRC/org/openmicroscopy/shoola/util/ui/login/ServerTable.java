@@ -97,7 +97,7 @@ class ServerTable
 	 */
 	private void initComponents(Map<String, String> servers, Icon icon)
 	{
-		String[] columnNames = {"", "", ""};
+		String[] columnNames = {"icon", "host", "port"};
 		final Object[][] objects;
 		Boolean focus = Boolean.valueOf(true);
 		if (servers == null || servers.size() == 0) {
@@ -180,6 +180,7 @@ class ServerTable
 		this.parent = parent;
 		previousRow = -1;
 		manual = false;
+		setName("server table");
 		initComponents(servers, icon);
 	}
 	
