@@ -11,9 +11,9 @@ bash setup_omero.sh
 bash setup_omero_daemon.sh
 bash setup_nginx.sh
 
-sudo /etc/init.d/omero start
-sudo /etc/init.d/omero-web start
-sudo /etc/init.d/nginx start
+sudo service omero start
+sudo service omero-web start
+sudo service nginx start
 
 sleep 10
 
