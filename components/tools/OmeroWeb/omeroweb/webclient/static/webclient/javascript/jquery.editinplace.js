@@ -30,6 +30,7 @@
             field_id    : field_id,
             save_url    : save_url,
             form_url    : form_url,
+            post_save   : function(input) { return input; },
             edit_event  : "click" 
         }; // defaults
 
@@ -109,10 +110,11 @@
                                         }); // this.each
                                         $("#form-"+field_id).find('textarea').each( function( ) {
                                             if ($(this).attr('name')!=null && $(this).attr('name')!=""){
-                                                if ($(this).val().length === 0) {
-                                                    $(this).val("Add Description");     // Reset to placeholder text
+                                                var processed_val = opt.post_save($('<div/>').text($(this).val()).html());
+                                                if (processed_val.length === 0) {
+                                                    processed_val = "Add Description";     // Reset to placeholder text
                                                 }
-                                                $("#"+field_id+"-"+$(this).attr('name')).html($(this).val().replace(/\n/g, "<br />"));
+                                                $("#"+field_id+"-"+$(this).attr('name')).html(processed_val.replace(/\n/g, "<br />"));
                                             }
                                         }); // this.each
                                         
