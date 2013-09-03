@@ -69,6 +69,9 @@
     <!-- reports for the cli tests. -->
     <property name="reports.cli" value="${basedir}/target/reports/cli"/>
 
+    <!-- reports for the cli tests. -->
+    <property name="target.images" value="${basedir}/target/images"/>
+
 
     <property name="main.class" value="NONE"/>
 
@@ -84,7 +87,7 @@
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
-    <!-- set up the directory for insight reports -->
+    <!-- set up the directory for insight reports. -->
     <target name="setup-dir">
         <mkdir dir="${reports.insight}" />
         <!-- copy the config folder. This should be modified later -->
@@ -94,6 +97,22 @@
         </copy>
     </target>
 
+    <!-- Populates the db. This target will be removed when the set-up is in place. -->
+    <target name="setup-db">
+        <!-- extract images to import -->
+         <mkdir dir="${target.images}" />
+        <unjar src="${basedir}/../../../target/test-repository/common-test-${omero.version}.jar" dest="${target.images}">
+            <patternset>
+                <include name="tiny*dv"/>
+                <include name="test.*"/>
+            </patternset>
+        </unjar>
+        <exec executable="python" failonerror="${test.with.fail}">
+            <env key="PYTHONPATH" path="${basedir}/library/python:${env.PYTHONPATH}"/>    
+            <arg value="setup.py"/>
+            <arg value="${target.images}"/>
+        </exec>
+    </target>
     <!--  run the web and insight tests -->
     <target name="ui-test-all" unless="env.NOPYTHON" depends="clean">
         <antcall target="ui-test-insight" inheritRefs="true" inheritAll="true"/>

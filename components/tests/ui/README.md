@@ -20,6 +20,19 @@ you will have to run robotframework with python and with jython.
 In that case it is easier to install robotframework using the 
 setup script provided.
 
+Setting up
+----------
+If you wish to set-up data, i.e. create a Project, dataset and
+import 3 images in the dataset, you first need to run
+
+./build.py test-compile
+then
+./build.py -f components/tests/ui/build.xml setup-db.
+
+If you need more images, run the second command again. The images will be 
+imported in the dataset created the first time.
+
+
 OMERO.insight
 -------------
 
