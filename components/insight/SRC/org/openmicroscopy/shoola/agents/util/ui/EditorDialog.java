@@ -47,6 +47,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.JTextComponent;
 
 
 //Third-party libraries
@@ -118,7 +119,7 @@ public class EditorDialog
     private static final int		SAVE = 1;
     
     /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextArea          nameArea;
+    private JTextComponent nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea          	descriptionArea;
@@ -189,7 +190,7 @@ public class EditorDialog
         	nameArea = new MultilineLabel();
         	nameArea.setEditable(true);
         } else {
-        	nameArea = new JTextArea();
+        	nameArea = new JTextField();
         	nameArea.setBorder(BorderFactory.createEtchedBorder());
         }
         nameArea.setName("name field");
