@@ -21,8 +21,8 @@
  */
 package integration.chgrp;
 
-/** 
- * 
+/**
+ *
  *
  * @author Scott Littlewood, <a href="mailto:sylittlewood@dundee.ac.uk">sylittlewood@dundee.ac.uk</a>
  * @since Beta4.4
@@ -59,7 +59,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
     /** temporary boolean flag to disable all but one test **/
     static final boolean runAllTests = true;
-    
+
     /** Indicates to move but not to link. */
     static final int LINK_NONE = 0;
 
@@ -68,7 +68,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
     /** Indicates to move and link to an existing object. */
     static final int LINK_EXISTING = 2;
-    
+
     public HierarchyMoveDatasetTest() {
         super();
     }
@@ -85,7 +85,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
     /**
      * Tests the move of a dataset to a new group, a project in the new group is
      * selected and the dataset should be linked to that project.
-     * 
+     *
      * @param source
      *            The permissions of the source group.
      * @param target
@@ -126,13 +126,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Step 2: log into source group to perform the move // No. See below.
         switch (memberLevel) {
-        case DATA_OWNER:
-        case GROUP_OWNER:
-        default:
-            loginUser(ctx);
-            break;
-        case ADMIN:
-            logRootIntoGroup(ctx.groupId);
+            case MEMBER:
+            case GROUP_OWNER:
+            default:
+                loginUser(ctx);
+                break;
+            case ADMIN:
+                logRootIntoGroup(ctx.groupId);
         }
 
         // Step 3: if this is a private group and we're an admin, then we'll
@@ -141,14 +141,14 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
         Experimenter o = null;
         if (target.equals("rw----") && chownLink) {
             switch (memberLevel) {
-            case DATA_OWNER:
-            default:
-                // no-op
-                break;
-            case GROUP_OWNER:
-            case ADMIN:
-                o = new omero.model.ExperimenterI(ctx.userId, false);
-                break;
+                case MEMBER:
+                default:
+                    // no-op
+                    break;
+                case GROUP_OWNER:
+                case ADMIN:
+                    o = new omero.model.ExperimenterI(ctx.userId, false);
+                    break;
             }
         }
 
@@ -159,25 +159,25 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         ProjectDatasetLink link = null;
         switch (linkLevel) {
-        case LINK_NEW:
-            link = new ProjectDatasetLinkI();
-            link.setChild(new DatasetI(d.getId().getValue(), false));
-            ProjectI prj = new ProjectI();
-            String n = "prj for Dataset:" + d.getId().getValue();
-            prj.setName(omero.rtypes.rstring(n));
-            link.setParent(prj);
-            if (o != null) {
-                link.getDetails().setOwner(o);
-                prj.getDetails().setOwner(o);
-            }
-            break;
-        case LINK_EXISTING:
-            link = new ProjectDatasetLinkI();
-            link.setChild(new DatasetI(d.getId().getValue(), false));
-            link.setParent(new ProjectI(p.getId().getValue(), false));
-            if (o != null) {
-                link.getDetails().setOwner(o);
-            }
+            case LINK_NEW:
+                link = new ProjectDatasetLinkI();
+                link.setChild(new DatasetI(d.getId().getValue(), false));
+                ProjectI prj = new ProjectI();
+                String n = "prj for Dataset:" + d.getId().getValue();
+                prj.setName(omero.rtypes.rstring(n));
+                link.setParent(prj);
+                if (o != null) {
+                    link.getDetails().setOwner(o);
+                    prj.getDetails().setOwner(o);
+                }
+                break;
+            case LINK_EXISTING:
+                link = new ProjectDatasetLinkI();
+                link.setChild(new DatasetI(d.getId().getValue(), false));
+                link.setParent(new ProjectI(p.getId().getValue(), false));
+                if (o != null) {
+                    link.getDetails().setOwner(o);
+                }
         }
 
         if (link != null) {
@@ -206,13 +206,13 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
 
         // Step 2: log into source group to perform the move
         switch (memberLevel) {
-        case DATA_OWNER:
-        case GROUP_OWNER:
-        default:
-            loginUser(g);
-            break;
-        case ADMIN:
-            logRootIntoGroup(g.getId().getValue());
+            case MEMBER:
+            case GROUP_OWNER:
+            default:
+                loginUser(g);
+                break;
+            case ADMIN:
+                logRootIntoGroup(g.getId().getValue());
         }
         param = new ParametersI();
         param.addId(d.getId().getValue());
@@ -240,7 +240,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
     /**
      * Tests to move a dataset containing an image also contained in another
      * dataset. The dataset should be moved but not the image.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -312,215 +312,215 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test
     public void testMoveDatasetToProjectRWtoRW() throws Exception {
-        moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWR---</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRWR() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwr---", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RW----</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRW() throws Exception {
-        moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RW----</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRAtoRW() throws Exception {
-        moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rw----", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRAtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RWR---</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWtoRWR() throws Exception {
-        moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwr---", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWtoRWRA() throws Exception {
-        moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToProjectRWRtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwra--", LINK_EXISTING, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RW----</code>. The move is done by the owner
      * of the data. A new Project will be created.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRW() throws Exception {
-        moveDataDatasetToProject("rw----", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWR---</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRWR() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwr---", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RW----</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRW() throws Exception {
-        moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RW----</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRAtoRW() throws Exception {
-        moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rw----", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRAtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwra--", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RWR---</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRWR() throws Exception {
-        moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwr---", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWtoRWRA() throws Exception {
-        moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rw----", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the owner
      * of the data.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
     @Test(enabled = runAllTests)
     public void testMoveDatasetToNewProjectRWRtoRWRA() throws Exception {
-        moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, DATA_OWNER);
+        moveDataDatasetToProject("rwr---", "rwra--", LINK_NEW, MEMBER);
     }
 
     /**
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -542,7 +542,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -564,7 +564,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -577,7 +577,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -599,7 +599,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -621,7 +621,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -634,7 +634,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -656,7 +656,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -678,7 +678,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RW----</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -691,7 +691,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RWR---</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -704,7 +704,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RW----</code> to <code>RWRA---</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -717,7 +717,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWR---</code> to <code>RWRA--</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */
@@ -730,7 +730,7 @@ public class HierarchyMoveDatasetTest extends AbstractServerTest {
      * Tests to move a dataset to a project contained in the target group.
      * <code>RWRA--</code> to <code>RWR---</code>. The move is done by the
      * administrator.
-     * 
+     *
      * @throws Exception
      *             Thrown if an error occurred.
      */

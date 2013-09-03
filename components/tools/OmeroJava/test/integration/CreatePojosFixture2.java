@@ -6,12 +6,14 @@
  */
 package integration;
 
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static omero.rtypes.*;
 import omero.RLong;
 import omero.ServerError;
 import omero.api.IAdminPrx;
@@ -43,31 +45,30 @@ import omero.sys.EventContext;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
-
 /**
- * setUp and tearDown must be called properly to make these work.
- * Copied from testing/src/ome/testing/CreatePojosFixture for ticket1106
+ * setUp and tearDown must be called properly to make these work. Copied from
+ * testing/src/ome/testing/CreatePojosFixture for ticket1106
  */
-public class CreatePojosFixture2
-{
+public class CreatePojosFixture2 {
 
     /**
      * creates a new fixture logged in as a newly created user. requires an
      * admin service factory in order to create user and should NOT be used from
      * the server side.
+     *
      * @throws ServerError
      * @throws PermissionDeniedException
      * @throws CannotCreateSessionException
      */
     public static CreatePojosFixture2 withNewUser(omero.client root)
-    throws ServerError, CannotCreateSessionException, PermissionDeniedException
-    {
+            throws ServerError, CannotCreateSessionException,
+            PermissionDeniedException {
         return withNewUser(root, (String) null);
     }
 
-    public static CreatePojosFixture2 withNewUser(omero.client root, String groupName)
-    throws ServerError, CannotCreateSessionException, PermissionDeniedException
-    {
+    public static CreatePojosFixture2 withNewUser(omero.client root,
+            String groupName) throws ServerError, CannotCreateSessionException,
+            PermissionDeniedException {
         CreatePojosFixture2 fixture = new CreatePojosFixture2();
 
         ServiceFactoryPrx sf = root.getSession();
@@ -77,9 +78,9 @@ public class CreatePojosFixture2
         if (groupName == null) {
             G_NAME = UUID.randomUUID().toString();
             fixture.g = new ExperimenterGroupI();
-            fixture.g.setName( rstring( G_NAME ));
-            fixture.g = new ExperimenterGroupI(rootAdmin.createGroup(fixture.g),
-                    false);
+            fixture.g.setName(rstring(G_NAME));
+            fixture.g = new ExperimenterGroupI(
+                    rootAdmin.createGroup(fixture.g), false);
         } else {
             G_NAME = groupName;
             fixture.g = rootAdmin.lookupGroup(groupName);
@@ -87,9 +88,9 @@ public class CreatePojosFixture2
 
         fixture.TESTER = "TESTER-" + UUID.randomUUID().toString();
         fixture.e = new ExperimenterI();
-        fixture.e.setOmeName( rstring(fixture.TESTER) );
-        fixture.e.setFirstName(rstring("Mr.") );
-        fixture.e.setLastName( rstring("Allen") );
+        fixture.e.setOmeName(rstring(fixture.TESTER));
+        fixture.e.setFirstName(rstring("Mr."));
+        fixture.e.setLastName(rstring("Allen"));
         fixture.e = new ExperimenterI(rootAdmin.createUser(fixture.e, G_NAME),
                 false);
 
@@ -110,8 +111,11 @@ public class CreatePojosFixture2
     private CreatePojosFixture2() {
     }
 
-    /** requires an admin service factory in order to create user. 
-     * @throws ServerError */
+    /**
+     * requires an admin service factory in order to create user.
+     *
+     * @throws ServerError
+     */
     public CreatePojosFixture2(ServiceFactoryPrx factory) throws ServerError {
         setServices(factory);
         EventContext ec = iAdmin.getEventContext();
@@ -279,21 +283,22 @@ public class CreatePojosFixture2
 
     protected Project project(Experimenter owner, String name) throws Exception {
         Project p = new ProjectI();
-        p.getDetails().setOwner( owner );
-        p.setName( rstring(name) );
+        p.getDetails().setOwner(owner);
+        p.setName(rstring(name));
         p = push(p);
         return p;
     }
 
     protected Dataset dataset(Experimenter owner, String name) throws Exception {
         Dataset d = new DatasetI();
-        d.getDetails().setOwner( owner );
-        d.setName( rstring(name) );
+        d.getDetails().setOwner(owner);
+        d.setName(rstring(name));
         d = push(d);
         return d;
     }
 
-    protected ProjectDatasetLink pdlink(Project prj, Dataset ds) throws Exception {
+    protected ProjectDatasetLink pdlink(Project prj, Dataset ds)
+            throws Exception {
         ProjectDatasetLink link = new ProjectDatasetLinkI();
         link.link(prj, ds);
         link = push(link);
@@ -302,17 +307,18 @@ public class CreatePojosFixture2
 
     protected Image image(Experimenter e, String name) throws Exception {
         Image i = new ImageI();
-        i.getDetails().setOwner( e );
-        i.setName( rstring(name) );
-        i.setAcquisitionDate( rtime(0) );
+        i.getDetails().setOwner(e);
+        i.setName(rstring(name));
+        i.setAcquisitionDate(rtime(0));
         i = push(i);
         return i;
     }
 
-    protected DatasetImageLink dilink(Experimenter user, Dataset ds, Image i) throws Exception {
+    protected DatasetImageLink dilink(Experimenter user, Dataset ds, Image i)
+            throws Exception {
         DatasetImageLink link = new DatasetImageLinkI();
         link.link(ds, i);
-        link.getDetails().setOwner( user );
+        link.getDetails().setOwner(user);
         link = push(link);
         return link;
     }
@@ -320,10 +326,10 @@ public class CreatePojosFixture2
     protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
             String name) throws Exception {
         CommentAnnotation dann = new CommentAnnotationI();
-        dann.setNs( rstring(name) );
-        dann.getDetails().setOwner( user );
+        dann.setNs(rstring(name));
+        dann.getDetails().setOwner(user);
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.link( (Dataset) d.proxy(), dann);
+        link.link((Dataset) d.proxy(), dann);
         link = push(link);
         return link;
     }
@@ -331,8 +337,8 @@ public class CreatePojosFixture2
     protected ImageAnnotationLink imageann(Experimenter user, Image i,
             String name) throws Exception {
         CommentAnnotation iann = new CommentAnnotationI();
-        iann.setNs( rstring(name) );
-        iann.getDetails().setOwner( user );
+        iann.setNs(rstring(name));
+        iann.getDetails().setOwner(user);
         ImageAnnotationLink link = new ImageAnnotationLinkI();
         link.link((Image) i.proxy(), iann);
         link = push(link);
@@ -352,6 +358,7 @@ public class CreatePojosFixture2
 
     public Image ir5050, ir5051, ir5052, iu5550, iu5551, iu5552, iu5580,
             iu5581, iu5582, iu5583, iu5584, iu5585, iu5586, iu5587, iu5588;
+
     // }
 
     public List<RLong> asIdList(IObject... iobjs) {
@@ -361,65 +368,89 @@ public class CreatePojosFixture2
         }
         return list;
     }
-    
+
     /**
      * Returns the collections of project's identifiers.
-     * 
+     *
      * @return See above.
      */
-    public List<Long> getProjectIds()
-    {
-    	List<Long> ids = new ArrayList<Long>();
-    	if (pr9090 != null) ids.add(pr9090.getId().getValue());
-    	if (pr9091 != null) ids.add(pr9091.getId().getValue());
-    	if (pr9092 != null) ids.add(pr9092.getId().getValue());
-    	if (pu9990 != null) ids.add(pu9990.getId().getValue());
-    	if (pu9991 != null) ids.add(pu9991.getId().getValue());
-    	if (pu9992 != null) ids.add(pu9992.getId().getValue());
-    	return ids;
+    public List<Long> getProjectIds() {
+        List<Long> ids = new ArrayList<Long>();
+        if (pr9090 != null)
+            ids.add(pr9090.getId().getValue());
+        if (pr9091 != null)
+            ids.add(pr9091.getId().getValue());
+        if (pr9092 != null)
+            ids.add(pr9092.getId().getValue());
+        if (pu9990 != null)
+            ids.add(pu9990.getId().getValue());
+        if (pu9991 != null)
+            ids.add(pu9991.getId().getValue());
+        if (pu9992 != null)
+            ids.add(pu9992.getId().getValue());
+        return ids;
     }
-    
+
     /**
      * Returns the collections of project's identifiers.
-     * 
+     *
      * @return See above.
      */
-    public List<Long> getImageIds()
-    {
-    	List<Long> ids = new ArrayList<Long>();
-    	if (ir5050 != null) ids.add(ir5050.getId().getValue());
-    	if (ir5051 != null) ids.add(ir5051.getId().getValue());
-    	if (ir5052 != null) ids.add(ir5052.getId().getValue());
-    	if (iu5550 != null) ids.add(iu5550.getId().getValue());
-    	if (iu5551 != null) ids.add(iu5551.getId().getValue());
-    	if (iu5552 != null) ids.add(iu5552.getId().getValue());
-    	if (iu5580 != null) ids.add(iu5580.getId().getValue());
-    	if (iu5581 != null) ids.add(iu5581.getId().getValue());
-    	if (iu5582 != null) ids.add(iu5582.getId().getValue());
-    	if (iu5583 != null) ids.add(iu5583.getId().getValue());
-    	if (iu5584 != null) ids.add(iu5584.getId().getValue());
-    	if (iu5585 != null) ids.add(iu5585.getId().getValue());
-    	if (iu5586 != null) ids.add(iu5586.getId().getValue());
-    	if (iu5587 != null) ids.add(iu5587.getId().getValue());
-    	if (iu5588 != null) ids.add(iu5588.getId().getValue());
-    	return ids;
+    public List<Long> getImageIds() {
+        List<Long> ids = new ArrayList<Long>();
+        if (ir5050 != null)
+            ids.add(ir5050.getId().getValue());
+        if (ir5051 != null)
+            ids.add(ir5051.getId().getValue());
+        if (ir5052 != null)
+            ids.add(ir5052.getId().getValue());
+        if (iu5550 != null)
+            ids.add(iu5550.getId().getValue());
+        if (iu5551 != null)
+            ids.add(iu5551.getId().getValue());
+        if (iu5552 != null)
+            ids.add(iu5552.getId().getValue());
+        if (iu5580 != null)
+            ids.add(iu5580.getId().getValue());
+        if (iu5581 != null)
+            ids.add(iu5581.getId().getValue());
+        if (iu5582 != null)
+            ids.add(iu5582.getId().getValue());
+        if (iu5583 != null)
+            ids.add(iu5583.getId().getValue());
+        if (iu5584 != null)
+            ids.add(iu5584.getId().getValue());
+        if (iu5585 != null)
+            ids.add(iu5585.getId().getValue());
+        if (iu5586 != null)
+            ids.add(iu5586.getId().getValue());
+        if (iu5587 != null)
+            ids.add(iu5587.getId().getValue());
+        if (iu5588 != null)
+            ids.add(iu5588.getId().getValue());
+        return ids;
     }
-    
+
     /**
      * Returns the collections of project's identifiers.
-     * 
+     *
      * @return See above.
      */
-    public List<Long> getDatasetIds()
-    {
-    	List<Long> ids = new ArrayList<Long>();
-    	if (dr7070 != null) ids.add(dr7070.getId().getValue());
-    	if (dr7071 != null) ids.add(dr7071.getId().getValue());
-    	if (dr7072 != null) ids.add(dr7072.getId().getValue());
-    	if (du7770 != null) ids.add(du7770.getId().getValue());
-    	if (du7771 != null) ids.add(du7771.getId().getValue());
-    	if (du7772 != null) ids.add(du7772.getId().getValue());
-    	return ids;
+    public List<Long> getDatasetIds() {
+        List<Long> ids = new ArrayList<Long>();
+        if (dr7070 != null)
+            ids.add(dr7070.getId().getValue());
+        if (dr7071 != null)
+            ids.add(dr7071.getId().getValue());
+        if (dr7072 != null)
+            ids.add(dr7072.getId().getValue());
+        if (du7770 != null)
+            ids.add(du7770.getId().getValue());
+        if (du7771 != null)
+            ids.add(du7771.getId().getValue());
+        if (du7772 != null)
+            ids.add(du7772.getId().getValue());
+        return ids;
     }
-    
+
 }

@@ -4,7 +4,7 @@
  *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package unit;
+package ome.services.blitz.test.utests;
 
 import static omero.rtypes.rbool;
 import static omero.rtypes.rint;
@@ -33,14 +33,14 @@ public class ParametersTest extends TestCase {
     //
     // Copied from PojoOptionsTest
     //
-    
+
     @Test
     public void testBasics() throws Exception {
         p.exp(rlong(1));
         p.grp(rlong(1));
         p.endTime(rtime(1));
     }
-    
+
     @Test
     public void testDefaults() throws Exception {
         // Removed to prevent confusion. assertFalse(p.isLeaves());
@@ -50,8 +50,7 @@ public class ParametersTest extends TestCase {
         assertFalse(p.isStartTime());
         assertFalse(p.isPagination());
     }
-    
-    
+
     @Test
     public void testExperimenter() throws Exception {
         p.exp(rlong(1));
@@ -70,7 +69,6 @@ public class ParametersTest extends TestCase {
         assertFalse(p.isGroup());
     }
 
-    
     //
     // Parameters.theFilter.limit, offset
     //
