@@ -177,7 +177,7 @@
     </target>
 
     <!--  run the insight tests -->
-    <target name="ui-test-insight" depends="setup-dir">
+    <target name="ui-test-insight">
         <if><isset property="FOLDER"/><then>
             <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
             <elseif><isset property="TEST"/><then>
