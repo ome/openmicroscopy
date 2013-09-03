@@ -77,9 +77,6 @@ class TestScripts(lib.ITest):
         self.assertEquals("%s.py" % uuid, ofile.name.val)
         return svc, ofile
 
-    # This test is failing due to the bug referred to in
-    # testDelete11371
-    @pytest.mark.xfail(reason="ticket 11371")
     def testDelete6905(self):
         """
         Delete of official scripts was broken in 4.3.2.
@@ -87,10 +84,13 @@ class TestScripts(lib.ITest):
         svc, ofile = self.testUpload2562()
         svc.deleteScript(ofile.id.val)
 
-    @pytest.mark.xfail(reason="ticket 11371")
     def testDelete11371(self):
         """
         Delete of official scripts was broken in 4.4.8.
+
+        The fix to ticket 11371 should cause this test to pass
+        and enable testDelete6905 to run without causing later
+        tests to fail.
         """
         # First upload a number of scripts to a single directory
         noOfScripts = 5
