@@ -33,6 +33,7 @@ start() {
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web start &> /dev/null && echo -n ' OMERO.web'
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
+        echo
 }
 
 stop() {
@@ -40,6 +41,7 @@ stop() {
 	sudo -iu ${OMERO_USER} ${OMERO_HOME}/bin/omero web stop &> /dev/null && echo -n ' OMERO.web'
 	RETVAL=$?
 	[ "$RETVAL" = 0 ]
+        echo
 }
 
 status() {
