@@ -10,6 +10,8 @@ export OMERO_JOB=${OMERO_JOB:-"OMERO-stable-ice34"}
 export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase.vdi"}
 export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS:-""}
 
+export DELETE_BUILD_VM=${DELETE_BUILD_VM:-"1"}
+
 set -e -u -x
 
 VBOX="VBoxManage --nologo"
@@ -195,4 +197,6 @@ echo "Network up after $ATTEMPTS tries"
 installvm
 
 bash export_ova.sh ${VMNAME}
-deletevm
+if [ "$DELETE_BUILD_VM" -eq 1 ]; then
+    deletevm
+fi
