@@ -11,6 +11,7 @@ export OMERO_BASE_IMAGE=${OMERO_BASE_IMAGE:-"Debian-7.1.0-amd64-omerobase.vdi"}
 export OMERO_POST_INSTALL_SCRIPTS=${OMERO_POST_INSTALL_SCRIPTS:-""}
 
 export DELETE_BUILD_VM=${DELETE_BUILD_VM:-"1"}
+export KILL_VBOX=${KILL_VBOX:-"1"}
 
 set -e -u -x
 
@@ -168,7 +169,9 @@ function createvm ()
 
 checkbaseimage
 
-killallvbox
+if [ "$KILL_VBOX" -eq 1 ]; then
+    killallvbox
+fi
 
 deletevm
 
