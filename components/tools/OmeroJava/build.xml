@@ -35,6 +35,18 @@
         <echo>no-op</echo>
     </target>
 
+    <target name="compile" depends="pre-compile">
+        <echo>no-op</echo>
+    </target>
+
+    <target name="tools-init">
+        <echo>no-op</echo>
+    </target>
+
+    <target name="test-suite">
+        <echo>no-op</echo>
+    </target>
+
     <target name="pre-compile" depends="generate">
         <!-- These first tasks are "pseudo-compiles" copying in
         resources from other builds and jars to be packaged into
@@ -83,8 +95,6 @@
         </unjar>
     </target>
 
-    <target name="compile" depends="pre-compile"/>
-
     <target name="package" depends="compile">
     <!-- depending on compile like lifecycle.package does -->
         <jar update="true" destfile="${target.dir}/${ivy.module}.jar">
@@ -97,8 +107,6 @@
             <fileset dir="${target.dir}/generated-classes"/>
         </jar>
     </target>
-
-    <target name="tools-init"/>
 
     <target name="tools-build" depends="tools-init,install"
         description="Creates all artifacts for tools/target"/>

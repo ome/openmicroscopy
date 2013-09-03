@@ -14,7 +14,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- * 
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -22,6 +22,9 @@
  *------------------------------------------------------------------------------
  */
 package integration.chgrp;
+
+import integration.AbstractServerTest;
+import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -42,105 +45,102 @@ import omero.sys.ParametersI;
 
 import org.testng.annotations.Test;
 
-import integration.AbstractServerTest;
-import integration.DeleteServiceTest;
-
 /**
  * Tests the move of data objects containing others members data.
  *
- * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since 4.4
  */
-public class HierarchyMoveCombinedDataTest
-	extends AbstractServerTest
-{
+public class HierarchyMoveCombinedDataTest extends AbstractServerTest {
 
-	/**
-	 * Moves a dataset containing an image owned by another user and an image 
-	 * owned.
-	 * 
-	 * @param source The permissions of the source group.
-     * @param target The permissions of the destination group.
-	 * @param sourceRole The user's role in the source group.
-	 * @param targetRole The user's role in the target group.
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	private void moveDatasetAndImage(String source, String target,
-			int sourceRole, int targetLevel)
-			throws Exception
-	{
-		//Step 1
-    	//Create a new group
-    	EventContext ctx = newUserAndGroup(source);
-    	//Create an image.
-    	Image img1 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
-    	long user1 = img1.getDetails().getOwner().getId().getValue();
-    	disconnect();
-    	
-    	
-    	//Step 2
-    	//create a new user and add it to the group
-    	ctx = newUserInGroup(ctx);
-    	switch (sourceRole) {
-			case GROUP_OWNER:
-				makeGroupOwner();
-				break;
-			case ADMIN:
-				logRootIntoGroup(ctx);
-		}
-        
+    /**
+     * Moves a dataset containing an image owned by another user and an image
+     * owned.
+     *
+     * @param source
+     *            The permissions of the source group.
+     * @param target
+     *            The permissions of the destination group.
+     * @param sourceRole
+     *            The user's role in the source group.
+     * @param targetRole
+     *            The user's role in the target group.
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    private void moveDatasetAndImage(String source, String target,
+            int sourceRole, int targetLevel) throws Exception {
+        // Step 1
+        // Create a new group
+        EventContext ctx = newUserAndGroup(source);
+        // Create an image.
+        Image img1 = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .createImage());
+        long user1 = img1.getDetails().getOwner().getId().getValue();
+        disconnect();
+
+        // Step 2
+        // create a new user and add it to the group
+        ctx = newUserInGroup(ctx);
+        switch (sourceRole) {
+            case GROUP_OWNER:
+                makeGroupOwner();
+                break;
+            case ADMIN:
+                logRootIntoGroup(ctx);
+        }
+
         loginUser(ctx);
-        //Create a dataset
+        // Create a dataset
         Dataset d = (Dataset) iUpdate.saveAndReturnObject(mmFactory
                 .simpleDatasetData().asIObject());
-        //link the dataset and the image
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setChild(img1);
-    	link.setParent(new DatasetI(d.getId().getValue(), false));
-    	iUpdate.saveAndReturnObject(link);
-    	
-    	Image img2 = (Image) iUpdate.saveAndReturnObject(
-    			mmFactory.createImage());
-    	link = new DatasetImageLinkI();
-    	link.setChild(img2);
-    	link.setParent(new DatasetI(d.getId().getValue(), false));
-    	iUpdate.saveAndReturnObject(link);
-    	
-    	long user2 = d.getDetails().getOwner().getId().getValue();
-    	assertTrue(user1 != user2);
-    	disconnect();
+        // link the dataset and the image
+        DatasetImageLink link = new DatasetImageLinkI();
+        link.setChild(img1);
+        link.setParent(new DatasetI(d.getId().getValue(), false));
+        iUpdate.saveAndReturnObject(link);
 
-    	//Step 3
-    	// Create a new group, the user is now a member of the new group.
+        Image img2 = (Image) iUpdate.saveAndReturnObject(mmFactory
+                .createImage());
+        link = new DatasetImageLinkI();
+        link.setChild(img2);
+        link.setParent(new DatasetI(d.getId().getValue(), false));
+        iUpdate.saveAndReturnObject(link);
+
+        long user2 = d.getDetails().getOwner().getId().getValue();
+        assertTrue(user1 != user2);
+        disconnect();
+
+        // Step 3
+        // Create a new group, the user is now a member of the new group.
         ExperimenterGroup g = newGroupAddUser(target, ctx.userId);
         loginUser(g);
-        
+
         disconnect();
-        
-        //Step 4
-        //reconnect to the source group.
+
+        // Step 4
+        // reconnect to the source group.
         switch (sourceRole) {
-	        case DATA_OWNER:
-	        case GROUP_OWNER:
-	        default:
-	            loginUser(ctx);
-	            break;
-	        case ADMIN:
-	            logRootIntoGroup(ctx.groupId);
+            case MEMBER:
+            case GROUP_OWNER:
+            default:
+                loginUser(ctx);
+                break;
+            case ADMIN:
+                logRootIntoGroup(ctx.groupId);
         }
-       // Create commands to move and create the link in target
+        // Create commands to move and create the link in target
         List<Request> list = new ArrayList<Request>();
         list.add(new Chgrp(DeleteServiceTest.REF_DATASET, d.getId().getValue(),
                 null, g.getId().getValue()));
-     
+
         DoAll all = new DoAll();
         all.requests = list;
-        
-        //Move the data
+
+        // Move the data
         doChange(all, g.getId().getValue());
-        
+
         // Check if the dataset has been removed.
         ParametersI param = new ParametersI();
         param.addId(d.getId().getValue());
@@ -150,26 +150,26 @@ public class HierarchyMoveCombinedDataTest
         List<Long> ids = new ArrayList<Long>();
         ids.add(img1.getId().getValue());
         ids.add(img2.getId().getValue());
-        
+
         param = new ParametersI();
         param.addIds(ids);
         sql = "select i from Image as i where i.id in (:ids)";
         List<IObject> results = iQuery.findAllByQuery(sql, param);
         assertEquals(results.size(), 0);
-        
+
         // log out from source group
         disconnect();
-        
-        //Step 5
-        //log into source group to perform the move
+
+        // Step 5
+        // log into source group to perform the move
         switch (sourceRole) {
-	        case DATA_OWNER:
-	        case GROUP_OWNER:
-	        default:
-	            loginUser(g);
-	            break;
-	        case ADMIN:
-	            logRootIntoGroup(g.getId().getValue());
+            case MEMBER:
+            case GROUP_OWNER:
+            default:
+                loginUser(g);
+                break;
+            case ADMIN:
+                logRootIntoGroup(g.getId().getValue());
         }
         param = new ParametersI();
         param.addId(d.getId().getValue());
@@ -177,8 +177,8 @@ public class HierarchyMoveCombinedDataTest
 
         // Check if the dataset is in the target group.
         assertNotNull(iQuery.findByQuery(sql, param));
-        
-        //Check
+
+        // Check
         param = new ParametersI();
         param.addIds(ids);
         sql = "select i from Image as i where i.id in (:ids)";
@@ -187,81 +187,75 @@ public class HierarchyMoveCombinedDataTest
         Iterator<IObject> i = results.iterator();
         int count = 0;
         while (i.hasNext()) {
-        	if (ids.contains(i.next().getId().getValue()))
-				count++;
-		}
+            if (ids.contains(i.next().getId().getValue()))
+                count++;
+        }
         assertEquals(count, ids.size());
         disconnect();
-	}
-	
+    }
+
     /**
-     * Test to move by the group's owner a dataset containing one image 
-     * owned by another group's member from a <code>RWRA</code> group to 
+     * Test to move by the group's owner a dataset containing one image owned by
+     * another group's member from a <code>RWRA</code> group to
      * <code>RWRA</code> group.
-     * 
-     * @throws Exception Thrown if an error occurred.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetByGroupOwnerRWRAtoRWRA()
-    	throws Exception
-    {
-    	moveDatasetAndImage("rwra--", "rwra--", GROUP_OWNER, DATA_OWNER);
+    public void testMoveDatasetByGroupOwnerRWRAtoRWRA() throws Exception {
+        moveDatasetAndImage("rwra--", "rwra--", GROUP_OWNER, MEMBER);
     }
-    
+
     /**
-     * Test to move by the group's owner a dataset containing one image 
-     * owned by another group's member from a <code>RWR</code> group to 
-     * <code>RWR</code> group.
-     * 
-     * @throws Exception Thrown if an error occurred.
+     * Test to move by the group's owner a dataset containing one image owned by
+     * another group's member from a <code>RWR</code> group to <code>RWR</code>
+     * group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetByGroupOwnerRWRtoRWR()
-    	throws Exception
-    {
-    	moveDatasetAndImage("rwr---", "rwr---", GROUP_OWNER, DATA_OWNER);
+    public void testMoveDatasetByGroupOwnerRWRtoRWR() throws Exception {
+        moveDatasetAndImage("rwr---", "rwr---", GROUP_OWNER, MEMBER);
     }
-    
+
     /**
-     * Test to move by the group's owner a dataset containing one image 
-     * owned by another group's member from a <code>RWR</code> group to 
-     * <code>RWR</code> group.
-     * 
-     * @throws Exception Thrown if an error occurred.
+     * Test to move by the group's owner a dataset containing one image owned by
+     * another group's member from a <code>RWR</code> group to <code>RWR</code>
+     * group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetByGroupOwnerRWRWtoRWRW()
-    	throws Exception
-    {
-    	moveDatasetAndImage("rwrw--", "rwrw--", GROUP_OWNER, DATA_OWNER);
+    public void testMoveDatasetByGroupOwnerRWRWtoRWRW() throws Exception {
+        moveDatasetAndImage("rwrw--", "rwrw--", GROUP_OWNER, MEMBER);
     }
-    
+
     /**
-     * Test to move by an admin a dataset containing one image 
-     * owned by another group's member from a <code>RWRA</code> group to 
-     * <code>RWRA</code> group.
-     * 
-     * @throws Exception Thrown if an error occurred.
+     * Test to move by an admin a dataset containing one image owned by another
+     * group's member from a <code>RWRA</code> group to <code>RWRA</code> group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetByAdminRWRWtoRWRW()
-    	throws Exception
-    {
-    	moveDatasetAndImage("rwrw--", "rwrw--", ADMIN, DATA_OWNER);
+    public void testMoveDatasetByAdminRWRWtoRWRW() throws Exception {
+        moveDatasetAndImage("rwrw--", "rwrw--", ADMIN, MEMBER);
     }
-    
+
     /**
-     * Test to move by the group's owner a dataset containing one image 
-     * owned by another group's member from a <code>RWR</code> group to 
-     * <code>RWR</code> group.
-     * 
-     * @throws Exception Thrown if an error occurred.
+     * Test to move by the group's owner a dataset containing one image owned by
+     * another group's member from a <code>RWR</code> group to <code>RWR</code>
+     * group.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
      */
     @Test
-    public void testMoveDatasetByMemberRWRWtoRWRW()
-    	throws Exception
-    {
-    	moveDatasetAndImage("rwrw--", "rwrw--", DATA_OWNER, DATA_OWNER);
+    public void testMoveDatasetByMemberRWRWtoRWRW() throws Exception {
+        moveDatasetAndImage("rwrw--", "rwrw--", MEMBER, MEMBER);
     }
 
 }
