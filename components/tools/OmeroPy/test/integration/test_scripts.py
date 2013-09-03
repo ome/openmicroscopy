@@ -11,6 +11,7 @@
 
 import os
 import time
+import pytest
 import unittest
 import test.integration.library as lib
 import omero
@@ -76,15 +77,17 @@ class TestScripts(lib.ITest):
         self.assertEquals("%s.py" % uuid, ofile.name.val)
         return svc, ofile
 
-    # This test is disabled due to the bug referred to in
+    # This test is failing due to the bug referred to in
     # testDelete11371
-    def DISABLEDtestDelete6905(self):
+    @pytest.mark.xfail(reason="ticket 11371")
+    def testDelete6905(self):
         """
         Delete of official scripts was broken in 4.3.2.
         """
         svc, ofile = self.testUpload2562()
         svc.deleteScript(ofile.id.val)
 
+    @pytest.mark.xfail(reason="ticket 11371")
     def testDelete11371(self):
         """
         Delete of official scripts was broken in 4.4.8.
