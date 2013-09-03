@@ -87,16 +87,6 @@
     <import file="${import.dir}/global.xml"/>
     <import file="${import.dir}/lifecycle.xml"/>
 
-    <macrodef name="run_py">
-        <attribute name="failonerror" default="true"/>
-        <element name="args" implicit="true"/>
-        <sequential>
-            <exec executable="python" failonerror="@{failonerror}">
-                <args/>
-            </exec>
-        </sequential>
-    </macrodef>
-
     <!-- set up the directory for insight reports. -->
     <target name="setup-dir">
         <mkdir dir="${reports.insight}" />
