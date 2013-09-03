@@ -136,13 +136,18 @@ function checkbaseimage ()
 
 function deletevm ()
 {
-	poweroffvm
-	
-	$VBOX list vms | grep "$VMNAME" && {
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
-		VBoxManage unregistervm "$VMNAME" --delete
-		VBoxManage closemedium disk "$VMNAME.vdi" --delete
-	} || true
+    poweroffvm
+
+    $VBOX list vms | grep "$VMNAME" && {
+        # Try this first because it should delete everything including whereas
+        # deleting the disks separately seems to leave some log files behind
+        VBoxManage unregistervm "$VMNAME" --delete
+        if [ $? -ne 0 ]; then
+            VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
+            VBoxManage unregistervm "$VMNAME" --delete
+            VBoxManage closemedium disk "$VMNAME.vdi" --delete
+        fi
+    } || true
 }
 
 function createvm ()
