@@ -5908,7 +5908,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             if not re.lookupRenderingDef(pid, ctx):
                 re.resetDefaults(ctx)
                 re.lookupRenderingDef(pid, ctx)
-            self._onResetDefaults(re.getRenderingDefId(self._conn.SERVICE_OPTS))
+            self._onResetDefaults(re.getRenderingDefId(ctx))
         else:
             re.loadRenderingDef(rdid, ctx)
         re.load(ctx)
@@ -6180,9 +6180,9 @@ class _ImageWrapper (BlitzObjectWrapper):
                 except omero.ConcurrencyException, ce:
                     logger.info( "ConcurrencyException: resetDefaults() failed in _prepareTB with backOff: %s" % ce.backOff)
                     return tb
-                tb.setPixelsId(pid, self._conn.SERVICE_OPTS)
+                tb.setPixelsId(pid, ctx)
                 try:
-                    rdid = tb.getRenderingDefId(self._conn.SERVICE_OPTS)
+                    rdid = tb.getRenderingDefId(ctx)
                 except omero.ApiUsageException:         # E.g. No rendering def (because of missing pyramid!)
                     logger.info( "ApiUsageException: getRenderingDefId() failed in _prepareTB")
                     return tb
