@@ -136,9 +136,7 @@ function deletevm ()
 	poweroffvm
 	
 	$VBOX list vms | grep "$VMNAME" && {
-		VBoxManage storageattach "$VMNAME" --storagectl "SATA CONTROLLER" --port 0 --device 0 --type hdd --medium none
 		VBoxManage unregistervm "$VMNAME" --delete
-		VBoxManage closemedium disk "$VMNAME.vdi" --delete
 	} || true
 }
 
@@ -197,3 +195,4 @@ echo "Network up after $ATTEMPTS tries"
 installvm
 
 bash export_ova.sh ${VMNAME}
+deletevm
