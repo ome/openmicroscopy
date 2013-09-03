@@ -23,7 +23,7 @@ setup script provided.
 Setting up
 ----------
 If you wish to set-up data, i.e. create a Project, dataset and
-import the same image twice in the dataset, you first need to run
+import 3 images in the dataset, you first need to run
 
 ./build.py test-compile
 then

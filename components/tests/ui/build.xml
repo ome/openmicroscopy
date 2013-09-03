@@ -104,6 +104,7 @@
         <unjar src="${basedir}/../../../target/test-repository/common-test-${omero.version}.jar" dest="${target.images}">
             <patternset>
                 <include name="tiny*dv"/>
+                <include name="test.*"/>
             </patternset>
         </unjar>
         <exec executable="python" failonerror="${test.with.fail}">

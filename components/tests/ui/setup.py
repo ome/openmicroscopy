@@ -80,8 +80,6 @@ def main(args):
     import_args.append(args[0])
     print import_args
     cli.invoke(import_args, strict=True)
-    #import the image twice.
-    cli.invoke(import_args, strict=True)
 
 
 if __name__ == '__main__':
