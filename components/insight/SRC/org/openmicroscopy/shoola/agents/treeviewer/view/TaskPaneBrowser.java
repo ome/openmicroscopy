@@ -89,12 +89,14 @@ class TaskPaneBrowser
 	 * Creates a new instance.
 	 * 
 	 * @param browser The browser to host.
+	 * @param name What kind of entity this task pane browses.
 	 */
-	TaskPaneBrowser(Object browser)
+	TaskPaneBrowser(Object browser, String name)
 	{
 		super();
 		this.browser = browser;
 		initialize();
+		setName(name + " browser");
 	}
 	
 	/**
