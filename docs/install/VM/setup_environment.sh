@@ -2,6 +2,7 @@
 
 set -e -u -x
 
+chmod a+rx $HOME
 echo "export OMERO_PREFIX=$OMERO_PREFIX" >> ~/.bashrc
 echo 'export PATH=$PATH:$OMERO_PREFIX/bin' >> ~/.bashrc
 
