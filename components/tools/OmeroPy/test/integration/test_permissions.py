@@ -9,6 +9,7 @@
 
 """
 
+import pytest
 import unittest
 import test.integration.library as lib
 import omero
@@ -560,6 +561,7 @@ class TestPermissions(lib.ITest):
     # ==============================================
 
     # See ticket 11374
+    @pytest.mark.xfail(reason="ticket 11374")
     def testSaveWithNegOneExplicit(self):
 
         # Get a user and services
@@ -598,6 +600,7 @@ class TestPermissions(lib.ITest):
                 update.saveAndReturnObject, tag, all_context)
 
     # See ticket 11374
+    @pytest.mark.xfail(reason="ticket 11374")
     def testSaveWithNegBadLink(self): # ticket:8194
 
         # Get a user and services
@@ -627,6 +630,7 @@ class TestPermissions(lib.ITest):
 
     # The following test is spun off from the one above Without
     # the -1 a GSV should be raised. See ticket 11375
+    @pytest.mark.xfail(reason="ticket 11375")
     def testSaveBadLink(self):
 
         # Get a user and services

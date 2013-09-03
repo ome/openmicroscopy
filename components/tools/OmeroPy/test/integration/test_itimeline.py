@@ -11,6 +11,7 @@
 """
 import time
 import datetime
+import pytest
 import unittest
 import test.integration.library as lib
 import omero
@@ -212,12 +213,12 @@ class TestITimeline(lib.ITest):
         res = M(None, ['TagAnnotation'], None, p, {"omero.group": "-1"})
         self.assert_(len(res) > 0)
 
-    # WON'T FIX
-    # This test relates to a ticket that has not yet been resoilved
+    # This test relates to a ticket that has not yet been resolved
     # http://trac.openmicroscopy.org/ome/ticket/1225
     # If the ticket is still valid then this test should presumably pass
     # after the ticket is closed but not before then. If the issue is not
     # to be addressed then this test should be removed.
+    @pytest.mark.xfail(reason="ticket 1225")
     def test1225(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         update = self.root.sf.getUpdateService()
