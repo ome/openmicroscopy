@@ -2186,6 +2186,46 @@ class _BlitzGateway (object):
 
         return self.getObjects("Screen", params=params)
     
+    def listOrphans (self, obj_type, eid=None, params=None): 
+        """
+        List orphaned Datasets, Images, Plates controlled by the security system, 
+        Optionally filter by experimenter 'eid'
+
+        @param obj_type:    'Dataset', 'Image', 'Plate'
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
+        @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
+        @return:            Generator yielding Datasets
+        @rtype:             L{DatasetWrapper} generator
+
+        """
+
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+
+        if params is None:
+            params = omero.sys.ParametersI()
+
+        if eid is not None:
+            params.exp(eid)
+
+        query, params, wrapper = self.buildQuery(obj_type, params=params)
+
+        query += " and not exists (select obl from %s as obl where " \
+                 "obl.child=obj.id)" % ( links[obj_type][0])
+
+        if obj_type == 'Image':
+            query += " and not exists ( select ws from WellSample as ws "\
+                     "where ws.image=obj.id "
+            if eid is not None:
+                query += " and ws.details.owner.id=:eid "
+            query += ")"
+
+        result = self.getQueryService().findAllByQuery(query, params, self.SERVICE_OPTS)
+        for r in result:
+            yield wrapper(self, r)
     #################################################
     ## IAdmin
     
