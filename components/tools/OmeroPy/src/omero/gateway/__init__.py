@@ -2212,9 +2212,9 @@ class _BlitzGateway (object):
             params.exp(eid)
 
         query, params, wrapper = self.buildQuery(obj_type, params=params)
-
-        query += " and not exists (select obl from %s as obl where " \
-                 "obl.child=obj.id)" % ( links[obj_type][0])
+        query += "where" not in query and " where " or " and "
+        query += " not exists (select obl from %s as obl where " \
+                 "obl.child=obj.id) " % ( links[obj_type][0])
 
         if obj_type == 'Image':
             query += " and not exists ( select ws from WellSample as ws "\
