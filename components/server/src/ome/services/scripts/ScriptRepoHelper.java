@@ -512,7 +512,7 @@ public class ScriptRepoHelper {
 
         simpleDelete(null, ex, p, id);
 
-        FileUtils.deleteQuietly(new File(dir, file.getPath()));
+        FileUtils.deleteQuietly(new File(dir, file.getPath() + file.getName()));
 
         return true;
     }
