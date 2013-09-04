@@ -4181,7 +4181,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         @type:      Long
         """
         
-        return self._obj.longValue and self._obj.longValue.val or None
+        return unwrap(self._obj.longValue)
 
     def setValue (self, val):
         """
