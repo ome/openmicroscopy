@@ -33,9 +33,12 @@ class TestBfPixelsStore(lib.ITest):
         shutil.copyfile(filename, self.repo_filename)
         # Get repository and the bf pixels store on the copied file
         repoMap = sess.sharedResources().repositories()
+        repoIndex = -1
         for r in range(len(repoMap.descriptions)):
             if repoMap.descriptions[r].name.val == dataDir.parent.name:
                 repoIndex = r
+        if repoIndex == -1:
+            self.fail("Repository not found")
 
         repoPrx = repoMap.proxies[repoIndex]
         self.bf = repoPrx.pixels(self.repo_filename)
