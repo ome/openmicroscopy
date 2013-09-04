@@ -2723,7 +2723,7 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None):
+    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
         zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
@@ -2743,39 +2743,45 @@ class _BlitzGateway (object):
             for p in planes:
                 # perform some manipulation on each plane
                 yield p
-        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT
+        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1)
 
         @param session          An OMERO service factory or equivalent with getQueryService() etc.
         @param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
         @param imageName        Name of new image
         @param description      Description for the new image
         @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
-
+        @param sourceImageId    If specified, copy this image with metadata, then add pixel data
         @return The new OMERO image: omero.model.ImageI
         """
         queryService = self.getQueryService()
         pixelsService = self.getPixelsService()
         rawPixelsStore = self.c.sf.createRawPixelsStore()    # Make sure we don't get an existing rpStore
-        #renderingEngine = self.createRenderingEngine()
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
         def createImage(firstPlane):
             """ Create our new Image once we have the first plane in hand """
-            # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
-            pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float', 
-                        'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
-            dType = firstPlane.dtype.name
-            if dType not in pTypes: # try to look up any not named above
-                pType = dType
-            else:
-                pType = pTypes[dType]
-            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-            if pixelsType is None:
-                raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
             sizeY, sizeX = firstPlane.shape
-            channelList = range(1, sizeC+1)
-            iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
+            if sourceImageId is not None:
+                channelList = range(sizeC)
+                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False)
+                img = queryService.get("Image",iId.val)
+                img.setName(rstring(imageName))
+                updateService.saveObject(img)
+            else:
+                # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
+                pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
+                            'float16':'float', 'float32':'float', 'float64':'double', 'complex_':'complex', 'complex64':'complex'}
+                dType = firstPlane.dtype.name
+                if dType not in pTypes: # try to look up any not named above
+                    pType = dType
+                else:
+                    pType = pTypes[dType]
+                pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+                if pixelsType is None:
+                    raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
+                channelList = range(1, sizeC+1)
+                iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
             imageId = iId.getValue()
             return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
 
