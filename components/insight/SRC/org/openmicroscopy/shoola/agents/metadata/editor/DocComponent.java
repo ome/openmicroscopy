@@ -406,7 +406,7 @@ class DocComponent
 	 * @param name The full name.
 	 * @return See above.
 	 */
-	private String formatTootTip(AnnotationData annotation, String name)
+	private String formatToolTip(AnnotationData annotation, String name)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
@@ -702,7 +702,7 @@ class DocComponent
 							EditorUtil.getPartialName(fileName)));
 				}
 						
-				label.setToolTipText(formatTootTip(f, s));
+				label.setToolTipText(formatToolTip(f, s));
 				Iterator<CustomizedFileFilter> i = FILTERS.iterator();
 				CustomizedFileFilter filter;
 				long id = f.getId();
@@ -735,35 +735,35 @@ class DocComponent
 			} else if (data instanceof TagAnnotationData) {
 				TagAnnotationData tag = (TagAnnotationData) data;
 				label.setText(tag.getTagValue());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof XMLAnnotationData) {
 				XMLAnnotationData tag = (XMLAnnotationData) data;
 				label.setText(EditorUtil.truncate(tag.getText(), TEXT_LENGTH));
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof TermAnnotationData) {
 				TermAnnotationData tag = (TermAnnotationData) data;
 				label.setText(tag.getTerm());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof LongAnnotationData) {
 				LongAnnotationData tag = (LongAnnotationData) data;
 				label.setText(tag.getContentAsString());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
 			} else if (data instanceof DoubleAnnotationData) {
 				DoubleAnnotationData tag = (DoubleAnnotationData) data;
 				label.setText(tag.getContentAsString());
-				label.setToolTipText(formatTootTip(tag, null));
+				label.setToolTipText(formatToolTip(tag, null));
 				if (tag.getId() < 0)
 					label.setForeground(
 						DataObjectListCellRenderer.NEW_FOREGROUND_COLOR);
@@ -1025,7 +1025,7 @@ class DocComponent
 			description = model.getAnnotationDescription(annotation);
 			if (annotation == null) return;
 			label.setText(text);
-			label.setToolTipText(formatTootTip(annotation, null));
+			label.setToolTipText(formatToolTip(annotation, null));
 			originalName = text;
 			originalDescription = description;
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
