@@ -438,9 +438,9 @@ class EditorComponent
 	
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setExistingAttachements(Collection)
+	 * @see Editor#setExistingAttachments(Collection)
 	 */
-	public void setExistingAttachements(Collection attachments)
+	public void setExistingAttachments(Collection attachments)
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
