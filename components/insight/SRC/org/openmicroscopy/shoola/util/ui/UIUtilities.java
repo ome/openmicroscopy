@@ -295,7 +295,7 @@ public class UIUtilities
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
 	/** The standard multiplier prefixes. */
-	private static final String UNIT_PREFIXES = "kMGTPE";
+	private static final String UNIT_PREFIXES = "KMGTPE";
 
 	private static final List<String> CHARACTERS;
 	
