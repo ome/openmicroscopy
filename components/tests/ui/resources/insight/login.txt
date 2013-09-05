@@ -1,6 +1,7 @@
 *** Settings ***
 
 Library  SwingLibrary
+Library  String
 
 
 *** Keywords ***
@@ -32,7 +33,7 @@ First Login
         [Documentation]            start up Insight and log in to an OMERO server
         [Arguments]                ${user}                          ${pass}           ${host}         ${port}
         Start Application          org.openmicroscopy.shoola.Main
-        Set Jemmy Timeouts         10
+        Set Jemmy Timeouts         15
         Select Window              login window
         Button Should Be Enabled   config server button
         ${previous host}=          Get Text Field Value             server name text pane
@@ -41,7 +42,7 @@ First Login
         Type Into Text Field       username field                   ${user}
         Type Into Text Field       password field                   ${pass}
         Push Button                login button
-        Sleep                      5s
+        Sleep                      15s
         Return To Login
 
 Log In As
