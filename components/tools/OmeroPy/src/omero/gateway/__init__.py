@@ -2723,7 +2723,7 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql,p,self.SERVICE_OPTS):
             yield AnnotationWrapper._wrap(self, e)
 
-    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None):
+    def createImageFromNumpySeq (self, zctPlanes, imageName, sizeZ=1, sizeC=1, sizeT=1, description=None, dataset=None, sourceImageId=None, channelList=None):
         """
         Creates a new multi-dimensional image from the sequence of 2D numpy arrays in zctPlanes.
         zctPlanes should be a generator of numpy 2D arrays of shape (sizeY, sizeX) ordered
@@ -2733,9 +2733,10 @@ class _BlitzGateway (object):
         sizeZ = original.getSizeZ()
         sizeC = original.getSizeC()
         sizeT = original.getSizeT()
+        clist = range(sizeC)
         zctList = []
         for z in range(sizeZ):
-            for c in range(sizeC):
+            for c in clist:
                 for t in range(sizeT):
                     zctList.append( (z,c,t) )
         def planeGen():
@@ -2743,7 +2744,7 @@ class _BlitzGateway (object):
             for p in planes:
                 # perform some manipulation on each plane
                 yield p
-        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1)
+        createImageFromNumpySeq (planeGen(), imageName, sizeZ=sizeZ, sizeC=sizeC, sizeT=sizeT, sourceImageId=1, channelList=clist)
 
         @param session          An OMERO service factory or equivalent with getQueryService() etc.
         @param zctPlanes        A generator of numpy 2D arrays, corresponding to Z-planes of new image.
@@ -2751,6 +2752,7 @@ class _BlitzGateway (object):
         @param description      Description for the new image
         @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
         @param sourceImageId    If specified, copy this image with metadata, then add pixel data
+        @param channelList      Copies metadata from these channels in source image (if specified). E.g. [0,2]
         @return The new OMERO image: omero.model.ImageI
         """
         queryService = self.getQueryService()
@@ -2759,11 +2761,14 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
-        def createImage(firstPlane):
+        def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
             sizeY, sizeX = firstPlane.shape
             if sourceImageId is not None:
-                channelList = range(sizeC)
+                if channelList is not None:
+                    pass
+                else:
+                    channelList = range(sizeC)
                 iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False)
                 img = queryService.get("Image",iId.val)
                 img.setName(rstring(imageName))
@@ -2780,7 +2785,7 @@ class _BlitzGateway (object):
                 pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
                 if pixelsType is None:
                     raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
-                channelList = range(1, sizeC+1)
+                channelList = range(sizeC)
                 iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
             imageId = iId.getValue()
             return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
@@ -2799,7 +2804,7 @@ class _BlitzGateway (object):
                     for theT in range(sizeT):
                         plane = zctPlanes.next()
                         if image == None:   # use the first plane to create image.
-                            image = createImage(plane)
+                            image = createImage(plane, channelList)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
                             rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
                         uploadPlane(plane, theZ, theC, theT)
