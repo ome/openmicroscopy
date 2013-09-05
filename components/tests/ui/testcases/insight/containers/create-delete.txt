@@ -99,7 +99,7 @@ Create And Delete Orphaned Dataset
 
 Create And Delete Dataset In Project
         [Documentation]                create and delete a dataset in a project
-        ${dataset name}=               Get Time
+        ${dataset name}=               Get Time             return year
         Select Window                  tree viewer window
         Expand Browser                 project
         ${project path}=               Select Project
