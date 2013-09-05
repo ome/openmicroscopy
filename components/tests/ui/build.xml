@@ -158,12 +158,20 @@
         </for>
     </target>
 
-    <!-- run the tests in the specified folder -->
+    <!-- run the tests in the specified folder or run the speficied test. -->
     <target name="run_folder_insight" depends="setup-dir">
-        <var name="filename" value="${FOLDER}"/>
-        <var name="output" value="${reports.insight}/${filename}"/>
-        <mkdir dir="${output}" />
-        <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
+        <var name="filename" value="${TEST}"/>
+        <if>
+            <available file="${basedir}/testcases/insight/${filename}" type="dir"/>
+            <then>
+                <var name="output" value="${reports.insight}/${filename}"/>
+                <mkdir dir="${output}" />
+                <run_jybot failonerror="${test.with.fail}" filename="testcases/insight/${filename}" output="${output}"/>
+            </then>
+            <else>
+                <antcall target="run_single_insight" inheritRefs="true" inheritAll="true"/>
+            </else>
+        </if>
     </target>
 
     <!-- run the specified test -->
@@ -177,16 +185,13 @@
     </target>
 
     <!--  run the insight tests -->
-    <target name="ui-test-insight" depends="setup-dir">
-        <if><isset property="FOLDER"/><then>
+    <target name="ui-test-insight">
+        <if><isset property="TEST"/><then>
             <antcall target="run_folder_insight" inheritRefs="true" inheritAll="true"/></then>
-            <elseif><isset property="TEST"/><then>
-            <antcall target="run_single_insight" inheritRefs="true" inheritAll="true"/></then>
-            </elseif>
             <else>
                 <antcall target="run_all_insight" inheritRefs="true" inheritAll="true"/>
             </else>
-        </if>  
+        </if>
     </target>
 
     <!--  run all the web tests -->
