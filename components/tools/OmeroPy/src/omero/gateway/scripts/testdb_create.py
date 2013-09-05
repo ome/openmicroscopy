@@ -9,7 +9,7 @@
 
 """
 
-import unittest, os
+import os
 import omero
 from omero.rtypes import rstring
 
@@ -42,11 +42,12 @@ dbhelpers.IMAGES = {
 }
 
 
-class GTest(unittest.TestCase):
+class TestDBHelper(object):
 
-    def setUp(self, skipTestDB=False):
+    def setUp(self, skipTestDB=False, skipTestImages=True):
         self.tmpfiles = []
         self._has_connected = False
+        self._last_login = None
         self.doDisconnect()
         self.USER = dbhelpers.USERS['user']
         self.AUTHOR = dbhelpers.USERS['author']
@@ -59,31 +60,37 @@ class GTest(unittest.TestCase):
         finally:
             gateway.seppuku()
 
-        self.prepTestDB(onlyUsers=skipTestDB)
+        self.prepTestDB(onlyUsers=skipTestDB, skipImages=skipTestImages)
         self.doDisconnect()
 
     def doConnect (self):
         if not self._has_connected:
             self.gateway.connect()
             self._has_connected = True
-        self.assert_(self.gateway.isConnected(), 'Can not connect')
-        self.failUnless(self.gateway.keepAlive(), 'Could not send keepAlive to connection')
+        assert self.gateway.isConnected(), 'Can not connect'
+        assert self.gateway.keepAlive(), 'Could not send keepAlive to connection'
+        self.gateway.setGroupForSession(self.gateway.getEventContext().memberOfGroups[0])
     
     def doDisconnect(self):
         if self._has_connected and self.gateway:
             self.doConnect()
             self.gateway.seppuku()
-            self.assert_(not self.gateway.isConnected(), 'Can not disconnect')
+            assert not self.gateway.isConnected(), 'Can not disconnect'
         self.gateway = None
         self._has_connected = False
+        self._last_login = None
 
     def doLogin (self, user=None, groupname=None):
+        l = (user, groupname)
+        if self._has_connected and self._last_login == l:
+            return self.doConnect()
         self.doDisconnect()
         if user:
             self.gateway = dbhelpers.login(user, groupname)
         else:
             self.gateway = dbhelpers.loginAsPublic()
         self.doConnect()
+        self._last_login = l
 
     def loginAsAdmin (self):
         self.doLogin(self.ADMIN)
@@ -124,35 +131,35 @@ class GTest(unittest.TestCase):
     def getTestDataset2 (self, project=None):
         return dbhelpers.getDataset(self.gateway, 'testds2', project)
 
-    def getTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'testimg1', dataset)
+    def getTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'testimg1', forceds=dataset, autocreate=autocreate)
 
     def getTestImage2 (self, dataset=None):
         return dbhelpers.getImage(self.gateway, 'testimg2', dataset)
 
-    def getBadTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'badimg', dataset)
+    def getBadTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'badimg', forceds=dataset, autocreate=autocreate)
 
-    def getTinyTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg', dataset)
+    def getTinyTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg', forceds=dataset, autocreate=autocreate)
 
-    def getTinyTestImage2 (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg2', dataset)
+    def getTinyTestImage2 (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg2', forceds=dataset, autocreate=autocreate)
 
-    def getTinyTestImage3 (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'tinyimg3', dataset)
+    def getTinyTestImage3 (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'tinyimg3', forceds=dataset, autocreate=autocreate)
 
-    def getBigTestImage (self, dataset=None):
-        return dbhelpers.getImage(self.gateway, 'bigimg', dataset)
+    def getBigTestImage (self, dataset=None, autocreate=False):
+        return dbhelpers.getImage(self.gateway, 'bigimg', forceds=dataset, autocreate=autocreate)
 
-    def prepTestDB (self, onlyUsers=False):
-        dbhelpers.bootstrap(onlyUsers=onlyUsers)
+    def prepTestDB (self, onlyUsers=False, skipImages=True):
+        dbhelpers.bootstrap(onlyUsers=onlyUsers, skipImages=skipImages)
 
     def waitOnCmd(self, client, handle):
         callback = omero.callbacks.CmdCallbackI(client, handle)
         callback.loop(10, 500) # throws on timeout
         rsp = callback.getResponse()
-        self.assert_(isinstance(rsp, omero.cmd.OK))
+        assert isinstance(rsp, omero.cmd.OK)
         return callback
 
 
