@@ -96,7 +96,7 @@ public class UploadPictureDialog
 	
 	/** The text of the dialog. */
 	private static final String TEXT = "Select the photo (JPEG, GIF or PNG) " +
-			"to upload. Maximum size 200Kb.";
+			"to upload. Maximum size 200 KiB.";
 	
 	/** Action ID indicating to upload the script to the server. */
 	private static final int	SAVE = 0;
@@ -236,7 +236,7 @@ public class UploadPictureDialog
 			return;
 		}
 		if (f.length() > MAX_SIZE) {
-			un.notifyInfo(TITLE, "The file is too big, maximum size 200Kb");
+			un.notifyInfo(TITLE, "The file is too big, maximum size 200 KiB");
 			return;
 		}
 		List<Object> l = new ArrayList<Object>();

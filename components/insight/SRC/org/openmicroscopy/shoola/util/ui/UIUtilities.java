@@ -83,7 +83,6 @@ import javax.swing.text.TabStop;
 
 
 //Third-party libraries
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -294,6 +293,9 @@ public class UIUtilities
 	
 	/** The maximum width of the text when wrapping up text. */
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
+
+	/** The standard multiplier prefixes. */
+	private static final String UNIT_PREFIXES = "kMGTPE";
 
 	private static final List<String> CHARACTERS;
 	
@@ -1683,26 +1685,29 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Converts the passed value into a string in Mb and returns a string 
-	 * version of it.
+	 * Converts the passed value into a string in KiB, Mib, etc.,
+	 * and returns a string version of it.
 	 * 
 	 * @param v The value to convert.
 	 * @return See above.
 	 */
 	public static String formatFileSize(long v)
 	{
-		if (v < 0) {
-		    v = 0;
-		}
+		final long prefixStep = 1 << 10;
 		final String s;
-		if (v < FileUtils.ONE_KB) 
+		if (v < 1) {
+		    s = "0 bytes";
+		} else if (v == 1) {
+		    s = "1 byte";
+		} else if (v < prefixStep) {
 			s = v + " bytes";
-		else if (v < FileUtils.ONE_MB)
-			s = String.format("%.1f Kb", (double) v / FileUtils.ONE_KB);
-		else if (v < FileUtils.ONE_GB) 
-			s = String.format("%.1f Mb", (double) v / FileUtils.ONE_MB);
-		else
-			s = String.format("%.1f Gb", (double) v / FileUtils.ONE_GB);
+		} else {
+		    double vd = v;
+		    final int maxIndex = UNIT_PREFIXES.length() - 1;
+		    int index;
+		    for (index = -1; vd >= prefixStep && index < maxIndex; vd /= prefixStep, index++);
+		    s = String.format("%.1f %ciB", vd, UNIT_PREFIXES.charAt(index));
+		}
 		return s;
 	}
 	
