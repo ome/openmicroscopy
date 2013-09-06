@@ -3180,7 +3180,7 @@ class TreeViewerComponent
 						node = i.next();
 						parent = node.getParentDisplay();
 						expNode = BrowserFactory.getDataOwner(node);
-						exp = (ExperimenterData) expNode.getUserObject();
+						exp = expNode == null ? null : (ExperimenterData) expNode.getUserObject();
 						if (exp == null) exp = model.getUserDetails();
 						node.setExpanded(true);
 						//mv.setRootObject(node.getUserObject(), exp.getId());
