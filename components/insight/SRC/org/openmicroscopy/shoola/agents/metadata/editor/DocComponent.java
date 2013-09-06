@@ -851,8 +851,8 @@ class DocComponent
 		}
 		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Download", "Select where to download the file.", null, true);
-		if (name != null && name.trim().length() > 0) 
+				"Download", "Select where to download the file.", null, true, true);
+		if (StringUtils.isNotBlank(name)) 
 			chooser.setSelectedFileFull(name);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
