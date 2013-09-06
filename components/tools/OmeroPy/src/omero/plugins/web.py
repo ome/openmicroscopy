@@ -116,18 +116,18 @@ class WebControl(BaseControl):
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
         unittest.add_argument("--texec", action="store", help = "Alternative executable.")
 
-        pytest = parser.add(sub, self.pytest, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
-        pytest.add_argument("--config", action="store", help = "ice.config location")
-        pytest.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
-        pytest.add_argument("--testpath", action="store", help = "Path for test collection (relative to basepath)")
-        pytest.add_argument("--string", action="store", help = "Only run tests including string.")
-        pytest.add_argument("--failfast", action="store_true", default=False, help = "Exit on first error")
-        pytest.add_argument("--verbose", action="store_true", default=False, help = "More verbose output")
-        pytest.add_argument("--quiet", action="store_true", default=False, help = "Less verbose output")
-        pytest.add_argument("--pdb", action="store_true", default=False, help = "Fallback to pdb on error")
-        pytest.add_argument('--cov', action='append', default=[],
+        test = parser.add(sub, self.test, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
+        test.add_argument("--config", action="store", help = "ice.config location")
+        test.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
+        test.add_argument("--testpath", action="store", help = "Path for test collection (relative to basepath)")
+        test.add_argument("--string", action="store", help = "Only run tests including string.")
+        test.add_argument("--failfast", action="store_true", default=False, help = "Exit on first error")
+        test.add_argument("--verbose", action="store_true", default=False, help = "More verbose output")
+        test.add_argument("--quiet", action="store_true", default=False, help = "Less verbose output")
+        test.add_argument("--pdb", action="store_true", default=False, help = "Fallback to pdb on error")
+        test.add_argument('--cov', action='append', default=[],
                             help='measure coverage for filesystem path (multi-allowed)')
-        pytest.add_argument('--cov-report', action='append', default=[],
+        test.add_argument('--cov-report', action='append', default=[],
                             choices=['term', 'term-missing', 'annotate', 'html', 'xml'],
                             help='type of report to generate: term, term-missing, annotate, html, xml (multi-allowed)')
     def config(self, args):
@@ -282,11 +282,11 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
-    def pytest(self, args):
+    def test(self, args):
         try:
             pass
         except:
-            self.ctx.die(121, 'pytest: wrong arguments, run pytest -h for a list')
+            self.ctx.die(121, 'test: wrong arguments, run test -h for a list')
 
         cargs = ['py.test']
 
