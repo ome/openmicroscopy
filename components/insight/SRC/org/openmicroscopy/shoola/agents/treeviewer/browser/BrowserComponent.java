@@ -76,6 +76,9 @@ import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import com.google.common.collect.Sets;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1904,6 +1907,14 @@ class BrowserComponent
 				node.removeFromParent();
 				view.reloadNode(parent);
 			}
+		}
+		/* ensure that the selected displays do not include any removed nodes */
+		final Set<TreeImageDisplay> oldSelected = Sets.newHashSet(getSelectedDisplays());
+		final Set<TreeImageDisplay> newSelected = Sets.newHashSet(oldSelected);
+		newSelected.removeAll(nodes);
+		if (!newSelected.equals(oldSelected)) {
+		    setSelectedDisplay(null);
+		    setSelectedDisplays(newSelected.toArray(new TreeImageDisplay[newSelected.size()]), false);
 		}
 	}
 

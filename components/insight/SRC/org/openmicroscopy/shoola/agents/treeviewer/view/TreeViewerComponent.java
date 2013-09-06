@@ -45,11 +45,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 //Third-party libraries
+import org.apache.commons.collections.CollectionUtils;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
@@ -329,7 +329,7 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
