@@ -30,6 +30,9 @@
         });
         // Loading Scripts with AJAX for drop-down menu, (only the first time we click)
         // based on example at http://css-tricks.com/2282-simple-jquery-dropdowns/
+
+        $("#scriptList").on("click", ".sub_menu a", OME.openScriptWindow);
+
         $("#scriptButton").click(function(e){
             // show menu - load if empty
             $('#scriptList').css('visibility', 'visible');
@@ -37,12 +40,28 @@
                 var $scriptLink = $(this);
                 var $scriptSpinner = $("#scriptSpinner").show();
                 var script_list_url = $(this).attr('href');
-                $("#scriptList").load(script_list_url, function(){
-                    $("ul.sub_menu li:has(ul)").find("a:first").addClass("menuItem");
-                    // bind links to OME.openPopup
-                    $("#scriptList.sub_menu a").click(OME.openScriptWindow);
+                $.get(script_list_url, function(data) {
+
+                    var build_ul = function(script_data) {
+                        var html = "";
+                        for (var i=0; i<script_data.length; i++) {
+                            var li = script_data[i];   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                            if (li.id) {
+                                html += "<li><a href='{% url webindex %}script_ui/"+ li.id + "/'>" + li.name + "</a></li>";
+                            } else {
+                                html += "<li><a href='#'>" + li.name + "</a>";
+                                html += "<ul>" + build_ul(li.ul) + "</ul>";
+                                html += "</li>";
+                            }
+                        }
+                        return html;
+                    }
+
+                    var html = build_ul(data);
+
+                    $('#scriptList').append($(html));
                     $scriptSpinner.hide();
-                });
+              }, "json");
             }
         });
         // on hover-out, hide drop-down menus
