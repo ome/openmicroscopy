@@ -100,6 +100,9 @@
             OME.setupAjaxError("{% url fsend %}");      // just in case!
 
             $('#script_form').ajaxForm({
+                beforeSubmit: function() {
+                    $("#submit").attr("disabled", "disabled");
+                },
                 success: function(data) {
                     window.opener.OME.showActivities();
                     self.close();
