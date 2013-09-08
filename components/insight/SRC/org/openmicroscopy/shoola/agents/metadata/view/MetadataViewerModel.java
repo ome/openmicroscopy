@@ -200,9 +200,9 @@ class MetadataViewerModel
 		StructuredDataResults data = getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
