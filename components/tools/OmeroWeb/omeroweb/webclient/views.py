@@ -2328,8 +2328,8 @@ def list_scripts (request, conn=None, **kwargs):
         displayName = name.replace("_", " ").replace(".py", "")
 
         # Option to remove /omero/ dirctory
-        if fullpath.startswith("/omero/"):
-            fullpath = fullpath.replace("/omero", "", 1);
+        #if fullpath.startswith("/omero/"):
+        #    fullpath = fullpath.replace("/omero", "", 1);
 
         # We want to build a hierarchical <ul> <li> structure
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
