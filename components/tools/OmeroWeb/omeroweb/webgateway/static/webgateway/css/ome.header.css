@@ -583,8 +583,47 @@
 				visibility: visible;
 			}
 			
+
+/**
+	.menulist has similar appearance to .dropdown (above) but different behaviour.
+	.dropdown affects the visibility of submenus on hover - only 2 levels supported.
+	.menulist uses clicks to show submenus - supports multiple levels.
+**/
 	
-	
+.menulist a {
+	font-size:1.3em;
+	width: 100%;
+	padding: .7em 0 .7em 8px;
+	display: block;
+	color: #333;
+}
+
+/* when we hover over a li, make sure all child li aren't highlighted */
+.menulist li:hover li {
+	background: #F2F2F2;
+	color: #333;
+}
+
+.menulist li:hover li a {
+	color: #333;
+}
+
+/* when we hover over an li (within a parent li) need to highlight */
+.menulist li:hover>a {
+	color: white !important;
+}
+
+.menulist li:hover {
+	color: white !important;
+	background:hsl(210,50%,50%) !important; /* Old browsers */
+	background-image:-moz-linear-gradient(top, hsl(210,50%,60%) 0%, hsl(210,50%,50%) 100%) !important; /* FF3.6+ */
+	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%,hsl(210,50%,60%)), color-stop(100%,hsl(210,50%,50%))) !important; /* Chrome,Safari4+ */
+	background-image:-webkit-linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* Chrome10+,Safari5.1+ */
+	background-image:-o-linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* Opera11.10+ */
+	background-image:-ms-linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* IE10+ */
+	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#6B8FB3', endColorstr='#5C7A99',GradientType=0 ) !important; /* IE6-9 */
+	background:linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* W3C */
+}
 	
 
 /* Basket */	
