@@ -205,7 +205,7 @@ public interface Editor
 	 * 
 	 * @param attachments The value to set.
 	 */
-	public void setExistingAttachements(Collection attachments);
+	public void setExistingAttachments(Collection attachments);
 	
 	/**
 	 * Sets either to single selection or to multiple selection.
