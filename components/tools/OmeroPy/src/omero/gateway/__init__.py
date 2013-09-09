@@ -2194,7 +2194,7 @@ class _BlitzGateway (object):
         @param obj_type:    'Dataset', 'Image', 'Plate'
         @param eid:         experimenter id
         @type eid:          Long
-        @param params:      omero.sys.Parameters, can be used for pagination, filtering etc.
+        @param params:      omero.sys.ParametersI, can be used for pagination, filtering etc.
         @param attributes:  Map of key-value pairs to filter results by. Key must be attribute of obj_type. E.g. 'name', 'ns'
         @return:            Generator yielding Datasets
         @rtype:             L{DatasetWrapper} generator
