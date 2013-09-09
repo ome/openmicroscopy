@@ -42,7 +42,7 @@ public class UpgradeCheckTest extends TestCase {
 
     @Test
     public void testNoResponse() throws Exception {
-        check = new UpgradeCheck(url, "test", "server");
+        check = new UpgradeCheck(url, "test", "test");
         check.run();
         assertTrue(check.isUpgradeNeeded());
         assertFalse(check.isExceptionThrown());
