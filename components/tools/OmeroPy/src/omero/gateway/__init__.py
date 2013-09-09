@@ -7093,13 +7093,14 @@ class _ImageWrapper (BlitzObjectWrapper):
                 pxc = 0
                 px = border
                 py += self.getSizeY() + border
-        if not self.isGreyscaleRenderingModel():
-            self.setActiveChannels(cmap)
-            img = self.renderImage(z,t, compression)
-            if fsize > 0:
-                draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "merged", font=font, fill="#fff")
-            canvas.paste(img, (px, py))
+        # Render merged panel with all current channels in color
+        self.setActiveChannels(cmap)
+        self.setColorRenderingModel()
+        img = self.renderImage(z,t, compression)
+        if fsize > 0:
+            draw = ImageDraw.ImageDraw(img)
+            draw.text((2,2), "merged", font=font, fill="#fff")
+        canvas.paste(img, (px, py))
         return canvas
 
     LP_PALLETE = [0,0,0,0,0,0,255,255,255]
