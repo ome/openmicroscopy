@@ -469,7 +469,7 @@
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
-               	jvmversion="1.5+"
+               	jvmversion="1.6+"
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <jarfileset dir="${dist.dir}" includes="${dist.jar.file}"/>
@@ -504,7 +504,7 @@
                 screenmenu="true" 
                 icon="${dist.osx.icon}"
                 stubfile="${dist.osx.stub}" 
-                jvmversion="1.5+"
+                jvmversion="1.6+"
                 vmoptions="${dist.vmparameters}">
       <jarfileset refid="app.libs"/>
       <javaproperty name="java.library.path" value="$JAVAROOT"/>
@@ -596,7 +596,7 @@
 	        screenmenu="true" 
 	        icon="${distEditor.osx.icon}"
 	        stubfile="${dist.osx.stub}" 
-	        jvmversion="1.5+"
+	        jvmversion="1.6+"
   	        vmoptions="${dist.vmparameters}"
   			arguments="containerEditor.xml">
 	  <jarfileset refid="app.libs"/>
@@ -677,7 +677,7 @@
         screenmenu="true" 
         icon="${distImporter.osx.icon}"
         stubfile="${dist.osx.stub}" 
-        jvmversion="1.5+"
+        jvmversion="1.6+"
   	    vmoptions="${dist.vmparameters}"
   arguments="containerImporter.xml">
   <jarfileset refid="app.libs"/>
