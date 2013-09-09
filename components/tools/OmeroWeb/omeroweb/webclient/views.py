@@ -2327,10 +2327,6 @@ def list_scripts (request, conn=None, **kwargs):
             continue
         displayName = name.replace("_", " ").replace(".py", "")
 
-        # Option to remove /omero/ dirctory
-        #if fullpath.startswith("/omero/"):
-        #    fullpath = fullpath.replace("/omero", "", 1);
-
         # We want to build a hierarchical <ul> <li> structure
         # Each <ul> is a {}, each <li> is either a script 'name': <id> or directory 'name': {ul}
 
@@ -2352,15 +2348,21 @@ def list_scripts (request, conn=None, **kwargs):
     def ul_to_list(ul):
         dir_list = []
         for name, value in ul.items():
+            if name == 'omero':     # For display purposes...
+                name = 'OMERO'
             if isinstance(value, dict):
                 # value is a directory
                 dir_list.append({'name': name, 'ul': ul_to_list(value)})
             else:
                 dir_list.append({'name': name, 'id':value})
-        dir_list.sort(key=lambda x:x['name'])
+        dir_list.sort(key=lambda x:x['name'].lower())
         return dir_list
 
     scriptList = ul_to_list(scriptMenu)
+
+    # If we have a single top-level directory, we can skip it
+    if len(scriptList) == 1:
+        scriptList = scriptList[0]['ul']
 
     return scriptList
 

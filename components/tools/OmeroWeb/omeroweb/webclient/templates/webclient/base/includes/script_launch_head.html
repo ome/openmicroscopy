@@ -41,7 +41,7 @@
             // we have clicked on <a> within a <li>, with sibling <ul>
             var $li = $a.parent(),
                 $ul = $li.children('ul');
-            if ($a.hasClass('menu_back')) {
+            if ($li.hasClass('menu_back')) {
                 $li.parent().parent().siblings().show();
                 $li.parent().hide();
                 $li.parent().siblings('a').show();
@@ -51,6 +51,16 @@
                 $a.hide();
             }
         });
+
+        // format script name by replacing '_' with ' ' and upper case first letters
+        var format_script_name = function(name) {
+            var words = name.split("_"),
+                upper = [];
+            for (var i=0; i<words.length; i++) {
+                upper.push(words[i].capitalize());
+            }
+            return upper.join(" ");
+        }
 
         $("#scriptButton").click(function(e){
             // show menu - load if empty
@@ -65,13 +75,14 @@
                     var build_ul = function(script_data) {
                         var html = "";
                         for (var i=0; i<script_data.length; i++) {
-                            var li = script_data[i];   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                            var li = script_data[i],   // dict of 'name' and 'ul' for menu items OR 'id' for scripts
+                                name = format_script_name(li.name);
                             if (li.id) {
-                                html += "<li><a href='{% url webindex %}script_ui/"+ li.id + "/'>" + li.name + "</a></li>";
+                                html += "<li><a href='{% url webindex %}script_ui/"+ li.id + "/'>" + name + "</a></li>";
                             } else {
-                                html += "<li><a href='#'>" + li.name + "</a>";
+                                html += "<li class='menuItem'><a href='#'>" + name + "</a>";
                                 // sub-menus have a 'BACK' button at the top
-                                html += "<ul><li><a href='#' class='menu_back'>BACK</a></li>" + build_ul(li.ul) + "</ul>";
+                                html += "<ul><li class='menu_back'><a href='#'>BACK</a></li>" + build_ul(li.ul) + "</ul>";
                                 html += "</li>";
                             }
                         }
