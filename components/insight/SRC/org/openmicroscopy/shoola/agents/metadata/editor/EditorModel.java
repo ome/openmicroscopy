@@ -1651,9 +1651,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection<FileAnnotationData> attachements = data.getAttachments();
-		if (attachements == null) return list;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments();
+		if (attachments == null) return list;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -1667,8 +1667,8 @@ class EditorModel
 		if (refObject instanceof WellSampleData) {
 			data = parent.getParentStructuredData();
 			if (data != null) {
-				attachements = data.getAttachments();
-				if (attachements != null) {
+				attachments = data.getAttachments();
+				if (attachments != null) {
 					while (i.hasNext()) {
 						f = i.next();
 						ns = f.getNameSpace();
@@ -1694,9 +1694,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
@@ -1715,9 +1715,9 @@ class EditorModel
 		if (getRefObject() instanceof WellSampleData) {
 			data = parent.getParentStructuredData();
 			if (data != null) {
-				attachements = data.getAttachments();
-				if (attachements != null) {
-					i = attachements.iterator();
+				attachments = data.getAttachments();
+				if (attachments != null) {
+					i = attachments.iterator();
 					while (i.hasNext()) {
 						f = i.next();
 						ns = f.getNameSpace();
@@ -3922,9 +3922,9 @@ class EditorModel
 		StructuredDataResults data = parent.getStructuredData();
 		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection<FileAnnotationData> attachements = data.getAttachments(); 
-		if (attachements == null) return l;
-		Iterator<FileAnnotationData> i = attachements.iterator();
+		Collection<FileAnnotationData> attachments = data.getAttachments(); 
+		if (attachments == null) return l;
+		Iterator<FileAnnotationData> i = attachments.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
