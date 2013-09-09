@@ -128,6 +128,13 @@ JSON File Format:
         loadj.add_argument("filename", nargs="?", help="The filename containing tag JSON")
         loadj.add_login_arguments()
 
+        links = parser.add(sub, self.link, help="Link annotation to an object")
+        links.add_argument("object", \
+            help="The object to link to. Should be of form <object_type>:<object_id>")
+        links.add_argument('tag_id', \
+            help="The tag annotation ID")
+        links.add_login_arguments()
+
 
     # Recurring parameter methods
     def add_newtag_params(self, parser):
@@ -506,6 +513,41 @@ JSON File Format:
         update_service = session.getUpdateService()
         update_service.saveArray(to_add)
 
+    def link(self, args):
+        """
+        Links an object to a tag annotation.
+        """
+        obj_type = None
+        obj_id = None
+        if args.object:
+            obj_type, obj_id = args.object.split(':')
+
+        if obj_type is None or obj_id is None:
+            self.ctx.err("Missing object or object not of form <object_type>:<object_id>")
+            sys.exit(1)
+
+        if not args.tag_id:
+            self.ctx.err("Missing tag_id")
+            sys.exit(1)
+
+        tag_id = args.tag_id
+
+        parameters = omero.sys.ParametersI()
+        parameters.addId(obj_id)
+
+        # FIXME: Do we want to wrap this in a try/except? What to check for?
+        client = self.ctx.conn(args)
+        session = client.getSession()
+        query_service = session.getQueryService()
+        update_service = session.getUpdateService()
+        annotation = query_service.find("TagAnnotation", tag_id)
+        obj = query_service.findByQuery(
+                "select o from %s as o " \
+                "outer join fetch o.annotationLinks " \
+                "where o.id = :id" % obj_type, parameters, \
+                {"omero.group": "-1"})
+        obj.linkAnnotation(annotation)
+        update_service.saveAndReturnObject(obj)
 
     def list(self, args):
         """
