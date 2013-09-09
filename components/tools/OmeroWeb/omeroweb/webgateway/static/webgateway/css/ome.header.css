@@ -598,6 +598,25 @@
 	color: #333;
 }
 
+.menulist li.menuItem>a {
+	background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
+}
+
+li.menu_back {
+	background: #d2d2d2;
+	border-bottom: solid #bbb 1px;
+}
+
+.menulist li:hover li.menu_back {
+	background: #d2d2d2;
+}
+
+li.menu_back a {
+	margin-left: 8px;
+	padding-left: 15px;
+	background:url(../img/dropdown_left_arrow.png) 0% center no-repeat;
+}
+
 /* when we hover over a li, make sure all child li aren't highlighted */
 .menulist li:hover li {
 	background: #F2F2F2;
@@ -606,12 +625,19 @@
 
 .menulist li:hover li a {
 	color: #333;
+
 }
 
 /* when we hover over an li (within a parent li) need to highlight */
 .menulist li:hover>a {
 	color: white !important;
+	text-shadow:0 0px 0 white !important;
 }
+
+.menulist li.menuItem:hover>a {
+	background:url(../img/dropdown_right_arrow_hover.png) 90% center no-repeat !important;
+}
+
 
 .menulist li:hover {
 	color: white !important;
@@ -623,6 +649,10 @@
 	background-image:-ms-linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* IE10+ */
 	filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#6B8FB3', endColorstr='#5C7A99',GradientType=0 ) !important; /* IE6-9 */
 	background:linear-gradient(top, hsl(210,50%,60%) 0%,hsl(210,50%,50%) 100%) !important; /* W3C */
+}
+
+.menulist li.menu_back:hover>a {
+	background:url(../img/dropdown_left_arrow_hover.png) 0% center no-repeat !important;
 }
 	
 
