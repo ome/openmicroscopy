@@ -295,7 +295,7 @@ public class UIUtilities
 	private static final int		WRAP_UP_MAX_WIDTH = 50;
 
 	/** The standard multiplier prefixes. */
-	private static final String UNIT_PREFIXES = "KMGTPE";
+	private static final String UNIT_PREFIXES = "KMGTPEZY";
 
 	private static final List<String> CHARACTERS;
 	
@@ -1706,7 +1706,7 @@ public class UIUtilities
 		    final int maxIndex = UNIT_PREFIXES.length() - 1;
 		    int index;
 		    for (index = -1; vd >= prefixStep && index < maxIndex; vd /= prefixStep, index++);
-		    s = String.format("%.1f %ciB", vd, UNIT_PREFIXES.charAt(index));
+		    s = String.format("%.1f %cB", vd, UNIT_PREFIXES.charAt(index));
 		}
 		return s;
 	}
