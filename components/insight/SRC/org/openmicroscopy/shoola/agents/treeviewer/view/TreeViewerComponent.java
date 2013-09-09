@@ -117,9 +117,6 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -3258,14 +3255,7 @@ class TreeViewerComponent
 				NodesFinder finder = new NodesFinder(klass, ids);
 				Browser browser = model.getSelectedBrowser();
 				browser.accept(finder);
-				final Set<TreeImageDisplay> nodesToRemove = finder.getNodes();
-				browser.removeTreeNodes(nodesToRemove);
-				final Set<TreeImageDisplay> oldSelected = ImmutableSet.copyOf(browser.getSelectedDisplays());
-				final Set<TreeImageDisplay> newSelected = Sets.difference(oldSelected, nodesToRemove);
-				if (!newSelected.equals(oldSelected)) {
-				    browser.setSelectedDisplay(null);
-				    browser.setSelectedDisplays(newSelected.toArray(new TreeImageDisplay[newSelected.size()]), false);
-				}
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1, null);
