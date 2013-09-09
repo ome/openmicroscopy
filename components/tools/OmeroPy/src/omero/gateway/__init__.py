@@ -2765,9 +2765,7 @@ class _BlitzGateway (object):
             """ Create our new Image once we have the first plane in hand """
             sizeY, sizeX = firstPlane.shape
             if sourceImageId is not None:
-                if channelList is not None:
-                    pass
-                else:
+                if channelList is None:
                     channelList = range(sizeC)
                 iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False)
                 img = queryService.get("Image",iId.val)
