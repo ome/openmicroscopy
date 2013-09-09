@@ -110,12 +110,6 @@ class WebControl(BaseControl):
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
         selenium.add_argument("browser", help = "E.g. firefox")
 
-        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'python -x manage.py test'")
-        unittest.add_argument("--config", action="store", help = "ice.config location")
-        unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
-        unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
-        unittest.add_argument("--texec", action="store", help = "Alternative executable.")
-
         test = parser.add(sub, self.test, "Developer use: Runs omero web tests (py.test)\n--cov* options depend on pytest-cov plugin")
         test.add_argument("--config", action="store", help = "ice.config location")
         test.add_argument("--basepath", action="store", help = "Base omeroweb path (default lib/python/omeroweb)")
@@ -319,41 +313,6 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
 
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(cargs, cwd = cwd)
-
-        
-    def unittest(self, args):
-        try:
-            ice_config = args.config
-            test = args.test
-            testpath = args.path
-        except:
-            self.ctx.die(121, "usage: unittest --config=/path/to/ice.config --test=appname.TestCase --path=/external/path/")
-            
-        if testpath is not None and testpath.find('/') >= 0:
-            path = testpath.split('/')
-            test = path[len(path)-1]
-            if testpath.startswith('/'):
-                location = "/".join(path[:(len(path)-1)])
-            else:
-                appbase = test.split('.')[0]
-                location = self.ctx.dir / "/".join(path[:(len(path)-1)])
-        
-        if testpath is None:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb"
-                    
-        if testpath is not None and len(testpath) > 1:
-            cargs = [testpath]
-        else:
-            if args.texec:
-                cargs = args.texec.split(' ')
-            else:
-                cargs = [sys.executable]
-        
-        cargs.extend([ "manage.py", "test"])
-        if test:
-            cargs.append(test)
-        self.set_environ(ice_config=ice_config)
-        rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
         try:
