@@ -2767,10 +2767,10 @@ class _BlitzGateway (object):
             if sourceImageId is not None:
                 if channelList is None:
                     channelList = range(sizeC)
-                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False)
-                img = queryService.get("Image",iId.val)
+                iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
+                img = queryService.get("Image",iId.val, self.SERVICE_OPTS)
                 img.setName(rstring(imageName))
-                updateService.saveObject(img)
+                updateService.saveObject(img, self.SERVICE_OPTS)
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
                 pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
