@@ -187,8 +187,8 @@
   }
 
   var rdChanSelHelper = function (e) {
-    if (!$('#rd-wblitz-rmodel').get(0).checked) {
-      // Grey model selected, select a single channel active
+    if (!$('#rd-wblitz-rmodel').get(0).checked && viewport.getProjection() != 'split') {
+      // Grey model selected and not in 'split' view, select a single channel active
       var t = $('[id^=rd-wblitz-ch]').filter(':checked');
       if (t.size() > 1) {
         if (e.checked) {
