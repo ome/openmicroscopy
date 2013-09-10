@@ -7031,7 +7031,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     def _renderSplit_channelLabel (self, channel):
-        return str(channel.getEmissionWave())
+        return str(channel.getLabel())
 
     def renderSplitChannelImage (self, z, t, compression=0.9, border=2):
         """
