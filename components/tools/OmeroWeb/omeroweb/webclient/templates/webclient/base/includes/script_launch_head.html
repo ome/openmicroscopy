@@ -36,7 +36,11 @@
         $("#scriptList").on("click", ".sub_menu a", function(event) {
             var $a = $(event.target),
                 script_url = $a.attr('href');
-            if (script_url != "#") return false;    // handled by openScriptWindow
+            if (script_url != "#") {
+                // Clicked on script - handled by OME.openScriptWindow above
+                $("#scriptList").hide();
+                return false;
+            }
 
             // we have clicked on <a> within a <li>, with sibling <ul>
             var $li = $a.parent(),
