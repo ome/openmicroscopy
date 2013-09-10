@@ -6,11 +6,17 @@
  */
 package ome.server.itests.sec;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ome.api.IAdmin;
+import ome.api.IQuery;
 import ome.api.ISession;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -102,5 +108,24 @@ public class SessionTest extends AbstractManagedContextTest {
         
         // But now if we try to get the session again, boom.
         s.getSession(uuid);
+    }
+
+    @Test(groups = "session-uuid")
+    public void testQuerySession() throws Exception {
+
+        final IAdmin a = this.factory.getAdminService();
+        final IQuery q = this.factory.getQueryService();
+        loginNewUser();
+        final String uuid = a.getEventContext().getCurrentSessionUuid();
+
+        loginNewUser();
+        final List<Object[]> rv = q.projection(
+                "select uuid from Session order by id desc", new Parameters().page(0, 100));
+
+        final Set<String> uuids = new HashSet<String>();
+        for (Object[] item : rv) {
+            uuids.add(item[0].toString());
+        }
+        assertFalse(uuids.contains(uuid));
     }
 }

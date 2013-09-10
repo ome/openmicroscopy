@@ -189,7 +189,7 @@ public class AllGroupsSecurityFilter extends AbstractSecurityFilter {
                 configGroup(ec, ec.getMemberOfGroupsList()));
         filter.setParameterList(leader_of_groups,
                 configGroup(ec, ec.getLeaderOfGroupsList()));
-
+        enableBaseFilters(sess, admin01, ec.getCurrentUserId());
     }
 
     // ~ Helpers
