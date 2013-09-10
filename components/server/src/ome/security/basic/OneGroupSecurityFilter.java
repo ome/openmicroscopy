@@ -184,7 +184,7 @@ public class OneGroupSecurityFilter extends AbstractSecurityFilter {
         filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
         filter.setParameter(current_group, groupId);
-
+        enableBaseFilters(sess, admin01, ec.getCurrentUserId());
     }
 
     private void throwNegOne() {

@@ -20,6 +20,7 @@ import ome.system.Roles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.hibernate.Filter;
 import org.hibernate.Session;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
@@ -69,7 +70,8 @@ public abstract class AbstractSecurityFilter extends FilterDefinitionFactoryBean
     }
 
     public void disable(Session sess) {
-        sess.disableFilter(getName());
+	    sess.disableFilter(getName());
+	    disableBaseFilters(sess);
     }
 
     public boolean isNonPrivate(EventContext c) {
@@ -87,4 +89,13 @@ public abstract class AbstractSecurityFilter extends FilterDefinitionFactoryBean
         return c.getCurrentShareId() != null;
     }
 
+    protected void enableBaseFilters(Session sess, int admin01, Long currentUserId) {
+        final Filter sessionFilter = sess.enableFilter("owner_or_admin");
+        sessionFilter.setParameter("is_admin", admin01);
+        sessionFilter.setParameter("current_user", currentUserId);
+	}
+
+    protected void disableBaseFilters(Session sess) {
+        sess.disableFilter("owner_or_admin");
+    }
 }
