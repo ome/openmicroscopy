@@ -36,9 +36,7 @@ imported in the dataset created the first time.
 OMERO.insight
 -------------
 
-Install Jython (2.5.4rc1) and within it use easy_install to install docutils and
-robotframework. Or, if you can get pip working, even better.
-Recommended to download the installer jar. See
+Install Jython (2.5.4rc1) using the installer JAR at
 http://www.jython.org/downloads.html
 
 If you use Eclipse, then for developing test scripts you may find the
@@ -58,6 +56,11 @@ incorporates a later revision of Abbot that corrects an issue with
 Java 7. Those wishing to repeat the adjustment on a Mac may wish to
 review the adjustment script and use homebrew to install wget and GNU
 sed: when the script runs correctly, no errors should be glimpsed.
+This procedure may not be necessary in the long term: those
+maintaining our Insight testing framework should periodically review
+https://github.com/robotframework/SwingLibrary/issues?state=open and
+watch issues like #41 and #47 whose resolution may suggest changes to
+our code.
 
 To actually run a tests in a given folder,
 
