@@ -105,7 +105,7 @@ public class AttachmentsLoader
      */
     public void handleResult(Object result) 
     {
-    	viewer.setExistingAttachements((Collection) result);
+    	viewer.setExistingAttachments((Collection) result);
     } 
     
 }
