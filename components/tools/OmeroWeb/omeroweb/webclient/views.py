@@ -2649,6 +2649,15 @@ def script_run(request, scriptId, conn=None, **kwargs):
 
     sId = long(scriptId)
 
+    try:
+        params = scriptService.getParams(sId)
+    except Exception, x:
+        if x.message and x.message.startswith("No processor available"):
+            # Delegate to run_script() for handling 'No processor available'
+            rsp = run_script(request, conn, sId, inputMap, scriptName='Script')
+            return HttpResponse(simplejson.dumps(rsp), mimetype='json')
+        else:
+            raise
     params = scriptService.getParams(sId)
     scriptName = params.name.replace("_", " ").replace(".py", "")
 
@@ -2771,9 +2780,9 @@ def run_script(request, conn, sId, inputMap, scriptName='Script'):
         jobId = str(time())      # E.g. 1312803670.6076391
         if x.message and x.message.startswith("No processor available"): # omero.ResourceError
             logger.info(traceback.format_exc())
-            error = None
+            error = "No Processor Available"
             status = 'no processor available'
-            message = 'No Processor Available: Please try again later'
+            message = "" # template displays message and link
         else:
             logger.error(traceback.format_exc())
             error = traceback.format_exc()
