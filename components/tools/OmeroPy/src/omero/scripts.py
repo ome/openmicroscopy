@@ -453,7 +453,8 @@ def parse_inputs(inputs_strings, params):
         inputs.update(rv)
 
     missing = MissingInputs()
-    for key, param in params.inputs.items():
+    for key in sorted(params.inputs, key=lambda name: params.inputs.get(name).grouping):
+        param = params.inputs.get(key)
         a = inputs.get(key, None)
         if not a:
             if param.useDefault:
