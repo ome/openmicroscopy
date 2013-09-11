@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.config;
 
 //Java imports
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 //Third-party libraries
 
@@ -67,7 +68,7 @@ class RegistryImpl
 {
     
     /** The name-value map. */
-    private HashMap<String, Object>	entriesMap;
+    private ConcurrentHashMap<String, Object>	entriesMap;
     
     /** Reference to container's service. */
     private EventBus                eb;
@@ -99,7 +100,7 @@ class RegistryImpl
     /** Creates an empty map. */
     RegistryImpl()
     {
-        entriesMap = new HashMap<String, Object>();
+        entriesMap = new ConcurrentHashMap<String, Object>();
     }
     
 	/** 

@@ -51,7 +51,7 @@ class KeepClientAlive
 {
 
 	/** Reference to the gateway. */
-	private OMEROGateway gateway;
+	private final OMEROGateway gateway;
 	
 	/** Reference to the container. */
 	private Container container;
@@ -61,9 +61,7 @@ class KeepClientAlive
 	{
 		
 		try {
-            synchronized (gateway) {
-            	gateway.keepSessionAlive();
-            }
+            gateway.keepSessionAlive();
         } catch (Throwable t) {
         	LogMessage message = new LogMessage();
         	message.append("Exception while keeping the services alive.\n");

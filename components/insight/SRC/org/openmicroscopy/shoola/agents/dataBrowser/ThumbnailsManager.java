@@ -197,6 +197,16 @@ public class ThumbnailsManager
     }
     
     /**
+     * Returns the percentage of processed thumbnails.
+     * 
+     * @return See above.
+     */
+    public int getPercentDone()
+    {
+    	return (int) ((double) processedIDs.size()/totalIDs*100);
+    }
+    
+    /**
      * Tells if every {@link ImageNode} in the visualization tree has been
      * assigned a thumbnail.
      * 

@@ -147,9 +147,8 @@ public class BirdEyeLoader
     public void update(DSCallFeedbackEvent fe)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        List l = (List) fe.getPartialResult();
-        if (l != null && l.size()  > 0) {
-        	ThumbnailData data = (ThumbnailData) l.get(0);
+        ThumbnailData data = (ThumbnailData) fe.getPartialResult();
+        if (data != null) {
         	BufferedImage image = (BufferedImage) data.getThumbnail();
         	if (image != null && ratio != 1)
         		image = Factory.magnifyImage(ratio, image);
