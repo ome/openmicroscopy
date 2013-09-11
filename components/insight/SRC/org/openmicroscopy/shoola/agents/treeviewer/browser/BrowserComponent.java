@@ -1347,7 +1347,7 @@ class BrowserComponent
     		refreshExperimenterData();
     		return;
     	}
-
+    	addComponent(null);
 	    TreeImageDisplay root = view.getTreeRoot();
 	    //root.setToRefresh(false);
 	    
