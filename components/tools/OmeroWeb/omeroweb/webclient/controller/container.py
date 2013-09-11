@@ -360,8 +360,6 @@ class BaseContainer(BaseController):
         else:
             eid = self.conn.getEventContext().userId
         
-        im_list = list(self.conn.listOrphans("Image", eid=eid, page=page))
-        
         params = omero.sys.ParametersI()
         if page is not None:
             params.page((int(page)-1)*settings.PAGE, settings.PAGE)
