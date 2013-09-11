@@ -1053,6 +1053,7 @@ class TreeViewerComponent
 			model.setSelectedGroupId(group.getId());
 			notifyChangeGroup(oldId);
 		}
+		model.setDataViewer(null);
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -1107,6 +1108,12 @@ class TreeViewerComponent
 			display.getUserObject() instanceof ExperimenterData &&
 			display.isToRefresh()) {
 			refreshTree();
+		}
+		Browser b = model.getSelectedBrowser();
+		if (b != null) {
+			if (model.getDataViewer() != null)
+				b.addComponent(model.getDataViewer().getGridUI());
+			else b.addComponent(null);
 		}
 	}
 
