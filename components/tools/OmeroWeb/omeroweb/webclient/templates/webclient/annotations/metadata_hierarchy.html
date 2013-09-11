@@ -40,9 +40,32 @@
 <div id="hierarchyTree" class="jstree jstree-default">
     {% if manager.image.countParents %}
     <ul>
+      {% with plate=manager.image.getPlate %}
+        {% if plate %}
+          <li rel="plate">
+            <a href="{% url webindex %}?show=plate-{{ plate.id }}">
+              <ins class="jstree-icon">
+                  <img src="{% static "webclient/image/folder_plate16.png" %}"/>
+              </ins>{{ plate.name|truncatebefor:"35" }}
+            </a>
+            {% if plate.countParents %}
+            <ul>
+              {% for screen in plate.listParents %}
+                <li rel="screen" class="jstree-last jstree-leaf">
+                  <a href="{% url webindex %}?show=screen-{{ screen.id }}">
+                    <ins class="jstree-icon">
+                        <img src="{% static "webclient/image/folder_screen16.png" %}"/>
+                    </ins>{{ screen.name|truncatebefor:"35" }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </li>
+        {% else %}
+
         {% for c in manager.image.listParents %}
             <li rel="dataset" class="clear jstree-last {% if c.countParents %}jstree-open{% else %}jstree-leaf{% endif %}">
-                <ins class="jstree-icon">&nbsp;</ins>
                 <a href="{% url webindex %}?show=dataset-{{ c.id }}">
                     <ins class="jstree-icon">
                         <img src="{% static "webclient/image/folder_image16.png" %}"/>
@@ -52,7 +75,6 @@
                 <ul>
                     {% for d in c.listParents %}
                         <li rel="project" class="jstree-last jstree-leaf">
-                            <ins class="jstree-icon">&nbsp;</ins>
                             <a href="{% url webindex %}?show=project-{{ d.id }}">
                                 <ins class="jstree-icon">
                                     <img src="{% static "webclient/image/folder16.png" %}"/>
@@ -64,6 +86,9 @@
                 {% endif %}
             </li>
         {% endfor %}
+
+        {% endif %}
+      {% endwith %}
     </ul>
     {% else %}
         <p>{% trans "Image is not contained in any datasets." %}</a>
