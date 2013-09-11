@@ -596,6 +596,10 @@
 	padding: .7em 0 .7em 8px;
 	display: block;
 	color: #333;
+	-webkit-transition:none !important;
+	   -moz-transition:none !important;
+	     -o-transition:none !important;
+	        transition:none !important;
 }
 
 .menulist li.menuItem>a {
