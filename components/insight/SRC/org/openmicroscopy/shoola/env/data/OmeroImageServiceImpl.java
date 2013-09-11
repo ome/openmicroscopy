@@ -555,7 +555,9 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 		}
-		return ioContainer;
+		//Check that the container still exist
+		return gateway.findIObject(ctx, ioContainer);
+		//return ioContainer;
 	}
 	
 	/**
