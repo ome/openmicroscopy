@@ -90,6 +90,7 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellSampleData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -379,7 +380,7 @@ class BrowserComponent
     	hasDataToSave(display);
     	TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
     	TreeImageDisplay exp = null;
-    	Object ho;
+    	Object ho = null;
     	if (display != null) {
     		ho = display.getUserObject();
     		if (ho instanceof ExperimenterData) {
@@ -389,10 +390,8 @@ class BrowserComponent
     			}
     		}
     	}
-    	addComponent(null);
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
-    	//if (display == null) view.setNullSelectedNode();
     	if (oldDisplay != null && oldDisplay.equals(display)) {
     		ho = oldDisplay.getUserObject();
     		if (ho instanceof PlateData)
