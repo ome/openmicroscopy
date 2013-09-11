@@ -2761,16 +2761,24 @@ class _BlitzGateway (object):
         containerService = self.getContainerService()
         updateService = self.getUpdateService()
 
+        import numpy
+
         def createImage(firstPlane, channelList):
             """ Create our new Image once we have the first plane in hand """
+            convertToType = None
             sizeY, sizeX = firstPlane.shape
             if sourceImageId is not None:
                 if channelList is None:
                     channelList = range(sizeC)
                 iId = pixelsService.copyAndResizeImage(sourceImageId, rint(sizeX), rint(sizeY), rint(sizeZ), rint(sizeT), channelList, None, False, self.SERVICE_OPTS)
-                img = queryService.get("Image",iId.val, self.SERVICE_OPTS)
-                img.setName(rstring(imageName))
-                updateService.saveObject(img, self.SERVICE_OPTS)
+                # need to ensure that the plane dtype matches the pixels type of our new image
+                img = self.getObject("Image", iId.getValue())
+                newPtype = img.getPrimaryPixels().getPixelsType().getValue()
+                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
+                if omeroToNumpy[newPtype] != firstPlane.dtype.name:
+                    convertToType = getattr(numpy, omeroToNumpy[newPtype])
+                img._obj.setName(rstring(imageName))
+                updateService.saveObject(img._obj, self.SERVICE_OPTS)
             else:
                 # need to map numpy pixel types to omero - don't handle: bool_, character, int_, int64, object_
                 pTypes = {'int8':'int8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'float_':'float', 'float8':'float',
@@ -2785,15 +2793,22 @@ class _BlitzGateway (object):
                     raise Exception("Cannot create an image in omero from numpy array with dtype: %s" % dType)
                 channelList = range(sizeC)
                 iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description, self.SERVICE_OPTS)
-            imageId = iId.getValue()
-            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0]
 
-        def uploadPlane(plane, z, c, t):
-            byteSwappedPlane = plane.byteswap();
+            imageId = iId.getValue()
+            return containerService.getImages("Image", [imageId], None, self.SERVICE_OPTS)[0], convertToType
+
+        def uploadPlane(plane, z, c, t, convertToType):
+            # if we're given a numpy dtype, need to convert plane to that dtype
+            if convertToType is not None:
+                p = numpy.zeros(plane.shape, dtype=convertToType)
+                p += plane
+                plane = p
+            byteSwappedPlane = plane.byteswap()
             convertedPlane = byteSwappedPlane.tostring();
             rawPixelsStore.setPlane(convertedPlane, z, c, t, self.SERVICE_OPTS)
 
         image = None
+        dtype = None
         channelsMinMax = []
         exc = None
         try:
@@ -2802,10 +2817,10 @@ class _BlitzGateway (object):
                     for theT in range(sizeT):
                         plane = zctPlanes.next()
                         if image == None:   # use the first plane to create image.
-                            image = createImage(plane, channelList)
+                            image, dtype = createImage(plane, channelList)
                             pixelsId = image.getPrimaryPixels().getId().getValue()
                             rawPixelsStore.setPixelsId(pixelsId, True, self.SERVICE_OPTS)
-                        uploadPlane(plane, theZ, theC, theT)
+                        uploadPlane(plane, theZ, theC, theT, dtype)
                         # init or update min and max for this channel
                         minValue = plane.min()
                         maxValue = plane.max()
