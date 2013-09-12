@@ -121,6 +121,8 @@ class AdminControl(BaseControl):
 
         Action("ice", """Drop user into icegridadmin console or execute arguments""")
 
+        Action("fixpyramids", """Remove empty pyramid pixels files""")
+
         Action("diagnostics", """Run a set of checks on the current, preferably active server""")
 
         Action("waitup", """Used by start after calling startasync to wait on status==0""", wait=True)
@@ -627,6 +629,35 @@ Examples:
             return self.ctx.call(command)
         else:
             rv = self.ctx.call(command)
+
+    @with_config
+    def fixpyramids(self, args, config):
+        self.check_access();
+        config = config.as_map()
+        omero_data_dir = '/OMERO'
+        try:
+            omero_data_dir = config['omero.data.dir']
+        except KeyError:
+            pass
+
+        # look for any pyramid files with length 0
+        # if there is no matching .*.tmp or .*.pyr_lock file, then
+        # the pyramid file will be removed
+
+        pixels_dir = os.path.join(omero_data_dir, "Pixels")
+        for f in os.listdir(pixels_dir):
+            pixels_file = os.path.join(pixels_dir, f)
+            length = os.path.getsize(pixels_file)
+            if length == 0 and f.endswith("_pyramid"):
+                delete_pyramid = True
+                for lockfile in os.listdir(pixels_dir):
+                    if lockfile.startswith("." + f) and (lockfile.endswith(".tmp") or lockfile.endswith(".pyr_lock")):
+                        delete_pyramid = False
+                        break
+
+                if delete_pyramid:
+                    self.ctx.out("Removing %s" % f)
+                    os.remove(pixels_file)
 
     @with_config
     def diagnostics(self, args, config):
