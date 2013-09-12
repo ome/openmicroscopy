@@ -31,6 +31,7 @@ import omero.grid.RepositoryPrx;
 import omero.grid.RepositoryPrxHelper;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
+import omero.util.ServantHolder;
 import omero.util.TieAware;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -172,6 +173,7 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
         final RawFileStorePrx rfsPrx = repoPrx.file(fileId, adjustedCtx);
         OpsDelegate ops = new OpsDelegate(be, rfsTie, this, rfsPrx);
         ops.setApplicationContext(ctx);
+        ops.setHolder(holder);
         tie.ice_delegate(ops);
         return true;
     }
