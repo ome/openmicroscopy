@@ -1668,6 +1668,8 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		} else {
+		    return false;
 		}
 		switch (group.getPermissions().getPermissionsLevel()) {
 			case GroupData.PERMISSIONS_GROUP_READ_WRITE:
