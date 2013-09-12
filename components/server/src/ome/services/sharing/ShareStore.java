@@ -106,7 +106,7 @@ public abstract class ShareStore {
     // =========================================================================
 
     public final byte[] parse(ShareData data) {
-        Ice.OutputStream os = Ice.Util.createOutputStream(ic);
+        Ice.OutputStream os = Ice.Util.createOutputStream(ic10);
         byte[] bytes = null;
         try {
             os.writeObject(data);
@@ -119,11 +119,7 @@ public abstract class ShareStore {
     }
 
     public final ShareData parse(long id, byte[] data) {
-        ShareData sd = parse(id, data, ic);
-        if (sd == null) {
-            sd = parse(id, data, ic10);
-            log.debug("Data found with 1.0 encoding");
-        }
+        ShareData sd = parse(id, data, ic10);
         return sd;
     }
 
