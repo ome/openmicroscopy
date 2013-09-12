@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import Ice.MarshalException;
 import Ice.ReadObjectCallback;
 import Ice.UnmarshalOutOfBoundsException;
 
@@ -149,6 +150,11 @@ public abstract class ShareStore {
                     Collections.<String, List<Long>> emptyMap(), Collections
                             .<Obj> emptyList(), false, 0L);
             // Eventually we'll need to handle conversion, etc. here or above
+        } catch (MarshalException me) {
+            // Likely a encoding issue. Return a null and let handling code
+            // do what it can with that.
+            log.warn("Share " + id + " cannot be unmarshalled. Returning null.");
+            return null;
         } finally {
             is.destroy();
         }
