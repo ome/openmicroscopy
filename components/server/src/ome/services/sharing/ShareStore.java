@@ -19,6 +19,7 @@ import ome.model.meta.Share;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
+import ome.services.util.IceUtil;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -44,15 +45,6 @@ public abstract class ShareStore {
     final protected Logger log = LoggerFactory.getLogger(this.getClass());
 
     final protected Ice.Communicator ic = Ice.Util.initialize();
-
-    /**
-     * {@link Ice.Communicator} configured to use the old (pre-Ice3.5)
-     * protocol. If the data fails to parse (i.e. a null share is returned),
-     * then this object will be used as a fallback.
-     */
-    final protected Ice.Communicator ic10 = Ice.Util.initialize(
-            new String[]{"--Ice.Default.EncodingVersion=1.0"}
-            );
 
     // User Methods
     // =========================================================================
@@ -106,7 +98,7 @@ public abstract class ShareStore {
     // =========================================================================
 
     public final byte[] parse(ShareData data) {
-        Ice.OutputStream os = Ice.Util.createOutputStream(ic10);
+        Ice.OutputStream os = IceUtil.createSafeOutputStream(ic);
         byte[] bytes = null;
         try {
             os.writeObject(data);
@@ -119,17 +111,12 @@ public abstract class ShareStore {
     }
 
     public final ShareData parse(long id, byte[] data) {
-        ShareData sd = parse(id, data, ic10);
-        return sd;
-    }
-
-    private ShareData parse(long id, byte[] data, Ice.Communicator ic) {
 
         if (data == null) {
             return null; // EARLY EXIT!
         }
 
-        Ice.InputStream is = Ice.Util.createInputStream(ic, data);
+        Ice.InputStream is = IceUtil.createSafeInputStream(ic, data);
         final ShareData[] shareData = new ShareData[1];
         try {
             is.readObject(new ReadObjectCallback() {
