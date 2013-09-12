@@ -91,20 +91,21 @@ class BrowserCanvas
             TextureCoords coords = new TextureCoords(0f, 0f, 1f, 1f);
 			Color c = ImageCanvas.BACKGROUND;
     		float xStart, yStart, xEnd = 0, yEnd;
-    		drawScaleBar(gl, model.getTiledImageSizeX(),
-    				model.getTiledImageSizeY());
-        	for (int i = 0; i < rows; i++) {
+    		final int totalWidth  = model.getTiledImageSizeX();
+    		final int totalHeight = model.getTiledImageSizeY();
+    		drawScaleBar(gl, totalWidth, totalHeight);
+    		for (int i = 0; i < rows; i++) {
     			for (int j = 0; j < columns; j++) {
     				index = i*columns+j;
     				tile = tiles.get(index);
     				r = tile.getRegion();
     				img = tile.getImage();
-    				xStart = (float) r.getX()/(r.getWidth()*columns);
+    				xStart = (float) r.getX() / totalWidth;
     				xEnd = 
-    					(float) (r.getX()+r.getWidth())/(r.getWidth()*columns);
-    				yStart = (float) r.getY()/(r.getHeight()*rows);
+    					(float) (r.getX()+r.getWidth()) / totalWidth;
+    				yStart = (float) r.getY() / totalHeight;
     				yEnd =
-    					(float) (r.getY()+r.getHeight())/(r.getHeight()*rows);
+    					(float) (r.getY()+r.getHeight()) / totalHeight;
     				if (img != null) {
     					if (texture == null) 
     						texture = TextureIO.newTexture(
