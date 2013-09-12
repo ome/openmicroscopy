@@ -18,8 +18,10 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.server.itests.AbstractManagedContextTest;
+import ome.server.itests.LoginInterceptor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 import org.testng.annotations.Test;
 
@@ -33,20 +35,34 @@ public class SessionTest extends AbstractManagedContextTest {
     public void testSimpleCreate() throws Exception {
 
         loginRoot();
-        Experimenter e = loginNewUser();
+        final Experimenter e = loginNewUser();
 
-        ISession service = this.factory.getServiceByClass(ISession.class);
-        Session s = service.createSession(new Principal(e.getOmeName(), "user",
-                "Test"), "ome");
+        final IAdmin a = iAdmin;
+        final ServiceFactory f = factory;
+        final LoginInterceptor aop = loginAop;
+        final boolean[] success = new boolean[1];
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                ISession service = f.getServiceByClass(ISession.class);
+                Session s = service.createSession(new Principal(e.getOmeName(), "user",
+                        "Test"), "ome");
 
-        // This is what then gets passed to the
-        loginAop.p = new Principal(s.getUuid(), "user", "Test");
+                // This is what then gets passed to the
+                aop.p = new Principal(s.getUuid(), "user", "Test");
 
-        // Now we should be able to do something.
-        EventContext ec = this.iAdmin.getEventContext();
-        assertEquals(ec.getCurrentUserName(), e.getOmeName());
+                // Now we should be able to do something.
+                EventContext ec = a.getEventContext();
+                AbstractManagedContextTest.assertEquals(
+                        ec.getCurrentUserName(), e.getOmeName());
 
-        service.closeSession(s);
+                service.closeSession(s);
+                success[0] = true;
+            }
+        };
+        t.start();
+        t.join();
+        assertTrue(success[0]);
     }
 
     @Test
