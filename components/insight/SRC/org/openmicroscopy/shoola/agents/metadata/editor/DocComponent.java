@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.metadata.editor.DocComponent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -81,6 +81,10 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+
 import pojos.AnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
@@ -131,21 +135,14 @@ class DocComponent
 	
 	/** Action id to open the annotation. */
 	private static final int DELETE = 4;
-	
+
 	/** Collection of filters supported. */
-	private static final List<CustomizedFileFilter> FILTERS;
-	
+	private static final ImmutableCollection<CustomizedFileFilter> FILTERS =
+	        ImmutableList.of(new TIFFFilter(), new JPEGFilter(), new PNGFilter(), new BMPFilter());
+
 	/** The maximum length of the text to display.*/
 	private static final int TEXT_LENGTH = 10;
-	
-	static {
-		FILTERS = new ArrayList<CustomizedFileFilter>();
-		FILTERS.add(new TIFFFilter());
-		FILTERS.add(new JPEGFilter());
-		FILTERS.add(new PNGFilter());
-		FILTERS.add(new BMPFilter());
-	}
-	
+
 	/** The annotation hosted by this component. */
 	private Object		data;
 	
