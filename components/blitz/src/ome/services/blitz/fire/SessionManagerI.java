@@ -300,6 +300,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 if (sf != null) {
                     Ice.Identity newId = new Ice.Identity(UUID.randomUUID().toString(), id.name);
                     msg.setProxy(sf.registerServant(newId, msg.getServant()));
+                    msg.setHolder(sf.holder);
                 }
             } else if (event instanceof DestroySessionMessage) {
                 DestroySessionMessage msg = (DestroySessionMessage) event;
