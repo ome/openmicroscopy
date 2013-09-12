@@ -128,4 +128,11 @@ public class SessionTest extends AbstractManagedContextTest {
         }
         assertFalse(uuids.contains(uuid));
     }
+
+    @Test(groups = "session-uuid")
+    public void testSessionContext() throws Exception {
+        final ISession s = this.factory.getSessionService();
+        loginNewUser();
+        assertNull(s.getMyOpenSessions().get(0).getDetails().contextAt(0));
+    }
 }
