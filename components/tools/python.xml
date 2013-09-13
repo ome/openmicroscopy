@@ -63,12 +63,16 @@ ice_compatibility="${versions.ice}"
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
-        <property name="suite_file" value="${basedir}/test/integration/integration_suite.py"/>
-        <run_py failonerror="${test.with.fail}">
+        <mkdir dir="${testreports.dir}"/>
+        <setup_py failonerror="${test.with.fail}">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
-            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
-            <arg file="${suite_file}"/>
-        </run_py>
+            <arg value="test"/>
+            <arg value="-v"/>
+            <arg value="-s"/>
+            <arg file="${basedir}/test"/>
+            <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
+            <!-- Could be made configurable via python-test-single -->
+        </setup_py>
     </target>
 
     <target name="python-install" unless="env.NOPYTHON">
