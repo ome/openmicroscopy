@@ -2,7 +2,7 @@
 /*
  * $Id$
  *
- *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -12,8 +12,10 @@ import static omero.rtypes.rlong;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +62,7 @@ import omero.model.StageLabel;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -746,6 +749,60 @@ public class PojosServiceTest extends AbstractServerTest {
         // Should only retrieve images from group2
         while (i.hasNext()) {
             assertEquals(i.next().getId().getValue(), image1.getId().getValue());
+        }
+    }
+
+    /**
+     * Tests that the pagination works correctly for
+     * {@link ome.api.IContainer#getImages(Class, Set, ome.parameters.Parameters)}.
+     * @throws Exception unexpected
+     */
+    @Test(groups = "ticket:9934")
+    public void testGetImagesPaged() throws Exception {
+        final int totalNumberOfImages = 12;
+        /* create a new dataset containing new images */
+        final long datasetId = iUpdate.saveAndReturnObject(mmFactory.simpleDatasetData().asIObject()).getId().getValue();
+        final List<Long> datasetIdList = Collections.<Long>singletonList(datasetId);
+        final Set<Long> imageIds = new HashSet<Long>(totalNumberOfImages);
+        for (int i = 0; i < totalNumberOfImages; i++) {
+            final Image image = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+            imageIds.add(image.getId().getValue());
+            final DatasetImageLink dil = new DatasetImageLinkI();
+            dil.setParent((Dataset) iQuery.find(Dataset.class.getName(), datasetId));
+            dil.setChild(image);
+            iUpdate.saveObject(dil);
+        }
+        /* check that the resulting image IDs are unique */
+        Assert.assertEquals(imageIds.size(), totalNumberOfImages,
+                "image IDs should be unique");
+        /* try various page sizes, make sure the total results set is as expected */
+        for (int pageSize = 1; pageSize < totalNumberOfImages + 2; pageSize++) {
+            /* note the IDs found by this set of pages */
+            final Set<Long> imageIdsPaged = new HashSet<Long>(totalNumberOfImages);
+            boolean nextIsEmpty = false;
+            int startImageIndex = 0;
+            while (true) {
+                /* per page */
+                final ParametersI parameters = new ParametersI().page(startImageIndex, pageSize);
+                final List<Image> pageOfImages = iContainer.getImages(Dataset.class.getName(), datasetIdList, parameters);
+                if (nextIsEmpty) {
+                    Assert.assertTrue(pageOfImages.isEmpty(),
+                            "expected empty pages after an undersized page");
+                } else {
+                    nextIsEmpty = pageOfImages.size() < pageSize;
+                }
+                if (pageOfImages.isEmpty()) {
+                    break;
+                }
+                for (final Image image : pageOfImages) {
+                    Assert.assertTrue(imageIdsPaged.add(image.getId().getValue()),
+                            "paged query should not return duplicates");
+                }
+                startImageIndex += pageSize;
+            }
+            /* ensure that exactly the expected image IDs are returned */
+            Assert.assertEquals(imageIdsPaged, imageIds,
+                    "paged query should cumulatively return same results as when unpaged");
         }
     }
 
