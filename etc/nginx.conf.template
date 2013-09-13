@@ -50,8 +50,9 @@ http {
             fastcgi_pass_header Authorization;
             fastcgi_intercept_errors on;
             fastcgi_read_timeout 300;
-            # see #10273 - requires nginx 1.1.11 or higher
-            fastcgi_param HTTPS $https;
+            # Uncomment if nginx SSL module is enabled or you are using nginx 1.1.11 or later
+            # -- See: #10273, http://nginx.org/en/CHANGES
+            # fastcgi_param HTTPS $https;
         }
 
         location /maintenance.html {
