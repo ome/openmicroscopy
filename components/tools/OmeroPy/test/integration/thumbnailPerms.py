@@ -17,6 +17,8 @@
    
    
 """
+
+import pytest
 import unittest, time
 import integration.library as lib
 import omero
@@ -250,6 +252,56 @@ class TestThumbnailPerms(lib.ITest):
     
         thumbnailStore.close()
         return t
-        
+
+    def assert10618(self, group, tester, preview, *ctx):
+
+        # Create user in group with one image
+        owner = self.new_client(group=group)
+        privateImage = self.createTestImage(session=owner.sf)
+        pId = privateImage.getPrimaryPixels().getId().getValue()
+
+        if preview:
+            # As the user, load the thumbnails
+            owner_tb_prx = owner.sf.createThumbnailStore()
+            s = owner_tb_prx.getThumbnailByLongestSideSet(rint(16), [pId])
+            self.assertNotEqual(s[pId], '')
+        else:
+            raise Exception("no preview")
+
+        # As the tester, try to get a thumbnail
+        tb_prx = tester.sf.createThumbnailStore()
+
+        s = tb_prx.getThumbnailByLongestSideSet(rint(16), [pId], *ctx)
+        self.assertNotEqual(s[pId], '')
+
+        s = tb_prx.getThumbnailSet(rint(16), rint(16), [pId], *ctx)
+        self.assertNotEqual(s[pId], '')
+
+    def testPrivate10618RootWithGrpCtx(self):
+        group = self.new_group(perms="rw----")
+        grp_ctx = {"omero.group": str(group.id.val)}
+        self.assert10618(group, self.root, True, grp_ctx)
+
+    def testPrivate10618RootWithGrpCtxButNoLoad(self):
+        group = self.new_group(perms="rw----")
+        grp_ctx = {"omero.group": str(group.id.val)}
+        self.assert10618(group, self.root, False, grp_ctx)
+
+    def testReadOnly10618RootWithGrpCtx(self):
+        group = self.new_group(perms="rwr---")
+        grp_ctx = {"omero.group": str(group.id.val)}
+        self.assert10618(group, self.root, True, grp_ctx)
+
+    def testReadOnly10618RootWithGrpCtxButNoLoad(self):
+        group = self.new_group(perms="rwr---")
+        grp_ctx = {"omero.group": str(group.id.val)}
+        self.assert10618(group, self.root, False, grp_ctx)
+
+    @pytest.mark.xfail(reason="requires thumbnail work")
+    def testPrivate10618RootWithNoCtx(self):
+        group = self.new_group(perms="rw----")
+        self.assert10618(group, self.root, True)
+
+
 if __name__ == '__main__':
     unittest.main()
