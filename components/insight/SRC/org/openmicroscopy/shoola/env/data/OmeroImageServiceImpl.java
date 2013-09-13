@@ -1114,7 +1114,10 @@ class OmeroImageServiceImpl
 								context.getLogger().error(this, msg);
 							}
 						}
-					} else ioContainer = container.asIObject();
+					} else {
+						//Check that the container still exists
+						ioContainer = gateway.findIObject(ctx, ioContainer);
+					}
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
@@ -1246,7 +1249,7 @@ class OmeroImageServiceImpl
 							context.getLogger().error(this, msg);
 						}
 					}
-				} else ioContainer = container.asIObject();
+				} else ioContainer = gateway.findIObject(ctx, ioContainer);
 			}
 			importCandidates(ctx, hcsFiles, status, object,
 					ioContainer, customAnnotationList, userID, close, true, userName);
