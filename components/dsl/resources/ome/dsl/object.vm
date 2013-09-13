@@ -85,7 +85,7 @@ import ome.model.*;
                 @org.hibernate.annotations.ParamDef( name="is_admin", type="java.lang.Integer" )})
 })
 @org.hibernate.annotations.Filters({
-    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="1 = :is_admin or owner = :current_user")
+    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="(1 = :is_admin or owner = :current_user)")
 })
 #elseif($type.id.equals("ome.model.meta.Node"))
 @org.hibernate.annotations.FilterDefs({
@@ -95,7 +95,7 @@ import ome.model.*;
                 @org.hibernate.annotations.ParamDef( name="is_admin", type="java.lang.Integer" )})
 })
 @org.hibernate.annotations.Filters({
-    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="1 = :is_admin")
+    @org.hibernate.annotations.Filter(name="owner_or_admin", condition="(1 = :is_admin)")
 })
 #end
 @javax.persistence.Entity
