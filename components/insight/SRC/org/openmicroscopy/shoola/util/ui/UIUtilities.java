@@ -1686,7 +1686,7 @@ public class UIUtilities
 	}
 	
 	/**
-	 * Converts the passed value into a string in KB, Mb, etc.,
+	 * Converts the passed value into a string in KB, MB, etc.,
 	 * and returns a string version of it.
 	 * 
 	 * @param v The value to convert.
