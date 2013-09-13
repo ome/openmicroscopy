@@ -386,13 +386,19 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
-							ModelMapper.linkParentToChild(
-									(Dataset) ioContainer, 
+							//Check that the project still exists
+							IObject ho = gateway.findIObject(ctx,
+									container.asIObject());
+							if (ho != null) {
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+									(Dataset) ioContainer,
 									(Project) container.asProject());
-							link = (ProjectDatasetLink) 
-							gateway.saveAndReturnObject(ctx, link,
-									parameters, userName);
+									link = (ProjectDatasetLink) 
+									gateway.saveAndReturnObject(ctx, link,
+										parameters, userName);
+							}
+							
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
@@ -427,7 +433,6 @@ class OmeroImageServiceImpl
 		}
 		//Check that the container still exist
 		return gateway.findIObject(ctx, ioContainer);
-		//return ioContainer;
 	}
 	
 	/**
