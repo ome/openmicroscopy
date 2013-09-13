@@ -48,7 +48,6 @@ public class SessionTest extends AbstractManagedContextTest {
                 Session s = service.createSession(new Principal(e.getOmeName(), "user",
                         "Test"), "ome");
 
-                // This is what then gets passed to the
                 aop.p = new Principal(s.getUuid(), "user", "Test");
 
                 // Now we should be able to do something.
