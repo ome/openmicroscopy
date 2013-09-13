@@ -63,12 +63,14 @@ ice_compatibility="${versions.ice}"
     </target>
 
     <target name="python-integration" unless="env.NOPYTHON">
+        <mkdir dir="${testreports.dir}"/>
         <setup_py failonerror="${test.with.fail}">
             <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
             <arg value="test"/>
             <arg value="-v"/>
             <arg value="-s"/>
             <arg file="${basedir}/test"/>
+            <arg value="--junitxml=${testreports.dir}/junit-results.xml"/>
             <!-- Could be made configurable via python-test-single -->
         </setup_py>
     </target>
