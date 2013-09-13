@@ -95,6 +95,11 @@ class PixelsTest (lib.GTest):
         stacked = hstack((tile1, tile2))
         self.assertEqual(str(tile3), str(stacked))  # bit of a hacked way to compare arrays, but seems to work
 
+        # See whether a 2x2 tile is the same as the same region of a Plane. See #11315
+        testTile = pixels.getTile(0,0,0, tile=(0,0,2,2))
+        croppedPlane = pixels.getPlane(0,0,0)[0:2,0:2]
+        self.assertEqual(str(testTile), str(croppedPlane), "Tile and croppedPlane not equal")
+
     def testGetPlane(self):
         image = self.TESTIMG
         pixels = image.getPrimaryPixels()
