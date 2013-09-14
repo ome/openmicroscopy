@@ -19,128 +19,56 @@
 """
 
 import pytest
-import unittest, time
-import integration.library as lib
+import test.integration.library as lib
 import omero
-from omero.rtypes import rtime, rlong, rstring, rlist, rint
-from omero_model_ExperimenterI import ExperimenterI
-from omero_model_ExperimenterGroupI import ExperimenterGroupI
-from omero_model_PermissionsI import PermissionsI
+from omero.rtypes import rint
 
 from integration.helpers import createTestImage
 
-class TestThumbnailPerms(lib.ITest):
 
+class TestThumbnailPerms(lib.ITest):
 
     def testThumbs(self):
 
-        # root session is root.sf
-        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
-        admin = self.root.sf.getAdminService()
-
-        group1name = "private_%s" % uuid
-        group2name = "read-only_%s" % uuid
-        group3name = "collaborative_%s" % uuid
-        ownerName = "owner_%s" % uuid
-        user1name = "user1_%s" % uuid
-        user2name = "user2_%s" % uuid
-
-        ### create three users in 3 groups
-        listOfGroups = list()
-        listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything!
-
-        #group1 - private
-        new_gr1 = ExperimenterGroupI()
-        new_gr1.name = rstring(group1name)
-        p = PermissionsI('rw----')
-        new_gr1.details.permissions = p
-        gid = admin.createGroup(new_gr1)
-        privateGroup = admin.getGroup(gid)
-        self.assertEquals('rw----', str(privateGroup.details.permissions))
-        listOfGroups.append(privateGroup)
-
-        #group2 - read-only
-        new_gr2 = ExperimenterGroupI()
-        new_gr2.name = rstring(group2name)
-        p2 = PermissionsI('rwr---')
-        new_gr2.details.permissions = p2
-        gid2 = admin.createGroup(new_gr2)
-        readOnlyGroup = admin.getGroup(gid2)
-        self.assertEquals('rwr---', str(readOnlyGroup.details.permissions))
-        listOfGroups.append(readOnlyGroup)
-
-        #group3 - read-annotate
-        new_gr3 = ExperimenterGroupI()
-        new_gr3.name = rstring(group3name)
-        p = PermissionsI('rwra--')
-        new_gr3.details.permissions = p
-        gid3 = admin.createGroup(new_gr3)
-        collaborativeGroup = admin.getGroup(gid3)
-        self.assertEquals('rwra--', str(collaborativeGroup.details.permissions))
-        listOfGroups.append(collaborativeGroup)
+        privateGroup = self.new_group(perms='rw----')
+        readOnlyGroup = self.new_group(perms='rwr---')
+        collaborativeGroup = self.new_group(perms='rwra--')
 
         #new user (group owner)
-        owner = ExperimenterI()
-        owner.omeName = rstring(ownerName)
-        owner.firstName = rstring("Group")
-        owner.lastName = rstring("Owner")
-        owner.email = rstring("owner@emaildomain.com")
-
-        ownerId = admin.createExperimenterWithPassword(owner, rstring("ome"), privateGroup, listOfGroups)
-        newOwner = admin.getExperimenter(ownerId)
-        admin.setGroupOwner(privateGroup, newOwner)
-        admin.setGroupOwner(readOnlyGroup, newOwner)
-        admin.setGroupOwner(collaborativeGroup, newOwner)
+        newOwner = self.new_user(group=privateGroup)
+        self.add_groups(newOwner, [readOnlyGroup, collaborativeGroup],
+                        owner=True)
 
         #new user1
-        new_exp = ExperimenterI()
-        new_exp.omeName = rstring(user1name)
-        new_exp.firstName = rstring("Will")
-        new_exp.lastName = rstring("Moore")
-        new_exp.email = rstring("newtest@emaildomain.com")
-
-        eid = admin.createExperimenterWithPassword(new_exp, rstring("ome"), privateGroup, listOfGroups)
+        user1 = self.new_user(group=privateGroup)
+        self.add_groups(user1, [readOnlyGroup, collaborativeGroup])
 
         #new user2
-        new_exp2 = ExperimenterI()
-        new_exp2.omeName = rstring(user2name)
-        new_exp2.firstName = rstring("User")
-        new_exp2.lastName = rstring("Test2")
-        new_exp2.email = rstring("newtest2@emaildomain.com")
-
-        eid2 = admin.createExperimenterWithPassword(new_exp2, rstring("ome"), privateGroup, listOfGroups)
-
-        ## get users
-        user1 = admin.getExperimenter(eid)
-        user2 = admin.getExperimenter(eid2)
+        user2 = self.new_user(group=privateGroup)
+        self.add_groups(user2, [readOnlyGroup, collaborativeGroup])
 
         ## login as user1 (into their default group)
-        client_share1 = self.new_client(user=user1, password="ome")
-
-        print len(client_share1.sf.activeServices())
-
         # create image in private group
+        client_share1 = self.new_client(user=user1, password="ome")
         privateImageId = createTestImage(client_share1.sf)
-        print len(client_share1.sf.activeServices())
 
-        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
-        print len(client_share1.sf.activeServices())
+        # if we don't get thumbnail, test fails when another user does
+        self.getThumbnail(client_share1.sf, privateImageId)
 
-        # change user into read-only group. Use object Ids for this, NOT objects from a different context
+        # change user into read-only group. Use object Ids for this,
+        # NOT objects from a different context
         a = client_share1.sf.getAdminService()
         me = a.getExperimenter(a.getEventContext().userId)
-        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-
-        self.set_context(client_share1, gid2)
-        #print a.getEventContext()
+        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        self.set_context(client_share1, readOnlyGroup.id.val)
 
         # create image and get thumbnail (in read-only group)
         readOnlyImageId = createTestImage(client_share1.sf)
         self.getThumbnail(client_share1.sf, readOnlyImageId)
 
         # change user into collaborative group. Use object Ids for this, NOT objects from a different context
-        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        self.set_context(client_share1, gid3)
+        a.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        self.set_context(client_share1, collaborativeGroup.id.val)
 
         # create image and get thumbnail (in collaborative group)
         collaborativeImageId = createTestImage(client_share1.sf)
@@ -163,8 +91,8 @@ class TestThumbnailPerms(lib.ITest):
         # change owner into read-only group.
         o = client_share1.sf.getAdminService()
         me = o.getExperimenter(o.getEventContext().userId)
-        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        self.set_context(owner_client, gid2)
+        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        self.set_context(owner_client, readOnlyGroup.id.val)
 
         self.getThumbnail(owner_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -172,8 +100,8 @@ class TestThumbnailPerms(lib.ITest):
         self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
 
         # change owner into collaborative group.
-        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        self.set_context(owner_client, gid3)
+        o.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        self.set_context(owner_client, collaborativeGroup.id.val)
 
         self.getThumbnail(owner_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
@@ -193,8 +121,8 @@ class TestThumbnailPerms(lib.ITest):
         # change owner into read-only group.
         u = user2_client.sf.getAdminService()
         me = u.getExperimenter(u.getEventContext().userId)
-        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        self.set_context(user2_client, gid2)
+        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(readOnlyGroup.id.val, False))
+        self.set_context(user2_client, readOnlyGroup.id.val)
 
         self.getThumbnail(user2_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -202,8 +130,8 @@ class TestThumbnailPerms(lib.ITest):
         self.assertEquals(None, self.getThumbnail(user2_client.sf, collaborativeImageId))
 
         # change owner into collaborative group.
-        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        self.set_context(user2_client, gid3)
+        u.setDefaultGroup(me, omero.model.ExperimenterGroupI(collaborativeGroup.id.val, False))
+        self.set_context(user2_client, collaborativeGroup.id.val)
 
         self.getThumbnail(user2_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
@@ -302,6 +230,3 @@ class TestThumbnailPerms(lib.ITest):
         group = self.new_group(perms="rw----")
         self.assert10618(group, self.root, True)
 
-
-if __name__ == '__main__':
-    unittest.main()
