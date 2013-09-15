@@ -43,7 +43,6 @@ import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.Fileset;
-import omero.model.FilesetI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImagingEnvironment;
@@ -67,7 +66,6 @@ import omero.model.StageLabel;
 import static omero.rtypes.rlong;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -1470,7 +1468,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1516,7 +1514,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1547,7 +1545,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1600,7 +1598,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1664,7 +1662,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1712,7 +1710,7 @@ public class PojosServiceTest
     			mmFactory.simpleImage(0));
     	Image i2 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1784,7 +1782,7 @@ public class PojosServiceTest
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
 
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset.addImage(i3);
@@ -1846,7 +1844,7 @@ public class PojosServiceTest
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
 
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset.addImage(i3);
@@ -1931,7 +1929,7 @@ public class PojosServiceTest
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
 
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -1982,7 +1980,7 @@ public class PojosServiceTest
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
 
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
@@ -2012,7 +2010,7 @@ public class PojosServiceTest
     	Image i3 = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.simpleImage(0));
 
-    	Fileset fileset = new FilesetI();
+    	Fileset fileset = newFileset();
     	fileset.addImage(i1);
     	fileset.addImage(i2);
     	fileset = (Fileset) iUpdate.saveAndReturnObject(fileset);
