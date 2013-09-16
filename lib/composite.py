@@ -51,7 +51,7 @@ def find(pattern):
     """Grabs platform specific distribution targets from target"""
     target = os.path.join(os.path.dirname(os.path.dirname(__file__)), "target")
     artifacts = glob(os.path.join(target, pattern))
-    if not artifacts:
+    if not artifacts and pattern.find("*win.zip") == -1:
         raise Exception("Nothing found! %s" % pattern)
     return artifacts
 
