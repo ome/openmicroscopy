@@ -409,7 +409,8 @@
       // disable line-plot for max projection, split-view etc
       $('#wblitz-lp-enable').attr('disabled', p != 'normal');
       //$('#wblitz-channels-box button').attr('disabled', p == 'split');
-        $('[name="wblitz-proj"][value=intmax]').attr('disabled', viewport.loadedImg.rdefs.invertAxis);
+      var disable_intmax = (viewport.loadedImg.rdefs.invertAxis || viewport.getSizes().z < 2);
+      $('[name="wblitz-proj"][value=intmax]').attr('disabled', disable_intmax);
     }
     
     //nosync || syncRDCW();
