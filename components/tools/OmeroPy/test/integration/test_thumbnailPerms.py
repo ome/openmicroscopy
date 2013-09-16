@@ -83,7 +83,8 @@ class TestThumbnailPerms(lib.ITest):
         ## login as owner (into private group)
         owner_client = self.new_client(user=newOwner, password="ome")
 
-        self.getThumbnail(owner_client.sf, privateImageId)
+        group_ctx = {"omero.group": str(privateGroup)}
+        self.getThumbnail(owner_client.sf, privateImageId, *group_ctx)
         # check that we can't get thumbnails for images in other groups
         self.assertEquals(None, self.getThumbnail(owner_client.sf, readOnlyImageId))
         self.assertEquals(None, self.getThumbnail(owner_client.sf, collaborativeImageId))
@@ -155,7 +156,7 @@ class TestThumbnailPerms(lib.ITest):
         s = thumbnailStore.getThumbnailSet(rint(16), rint(16), [pId])
         self.assertNotEqual(s[pId],'')
 
-    def getThumbnail(self, session, imageId):
+    def getThumbnail(self, session, imageId, *ctx):
 
         thumbnailStore = session.createThumbnailStore()
 
@@ -173,7 +174,7 @@ class TestThumbnailPerms(lib.ITest):
         self.assertEqual(1, len(s))
 
         thumbnailStore.setPixelsId(pId)
-        t = thumbnailStore.getThumbnail(rint(16),rint(16))
+        t = thumbnailStore.getThumbnail(rint(16),rint(16), *ctx)
         self.assertNotEqual(None, t)
         t = thumbnailStore.getThumbnailByLongestSide(rint(16))
         self.assertNotEqual(None, t)
@@ -193,8 +194,6 @@ class TestThumbnailPerms(lib.ITest):
             owner_tb_prx = owner.sf.createThumbnailStore()
             s = owner_tb_prx.getThumbnailByLongestSideSet(rint(16), [pId])
             self.assertNotEqual(s[pId], '')
-        else:
-            raise Exception("no preview")
 
         # As the tester, try to get a thumbnail
         tb_prx = tester.sf.createThumbnailStore()
@@ -225,8 +224,17 @@ class TestThumbnailPerms(lib.ITest):
         grp_ctx = {"omero.group": str(group.id.val)}
         self.assert10618(group, self.root, False, grp_ctx)
 
+    def testReadOnly10618MemberWithGrpCtxButNoLoad(self):
+        group = self.new_group(perms="rwr---")
+        member = self.new_client(group=group)
+        grp_ctx = {"omero.group": str(group.id.val)}
+        self.assert10618(group, member, False, grp_ctx)
+
     @pytest.mark.xfail(reason="requires thumbnail work")
     def testPrivate10618RootWithNoCtx(self):
+        """
+        This would require the server to try omero.group=-1
+        for the user.
+        """
         group = self.new_group(perms="rw----")
         self.assert10618(group, self.root, True)
-
