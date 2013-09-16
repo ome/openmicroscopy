@@ -1886,6 +1886,8 @@ class TreeViewerComponent
 			Browser browser = model.getSelectedBrowser();
 			if (browser == null) return false;
 			group = browser.getNodeGroup((TreeImageDisplay) ho);
+		} else {
+		    return false;
 		}
 		//Do not have enough information about the group.
 		if (group.getPermissions() == null) return false;
