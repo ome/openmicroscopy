@@ -25,6 +25,7 @@
 
 import omero
 from omero.rtypes import *
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.encoding import smart_str
 import logging
@@ -214,8 +215,7 @@ class BaseContainer(BaseController):
         """
         Is the image suitable to be viewed with the Volume viewer 'Open Astex Viewer' applet?
         Image must be a 'volume' of suitable dimensions and not too big.
-        """
-        from django.conf import settings 
+        """ 
         MAX_SIDE = settings.OPEN_ASTEX_MAX_SIDE     # default is 400
         MIN_SIDE = settings.OPEN_ASTEX_MIN_SIDE     # default is 20
         MAX_VOXELS = settings.OPEN_ASTEX_MAX_VOXELS # default is 15625000 (250 * 250 * 250)
@@ -360,7 +360,10 @@ class BaseContainer(BaseController):
         else:
             eid = self.conn.getEventContext().userId
         
-        im_list = list(self.conn.listOrphans("Image", eid=eid, page=page))
+        params = omero.sys.ParametersI()
+        if page is not None:
+            params.page((int(page)-1)*settings.PAGE, settings.PAGE)
+        im_list = list(self.conn.listOrphans("Image", eid=eid, params=params))
         im_list.sort(key=lambda x: x.getName().lower())
         self.containers = {'orphaned': True, 'images': im_list}
         self.c_size = self.conn.countOrphans("Image", eid=eid)
