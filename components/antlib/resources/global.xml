@@ -73,6 +73,9 @@
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
 	<property name="OmeroMatlab.comp"     value="${tools.comp}/OmeroM"/>
+	<property name="uiLibrary.comp"     value="${tests.comp}/ui/library/java"/>
+	<property name="tests.comp"     value="${components.dir}/tests"/>
+
 
 	<!-- Build Path References -->
 	<path id="blitz.buildpath">
@@ -118,11 +121,24 @@
 	  <pathelement location="${tools.comp}/build.xml"/>
 	</path>
 
+	<path id="tests.buildpath">
+	  <pathelement location="${tests.comp}/build.xml"/>
+	</path>
+
+	<path id="uiLibrary.buildpath">
+	  <pathelement location="${uiLibrary.comp}/build.xml"/>
+	</path>
+
 	<!-- Tools -->
 	<property name="tools.comp"    value="${components.dir}/tools"/>
 	<property name="tools.dest"    value="${components.dir}/tools/target"/>
 	<property name="tools.jars"    value="${components.dir}/tools/target/jars"/>
 	<property name="tools.classes" value="${components.dir}/tools/target/service-classes"/>
+
+    <!-- Tests -->
+	<property name="tests.dest"    value="${components.dir}/tests/target"/>
+	<property name="tests.jars"    value="${components.dir}/tests/target/jars"/>
+	<property name="tests.classes" value="${components.dir}/tests/target/service-classes"/>
 
 	<!-- Relative paths -->
 	<property name="target.rel"    value="target"/>
