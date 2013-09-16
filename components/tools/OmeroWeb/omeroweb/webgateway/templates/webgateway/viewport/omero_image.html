@@ -235,6 +235,11 @@
 
     }
 
+    // disable 'split' view for single channel images.
+    if (channels.length < 2) {
+      $("input[value='split']").attr('disabled', 'disabled');
+    }
+
     /* Image details */
     var tmp = getMetadata();
     $('#wblitz-image-name').html(tmp.imageName);
