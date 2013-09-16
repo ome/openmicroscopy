@@ -36,8 +36,9 @@ def generate_parameters():
     for perms in ("rw", "rwr"):
         for testertype in ("root", "member"):
             for direct in (True, False):
-                for size in (16, 96, 128):
-                    yield (perms, testertype, direct, size)
+                for grpctx in (True, False):
+                    for size in (16, 96):
+                        yield (perms, testertype, direct, grpctx, size)
 
 
 class Test10618(lib.ITest):
@@ -50,7 +51,7 @@ class Test10618(lib.ITest):
 #
 # Primary method-generation loop
 #
-for perms, testertype, direct, size in generate_parameters():
+for perms, testertype, direct, grpctx, size in generate_parameters():
 
     if perms == "rw" and testertype == "member":
         # A member in a private group will never be able
@@ -58,12 +59,10 @@ for perms, testertype, direct, size in generate_parameters():
         # be tested.
         continue
 
-    # Cleanup the perms
-    perms = perms.ljust(6, "-")
-
     def dynamic_test(self, perms=perms, testertype=testertype,
                      direct=direct, size=size):
-        group = self.new_group(perms=perms)
+
+        group = self.new_group(perms=perms.ljust(6, "-"))
         owner = self.new_client(group=group)
         image = self.createTestImage(session=owner.sf)
 
@@ -74,10 +73,15 @@ for perms, testertype, direct, size in generate_parameters():
 
         import omero.gateway
         conn = omero.gateway.BlitzGateway(client_obj=tester)
-        conn.SERVICE_OPTS.setOmeroGroup(str(group.id.val))
+
+        if grpctx:
+            conn.SERVICE_OPTS.setOmeroGroup(str(group.id.val))
+        else:
+            conn.SERVICE_OPTS.setOmeroGroup(str(-1))
+
         img = conn.getObject("Image", image.id)
-        img.renderImage(None, None)
         img.getThumbnail(size=size, direct=direct)
 
-    test_name = "test_%s_%s_%s_%s" % (perms, testertype, direct, size)
+    test_name = "test_%s_%s_dir%s_grp%s_%s" % \
+                (perms, testertype, direct, grpctx, size)
     setattr(Test10618, test_name, dynamic_test)
