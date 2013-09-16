@@ -4032,7 +4032,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @rtype:     Boolean
         """
-        return self._obj.boolValue.val
+        return unwrap(self._obj.boolValue)
 
     def setValue (self, val):
         """
@@ -4108,8 +4108,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4146,8 +4146,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4184,7 +4183,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         @type:      Long
         """
         
-        return self._obj.longValue and self._obj.longValue.val or None
+        return unwrap(self._obj.longValue)
 
     def setValue (self, val):
         """
@@ -4220,8 +4219,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      Double
         """
-        
-        return self._obj.doubleValue.val
+        return unwrap(self._obj.doubleValue)
 
     def setValue (self, val):
         """
@@ -4259,8 +4257,8 @@ class TermAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.termValue.val
+
+        return unwrap(self._obj.termValue)
 
     def setValue (self, val):
         """
