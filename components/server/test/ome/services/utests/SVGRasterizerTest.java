@@ -54,7 +54,7 @@ public class SVGRasterizerTest {
         try {
             rasterizer.createJPEG(outputStream);
         } catch (TranscoderException te) {
-            Assert.fail("JPEG encodig failed with exception.", te);
+            Assert.fail("JPEG encoding failed with exception.", te);
         } finally {
            IOUtils.closeQuietly(outputStream);
            IOUtils.closeQuietly(input);
