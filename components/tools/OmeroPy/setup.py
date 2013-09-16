@@ -17,17 +17,19 @@
       ./setup.py test -k TopLevelObjects # run all tests that include TopLevelObjects in the name
       ./setup.py test -x # exit on first failure
       ./setup.py test --pdb # drop to the pdb debugger on failure
-      
+
 
    Copyright 2007-2013 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-from setuptools.command.test import test as TestCommand
 
 import glob
 import sys
 import os
+
+sys.path.append("..")
+from test_setup import PyTest
 
 for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
@@ -42,63 +44,6 @@ if os.path.exists("target"):
     packages = find_packages("target")+[""]
 else:
     packages = [""]
-
-class PyTest(TestCommand):
-    user_options = TestCommand.user_options + \
-                   [('test-pythonpath=', 'p', "prepend 'pythonpath' to PYTHONPATH"),
-                    ('test-ice-config=', 'i', "use specified 'ice config' file instead of default"),
-                    ('test-string=', 'k', "only run tests including 'string'"),
-                    ('test-marker=', 'm', "only run tests including 'marker'"),
-                    ('test-path=', 's', "base dir for test collection"),
-                    ('test-failfast', 'x', "Exit on first error"),
-                    ('test-verbose', 'v', "more verbose output"),
-                    ('test-quiet', 'q', "less verbose output"),
-                    ('junitxml=', None, "create junit-xml style report file at 'path'"),
-                    ('pdb',None,"fallback to pdb on error"),]
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.test_pythonpath = None
-        self.test_ice_config = None
-        self.test_string = None
-        self.test_marker = None
-        self.test_path = None
-        self.test_failfast = False
-        self.test_quiet = False
-        self.test_verbose = False
-        self.junitxml = None
-        self.pdb = False
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        if self.test_path is None:
-            self.test_path = 'test'
-        self.test_args = [self.test_path]
-        if self.test_string is not None:
-            self.test_args.extend(['-k', self.test_string])
-        if self.test_marker is not None:
-            self.test_args.extend(['-m', self.test_marker])
-        if self.test_failfast:
-            self.test_args.extend(['-x'])
-        if self.test_verbose:
-            self.test_args.extend(['-v'])
-        if self.test_quiet:
-            self.test_args.extend(['-q'])
-        if self.junitxml is not None:
-            self.test_args.extend(['--junitxml', self.junitxml])
-        if self.pdb:
-            self.test_args.extend(['--pdb'])
-        print self.test_failfast
-        self.test_suite = True
-        if self.test_ice_config is None:
-            self.test_ice_config = os.path.abspath('ice.config')
-        if not os.environ.has_key('ICE_CONFIG'):
-            os.environ['ICE_CONFIG'] = self.test_ice_config
-    def run_tests(self):
-        if self.test_pythonpath is not None:
-            sys.path.insert(0, self.test_pythonpath)
-        #import here, cause outside the eggs aren't loaded
-        import pytest
-        errno = pytest.main(self.test_args)
-        sys.exit(errno)
 
 setup(name="omero_client",
       version=ov,
