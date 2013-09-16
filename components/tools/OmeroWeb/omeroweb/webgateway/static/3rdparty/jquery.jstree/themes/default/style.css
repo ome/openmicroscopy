@@ -205,7 +205,6 @@
 	}
 
 	#vakata-contextmenu.jstree-default-context li { 
-		background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
 		padding:6px 6px 4px;
 		border-top:solid 1px transparent;
 		border-bottom:solid 1px transparent;
@@ -226,7 +225,6 @@
 		#vakata-contextmenu.jstree-default-context a { 
 			font-size:1.2em;
 			line-height:1.2em;
-			background:url(../img/dropdown_right_arrow.png) 90% center no-repeat;
 			
 		}
 	
