@@ -32,6 +32,7 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.io.nio.SimpleBackOff;
 import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -136,6 +137,9 @@ public class AbstractServerTest extends AbstractTest {
     /** Identifies the <code>guest</code> group. */
     public String GUEST_GROUP = "guest";
 
+    /** Scaling factor used for CmdCallbackI loop timings. */
+    protected long scalingFactor = 500;
+
     /** The client object, this is the entry point to the Server. */
     protected omero.client client;
 
@@ -220,6 +224,8 @@ public class AbstractServerTest extends AbstractTest {
 
         final EventContext ctx = newUserAndGroup("rw----");
         this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;
+        SimpleBackOff backOff = new SimpleBackOff();
+        scalingFactor = (long) backOff.getScalingFactor() * backOff.getCount();
     }
 
     /**
@@ -1598,7 +1604,7 @@ public class AbstractServerTest extends AbstractTest {
         final HandlePrx prx = f.submit(change, callContext);
         // assertFalse(prx.getStatus().flags.contains(State.FAILURE));
         CmdCallbackI cb = new CmdCallbackI(c, prx);
-        cb.loop(20, 500);
+        cb.loop(20, scalingFactor);
         return assertCmd(cb, pass);
     }
 
@@ -1612,7 +1618,7 @@ public class AbstractServerTest extends AbstractTest {
         }
         HandlePrx handle = c.getSession().submit(all);
         CmdCallbackI cb = new CmdCallbackI(c, handle);
-        cb.loop(10 * reqs.length, 500); // throws on timeout
+        cb.loop(10 * reqs.length, scalingFactor); // throws on timeout
         assertCmd(cb, passes);
         return cb;
     }
