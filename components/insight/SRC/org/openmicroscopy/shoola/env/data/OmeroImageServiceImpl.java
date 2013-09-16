@@ -528,13 +528,19 @@ class OmeroImageServiceImpl
 									(DatasetData) 
 									PojoMapper.asDataObject(
 									ioContainer));
-							link = (ProjectDatasetLink) 
-							ModelMapper.linkParentToChild(
-									(Dataset) ioContainer, 
+							//Check that the project still exists
+							IObject ho = gateway.findIObject(ctx,
+									container.asIObject());
+							if (ho != null) {
+								link = (ProjectDatasetLink) 
+								ModelMapper.linkParentToChild(
+									(Dataset) ioContainer,
 									(Project) container.asProject());
-							link = (ProjectDatasetLink) 
-							gateway.saveAndReturnObject(ctx, link,
-									parameters, userName);
+									link = (ProjectDatasetLink) 
+									gateway.saveAndReturnObject(ctx, link,
+										parameters, userName);
+							}
+							
 						} else ioContainer = createdData.asIObject();
 					}
 				} else { //dataset w/o project.
@@ -567,7 +573,8 @@ class OmeroImageServiceImpl
 				} else ioContainer = container.asIObject();
 			}
 		}
-		return ioContainer;
+		//Check that the container still exist
+		return gateway.findIObject(ctx, ioContainer);
 	}
 	
 	/**
@@ -1274,7 +1281,10 @@ class OmeroImageServiceImpl
 								context.getLogger().error(this, msg);
 							}
 						}
-					} else ioContainer = container.asIObject();
+					} else {
+						//Check that the container still exists
+						ioContainer = gateway.findIObject(ctx, ioContainer);
+					}
 				}
 			}
 			if (ImportableObject.isArbitraryFile(file)) {
@@ -1412,7 +1422,7 @@ class OmeroImageServiceImpl
 							context.getLogger().error(this, msg);
 						}
 					}
-				} else ioContainer = container.asIObject();
+				} else ioContainer = gateway.findIObject(ctx, ioContainer);
 			}
 			importCandidates(ctx, hcsFiles, status, object, archived,
 					ioContainer, list, userID, close, true, userName);
