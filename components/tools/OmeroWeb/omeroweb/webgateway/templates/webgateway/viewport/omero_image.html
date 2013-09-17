@@ -773,6 +773,10 @@
     for (i in channels) {
       $('#rd-wblitz-ch'+i).get(0).checked = channels[i].active;
       $('#wblitz-ch'+i+'-cwslider .ui-slider-range').css('background-color', toRGB(channels[i].color));
+      var w = channels[i].window;
+      $('#wblitz-ch'+i+'-cwslider')
+          .slider( "option", "min", Math.min(w.min, w.start) )   // extend range if needed
+          .slider( "option", "max", Math.max(w.max, w.end) );
       $('#wblitz-ch'+i+'-color').css('background-color', toRGB(channels[i].color));//$('#wblitz-ch'+i).css('background-color'));
       $('#wblitz-ch'+i+'-cw-start').val(channels[i].window.start).change();
       $('#wblitz-ch'+i+'-cw-end').val(channels[i].window.end).change();
