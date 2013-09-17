@@ -17,6 +17,4 @@ if __name__ == "__main__":
         "PythonOnly",
         # "scriptstest.harness"
         "clitest.suite._additional_tests",
-        "fstest.suite",
-        "scriptstest.suite._additional_tests",
-        "tablestest.suite._additional_tests"])
+        "scriptstest.suite._additional_tests"])
