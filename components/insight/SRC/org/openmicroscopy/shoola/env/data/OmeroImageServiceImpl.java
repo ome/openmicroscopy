@@ -1283,7 +1283,8 @@ class OmeroImageServiceImpl
 						}
 					} else {
 						//Check that the container still exists
-						ioContainer = gateway.findIObject(ctx, ioContainer);
+						ioContainer = gateway.findIObject(ctx,
+								container.asIObject());
 					}
 				}
 			}
