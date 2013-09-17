@@ -125,6 +125,7 @@ JSON File Format:
     ....
   }]
             """)
+        loadj.set_defaults(func=self.load)
         loadj.add_argument("filename", nargs="?", help="The filename containing tag JSON")
         loadj.add_login_arguments()
 
@@ -133,6 +134,7 @@ JSON File Format:
             help="The object to link to. Should be of form <object_type>:<object_id>")
         links.add_argument('tag_id', \
             help="The tag annotation ID")
+        self.add_standard_params(links)
         links.add_login_arguments()
 
 
@@ -534,6 +536,9 @@ JSON File Format:
 
         parameters = omero.sys.ParametersI()
         parameters.addId(obj_id)
+        ice_map = dict()
+        if args.admin:
+            ice_map["omero.group"]="-1"
 
         # FIXME: Do we want to wrap this in a try/except? What to check for?
         client = self.ctx.conn(args)
@@ -541,11 +546,15 @@ JSON File Format:
         query_service = session.getQueryService()
         update_service = session.getUpdateService()
         annotation = query_service.find("TagAnnotation", tag_id)
+        
         obj = query_service.findByQuery(
                 "select o from %s as o " \
-                "outer join fetch o.annotationLinks " \
+                "left outer join fetch o.annotationLinks " \
                 "where o.id = :id" % obj_type, parameters, \
-                {"omero.group": "-1"})
+                ice_map)
+        if obj is None:
+            self.ctx.err("Object query returned nothing. Check your object type.")
+            sys.exit(1)
         obj.linkAnnotation(annotation)
         update_service.saveAndReturnObject(obj)
 
