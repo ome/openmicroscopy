@@ -61,6 +61,4 @@ if __name__ == "__main__":
         "integration.tickets4000",
         "integration.tickets5000",
         "integration.tickets6000",
-        "gatewaytest.suite._additional_tests",
-        "scriptstest.suite._additional_tests",
-        "scriptstest.integration_suite._additional_tests"])
+        "gatewaytest.suite._additional_tests"])
