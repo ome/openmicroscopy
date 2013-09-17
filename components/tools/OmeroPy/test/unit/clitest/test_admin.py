@@ -22,7 +22,7 @@ from omero.plugins.admin import AdminControl
 from omero.plugins.prefs import PrefsControl
 from omero.util.temp_files import create_path
 
-from clitest.mocks import MockCLI
+from mocks import MockCLI
 
 omeroDir = path(os.getcwd()) / "build"
 

@@ -15,15 +15,6 @@ from omero_ext.xmlrunner.main import ome_test_main
 if __name__ == "__main__":
     ome_test_main([
         "PythonOnly",
-        "t_clients",
-        "t_config",
-        "t_ext",
-        "t_rtypes",
-        "t_model",
-        "t_parameters",
-        "t_permissions",
-        "t_tempfiles",
-        "clitest.suite",
         "cmdtest.suite",
         # "scriptstest.harness"
         "clitest.suite._additional_tests",
