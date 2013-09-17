@@ -89,7 +89,6 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.WellSampleData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
