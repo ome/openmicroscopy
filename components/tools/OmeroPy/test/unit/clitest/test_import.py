@@ -16,7 +16,7 @@ from omero.cli import Context, CLI, NonZeroReturnCode
 # Workaround for a poorly named module
 map = {}
 
-rootDir = path(__file__).dirname() / ".." / ".."
+rootDir = path(__file__).dirname() / ".." / ".." / ".."
 omeroDir = rootDir / "build"
 pluginDir = rootDir / "src" / "omero" / "plugins"
 

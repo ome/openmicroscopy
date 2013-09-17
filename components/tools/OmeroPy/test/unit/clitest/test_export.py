@@ -15,7 +15,6 @@ from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.plugins.sessions import SessionsControl
 from omero.plugins.export import ExportControl
 from omero.util.temp_files import create_path
-from integration.library import ITest
 
 omeroDir = path(os.getcwd()) / "build"
 

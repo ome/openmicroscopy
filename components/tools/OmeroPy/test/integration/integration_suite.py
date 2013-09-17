@@ -26,7 +26,6 @@ if __name__ == "__main__":
         "integration.chmod",
         "integration.client_ctors",
         "integration.clientusage",
-        "integration.cliimport",
         "integration.cmdcallback",
         "integration.counts",
         "integration.delete",
