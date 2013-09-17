@@ -15,7 +15,6 @@ from omero_ext.xmlrunner.main import ome_test_main
 if __name__ == "__main__":
     ome_test_main([
         "PythonOnly",
-        "cmdtest.suite",
         # "scriptstest.harness"
         "clitest.suite._additional_tests",
         "fstest.suite",
