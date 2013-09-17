@@ -233,30 +233,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
 
     }
 
-    private final static String logLoaderQuerySql = PsqlStrings
-            .getString("sql_action.log_loader_query"); //$NON-NLS-1$
-    private final static String logLoaderInsertSql = PsqlStrings
-            .getString("sql_action.log_loader_insert"); //$NON-NLS-1$
-    private final static String logLoaderUpdateSql = PsqlStrings
-            .getString("sql_action.log_loader_update"); //$NON-NLS-1$
-    private final static String logLoaderDeleteSql = PsqlStrings
-            .getString("sql_action.log_loader_delete"); //$NON-NLS-1$
-
-    public long selectCurrentEventLog(String key) {
-        return _jdbc().queryForLong(logLoaderQuerySql, key);
-    }
-
-    public void setCurrentEventLog(long id, String key) {
-        int count = _jdbc().update(logLoaderUpdateSql, id, key);
-        if (count == 0) {
-            _jdbc().update(logLoaderInsertSql, key, id);
-        }
-    }
-
-    public void delCurrentEventLog(String key) {
-        _jdbc().update(logLoaderDeleteSql, key);
-    }
-
     public long nextValue(String segmentValue, int incrementSize) {
         return _jdbc().queryForLong(_lookup("next_val"), //$NON-NLS-1$
                 segmentValue, incrementSize);
