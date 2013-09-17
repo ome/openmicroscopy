@@ -276,7 +276,7 @@ public class UIUtilities
     public static final int					INCREMENT = 15;
 
     /** The number of bytes in megabyte, used when working with memory methods.*/
-	public static final long		MEGABYTE = 1048567;
+	public static final long		MEGABYTE = 1048576;
     
 	/** Key value for the default folder. */
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
