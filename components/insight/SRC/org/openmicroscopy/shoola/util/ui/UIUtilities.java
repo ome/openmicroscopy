@@ -83,7 +83,6 @@ import javax.swing.text.TabStop;
 
 
 //Third-party libraries
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.jdesktop.swingx.JXDatePicker;
@@ -1694,7 +1693,22 @@ public class UIUtilities
 	 */
 	public static String formatFileSize(long v)
 	{
-	    return FileUtils.byteCountToDisplaySize(v);
+		final long prefixStep = 1 << 10;
+		final String s;
+		if (v < 1) {
+		    s = "0 bytes";
+		} else if (v == 1) {
+		    s = "1 byte";
+		} else if (v < prefixStep) {
+			s = v + " bytes";
+		} else {
+		    double vd = v;
+		    final int maxIndex = UNIT_PREFIXES.length() - 1;
+		    int index;
+		    for (index = -1; vd >= prefixStep && index < maxIndex; vd /= prefixStep, index++);
+		    s = String.format("%.1f %cB", vd, UNIT_PREFIXES.charAt(index));
+		}
+		return s;
 	}
 	
 	/**
