@@ -32,7 +32,7 @@ import omero
 import omero.clients
 import omero.columns
 import omero.grid
-from integration import library as lib
+from test.integration import library as lib
 
 
 class BackwardsCompatibilityTest(lib.ITest):

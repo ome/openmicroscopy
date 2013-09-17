@@ -14,7 +14,7 @@ import unittest, os
 import omero, omero.tables
 
 from omero.rtypes import *
-from integration import library as lib
+from test.integration import library as lib
 
 
 class TestTables(lib.ITest):

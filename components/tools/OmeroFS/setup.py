@@ -14,6 +14,8 @@ for tools in glob.glob("../../../lib/repository/setuptools*.egg"):
     if tools.find(".".join(map(str, sys.version_info[0:2]))) > 0:
        sys.path.insert(0, tools)
 
+sys.path.append("..")
+from test_setup import PyTest
 
 from ez_setup import use_setuptools
 use_setuptools(to_dir='../../../lib/repository')
@@ -31,6 +33,6 @@ OMERO.fs server for watching directories"
       url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
       download_url="http://trac.openmicroscopy.org.uk/ome/wiki/OmeroFs",
       packages=[''],
-      test_suite='test.suite'
+      cmdclass = {'test': PyTest},
 )
 

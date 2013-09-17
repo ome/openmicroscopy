@@ -14,7 +14,7 @@ from path import path
 from omero.plugins.db import DatabaseControl
 from omero.util.temp_files import create_path
 from omero.cli import Context, CLI, NonZeroReturnCode
-from clitest.mocks import MockCLI
+from mocks import MockCLI
 
 class TestDatabase(unittest.TestCase):
 
@@ -22,7 +22,7 @@ class TestDatabase(unittest.TestCase):
         self.cli = MockCLI()
         self.cli.register("db", DatabaseControl, "TEST")
 
-        dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." / "dist"  # FIXME: should not be hard-coded
+        dir = path(__file__) / ".." / ".." / ".." / ".." / ".." / ".." / ".." / "dist"  # FIXME: should not be hard-coded
         dir = dir.abspath()
         cfg = dir / "etc" / "omero.properties"
         cfg = cfg.abspath()
