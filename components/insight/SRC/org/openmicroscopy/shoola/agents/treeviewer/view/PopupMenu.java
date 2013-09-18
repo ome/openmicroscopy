@@ -31,7 +31,6 @@ import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -70,124 +69,124 @@ class PopupMenu
 {
 
 	/** Button to browse a container. */
-	private JMenuItem           browse;
+	private JMenuItem browse;
 
 	/** Button to add existing element to the specified container. */
-	private JMenuItem           existingElement;
+	private JMenuItem existingElement;
 
 	/** Button to import files to the specified container. */
-	private JMenuItem           importElement;
+	private JMenuItem importElement;
 	
 	/** Button to add element to the specified container. */
-	private JMenuItem           newElement;
+	private JMenuItem newElement;
 
 	/** Button to cut the selected elements. */
-	private JMenuItem           cutElement;
+	private JMenuItem cutElement;
 
 	/** Button to copy the selected elements. */
-	private JMenuItem           copyElement;
+	private JMenuItem copyElement;
 
 	/** Button to paste the selected elements. */
-	private JMenuItem           pasteElement;
+	private JMenuItem pasteElement;
 
 	/** Button to delete the selected elements. */
-	private JMenuItem           deleteElement;
+	private JMenuItem deleteElement;
 
 	/** Button to download the selected elements. */
-	private JMenuItem           downloadElement;
+	private JMenuItem downloadElement;
 
 	/** Button to remove experimenter node from the display. */
-	private JMenuItem			removeExperimenterElement;
+	private JMenuItem removeExperimenterElement;
 
 	/** Button to refresh the experimenter data. */
-	private JMenuItem			refreshExperimenterElement;
+	private JMenuItem refreshExperimenterElement;
 
 	/** Button to add experimenter node from the display. */
-	private JMenuItem			addExperimenterElement;
+	private JMenuItem addExperimenterElement;
 	
 	/** Button to refresh the tree data. */
-	private JMenuItem			refreshTreeElement;
+	private JMenuItem refreshTreeElement;
 
 	/** Button to create a top container. */
-	private JMenuItem			createTopElement;
+	private JMenuItem createTopElement;
 
 	/** Button to switch user. */
-	private JMenuItem			switchUserElement;
+	private JMenuItem switchUserElement;
 
 	/** Button to paste Rnd settings. */
-	private JMenuItem			pasteRndElement;
+	private JMenuItem pasteRndElement;
 	
 	/** Button to copy Rnd settings. */
-	private JMenuItem			copyRndElement;
+	private JMenuItem copyRndElement;
 	
 	/** Button to reset default Rnd settings. */
-	private JMenuItem			resetRndElement;
+	private JMenuItem resetRndElement;
 	
 	/** Button to set the min/max for each channel. */
-	private JMenuItem			setMinMaxElement;
+	private JMenuItem setMinMaxElement;
 	
 	/** Button to reset default Rnd settings. */
-	private JMenuItem			setOwnerRndElement;
+	private JMenuItem setOwnerRndElement;
 	
 	/** Button to add existing elements. */
-	private JMenuItem			addExistingElement;
+	private JMenuItem addExistingElement;
 
 	/** Button to quit the application. */
-	private JMenuItem			quitElement;
+	private JMenuItem quitElement;
 	
 	/** Button to create a new project. */
-	private JMenuItem			createProject;
+	private JMenuItem createProject;
 	
 	/** Button to create a new dataset. */
-	private JMenuItem			createDataset;
+	private JMenuItem createDataset;
 	
 	/** Button to create a new tag. */
-	private JMenuItem			createTag;
+	private JMenuItem createTag;
 	
 	/** Button to create a new screen. */
-	private JMenuItem			createScreen;
+	private JMenuItem createScreen;
 	
 	/** Button to create a new Tag Set. */
-	private JMenuItem			createTagSet;
+	private JMenuItem createTagSet;
 	
 	/** Button to create a new group. */
-	private JMenuItem			createGroup;
+	private JMenuItem createGroup;
 	
 	/** Button to create a experimenter. */
-	private JMenuItem			createExperimenter;
+	private JMenuItem createExperimenter;
 	
 	/** Button to reset the password. */
-	private JMenuItem			resetPassword;
+	private JMenuItem resetPassword;
 	
 	/** Button to view an Image. */
-	private JMenuItem			view;
+	private JMenuItem view;
 	
 	/** Button to open the Editor. */
-	private JMenuItem			editFile;
+	private JMenuItem editFile;
 	
 	/** Button to open the Tag wizard. */
-	private JMenuItem			tagElement;
+	private JMenuItem tagElement;
 	
 	/** Button to open the new Editor. */
-	private JMenuItem			newExperimentElement;
+	private JMenuItem newExperimentElement;
 	
 	/** Button to view an Image using plug-in. */
-	private JMenuItem			viewInPlugin;
+	private JMenuItem viewInPlugin;
 	
 	/** Reference to the Control. */
-	private TreeViewerControl   controller;
+	private TreeViewerControl controller;
 
 	/** Font label. */
-	private Font				fontLabel;
+	private Font fontLabel;
 
 	/** The index of the menu .*/
-	private int					index;
+	private int index;
 
 	/** The menu to open the file with third party. */
-	private JMenu				openWithMenu;
+	private JMenu openWithMenu;
 	
 	/** Button to activate or not user. */
-    private JCheckBoxMenuItem   activatedUser;
+    private JCheckBoxMenuItem activatedUser;
     
     /** Button to remove group from the display. */
 	private JMenuItem removeGroupElement;
