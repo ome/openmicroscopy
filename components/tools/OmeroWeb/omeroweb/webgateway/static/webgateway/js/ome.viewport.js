@@ -549,7 +549,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
   };
 
   this.setChannelActive = function (idx, act, noreload) {
-    if (this.isGreyModel()) {
+    // GreyModel only allows a single active channel, if not 'split' view
+    if (this.isGreyModel() && this.getProjection() != 'split') {
       /* Only allow activation of channels, and disable all other */
       if (act) {
 	for (var i in _this.loadedImg.channels) {
@@ -626,7 +627,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.setProjection = function (p, noreload) {
     p = p.toLowerCase();
     if (_this.loadedImg.rdefs.projection.toLowerCase() != p) {
-      var doReset = _this.loadedImg.rdefs.projection.toLowerCase() == 'split' ||  p == 'split';
+      var was_split = _this.loadedImg.rdefs.projection.toLowerCase() == 'split',
+          doReset = was_split ||  p == 'split';
       if (p.substring(3,0) == 'int' && _this.loadedImg.rdefs.invertAxis) {
         /* No intensity projections when axis are inverted */
         p = _this.loadedImg.rdefs.projection;
@@ -634,6 +636,22 @@ jQuery._WeblitzViewport = function (container, server, options) {
         _this.loadedImg.rdefs.projection = p;
       }
       _this.self.trigger('projectionChange', [_this]);
+
+      // if switching from 'split', and we're greyscale, need to check we only have 1 channel on
+      if (was_split && this.isGreyModel()) {
+        var found = false;
+        for (var i in _this.loadedImg.channels) {
+          if (_this.loadedImg.channels[i].active) {
+            this.setChannelActive(i, true, true);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          this.setChannelActive(0, true, true);
+        }
+      }
+
       if (!noreload) {
         _load(function () {
             if (doReset) {
