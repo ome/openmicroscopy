@@ -137,16 +137,12 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.HEIGHT), Boolean.valueOf(true)));
-		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
-		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.SHOWMEASUREMENT), 
 						Boolean.valueOf(false))); 
-		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
-			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.FILL_COLOR), 
@@ -268,40 +264,6 @@ class ObjectInspector
 		model.getDrawingView().repaint();
 	}
 	
-	/**
-	 * Sets the range of values the stroke attribute may take. 
-	 * 
-	 * @return see above.
-	 */
-	private List<Double> strokeRange()
-	{
-		List<Double> sRange = new ArrayList<Double>();
-		sRange.add(new Double(0.5));
-		sRange.add(new Double(0.75));
-		sRange.add(new Double(1));
-		sRange.add(new Double(2));
-		sRange.add(new Double(3));
-		sRange.add(new Double(4));
-		return sRange;
-	}
-	
-	/**
-	 * Set the range of values the font attribute may take. 
-	 * 
-	 * @return see above.
-	 */
-	private List<Double> fontRange()
-	{
-		List<Double> fRange = new ArrayList<Double>();
-		fRange.add(new Double(4));
-		fRange.add(new Double(8));
-		fRange.add(new Double(10));
-		fRange.add(new Double(12));
-		fRange.add(new Double(16));
-		fRange.add(new Double(24));
-		return fRange;
-	}
-	
 	/** Toggles the value of the boolean under the current selection. */
 	private void toggleValue()
 	{
@@ -406,7 +368,6 @@ class ObjectInspector
 			FigureTableModel ftm = (FigureTableModel) 
 			fieldTable.getModel();
 			ROIFigure f = ftm.getFigure();
-			//if (f != null && !f.isReadOnly() && f == figure)
 			if (f != null && f == figure)
 				fieldTable.getModel().setValueAt(show, SHOW_TEXT_ROW, 1);
 		}
@@ -441,7 +402,6 @@ class ObjectInspector
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		tableModel.setData(figure);
-		//fieldTable.setModel(tableModel);
 		fieldTable.repaint();
 	}
 	
@@ -498,7 +458,6 @@ class ObjectInspector
 			while (i.hasNext()) {
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
-				//fieldTable.setModel(tableModel);
 				fieldTable.repaint();
 			}
 		} catch (Exception e) {
