@@ -265,7 +265,6 @@ public class CreateTopContainerAction
 					default:
 						setEnabled(model.canLink(ho));
 				}
-        		//setEnabled(true);
         	}
         } else {
         	Browser browser = model.getSelectedBrowser();
@@ -287,9 +286,7 @@ public class CreateTopContainerAction
      */
     protected void onBrowserSelection(Browser browser)
     {
-        if (browser == null) {
-            setEnabled(false);
-        } //else onDisplayChange(browser.getLastSelectedDisplay());
+        if (browser == null) setEnabled(false);
     }
     
     /**
@@ -315,7 +312,7 @@ public class CreateTopContainerAction
      */
     public void setFromTopMenu(boolean fromTopMenu)
     { 
-    	this.fromTopMenu = fromTopMenu; 
+    	this.fromTopMenu = fromTopMenu;
     }
     
     /**
@@ -340,7 +337,7 @@ public class CreateTopContainerAction
 						break;
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
-							withParent = false;//true;
+							withParent = false;
 						break;
 					case TAG:
 						if (uo instanceof TagAnnotationData) {
@@ -354,6 +351,7 @@ public class CreateTopContainerAction
 				}
         	}
         }
+        if (!fromTopMenu) withParent = false;
         CreateCmd cmd = new CreateCmd(model, nodeType);
         cmd.setWithParent(withParent);
         cmd.execute();
