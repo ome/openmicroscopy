@@ -94,6 +94,15 @@ class TreeViewerWin
 	/** The text of the <code>View</code> menu.*/
 	static final String			VIEW_MENU = "View";
 	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String EDIT_MENU = "Edit";
+	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String CREATE_NEW_MENU = "Create New";
+	
+	/** The text of the <code>Edit</code> menu.*/
+	static final String RENDERING_SETTINGS_MENU = "Rendering Settings";
+	
 	/** Identifies the <code>JXTaskPane</code> layout. */
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
