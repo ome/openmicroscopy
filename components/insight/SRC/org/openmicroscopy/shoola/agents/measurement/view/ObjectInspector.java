@@ -243,6 +243,7 @@ class ObjectInspector
 				} catch (Exception e) {
 					
 				}
+				break;
 			case HEIGHT_ROW:
 				try {
 					double d = Double.parseDouble(text);
@@ -262,6 +263,7 @@ class ObjectInspector
 				} catch (Exception e) {
 					
 				}
+				break;
 		}
 		model.getDrawingView().repaint();
 	}
