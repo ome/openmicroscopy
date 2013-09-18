@@ -69,9 +69,6 @@ class PopupMenu
 {
 
 	/** Button to browse a container. */
-	private JMenuItem           browseNoThumbnails;
-	
-	/** Button to browse a container. */
 	private JMenuItem           browse;
 
 	/** Button to add existing element to the specified container. */
@@ -143,9 +140,6 @@ class PopupMenu
 	/** Button to create a new dataset. */
 	private JMenuItem			createDataset;
 	
-	/** Button to create a new dataset and add the selected images.*/
-	private JMenuItem			createDatasetFromSelection;
-	
 	/** Button to create a new tag. */
 	private JMenuItem			createTag;
 	
@@ -175,9 +169,6 @@ class PopupMenu
 	
 	/** Button to open the new Editor. */
 	private JMenuItem			newExperimentElement;
-	
-	/** Button to send feedback. */
-	private JMenuItem			sendFeedbackElement;
 	
 	/** Button to view an Image using plug-in. */
 	private JMenuItem			viewInPlugin;
@@ -247,10 +238,6 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.BROWSE);
 				browse = new JMenuItem(a);
 				initMenuItem(browse, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.BROWSE_NO_THUMBNAILS);
-				browseNoThumbnails = new JMenuItem(a);
-				initMenuItem(browseNoThumbnails, a.getActionName());
 				a = controller.getAction(TreeViewerControl.VIEW);
 				view = new JMenuItem(a);
 				initMenuItem(view, a.getActionName());
@@ -338,15 +325,6 @@ class PopupMenu
 						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
 				newExperimentElement = new JMenuItem(a);
 				initMenuItem(newExperimentElement, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.SEND_COMMENT);
-				sendFeedbackElement = new JMenuItem(a);
-				initMenuItem(sendFeedbackElement, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
-				createDatasetFromSelection = new JMenuItem(a);
-				initMenuItem(createDatasetFromSelection, a.getActionName());
-				 
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -480,7 +458,6 @@ class PopupMenu
 		switch (index) {
 			case TreeViewer.FULL_POP_UP_MENU:
 				add(browse);
-				add(browseNoThumbnails);
 				if (viewInPlugin != null) {
 					JMenu menu = new JMenu();
 					initMenuItem(menu, TreeViewerWin.VIEW_MENU);
@@ -492,11 +469,8 @@ class PopupMenu
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
-				//add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(createDatasetFromSelection);
 				add(importElement);
-				add(newElement);
 				add(cutElement);
 				add(copyElement);
 				add(pasteElement);
@@ -514,7 +488,6 @@ class PopupMenu
 				add(setOwnerRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(removeGroupElement);
-				//add(addExperimenterElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
 				break;
@@ -527,7 +500,6 @@ class PopupMenu
 			case TreeViewer.CREATE_MENU_CONTAINERS:
 				add(createProject);
 				add(createDataset);
-				//add(createScreen);
 				break;
 			case TreeViewer.CREATE_MENU_SCREENS:
 				add(createScreen);
