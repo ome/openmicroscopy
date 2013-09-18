@@ -403,34 +403,15 @@ class TreeViewerWin
     	JMenu menu = tb.getMenu(TaskBar.FILE_MENU);
     	Component[] comps = menu.getPopupMenu().getComponents();
     	menu.removeAll();
-        //JMenu menu = new JMenu("File");
-        //menu.setMnemonic(KeyEvent.VK_F);
-        
         menu.add(createNewMenu());
         if (comps != null) {
         	for (int i = 0; i < comps.length; i++) {
         		menu.add(comps[i]);
 			}
         }
-        TreeViewerAction a = controller.getAction(
-        		TreeViewerControl.SWITCH_USER);
-        JMenuItem item = new JMenuItem(a);
-        //menu.add(item);
-        item.setText(a.getActionName());
-        //menu.add(createRootMenu());
-        /*
-        a = controller.getAction(TreeViewerControl.EDITOR_NO_SELECTION);
-        item = new JMenuItem(a);
-        menu.add(item);
-        item.setText(a.getActionName());
-        a = controller.getAction(TreeViewerControl.IMPORT_NO_SELECTION);
-        item = new JMenuItem(a);
-        menu.add(item);
-        item.setText(a.getActionName());
-        */
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        a = controller.getAction(TreeViewerControl.BROWSE);
-        item = new JMenuItem(a);
+        TreeViewerAction a = controller.getAction(TreeViewerControl.BROWSE);
+        JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
         menuItems.add(item);
         menu.add(item);
