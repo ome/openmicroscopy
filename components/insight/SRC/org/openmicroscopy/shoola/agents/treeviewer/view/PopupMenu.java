@@ -329,9 +329,14 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
 				createProject = new JMenuItem(a);
 				initMenuItem(createProject, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.CREATE_TOP_DATASET);
-				((CreateTopContainerAction) a).setFromTopMenu(true);
+				if (controller.isOrphanedImagesSelected()) {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
+				} else {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_TOP_DATASET);
+					((CreateTopContainerAction) a).setFromTopMenu(true);
+				}
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
 				a = controller.getAction(
@@ -358,9 +363,14 @@ class PopupMenu
 				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
 				createProject = new JMenuItem(a);
 				initMenuItem(createProject, a.getActionName());
-				a = controller.getAction(
-						TreeViewerControl.CREATE_TOP_DATASET);
-				((CreateTopContainerAction) a).setFromTopMenu(true);
+				if (controller.isOrphanedImagesSelected()) {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_DATASET_FROM_SELECTION);
+				} else {
+					a = controller.getAction(
+							TreeViewerControl.CREATE_TOP_DATASET);
+					((CreateTopContainerAction) a).setFromTopMenu(true);
+				}
 				createDataset = new JMenuItem(a);
 				initMenuItem(createDataset, a.getActionName());
 				break;

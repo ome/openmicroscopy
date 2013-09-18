@@ -58,6 +58,7 @@ import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
 import javax.swing.event.MenuListener;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
@@ -121,7 +122,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.GroupManagerDialog;
@@ -1058,6 +1061,28 @@ class TreeViewerControl
 		model.setUserGroup(toAdd);
 	}
 	
+	/**
+	 * Returns <code>true</code> if the selected objects are orphaned images,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isOrphanedImagesSelected()
+	{
+		Browser b = model.getSelectedBrowser();
+		if (b == null) return false;
+		TreeImageDisplay[] nodes = b.getSelectedDisplays();
+		if (nodes == null || nodes.length == 0) return false;
+		TreeImageDisplay n, np;
+		for (int i = 0; i < nodes.length; i++) {
+			n = nodes[i];
+			np = n.getParentDisplay();
+			if (np instanceof TreeFileSet &&
+				((TreeFileSet) np).getType() == TreeFileSet.ORPHANED_IMAGES)
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * Reacts to property changed. 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

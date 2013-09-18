@@ -66,13 +66,13 @@ public class CreateObjectWithChildren
 	/** 
 	 * Name of the action if the selected node is a <code>Dataset</code>.
 	 */
-	private static final String NAME_DATASET = "New Dataset From Selection...";
+	private static final String NAME_DATASET = "New Dataset...";
 	
 	/** 
 	 * Description of the action if the selected node is a <code>Dataset</code>.
 	 */
 	private static final String DESCRIPTION_DATASET = "Create a new Dataset " +
-	"and add the selected images to it.";
+	"and add the selected orphaned images to it.";
 	
 	/** One of the constants defined by this class.*/
 	private int index;
