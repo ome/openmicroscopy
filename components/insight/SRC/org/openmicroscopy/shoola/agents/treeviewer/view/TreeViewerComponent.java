@@ -441,6 +441,7 @@ class TreeViewerComponent
 				} else {
 					db = handleDiscardedBrowser(displayParent);
 				}
+				model.setDataViewer(db);
 				return;
 			}
 			if (parent != null) {
@@ -523,7 +524,7 @@ class TreeViewerComponent
 	        				}
 	        			}
 					} else
-						showDataBrowser(object, parent.getParentDisplay(), 
+						showDataBrowser(object, parent.getParentDisplay(),
 								visible);
 				}
 			} else {
@@ -648,7 +649,7 @@ class TreeViewerComponent
 		model.setDataViewer(db);
 		if (db != null) {
 			Browser b = getSelectedBrowser();
-			if (b != null && b.getBrowserType() == Browser.SCREENS_EXPLORER)
+			if (b != null)
 				b.addComponent(db.getGridUI());
 		}
 	}
@@ -1053,6 +1054,7 @@ class TreeViewerComponent
 			model.setSelectedGroupId(group.getId());
 			notifyChangeGroup(oldId);
 		}
+		model.setDataViewer(null);
 		MetadataViewer metadata = model.getMetadataViewer();
 		TreeImageDisplay[] selection = browser.getSelectedDisplays();
 		
@@ -1107,6 +1109,12 @@ class TreeViewerComponent
 			display.getUserObject() instanceof ExperimenterData &&
 			display.isToRefresh()) {
 			refreshTree();
+		}
+		Browser b = model.getSelectedBrowser();
+		if (b != null && display != null) {
+			if (model.getDataViewer() != null)
+				b.addComponent(model.getDataViewer().getGridUI());
+			else b.addComponent(null);
 		}
 	}
 
@@ -2414,12 +2422,12 @@ class TreeViewerComponent
 			}
 		}
 			
-		if (db == null) return;
-		db.addPropertyChangeListener(controller);
-		//db.activate();
-		view.displayBrowser(db);
-		db.setDisplayMode(model.getDisplayMode());
-		db.activate();
+		if (db != null) {
+			db.addPropertyChangeListener(controller);
+			view.displayBrowser(db);
+			db.setDisplayMode(model.getDisplayMode());
+			db.activate();
+		}
 		model.setDataViewer(db);
 	}
 	
