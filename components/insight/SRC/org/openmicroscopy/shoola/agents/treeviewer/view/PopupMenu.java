@@ -31,6 +31,7 @@ import java.awt.event.ItemListener;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -325,6 +326,19 @@ class PopupMenu
 						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
 				newExperimentElement = new JMenuItem(a);
 				initMenuItem(newExperimentElement, a.getActionName());
+				
+				a = controller.getAction(TreeViewerControl.CREATE_TOP_PROJECT);
+				createProject = new JMenuItem(a);
+				initMenuItem(createProject, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_DATASET);
+				((CreateTopContainerAction) a).setFromTopMenu(true);
+				createDataset = new JMenuItem(a);
+				initMenuItem(createDataset, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.CREATE_TOP_SCREEN);
+				createScreen = new JMenuItem(a);
+				initMenuItem(createScreen, a.getActionName());
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -451,6 +465,53 @@ class PopupMenu
 		return menu;
 	}
 	
+	/**
+	 * Creates the menu to create new object.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildCreateNewMenu()
+	{
+		JMenu menu = new JMenu();
+		initMenuItem(menu, TreeViewerWin.CREATE_NEW_MENU);
+		menu.add(createProject);
+		menu.add(createDataset);
+		menu.add(createScreen);
+		return menu;
+	}
+	
+	/**
+	 * Creates the menu to edit the object.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildEditMenu()
+	{
+		JMenu menu = new JMenu();
+		initMenuItem(menu, TreeViewerWin.EDIT_MENU);
+		menu.add(cutElement);
+		menu.add(copyElement);
+		menu.add(pasteElement);
+		return menu;
+	}
+	
+	/**
+	 * Creates the menu to manipulate the rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildRenderingSettingsMenu()
+	{
+		JMenu menu = new JMenu();
+		initMenuItem(menu, TreeViewerWin.RENDERING_SETTINGS_MENU);
+		menu.add(copyRndElement);
+		menu.add(pasteRndElement);
+		menu.add(resetRndElement);
+		menu.add(setMinMaxElement);
+		menu.add(setOwnerRndElement);
+		return menu;
+	}
+	
 	/** Builds and lays out the GUI. */
 	private void buildGUI()
 	{
@@ -471,22 +532,16 @@ class PopupMenu
 				add(downloadElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(importElement);
-				add(cutElement);
-				add(copyElement);
-				add(pasteElement);
+				add(buildCreateNewMenu());
+				add(buildEditMenu());
+				add(deleteElement);
 				JMenu m = createMoveToMenu();
 				if (m != null) add(m);
-				add(deleteElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(tagElement);
 				add(newExperimentElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(copyRndElement);
-				add(pasteRndElement);
-				add(resetRndElement);
-				add(setMinMaxElement);
-				add(setOwnerRndElement);
-				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(buildRenderingSettingsMenu());
 				add(removeGroupElement);
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);
