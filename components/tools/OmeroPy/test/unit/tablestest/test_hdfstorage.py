@@ -17,7 +17,7 @@ import logging
 import tables
 import Ice
 
-from tablestest.library import TestCase
+from library import TestCase
 from path import path
 
 
@@ -148,7 +148,7 @@ class TestHdfStorage(TestCase):
         except omero.ApiUsageException:
             pass
         hdf.cleanup()
-        
+
     """
     Hard fails disabled. See #2067
     def testAddColumn(self):
@@ -156,11 +156,11 @@ class TestHdfStorage(TestCase):
 
     def testMergeFiles(self):
         self.fail("NYI")
-        
+
     def testVersion(self):
         self.fail("NYI")
     """
-    
+
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
         h = t / "test.h5"
