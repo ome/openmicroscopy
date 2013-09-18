@@ -49,6 +49,23 @@ import ome.system.EventContext;
  */
 public class ThumbnailCtx
 {
+
+    /**
+     * Marker exception which is thrown by all methods which wish to tell
+     * their callers that for whatever reason the desired Thumbnail is not
+     * available, in which case the caller can use a *Direct method instead.
+     *
+     * See ticket:10618
+     */
+    public static class NoThumbnail extends Exception {
+
+        public final String message;
+
+        public NoThumbnail(String message) {
+            this.message = message;
+        }
+    }
+
     /** Logger for this class. */
     private static final Log log = LogFactory.getLog(ThumbnailCtx.class);
 
@@ -425,7 +442,7 @@ public class ThumbnailCtx
      * @param pixelsId Pixels ID to retrieve the Thumbnail object for.
      * @return See above.
      */
-    public Thumbnail getMetadata(long pixelsId)
+    public Thumbnail getMetadata(long pixelsId) throws NoThumbnail
     {
         Thumbnail thumbnail = pixelsIdMetadataMap.get(pixelsId);
         if (thumbnail == null && securitySystem.isGraphCritical(null)) // maythrow
@@ -439,7 +456,7 @@ public class ThumbnailCtx
         }
         else if (thumbnail == null)
         {
-            throw new InternalException(
+            throw new NoThumbnail(
                     "Fatal error retrieving thumbnail metadata for Pixels " +
                     "set id:" + pixelsId);
         }

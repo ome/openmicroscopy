@@ -48,6 +48,7 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
+import ome.services.ThumbnailCtx.NoThumbnail;
 import ome.system.EventContext;
 import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
@@ -770,7 +771,14 @@ public class ThumbnailBean extends AbstractLevel2Service
             Set<Long> pixelsIds = new HashSet<Long>();
             pixelsIds.add(pixelsId);
             ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-            thumbnailMetadata = ctx.getMetadata(pixels.getId());
+            try {
+                thumbnailMetadata = ctx.getMetadata(pixels.getId());
+            } catch (NoThumbnail e) {
+                // See #10618
+                // Since the creation of the thumbnail was explicitly requested,
+                // we'll throw an exception instead.
+                throw new ValidationException(e.message);
+            }
             thumbnailMetadata = _createThumbnail();
             if (dirtyMetadata)
             {
@@ -987,8 +995,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-        thumbnailMetadata = ctx.getMetadata(pixelsId);
-        byte[] value = retrieveThumbnailAndUpdateMetadata();
+        byte[] value = null;
+        try {
+            thumbnailMetadata = ctx.getMetadata(pixelsId);
+            value = retrieveThumbnailAndUpdateMetadata();
+        } catch (NoThumbnail e) {
+            value = directOnNoThumbnail(dimensions);
+        }
         iQuery.clear();//see #11072
         return value;
     }
@@ -1075,8 +1088,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, size);
-        thumbnailMetadata = ctx.getMetadata(pixelsId);
-        byte[] value = retrieveThumbnailAndUpdateMetadata();
+        byte[] value = null;
+        try {
+            thumbnailMetadata = ctx.getMetadata(pixelsId);
+            value = retrieveThumbnailAndUpdateMetadata();
+        } catch (NoThumbnail e) {
+            value = directOnNoThumbnail(dimensions);
+        }
         iQuery.clear();//see #11072
         return value;
     }
@@ -1282,5 +1300,13 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     public void setDiskSpaceChecking(boolean diskSpaceChecking) {
         this.diskSpaceChecking = diskSpaceChecking;
+    }
+
+    private byte[] directOnNoThumbnail(Dimension dimensions) {
+        // see #10618
+        log.debug("Calling retrieveThumbnailDirect on failed getMetadata");
+        return retrieveThumbnailDirect((int) dimensions.getWidth(),
+                (int) dimensions.getHeight(), null, null);
+
     }
 }
