@@ -248,23 +248,7 @@ public class CreateTopContainerAction
         					TreeViewer.GROUP_DISPLAY);
         			return;
         		}
-        		switch (nodeType) {
-					case TAG:
-						if (ho instanceof TagAnnotationData) {
-							TagAnnotationData tag = (TagAnnotationData) ho;
-							String ns = tag.getNameSpace();
-							if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-								setEnabled(model.canLink(ho));
-							} else setEnabled(false);
-						} else setEnabled(model.canLink(ho));
-						break;
-					case DATASET:
-						if (ho instanceof DatasetData) setEnabled(false);
-						else setEnabled(model.canLink(ho));
-						break;
-					default:
-						setEnabled(model.canLink(ho));
-				}
+        		setEnabled(model.canLink(ho));
         	}
         } else {
         	Browser browser = model.getSelectedBrowser();
