@@ -292,7 +292,7 @@ public class TreeViewerAgent
      * 
      * @param evt The event to handle.
      */
-    private void handleActivityFinished(ActivityProcessEvent evt)
+    private void handleActivityProcessed(ActivityProcessEvent evt)
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
@@ -555,8 +555,8 @@ public class TreeViewerAgent
 			handleSaveEventRequest((SaveEventRequest) e);
 		else if (e instanceof RndSettingsCopied)
     		handleRndSettingsCopied((RndSettingsCopied) e);
-		else if (e instanceof ActivityProcessEvent && ((ActivityProcessEvent) e).isFinished())
-			handleActivityFinished((ActivityProcessEvent) e);
+		else if (e instanceof ActivityProcessEvent)
+			handleActivityProcessed((ActivityProcessEvent) e);
 		else if (e instanceof ViewerCreated)
 			handleViewerCreated((ViewerCreated) e);
 		else if (e instanceof UserGroupSwitched)
