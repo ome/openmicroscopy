@@ -35,6 +35,7 @@ import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ConcurrencyException;
 import ome.conditions.InternalException;
+import ome.conditions.ReadOnlyGroupSecurityViolation;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
@@ -994,13 +995,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         // happened in the database since our last method call.
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
-        ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
         byte[] value = null;
         try {
+            ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
             thumbnailMetadata = ctx.getMetadata(pixelsId);
             value = retrieveThumbnailAndUpdateMetadata();
-        } catch (NoThumbnail e) {
-            value = directOnNoThumbnail(dimensions);
+        } catch (Throwable t) {
+            value = handleNoThumbnail(t, dimensions);
         }
         iQuery.clear();//see #11072
         return value;
@@ -1087,13 +1088,13 @@ public class ThumbnailBean extends AbstractLevel2Service
         // happened in the database since or if sizeX and sizeY have changed.
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
-        ctx.loadAndPrepareMetadata(pixelsIds, size);
         byte[] value = null;
         try {
+            ctx.loadAndPrepareMetadata(pixelsIds, size);
             thumbnailMetadata = ctx.getMetadata(pixelsId);
             value = retrieveThumbnailAndUpdateMetadata();
-        } catch (NoThumbnail e) {
-            value = directOnNoThumbnail(dimensions);
+        } catch (Throwable t) {
+            value = handleNoThumbnail(t, dimensions);
         }
         iQuery.clear();//see #11072
         return value;
@@ -1302,11 +1303,26 @@ public class ThumbnailBean extends AbstractLevel2Service
         this.diskSpaceChecking = diskSpaceChecking;
     }
 
-    private byte[] directOnNoThumbnail(Dimension dimensions) {
-        // see #10618
-        log.debug("Calling retrieveThumbnailDirect on failed getMetadata");
-        return retrieveThumbnailDirect((int) dimensions.getWidth(),
+    /**
+     * If a known exception is thrown, then fallback to using a direct
+     * thumbnail generation method. Otherwise, re-throw the exception,
+     * wrapping it as necessary.
+     */
+    private byte[] handleNoThumbnail(Throwable t, Dimension dimensions) {
+        if (t instanceof NoThumbnail ||
+                t instanceof ReadOnlyGroupSecurityViolation) {
+            log.debug("Calling retrieveThumbnailDirect on missing thumbnail");
+            return retrieveThumbnailDirect((int) dimensions.getWidth(),
                 (int) dimensions.getHeight(), null, null);
-
+        } else if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        } else {
+            // This is unexpected. The only checked exception that
+            // should be throwable by the invoking methods should be
+            // NoThumbnail.
+            InternalException ie = new InternalException("No thumbnail available!");
+            ie.initCause(t);
+            throw ie;
+        }
     }
 }
