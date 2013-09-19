@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
-
-//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -33,15 +31,14 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableCellEditor;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import org.jhotdraw.draw.AttributeKey;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
@@ -230,45 +227,44 @@ class ObjectInspector
 			case WIDTH_ROW:
 				try {
 					double d = Double.parseDouble(text);
-					if (figure instanceof MeasureEllipseFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureRectangleFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureBezierFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureTextFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureLineConnectionFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
-					} else if (figure instanceof MeasureLineFigure){
-						figure.setAttribute(MeasurementAttributes.WIDTH, d);
+					setFigureDimension(figure, MeasurementAttributes.WIDTH, d);
+					if (isScaleProportionally()) {
+						setFigureDimension(figure, MeasurementAttributes.HEIGHT,
+								d);
 					}
 				} catch (Exception e) {
-					
 				}
 				break;
 			case HEIGHT_ROW:
 				try {
 					double d = Double.parseDouble(text);
-					if (figure instanceof MeasureEllipseFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureRectangleFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureBezierFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureTextFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureLineConnectionFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
-					} else if (figure instanceof MeasureLineFigure){
-						figure.setAttribute(MeasurementAttributes.HEIGHT, d);
+					setFigureDimension(figure, MeasurementAttributes.HEIGHT, d);
+					if (isScaleProportionally()) {
+						setFigureDimension(figure, MeasurementAttributes.WIDTH,
+								d);
 					}
 				} catch (Exception e) {
-					
 				}
 				break;
 		}
 		model.getDrawingView().repaint();
+	}
+	
+	private void setFigureDimension(ROIFigure figure, AttributeKey key,
+			double dimension) {
+		if (figure instanceof MeasureEllipseFigure){
+			figure.setAttribute(key, dimension);
+		} else if (figure instanceof MeasureRectangleFigure){
+			figure.setAttribute(key, dimension);
+		} else if (figure instanceof MeasureBezierFigure){
+			figure.setAttribute(key, dimension);
+		} else if (figure instanceof MeasureTextFigure){
+			figure.setAttribute(key, dimension);
+		} else if (figure instanceof MeasureLineConnectionFigure){
+			figure.setAttribute(key, dimension);
+		} else if (figure instanceof MeasureLineFigure){
+			figure.setAttribute(key, dimension);
+		}
 	}
 	
 	/** Toggles the value of the boolean under the current selection. */
@@ -399,6 +395,23 @@ class ObjectInspector
 		return false;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the figure dimensions are to be scaled
+	 * proportionally, <code>false</code> otherwise.
+	 *
+	 * @return See above.
+	 */
+	boolean isScaleProportionally() {
+		if (fieldTable == null) return false;
+		int n = fieldTable.getRowCount();
+		if (n > 1) {
+			Object v = fieldTable.getModel().getValueAt(SCALE_PROPORTIONALLY_ROW,
+					1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
+		return false;
+	}
 	
 	/**
 	 * Sets the data.
