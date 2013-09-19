@@ -414,7 +414,7 @@ Examples:
                 try:
                     self.ctx.out("Installing %s Windows service." % svc_name)
                     hs = win32service.CreateService(hscm, svc_name, svc_name, win32service.SERVICE_ALL_ACCESS,
-                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_DEMAND_START,
+                            win32service.SERVICE_WIN32_OWN_PROCESS, win32service.SERVICE_AUTO_START,
                             win32service.SERVICE_ERROR_NORMAL, binpath, None, 0, None, user, pasw)
                     self.ctx.out("Successfully installed %s Windows service." % svc_name)
                     win32service.CloseServiceHandle(hs)
