@@ -773,15 +773,16 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setContainerCountValue(int, long, Set)
      */
-    public void setContainerCountValue(long containerID, long value, 
+    public void setContainerCountValue(long containerID, long value,
     		Set<TreeImageSet> nodes)
     {
-        //int state = model.getState();
-        boolean b = model.setContainerCountValue(view.getTreeDisplay(), 
+        int state = model.getState();
+        if (state == DISCARDED) return;
+        boolean b = model.setContainerCountValue(view.getTreeDisplay(),
 									containerID, value, nodes);
-        if (b) 
+        if (b) {
         	view.getTreeDisplay().repaint();
-        
+        }
         model.getParentModel().setStatus(false, "", true);
     }
     
@@ -1489,6 +1490,10 @@ class BrowserComponent
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
+		
+		
+		
+		
 		//expand the nodes.
 		i = nodes.entrySet().iterator();
 		Map m;
@@ -1497,7 +1502,7 @@ class BrowserComponent
 		NodesFinder finder;
 		if (type == null) {
 			List l;
-			Iterator k;
+			Iterator<TreeImageDisplay> k;
 			Set<TreeImageDisplay> found;
 			while (i.hasNext()) {
 				entry = i.next();
@@ -1505,19 +1510,21 @@ class BrowserComponent
 				expNode = node.getExperimenterNode();
 				if (expNode.isExpanded()) {
 					m = node.getExpandedTopNodes();
-					if (m != null && m.size() > 0 && 
-							node.getExpandedNodes().size() == 0) {
+					boolean b = node.getExpandedNodes().size() == 0;
+					if (model.getBrowserType() == TAGS_EXPLORER)
+						b = node.getExpandedNodes().size() > 0;
+					if (m != null && m.size() > 0 && b) {
 						j = m.entrySet().iterator();
 						while (j.hasNext()) {
 							e = (Entry) j.next();
-							finder = new NodesFinder((Class) e.getKey(), 
+							finder = new NodesFinder((Class) e.getKey(),
 									(List) e.getValue());
 							accept(finder);
 							found = finder.getNodes();
 							if (found.size() > 0) {
 								k = found.iterator();
 								while (k.hasNext()) {
-									view.expandNode((TreeImageDisplay) k.next());
+									view.expandNode(k.next());
 								}
 							}
 						}
@@ -1548,7 +1555,7 @@ class BrowserComponent
 						countItems(null, groupNode);
 					}
 				}
-		}	
+		}
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);

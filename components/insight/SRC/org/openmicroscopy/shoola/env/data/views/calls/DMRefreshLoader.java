@@ -39,6 +39,9 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 
+import omero.model.Project;
+
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
@@ -118,7 +121,7 @@ public class DMRefreshLoader
         	ctx = entry.getKey();
         	userID = ctx.getExperimenter();
         	containers = entry.getValue();
-        	if (containers == null || containers.size() == 0) {
+        	if (CollectionUtils.isEmpty(containers)) {
         		result = os.loadContainerHierarchy(ctx, rootNodeType, null, 
                 		false, ctx.getExperimenter());
         		if (mapResult.containsKey(ctx)) {
@@ -370,47 +373,60 @@ public class DMRefreshLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
+                OmeroDataService ds = context.getDataService();
                 Map<SecurityContext, Object> r = 
                 	new HashMap<SecurityContext, Object>(nodes.size());
                 long userID;
                 Object result;
-                Entry entry;
-                Iterator j = nodes.entrySet().iterator();
-                List l;
+                Entry<SecurityContext, List> entry;
+                Iterator<Entry<SecurityContext, List>>
+                j = nodes.entrySet().iterator();
+                List<?> l;
                 Collection tags;
                 Iterator k;
                 Iterator<TagAnnotationData> i;
                 TagAnnotationData tag, child;
-                Map<Long, Collection> values;
+                Map<Long, Collection<?>> values;
                 String ns;
                 Set<TagAnnotationData> set;
                 SecurityContext ctx;
+                Map<DataObject, Set<?>> mapForDataObject;
                 while (j.hasNext()) {
-                	entry = (Entry) j.next();
-                	ctx = (SecurityContext) entry.getKey();
+                	entry = j.next();
+                	ctx = entry.getKey();
                 	userID = ctx.getExperimenter();
-                	l = (List) entry.getValue();
+                	l = entry.getValue();
                 	
                 	tags = os.loadTags(ctx, -1L, false, true, userID, -1);
                 	List<Object> tagResults = new ArrayList<Object>();
-                	if (l == null || l.size() == 0) {
+                	mapForDataObject = new HashMap<DataObject, Set<?>>();
+                	if (CollectionUtils.isEmpty(l)) {
                 		r.put(ctx, tags);
                 	} else {
-                		values = new HashMap<Long, Collection>();
+                		values = new HashMap<Long, Collection<?>>();
                 		k = l.iterator();
                 		Object ob;
                 		TimeRefObject ref;
+                		DataObject ho;
                 		while (k.hasNext()) {
                 			ob = k.next();
                 			if (ob instanceof TagAnnotationData) {
                 				tag = (TagAnnotationData) ob;
     							values.put(tag.getId(), os.loadTags(ctx,
     									tag.getId(), true, false, userID, -1));
-                			} else {
+                			} else if (ob instanceof TimeRefObject) {
                 				ref = (TimeRefObject) ob;
-                				ref.setResults(os.loadFiles(ctx, 
+                				ref.setResults(os.loadFiles(ctx,
                 					ref.getFileType(), userID));
                 				tagResults.add(ref);
+                			} else if (ob instanceof DataObject) {
+                				//retrieve the data for the data object
+                				ho = (DataObject) ob;
+                				System.err.println(ho);
+                				mapForDataObject.put(ho,
+                						ds.loadContainerHierarchy(ctx,
+                					ob.getClass(), Arrays.asList(ho.getId()),
+                					true, userID));
                 			}
 						}
                 		k = tags.iterator();
@@ -431,10 +447,29 @@ public class DMRefreshLoader
 									}
 								}
 							} else {
-								if (values.containsKey(tag.getId()))
-    								tag.setDataObjects(
-    										(Set<DataObject>) values.get(
-    												tag.getId()));
+								if (values.containsKey(tag.getId())) {
+									if (mapForDataObject.isEmpty()) {
+										tag.setDataObjects(
+	    										(Set<DataObject>) values.get(
+	    												tag.getId()));
+									} else {
+										
+										Set<DataObject> objects =
+												(Set<DataObject>) values.get(
+												tag.getId());
+										Set<DataObject> newList =
+												new HashSet<DataObject>(
+														objects.size());
+										Iterator<DataObject> kk =
+												objects.iterator();
+										while (kk.hasNext()) {
+											ho = kk.next();
+											newList.add(getLoadedObject(
+													mapForDataObject, ho));
+										}
+										tag.setDataObjects(newList);
+									}
+								}
 							}
     					}
                 		r.put(ctx, tagResults);
@@ -443,6 +478,46 @@ public class DMRefreshLoader
                 results = r;
             }
         };
+    }
+    
+    /**
+     * Checks the object has been reloaded.
+     * 
+     * @param map The list of reloaded object.
+     * @param ho The data object of reference.
+     */
+    private DataObject getLoadedObject(Map<DataObject, Set<?>> map,
+    		DataObject ho)
+    {
+    	Set<DataObject> sets = map.keySet();
+    	Iterator<DataObject> i = sets.iterator();
+    	DataObject object;
+    	Set<?> s;
+    	while (i.hasNext()) {
+    		object = i.next();
+			if (object.getClass().equals(ho.getClass()) &&
+					object.getId() == ho.getId()) {
+				s = map.get(object);
+				return (DataObject) s.iterator().next();
+			} else if (ho instanceof ProjectData) { //need to check the dataset
+				ProjectData p = (ProjectData) ho;
+				Set<DatasetData> datasets = p.getDatasets();
+				Iterator<DatasetData> j = datasets.iterator();
+				Project po = p.asProject();
+				Set<DatasetData> loaded = new HashSet<DatasetData>();
+				po.unloadCollections();
+				while (j.hasNext()) {
+					DataObject data = j.next();
+					if (object.getClass().equals(data.getClass()) &&
+							object.getId() == data.getId()) {
+						return p; //to be reviewed
+					}
+					//p.setDatasets(datasets);
+					return p;
+				}
+			}
+		}
+    	return ho;
     }
     
     /**
