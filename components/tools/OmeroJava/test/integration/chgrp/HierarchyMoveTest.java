@@ -698,7 +698,7 @@ public class HierarchyMoveTest extends AbstractServerTest {
      * @throws Exception
      *             Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testMovePlateWithReagent() throws Exception {
         String perms = "rw----";
         EventContext ctx = newUserAndGroup(perms);

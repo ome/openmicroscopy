@@ -127,7 +127,6 @@ import pojos.XMLAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class UpdateServiceTest 
 	extends AbstractServerTest
 {
@@ -136,7 +135,7 @@ public class UpdateServiceTest
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions"})
+    @Test
     public void testVersionHandling() 
     	throws Exception
     {
@@ -157,7 +156,7 @@ public class UpdateServiceTest
      * after updating an annotation linked to the image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "ticket:118" })
+    @Test(groups = "ticket:118")
     public void tesVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
@@ -188,7 +187,7 @@ public class UpdateServiceTest
      * Object.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "ticket:118" })
+    @Test(groups = "ticket:118")
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
@@ -1149,7 +1148,7 @@ public class UpdateServiceTest
      * Tests the creation of an ROI not linked to an image.
      * @throws Exception  Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testCreateROIWithoutImage()
     	throws Exception
     {
@@ -1491,7 +1490,7 @@ public class UpdateServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = false, groups = {"ticket:2705"})
+    @Test(groups = {"broken", "ticket:2705"})
     public void testDeleteAnnotation() 
     	throws Exception
     {
@@ -1717,7 +1716,7 @@ public class UpdateServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = true)
+    @Test
     public void testDeleteCommentAnnotationLinkedToObject()
     	throws Exception
     {

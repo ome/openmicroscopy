@@ -49,7 +49,6 @@ import omero.model.OriginalFile;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class ScriptServiceTest 
 	extends AbstractServerTest
 {
@@ -79,7 +78,7 @@ public class ScriptServiceTest
      * @throws Exception Thrown if an error occurred.
      * @see #testGetScripts() 
      */
-    @Test(enabled = true)
+    @Test
     public void testGetParams() 
     	throws Exception 
     {
@@ -100,7 +99,7 @@ public class ScriptServiceTest
      * this method uses the <code>uploadOfficialScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testUploadOfficialScript()
     	throws Exception
     {
@@ -125,7 +124,7 @@ public class ScriptServiceTest
      * this method uses the <code>uploadOfficialScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testUploadOfficialScriptAsRoot()
     	throws Exception
     {
@@ -148,7 +147,7 @@ public class ScriptServiceTest
      * Tests to upload a script, this method uses the <code>uploadScript</code>.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testUploadScript()
     	throws Exception
     {

@@ -34,7 +34,7 @@ import static org.testng.AssertJUnit.*;
  * @see ticket:2994
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class HierarchyDeleteTest extends AbstractServerTest {
 
     private final static omero.RString t3031 = omero.rtypes.rstring("#3031");

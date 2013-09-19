@@ -47,7 +47,7 @@ import static org.testng.AssertJUnit.*;
  * @see ticket:2994
  * @since 4.2.1
  */
-@Test(groups = { "delete", "integration", "ticket:2615" })
+@Test(groups = "ticket:2615")
 public class AnnotationDeleteTest extends AbstractServerTest {
 
 	/** Reference to the <code>Rating</code> name space. */
@@ -184,7 +184,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
      * when the image is deleted even if the ratings where made by others.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = { "ticket:2997" })
+    @Test(groups = "ticket:2997")
     public void testOtherUsersRatingsIsDeleted() throws Exception {
 
         EventContext owner = newUserAndGroup("rwrw--");
@@ -211,7 +211,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
         disconnect();
     }
 
-    @Test(enabled = false, groups = { "ticket:2997" })
+    @Test(groups = {"broken", "ticket:2997"})
     public void testOtherUsersRatingsIsNotDeletedIfReused() throws Exception {
         fail("NYI");
     }
@@ -225,7 +225,7 @@ public class AnnotationDeleteTest extends AbstractServerTest {
      * deleted when the annotation is deleted.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = { "ticket:3002", "ticket:3015" })
+    @Test(groups = {"ticket:3002", "ticket:3015"})
     public void testAnnotationsRemovedFromAnnotation() throws Exception {
         newUserAndGroup("rw----");
         Annotation ann = (Annotation) iUpdate

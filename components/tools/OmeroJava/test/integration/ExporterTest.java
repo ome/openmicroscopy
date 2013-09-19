@@ -70,7 +70,6 @@ import ome.specification.OmeValidator;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class ExporterTest 
 	extends AbstractServerTest
 {
@@ -271,7 +270,7 @@ public class ExporterTest
      * @throws Exception Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
-    @Test
+    @Test(groups = "broken")
     public void testExportAsOMETIFFDowngrade() 
     	throws Exception 
     {

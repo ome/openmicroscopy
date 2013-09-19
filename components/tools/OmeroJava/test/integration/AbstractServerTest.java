@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -115,7 +115,6 @@ import spec.AbstractTest;
  *
  * @since Beta4.2
  */
-@Test(groups = { "client", "integration", "blitz", "fs" })
 public class AbstractServerTest
 	extends AbstractTest
 {
@@ -215,7 +214,7 @@ public class AbstractServerTest
      * @throws Exception Thrown if an error occurred.
      */
     @Override
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     protected void setUp() 
     	throws Exception
     {
@@ -634,7 +633,7 @@ public class AbstractServerTest
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        factoryEncrypted = c.createSession(ec.userName, "");
+        factoryEncrypted = c.createSession(ec.userName, null);
         return init(c);
     }
 
