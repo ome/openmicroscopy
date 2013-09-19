@@ -312,6 +312,10 @@ Alias /omero "%(ROOT)s/var/omero.fcgi/"
             cargs.extend(['--cov-report', cov_rep])
 
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
+        # The following is needed so the cwd is included in the python path
+        # when using --testpath
+        os.environ['PYTHONPATH'] += ':.'
+
         rv = self.ctx.call(cargs, cwd = cwd)
 
     def seleniumtest (self, args):
