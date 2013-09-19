@@ -59,46 +59,43 @@ class PopupMenu
 {
 	
 	/** Button to browse a container or bring up the Viewer for an image. */
-	private JMenuItem   		view;
+	private JMenuItem view;
 
 	/** Button to cut the selected elements. */
-	private JMenuItem			cutElement;
+	private JMenuItem cutElement;
 
 	/** Button to copy the selected elements. */
-	private JMenuItem			copyElement;
+	private JMenuItem copyElement;
 
 	/** Button to paste the selected elements. */
-	private JMenuItem			pasteElement;
+	private JMenuItem pasteElement;
 
 	/** Button to remove the selected elements. */
-	private JMenuItem			removeElement;
+	private JMenuItem removeElement;
 
 	/** Button to paste the rendering settings. */
-	private JMenuItem			pasteRndSettings;
+	private JMenuItem pasteRndSettings;
 
 	/** Button to reset the rendering settings. */
-	private JMenuItem			resetRndSettings;
+	private JMenuItem resetRndSettings;
 
 	/** Button to copy the rendering settings. */
-	private JMenuItem			copyRndSettings;
+	private JMenuItem copyRndSettings;
 	
 	/** Button to set the min/max for each channel. */
-	private JMenuItem			setMinMaxSettings;
+	private JMenuItem setMinMaxSettings;
 
 	/** Button to set the original rendering settings. */
-	private JMenuItem			setOwnerRndSettings;
+	private JMenuItem setOwnerRndSettings;
 	
 	/** Button to tag the element. */
-	private JMenuItem			tagElement;
+	private JMenuItem tagElement;
 	
 	/** Button to launch the editor with a new experiment. */
-	private JMenuItem			newExperimentElement;
+	private JMenuItem newExperimentElement;
 
-	/** Button to send feedback about an image. */
-	private JMenuItem			sendFeedbackElement;
-	
 	/** Button to open a document with an external application. */
-	private JMenu				openWithMenu;
+	private JMenu openWithMenu;
 	
 	/** Reference to the control. */
 	private DataBrowserControl controller;
@@ -131,8 +128,6 @@ class PopupMenu
 				DataBrowserControl.TAG));
 		newExperimentElement = new JMenuItem(controller.getAction(
 				DataBrowserControl.NEW_EXPERIMENT));
-		sendFeedbackElement = new JMenuItem(controller.getAction(
-				DataBrowserControl.SEND_FEEDBACK));
 		
 		view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
 		copyElement = new JMenuItem(
@@ -165,6 +160,36 @@ class PopupMenu
 			cutElement.setEnabled(false);
 		}
 	}
+
+	/**
+	 * Creates the menu to edit the object.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildEditMenu()
+	{
+		JMenu menu = new JMenu("Edit");
+		menu.add(cutElement);
+		menu.add(copyElement);
+		menu.add(pasteElement);
+		return menu;
+	}
+	
+	/**
+	 * Creates the menu to manipulate the rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	private JMenu buildRenderingSettingsMenu()
+	{
+		JMenu menu = new JMenu("Rendering Settings");
+		menu.add(copyRndSettings);
+		menu.add(pasteRndSettings);
+		menu.add(resetRndSettings);
+		menu.add(setMinMaxSettings);
+		menu.add(setOwnerRndSettings);
+		return menu;
+	}
 	
 	/** Builds and lays out the GUI. */
 	private void buildGUI() 
@@ -193,22 +218,15 @@ class PopupMenu
 		};
 		add(openWithMenu);
 		add(new JSeparator(JSeparator.HORIZONTAL));
-		add(cutElement);
-		add(copyElement);
-		add(pasteElement);
+		add(buildEditMenu());
+		add(removeElement);
 		JMenu m = createMoveToMenu();
 		if (m != null) add(m);
-		add(removeElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
 		add(tagElement);
 		add(newExperimentElement);
-		//add(sendFeedbackElement);
 		add(new JSeparator(JSeparator.HORIZONTAL));
-		add(copyRndSettings);
-		add(pasteRndSettings);
-		add(resetRndSettings);
-		add(setMinMaxSettings);
-		add(setOwnerRndSettings);
+		add(buildRenderingSettingsMenu());
 	}
 	
 	/** 
