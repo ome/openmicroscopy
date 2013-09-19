@@ -342,6 +342,8 @@ public class PojosImpl extends AbstractLevel2Service implements IContainer {
             if (effIds == null || effIds.size() == 0) {
                 return new HashSet();
             }
+            /* paging has now been done */
+            options = options.page(0, Integer.MAX_VALUE);
         }
 
         Query<List<IObject>> q = getQueryFactory().lookup(
