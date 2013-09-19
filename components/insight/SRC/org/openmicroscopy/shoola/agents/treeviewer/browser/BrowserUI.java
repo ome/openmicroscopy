@@ -2326,9 +2326,9 @@ class BrowserUI
 	 */
 	void reloadNode(TreeImageDisplay node)
 	{
-		if (node == null) return;
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
-		tm.reload(node);
+		if (node == null) tm.reload();
+		else tm.reload(node);
 	}
 	
 	/**

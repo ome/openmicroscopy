@@ -409,7 +409,6 @@ public class RefreshExperimenterDataLoader
         		} else {
         			setExperimenterResult(ctx, o);
         		}
-            	
     		}
         }
         viewer.setRefreshExperimenterData(expNodes, type, id);

@@ -411,7 +411,7 @@ class BrowserModel
      * 
      * @param tree The component hosting the node.
      * @param containerID The ID of the container.
-     * @param value	The number of items.
+     * @param value The number of items.
      * @param nodes The collection of nodes.
      * @return See above.
      */
