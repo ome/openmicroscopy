@@ -85,13 +85,13 @@ class ObjectInspector
 	/** The row indicating to show the text or not. */
 	private static final int TEXT_ROW = 0;
 	
-	/** The row indicating to show the measurement or not. */
+	/** The row indicating if to update the figure width and height together. */
 	private static final int SCALE_PROPORTIONALLY_ROW = 1;
 	
-	/** The row indicating to show the text or not. */
+	/** The row hosting the figure width. */
 	private static final int WIDTH_ROW = 2;
 	
-	/** The row indicating to show the text or not. */
+	/** The row hosting the figure height. */
 	private static final int HEIGHT_ROW = 3;
 	
 	/** The row indicating to show the text or not. */
@@ -103,7 +103,7 @@ class ObjectInspector
 	/** The row hosting the fill color. */
 	static final int FILL_COLOR_ROW = 6;
 	
-	/** The row hosting the fill color. */
+	/** The row hosting the line color. */
 	static final int LINE_COLOR_ROW = 7;
 	
 	/** The name of the panel. */
@@ -130,31 +130,31 @@ class ObjectInspector
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(MeasurementAttributes.TEXT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), Boolean.valueOf(true)));
+				AnnotationKeys.TEXT), true));
 		l.add(new AttributeField(MeasurementAttributes.SCALE_PROPORTIONALLY,
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.SCALE_PROPORTIONALLY),
-						Boolean.valueOf(false)));
+						false));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.WIDTH), Boolean.valueOf(true)));
+				AnnotationKeys.WIDTH), true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.HEIGHT), Boolean.valueOf(true)));
+				AnnotationKeys.HEIGHT), true));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
-				Boolean.valueOf(false)));
+				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.SHOWMEASUREMENT), 
-						Boolean.valueOf(false))); 
+						false));
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.FILL_COLOR), 
-						Boolean.valueOf(false)));
+						false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				AnnotationDescription.annotationDescription.get(
 						MeasurementAttributes.STROKE_COLOR), 
-						Boolean.valueOf(false)));
+						false));
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, COLUMN_NAMES));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
