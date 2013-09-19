@@ -430,7 +430,8 @@ jQuery.fn.viewportImage = function(options) {
                 staticBaseURL   : mediaroot+'3rdparty/panojs/images/',
                 blankTile       : mediaroot+'3rdparty/panojs/images/blank.gif',
                 loadingTile     : mediaroot+'3rdparty/panojs/images/blank.gif',
-                zoomLevelScaling : zoomLevelScaling
+                zoomLevelScaling : zoomLevelScaling,
+                delay           : 300
             });
             
             viewerBean.mouseReleasedHandler = function(e) {
