@@ -18,7 +18,6 @@ import omero.model.PermissionsI;
  *
  * @since 4.4.0
  */
-@Test(groups = { "client", "integration", "permissions" })
 public class PermissionsTest
 	extends AbstractServerTest {
 

@@ -51,7 +51,7 @@ public class HierarchyMoveAndPermissionsTest
      * image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageRW()
 	throws Exception
     {
@@ -91,7 +91,7 @@ public class HierarchyMoveAndPermissionsTest
      * image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageRWR()
 	throws Exception
     {
@@ -129,7 +129,7 @@ public class HierarchyMoveAndPermissionsTest
      * Test to move an image w/o pixels between <code>RWRW--</code> groups.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageRWRW()
 	throws Exception
     {
@@ -168,7 +168,7 @@ public class HierarchyMoveAndPermissionsTest
      * source group is NOT an owner or member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerDestination()
         throws Exception
     {
@@ -208,7 +208,7 @@ public class HierarchyMoveAndPermissionsTest
      * source group is NOT an owner but IS a member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerButMemberDestination()
         throws Exception
     {
@@ -248,7 +248,7 @@ public class HierarchyMoveAndPermissionsTest
      * source <code>RW----</code>, destination <code>RWR---</code>
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageRWToRWR()
 	throws Exception
     {
@@ -288,7 +288,7 @@ public class HierarchyMoveAndPermissionsTest
      * source <code>RWR---</code>, destination <code>RW----</code>
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageRWRToRW()
 	throws Exception
     {
@@ -328,7 +328,7 @@ public class HierarchyMoveAndPermissionsTest
      * not owner of the groups.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageNotOwnerOfGroupsRWRW()
 	throws Exception
     {
@@ -368,7 +368,7 @@ public class HierarchyMoveAndPermissionsTest
      * Only owner of the destination group
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveBasicImageOwnerOfDestinationOnlyRWRW()
 	throws Exception
     {
@@ -450,7 +450,7 @@ public class HierarchyMoveAndPermissionsTest
      * a member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRW()
 	throws Exception
     {
@@ -516,7 +516,7 @@ public class HierarchyMoveAndPermissionsTest
      * a member of the destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRWRW()
 	throws Exception
     {
@@ -582,7 +582,7 @@ public class HierarchyMoveAndPermissionsTest
      * destination group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(groups = "broken")
     public void testMoveDatasetImageGraphLinkDoneByImageOwnerRWRWtoRWRWBothMembers()
 	throws Exception
     {
@@ -742,7 +742,7 @@ public class HierarchyMoveAndPermissionsTest
      * owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false) // Owners can no longer chgrp
+    @Test(groups = "broken") // Owners can no longer chgrp
     public void testMoveImageOwnedByOtherRWRWToRWRW()
 	throws Exception
     {
