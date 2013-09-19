@@ -252,17 +252,12 @@ class ObjectInspector
 	
 	private void setFigureDimension(ROIFigure figure, AttributeKey key,
 			double dimension) {
-		if (figure instanceof MeasureEllipseFigure){
-			figure.setAttribute(key, dimension);
-		} else if (figure instanceof MeasureRectangleFigure){
-			figure.setAttribute(key, dimension);
-		} else if (figure instanceof MeasureBezierFigure){
-			figure.setAttribute(key, dimension);
-		} else if (figure instanceof MeasureTextFigure){
-			figure.setAttribute(key, dimension);
-		} else if (figure instanceof MeasureLineConnectionFigure){
-			figure.setAttribute(key, dimension);
-		} else if (figure instanceof MeasureLineFigure){
+		if (figure instanceof MeasureEllipseFigure ||
+			figure instanceof MeasureRectangleFigure ||
+			figure instanceof MeasureBezierFigure ||
+			figure instanceof MeasureTextFigure ||
+			figure instanceof MeasureLineConnectionFigure ||
+			figure instanceof MeasureLineFigure) {
 			figure.setAttribute(key, dimension);
 		}
 	}
