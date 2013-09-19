@@ -2774,7 +2774,7 @@ class _BlitzGateway (object):
                 # need to ensure that the plane dtype matches the pixels type of our new image
                 img = self.getObject("Image", iId.getValue())
                 newPtype = img.getPrimaryPixels().getPixelsType().getValue()
-                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
+                omeroToNumpy = {'int8':'int8', 'uint8':'uint8', 'int16':'int16', 'uint16':'uint16', 'int32':'int32', 'uint32':'uint32', 'float':'float32', 'double':'double'}
                 if omeroToNumpy[newPtype] != firstPlane.dtype.name:
                     convertToType = getattr(numpy, omeroToNumpy[newPtype])
                 img._obj.setName(rstring(imageName))
