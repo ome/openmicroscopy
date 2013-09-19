@@ -82,29 +82,32 @@ class ObjectInspector
 	/** Index to identify tab */
 	public final static int		INDEX = MeasurementViewerUI.INSPECTOR_INDEX;
 
-	/** The row hosting the fill color. */
-	static final int FILL_COLOR_ROW = 5;
-	
-	/** The row hosting the fill color. */
-	static final int LINE_COLOR_ROW = 6;
-	
 	/** Collection of column names. */
 	private static final List<String>			COLUMN_NAMES;
 	
 	/** The row indicating to show the text or not. */
 	private static final int TEXT_ROW = 0;
 	
-	/** The row indicating to show the text or not. */
-	private static final int WIDTH_ROW = 1;
+	/** The row indicating to show the measurement or not. */
+	private static final int SCALE_PROPORTIONALLY_ROW = 1;
 	
 	/** The row indicating to show the text or not. */
-	private static final int HEIGHT_ROW = 2;
+	private static final int WIDTH_ROW = 2;
 	
 	/** The row indicating to show the text or not. */
-	private static final int SHOW_TEXT_ROW = 3;
+	private static final int HEIGHT_ROW = 3;
+	
+	/** The row indicating to show the text or not. */
+	private static final int SHOW_TEXT_ROW = 4;
 	
 	/** The row indicating to show the measurement or not. */
-	private static final int SHOW_MEASUREMENT_ROW = 4;
+	private static final int SHOW_MEASUREMENT_ROW = 5;
+	
+	/** The row hosting the fill color. */
+	static final int FILL_COLOR_ROW = 6;
+	
+	/** The row hosting the fill color. */
+	static final int LINE_COLOR_ROW = 7;
 	
 	/** The name of the panel. */
 	private static final String			NAME = "Inspector";
@@ -131,6 +134,10 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, 
 				AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.TEXT), Boolean.valueOf(true)));
+		l.add(new AttributeField(MeasurementAttributes.SCALE_PROPORTIONALLY,
+				AnnotationDescription.annotationDescription.get(
+						MeasurementAttributes.SCALE_PROPORTIONALLY),
+						Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
 				AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.WIDTH), Boolean.valueOf(true)));
@@ -345,7 +352,7 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 3) {
+		if (n > 4) {
 			Object v = fieldTable.getModel().getValueAt(SHOW_TEXT_ROW, 1);
 			if (v == null) return false;
 			return (Boolean) v;
@@ -364,7 +371,7 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return;
 		int n = fieldTable.getRowCount();
-		if (n > 3) {
+		if (n > 4) {
 			FigureTableModel ftm = (FigureTableModel) 
 			fieldTable.getModel();
 			ROIFigure f = ftm.getFigure();
@@ -383,7 +390,7 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 4) {
+		if (n > 5) {
 			Object v = fieldTable.getModel().getValueAt(SHOW_MEASUREMENT_ROW, 
 					1);
 			if (v == null) return false;
