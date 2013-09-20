@@ -23,11 +23,16 @@ Utility methods for dealing with scripts.
 """
 
 import logging
-import getopt, sys, os, subprocess
-from struct import *
+import os
+
+from struct import text
+from struct import unpack
 
 import omero.clients
-from omero.rtypes import *
+from omero.rtypes import rdouble
+from omero.rtypes import rint
+from omero.rtypes import rstring
+from omero.rtypes import unwrap
 import omero.util.pixelstypetopython as pixelstypetopython
 
 try:
@@ -232,7 +237,6 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
         filePath = "%s_%s.%s" % (path,i,ext)
         i +=1
     fileHandle = open(filePath, 'w')
-    data = '';
     cnt = 0;
     fileSize = originalFile.getSize().getValue()
     while(cnt<fileSize):
@@ -443,7 +447,6 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     rawPlane = rawPixelsStore.getPlane(z, c, t);
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
-    pixelsId = pixels.getId().getValue();
     pixelType = pixels.getPixelsType().getValue().getValue();
     convertType ='>'+str(sizeX*sizeY)+pixelstypetopython.toPython(pixelType);
     convertedPlane = unpack(convertType, rawPlane);
@@ -670,7 +673,6 @@ def uploadCecogObjectDetails(updateService, imageId, filePath):
     import fileinput
     for line in fileinput.input([filePath]):
 
-        theZ = 0
         theT = None
         x = None
         y = None
@@ -763,8 +765,6 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
 
     query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
     pixels = queryService.findByQuery(query_string, None)
-    sizeX = pixels.getSizeX().getValue()
-    sizeY = pixels.getSizeY().getValue()
     sizeZ = pixels.getSizeZ().getValue()
     sizeC = pixels.getSizeC().getValue()
     sizeT = pixels.getSizeT().getValue()
