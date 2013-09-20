@@ -59,11 +59,10 @@ public class ThumbnailCtx
      */
     public static class NoThumbnail extends Exception {
 
-        public final String message;
-
         public NoThumbnail(String message) {
-            this.message = message;
+            super(message);
         }
+
     }
 
     /** Logger for this class. */

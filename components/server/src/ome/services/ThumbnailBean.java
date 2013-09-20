@@ -778,7 +778,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 // See #10618
                 // Since the creation of the thumbnail was explicitly requested,
                 // we'll throw an exception instead.
-                throw new ValidationException(e.message);
+                throw new ValidationException(e.getMessage());
             }
             thumbnailMetadata = _createThumbnail();
             if (dirtyMetadata)
