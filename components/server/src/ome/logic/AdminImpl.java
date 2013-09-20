@@ -9,7 +9,6 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -47,7 +46,6 @@ import ome.api.local.LocalAdmin;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
-import ome.conditions.GroupSecurityViolation;
 import ome.conditions.InternalException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
@@ -60,8 +58,6 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.ChecksumAlgorithm;
 import ome.model.internal.Permissions;
-import ome.model.internal.Permissions.Right;
-import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -229,11 +225,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         qb.and("m.child.id = :id");
         qb.param("id", e.getId());
 
-        List<Long> groupIds = iQuery.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session)
+        List<Long> groupIds = iQuery.execute(new HibernateCallback<List<Long>>() {
+            public List<Long> doInHibernate(Session session)
                     throws HibernateException, SQLException {
                 org.hibernate.Query q = qb.query(session);
-                return q.list();
+                return (List<Long>) q.list();
             }
         });
         return groupIds;
@@ -634,7 +630,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
-    @SuppressWarnings("unchecked")
     public long createExperimenter(final Experimenter experimenter,
             ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups) {
 
@@ -914,7 +909,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void changeGroup(IObject iObject, String groupName) {
-        final LocalUpdate update = iUpdate;
         // should take a group
         final IObject copy = iQuery.get(iObject.getClass(), iObject.getId());
         final ExperimenterGroup group = groupProxy(groupName);
@@ -1310,7 +1304,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // ~ group permissions
     // =========================================================================
 
-    @SuppressWarnings("unchecked")
     private Set<String> classes() {
         return getExtendedMetadata().getClasses();
     }
