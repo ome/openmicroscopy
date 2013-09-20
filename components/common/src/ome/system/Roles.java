@@ -10,8 +10,6 @@ package ome.system;
 // Java imports
 import java.io.Serializable;
 
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -21,13 +19,10 @@ import ome.model.meta.ExperimenterGroup;
  * These values are also used during install to initialize the database.
  * 
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision$, $Date$
  * @see ome.model.meta.Experimenter
  * @see ome.model.meta.ExperimenterGroup
  * @since 3.0-M3
  */
-@RevisionDate("$Date$")
-@RevisionNumber("$Revision$")
 public final class Roles implements Serializable {
 
     private static final long serialVersionUID = -7130017567693194759L;
