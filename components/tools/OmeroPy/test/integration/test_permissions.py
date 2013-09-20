@@ -93,7 +93,7 @@ class CallContextFixture(object):
         self.prepare()
         query = self.query_service()
         img = self.get_image(query)
-        self.test.assertTrue(img is not None)
+        assert img is not None
 
 
 class TestPermissions(lib.ITest):

@@ -30,13 +30,9 @@ class BaseChmodTest(lib.ITest):
         client.sf.getAdminService().getEventContext()  # Refresh
 
     def assertEqPerms(self, a, b):
-        self.assertTrue(a.__class__ in
-                (omero.model.PermissionsI, str))
-        self.assertTrue(b.__class__ in
-                (omero.model.PermissionsI, str))
-        a = str(a)
-        b = str(b)
-        assert a ==  b
+        assert a.__class__ in (omero.model.PermissionsI, str)
+        assert b.__class__ in (omero.model.PermissionsI, str)
+        assert str(a) == str(b)
 
     def addData(self):
         c = omero.model.CommentAnnotationI()

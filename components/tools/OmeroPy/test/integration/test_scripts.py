@@ -177,7 +177,7 @@ class TestScripts(lib.ITest):
         # Also ticket:2304
         # should be OK for root to upload as official script (unique path) and run
         officialScriptId = scriptService.uploadOfficialScript("offical/test/script%s.py" % uuid, script)
-        self.assertTrue(scriptService.canRunScript(officialScriptId)) # ticket:2341
+        assert scriptService.canRunScript(officialScriptId) # ticket:2341
 
         impl = omero.processor.usermode_processor(self.root)
         try:
@@ -220,7 +220,7 @@ class TestScripts(lib.ITest):
 
         impl = omero.processor.usermode_processor(self.root)
         try:
-            self.assertTrue(scriptService.canRunScript(userScriptId)) # ticket:2341
+            assert scriptService.canRunScript(userScriptId) # ticket:2341
         finally:
             impl.cleanup()
 

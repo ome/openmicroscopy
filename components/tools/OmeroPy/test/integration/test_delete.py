@@ -112,7 +112,7 @@ class TestDelete(lib.ITest):
                 "where d.id = :oid " \
                 "order by im.id asc"
         res = query.findAllByQuery(sql, p)
-        self.assertEquals(5, len(res))       
+        assert 5 == len(res)
         for e in res:
             if e.id.val not in images:
                 self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
@@ -150,21 +150,15 @@ class TestDelete(lib.ITest):
         cl1 = omero.client(host=host, port=port)
         sf1 = cl1.createSession(userName,userName)
 
-        try:
+        with pytest.raises(Ice.ObjectNotExistException):
             handle1 = omero.cmd.HandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
-            self.fail("exception Ice.ObjectNotExistException was not thrown")
-        except Ice.ObjectNotExistException:
-            pass
 
         # join session and double check
         cl2 = omero.client(host=host, port=port)
         sf2 = cl2.joinSession(uuid)
 
-        try:
+        with pytest.raises(Ice.ObjectNotExistException):
             handle2 = omero.cmd.HandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
-            self.fail("exception Ice.ObjectNotExistException was not thrown")
-        except Ice.ObjectNotExistException:
-            pass
 
     def testCheckIfDeleted2(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -343,28 +337,27 @@ class TestDelete(lib.ITest):
         while(len(handlers)>0):
             for cbString in handlers:
                 try:
-                    handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
-                    cb = omero.callbacks.CmdCallbackI(client_o, handle)
-                    if not cb.block(500): # ms.
-                        # No errors possible if in progress (since no response)
-                        print "in progress", _formatReport(handle)
-                        in_progress+=1
-                    else:
-                        rsp = cb.getResponse()
-                        if isinstance(rsp, omero.cmd.ERR):
-                            r = _formatReport(handle)
-                            if r is not None:
-                                failure.append(r)
-                            else:
-                                failure.append("No report!!!")
+                    with pytest.raises(Ice.ObjectNotExistException):
+                        handle = omero.cmd.HandlePrx.checkedCast(client_o.ic.stringToProxy(cbString))
+                        cb = omero.callbacks.CmdCallbackI(client_o, handle)
+                        if not cb.block(500): # ms.
+                            # No errors possible if in progress (since no response)
+                            print "in progress", _formatReport(handle)
+                            in_progress+=1
                         else:
-                            r = _formatReport(handle)
-                            if r is not None:
-                                failure.append(r)
-                            cb.close(True) # Close handle
-                        handlers.remove(cbString)
-                except Ice.ObjectNotExistException:
-                    pass
+                            rsp = cb.getResponse()
+                            if isinstance(rsp, omero.cmd.ERR):
+                                r = _formatReport(handle)
+                                if r is not None:
+                                    failure.append(r)
+                                else:
+                                    failure.append("No report!!!")
+                            else:
+                                r = _formatReport(handle)
+                                if r is not None:
+                                    failure.append(r)
+                                cb.close(True) # Close handle
+                            handlers.remove(cbString)
                 except Exception, x:
                     if r is not None:
                         failure.append(traceback.format_exc())
@@ -413,8 +406,9 @@ class TestDelete(lib.ITest):
         command = omero.cmd.Delete("/OriginalFile", o.id.val, None)
         handle = self.client.sf.submit(command)
         self.waitOnCmd(self.client, handle)
-        self.assertRaises(omero.ServerError, \
-                self.client.sf.getQueryService().get, "FileAnnotation", fa.id.val)
+
+        with pytest.raises(omero.ServerError):
+            self.client.sf.getQueryService().get("FileAnnotation", fa.id.val)
 
     def testDeleteOneDatasetFilesetErr(self):
         """
