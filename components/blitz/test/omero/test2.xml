@@ -37,9 +37,11 @@
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
   </bean>
-  
+
   <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
   <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
+
+  <bean id="roles" class="ome.system.Roles"/>
 
   <bean id="Ice.Communicator" class="Ice.Util" factory-method="initialize"/>
 
