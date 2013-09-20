@@ -19,6 +19,9 @@
 
 <beans default-lazy-init="false">
 
+  <!-- bean must exist for sec-primitives.xml -->
+  <bean id="dbPatchCheck" class="java.lang.Object"/>
+
  <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
  <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
 
