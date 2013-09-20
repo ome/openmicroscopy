@@ -1172,12 +1172,16 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @return see above.
     """
     from omero.util.OmeroPopo import WorkflowData as WorkflowData
-    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace.val+"'", None);
+
+    # Support rstring and str namespaces
+    namespace = unwrap(namespace)
+
+    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace+"'", None);
     workflowData = WorkflowData();
     if(workflow!=None):
         workflowData = WorkflowData(workflow);
     else:
-        workflowData.setNamespace(namespace.val);
+        workflowData.setNamespace(namespace);
     splitKeywords = keywords.val.split(',');
 
     SU_LOG.debug(workflowData.asIObject())
