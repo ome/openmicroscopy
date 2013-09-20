@@ -38,10 +38,8 @@ import java.util.Map.Entry;
 
 
 //Third-party libraries
-
-import omero.model.Project;
-
 import org.apache.commons.collections.CollectionUtils;
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.AdminService;
@@ -422,7 +420,6 @@ public class DMRefreshLoader
                 			} else if (ob instanceof DataObject) {
                 				//retrieve the data for the data object
                 				ho = (DataObject) ob;
-                				System.err.println(ho);
                 				mapForDataObject.put(ho,
                 						ds.loadContainerHierarchy(ctx,
                 					ob.getClass(), Arrays.asList(ho.getId()),
@@ -453,7 +450,6 @@ public class DMRefreshLoader
 	    										(Set<DataObject>) values.get(
 	    												tag.getId()));
 									} else {
-										
 										Set<DataObject> objects =
 												(Set<DataObject>) values.get(
 												tag.getId());
@@ -463,9 +459,9 @@ public class DMRefreshLoader
 										Iterator<DataObject> kk =
 												objects.iterator();
 										while (kk.hasNext()) {
-											ho = kk.next();
 											newList.add(getLoadedObject(
-													mapForDataObject, ho));
+													mapForDataObject,
+													kk.next()));
 										}
 										tag.setDataObjects(newList);
 									}
@@ -503,17 +499,20 @@ public class DMRefreshLoader
 				ProjectData p = (ProjectData) ho;
 				Set<DatasetData> datasets = p.getDatasets();
 				Iterator<DatasetData> j = datasets.iterator();
-				Project po = p.asProject();
 				Set<DatasetData> loaded = new HashSet<DatasetData>();
-				po.unloadCollections();
+				boolean modified = false;
 				while (j.hasNext()) {
 					DataObject data = j.next();
 					if (object.getClass().equals(data.getClass()) &&
 							object.getId() == data.getId()) {
-						return p; //to be reviewed
-					}
-					//p.setDatasets(datasets);
-					return p;
+						s = map.get(object);
+						loaded.add((DatasetData) s.iterator().next());
+						modified = true;
+					} else loaded.add((DatasetData) data);
+				}
+				if (modified) {
+				    p.setDatasets(loaded);
+				    return p;
 				}
 			}
 		}
