@@ -25,7 +25,6 @@ Utility methods for dealing with scripts.
 import logging
 import os
 
-from struct import text
 from struct import unpack
 
 import omero.clients
@@ -72,9 +71,9 @@ def drawLineOverlay(draw, x0, y0, x1, y1, colour='0xffffff'):
     @param y0 The y0-coord of line.
     @param x1 The x1-coord of line.
     @param y1 The y1-coord of line.
-    @param colour The colour as a PIL colour string to draw the text in.
+    @param colour The colour as a PIL colour fill in the line.
     """
-    draw.line([(x0, y0),(x1,y1)], text, fill=colour)
+    draw.line([(x0, y0),(x1,y1)], fill=colour)
 
 def rgbToRGBInt(red, green, blue):
     """
