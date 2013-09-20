@@ -9,8 +9,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 import omero
 from omero.rtypes import rstring, rtime, rlong, rint
 from omero_model_PixelsI import PixelsI
@@ -57,7 +58,8 @@ class TestTickets2000(lib.ITest):
             # Now a connection should not be possible
             import Glacier2
             c4 = omero.client() # ok with __del__
-            self.assertRaises(Glacier2.PermissionDeniedException, c4.joinSession, uuid)
+            with pytest.raises(Glacier2.PermissionDeniedException):
+                c4.joinSession(uuid)
         finally:
             c1.__del__()
             c2.__del__()

@@ -5,6 +5,7 @@
    Integration test for adding annotations to Project.
 """
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_ProjectI import ProjectI
 from omero_model_ProjectAnnotationLinkI import ProjectAnnotationLinkI
@@ -128,11 +129,8 @@ class PrivateGroup(AnnotationPermissions):
                 assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.addTagAs(user, self.project[creator])
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
 
     def testReadTag(self):
         for creator in self.users:
@@ -148,11 +146,8 @@ class PrivateGroup(AnnotationPermissions):
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
                 assert tag ==  None
-                try:
-                    tag = self.getTagAs(user, tagId)
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
+                with pytest.raises(omero.SecurityViolation):
+                    self.getTagAs(user, tagId)
 
     def testRemoveTag(self):
         for creator in self.users:
@@ -208,11 +203,8 @@ class ReadOnlyGroup(AnnotationPermissions):
                 assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.addTagAs(user, self.project[creator])
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
 
     def testReadTag(self):
         for creator in self.users:
@@ -228,11 +220,9 @@ class ReadOnlyGroup(AnnotationPermissions):
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
                 assert tag ==  None
-                try:
-                    tag = self.getTagAs(user, tagId)
+                with pytest.raises(omero.SecurityViolation):
+                    self.getTagAs(user, tagId)
                     self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
 
     def testRemoveTag(self):
         for creator in self.users:
@@ -251,11 +241,8 @@ class ReadOnlyGroup(AnnotationPermissions):
                 self.linkTagAs(creator, self.project[creator], tag)
 
             for user in (self.users - self.canRemove[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.removeTagAs(user, self.project[creator], tag)
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() ==  self.tag_text
@@ -288,11 +275,8 @@ class ReadAnnotateGroup(AnnotationPermissions):
                 assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.addTagAs(user, self.project[creator])
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
 
     def testReadTag(self):
         for creator in self.users:
@@ -308,11 +292,8 @@ class ReadAnnotateGroup(AnnotationPermissions):
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
                 assert tag ==  None
-                try:
-                    tag = self.getTagAs(user, tagId)
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
+                with pytest.raises(omero.SecurityViolation):
+                    self.getTagAs(user, tagId)
 
     def testRemoveTag(self):
         for creator in self.users:
@@ -331,11 +312,8 @@ class ReadAnnotateGroup(AnnotationPermissions):
                 self.linkTagAs(creator, self.project[creator], tag)
 
             for user in (self.users - self.canRemove[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.removeTagAs(user, self.project[creator], tag)
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() ==  self.tag_text

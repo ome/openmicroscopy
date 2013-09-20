@@ -12,6 +12,7 @@
 
 import omero
 import test.integration.library as lib
+import pytest
 
 from omero.rtypes import rstring, rlong, rint
 from omero.util.concurrency import get_event
@@ -58,5 +59,6 @@ class TestExporter(lib.ITest):
         pix = self.bigimage()
         exporter = self.client.sf.createExporter()
         exporter.addImage(pix.getImage().id.val)
-        self.assertRaises(omero.ApiUsageException, exporter.generateTiff)
+        with pytest.raises(omero.ApiUsageException):
+            exporter.generateTiff()
 
