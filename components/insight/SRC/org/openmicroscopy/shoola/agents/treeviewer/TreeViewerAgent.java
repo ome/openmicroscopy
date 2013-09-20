@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.treemng.TreeViewerAgent
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -292,7 +292,7 @@ public class TreeViewerAgent
      * 
      * @param evt The event to handle.
      */
-    private void handleActivityFinished(ActivityProcessEvent evt)
+    private void handleActivityProcessed(ActivityProcessEvent evt)
     {
     	Environment env = (Environment) registry.lookup(LookupNames.ENV);
     	if (!env.isServerAvailable()) return;
@@ -556,7 +556,7 @@ public class TreeViewerAgent
 		else if (e instanceof RndSettingsCopied)
     		handleRndSettingsCopied((RndSettingsCopied) e);
 		else if (e instanceof ActivityProcessEvent)
-			handleActivityFinished((ActivityProcessEvent) e);
+			handleActivityProcessed((ActivityProcessEvent) e);
 		else if (e instanceof ViewerCreated)
 			handleViewerCreated((ViewerCreated) e);
 		else if (e instanceof UserGroupSwitched)
