@@ -9,6 +9,7 @@ package pojos;
 
 //Java imports
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,9 +17,11 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import static omero.rtypes.*;
+import static omero.rtypes.rstring;
+import omero.model.Dataset;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
 
 /**
@@ -50,7 +53,7 @@ public class ProjectData extends DataObject {
      * in any Dataset, then this set will be empty &#151; but never
      * <code>null</code>.
      */
-    private Set datasets;
+    private Set<DatasetData> datasets;
 
     /** Creates a new instance. */
     public ProjectData() {
@@ -162,20 +165,19 @@ public class ProjectData extends DataObject {
      *            The set of datasets.
      */
     public void setDatasets(Set<DatasetData> newValue) {
-        Set<DatasetData> currentValue = getDatasets();
-        SetMutator<DatasetData> m = new SetMutator<DatasetData>(currentValue,
-                newValue);
-
-        while (m.moreDeletions()) {
-            setDirty(true);
-            asProject().unlinkDataset(m.nextDeletion().asDataset());
+        //first clear the links
+        asProject().clearDatasetLinks();
+        if (newValue == null) return;
+        Iterator<DatasetData> i = newValue.iterator();
+        ProjectDatasetLink link;
+        Project p = asProject();
+        while (i.hasNext()) {
+            link = new ProjectDatasetLinkI();
+            link.link((Project) p.proxy(), (Dataset) i.next().asDataset());
+            p.addProjectDatasetLink(link);
         }
-
-        while (m.moreAdditions()) {
-            setDirty(true);
-            asProject().linkDataset(m.nextAddition().asDataset());
-        }
-        datasets = new HashSet<DatasetData>(m.result());
+        datasets = null;
+        datasets = getDatasets();
     }
 
 }
