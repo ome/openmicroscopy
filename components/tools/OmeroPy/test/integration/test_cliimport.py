@@ -25,6 +25,7 @@ Integration tests for bin/omero import
 
 
 import test.integration.library as lib
+import pytest
 import omero
 
 from omero.rtypes import rstring
@@ -103,11 +104,8 @@ class TestCliImport(lib.ITest):
         fixture.admin.getEventContext() # Refresh
         dataset = fixture.dataset("testTargetInDifferentGroup", \
                 {"omero.group": str(group.id.val)})
-        try:
+        with pytest.raises(omero.SecurityViolation):
             fixture.query.find("Dataset", dataset.id.val)
-            self.fail("secvio!")
-        except:
-            pass  # Good; should not find without call context
 
         self.assertGroup(group.id.val, dataset)
         pix = self.cliimport(fixture, "-d", dataset.id.val)

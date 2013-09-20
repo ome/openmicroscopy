@@ -10,6 +10,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -61,7 +62,8 @@ class TestAdmin(lib.ITest):
         try:
             admin = client2.sf.getAdminService()
 
-            self.assertRaises(omero.SecurityViolation, admin.changePassword, rstring("foo"))
+            with pytest.raises(omero.SecurityViolation):
+                admin.changePassword(rstring("foo"))
             admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
         finally:
             client2.closeSession()
@@ -71,7 +73,8 @@ class TestAdmin(lib.ITest):
             client3 = client.createClient(False)
             try:
                 admin = client3.sf.getAdminService()
-                self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("foo"), rstring("ome"))
+                with pytest.raises(omero.SecurityViolation):
+                    admin.changePasswordWithOldPassword(rstring("foo"), rstring("foo"))
             finally:
                 client3.closeSession()
 
@@ -90,19 +93,24 @@ class TestAdmin(lib.ITest):
         # any password will be allowed as the old password
         admin.changePassword(rstring(""))
         admin.changePasswordWithOldPassword(rstring("IGNORED"), rstring("ome"))
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("BADPW"), rstring("foo"))
+        with pytest.raises(omero.SecurityViolation):
+            admin.changePasswordWithOldPassword(rstring("BADPW"), rstring("foo"))
         admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
 
         # None disables user. No further password checks will pass.
         # Only the current session or an admin will be able to
         # reset the password
         admin.changePassword(None)
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring(""), rstring("foo"))
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("ome"), rstring("foo"))
-        self.assertRaises(omero.ApiUsageException, admin.changePasswordWithOldPassword, None, rstring("foo"))
+        with pytest.raises(omero.SecurityViolation):
+            admin.changePasswordWithOldPassword(rstring(""), rstring("foo"))
+        with pytest.raises(omero.SecurityViolation):
+            admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
+        with pytest.raises(omero.ApiUsageException):
+            admin.changePasswordWithOldPassword(None, rstring("foo"))
         joined_client = client.createClient(True)
         try:
-            self.assertRaises(omero.SecurityViolation, joined_client.sf.getAdminService().changePasswordWithOldPassword, rstring(""), rstring("ome"))
+            with pytest.raises(omero.SecurityViolation):
+                joined_client.sf.getAdminService().changePasswordWithOldPassword(rstring(""), rstring("ome"))
         finally:
             joined_client.__del__()
         admin.changePassword(rstring("ome")) # could be an admin
@@ -170,11 +178,8 @@ class TestAdmin(lib.ITest):
         new_password = omero.rtypes.rstring("FOO")
 
         # Initially, the test should fail.
-        try:
+        with pytest.raises(omero.SecurityViolation):
             admin.changeUserPassword(experimenter.omeName.val, new_password)
-            self.fail("Should not pass!")
-        except omero.SecurityViolation, sv:
-            pass # Good!
 
         # Now set the password
         new_client.sf.setSecurityPassword(password)
@@ -184,19 +189,14 @@ class TestAdmin(lib.ITest):
 
     def new_client_FAILS(self, user):
         import Glacier2
-        try:
+        with pytest.raises(Glacier2.CannotCreateSessionException):
             self.new_client(user=user)
-            self.fail("Where's the CCSE?")
-        except Glacier2.CannotCreateSessionException, ccse:
             pass
 
     def new_client_RESTRICTED(self, user):
         c = self.new_client(user=user)
-        try:
+        with pytest.raises(omero.SecurityViolation):
             c.sf.getQueryService().find("Image", -1) # Should be disallowed
-            self.fail("Where's the security violation?")
-        except omero.SecurityViolation, sv:
-            pass
 
     def test9193(self):
         # Test the removal of removing users

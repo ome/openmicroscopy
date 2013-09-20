@@ -8,8 +8,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 
 from omero.rtypes import *
 
@@ -104,15 +105,13 @@ class TestTickets4000(lib.ITest):
             if isinstance(prx, omero.api.StatefulServiceInterfacePrx):
                 prx.close()
 
-        try:
-            sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
-            self.fail("""
+        """
             A security violation must be thrown here because the first instances
             which are stored in proxies (#1A and #1B) are never closed since #2A
             and #2B overwrite them. Using the copy instance, we can close them.
-            """)
-        except omero.SecurityViolation, sv:
-            pass
+        """
+        with pytest.raises(omero.SecurityViolation):
+            sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
 
 
         for k in copy.keys():
@@ -153,7 +152,8 @@ class TestTickets4000(lib.ITest):
         # change password as root
         admin_root.changeUserPassword(omeName, rstring("ome"))
 
-        self.assertRaises(Glacier2.PermissionDeniedException, testLogin, omeName, "aaa")
+        with pytest.raises(Glacier2.PermissionDeniedException):
+            testLogin(omeName, "aaa")
         
         testLogin(omeName, "ome")
         

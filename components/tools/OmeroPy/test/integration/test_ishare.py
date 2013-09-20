@@ -9,8 +9,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -689,7 +690,8 @@ class TestIShare(lib.ITest):
         update.deleteObject(image)
         self.client.sf.setSecurityContext(new_context)
 
-        self.assertRaises(omero.ValidationException, query.get, "Image", image.id.val)
+        with pytest.raises(omero.ValidationException):
+            query.get("Image", image.id.val)
 
     def test5756Wrapped(self):
         """
@@ -718,7 +720,8 @@ class TestIShare(lib.ITest):
         update.deleteObject(image)
         self.client.sf.setSecurityContext(new_context)
 
-        self.assertRaises(IndexError, wrapper.__loadedHotSwap__)
+        with pytest.raises(IndexError):
+            wrapper.__loadedHotSwap__()
 
     def test5851(self):
         """
@@ -750,10 +753,10 @@ class TestIShare(lib.ITest):
         Test a few NPE scenarios in IShare
         """
         shares = self.client.sf.getShareService()
-        bad_screen = ( shares.createShare, "my description", None,
-                [omero.model.ScreenI()], [], [], True)
 
-        self.assertRaises(omero.ValidationException, *bad_screen)
+        # Create a bad screen
+        with pytest.raises(omero.ValidationException):
+            shares.createShare("my description", None, [omero.model.ScreenI()], [], [], True)
 
     ########################################
     # Test omero.share functionality (#3527)
@@ -782,8 +785,8 @@ class TestIShare(lib.ITest):
         self.assertAccess(member, sid)
         # But the user won't be able to just access it plainly
         member_query = member.sf.getQueryService()
-        self.assertRaises(omero.SecurityViolation, \
-                member_query.get, "Image", img.id.val)
+        with pytest.raises(omero.SecurityViolation):
+            member_query.get("Image", img.id.val)
 
         # But if we let the user pass omero.share it should work.
         member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
@@ -799,13 +802,12 @@ class TestIShare(lib.ITest):
         non_member_query = non_member.sf.getQueryService()
 
         # Try to access direct
-        self.assertRaises(omero.SecurityViolation, \
-                non_member_query.get, "Image", img.id.val)
+        with pytest.raises(omero.SecurityViolation):
+            non_member_query.get("Image", img.id.val)
 
         # Now try to access via omero.share
-        self.assertRaises(omero.SecurityViolation, \
-                non_member_query.get, "Image", img.id.val,
-                {"omero.share":"%s" % sid})
+        with pytest.raises(omero.SecurityViolation):
+            non_member_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
 
     def testOSAdminUser(self):
         # """ Admin should be able to log into any share
@@ -813,8 +815,8 @@ class TestIShare(lib.ITest):
         root_query = self.root.sf.getQueryService()
 
         # Try to access direct (in wrong group)
-        self.assertRaises(omero.SecurityViolation, \
-                root_query.get, "Image", img.id.val)
+        with pytest.raises(omero.SecurityViolation):
+            root_query.get("Image", img.id.val)
 
         # Now try to access via omero.share
         root_query.get("Image", img.id.val, {"omero.share":"%s" % sid})
@@ -823,8 +825,8 @@ class TestIShare(lib.ITest):
         # Try to access a non-extant share
         # Since the security violation is thrown
         # first, we no longer get a validation exc.
-        self.assertRaises(omero.SecurityViolation, \
-            self.client.sf.getQueryService().get, "Image", -1, {"omero.share":"-100"})
+        with pytest.raises(omero.SecurityViolation):
+            self.client.sf.getQueryService().get("Image", -1, {"omero.share":"-100"})
 
     def test8513(self):
         owner, owner_obj = self.new_client_and_user(perms="rw----") # Owner of share

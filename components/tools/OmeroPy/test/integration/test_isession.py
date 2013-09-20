@@ -10,6 +10,7 @@
 
 """
 import test.integration.library as lib
+import pytest
 import omero
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -121,7 +122,8 @@ class TestISession(lib.ITest):
             # Now a connection should not be possible
             c4 = omero.client() # ok rather than new_client since has __del__
             import Glacier2
-            self.assertRaises(Glacier2.PermissionDeniedException, c4.createSession, uuid, uuid);
+            with pytest.raises(Glacier2.PermissionDeniedException):
+                c4.createSession(uuid, uuid)
         finally:
             for c in (c1, c2, c3, c4):
                 if c: c.__del__()
@@ -154,11 +156,8 @@ class TestISession(lib.ITest):
 
         # Make a stateful service, and change again
         rfs = self.client.sf.createRawFileStore()
-        try:
+        with pytest.raises(omero.SecurityViolation):
             self.client.sf.setSecurityContext(grp0)
-            self.fail("sec vio")
-        except omero.SecurityViolation, sv:
-            pass # Good
         rfs.close()
 
         # Service is now closed, should be ok

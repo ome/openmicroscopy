@@ -9,8 +9,9 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
+import pytest
 from omero.rtypes import *
 
 class TestTickets3000(lib.ITest):
@@ -90,7 +91,8 @@ class TestTickets3000(lib.ITest):
         }
         """
         # This was never supported
-        self.assertRaises(Ice.UnmarshalOutOfBoundsException, q.findAllByQuery, sql, None)
+        with pytest.raises(Ice.UnmarshalOutOfBoundsException):
+            q.findAllByQuery(sql, None)
 
         """
           File "/Users/ola/Dev/omero/dist/lib/python/omero_api_IQuery_ice.py", line 138, in findAllByQuery
@@ -106,7 +108,8 @@ class TestTickets3000(lib.ITest):
         p1.theFilter = f1
 
         # Nor was this
-        self.assertRaises(Ice.UnknownUserException, q.findAllByQuery, sql, p1)
+        with pytest.raises(Ice.UnknownUserException):
+            q.findAllByQuery(sql, p1)
 
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)

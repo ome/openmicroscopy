@@ -532,7 +532,8 @@ class TestPermissions(lib.ITest):
             def prepare(this):
                 return this.sf.setSecurityContext(ExperimenterGroupI(-1, False))
 
-        self.assertRaises(omero.ApiUsageException, F(self).assertCallContext)
+        with pytest.raises(omero.ApiUsageException):
+            F(self).assertCallContext()
 
     def testOGArg(self):
         # """ test omero.group can be set as an argument """
@@ -553,8 +554,8 @@ class TestPermissions(lib.ITest):
                 return client, user
 
         import Glacier2
-        self.assertRaises(Glacier2.CannotCreateSessionException, \
-            F(self).assertCallContext)
+        with pytest.raises(Glacier2.CannotCreateSessionException):
+            F(self).assertCallContext()
 
     # Write tests with omero.group set.
     # ==============================================
@@ -595,8 +596,8 @@ class TestPermissions(lib.ITest):
         # for the null group set on the obj.
         # This isn't optimal but will work for
         # the moment.
-        self.assertRaises(omero.ApiUsageException, \
-                update.saveAndReturnObject, tag, all_context)
+        with pytest.raises(omero.ApiUsageException):
+            update.saveAndReturnObject(tag, all_context)
 
     # See ticket 11374
     @pytest.mark.xfail(reason="ticket 11374")
@@ -624,8 +625,8 @@ class TestPermissions(lib.ITest):
         all_context = {"omero.group":"-1"}
         # Bad links should be detected and
         # a security violation raised.
-        self.assertRaises(omero.GroupSecurityViolation, \
-                update.saveAndReturnObject, image, all_context)
+        with pytest.raises(omero.GroupSecurityViolation):
+            update.saveAndReturnObject(image, all_context)
 
     # The following test is spun off from the one above Without
     # the -1 a GSV should be raised. See ticket 11375
@@ -653,8 +654,8 @@ class TestPermissions(lib.ITest):
         update = client.sf.getUpdateService()
         # Bad links should be detected and
         # a security violation raised.
-        self.assertRaises(omero.GroupSecurityViolation, \
-                update.saveAndReturnObject, image)
+        with pytest.raises(omero.GroupSecurityViolation):
+            update.saveAndReturnObject(image)
 
     # Reading with private groups
     # ==============================================
@@ -728,8 +729,8 @@ class TestPermissions(lib.ITest):
         assert not admin.getEventContext().isAdmin
 
         image, user, group = self.private_image_and_user()
-        self.assertRaises(omero.SecurityViolation, \
-                self.assertAsUser, client, image, user, group)
+        with pytest.raises(omero.SecurityViolation):
+            self.assertAsUser(client, image, user, group)
 
     def assertAsUser(self, client, image, user, group):
         callcontext = {"omero.user":str(user.id.val),
@@ -747,15 +748,15 @@ class TestPermissions(lib.ITest):
         # Test on the raw object
         p = omero.model.PermissionsI()
         p.ice_postUnmarshal()
-        self.assertRaises(omero.ClientError, \
-                p.setPerm1, 1)
+        with pytest.raises(omero.ClientError):
+            p.setPerm1(1)
 
         # and on one returned from the server
         c = omero.model.CommentAnnotationI()
         c = self.update.saveAndReturnObject(c)
         p = c.details.permissions
-        self.assertRaises(omero.ClientError, \
-                p.setPerm1, 1)
+        with pytest.raises(omero.ClientError):
+            p.setPerm1(1)
 
     def testDisallow(self):
         p = omero.model.PermissionsI()
