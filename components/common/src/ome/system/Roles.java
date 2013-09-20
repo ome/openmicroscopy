@@ -10,6 +10,8 @@ package ome.system;
 // Java imports
 import java.io.Serializable;
 
+import com.google.common.base.Predicate;
+
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
@@ -26,6 +28,29 @@ import ome.model.meta.ExperimenterGroup;
 public final class Roles implements Serializable {
 
     private static final long serialVersionUID = -2488864989534638213L;
+
+    public final Predicate<Experimenter> IS_ROOT_USER = new Predicate<Experimenter>() {
+        @Override
+        public boolean apply(Experimenter experimenter) {
+            return isRootUser(experimenter);
+        }
+        
+    };
+
+    public final Predicate<ExperimenterGroup> IS_USER_GROUP = new Predicate<ExperimenterGroup>() {
+        @Override
+        public boolean apply(ExperimenterGroup group) {
+            return isUserGroup(group);
+        }
+        
+    };
+
+    public final Predicate<ExperimenterGroup> IS_SYSTEM_GROUP = new Predicate<ExperimenterGroup>() {
+        @Override
+        public boolean apply(ExperimenterGroup group) {
+            return isSystemGroup(group);
+        }
+    };
 
     private final long rId;
 
