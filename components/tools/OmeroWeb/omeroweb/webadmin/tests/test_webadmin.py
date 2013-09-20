@@ -33,8 +33,6 @@ from webadmin.webadmin_utils import toBoolean
 from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                 ContainedExperimentersForm, ChangePassword
 
-from webadmin_test_library import WebTest, WebAdminClientTest
-
 from connector import Server, Connector
 from webadmin.views import getActualPermissions, setActualPermissions, \
                         otherGroupsInitialList, prepare_experimenter, \
@@ -96,151 +94,43 @@ class ServerModelTest (unittest.TestCase):
         Server(host=u'example1.com', port=4064)
 
 
-# Testing client, URLs
-class WebAdminUrlTest(WebAdminClientTest):
-    
-    def test_login(self):
-        params = {
-            'username': 'root',
-            'password': self.root_password,
-            'server':self.server_id,
-            'ssl':'on'
-        }
+class WebTest(unittest.TestCase):
         
-        response = self.client.post(reverse(viewname="walogin"), params)
-        # Check that the response was a 302 (redirect)
-        self.failUnlessEqual(response.status_code, 302)
-        self.assert_(response['Location'].endswith(reverse(viewname="webindex")))
-    
-    def test_urlsAsRoot(self):
-        self.client.login('root', self.root_password)
-        
-        # response 200
-        response = self.client.get(reverse(viewname="waexperimenters"))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["new"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 302
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["create"]))
-        self.failUnlessEqual(response.status_code, 302)
-        self.failUnlessEqual(response['Location'], reverse(viewname="wamanageexperimenterid", args=["new"]))
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 302
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["save", "1"]))
-        self.failUnlessEqual(response.status_code, 302)
-        self.failUnlessEqual(response['Location'], reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wagroups"))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["new"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 302
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["create"]))
-        self.failUnlessEqual(response.status_code, 302)
-        self.failUnlessEqual(response['Location'], reverse(viewname="wamanagegroupid", args=["new"]))
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["edit", "2"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 302
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
-        self.failUnlessEqual(response.status_code, 302)
-        self.failUnlessEqual(response['Location'], reverse(viewname="wamanagegroupid", args=["edit", "2"]))
+    def setUp (self):
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            self.omero_host = c.ic.getProperties().getProperty('omero.host')
+            self.omero_port = c.ic.getProperties().getProperty('omero.port')
+            Server.reset()
+            Server(host=self.omero_host, port=self.omero_port)
+        finally:
+            c.__del__()
 
-        # response 200
-        response = self.client.get(reverse(viewname="wamanagechangepasswordid", args=["1"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
+        self.server_id = 1
+        connector = Connector(self.server_id, True)
+        self.rootconn = connector.create_connection('TEST.webadmin', 'root', self.root_password)
+        if self.rootconn is None or not self.rootconn.isConnected() or not self.rootconn.keepAlive():
+            raise Exception("Cannot connect")
 
-    def test_urlsAsUser(self):
-        conn = self.rootconn
-        uuid = conn._sessionUuid
-        
-        # private group
-        params = {
-            "name":"webadmin_test_group_private %s" % uuid,
-            "description":"test group",
-            "owners": [0L],
-            "permissions":0
-        }
-        request = fakeRequest(method="post", params=params)
-        gid = _createGroup(request, conn)
-        
-        params = {
-            "omename":"webadmin_test_user %s" % uuid,
-            "first_name":uuid,
-            "middle_name": uuid,
-            "last_name":uuid,
-            "email":"user_%s@domain.com" % uuid,
-            "institution":"Laboratory",
-            "active":True,
-            "default_group":gid,
-            "other_groups":[gid],
-            "password":"123",
-            "confirmation":"123" 
-        }
-        request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request, conn)
-        
-        # TODO:Create experimenter 
-        self.client.login("webadmin_test_user %s" % uuid, '123')
-        
-        # response 200
-        response = self.client.get(reverse(viewname="wamyaccount"))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        response = self.client.get(reverse(viewname="wadrivespace"))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        response = self.client.get(reverse(viewname="wamyphoto"))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        response = self.client.get(reverse(viewname="wamanagechangepasswordid", args=["4"]))
-        self.failUnlessEqual(response.status_code, 200)
-        
-        # response 404
-        response = self.client.get(reverse(viewname="waexperimenters"))
-        self.failUnlessEqual(response.status_code, 404)
-                
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["new"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["create"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["save", "1"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wagroups"))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["new"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["create"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["edit", "2"]))
-        self.failUnlessEqual(response.status_code, 404)
-        
-        response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
-        self.failUnlessEqual(response.status_code, 404)
-     
+    def tearDown(self):
+        try:
+            self.rootconn.seppuku()
+        except Exception,e:
+            self.fail(e)
+    
+    def loginAsUser(self, username, password):
+        blitz = Server.get(pk=self.server_id) 
+        if blitz is not None:
+            connector = Connector(self.server_id, True)
+            conn = connector.create_connection('TEST.webadmin', username, password)
+            if conn is None or not conn.isConnected() or not conn.keepAlive():
+                raise Exception("Cannot connect")
+            return conn
+        else:
+            raise Exception("'%s' is not on omero.web.server_list"  % omero_host)
+
+
 class WebAdminConfigTest(unittest.TestCase):
     
     def setUp (self):
