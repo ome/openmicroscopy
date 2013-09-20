@@ -623,20 +623,18 @@ def checkFileAnnotation(self, fileAnnotation, hasFileAnnotation=True, parentType
     Check validity of file annotation. If hasFileAnnotation, check the size, name and number of objects linked to the original file.
     """
     if hasFileAnnotation:
-        self.assertNotEqual(fileAnnotation,None)
-        self.assertTrue(fileAnnotation.val._file._size._val>0)
-        self.assertNotEqual(fileAnnotation.val._file._name._val,None)
+        assert fileAnnotation != None
+        assert fileAnnotation.val._file._size._val>0
+        assert fileAnnotation.val._file._name._val != None
 
         if client is None: client = self.root
         conn = BlitzGateway(client_obj = client)
         faWrapper = conn.getObject("FileAnnotation", fileAnnotation.val.id.val)
         nLinks = sum(1 for i in faWrapper.getParentLinks(parentType))
         if isLinked:
-            self.assertEqual(nLinks,1)
+            assert nLinks == 1
         else:
-            self.assertEqual(nLinks,0)
+            assert nLinks == 0
     else:
-        self.assertEqual(fileAnnotation,None)
+        assert fileAnnotation == None
 
-if __name__ == '__main__':
-    unittest.main()

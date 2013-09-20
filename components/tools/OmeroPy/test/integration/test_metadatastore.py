@@ -8,7 +8,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PixelsI import PixelsI
@@ -34,5 +33,3 @@ class TestMetdataStore(lib.ITest):
         
         metadataService = self.client.sf.getMetadataService()
 
-if __name__ == '__main__':
-    unittest.main()

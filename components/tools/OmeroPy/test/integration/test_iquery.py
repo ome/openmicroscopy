@@ -33,5 +33,3 @@ class TestQuery(lib.ITest):
             if len(as_map) > 0:
                 print "Group %s: %s" % (group.id.val, as_map)
 
-if __name__ == '__main__':
-    unittest.main()

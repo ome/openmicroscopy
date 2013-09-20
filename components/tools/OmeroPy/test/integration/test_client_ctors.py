@@ -83,7 +83,7 @@ class TestClientConstructors(unittest.TestCase):
         c = omero.client(args)
         try:
             c.createSession()
-            self.assertEquals("10", c.getProperty("Ice.MessageSizeMax"))
+            assert "10" ==  c.getProperty("Ice.MessageSizeMax")
             c.closeSession()
         finally:
             c.__del__()
@@ -95,7 +95,7 @@ class TestClientConstructors(unittest.TestCase):
         args = ["--Ice.Config=" + cfg,"--omero.host=unimportant"]
         c = omero.client(args)
         try:
-            self.assertEquals("true",c.getProperty("in.ice.config"))
+            assert "true" == c.getProperty("in.ice.config")
             #c.createSession()
             #c.closeSession()
         finally:
@@ -119,17 +119,17 @@ class TestClientConstructors(unittest.TestCase):
     def testPorts(self):
         c = omero.client("localhost", 1111)
         try:
-            self.assertEquals("1111",c.ic.getProperties().getProperty("omero.port"))
+            assert "1111" == c.ic.getProperties().getProperty("omero.port")
         finally:
             c.__del__()
 
         c = omero.client("localhost",["--omero.port=2222"])
         try:
-            self.assertEquals("2222",c.ic.getProperties().getProperty("omero.port"))
+            assert "2222" == c.ic.getProperties().getProperty("omero.port")
         finally:
             c.__del__()
         #c = omero.client("localhost")
-        #self.assertEquals(str(omero.constants.GLACIER2PORT),c.ic.getProperties().getProperty("omero.port"))
+        #assert str(omero.constants.GLACIER2PORT) == c.ic.getProperties().getProperty("omero.port")
 
     def testBlockSize(self):
         c = omero.client("localhost")
@@ -152,5 +152,3 @@ class TestClientConstructors(unittest.TestCase):
         finally:
             c.__del__()
 
-if __name__ == '__main__':
-    unittest.main()

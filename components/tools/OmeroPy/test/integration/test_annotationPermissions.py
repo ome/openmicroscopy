@@ -4,7 +4,6 @@
 """
    Integration test for adding annotations to Project.
 """
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_ProjectI import ProjectI
@@ -126,7 +125,7 @@ class PrivateGroup(AnnotationPermissions):
 
             for user in self.canAdd[creator]:
                 tag = self.addTagAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
                 try:
@@ -142,13 +141,13 @@ class PrivateGroup(AnnotationPermissions):
 
             for user in self.canView[creator]:
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 tag = self.getTagAs(user, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag, None)
+                assert tag ==  None
                 try:
                     tag = self.getTagAs(user, tagId)
                     self.fail("Should have thrown SecurityViolation")
@@ -164,10 +163,10 @@ class PrivateGroup(AnnotationPermissions):
                 self.removeTagAs(user, self.project[creator], tag)
                 # Link should be gone
                 tagLink = self.getTagLinkAs(creator, self.project[creator])
-                self.assertEquals(tagLink, None)
+                assert tagLink ==  None
                 # ...but tag should still exist
                 tag = self.getTagAs(creator, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 # relink tag
                 self.linkTagAs(creator, self.project[creator], tag)
 
@@ -179,7 +178,7 @@ class PrivateGroup(AnnotationPermissions):
                     pass # good
                 # Link and tag should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
 class ReadOnlyGroup(AnnotationPermissions):
 
@@ -206,7 +205,7 @@ class ReadOnlyGroup(AnnotationPermissions):
 
             for user in self.canAdd[creator]:
                 tag = self.addTagAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
                 try:
@@ -222,13 +221,13 @@ class ReadOnlyGroup(AnnotationPermissions):
 
             for user in self.canView[creator]:
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 tag = self.getTagAs(user, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag, None)
+                assert tag ==  None
                 try:
                     tag = self.getTagAs(user, tagId)
                     self.fail("Should have thrown SecurityViolation")
@@ -244,10 +243,10 @@ class ReadOnlyGroup(AnnotationPermissions):
                 self.removeTagAs(user, self.project[creator], tag)
                 # Link should be gone
                 tagLink = self.getTagLinkAs(creator, self.project[creator])
-                self.assertEquals(tagLink, None)
+                assert tagLink ==  None
                 # ...but tag should still exist
                 tag = self.getTagAs(creator, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 # relink tag
                 self.linkTagAs(creator, self.project[creator], tag)
 
@@ -259,7 +258,7 @@ class ReadOnlyGroup(AnnotationPermissions):
                     pass # good
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
 class ReadAnnotateGroup(AnnotationPermissions):
 
@@ -286,7 +285,7 @@ class ReadAnnotateGroup(AnnotationPermissions):
 
             for user in self.canAdd[creator]:
                 tag = self.addTagAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canAdd[creator]):
                 try:
@@ -302,13 +301,13 @@ class ReadAnnotateGroup(AnnotationPermissions):
 
             for user in self.canView[creator]:
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 tag = self.getTagAs(user, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
             for user in (self.users - self.canView[creator]):
                 tag = self.getTagViaLinkAs(user, self.project[creator])
-                self.assertEquals(tag, None)
+                assert tag ==  None
                 try:
                     tag = self.getTagAs(user, tagId)
                     self.fail("Should have thrown SecurityViolation")
@@ -324,10 +323,10 @@ class ReadAnnotateGroup(AnnotationPermissions):
                 self.removeTagAs(user, self.project[creator], tag)
                 # Link should be gone
                 tagLink = self.getTagLinkAs(creator, self.project[creator])
-                self.assertEquals(tagLink, None)
+                assert tagLink ==  None
                 # ...but tag should still exist
                 tag = self.getTagAs(creator, tagId)
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
                 # relink tag
                 self.linkTagAs(creator, self.project[creator], tag)
 
@@ -339,7 +338,5 @@ class ReadAnnotateGroup(AnnotationPermissions):
                     pass # good
                 # Link should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
-                self.assertEquals(tag.getTextValue().getValue(), self.tag_text)
+                assert tag.getTextValue().getValue() ==  self.tag_text
 
-if __name__ == '__main__':
-    unittest.main()

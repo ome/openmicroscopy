@@ -10,7 +10,6 @@
 """
 
 import omero
-import unittest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong
@@ -37,17 +36,17 @@ class TestClientUsage(lib.ITest):
         client = omero.client()
         client.createSession();
 
-        self.assertEquals(0, len(client.getInputKeys()))
+        assert 0 ==  len(client.getInputKeys())
         client.setInput("a", rstring("b"));
-        self.assertEquals(1, len(client.getInputKeys()))
-        self.assertTrue("a" in client.getInputKeys())
+        assert 1 ==  len(client.getInputKeys())
+        assert "a" in client.getInputKeys()
         self.assertEquals("b", client.getInput("a").getValue());
 
         client.closeSession();
 
     def testCreateInsecureClientTicket2099(self):
         secure = omero.client();
-        self.assert_(secure.isSecure())
+        assert secure.isSecure()
         try:
             secure.createSession().getAdminService().getEventContext();
             insecure = secure.createClient(False);
@@ -65,7 +64,7 @@ class TestClientUsage(lib.ITest):
         sf.setSecurityContext(omero.model.ExperimenterGroupI(0, False))
         sf.createRenderingEngine()
         srvs = root.getStatefulServices()
-        self.assertEquals(1, len(srvs))
+        assert 1 ==  len(srvs)
         try:
             sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
             self.fail("Should not be allowed")
@@ -73,9 +72,7 @@ class TestClientUsage(lib.ITest):
             pass # good
         srvs[0].close()
         srvs = root.getStatefulServices()
-        self.assertEquals(0, len(srvs))
+        assert 0 ==  len(srvs)
         sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
 
-if __name__ == '__main__':
-    unittest.main()
 

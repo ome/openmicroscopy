@@ -11,7 +11,6 @@
 """
 
 import omero
-import unittest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong, rint
@@ -61,5 +60,3 @@ class TestExporter(lib.ITest):
         exporter.addImage(pix.getImage().id.val)
         self.assertRaises(omero.ApiUsageException, exporter.generateTiff)
 
-if __name__ == '__main__':
-    unittest.main()

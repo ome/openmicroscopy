@@ -8,7 +8,6 @@
 
 import omero
 import omero.gateway
-import unittest
 import test.integration.library as lib
 
 
@@ -22,7 +21,7 @@ class TestPixelsService(lib.ITest):
         queryService = self.client.sf.getQueryService()
 
         pixelsType = queryService.findByQuery("from PixelsType as p where p.value='int8'", None)
-        self.assertTrue(pixelsType is not None)
+        assert pixelsType is not None
 
         sizeX = 1
         sizeY = 1
@@ -56,5 +55,3 @@ class TestPixelsService(lib.ITest):
         re.lookupRenderingDef(pixels_id)
         re.getPixels()
 
-if __name__ == '__main__':
-    unittest.main()

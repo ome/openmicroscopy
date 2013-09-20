@@ -9,9 +9,9 @@
 
 """
 
-import unittest
 import traceback
 import test.integration.library as lib
+import pytest
 import omero
 import omero.callbacks
 import Ice
@@ -99,8 +99,8 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(dc)
         cb = self.waitOnCmd(self.client, handle)
 
-        self.assertEquals(None, query.find('Project', project.id.val))
-        self.assertEquals(dataset.id.val, query.find('Dataset', dataset.id.val).id.val)
+        assert None ==  query.find('Project', project.id.val)
+        assert dataset.id.val ==  query.find('Dataset', dataset.id.val).id.val
 
         p = omero.sys.Parameters()
         p.map = {}
@@ -139,7 +139,7 @@ class TestDelete(lib.ITest):
 
         callback.close(True) # Don't close handle
 
-        self.assertEquals(None, query.find("Image", iid))
+        assert None ==  query.find("Image", iid)
 
         # create new session and double check
         import os
@@ -215,7 +215,7 @@ class TestDelete(lib.ITest):
                 "left outer join fetch dil.parent d " \
                 "where d.id = :oid " \
                 "order by im.id asc"
-        self.assertEquals(0, len(query.findAllByQuery(sql, p)))
+        assert 0 ==  len(query.findAllByQuery(sql, p))
 
     def testOddMessage(self):
         query = self.client.sf.getQueryService()
@@ -371,7 +371,7 @@ class TestDelete(lib.ITest):
 
         if len(failure) > 0:
             self.fail(";".join(failure))
-        self.assertEquals(None, query_o.find('Dataset', dataset.id.val))
+        assert None ==  query_o.find('Dataset', dataset.id.val)
 
     def test5793(self):
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
@@ -398,8 +398,8 @@ class TestDelete(lib.ITest):
         handle = self.client.sf.submit(command)
         callback = self.waitOnCmd(self.client, handle)
 
-        self.assertEquals(None, query.find("TagAnnotation", tagset.id.val))
-        self.assertEquals(tag.id.val, query.find("TagAnnotation", tag.id.val).id.val)
+        assert None ==  query.find("TagAnnotation", tagset.id.val)
+        assert tag.id.val ==  query.find("TagAnnotation", tag.id.val).id.val
 
     def test7314(self):
         """
@@ -668,6 +668,6 @@ if __name__ == '__main__':
     if "TRACE" in os.environ:
         import trace
         tracer = trace.Trace(ignoredirs=[sys.prefix, sys.exec_prefix], trace=1)
-        tracer.runfunc(unittest.main)
+        tracer.runfunc(pytest.main)
     else:
-        unittest.main()
+        pytest.main()

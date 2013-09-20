@@ -9,7 +9,6 @@
 """
 
 import omero
-import unittest
 import test.integration.library as lib
 from omero.rtypes import *
 
@@ -123,5 +122,3 @@ class TestFigureExportScripts(lib.ITest):
         print hash
         
 
-if __name__ == '__main__':
-    unittest.main()

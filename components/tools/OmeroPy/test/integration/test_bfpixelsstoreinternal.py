@@ -100,7 +100,7 @@ class TestBfPixelsStore(lib.ITest):
         rowHypercube = self.bf.getHypercube([0,y,z,c,t],[self.sizeX,1,1,1,1],[1,1,1,1,1])
         rowDirect_md5 = hashlib.md5(rowDirect)
         rowHypercube_md5 = hashlib.md5(rowHypercube)
-        self.assert_(rowDirect_md5.digest() == rowHypercube_md5.digest())
+        assert rowDirect_md5.digest() == rowHypercube_md5.digest()
 
     def xtestGetColFromHypercube(self):
         x = self.sizeX/2
@@ -111,7 +111,7 @@ class TestBfPixelsStore(lib.ITest):
         colHypercube = self.bf.getHypercube([x,0,z,c,t],[1,self.sizeY,1,1,1],[1,1,1,1,1])
         colDirect_md5 = hashlib.md5(colDirect)
         colHypercube_md5 = hashlib.md5(colHypercube)
-        self.assert_(colDirect_md5.digest() == colHypercube_md5.digest())
+        assert colDirect_md5.digest() == colHypercube_md5.digest()
 
     def xtestGetPlaneFromHypercube(self):
         z = self.sizeZ/2
@@ -121,7 +121,7 @@ class TestBfPixelsStore(lib.ITest):
         planeHypercube = self.bf.getHypercube([0,0,z,c,t],[self.sizeX,self.sizeY,1,1,1],[1,1,1,1,1])
         planeDirect_md5 = hashlib.md5(planeDirect)
         planeHypercube_md5 = hashlib.md5(planeHypercube)
-        self.assert_(planeDirect_md5.digest() == planeHypercube_md5.digest())
+        assert planeDirect_md5.digest() == planeHypercube_md5.digest()
 
     def xtestGetStackFromHypercube(self):
         c = self.sizeC/2
@@ -130,7 +130,7 @@ class TestBfPixelsStore(lib.ITest):
         stackHypercube = self.bf.getHypercube([0,0,0,c,t],[self.sizeX,self.sizeY,self.sizeZ,1,1],[1,1,1,1,1])
         stackDirect_md5 = hashlib.md5(stackDirect)
         stackHypercube_md5 = hashlib.md5(stackHypercube)
-        self.assert_(stackDirect_md5.digest() == stackHypercube_md5.digest())
+        assert stackDirect_md5.digest() == stackHypercube_md5.digest()
 
     def xtestGetTimepointFromHypercube(self):
         t = self.sizeT/2
@@ -138,7 +138,7 @@ class TestBfPixelsStore(lib.ITest):
         timepointHypercube = self.bf.getHypercube([0,0,0,0,t],[self.sizeX,self.sizeY,self.sizeZ,self.sizeC,1],[1,1,1,1,1])
         timepointDirect_md5 = hashlib.md5(timepointDirect)
         timepointHypercube_md5 = hashlib.md5(timepointHypercube)
-        self.assert_(timepointDirect_md5.digest() == timepointHypercube_md5.digest())
+        assert timepointDirect_md5.digest() == timepointHypercube_md5.digest()
 
     def xtestGetPlaneFromRows(self):
         z = self.sizeZ/2
@@ -151,7 +151,7 @@ class TestBfPixelsStore(lib.ITest):
 
         rows_md5 = hashlib.md5(rows)
         plane_md5 = hashlib.md5(plane)
-        self.assert_(rows_md5.digest() == plane_md5.digest())
+        assert rows_md5.digest() == plane_md5.digest()
 
     def xtestGetStackFromPlanes(self):
         c = self.sizeC/2
@@ -163,7 +163,7 @@ class TestBfPixelsStore(lib.ITest):
 
         planes_md5 = hashlib.md5(planes)
         stack_md5 = hashlib.md5(stack)
-        self.assert_(planes_md5.digest() == stack_md5.digest())
+        assert planes_md5.digest() == stack_md5.digest()
 
     def xtestGetTimepointFromStacks(self):
         t = self.sizeT/2
@@ -174,7 +174,5 @@ class TestBfPixelsStore(lib.ITest):
 
         stacks_md5 = hashlib.md5(stacks)
         timepoint_md5 = hashlib.md5(timepoint)
-        self.assert_(stacks_md5.digest() == timepoint_md5.digest())
+        assert stacks_md5.digest() == timepoint_md5.digest()
 
-if __name__ == '__main__':
-    unittest.main()

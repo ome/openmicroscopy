@@ -109,13 +109,13 @@ class TestTickets2000(lib.ITest):
         search.onlyType("Project")
 
         search.bySomeMustNone([unique.val], [], ["NOTME"])
-        self.assert_( not search.hasNext() )
+        assert  not search.hasNext()
 
         search.bySomeMustNone([unique.val], [], ["NOTME","SOMETHINGELSE"])
-        self.assert_( not search.hasNext() )
+        assert  not search.hasNext()
 
         search.bySomeMustNone([unique.val], [], [])
-        self.assert_( search.hasNext() )
+        assert  search.hasNext()
 
     def test1071(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -139,24 +139,24 @@ class TestTickets2000(lib.ITest):
         ds1.setName(rstring('test1071-ds1-%s' % (uuid)))
         ds1 = update.saveAndReturnObject(ds1)
         ds1.unload()
-        
+
         ds2 = DatasetI()
         ds2.setName(rstring('test1071-ds2-%s' % (uuid)))
         ds2 = update.saveAndReturnObject(ds2)
         ds2.unload()
-        
+
         ds3 = DatasetI()
         ds3.setName(rstring('test1071-ds3-%s' % (uuid)))
         ds3 = update.saveAndReturnObject(ds3)
         ds3.unload()
-        
+
         #images
         im2 = ImageI()
         im2.setName(rstring('test1071-im2-%s' % (uuid)))
         im2.acquisitionDate = rtime(0)
         im2 = update.saveAndReturnObject(im2)
         im2.unload()
-        
+
         #links
         #
         # im2 -> ds3
@@ -168,47 +168,47 @@ class TestTickets2000(lib.ITest):
         pdl1.setParent(pr1)
         pdl1.setChild(ds1)
         update.saveObject(pdl1)
-        
+
         pdl2 = ProjectDatasetLinkI()
         pdl2.setParent(pr1)
         pdl2.setChild(ds2)
         update.saveObject(pdl2)
-        
+
         pdl3 = ProjectDatasetLinkI()
         pdl3.setParent(pr2)
         pdl3.setChild(ds2)
         update.saveObject(pdl3)
-        
+
         dil4 = DatasetImageLinkI()
         dil4.setParent(ds1)
         dil4.setChild(im2)
         update.saveObject(dil4)
-        
+
         dil5 = DatasetImageLinkI()
         dil5.setParent(ds2)
         dil5.setChild(im2)
         update.saveObject(dil5)
-        
+
         dil6 = DatasetImageLinkI()
         dil6.setParent(ds3)
         dil6.setChild(im2)
         update.saveObject(dil6)
-        
+
         #test:
         hier = pojos.findContainerHierarchies("Project", [long(im2.id.val)], None)
 
-        self.assertEquals(3, len(hier), "len of hier != 3: %s" % [type(x) for x in hier])
+        assert 3 ==  len(hier), "len of hier != 3: %s" % [type(x) for x in hier]
         for c in hier:
             if c.id.val == pr1.id.val and isinstance(c, ProjectI):
-                self.assert_(c.sizeOfDatasetLinks() == 2, "length 2 != " + str(c.sizeOfDatasetLinks()))
+                assert c.sizeOfDatasetLinks() == 2, "length 2 != " + str(c.sizeOfDatasetLinks())
                 for pdl in c.copyDatasetLinks():
-                    self.assert_(pdl.child.sizeOfImageLinks() == 1)
+                    assert pdl.child.sizeOfImageLinks() == 1
                     for dil in pdl.child.copyImageLinks():
-                        self.assert_(dil.child.id.val == im2.id.val)
+                        assert dil.child.id.val == im2.id.val
             elif c.id.val == pr2.id.val and isinstance(c, ProjectI):
-                self.assert_( c.sizeOfDatasetLinks() == 1 )
+                assert  c.sizeOfDatasetLinks() == 1
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
-                self.assert_( c.sizeOfImageLinks() == 1 )
+                assert  c.sizeOfImageLinks() == 1
 
     def test1071_1(self):
         admin = self.root.sf.getAdminService()
@@ -286,18 +286,18 @@ class TestTickets2000(lib.ITest):
         #test:
         hier = c2_pojos.findContainerHierarchies("Project", [long(im2.id.val)], None)
 
-        self.assertEquals(2, len(hier), "size of hier != 2: %s" % [type(x) for x in hier])
+        assert 2 ==  len(hier), "size of hier != 2: %s" % [type(x) for x in hier]
         for c in hier:
             if c.id.val == pr1.id.val and isinstance(c, ProjectI):
-                self.assertEquals(1, c.sizeOfDatasetLinks())
+                assert 1 ==  c.sizeOfDatasetLinks()
                 for pdl in c.copyDatasetLinks():
-                    self.assertEquals(1, pdl.child.sizeOfImageLinks())
+                    assert 1 ==  pdl.child.sizeOfImageLinks()
                     for dil in pdl.child.copyImageLinks():
-                        self.assert_(dil.child.id.val == im2.id.val)
+                        assert dil.child.id.val == im2.id.val
             elif c.id.val == pr2.id.val and isinstance(c, ProjectI):
-                self.assertEquals(1, c.sizeOfDatasetLinks())
+                assert 1 ==  c.sizeOfDatasetLinks()
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
-                self.assertEquals(1, c.sizeOfImageLinks())
+                assert 1 ==  c.sizeOfImageLinks()
 
     def test1072(self):
         #create two users where both are in the same active group
@@ -330,7 +330,7 @@ class TestTickets2000(lib.ITest):
         #login as user2
         pojos = c2.sf.getContainerService()
 
-        self.assert_( c2.sf.getAdminService().getEventContext() )
+        assert  c2.sf.getAdminService().getEventContext()
         #print c1.sf.getAdminService().getEventContext()
 
         p = omero.sys.ParametersI()
@@ -406,7 +406,7 @@ class TestTickets2000(lib.ITest):
         # print "members of group %s %i" % (gr1.name.val, gr1.id.val)
         for m in indefault:
             if m.id.val == exp.id.val:
-                self.assert_(m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val)
+                assert m.copyGroupExperimenterMap()[0].parent.id.val == admin.getDefaultGroup(exp.id.val).id.val
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
         gr2 = admin.getGroup(gid)
@@ -442,9 +442,9 @@ class TestTickets2000(lib.ITest):
         search1.onlyType('Image')
         search1.addOrderByAsc("name")
         search1.byFullText("test*")
-        self.assertTrue(search1.hasNext())
+        assert search1.hasNext()
         res = search1.results()
-        self.assertEquals(1, len(res))
+        assert 1 ==  len(res)
 
     def test1184(self):
         uuid = self.uuid()
@@ -472,7 +472,7 @@ class TestTickets2000(lib.ITest):
         ds = update.saveAndReturnObject(ds)
 
         c = cont.getCollectionCount(ds.__class__.__name__, ("imageLinks"), [ds.id.val], None)
-        self.assert_(c[ds.id.val] == 2000)
+        assert c[ds.id.val] == 2000
 
         page = 1
         p = omero.sys.Parameters()
@@ -491,7 +491,7 @@ class TestTickets2000(lib.ITest):
 
         start = time.time()
         res = query.findAllByQuery(sql,p)
-        self.assertEquals(24, len(res))
+        assert 24 ==  len(res)
         end = time.time()
         elapsed = end - start
         self.assertTrue(elapsed < 3.0,
@@ -551,5 +551,3 @@ class TestTickets2000(lib.ITest):
         p = self.update.saveAndReturnObject(p)
         p = self.update.saveAndReturnObject(p)
 
-if __name__ == '__main__':
-    unittest.main()
