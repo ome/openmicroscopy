@@ -27,21 +27,17 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
-import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
@@ -66,13 +62,13 @@ public class CreateObjectWithChildren
 	/** 
 	 * Name of the action if the selected node is a <code>Dataset</code>.
 	 */
-	private static final String NAME_DATASET = "New Dataset From Selection...";
+	private static final String NAME_DATASET = "New Dataset...";
 	
 	/** 
 	 * Description of the action if the selected node is a <code>Dataset</code>.
 	 */
 	private static final String DESCRIPTION_DATASET = "Create a new Dataset " +
-	"and add the selected images to it.";
+	"and add the selected orphaned images to it.";
 	
 	/** One of the constants defined by this class.*/
 	private int index;
@@ -110,7 +106,7 @@ public class CreateObjectWithChildren
         switch (browser.getState()) {
             case Browser.LOADING_DATA:
             case Browser.LOADING_LEAVES:
-            case Browser.COUNTING_ITEMS:  
+            case Browser.COUNTING_ITEMS:
                 setEnabled(false);
                 break;
             default:
