@@ -19,6 +19,10 @@ import java.util.Set;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
+
 import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -542,7 +546,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      */
     private void copyAndSaveExperimenter(final Experimenter experimenter) {
         final Experimenter orig = userProxy(experimenter.getId());
-        orig.setOmeName(experimenter.getOmeName());
+        final String origOmeName = orig.getOmeName();
+        final String newOmeName = experimenter.getOmeName();
+        if (!origOmeName.equals(newOmeName)) {
+            final Roles roles = getSecurityRoles();
+            final Set<String> fixedExperimenterNames =
+                    ImmutableSet.of(roles.getRootName(), roles.getGuestName());
+            if (fixedExperimenterNames.contains(origOmeName)) {
+                throw new ValidationException("cannot change name of special experimenter '" + origOmeName + "'");
+            } else if (fixedExperimenterNames.contains(newOmeName)) {
+                throw new ValidationException("cannot change name to special experimenter '" + newOmeName + "'");
+            }
+        }
+        orig.setOmeName(newOmeName);
         orig.setEmail(experimenter.getEmail());
         orig.setFirstName(experimenter.getFirstName());
         orig.setMiddleName(experimenter.getMiddleName());
@@ -564,7 +580,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             changePermissions(group, p); // ticket:1776 WORKAROUND
         }
         final ExperimenterGroup orig = getGroup(group.getId());
-        orig.setName(group.getName());
+        final String origName = orig.getName();
+        final String newName = group.getName();
+        if (!origName.equals(newName)) {
+            final Roles roles = getSecurityRoles();
+            final Set<String> fixedGroupNames =
+                    ImmutableSet.of(roles.getGuestGroupName(), roles.getSystemGroupName(), roles.getUserGroupName());
+            if (fixedGroupNames.contains(origName)) {
+                throw new ValidationException("cannot change name of special group '" + origName + "'");
+            } else if (fixedGroupNames.contains(newName)) {
+                throw new ValidationException("cannot change name to special group '" + newName + "'");
+            }
+        }
+        orig.setName(newName);
         orig.setDescription(group.getDescription());
 
         reallySafeSave(orig);
@@ -667,6 +695,19 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         adminOrPiOfGroups(null, groups);
+
+        final Roles roles = getSecurityRoles();
+        if (roles.isRootUser(user) &&
+                Iterators.any(Iterators.forArray(groups), Predicates.or(roles.IS_SYSTEM_GROUP, roles.IS_USER_GROUP))) {
+            throw new ValidationException("experimenter '" + roles.getRootName() + "' may not be removed from the '" +
+                roles.getSystemGroupName() + "' or '" + roles.getUserGroupName() + "' group");
+        }
+        final EventContext eventContext = getEventContext();
+        if (eventContext.isCurrentUserAdmin() && eventContext.getCurrentUserId().equals(user.getId()) &&
+                Iterators.any(Iterators.forArray(groups), roles.IS_SYSTEM_GROUP)) {
+            throw new ValidationException("administrative users may not remove themselves from the '" +
+                roles.getSystemGroupName() + "' group");
+        }
         roleProvider.removeGroups(user, groups);
 
         getBeanHelper().getLogger().info(
