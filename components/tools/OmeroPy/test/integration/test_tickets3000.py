@@ -69,7 +69,7 @@ class TestTickets3000(lib.ITest):
         admin = self.root.sf.getAdminService()
         user = self.new_user()
         grps = admin.containedGroups(user.id.val)
-        self.assertEquals(2, len(grps))
+        assert 2 ==  len(grps)
         non_user = [x for x in grps if x.id.val != 1][0]
         grp = self.new_group()
         admin.addGroups(user, [grp])
@@ -124,7 +124,7 @@ class TestTickets3000(lib.ITest):
         search.byFullText(s)
         res = search.results()
 
-        self.assert_( la.id.val in [x.id.val for x in res] )
+        assert  la.id.val in [x.id.val for x in res]
 
     def test2762(self):
         """
@@ -142,13 +142,11 @@ class TestTickets3000(lib.ITest):
             self.root.sf.getUpdateService().indexObject(ta)
 
         results = self.query.findAllByFullText("TagAnnotation", uuid, None)
-        self.assertEquals(len(tas), len(results))
+        assert len(tas) ==  len(results)
 
         params = omero.sys.ParametersI()
         params.page(0, 10)
         results = self.query.findAllByFullText("TagAnnotation", uuid, params)
-        self.assertEquals(10, len(results))
+        assert 10 ==  len(results)
 
 
-if __name__ == '__main__':
-    unittest.main()

@@ -10,7 +10,6 @@
 """
 
 import pytest
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PermissionsI import PermissionsI
@@ -114,7 +113,7 @@ class TestPermissions(lib.ITest):
         public_client.getImplicitContext().put("omero.group", uuid)
         sf = public_client.createSession(ec.userName, "foo")
         ec = sf.getAdminService().getEventContext()
-        self.assertEquals(uuid, ec.groupName)
+        assert uuid ==  ec.groupName
 
         # But can the user write anything?
         tag = TagAnnotationI()
@@ -167,12 +166,12 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rw----', str(gr1.details.permissions))
+        assert 'rw----' ==  str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        self.assertEquals(new_name, gr1_u.name.val)
+        assert new_name ==  gr1_u.name.val
 
     def testCreatAndUpdatePublicGroupReadOnly(self):
         # this is the test of creating public group read-only and updating it
@@ -199,12 +198,12 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rwr---', str(gr1.details.permissions))
+        assert 'rwr---' ==  str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        self.assertEquals(new_name, gr1_u.name.val)
+        assert new_name ==  gr1_u.name.val
 
     def testCreatAndUpdatePublicGroupReadAnnotate(self):
         # this is the test of creating public group and updating it
@@ -230,12 +229,12 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rwra--', str(gr1.details.permissions))
+        assert 'rwra--' ==  str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        self.assertEquals(new_name, gr1_u.name.val)
+        assert new_name ==  gr1_u.name.val
 
     def testCreatAndUpdatePublicGroup(self):
         # this is the test of creating public group and updating it
@@ -261,12 +260,12 @@ class TestPermissions(lib.ITest):
 
         # update name of group1
         gr1 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr1.details.permissions))
+        assert 'rwrw--' ==  str(gr1.details.permissions)
         new_name = "changed_name_group1_%s" % uuid
         gr1.name = rstring(new_name)
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
-        self.assertEquals(new_name, gr1_u.name.val)
+        assert new_name ==  gr1_u.name.val
 
     def testCreatGroupAndchangePermissions(self):
         # this is the test of updating group permissions
@@ -304,7 +303,7 @@ class TestPermissions(lib.ITest):
         p1.setWorldWrite(False)
         admin.changePermissions(gr1, p1)
         gr2 = admin.getGroup(g1_id)
-        self.assertEquals('rwr---', str(gr2.details.permissions))
+        assert 'rwr---' ==  str(gr2.details.permissions)
 
         #increase permissions of group1 to rwra--
         gr2 = admin.getGroup(g1_id)
@@ -319,7 +318,7 @@ class TestPermissions(lib.ITest):
         p2.setWorldWrite(False)
         admin.changePermissions(gr2, p2)
         gr3 = admin.getGroup(g1_id)
-        self.assertEquals('rwra--', str(gr3.details.permissions))
+        assert 'rwra--' ==  str(gr3.details.permissions)
 
         #increase permissions of group1 to rwrw--
         gr3 = admin.getGroup(g1_id)
@@ -333,7 +332,7 @@ class TestPermissions(lib.ITest):
         p3.setWorldWrite(False)
         admin.changePermissions(gr3, p3)
         gr4 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr4.details.permissions))
+        assert 'rwrw--' ==  str(gr4.details.permissions)
 
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
@@ -380,13 +379,13 @@ class TestPermissions(lib.ITest):
         admin.addGroupOwners(gr1, [exp1])
         # chech if is the leader
         leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
-        self.assertTrue(gr1.id.val in leaderOfGroups)
+        assert gr1.id.val in leaderOfGroups
 
         # remove group owner
         admin.removeGroupOwners(gr1, [exp1])
         # chech if no longer is the leader
         leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
-        self.assertFalse(gr1.id.val in leaderOfGroups)
+        assert not gr1.id.val in leaderOfGroups
 
         """
         Controller method shows how it is used in practice
@@ -453,11 +452,11 @@ class TestPermissions(lib.ITest):
         # As root, try to load it
         root_query = self.root.sf.getQueryService()
         tag = get_tag(root_query, {})
-        self.assertEquals(None, tag)
+        assert None ==  tag
 
         # Now try to load it again, with a context
         tag = get_tag(root_query, {"omero.group": "-1"})
-        self.assertEquals(tid, tag.id.val)
+        assert tid ==  tag.id.val
 
         # If the user tries that, there will be an exception
         get_tag(query, {"omero.group": "-1"})
@@ -717,7 +716,7 @@ class TestPermissions(lib.ITest):
         client, user = self.new_client_and_user(system=True)
         admin = client.sf.getAdminService()
         query = client.sf.getQueryService()
-        self.assertTrue(admin.getEventContext().isAdmin)
+        assert admin.getEventContext().isAdmin
 
         image, user, group = self.private_image_and_user()
         self.assertAsUser(client, image, user, group)
@@ -726,7 +725,7 @@ class TestPermissions(lib.ITest):
         client, user = self.new_client_and_user(system=False)
         admin = client.sf.getAdminService()
         query = client.sf.getQueryService()
-        self.assertTrue(not admin.getEventContext().isAdmin)
+        assert not admin.getEventContext().isAdmin
 
         image, user, group = self.private_image_and_user()
         self.assertRaises(omero.SecurityViolation, \
@@ -760,17 +759,17 @@ class TestPermissions(lib.ITest):
 
     def testDisallow(self):
         p = omero.model.PermissionsI()
-        self.assertTrue(p.canAnnotate())
-        self.assertTrue(p.canEdit())
+        assert p.canAnnotate()
+        assert p.canEdit()
 
     def testClientSet(self):
         c = omero.model.CommentAnnotationI()
         c = self.update.saveAndReturnObject(c)
         d = c.getDetails()
-        self.assertTrue( d.getClient() is not None)
-        self.assertTrue( d.getSession() is not None)
-        self.assertTrue( d.getCallContext() is not None)
-        self.assertTrue( d.getEventContext() is not None)
+        assert  d.getClient() is not None
+        assert  d.getSession() is not None
+        assert  d.getCallContext() is not None
+        assert  d.getEventContext() is not None
 
     # raw pixels bean
     # ==================================================
@@ -809,7 +808,7 @@ class TestPermissions(lib.ITest):
         store.setFileId(script.id.val, ctx)
 
         data = store.read(0, long(script.size.val))
-        self.assertEquals(script.size.val, len(data))
+        assert script.size.val ==  len(data)
 
     def testUseOfRawFileBeanScriptReadGroupMinusOne(self):
         self.assertValidScript(lambda v: {'omero.group': '-1'})
@@ -824,5 +823,3 @@ class TestPermissions(lib.ITest):
             'omero.user': str(v.details.owner.id.val)
         })
 
-if __name__ == '__main__':
-    unittest.main()

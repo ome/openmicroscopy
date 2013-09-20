@@ -13,7 +13,6 @@ a running server.
 
 import time
 import datetime
-import unittest
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -77,5 +76,3 @@ class TestIMetadata(lib.ITest):
         for name in NAMES:
             self.md.loadSpecifiedAnnotations(name, [], [], None)
 
-if __name__ == '__main__':
-    unittest.main()

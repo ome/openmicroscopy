@@ -10,7 +10,6 @@
 """
 
 import time
-import unittest
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -37,7 +36,7 @@ class BaseChmodTest(lib.ITest):
                 (omero.model.PermissionsI, str))
         a = str(a)
         b = str(b)
-        self.assertEquals(a, b)
+        assert a ==  b
 
     def addData(self):
         c = omero.model.CommentAnnotationI()
@@ -87,10 +86,10 @@ class BaseChmodTest(lib.ITest):
         perms = details.permissions
 
         # Check the new perms state
-        self.assertEquals(canAnnotate, perms.canAnnotate())
-        self.assertEquals(canEdit, perms.canEdit())
-        self.assertTrue(details.getCallContext() is not None)
-        self.assertTrue(details.getEventContext() is not None)
+        assert canAnnotate ==  perms.canAnnotate()
+        assert canEdit ==  perms.canEdit()
+        assert details.getCallContext() is not None
+        assert details.getEventContext() is not None
 
 
 class TestChmodEasy(BaseChmodTest):
@@ -101,7 +100,7 @@ class TestChmodEasy(BaseChmodTest):
     """
 
     def assertChmod(self):
-        self.assert_(self.elapsed < 0.5)
+        assert self.elapsed < 0.5
         BaseChmodTest.assertChmod(self)
 
     def test_chmod_rw_rwr(self):
@@ -127,5 +126,3 @@ class TestChmodHard(BaseChmodTest):
     # What to do about non-group chmod
 
 
-if __name__ == '__main__':
-    unittest.main()

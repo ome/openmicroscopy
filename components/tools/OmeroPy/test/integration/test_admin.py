@@ -9,7 +9,6 @@
 
 """
 
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PixelsI import PixelsI
@@ -27,7 +26,7 @@ class TestAdmin(lib.ITest):
         a = self.client.getSession().getAdminService()
         l = a.lookupGroups()
         g = a.getGroup(l[0].getId().val)
-        self.assert_( 0 != g.sizeOfGroupExperimenterMap() )
+        assert  0 != g.sizeOfGroupExperimenterMap()
 
     def testSetGroup(self):
         a = self.client.getSession().getAdminService()
@@ -43,8 +42,8 @@ class TestAdmin(lib.ITest):
         a.setDefaultGroup(e, grp)
 
         dg = self.client.getSession().getAdminService().getDefaultGroup(uid)
-        self.assertEqual(dg.id.val, grp.id.val)
-    
+        assert dg.id.val ==  grp.id.val
+
     def testChangePassword(self):
         """
         See ticket:3201
@@ -128,12 +127,12 @@ class TestAdmin(lib.ITest):
         grps2 = root_admin.getMemberOfGroupIds(exp)
 
         # Check via the groups
-        self.assertEquals(len(grps1)+1, len(grps2))
-        self.assertTrue(group.id.val in grps2)
+        assert len(grps1)+1 ==  len(grps2)
+        assert group.id.val in grps2
 
         # Check again via the contexts
-        self.assertEquals(len(ec1.memberOfGroups)+1, len(ec2.memberOfGroups))
-        self.assertTrue(group.id.val in ec2.memberOfGroups)
+        assert len(ec1.memberOfGroups)+1 ==  len(ec2.memberOfGroups)
+        assert group.id.val in ec2.memberOfGroups
 
     def testUserRoles4056(self):
         """
@@ -238,5 +237,3 @@ class TestAdmin(lib.ITest):
         c = self.new_client(user=u)
 
 
-if __name__ == '__main__':
-    unittest.main()

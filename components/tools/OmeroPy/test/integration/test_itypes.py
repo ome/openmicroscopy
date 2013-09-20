@@ -52,5 +52,3 @@ class TestTypes(lib.ITest):
         
         types.resetEnumerations("ExperimentTypeI")
         
-if __name__ == '__main__':
-    unittest.main()

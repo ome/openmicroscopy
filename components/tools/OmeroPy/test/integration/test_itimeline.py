@@ -12,7 +12,6 @@
 import time
 import datetime
 import pytest
-import unittest
 import test.integration.library as lib
 import omero
 from omero.rtypes import *
@@ -57,10 +56,10 @@ class TestITimeline(lib.ITest):
         A = rtime(long(start))
         B = rtime(long(end))
         counter = M(['Image'], A, B, p)
-        self.assertEquals(counter['Image'], 10)
+        assert counter['Image'] ==  10
         # And with #9609
         counter = M(['Image'], A, B, p, {"omero.group": "-1"})
-        self.assertEquals(counter['Image'], 10)
+        assert counter['Image'] ==  10
 
         p2 = omero.sys.Parameters()
         p2.map = {}
@@ -75,21 +74,21 @@ class TestITimeline(lib.ITest):
 
         M = timeline.getMostRecentObjects
         res = M(['Image'], p2, False)["Image"]
-        self.assertEquals(5, len(res))
+        assert 5 ==  len(res)
         # And with #9609
         res = M(['Image'], p2, False, {"omero.group": "-1"})["Image"]
-        self.assertEquals(5, len(res))
+        assert 5 ==  len(res)
 
         # 1st element should be the 9th from the im_ids
-        self.assertEquals(im_ids[9][0], res[0].id.val)
+        assert im_ids[9][0] ==  res[0].id.val
         # 2nd element should be the 8th from the im_ids
-        self.assertEquals(im_ids[8][0], res[1].id.val)
+        assert im_ids[8][0] ==  res[1].id.val
         # 3rd element should be the 7th from the im_ids
-        self.assertEquals(im_ids[7][0], res[2].id.val)
+        assert im_ids[7][0] ==  res[2].id.val
         # 4th element should be the 6th from the im_ids
-        self.assertEquals(im_ids[6][0], res[3].id.val)
+        assert im_ids[6][0] ==  res[3].id.val
         # 5th element should be the 5th from the im_ids
-        self.assertEquals(im_ids[5][0], res[4].id.val)
+        assert im_ids[5][0] ==  res[4].id.val
 
 
     def testCollaborativeTimeline(self):
@@ -136,9 +135,9 @@ class TestITimeline(lib.ITest):
             p.theFilter = f
 
             counter = timeline.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)
-            self.assertEquals(10, counter['Image'])
+            assert 10 ==  counter['Image']
             data = timeline.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, False)
-            self.assertEquals(10, len(data['Image']))
+            assert 10 ==  len(data['Image'])
 
         assert_timeline(timeline1, start, end, ownerId, groupId)
 
@@ -172,11 +171,11 @@ class TestITimeline(lib.ITest):
         B = rtime(long(end))
 
         rv = M(A, B, p)
-        self.assert_(rv > 0)
+        assert rv > 0
 
         # And now for #9609
         rv = M(A, B, p, {"omero.group": "-1"})
-        self.assert_(rv > 0)
+        assert rv > 0
 
     def test1175(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -207,11 +206,11 @@ class TestITimeline(lib.ITest):
 
         M = timeline.getMostRecentAnnotationLinks
         res = M(None, ['TagAnnotation'], None, p)
-        self.assert_(len(res) > 0)
+        assert len(res) > 0
 
         # And now for #9609
         res = M(None, ['TagAnnotation'], None, p, {"omero.group": "-1"})
-        self.assert_(len(res) > 0)
+        assert len(res) > 0
 
     # This test relates to a ticket that has not yet been resolved
     # http://trac.openmicroscopy.org/ome/ticket/1225
@@ -256,12 +255,12 @@ class TestITimeline(lib.ITest):
         M = timeline.getMostRecentAnnotationLinks
         tagids = set([e.child.id.val for e in \
                 M(None, ['TagAnnotation'], None, p)])
-        self.assertEquals(len(tagids), 10)
+        assert len(tagids) ==  10
 
         # And under #9609
         tagids = set([e.child.id.val for e in \
                 M(None, ['TagAnnotation'], None, p, {"omero.group":"-1"})])
-        self.assertEquals(len(tagids), 10)
+        assert len(tagids) ==  10
 
 
         ann = omero.model.TagAnnotationI()
@@ -278,12 +277,12 @@ class TestITimeline(lib.ITest):
 
         tids = set([e.child.id.val for e in \
                 M(None, ['TagAnnotation'], None, p)])
-        self.assertEquals(len(tids), 10)
+        assert len(tids) ==  10
 
         # And again #9609
         tids = set([e.child.id.val for e in \
                 M(None, ['TagAnnotation'], None, p, {"omero.group": "-1"})])
-        self.assertEquals(len(tids), 10)
+        assert len(tids) ==  10
 
     def test3234(self):
 
@@ -298,5 +297,3 @@ class TestITimeline(lib.ITest):
         timeline.getMostRecentShareCommentLinks(None, {"omero.group": "-1"})
 
 
-if __name__ == '__main__':
-    unittest.main()

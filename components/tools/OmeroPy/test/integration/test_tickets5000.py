@@ -27,5 +27,3 @@ class TestTickets5000(lib.ITest):
         tag = self.update.saveAndReturnObject(tag)
         self.update.deleteObject(tag)
 
-if __name__ == '__main__':
-    unittest.main()

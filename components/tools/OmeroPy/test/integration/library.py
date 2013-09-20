@@ -271,7 +271,7 @@ class ITest(unittest.TestCase):
         tb = session.createThumbnailStore()
         try:
             s = tb.getThumbnailByLongestSideSet(rint(16), [pixelsId])
-            self.assertNotEqual(s[pixelsId],'')
+            assert s[pixelsId] != ''
 
         finally:
             tb.close()
@@ -296,7 +296,7 @@ class ITest(unittest.TestCase):
         callback.loop(loops, ms) # throws on timeout
         rsp = callback.getResponse()
         is_ok = isinstance(rsp, omero.cmd.OK)
-        self.assertEquals(passes, is_ok, str(rsp))
+        assert passes ==  is_ok, str(rsp)
         return callback
 
     def new_user(self, group = None, perms = None,
@@ -562,9 +562,9 @@ class ITest(unittest.TestCase):
             t2 = time.time()
             T = (t2-t1)
             if less:
-                self.assertTrue(T < t, "%s > %s" % (T, t))
+                assert T < t, "%s > %s" % (T, t)
             else:
-                self.assertTrue(T > t, "%s < %s" % (T, t))
+                assert T > t, "%s < %s" % (T, t)
         finally:
             c.__del__()
 
@@ -576,12 +576,12 @@ class ITest(unittest.TestCase):
         sf = client.sf
         prx = sf.submit(request)
 
-        self.assertFalse(State.FAILURE in prx.getStatus().flags)
+        assert not State.FAILURE in prx.getStatus().flags
 
         cb = CmdCallbackI(client, prx)
         cb.loop(20, 500)
 
-        self.assertNotEqual(prx.getResponse(), None)
+        assert prx.getResponse() !=  None
 
         status = prx.getStatus()
         rsp = prx.getResponse()
@@ -589,11 +589,11 @@ class ITest(unittest.TestCase):
         if test_should_pass:
             if isinstance(rsp, ERR):
                 self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
-            self.assertFalse(State.FAILURE in prx.getStatus().flags)
+            assert not State.FAILURE in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
                 self.fail("Found OK when test_should_pass==false: %s", rsp)
-            self.assertTrue(State.FAILURE in prx.getStatus().flags)
+            assert State.FAILURE in prx.getStatus().flags
 
         return rsp
 

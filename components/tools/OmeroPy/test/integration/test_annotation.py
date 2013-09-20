@@ -137,5 +137,3 @@ def addTimestampAnnotation(updateService, parent, timeValue, ns=None, descriptio
     child.setTimeValue(rtime(timeValue))
     saveAndLinkAnnotation(updateService, parent, child, ns, description)
 
-if __name__ == '__main__':
-    unittest.main()

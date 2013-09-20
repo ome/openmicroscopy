@@ -9,7 +9,6 @@
 
 """
 
-import unittest
 import test.integration.library as lib
 import omero
 import datetime, time
@@ -30,7 +29,7 @@ class TestSearch(lib.ITest):
         self.root.sf.getUpdateService().indexObject(tag)
         q = searcher.sf.getQueryService()
         r = q.findAllByFullText("TagAnnotation", uuid, None)
-        self.assertEquals(0, len(r))
+        assert 0 ==  len(r)
 
     def test3164Private(self):
         group = self.new_group(perms="rw----")
@@ -84,21 +83,21 @@ class TestSearch(lib.ITest):
         for tag in tags:
             search.byFullText(tag)
             res = search.results()
-            self.assertEquals(tag, res[0].ns.val)
+            assert tag ==  res[0].ns.val
 
         boost_query = "%s^10 OR %s^1"
 
         # Boosted
         search.byFullText(boost_query % tuple(tags))
         res = search.results()
-        self.assertEquals(tags[0], res[0].ns.val)
-        self.assertEquals(tags[1], res[1].ns.val)
+        assert tags[0] ==  res[0].ns.val
+        assert tags[1] ==  res[1].ns.val
 
         # Reversed
         search.byFullText(boost_query % tuple(reversed(tags)))
         res = search.results()
-        self.assertEquals(tags[0], res[1].ns.val)
-        self.assertEquals(tags[1], res[0].ns.val)
+        assert tags[0] ==  res[1].ns.val
+        assert tags[1] ==  res[0].ns.val
 
     #
     # Helpers
@@ -125,7 +124,7 @@ class TestSearch(lib.ITest):
                 "where im.id in (:oids) " \
                 "order by im.id asc"
         res = owner.sf.getQueryService().findAllByQuery(sql, p)
-        self.assertEquals(5, len(res))
+        assert 5 ==  len(res)
 
         #Searching
         texts = ("*earch", "*h", "search tif", "search",\
@@ -212,8 +211,6 @@ class TestSearch(lib.ITest):
         rv = query.findAllByFullText( \
                 "CommentAnnotation", "%s" % uuid, None)
         #"CommentAnnotation", "%s*" % uuid[0:6], None)
-        self.assertEquals(cann.id.val, rv[0].id.val)
+        assert cann.id.val ==  rv[0].id.val
 
 
-if __name__ == '__main__':
-    unittest.main()

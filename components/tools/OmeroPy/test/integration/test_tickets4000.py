@@ -34,7 +34,7 @@ class TestTickets4000(lib.ITest):
     def testChangeActiveGroup(self):
         admin = self.client.sf.getAdminService()
 
-        self.assertEquals(2, len(admin.getEventContext().memberOfGroups))
+        assert 2 ==  len(admin.getEventContext().memberOfGroups)
 
         # AS ROOT: adding user to extra group
         admin_root = self.root.sf.getAdminService()
@@ -42,7 +42,7 @@ class TestTickets4000(lib.ITest):
         grp = self.new_group()
         admin_root.addGroups(exp, [grp])
 
-        self.assertEquals(3, len(admin.getEventContext().memberOfGroups))
+        assert 3 ==  len(admin.getEventContext().memberOfGroups)
 
         proxies = dict()
         # creating stateful services
@@ -59,13 +59,13 @@ class TestTickets4000(lib.ITest):
 
         self.client.sf.setSecurityContext(omero.model.ExperimenterGroupI(grp.id.val, False))
         admin.setDefaultGroup(admin.getExperimenter(admin.getEventContext().userId), omero.model.ExperimenterGroupI(grp.id.val, False))
-        self.assertEquals(grp.id.val, self.client.sf.getAdminService().getEventContext().groupId)
+        assert grp.id.val ==  self.client.sf.getAdminService().getEventContext().groupId
 
     def testChageActiveGroupWhenConnectionLost(self):
         import os
         admin = self.client.sf.getAdminService()
         uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
-        self.assertEquals(2, len(admin.getEventContext().memberOfGroups))
+        assert 2 ==  len(admin.getEventContext().memberOfGroups)
 
         # AS ROOT: adding user to extra group
         admin_root = self.root.sf.getAdminService()
@@ -73,7 +73,7 @@ class TestTickets4000(lib.ITest):
         grp = self.new_group()
         admin_root.addGroups(exp, [grp])
 
-        self.assertEquals(3, len(admin.getEventContext().memberOfGroups))
+        assert 3 ==  len(admin.getEventContext().memberOfGroups)
 
         proxies = dict()
         # creating stateful services
@@ -124,7 +124,7 @@ class TestTickets4000(lib.ITest):
 
         ec = admin.getEventContext()
         sf.getAdminService().setDefaultGroup(sf.getAdminService().getExperimenter(ec.userId), omero.model.ExperimenterGroupI(grp.id.val, False))
-        self.assertEquals(grp.id.val, ec.groupId)
+        assert grp.id.val ==  ec.groupId
 
     def test3201(self):
         import Glacier2
@@ -170,7 +170,5 @@ class TestTickets4000(lib.ITest):
         la = self.update.saveAndReturnObject(la)
         la.ns = _(self.uuid())
         la = self.update.saveAndReturnObject(la)
-        self.assertEquals(-1, la.details.updateEvent.session.sizeOfEvents())
+        assert -1 ==  la.details.updateEvent.session.sizeOfEvents()
 
-if __name__ == '__main__':
-    unittest.main()

@@ -24,7 +24,6 @@ Integration tests for bin/omero import
 """
 
 
-import unittest
 import test.integration.library as lib
 import omero
 
@@ -76,7 +75,7 @@ class TestCliImport(lib.ITest):
 
     def assertGroup(self, group, *objects):
         for obj in objects:
-            self.assertEquals(group, obj.details.group.id.val)
+            assert group ==  obj.details.group.id.val
 
     def cliimport(self, fixture, *extra_args):
         extra_args = [str(x) for x in extra_args]
@@ -123,9 +122,9 @@ class TestCliImport(lib.ITest):
                 "--annotation_ns=test", \
                 "--annotation_text=test")
         ann = fixture.load_pixel_annotations(pix)
-        self.assertEquals(1, len(ann))
-        self.assertEquals("test", ann[0].ns.val)
-        self.assertEquals("test", ann[0].textValue.val)
+        assert 1 ==  len(ann)
+        assert "test" ==  ann[0].ns.val
+        assert "test" ==  ann[0].textValue.val
 
     def testAnnotationTextMultiple(self):
         fixture = Fixture(*self.new_client_and_user())
@@ -135,10 +134,10 @@ class TestCliImport(lib.ITest):
                 "--annotation_ns=test", \
                 "--annotation_text=test")
         ann = fixture.load_pixel_annotations(pix)
-        self.assertEquals(2, len(ann))
+        assert 2 ==  len(ann)
         for x in ann:
-            self.assertEquals("test", x.ns.val)
-            self.assertEquals("test", x.textValue.val)
+            assert "test" ==  x.ns.val
+            assert "test" ==  x.textValue.val
 
     def testAnnotationComment(self):
         fixture = Fixture(*self.new_client_and_user())
@@ -149,9 +148,7 @@ class TestCliImport(lib.ITest):
         pix = self.cliimport(fixture, \
                 "--annotation_link=%s" % comment.id.val)
         ann = fixture.load_pixel_annotations(pix)
-        self.assertEquals(1, len(ann))
-        self.assertEquals("test", ann[0].ns.val)
-        self.assertEquals("test", ann[0].textValue.val)
+        assert 1 ==  len(ann)
+        assert "test" ==  ann[0].ns.val
+        assert "test" ==  ann[0].textValue.val
 
-if __name__ == '__main__':
-    unittest.main()

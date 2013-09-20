@@ -25,7 +25,6 @@ Test of the CmdCallbackI object
 
 import Ice
 import time
-import unittest
 import threading
 
 import test.integration.library as lib
@@ -118,7 +117,7 @@ class CmdCallbackTest(lib.ITest):
     def testTimingFinishesOnLatch(self):
         cb = self.timing(25, 4 * 10)  # Runs 1 second
         cb.t_event.wait(1.500)
-        self.assertEquals(1, cb.t_finished)
+        assert 1 ==  cb.t_finished
         cb.assertFinished(10)  # Modulus-10
 
     def testTimingFinishesOnBlock(self):
@@ -159,5 +158,3 @@ class CmdCallbackTest(lib.ITest):
         # For some reason the number of steps is varying between 10 and 15
 
 
-if __name__ == '__main__':
-    unittest.main()

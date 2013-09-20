@@ -102,24 +102,24 @@ class TestBfPixelsStore(lib.ITest):
         
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
         rp_data = self.getSolidHypercubeFromRPS([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
         
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
         rp_data = self.getHypercubeFromRPS([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
 
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
         rp_data = self.getHypercubeFromRPS([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
 
     # Again, the middlish hypercube is got.
     def xtestGetHypercubeAgainstRPSGetHypercube(self):
@@ -131,24 +131,24 @@ class TestBfPixelsStore(lib.ITest):
         
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
         rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[1,1,1,1,1])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
         
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
         rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[2,2,1,1,1])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
 
         bf_data = self.bf.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
         rp_data = self.rp.getHypercube([x1,y1,z1,c1,t1],[x2,y2,z2,c2,t2],[6,5,4,3,2])
-        self.assert_(len(rp_data) == len(bf_data))
+        assert len(rp_data) == len(bf_data)
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
 
     def getSolidHypercubeFromRPS(self,start,size,step):
         bw = self.rp.getByteWidth()
@@ -178,7 +178,7 @@ class TestBfPixelsStore(lib.ITest):
     def xtestGetRow(self):
         bf_size = self.bf.getRowSize()
         rp_size = self.rp.getRowSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
 
         y = self.sizeY/2
         z = self.sizeZ/2
@@ -186,16 +186,16 @@ class TestBfPixelsStore(lib.ITest):
         t = self.sizeT/2
         bf_data = self.bf.getRow(y,z,c,t)
         rp_data = self.rp.getRow(y,z,c,t)
-        self.assert_(bf_size == len(bf_data))
+        assert bf_size == len(bf_data)
         
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
 
     def xtestGetCol(self):
         bf_size = self.bf.getByteWidth()*self.bf.getPlaneSize()/self.bf.getRowSize()
         rp_size = self.rp.getByteWidth()*self.rp.getPlaneSize()/self.rp.getRowSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
 
         x = self.sizeX/2
         z = self.sizeZ/2
@@ -203,77 +203,77 @@ class TestBfPixelsStore(lib.ITest):
         t = self.sizeT/2
         bf_data = self.bf.getCol(x,z,c,t)
         rp_data = self.rp.getCol(x,z,c,t)
-        self.assert_(bf_size == len(bf_data))
+        assert bf_size == len(bf_data)
         
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
     
     def xtestGetPlane(self):
         bf_size = self.bf.getPlaneSize()
         rp_size = self.rp.getPlaneSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
         
         z = self.sizeZ/2
         c = self.sizeC/2
         t = self.sizeT/2
         bf_data = self.bf.getPlane(z,c,t)
         rp_data = self.rp.getPlane(z,c,t)
-        self.assert_(bf_size == len(bf_data))
+        assert bf_size == len(bf_data)
         
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
     
     def xtestGetStack(self):
         bf_size = self.bf.getStackSize()
         rp_size = self.rp.getStackSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
         
         c = self.sizeC/2
         t = self.sizeT/2
         bf_data = self.bf.getStack(c,t)
         rp_data = self.rp.getStack(c,t)
-        self.assert_(bf_size == len(bf_data))
+        assert bf_size == len(bf_data)
         
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
     
     def xtestGetTimepoint(self):
         bf_size = self.bf.getTimepointSize()
         rp_size = self.rp.getTimepointSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
         
         t = self.sizeT/2
         bf_data = self.bf.getTimepoint(t)
         rp_data = self.rp.getTimepoint(t)
-        self.assert_(bf_size == len(bf_data))
+        assert bf_size == len(bf_data)
         
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
-        self.assert_(bf_md5.digest() == rp_md5.digest())
+        assert bf_md5.digest() == rp_md5.digest()
     
     def xtestOtherGetters(self):
         bf_size = self.bf.getTotalSize()
         rp_size = self.rp.getTotalSize()
-        self.assert_(bf_size == rp_size)
+        assert bf_size == rp_size
         
         bf_width = self.bf.getByteWidth()
         rp_width = self.rp.getByteWidth()
-        self.assert_(bf_width == rp_width)
+        assert bf_width == rp_width
 
         """
         # The offset getters are implemented in the bf classes but not in the pyramid variants.
         # The getters are not really necessary in the bf classes so disabling these tests.
         bf_offset = self.bf.getRowOffset(0,0,0,0)
-        self.assert_(bf_offset == 0)
+        assert bf_offset == 0
         bf_offset = self.bf.getPlaneOffset(0,0,0)
-        self.assert_(bf_offset == 0)
+        assert bf_offset == 0
         bf_offset = self.bf.getStackOffset(0,0)
-        self.assert_(bf_offset == 0)
+        assert bf_offset == 0
         bf_offset = self.bf.getTimepointOffset(0)
-        self.assert_(bf_offset == 0)
+        assert bf_offset == 0
         
         y = self.sizeY/2
         z = self.sizeZ/2
@@ -281,20 +281,18 @@ class TestBfPixelsStore(lib.ITest):
         t = self.sizeT/2
         bf_offset = self.bf.getRowOffset(y,z,c,t)
         rp_offset = self.rp.getRowOffset(y,z,c,t)
-        self.assert_(bf_offset == rp_offset)
+        assert bf_offset == rp_offset
         
         bf_offset = self.bf.getPlaneOffset(z,c,t)
         rp_offset = self.rp.getPlaneOffset(z,c,t)
-        self.assert_(bf_offset == rp_offset)
+        assert bf_offset == rp_offset
         
         bf_offset = self.bf.getStackOffset(c,t)
         rp_offset = self.rp.getStackOffset(c,t)
-        self.assert_(bf_offset == rp_offset)
+        assert bf_offset == rp_offset
         
         bf_offset = self.bf.getTimepointOffset(t)
         rp_offset = self.rp.getTimepointOffset(t)
-        self.assert_(bf_offset == rp_offset)
+        assert bf_offset == rp_offset
         """
         
-if __name__ == '__main__':
-    unittest.main()

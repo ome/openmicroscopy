@@ -9,7 +9,6 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
 import test.integration.library as lib
 import omero
 from omero_model_PixelsI import PixelsI
@@ -49,7 +48,7 @@ class TestISession(lib.ITest):
         try:
             user_sess = client.createSession(sess.uuid,sess.uuid)
             new_uuid   = user_sess.getAdminService().getEventContext().sessionUuid
-            self.assert_( sess.uuid.val == new_uuid )
+            assert  sess.uuid.val == new_uuid
             client.closeSession()
         finally:
             client.__del__()
@@ -74,11 +73,11 @@ class TestISession(lib.ITest):
             sf1 = c1.joinSession(suuid)
             a1 = sf1.getAdminService()
             s1uuid = a1.getEventContext().sessionUuid
-            self.assert_( s1uuid == suuid )
+            assert  s1uuid == suuid
         finally:
             c1.__del__()
 
-## Removing test for 'guest' user. 
+## Removing test for 'guest' user.
 ## This currently fails but there is some question
 ## as to whether we should have a guest user.
 ##
@@ -211,5 +210,3 @@ class TestISession(lib.ITest):
             c1.__del__()
 
 
-if __name__ == '__main__':
-    unittest.main()
