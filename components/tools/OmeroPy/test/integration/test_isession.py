@@ -205,7 +205,7 @@ class TestISession(lib.ITest):
                         cc.__del__()
 
             for s in svc.getMyOpenSessions():
-                self.assertNotEquals(s.uuid.val, newConnId.getUuid().val)
+                assert s.uuid.val != newConnId.getUuid().val
         finally:
             c1.__del__()
 

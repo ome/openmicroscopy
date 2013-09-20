@@ -417,10 +417,10 @@ class TestTickets2000(lib.ITest):
                 copied_id = m.copyGroupExperimenterMap()[0].parent.id.val
                 got_id = admin.getDefaultGroup(exp.id.val).id.val
                 contained = admin.containedGroups(m.id.val)
-                self.assertEquals(copied_id, got_id,\
+                assert copied_id == got_id,\
                 """
                 %s != %s. Groups for experimenter %s = %s (graph) or %s (contained)
-                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] ))
+                """ % ( copied_id, got_id, exp.id.val, [ x.parent.id.val for x in m.copyGroupExperimenterMap() ], [ y.id.val for y in contained ] )
                 # print "exp: id=", m.id.val, "; GEM[0]: ", type(m.copyGroupExperimenterMap()[0].parent), m.copyGroupExperimenterMap()[0].parent.id.val
 
     def test1163(self):
@@ -494,8 +494,8 @@ class TestTickets2000(lib.ITest):
         assert 24 ==  len(res)
         end = time.time()
         elapsed = end - start
-        self.assertTrue(elapsed < 3.0,
-            "Expected the test to complete in < 3 seconds, took: %f" % elapsed)
+        assert elapsed < 3.0,\
+            "Expected the test to complete in < 3 seconds, took: %f" % elapsed
 
     def test1183(self):
         # Annotation added before

@@ -40,7 +40,7 @@ class TestClientUsage(lib.ITest):
         client.setInput("a", rstring("b"));
         assert 1 ==  len(client.getInputKeys())
         assert "a" in client.getInputKeys()
-        self.assertEquals("b", client.getInput("a").getValue());
+        assert "b" == client.getInput("a").getValue()
 
         client.closeSession();
 
@@ -52,7 +52,7 @@ class TestClientUsage(lib.ITest):
             insecure = secure.createClient(False);
             try:
                 insecure.getSession().getAdminService().getEventContext();
-                self.assert_( not insecure.isSecure());
+                assert not insecure.isSecure()
             finally:
                 insecure.closeSession();
         finally:

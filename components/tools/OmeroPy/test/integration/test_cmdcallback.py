@@ -36,9 +36,8 @@ from omero.util.concurrency import get_event
 
 class TestCB(omero.callbacks.CmdCallbackI):
 
-    def __init__(self, client, handle, test):
+    def __init__(self, client, handle):
         super(TestCB, self).__init__(client, handle)
-        self.t_test = test
         self.t_lock = threading.RLock()
         self.t_steps = 0
         self.t_finished = 0
@@ -62,16 +61,16 @@ class TestCB(omero.callbacks.CmdCallbackI):
     def assertSteps(self, expected):
         self.t_lock.acquire()
         try:
-            self.t_test.assertEquals(expected, self.t_steps)
+            assert expected == self.t_steps
         finally:
             self.t_lock.release()
 
     def assertFinished(self, expectedSteps = None):
         self.t_lock.acquire()
         try:
-            self.t_test.assert_(self.t_finished != 0)
-            self.t_test.assertFalse(self.isCancelled())
-            self.t_test.assertFalse(self.isFailure())
+            assert self.t_finished != 0
+            assert not self.isCancelled()
+            assert not self.isFailure()
             rsp = self.getResponse()
             if not rsp:
                 self.fail("null response")
@@ -89,8 +88,8 @@ class TestCB(omero.callbacks.CmdCallbackI):
     def assertCancelled(self):
         self.t_lock.acquire()
         try:
-            self.t_test.assert_(self.t_finished != 0)
-            self.t_test.assert_(self.isCancelled())
+            assert self.t_finished != 0
+            assert self.isCancelled()
         finally:
             self.t_lock.release()
 
@@ -103,7 +102,7 @@ class CmdCallbackTest(lib.ITest):
         """
         client = self.new_client(perms="rw----")
         handle = client.getSession().submit(req)
-        return TestCB(client, handle, self)
+        return TestCB(client, handle)
 
     # Timing
     # =========================================================================

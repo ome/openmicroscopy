@@ -836,9 +836,9 @@ class TestIShare(lib.ITest):
         member_groupId = member.sf.getAdminService().getEventContext().groupId
         owner_groupId = owner.sf.getAdminService().getEventContext().groupId
 
-        self.assertFalse(member_suuid == owner_suuid) # just in case
+        assert member_suuid != owner_suuid # just in case
 
-        self.assertFalse(owner_obj.id.val == member_obj.id.val) # just in case
+        assert owner_obj.id.val != member_obj.id.val # just in case
 
         owner_update = owner.sf.getUpdateService()
         image = self.new_image()
@@ -900,9 +900,9 @@ class TestIShare(lib.ITest):
         member_groupId = member.sf.getAdminService().getEventContext().groupId
         owner_groupId = owner.sf.getAdminService().getEventContext().groupId
 
-        self.assertFalse(member_suuid == owner_suuid) # just in case
+        assert member_suuid != owner_suuid # just in case
 
-        self.assertFalse(owner_obj.id.val == member_obj.id.val) # just in case
+        assert owner_obj.id.val != member_obj.id.val # just in case
 
         # create image by owner
         owner_update = owner.sf.getUpdateService()
@@ -972,7 +972,7 @@ class TestIShare(lib.ITest):
 
         # For the moment, preventing all non-IShare download.
         share_from_iquery = query.get("Share", sid)
-        assert False ==  share_from_iquery.isLoaded()
+        assert not share_from_iquery.isLoaded()
 
     def assertExpiration(self, expiration, share):
         assert expiration ==  (share.started.val+share.timeToLive.val)
