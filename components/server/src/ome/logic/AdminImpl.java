@@ -700,7 +700,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         final EventContext eventContext = getEventContext();
         if (eventContext.isCurrentUserAdmin() && eventContext.getCurrentUserId().equals(user.getId()) &&
                 Iterators.any(Iterators.forArray(groups), roles.IS_SYSTEM_GROUP)) {
-            throw new ValidationException("administrative users may not remove themselves from the '" +
+            throw new ValidationException("experimenters may not remove themselves from the '" +
                 roles.getSystemGroupName() + "' group");
         }
         roleProvider.removeGroups(user, groups);
