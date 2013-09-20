@@ -244,6 +244,7 @@ public interface IAdmin extends ServiceInterface {
     /**
      * Updates an experimenter if admin or owner of group. Only string fields on
      * the object are taken into account.
+     * The root and guest experimenters may not be renamed.
      *
      * Before a SecurityViolation would be thrown, however, this method will
      * pass to {@link #updateSelf(Experimenter)} <em>if</em> the current user
@@ -258,6 +259,7 @@ public interface IAdmin extends ServiceInterface {
     /**
      * Updates an experimenter if admin or owner of group.
      * Only string fields on the object are taken into account.
+     * The root and guest experimenters may not be renamed.
      * 
      * @param experimenter
      *            the Experimenter to update.
@@ -271,6 +273,7 @@ public interface IAdmin extends ServiceInterface {
     /**
      * Updates an experimenter group if admin or owner of group.
      * Only string fields on the object are taken into account.
+     * The root, system and guest groups may not be renamed.
      * 
      * @param group
      *            the ExperimenterGroup to update.
@@ -369,7 +372,9 @@ public interface IAdmin extends ServiceInterface {
     ExperimenterGroup... groups);
 
     /**
-     * removes a user from the given groups.
+     * Removes an experimenter from the given groups.
+     * The root experimenter is required to be in both the user and system groups.
+     * An administrative user may not remove themself from the system group.
      * 
      * @param user
      *            A currently managed entity. Not null.
