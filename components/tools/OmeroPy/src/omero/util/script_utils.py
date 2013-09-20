@@ -138,17 +138,17 @@ def rmdir_recursive(dir):
 def calcSha1(filename):
     """
     Returns a hash of the file identified by filename
-    
+
     @param  filename:   pathName of the file
     @return:            The hash of the file
     """
-    
+
     fileHandle = open(filename)
     h = hash_sha1()
     h.update(fileHandle.read())
     hash = h.hexdigest()
     fileHandle.close()
-    return hash;    
+    return hash;
 
 def calcSha1FromData(data):
     """
@@ -168,7 +168,7 @@ def getFormat(queryService, format):
 def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     """
     Creates an original file, saves it to the server and returns the result
-    
+
     @param queryService:    The query service  E.g. session.getQueryService()
     @param updateService:   The update service E.g. session.getUpdateService()
     @param filename:        The file path and name (or name if in same folder). String
@@ -176,7 +176,7 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
     @param origFilePathName:       Optional path/name for the original file
     @return:                The saved OriginalFileI, as returned from the server
     """
-    
+
     originalFile = omero.model.OriginalFileI();
     if(origFilePathName == None):
         origFilePathName = filename;
@@ -188,19 +188,18 @@ def createFile(updateService, filename, mimetype=None, origFilePathName=None):
         v = mimetype.getValue()
         mt = v.getValue()
     except:
-        # handle the string we expect 
+        # handle the string we expect
         mt = mimetype
     if mt:
         originalFile.mimetype = omero.rtypes.rstring(mt)
     originalFile.setSize(omero.rtypes.rlong(os.path.getsize(filename)));
     originalFile.setHash(omero.rtypes.rstring(calcSha1(filename)));
-    return updateService.saveAndReturnObject(originalFile); 
-    
+    return updateService.saveAndReturnObject(originalFile);
 
 def uploadFile(rawFileStore, originalFile, filePath=None):
     """
     Uploads an OriginalFile to the server
-    
+
     @param rawFileStore:    The Omero rawFileStore
     @param originalFile:    The OriginalFileI
     @param filePath:    Where to find the file to upload. If None, use originalFile.getName().getValue()
@@ -229,7 +228,7 @@ def uploadFile(rawFileStore, originalFile, filePath=None):
 def downloadFile(rawFileStore, originalFile, filePath=None):
     """
     Downloads an OriginalFile from the server.
-    
+
     @param rawFileStore:    The Omero rawFileStore
     @param originalFile:    The OriginalFileI
     @param filePath:    Where to download the file. If None, use originalFile.getName().getValue()
@@ -258,12 +257,12 @@ def downloadFile(rawFileStore, originalFile, filePath=None):
         fileHandle.write(block)
     fileHandle.close()
     return filePath
-    
-    
+
+
 def attachFileToParent(updateService, parent, originalFile, description=None, namespace=None):
     """
-    Attaches the original file (file) to a Project, Dataset or Image (parent) 
-    
+    Attaches the original file (file) to a Project, Dataset or Image (parent)
+
     @param updateService:       The update service
     @param parent:              A ProjectI, DatasetI or ImageI to attach the file to
     @param originalFile:        The OriginalFileI to attach
@@ -293,9 +292,9 @@ def attachFileToParent(updateService, parent, originalFile, description=None, na
 
 def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, localName, mimetype, description=None, namespace=None, origFilePathName=None):
     """
-    Uploads a local file to the server, as an Original File and attaches it to the 
+    Uploads a local file to the server, as an Original File and attaches it to the
     parent (Project, Dataset or Image)
-    
+
     @param queryService:    The query service
     @param updateService:   The update service
     @param rawFileStore:    The rawFileStore
@@ -307,7 +306,7 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, local
     @param origFilePathName:    The /path/to/file/fileName.ext you want on the server. If none, use output as name
     @return:                The originalFileLink child. (FileAnnotationI)
     """
-    
+
     filename = localName
     if origFilePathName == None:
         origFilePathName = localName
@@ -318,7 +317,7 @@ def uploadAndAttachFile(queryService, updateService, rawFileStore, parent, local
 
 def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttype="Image", mimetype=None, desc=None, ns=None, origFilePathAndName=None):
     """
-    Uploads a local file to the server, as an Original File and attaches it to the 
+    Uploads a local file to the server, as an Original File and attaches it to the
     parent (Project, Dataset or Image)
 
     @param conn:            The L{omero.gateway.BlitzGateway} connection.
@@ -327,7 +326,7 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
     @param mimetype:        The original file mimetype. E.g. "PNG". String
     @param description:     Optional description for the file annotation. String
     @param namespace:       Namespace to set for the original file
-    @param 
+    @param
     @param origFilePathName:    The /path/to/file/fileName.ext you want on the server. If none, use output as name
     @return:                The originalFileLink child (FileAnnotationI) and a log message
     """
@@ -337,7 +336,7 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
         if parent is not None:
             if parent.canAnnotate():
                 parentClass = parent.OMERO_CLASS
-                message += " and attached to %s%s %s."  % (parentClass[0].lower(), parentClass[1:], parent.getName())                
+                message += " and attached to %s%s %s."  % (parentClass[0].lower(), parentClass[1:], parent.getName())
                 parent.linkAnnotation(fileAnnotation)
             else:
                 message += " but could not be attached."
@@ -345,17 +344,17 @@ def createLinkFileAnnotation(conn, localPath, parent, output="Output", parenttyp
         message = "%s not created." % output
         fileAnnotation = None
     return fileAnnotation, message
-    
+
 def getObjects(conn, params):
     """
-    Get the objects specified by the script parameters. 
+    Get the objects specified by the script parameters.
     Assume the parameters contain the keys IDs and Data_Type
 
     @param conn:            The L{omero.gateway.BlitzGateway} connection.
     @param params:          The script parameters
     @return:                The valid objects and a log message
     """
-  
+
     dataType = params["Data_Type"]
     ids = params["IDs"]
     objects = list(conn.getObjects(dataType,ids))
@@ -385,7 +384,7 @@ def addAnnotationToImage(updateService, image, annotation):
     l.setParent(image);
     l.setChild(annotation);
     return updateService.saveAndReturnObject(l);
-    
+
 def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize = 10000):
     """
     Read the OriginalFile with fileId and return it as a string.
@@ -443,10 +442,10 @@ def readFlimImageFile(rawPixelsStore, pixels):
         plane = downloadPlane(rawPixelsStore, pixels, 0, c, 0);
         stack[c,:,:]=plane;
     return stack;
-    
+
 def downloadPlane(rawPixelsStore, pixels, z, c, t):
     """
-    Download the plane [z,c,t] for image pixels. Pixels must have pixelsType loaded. 
+    Download the plane [z,c,t] for image pixels. Pixels must have pixelsType loaded.
     N.B. The rawPixelsStore must have already been initialised by setPixelsId()
     @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
@@ -757,12 +756,12 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
     """
     Splits the image into component planes, which are saved as local tiffs according to unformattedImageName.
     E.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif which will be formatted according to dims, E.g. ('T', 'C', 'Z')
-    Channel will be formatted according to channel name, not index. 
+    Channel will be formatted according to channel name, not index.
     @param rawPixelsStore The rawPixelStore
     @param queryService
     @param c The C-Section to retrieve.
     @param t The T-Section to retrieve.
-    @param imageName  the local location to save the image. 
+    @param imageName  the local location to save the image.
     """
 
     unformattedImageName = os.path.join(dir, unformattedImageName)
@@ -831,7 +830,7 @@ def createFileFromData(updateService, queryService, filename, data):
     tempFile.setSize(omero.rtypes.rlong(len(data)));
     tempFile.setHash(omero.rtypes.rstring(calcSha1FromData(data)));
     return updateService.saveAndReturnObject(tempFile);
-    
+
 def attachArrayToImage(updateService, image, file, nameSpace):
     """
     Attach an array, stored as a csv file to an image. Returns the annotation.
@@ -839,7 +838,7 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     @param image The image to attach the data to.
     @param filename The name of the file.
     @param namespace The namespace of the file.
-    @return 
+    @return
     """
     fa = omero.model.FileAnnotationI();
     fa.setFile(file);
@@ -895,7 +894,7 @@ def arrayToCSV(data):
             if(c<col-1):
                 strdata = strdata+',';
         strdata = strdata + '\n';
-    return strdata;    
+    return strdata;
 
 
 def uploadPlane(rawPixelsStore, plane, z, c, t):
@@ -923,7 +922,7 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
     @param t The T-Section of the plane.
     """
     byteSwappedPlane = plane.byteswap()
-    
+
     rowCount, colCount = plane.shape
     for y in range(rowCount):
         row = byteSwappedPlane[y:y+1, :]		# slice y axis into rows
@@ -931,7 +930,7 @@ def uploadPlaneByRow(rawPixelsStore, plane, z, c, t):
         rawPixelsStore.setRow(convertedRow, y, z, c, t)
 
 
-def getRenderingEngine(session, pixelsId):  
+def getRenderingEngine(session, pixelsId):
     """
     Create the renderingEngine for the pixelsId.
     @param session The current session to create the renderingEngine from.
@@ -945,7 +944,7 @@ def getRenderingEngine(session, pixelsId):
     renderingEngine.load();
     return renderingEngine;
 
-    
+
 def createPlaneDef(z,t):
     """
     Create the plane rendering def, for z,t
@@ -970,7 +969,7 @@ def getPlaneAsPackedInt(renderingEngine, z, t):
     """
     planeDef = createPlaneDef(z, t);
     return renderingEngine.renderAsPackedInt(planeDef);
-    
+
 def getRawPixelsStore(session, pixelsId):
     """
     Get the rawPixelsStore for the Image with pixelsId
@@ -996,7 +995,7 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
     Get the plane info for the pixels object returning it in order of z,t,c
     @param iQuery The query service.
     @param pixelsId The pixels for Id.
-    @param asOrderedList 
+    @param asOrderedList
     @return list of planeInfoTimes or map["z:t:c:]
     """
     query = "from PlaneInfo as Info where pixels.id='"+str(pixelsId)+"' orderby info.deltaT"
@@ -1007,9 +1006,9 @@ def getPlaneInfo(iQuery, pixelsId, asOrderedList = True):
         for info in infoList:
             key = "z:"+str(info.theZ.getValue())+"t:"+str(info.theT.getValue())+"c:"+str(info.theC.getValue());
             map[key] = info.deltaT.getValue();
-        return map;  
+        return map;
     else:
-        return infoList;    
+        return infoList;
 
 def IdentityFn(commandArgs):
     return commandArgs;
@@ -1018,21 +1017,21 @@ def IdentityFn(commandArgs):
 def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue, rgba=None):
     """
     Simply resests the rendering settings for a pixel set, according to the min and max values
-    The rendering engine does NOT have to be primed with pixelsId, as that is handled by this method. 
-    
+    The rendering engine does NOT have to be primed with pixelsId, as that is handled by this method.
+
     @param renderingEngine        The OMERO rendering engine
     @param pixelsId        The Pixels ID
     @param minValue        Minimum value of rendering window
     @param maxValue        Maximum value of rendering window
-    @param rgba            Option to set the colour of the channel. (r,g,b,a) tuple. 
+    @param rgba            Option to set the colour of the channel. (r,g,b,a) tuple.
     """
-    
+
     renderingEngine.lookupPixels(pixelsId)
     if not renderingEngine.lookupRenderingDef(pixelsId):
-        renderingEngine.resetDefaults()  
+        renderingEngine.resetDefaults()
         if rgba == None:
-            rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!   
-    
+            rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!
+
     if not renderingEngine.lookupRenderingDef(pixelsId):
         raise Exception("Still No Rendering Def")
 
@@ -1046,41 +1045,41 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
 
 def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     """
-    Creates a new single-channel, single-timepoint image from the list of 2D numpy arrays in plane2Dlist 
+    Creates a new single-channel, single-timepoint image from the list of 2D numpy arrays in plane2Dlist
     with each numpy 2D plane becoming a Z-section.
-    
-    @param session          An OMERO service factory or equivalent with getQueryService() etc. 
-    @param plane2Dlist      A list of numpy 2D arrays, corresponding to Z-planes of new image. 
+
+    @param session          An OMERO service factory or equivalent with getQueryService() etc.
+    @param plane2Dlist      A list of numpy 2D arrays, corresponding to Z-planes of new image.
     @param imageName        Name of new image
     @param description      Description for the new image
     @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
-    
-    @return The new OMERO image: omero.model.ImageI 
+
+    @return The new OMERO image: omero.model.ImageI
     """
     queryService = session.getQueryService()
     pixelsService = session.getPixelsService()
     rawPixelStore = session.createRawPixelsStore()
     renderingEngine = session.createRenderingEngine()
     containerService = session.getContainerService()
-    
+
     pType = plane2Dlist[0].dtype.name
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
+
     theC, theT = (0,0)
-    
+
     # all planes in plane2Dlist should be same shape.
     shape = plane2Dlist[0].shape
     sizeY, sizeX = shape
     minValue = plane2Dlist[0].min()
     maxValue = plane2Dlist[0].max()
-    
+
     # get some other dimensions and create the image.
     channelList = [theC]  # omero::sys::IntList
     sizeZ, sizeT = (len(plane2Dlist),1)
     iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
     imageId = iId.getValue()
     image = containerService.getImages("Image", [imageId], None)[0]
-    
+
     # upload plane data
     pixelsId = image.getPrimaryPixels().getId().getValue()
     rawPixelStore.setPixelsId(pixelsId, True)
@@ -1093,14 +1092,14 @@ def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
             uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
     pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
     resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue)
-    
-    # put the image in dataset, if specified. 
+
+    # put the image in dataset, if specified.
     if dataset:
         link = omero.model.DatasetImageLinkI()
         link.parent = omero.model.DatasetI(dataset.id.val, False)
         link.child = omero.model.ImageI(image.id.val, False)
         session.getUpdateService().saveObject(link)
-        
+
     renderingEngine.close()
     rawPixelStore.close()
     return image
@@ -1118,22 +1117,22 @@ def parseInputs(client, session, processFn=IdentityFn):
     commandArgs = {};
     for key in inputKeys:
         commandArgs[key]=client.getInput(key).getValue();
-    return processFn(commandArgs);  
+    return processFn(commandArgs);
 
 
 def getROIFromImage(iROIService, imageId, namespace=None):
     """
-    Get the ROI from the server for the image with the namespace 
+    Get the ROI from the server for the image with the namespace
     @param iROIService The iROIService object
     @param imageId The imageId to retreive ROI from.
     @param namespace The namespace of the ROI.
     @return See above.
-    """    
+    """
     roiOpts = omero.api.RoiOptions()
     if(namespace!=None):
         roiOpts.namespace = namespace;
     return iROIService.findByImage(imageId, roiOpts);
-  
+
 def toCSV(list):
     """
     Convert a list to a Comma Separated Value string.
@@ -1149,7 +1148,7 @@ def toCSV(list):
               str = str + ",";
         cnt = cnt +1;
     return str;
-  
+
 def toList(csvString):
     """
     Convert a csv string to a list of strings
@@ -1160,7 +1159,7 @@ def toList(csvString):
     for index in range(len(list)):
         list[index] = list[index].strip();
     return list;
-  
+
 def registerNamespace(iQuery, iUpdate, namespace, keywords):
     """
     Register a workflow with the server, if the workflow does not exist create it and returns it,
