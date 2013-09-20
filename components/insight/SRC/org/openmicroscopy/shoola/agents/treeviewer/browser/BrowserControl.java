@@ -38,6 +38,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserDeleteAction;
@@ -208,9 +209,9 @@ class BrowserControl
      */
     void selectNodes(List nodes, Class ref)
     {
-    	if (nodes == null || nodes.size() == 0) return;
+    	if (CollectionUtils.isEmpty(nodes)) return;
     	//make sure we have node of the same type.
-    	Iterator i = nodes.iterator();
+    	Iterator<?> i = nodes.iterator();
     	TreeImageDisplay n;
     	List<TreeImageDisplay> values = new ArrayList<TreeImageDisplay>();
     	Object o;
@@ -220,10 +221,9 @@ class BrowserControl
 			if (o.getClass().equals(ref))
 				values.add(n);
 		}
-    	if (values == null || values.size() == 0) return;
+    	if (CollectionUtils.isEmpty(values)) return;
     	TreeImageDisplay[] array = values.toArray(
     			new TreeImageDisplay[values.size()]);
-    	//model.setSelectedDisplay(array[0]);
     	model.setSelectedDisplays(array, false);
     	view.setFoundNode(array);
     }
@@ -262,13 +262,11 @@ class BrowserControl
     		return;
     	}
         int state = model.getState();
-        if ((state == Browser.LOADING_DATA) ||
-             (state == Browser.LOADING_LEAVES)) 
-             //|| (state == Browser.COUNTING_ITEMS)) 
-             return;
-        model.setSelectedDisplay(display); 
+        if (state == Browser.LOADING_DATA || state == Browser.LOADING_LEAVES)
+        	return;
+        model.setSelectedDisplay(display);
         int browserType = model.getBrowserType();
-        if ((browserType == Browser.IMAGES_EXPLORER || 
+        if ((browserType == Browser.IMAGES_EXPLORER ||
         	browserType == Browser.FILES_EXPLORER) &&
         		!display.isChildrenLoaded() && (ho instanceof ExperimenterData
         				|| ho instanceof GroupData)) {
@@ -277,9 +275,9 @@ class BrowserControl
         } 
         if (display.isChildrenLoaded()) {
         	if (view.isFirstChildMessage(display)) {
-        		List l = display.getChildrenDisplay();
+        		List<?> l = display.getChildrenDisplay();
         		List<Object> list = new ArrayList<Object>(l.size());
-        		Iterator i = l.iterator();
+        		Iterator<?> i = l.iterator();
         		while (i.hasNext()) {
         			list.add(i.next());
 				}
@@ -337,7 +335,7 @@ class BrowserControl
 						break;
 					case TreeViewer.EXPERIMENTER_DISPLAY:
 					default:
-						List l = display.getChildrenDisplay();
+						List<?> l = display.getChildrenDisplay();
 		        		if (l != null & l.size() > 0) {
 		            		view.expandNode((TreeImageDisplay) l.get(0), true);
 		        		}
@@ -395,7 +393,7 @@ class BrowserControl
         }
      	//more than one node selected.
     	TreeImageDisplay previous = model.getLastSelectedDisplay();
-        Class ref = null;
+        Class<?> ref = null;
         Object ho = null;
         if (previous != null) {
         	ho = previous.getUserObject();
