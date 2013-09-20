@@ -1,7 +1,7 @@
     /*
  *   $Id$
  *
- *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Copyright 2006-2013 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -35,8 +35,6 @@ import org.springframework.util.Assert;
 
 import ome.annotations.NotNull;
 import ome.annotations.PermitAll;
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 import ome.annotations.RolesAllowed;
 import ome.api.IAdmin;
 import ome.api.RawFileStore;
@@ -98,14 +96,11 @@ import ome.util.checksum.ChecksumType;
  * while developing services. Misuse could circumvent security or auditing.
  *
  * @author Josh Moore, josh.moore at gmx.de
- * @version $Revision:1754 $, $Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $
  * @see SecuritySystem
  * @see Permissions
  * @since 3.0-M3
  */
 @Transactional(readOnly = true)
-@RevisionDate("$Date:2007-08-20 10:36:07 +0100 (Mon, 20 Aug 2007) $")
-@RevisionNumber("$Revision:1754 $")
 public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         ApplicationContextAware {
 
