@@ -70,19 +70,19 @@ import org.springframework.transaction.annotation.Transactional;
  * Provides methods for directly querying object graphs. The service is entirely
  * read/write transactionally because of the requirements of rendering engine
  * lazy object creation where rendering settings are missing.
- * 
+ *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
- * 
+ *
  */
 @Transactional(readOnly = true)
 public class ThumbnailBean extends AbstractLevel2Service
     implements ThumbnailStore, Serializable
 {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 3047482880497900069L;
 
@@ -251,7 +251,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.StatefulServiceInterface#getCurrentEventContext()
      */
     public EventContext getCurrentEventContext() {
@@ -260,7 +260,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#setPixelsId(long)
      */
     @RolesAllowed("user")
@@ -308,7 +308,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     }
 
     /**
-     * Retrieves a list of the rendering models supported by the 
+     * Retrieves a list of the rendering models supported by the
      * {@link Renderer} either from instance variable cache or the database.
      * @return See above.
      */
@@ -355,7 +355,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         settings = ctx.getSettings(pixelsId);
         // Handle cases where this new settings is not owned by us so that
         // retrieval of thumbnail metadata is done based on the owner of the
-        // settings not the owner of the session. (#2274 Part I) 
+        // settings not the owner of the session. (#2274 Part I)
         ctx.setUserId(settings.getDetails().getOwner().getId());
     }
 
@@ -372,7 +372,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Pixels service Bean injector.
-     * 
+     *
      * @param iPixels
      *            an <code>IPixels</code>.
      */
@@ -383,7 +383,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Pixels service Bean injector.
-     * 
+     *
      * @param iPixels
      *            an <code>IPixels</code>.
      */
@@ -394,7 +394,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Scale service Bean injector.
-     * 
+     *
      * @param iScale
      *            an <code>IScale</code>.
      */
@@ -405,7 +405,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * I/O service (ThumbnailService) Bean injector.
-     * 
+     *
      * @param ioService
      *            a <code>ThumbnailService</code>.
      */
@@ -426,7 +426,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Compression service Bean injector.
-     * 
+     *
      * @param compressionService
      *            an <code>ICompress</code>.
      */
@@ -438,7 +438,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Rendering settings service Bean injector.
-     * 
+     *
      * @param settingsService
      *            an <code>IRenderingSettings</code>.
      */
@@ -450,7 +450,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Compresses a buffered image thumbnail to disk.
-     * 
+     *
      * @param thumb
      *            the thumbnail metadata.
      * @param image
@@ -522,7 +522,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     /**
      * Checks that sizeX and sizeY are not out of range for the active pixels
      * set and returns a set of valid dimensions.
-     * 
+     *
      * @param sizeX
      *            the X-width for the requested thumbnail.
      * @param sizeY
@@ -548,12 +548,12 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /**
      * Creates a scaled buffered image from the active pixels set.
-     * 
+     *
      * @param def
      *            the rendering settings to use for buffered image creation.
-     * @param theZ the optical section (offset across the Z-axis) requested. 
+     * @param theZ the optical section (offset across the Z-axis) requested.
      * <pre>null</pre> signifies the rendering engine default.
-     * @param theT the timepoint (offset across the T-axis) requested. 
+     * @param theT the timepoint (offset across the T-axis) requested.
      * <pre>null</pre> signifies the rendering engine default.
      * @return a scaled buffered image.
      */
@@ -620,7 +620,7 @@ public class ThumbnailBean extends AbstractLevel2Service
             log.debug(String.format("Using scaling factors x:%f y:%f",
                     xScale, yScale));
             return iScale.scaleBufferedImage(image, xScale, yScale);
-        } 
+        }
         catch (IOException e)
         {
             ResourceError re = new ResourceError(
@@ -745,7 +745,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#createThumbnail(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef, java.lang.Integer,
      *      java.lang.Integer)
@@ -786,7 +786,7 @@ public class ThumbnailBean extends AbstractLevel2Service
                 thumbnailMetadata = iUpdate.saveAndReturnObject(thumbnailMetadata);
             }
 
-            // Ensure that we do not have "dirty" pixels or rendering settings 
+            // Ensure that we do not have "dirty" pixels or rendering settings
             // left around in the Hibernate session cache.
             iQuery.clear();
         }
@@ -804,8 +804,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         } else if (ctx.dirtyMetadata(pixels.getId())) {
             // Increment the version of the thumbnail so that its
             // update event has a timestamp equal to or after that of
-            // the rendering settings. FIXME: This should be 
-            // implemented using IUpdate.touch() or similar once that 
+            // the rendering settings. FIXME: This should be
+            // implemented using IUpdate.touch() or similar once that
             // functionality exists.
             thumbnailMetadata.setVersion(thumbnailMetadata.getVersion() + 1);
             Pixels unloadedPixels = new Pixels(pixels.getId(), false);
@@ -829,7 +829,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#createThumbnails(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef)
      */
@@ -843,9 +843,9 @@ public class ThumbnailBean extends AbstractLevel2Service
                 thumbnailMetadata = thumbnail;
                 _createThumbnail();
             }
-            // We're doing the update or creation and save as a two step 
-            // process due to the possible unloaded Pixels. If we do not, 
-            // Pixels will be unloaded and we will hit 
+            // We're doing the update or creation and save as a two step
+            // process due to the possible unloaded Pixels. If we do not,
+            // Pixels will be unloaded and we will hit
             // IllegalStateException's when checking update events.
             iUpdate.saveArray(thumbnails.toArray(
                     new Thumbnail[thumbnails.size()]));
@@ -967,9 +967,9 @@ public class ThumbnailBean extends AbstractLevel2Service
                 toReturn.put(pixelsId, null);
             }
         }
-        // We're doing the update or creation and save as a two step 
-        // process due to the possible unloaded Pixels. If we do not, 
-        // Pixels will be unloaded and we will hit 
+        // We're doing the update or creation and save as a two step
+        // process due to the possible unloaded Pixels. If we do not,
+        // Pixels will be unloaded and we will hit
         // IllegalStateException's when checking update events.
         iUpdate.saveArray(toSave.toArray(new Thumbnail[toSave.size()]));
         // Ensure that we do not have "dirty" pixels or rendering settings left
@@ -981,7 +981,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#getThumbnail(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef, java.lang.Integer,
      *      java.lang.Integer)
@@ -1073,7 +1073,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSide(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef, java.lang.Integer)
      */
@@ -1102,7 +1102,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#getThumbnailDirect(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef, java.lang.Integer,
      *      java.lang.Integer)
@@ -1111,7 +1111,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailDirect(Integer sizeX, Integer sizeY)
     {
     	byte[] value = retrieveThumbnailDirect(sizeX, sizeY, null, null);
-    	// Ensure that we do not have "dirty" pixels or rendering settings 
+    	// Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
     	iQuery.clear();
         return value;
@@ -1165,14 +1165,14 @@ public class ThumbnailBean extends AbstractLevel2Service
             Integer sizeX, Integer sizeY)
     {
         byte[] value = retrieveThumbnailDirect(sizeX, sizeY, theZ, theT);
-     // Ensure that we do not have "dirty" pixels or rendering settings 
+     // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
         return value;
     }
 
     /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
-    private byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ, 
+    private byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ,
             Integer theT)
     {
         // Sanity check thumbnail sizes
@@ -1187,7 +1187,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#getThumbnailByLongestSideDirect(ome.model.core.Pixels,
      *      ome.model.display.RenderingDef, java.lang.Integer)
      */
@@ -1195,7 +1195,7 @@ public class ThumbnailBean extends AbstractLevel2Service
     public byte[] getThumbnailByLongestSideDirect(Integer size) {
         errorIfNullPixelsAndRenderingDef();
         byte[] value = _getThumbnailByLongestSideDirect(size, null, null);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();//see #11072
         return value;
@@ -1209,11 +1209,11 @@ public class ThumbnailBean extends AbstractLevel2Service
             Integer size)
     {
         errorIfNullPixelsAndRenderingDef();
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
         byte[] value = _getThumbnailByLongestSideDirect(size, theZ, theT);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
         return value;
@@ -1221,7 +1221,7 @@ public class ThumbnailBean extends AbstractLevel2Service
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see ome.api.ThumbnailStore#thumbnailExists(ome.model.core.Pixels,
      *      java.lang.Integer, java.lang.Integer)
      */
@@ -1239,7 +1239,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         Set<Long> pixelsIds = new HashSet<Long>();
         pixelsIds.add(pixelsId);
         ctx.loadAndPrepareMetadata(pixelsIds, dimensions);
-        // Ensure that we do not have "dirty" pixels or rendering settings 
+        // Ensure that we do not have "dirty" pixels or rendering settings
         // left around in the Hibernate session cache.
         iQuery.clear();
         return ctx.isThumbnailCached(pixelsId);
