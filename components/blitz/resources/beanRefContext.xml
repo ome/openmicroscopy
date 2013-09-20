@@ -60,6 +60,7 @@
           lazy-init="true">
     <constructor-arg index="0">
       <list>
+        <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
       </list>
     </constructor-arg>
