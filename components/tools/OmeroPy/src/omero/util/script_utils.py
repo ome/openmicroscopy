@@ -552,14 +552,14 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
         # see if we can guess what colour the channels should be, based on name.
         for i, c in enumerate(channels):
             if c == 'rfp':
-                colourMap[i] = (255, 0, 0, 255)
+                colourMap[i] = COLOURS["Red"]
             if c == 'gfp':
-                colourMap[i] = (0, 255, 0, 255)
+                colourMap[i] = COLOURS["Green"]
     else:
         channels = ("red", "green", "blue")
-        colourMap[0] = (255, 0, 0, 255)
-        colourMap[1] = (0, 255, 0, 255)
-        colourMap[2] = (0, 0, 255, 255)
+        colourMap[0] = COLOURS["Red"]
+        colourMap[1] = COLOURS["Green"]
+        colourMap[2] = COLOURS["Blue"]
 
     sizeC = len(channels)
 
@@ -1015,7 +1015,7 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     if not renderingEngine.lookupRenderingDef(pixelsId):
         renderingEngine.resetDefaults()
         if rgba == None:
-            rgba=(255,255,255,255)  # probably don't want E.g. single channel image to be blue!
+            rgba=COLOURS["White"]  # probably don't want E.g. single channel image to be blue!
 
     if not renderingEngine.lookupRenderingDef(pixelsId):
         raise Exception("Still No Rendering Def")
