@@ -43,7 +43,6 @@ import ome.api.IAdmin;
 import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
 import ome.conditions.InternalException;
