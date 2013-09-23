@@ -483,40 +483,40 @@ public class DMRefreshLoader
      * @param ho The data object of reference.
      */
     private DataObject getLoadedObject(Map<DataObject, Set<?>> map,
-    		DataObject ho)
+            DataObject ho)
     {
-    	Set<DataObject> sets = map.keySet();
-    	Iterator<DataObject> i = sets.iterator();
-    	DataObject object;
-    	Set<?> s;
-    	while (i.hasNext()) {
-    		object = i.next();
-			if (object.getClass().equals(ho.getClass()) &&
-					object.getId() == ho.getId()) {
-				s = map.get(object);
-				return (DataObject) s.iterator().next();
-			} else if (ho instanceof ProjectData) { //need to check the dataset
-				ProjectData p = (ProjectData) ho;
-				Set<DatasetData> datasets = p.getDatasets();
-				Iterator<DatasetData> j = datasets.iterator();
-				Set<DatasetData> loaded = new HashSet<DatasetData>();
-				boolean modified = false;
-				while (j.hasNext()) {
-					DataObject data = j.next();
-					if (object.getClass().equals(data.getClass()) &&
-							object.getId() == data.getId()) {
-						s = map.get(object);
-						loaded.add((DatasetData) s.iterator().next());
-						modified = true;
-					} else loaded.add((DatasetData) data);
-				}
-				if (modified) {
-				    p.setDatasets(loaded);
-				    return p;
-				}
-			}
-		}
-    	return ho;
+        Set<DataObject> sets = map.keySet();
+        Iterator<DataObject> i = sets.iterator();
+        DataObject object;
+        Set<?> s;
+        while (i.hasNext()) {
+            object = i.next();
+            if (object.getClass().equals(ho.getClass()) &&
+                    object.getId() == ho.getId()) {
+                s = map.get(object);
+                return (DataObject) s.iterator().next();
+            } else if (ho instanceof ProjectData) { //need to check the dataset
+                ProjectData p = (ProjectData) ho;
+                Set<DatasetData> datasets = p.getDatasets();
+                Iterator<DatasetData> j = datasets.iterator();
+                Set<DatasetData> loaded = new HashSet<DatasetData>();
+                boolean modified = false;
+                while (j.hasNext()) {
+                    DataObject data = j.next();
+                    if (object.getClass().equals(data.getClass()) &&
+                            object.getId() == data.getId()) {
+                        s = map.get(object);
+                        loaded.add((DatasetData) s.iterator().next());
+                        modified = true;
+                    } else loaded.add((DatasetData) data);
+                }
+                if (modified) {
+                    p.setDatasets(loaded);
+                    return p;
+                }
+            }
+        }
+        return ho;
     }
     
     /**
