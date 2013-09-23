@@ -34,7 +34,6 @@ public final class Roles implements Serializable {
         public boolean apply(Experimenter experimenter) {
             return isRootUser(experimenter);
         }
-        
     };
 
     public final Predicate<ExperimenterGroup> IS_USER_GROUP = new Predicate<ExperimenterGroup>() {
@@ -42,7 +41,6 @@ public final class Roles implements Serializable {
         public boolean apply(ExperimenterGroup group) {
             return isUserGroup(group);
         }
-        
     };
 
     public final Predicate<ExperimenterGroup> IS_SYSTEM_GROUP = new Predicate<ExperimenterGroup>() {
