@@ -420,20 +420,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @Transactional(readOnly = false)
     public void updateSelf(@NotNull
     Experimenter e) {
-        EventContext ec = getSecuritySystem().getEventContext();
-        final Experimenter self = getExperimenter(ec.getCurrentUserId());
-        self.setFirstName(e.getFirstName());
-        self.setMiddleName(e.getMiddleName());
-        self.setLastName(e.getLastName());
-        self.setEmail(e.getEmail());
-        self.setInstitution(e.getInstitution());
-        getSecuritySystem().runAsAdmin(new AdminAction() {
-            public void runAsAdmin() {
-                iUpdate.flush();
-            }
-        });
+        final Long currentUserId = getSecuritySystem().getEventContext().getCurrentUserId();
+        if (!currentUserId.equals(e.getId())) {
+            throw new ApiUsageException("may update only the current experimenter");
+        }
+        copyAndSaveExperimenter(e);
         getBeanHelper().getLogger().info(
-                "Updated own user info: " + self.getOmeName());
+                "Updated own user info: " + e.getOmeName());
     }
 
     protected static final String NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
