@@ -23,7 +23,6 @@ import omero.cmd.Chmod;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
 import omero.model.GroupExperimenterMap;
 import omero.model.Permissions;
 import omero.model.PermissionsI;
@@ -228,10 +227,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testCreateUserWithoutPassword() throws Exception {
         // First create a group.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
 
         // Create a group and add the experimenter to that group
         ExperimenterGroup g = new ExperimenterGroupI();
@@ -295,10 +291,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testCreateUserWithPassword() throws Exception {
         // First create a group.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
 
         // Create a group and add the experimenter to that group
         ExperimenterGroup g = new ExperimenterGroupI();
@@ -361,10 +354,7 @@ public class AdminServiceTest extends AbstractServerTest {
     @Test
     public void testCreateUser() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -419,10 +409,7 @@ public class AdminServiceTest extends AbstractServerTest {
     @Test
     public void testCreateUserNoGroup() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         try {
@@ -442,10 +429,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testUpdateExperimenterByAdmin() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -489,10 +473,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testUpdateExperimenterByUserUsingUpdateSelf() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -541,18 +522,12 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testUpdateOtherExperimenterByUserUsingUpdateSelf() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter currentExperimenter = new ExperimenterI();
-        currentExperimenter.setOmeName(omero.rtypes.rstring(uuid));
-        currentExperimenter.setFirstName(omero.rtypes.rstring("user"));
-        currentExperimenter.setLastName(omero.rtypes.rstring("user"));
+        Experimenter currentExperimenter = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // Then create a different user.
         String uuid2 = UUID.randomUUID().toString();
-        Experimenter otherExperimenter = new ExperimenterI();
-        otherExperimenter.setOmeName(omero.rtypes.rstring(uuid2));
-        otherExperimenter.setFirstName(omero.rtypes.rstring("user"));
-        otherExperimenter.setLastName(omero.rtypes.rstring("user"));
+        Experimenter otherExperimenter = createExperimenterI(uuid2, "user", "user");
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
@@ -603,10 +578,7 @@ public class AdminServiceTest extends AbstractServerTest {
             throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -654,10 +626,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testChangePasswordByAdmin() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -712,10 +681,7 @@ public class AdminServiceTest extends AbstractServerTest {
         ExperimenterGroup eg2 = (ExperimenterGroup) query.findByQuery(
                 "select distinct g from ExperimenterGroup g where g.id = :id",
                 p);
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid1));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid1, "user", "user");
 
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         // method tested elsewhere
@@ -749,10 +715,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testDeleteExperimenter() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -813,10 +776,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testSetOwner() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -862,10 +822,7 @@ public class AdminServiceTest extends AbstractServerTest {
         IAdminPrx svc = root.getSession().getAdminService();
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
 
         // already tested
         ExperimenterGroup g = new ExperimenterGroupI();
@@ -912,10 +869,7 @@ public class AdminServiceTest extends AbstractServerTest {
         long rwrwID = prx.createGroup(rwrw);
         rwrw = prx.getGroup(rwrwID);
 
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(rstring(uuid));
-        e.setFirstName(rstring(uuid));
-        e.setLastName(rstring(uuid));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         long userID = prx.createUser(e, rwrw.getName().getValue());
         e = prx.getExperimenter(userID);
 
@@ -962,10 +916,7 @@ public class AdminServiceTest extends AbstractServerTest {
         String groupName = iAdmin.getEventContext().groupName;
         String userName = iAdmin.getEventContext().userName;
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         // create the user.
         long userID = prx.createUser(e, groupName);
         // now the new user is going to try to modify the password
@@ -995,10 +946,7 @@ public class AdminServiceTest extends AbstractServerTest {
         final Experimenter guestExperimenter = proxy.getExperimenter(new ome.system.Roles().getGuestId());
 
         final String userName = UUID.randomUUID().toString();
-        Experimenter normalExperimenter = new ExperimenterI();
-        normalExperimenter.setOmeName(omero.rtypes.rstring(userName));
-        normalExperimenter.setFirstName(omero.rtypes.rstring("a"));
-        normalExperimenter.setLastName(omero.rtypes.rstring("user"));
+        Experimenter normalExperimenter = createExperimenterI(userName, "a", "user");
         normalExperimenter = proxy.getExperimenter(proxy.createUser(normalExperimenter, roles.userGroupName));
 
         final RString newName = omero.rtypes.rstring(UUID.randomUUID().toString());
@@ -1064,19 +1012,13 @@ public class AdminServiceTest extends AbstractServerTest {
         final ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
 
         final String userName1 = UUID.randomUUID().toString();
-        Experimenter experimenter1 = new ExperimenterI();
-        experimenter1.setOmeName(omero.rtypes.rstring(userName1));
-        experimenter1.setFirstName(omero.rtypes.rstring("1"));
-        experimenter1.setLastName(omero.rtypes.rstring("user"));
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
         experimenter1 = proxy.getExperimenter(proxy.createUser(experimenter1, roles.userGroupName));
         proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup));
         experimenter1 = proxy.getExperimenter(experimenter1.getId().getValue());
 
         final String userName2 = UUID.randomUUID().toString();
-        Experimenter experimenter2 = new ExperimenterI();
-        experimenter2.setOmeName(omero.rtypes.rstring(userName2));
-        experimenter2.setFirstName(omero.rtypes.rstring("2"));
-        experimenter2.setLastName(omero.rtypes.rstring("user"));
+        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
         experimenter2 = proxy.getExperimenter(proxy.createUser(experimenter2, roles.userGroupName));
         proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup));
         experimenter2 = proxy.getExperimenter(experimenter2.getId().getValue());
@@ -1372,10 +1314,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testOwnerAddExistingExperimenterToGroup() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -1400,10 +1339,7 @@ public class AdminServiceTest extends AbstractServerTest {
         svc.createGroup(g2);
 
         String uuid2 = UUID.randomUUID().toString();
-        e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid2));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        e = createExperimenterI(uuid2, "user", "user");
         expId = svc.createUser(e, uuidGroup);
         e = svc.lookupExperimenter(uuid2);
         // owner logs in.
@@ -1427,10 +1363,7 @@ public class AdminServiceTest extends AbstractServerTest {
     public void testOwnerRemoveExperimenterToGroup() throws Exception {
         // First create a new user.
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
@@ -1449,10 +1382,7 @@ public class AdminServiceTest extends AbstractServerTest {
 
         // create another group and user
         String uuid2 = UUID.randomUUID().toString();
-        e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid2));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        e = createExperimenterI(uuid2, "user", "user");
         expId = svc.createUser(e, uuid);
         e = svc.lookupExperimenter(uuid2);
         // owner logs in.
@@ -1475,10 +1405,7 @@ public class AdminServiceTest extends AbstractServerTest {
     @Test
     public void testAddExistingUserToGroup() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        Experimenter e = new ExperimenterI();
-        e.setOmeName(omero.rtypes.rstring(uuid));
-        e.setFirstName(omero.rtypes.rstring("user"));
-        e.setLastName(omero.rtypes.rstring("user"));
+        Experimenter e = createExperimenterI(uuid, "user", "user");
         IAdminPrx svc = root.getSession().getAdminService();
 
         // already tested
