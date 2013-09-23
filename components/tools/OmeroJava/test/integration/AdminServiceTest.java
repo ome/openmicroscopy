@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import omero.ApiUsageException;
 import omero.RString;
 import omero.ValidationException;
 import omero.api.IAdminPrx;
@@ -527,6 +528,67 @@ public class AdminServiceTest extends AbstractServerTest {
         assertTrue(e.getOmeName().getValue().equals(uuid));
         assertTrue(e.getFirstName().getValue().equals(name));
         assertTrue(e.getLastName().getValue().equals(name));
+    }
+
+    /**
+     * Tests the update of the details of not the user currently logged in using the
+     * <code>updateSelf</code> method.
+     *
+     * @throws Exception
+     *             Thrown if an error occurred.
+     */
+    @Test
+    public void testUpdateOtherExperimenterByUserUsingUpdateSelf() throws Exception {
+        // First create a new user.
+        String uuid = UUID.randomUUID().toString();
+        Experimenter currentExperimenter = new ExperimenterI();
+        currentExperimenter.setOmeName(omero.rtypes.rstring(uuid));
+        currentExperimenter.setFirstName(omero.rtypes.rstring("user"));
+        currentExperimenter.setLastName(omero.rtypes.rstring("user"));
+        IAdminPrx svc = root.getSession().getAdminService();
+
+        // Then create a different user.
+        String uuid2 = UUID.randomUUID().toString();
+        Experimenter otherExperimenter = new ExperimenterI();
+        otherExperimenter.setOmeName(omero.rtypes.rstring(uuid2));
+        otherExperimenter.setFirstName(omero.rtypes.rstring("user"));
+        otherExperimenter.setLastName(omero.rtypes.rstring("user"));
+
+        // already tested
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(new PermissionsI("rw----"));
+
+        // create group.
+        svc.createGroup(g);
+
+        long id = svc.createUser(currentExperimenter, uuid);
+        long otherId = svc.createUser(otherExperimenter, uuid);
+        IQueryPrx query = root.getSession().getQueryService();
+
+        ParametersI p = new ParametersI();
+        p.addId(id);
+        currentExperimenter = (Experimenter) query.findByQuery(
+                "select distinct e from Experimenter e where e.id = :id", p);
+        assertNotNull(currentExperimenter);
+
+        p = new ParametersI();
+        p.addId(otherId);
+        otherExperimenter = (Experimenter) query.findByQuery(
+                "select distinct e from Experimenter e where e.id = :id", p);
+        assertNotNull(otherExperimenter);
+
+        // owner logs in.
+        omero.client client = newOmeroClient();
+        client.createSession(uuid, uuid);
+        init(client);
+        iAdmin.updateSelf(currentExperimenter);
+        currentExperimenter.setId(otherExperimenter.getId());
+        currentExperimenter.setOmeName(otherExperimenter.getOmeName());
+        try {
+            iAdmin.updateSelf(currentExperimenter);
+            fail("cannot use updateSelf to update other experimenters");
+        } catch (ApiUsageException e) { }
     }
 
     /**
