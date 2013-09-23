@@ -32,6 +32,8 @@ from django.template import RequestContext as Context
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
+from django.views.decorators.cache import never_cache
+
 from omero_version import omero_version
 
 def index(request):
@@ -45,6 +47,7 @@ def index(request):
     
     return render_to_response(template,{'insight_url':insight_url, "version": omero_version})
 
+@never_cache
 def insight(request):
     t = template_loader.get_template('webstart/insight.xml')
     
@@ -81,3 +84,4 @@ def insight(request):
 
     c = Context(request, context)
     return HttpResponse(t.render(c), content_type="application/x-java-jnlp-file")
+    
