@@ -715,6 +715,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new ValidationException("experimenters may not remove themselves from the '" +
                 roles.getSystemGroupName() + "' group");
         }
+        final Set<Long> groupIds = new HashSet<Long>();
+        for (final GroupExperimenterMap map : user.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
+            groupIds.add(map.parent().getId());
+        }
+        for (final ExperimenterGroup group : groups) {
+            groupIds.remove(group.getId());
+        }
+        if (groupIds.isEmpty()) {
+            throw new ValidationException("experimenter must remain a member of some group");
+        }
         roleProvider.removeGroups(user, groups);
 
         getBeanHelper().getLogger().info(
