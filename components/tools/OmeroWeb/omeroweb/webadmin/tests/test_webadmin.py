@@ -21,7 +21,7 @@
 
 import unittest, time, os, datetime
 import tempfile
-
+import pytest
 import omero
 
 from django.conf import settings
@@ -437,6 +437,8 @@ class WebAdminTest(WebTest):
         self.assertEquals(sorted(mergeLists(params['owners'], params['members'])), sorted(memberIds))
         self.assertEquals(params['permissions'], permissions)
         
+        
+    @pytest.mark.xfail(reason="ticket 11465")
     def test_badUpdateGroup(self):
         conn = self.rootconn
         uuid = conn._sessionUuid
@@ -484,7 +486,7 @@ class WebAdminTest(WebTest):
         group = conn.getObject("ExperimenterGroup", gid)
         memberIds = [e.id for e in group.getMembers()]
         if eid not in memberIds:
-            self.fail("Can't remove user from the group members if this is hs default group")
+            self.fail("Can't remove user from the group members if this it's hs default group")
         
     def test_createExperimenters(self):
         conn = self.rootconn
