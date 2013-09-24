@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.Assert;
 
 import ome.services.eventlogs.EventLogLoader;
@@ -103,6 +104,21 @@ public class FullTextThread extends ExecutionThread {
     }
 
     /**
+     * Retry the work unit in case {@link ome.util.SqlAction#setCurrentEventLog(long, String)} used by
+     * {@link ome.services.eventlogs.PersistentEventLogLoader} throws an unexpected constraint violation
+     * as reported in Trac ticket #10181.
+     * @param callContext the call context to use in work unit execution
+     */
+    private void retriableExecute(Map<String, String> callContext) {
+        try {
+            this.executor.execute(callContext, getPrincipal(), this.work);
+        } catch (DataIntegrityViolationException e) {
+            this.executor.execute(callContext, getPrincipal(), this.work);
+            log.warn("work unit threw exception, succeeded on second try", e);
+        }
+    }
+
+    /**
      * Passes the {@link FullTextIndexer} instance to
      * {@link Executor.Work#doWork(org.springframework.transaction.TransactionStatus, org.hibernate.Session, ome.system.ServiceFactory)}
      * between calls to {@link DetailsFieldBridge#lock()} and
@@ -130,7 +146,7 @@ public class FullTextThread extends ExecutionThread {
             DetailsFieldBridge.lock();
             try {
                 DetailsFieldBridge.setFieldBridge(this.bridge);
-                this.executor.execute(callContext, getPrincipal(), work);
+                retriableExecute(callContext);
             } finally {
                 DetailsFieldBridge.unlock();
             }
@@ -138,7 +154,7 @@ public class FullTextThread extends ExecutionThread {
             if (DetailsFieldBridge.tryLock()) {
                 try {
                     DetailsFieldBridge.setFieldBridge(this.bridge);
-                    this.executor.execute(callContext, getPrincipal(), work);
+                    retriableExecute(callContext);
                 } finally {
                     DetailsFieldBridge.unlock();
                 }
