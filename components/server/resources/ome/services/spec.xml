@@ -342,6 +342,7 @@
                 <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
                 <value>/Screen/Reagent/ReagentAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Screen/Reagent/ReagentAnnotationLink</value>
+                <value>/Screen/Reagent/WellReagentLink;FORCE</value>
                 <value>/Screen/Reagent</value>
                 <value>/Screen</value>
             </list>
