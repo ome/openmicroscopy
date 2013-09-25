@@ -1931,10 +1931,10 @@ class OmeroMetadataServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroMetadataService#loadTags(SecurityContext, Long, boolean,
+	 * @see OmeroMetadataService#loadTags(SecurityContext, Long,
 	 * boolean, long, long)
 	 */
-	public Collection loadTags(SecurityContext ctx, Long id, boolean dataObject,
+	public Collection loadTags(SecurityContext ctx, Long id,
 		boolean topLevel, long userID, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
