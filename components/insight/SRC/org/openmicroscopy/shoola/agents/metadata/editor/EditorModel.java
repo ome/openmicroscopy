@@ -4184,4 +4184,13 @@ class EditorModel
 		return true;
 	}
 
+	/**
+	 * Returns the groups the user is member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection<GroupData> getAvailableGroups()
+	{
+	    return MetadataViewerAgent.getAvailableUserGroups();
+	}
 }
