@@ -488,7 +488,7 @@ public class BlobShareStore extends ShareStore implements
             ShareData data = store.parse(1, buf);
             if (data == null) {
                 System.out.println("No share found");
-                System.exit(-1);
+                System.exit(100);
             }
             System.out.println("enabled:" + data.enabled);
             System.out.println("guests:" + data.guests);
