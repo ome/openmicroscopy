@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -69,6 +70,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -76,6 +78,8 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.Selectable;
+import org.openmicroscopy.shoola.util.ui.SelectableComboBoxModel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -123,10 +127,10 @@ class UserProfile
     private Map<String, JTextField> items;
     
     /** UI component displaying the groups, the user is a member of. */
-    private JComboBox groups;
+    private JComboBox groupsBox;
 
     /** Displayed the current group.*/
-    private JLabel groupLabel;
+    //private JLabel groupLabel;
     
     /** Password field to enter the new password. */
     private JPasswordField passwordNew;
@@ -163,9 +167,7 @@ class UserProfile
 
     /** The user's details. */
     private Map<String, String> details;
-    
-    /** The groups the user is a member of. */
-    private GroupData[] groupData;
+
 
     /** Flag indicating that the selected user is an owner of the group. */
     private boolean groupOwner;
@@ -359,13 +361,29 @@ class UserProfile
     	oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
+    	Collection<GroupData> groups = model.getAvailableGroups();
+    	
     	GroupData defaultGroup = user.getDefaultGroup();
 
-    	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
+    	groupsBox = new JComboBox();
+    	SelectableComboBoxModel m = new SelectableComboBoxModel();
+    	Iterator<GroupData> i = groups.iterator();
+    	GroupData g;
+    	Selectable<DataNode> node, selected = null;
+    	while (i.hasNext()) {
+    	    g = i.next();
+    	    node = new Selectable<DataNode>(new DataNode(g), true);
+    	    if (g.getId() == defaultGroup.getId())
+    	        selected = node;
+            m.addElement(node);
+        }
+    	groupsBox.setModel(m);
+    	if (selected != null) groupsBox.setSelectedItem(selected);
+    	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.disablePermissions();
-    	groupLabel = new JLabel(defaultGroup.getName());
-    	groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	//groupLabel = new JLabel(defaultGroup.getName());
+    	//groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	
     	
 		long groupID = defaultGroup.getId();
@@ -714,7 +732,7 @@ class UserProfile
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(groupLabel, c);
+        content.add(groupsBox, c);
         c.gridy++;
         content.add(permissionsPane, c);
         
