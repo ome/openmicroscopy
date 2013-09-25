@@ -26,7 +26,7 @@ function trim(v, l, h) {
 }  
 
 function ThumbnailControl(viewer) {
-  this.move_delay_ms = 10;  // Delay before moving the viewer
+  this.move_delay_ms = viewer.delay_ms;  // Delay before moving the viewer
   
   this.viewer = viewer;
   this.initControls();   
