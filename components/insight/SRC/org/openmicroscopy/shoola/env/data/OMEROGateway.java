@@ -2124,6 +2124,18 @@ class OMEROGateway
 				break;
 			}
 		}
+		if (in) {
+		    Connector c = getConnector(ctx, true, false);
+		    IAdminPrx svc = c.getAdminService();
+		    try {
+		        svc.setDefaultGroup(exp.asExperimenter(),
+	                    new ExperimenterGroupI(groupID, false));
+            } catch (Exception e) {
+               handleException(e, "Can't modify the current group for user:"
+            +exp.getId());
+            }
+		}
+		
 		String s = "Can't modify the current group.\n\n";
 		if (!in) {
 			throw new DSOutOfServiceException(s);

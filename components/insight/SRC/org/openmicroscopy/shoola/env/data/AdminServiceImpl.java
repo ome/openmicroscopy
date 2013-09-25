@@ -236,7 +236,6 @@ class AdminServiceImpl
 		}
 		ExperimenterData data = gateway.getUserDetails(ctx, uc.getUserName(),
 				true);
-		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
 //		Bind user details to all agents' registry.
 		List agents = (List) context.lookup(LookupNames.AGENTS);
