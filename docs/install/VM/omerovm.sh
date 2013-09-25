@@ -57,6 +57,10 @@ function installvm ()
             no_processor_8266.sh \
             omero@localhost:install
 
+        if [[ ${OMERO_JOB} == *.zip ]]; then
+            $SCP $OMERO_JOB omero@localhost:install
+        fi
+
         if [ -n "$OMERO_POST_INSTALL_SCRIPTS" ]; then
             $SSH omero@localhost "mkdir install/post"
             $SCP $OMERO_POST_INSTALL_SCRIPTS omero@localhost:install/post

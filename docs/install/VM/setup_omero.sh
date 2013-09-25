@@ -10,24 +10,18 @@ readAPIValue() {
     wget -q -O- $URL | sed 's/^<.*>\([^<].*\)<.*>$/\1/'
     }
 
-cd ~/
-echo "Grabbing last successful QA Build of OMERO.server"
-DL_ARCHIVE=""
-if [ "x$DL_ARCHIVE" == "x" ]; then
-
+if [[ ${OMERO_JOB} == *.zip ]]; then
+    DL_ARCHIVE=`basename "$OMERO_JOB"`
+else
+    echo "Grabbing last successful QA Build of OMERO.server ($OMERO_JOB)"
     URL=`readAPIValue $OMERO_BUILD_URL"/api/xml?xpath=/freeStyleBuild/url"`
     FILE=`readAPIValue $OMERO_BUILD_URL"/api/xml?xpath=//relativePath[contains(.,'server')]"`
 
     wget -q "$URL"artifact/$FILE
-
     DL_ARCHIVE=`basename $FILE`
-    DL_FOLDER=${DL_ARCHIVE%.zip}
-else
-    DL_LOC=$OMERO_BUILD_URL"/artifact/"
-    DL_FOLDER=${DL_ARCHIVE%.zip}
-
-    wget $DL_LOC$DL_ARCHIVE
 fi
+
+DL_FOLDER=${DL_ARCHIVE%.zip}
 unzip $DL_ARCHIVE
 mkdir -p `dirname $OMERO_PREFIX`
 mv $DL_FOLDER $OMERO_PREFIX
