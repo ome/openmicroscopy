@@ -1159,6 +1159,7 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
 
     # Support rstring and str namespaces
     namespace = unwrap(namespace)
+    keywords = unwrap(keywords)
 
     workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace+"'", None);
     workflowData = WorkflowData();
@@ -1166,7 +1167,7 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
         workflowData = WorkflowData(workflow);
     else:
         workflowData.setNamespace(namespace);
-    splitKeywords = keywords.val.split(',');
+    splitKeywords = keywords.split(',');
 
     SU_LOG.debug(workflowData.asIObject())
     for keyword in splitKeywords:
