@@ -382,62 +382,12 @@ class UserProfile
     	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.disablePermissions();
-    	//groupLabel = new JLabel(defaultGroup.getName());
-    	//groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	
-    	
-		long groupID = defaultGroup.getId();
+
 		boolean owner = false;
-		/*
-		if (defaultGroup.getLeaders() != null)
-			owner = setGroupOwner(defaultGroup);
-		else {
-			GroupData g = model.loadGroup(groupID);
-			if (g != null)
-				owner = setGroupOwner(g);
-		}
-		*/
 		Object parentRootObject = model.getParentRootObject();
 		if (parentRootObject instanceof GroupData) {
 			owner = setGroupOwner((GroupData) parentRootObject);
 		}
-		//Build the array for box.
-		/*
-		Iterator i = userGroups.iterator();
-		GroupData g;
-		
-		List<GroupData> validGroups = new ArrayList<GroupData>();
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (model.isValidGroup(g))
-				validGroups.add(g);
-		}
-		groupData = new GroupData[validGroups.size()];
-		admin = false;
-		active = false;
-		int selectedIndex = 0;
-		int index = 0;
-		i = validGroups.iterator();
-		boolean owner = false;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			groupData[index] = g;
-			if (g.getId() == groupID) {
-				if (g.getLeaders() != null) {
-					owner = setGroupOwner(g);
-					originalIndex = index;
-				}
-			}
-			index++;
-		}
-		selectedIndex = originalIndex;
-		groups = EditorUtil.createComboBox(groupData, 0);
-		groups.setEnabled(false);
-		groups.setRenderer(new GroupsRenderer());
-		if (groupData.length != 0)
-			groups.setSelectedIndex(selectedIndex);
-		*/
-		
 		if (MetadataViewerAgent.isAdministrator()) {
 			//Check that the user is not the one currently logged.
 			oldPassword.setVisible(false);
@@ -537,7 +487,35 @@ class UserProfile
 	            	setUserPhoto(null);
 	            }
 	        });
+			if (groups.size() > 1) {
+			    groupsBox.addActionListener(new ActionListener() {
+
+			        /**
+			         * Listens to the change of default group.
+			         */
+			        public void actionPerformed(ActionEvent evt) {
+			            GroupData g = getSelectedGroup();
+			            //update the default group
+			            permissionsPane.resetPermissions(g.getPermissions());
+			            permissionsPane.disablePermissions();
+			            setGroupOwner(g);
+			            model.fireAdminSaving(g, true);
+			        }
+			    });
+			}
 		}
+    }
+    
+    /**
+     * Returns the selected group.
+     * 
+     * @return See above.
+     */
+    private GroupData getSelectedGroup()
+    {
+        Selectable<?> item = (Selectable<?>) groupsBox.getSelectedItem();
+        DataNode node = (DataNode) item.getObject();
+        return (GroupData) node.getDataObject();
     }
     
     /**

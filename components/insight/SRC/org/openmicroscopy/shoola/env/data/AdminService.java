@@ -122,11 +122,12 @@ public interface AdminService
 	 * @param ctx The security context.
 	 * @param exp The experimenter to handle.
 	 * @param groupID The identifier group the user is member of.
+	 * @result The updated user.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public void changeExperimenterGroup(SecurityContext ctx,
+	public ExperimenterData changeExperimenterGroup(SecurityContext ctx,
 			ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException;
 	
