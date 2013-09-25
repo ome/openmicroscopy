@@ -114,9 +114,6 @@ public class TaskBarManager
 	
 	/** Bound property indicating to display the activity dialog. */
 	static final String				ACTIVITIES_PROPERTY = "activities";
-	
-	/** The value of the tag to find. */
-	private static final String		A_TAG = "a";
 
 	/** The title displayed before closing the application. */
 	private static final String		CLOSE_APP_TITLE = "Exit Application";
@@ -434,14 +431,15 @@ public class TaskBarManager
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
 			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
-				Iterator i = map.entrySet().iterator();
-				Entry entry;
+				Iterator<Entry<Agent, AgentSaveInfo>>
+				i = map.entrySet().iterator();
+				Entry<Agent, AgentSaveInfo> entry;
 				Agent agent;
 				AgentSaveInfo info;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					agent = (Agent) entry.getKey();
-					info = (AgentSaveInfo) entry.getValue();
+					entry = i.next();
+					agent = entry.getKey();
+					info = entry.getValue();
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
@@ -460,7 +458,7 @@ public class TaskBarManager
 		if (evt == null) return;
 		SecurityContext ctx = evt.getContext();
 		try {
-			DataServicesFactory f = 
+			DataServicesFactory f =
 				DataServicesFactory.getInstance(container);
 			f.removeGroup(ctx);
 		} catch (Exception e) {
@@ -564,7 +562,7 @@ public class TaskBarManager
 	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
 		if (reconnectDialog != null) {
-			exitApplication(null);
+			exitApplication(ctx);
 			return;
 		}
 		Environment env = (Environment) 
@@ -596,14 +594,15 @@ public class TaskBarManager
 					exitApplication(ctx);
 				} else {
 					List<Object> nodes = new ArrayList<Object>();
-					Iterator i = map.entrySet().iterator();
-					Entry entry;
+					Iterator<Entry<Agent, AgentSaveInfo>>
+					i = map.entrySet().iterator();
+					Entry<Agent, AgentSaveInfo> entry;
 					Agent agent;
 					AgentSaveInfo info;
 					while (i.hasNext()) {
-						entry = (Entry) i.next();
-						agent = (Agent) entry.getKey();
-						info = (AgentSaveInfo) entry.getValue();
+						entry = i.next();
+						agent = entry.getKey();
+						info = entry.getValue();
 						agent.save(info.getInstances());
 						nodes.add(info);
 					}
