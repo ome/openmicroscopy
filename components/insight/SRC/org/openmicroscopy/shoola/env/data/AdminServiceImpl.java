@@ -219,11 +219,11 @@ class AdminServiceImpl
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#changeExperimenterGroup(SecurityContext, ExperimenterData, long)
 	 */
-	public void changeExperimenterGroup(SecurityContext ctx,
+	public ExperimenterData changeExperimenterGroup(SecurityContext ctx,
 			ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (!gateway.isServerRunning(ctx)) return;
+		if (!gateway.isServerRunning(ctx)) return null;
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
 		if (exp == null) {
@@ -248,6 +248,7 @@ class AdminServiceImpl
 						LookupNames.CURRENT_USER_DETAILS, data);
 			}
 		}
+		return data;
 	}
 	
 	/**

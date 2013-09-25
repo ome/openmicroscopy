@@ -2845,7 +2845,8 @@ class EditorModel
 	 */
 	void fireAdminSaving(Object data, boolean asynch)
 	{
-		if ((data instanceof ExperimenterData) || (data instanceof AdminObject))
+		if (data instanceof ExperimenterData || data instanceof AdminObject ||
+		    data instanceof GroupData)
 			parent.updateAdminObject(data, asynch);
 	}
 	
@@ -4193,4 +4194,5 @@ class EditorModel
 	{
 	    return MetadataViewerAgent.getAvailableUserGroups();
 	}
+
 }

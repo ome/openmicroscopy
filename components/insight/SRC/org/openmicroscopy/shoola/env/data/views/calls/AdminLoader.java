@@ -195,6 +195,27 @@ public class AdminLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to update the specified group.
+     * 
+     * @param ctx The security context.
+     * @param group The group to update.
+     * @param experimenter The user to update.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall changeGroup(final SecurityContext ctx,
+            final GroupData group, final ExperimenterData experimenter)
+    {
+        return new BatchCall("Change the default group") {
+            public void doCall() throws Exception
+            {
+                AdminService os = context.getAdminService();
+                result = os.changeExperimenterGroup(ctx, experimenter,
+                        group.getId());
+            }
+        };
+    }
+    
+    /**
      * Creates a {@link BatchCall} to load all the available group if the 
      * passed parameter is <code>-1</code>, load the group otherwise.
      * 
@@ -429,7 +450,7 @@ public class AdminLoader
      * 
      * @param ctx The security context.
      * @param group The default group to set.
-     * @param experimenters The experimenters to update. 
+     * @param experimenters The experimenters to update.
      * 						Mustn't be <code>null</code>.
      */
     public AdminLoader(SecurityContext ctx, GroupData group,
@@ -440,4 +461,19 @@ public class AdminLoader
     	loadCall = updateExperimenters(ctx, group, experimenters);
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param ctx The security context.
+     * @param group The default group to set.
+     * @param experimenter The experimenter to update the default group.
+     */
+    public AdminLoader(SecurityContext ctx, GroupData group,
+            ExperimenterData experimenter)
+    {
+        if (group == null)
+            throw new IllegalArgumentException("No group indicated.");
+        loadCall = changeGroup(ctx, group, experimenter);
+    }
+
 }

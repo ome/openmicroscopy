@@ -52,14 +52,23 @@ public class GroupEditor
 	extends MetadataLoader
 {
 
+    /** Indicates to update the group.*/
+    public static final int UPDATE = 0;
+    
+    /** Indicates to change the default group.*/
+    public static final int CHANGE = 1;
+    
 	/** The group to update. */
-	private GroupData	group;
+	private GroupData group;
 	
 	/** The permissions level or <code>-1</code>. */
-	private int 		permissions;
+	private int permissions;
+	
+	/** The index indicating the action to perform.*/
+	private int index;
 	
 	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle handle;
     
     /**
      * Creates a new instance.
@@ -67,18 +76,40 @@ public class GroupEditor
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      * @param ctx The security context.
-     * @param group	 The group to update. Mustn't be <code>null</code>.
+     * @param group The group to update. Mustn't be <code>null</code>.
      * @param permissions The desired permissions level or <code>-1</code>.
      * @param loaderID The identifier of the loader.
+     * @param index The indicating what action to perform.
      */
     public GroupEditor(MetadataViewer viewer, SecurityContext ctx,
-    		GroupData group, int permissions, int loaderID)
+    		GroupData group, int permissions, int loaderID, int index)
     {
     	super(viewer, ctx, loaderID);
     	if (group == null)
     		throw new IllegalArgumentException("No group to edit.");
     	this.group = group;
     	this.permissions = permissions;
+    	this.index = index;
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param ctx The security context.
+     * @param group The group to update. Mustn't be <code>null</code>.
+     * @param loaderID The identifier of the loader.
+     * @param index The indicating what action to perform.
+     */
+    public GroupEditor(MetadataViewer viewer, SecurityContext ctx,
+            GroupData group, int loaderID, int index)
+    {
+        super(viewer, ctx, loaderID);
+        if (group == null)
+            throw new IllegalArgumentException("No group to edit.");
+        this.group = group;
+        this.index = index;
     }
     
     /** 
@@ -87,7 +118,14 @@ public class GroupEditor
 	 */
 	public void load()
 	{
-		handle = adminView.updateGroup(ctx, group, permissions, this);
+	    switch (index) {
+	    case UPDATE:
+	        handle = adminView.updateGroup(ctx, group, permissions, this);
+	        break;
+	    case CHANGE:
+	        handle = adminView.changeGroup(ctx, group, viewer.getCurrentUser(),
+	                this);
+	    }
 	}
 	
 	/** 
@@ -103,7 +141,11 @@ public class GroupEditor
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.onAdminUpdated((GroupData) result);
+    	switch (index) {
+        case UPDATE:
+            viewer.onAdminUpdated((GroupData) result);
+            break;
+        }
     }
     
 }
