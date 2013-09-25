@@ -50,6 +50,9 @@ bin/brew install python
 # Install Genshi (OMERO and Bio-Formats requirement)
 bin/pip install -U genshi
 
+# Tap homebrew-science library (HDF5)
+bin/brew tap homebrew/science || echo "Already tapped"
+
 # Tap ome-alt library
 bin/brew tap ome/alt || echo "Already tapped"
 
