@@ -142,8 +142,7 @@ class UserEntry (object):
                 g = group
             UserEntry.check_group_perms(client, g, groupperms)
         except BadGroupPermissionsException:
-            a.changePermissions(g, omero.model.PermissionsI(groupperms))
-       
+            client._waitOnCmd(client.chmodGroup(g.id.val, groupperms))
 
     @staticmethod
     def _getOrCreateGroup (client, groupname, groupperms=None):
@@ -453,16 +452,22 @@ def assertCommentAnnotation (object, ns, value):
 def getDataset (client, alias, forceproj=None):
     return DATASETS[alias].get(client, forceproj)
 
-def getImage (client, alias, forceds=None):
-    return IMAGES[alias].get(client, forceds)
+def getImage (client, alias, forceds=None, autocreate=False):
+    rv = IMAGES[alias].get(client, forceds)
+    if rv is None and autocreate:
+        i = IMAGES[alias].create()
+        i._conn.seppuku()
+        rv = IMAGES[alias].get(client, forceds)
+    return rv
 
-def bootstrap (onlyUsers=False):
+def bootstrap (onlyUsers=False, skipImages=True):
     # Create users
     client = loginAsRoot()
     try:
         for k, u in USERS.items():
             if not u.create(client, ROOT.passwd):
                 u.changePassword(client, u.passwd, ROOT.passwd)
+                u.assert_group_perms(client, u.groupname, u.groupperms)
         if onlyUsers:
             return
         for k, p in PROJECTS.items():
@@ -472,9 +477,10 @@ def bootstrap (onlyUsers=False):
         for k, d in DATASETS.items():
             d = d.create()
             d._conn.seppuku()
-        for k, i in IMAGES.items():
-            i = i.create()
-            i._conn.seppuku()
+        if not skipImages:
+            for k, i in IMAGES.items():
+                i = i.create()
+                i._conn.seppuku()
     finally:
         client.seppuku()
 
