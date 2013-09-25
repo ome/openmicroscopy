@@ -47,6 +47,9 @@ bin/brew doctor
 # dependencies may require sudo
 bin/brew install python
 
+# Tap homebrew-science library (HDF5)
+bin/brew tap homebrew/science || echo "Already tapped"
+
 # Tap ome-alt library
 bin/brew tap ome/alt || echo "Already tapped"
 
