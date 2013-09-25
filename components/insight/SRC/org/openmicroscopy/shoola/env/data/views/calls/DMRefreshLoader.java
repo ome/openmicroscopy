@@ -395,7 +395,7 @@ public class DMRefreshLoader
                     userID = ctx.getExperimenter();
                     l = entry.getValue();
 
-                    tags = os.loadTags(ctx, -1L, false, true, userID, -1);
+                    tags = os.loadTags(ctx, -1L, true, userID, -1);
                     List<Object> tagResults = new ArrayList<Object>();
                     mapForDataObject = new HashMap<DataObject, Set<?>>();
                     if (CollectionUtils.isEmpty(l)) {
@@ -413,7 +413,7 @@ public class DMRefreshLoader
                             if (ob instanceof TagAnnotationData) {
                                 tag = (TagAnnotationData) ob;
                                 values.put(tag.getId(), os.loadTags(ctx,
-                                        tag.getId(), true, false, userID, -1));
+                                        tag.getId(), false, userID, -1));
                             } else if (ob instanceof TimeRefObject) {
                                 ref = (TimeRefObject) ob;
                                 ref.setResults(os.loadFiles(ctx,
