@@ -1099,6 +1099,13 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	GroupData getSelectedGroup();
+	
+	/**
+	 * Returns the only group displayed if any.
+	 * 
+	 * @return See above.
+	 */
+	GroupData getSingleGroupDisplayed();
 
 	/** 
 	 * Removes group.
