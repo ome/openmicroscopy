@@ -268,6 +268,7 @@ public class TreeViewerTranslator
             Iterator<DataObject> i = dataObjects.iterator();
             DataObject tmp;
             ProjectData p;
+            ScreenData screen;
             while (i.hasNext()) {
             	tmp = (DataObject) i.next();
             	if (EditorUtil.isReadable(tmp)) {
@@ -280,7 +281,11 @@ public class TreeViewerTranslator
             			p = (ProjectData) tmp;
             			tag.addChildDisplay(transformProject(p,
             					p.getDatasets()));
-            		}	
+            		} else if (tmp instanceof ScreenData) {
+            		    screen = (ScreenData) tmp;
+            		    tag.addChildDisplay(
+                                transformScreen(screen, screen.getPlates()));
+            		}
             	}
                 
             }
