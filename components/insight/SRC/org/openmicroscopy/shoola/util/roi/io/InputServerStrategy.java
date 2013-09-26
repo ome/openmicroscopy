@@ -128,6 +128,8 @@ class InputServerStrategy
 				Boolean.valueOf(false));
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SHOWTEXT, 
 				Boolean.valueOf(false));
+		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SCALE_PROPORTIONALLY,
+				Boolean.valueOf(false));
 	}
 	
 	/** Holds the ROIs which have been created. */
