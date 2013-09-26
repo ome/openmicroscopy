@@ -15,8 +15,8 @@
 """
 
 import omero
+import omero_ext.uuid as uuid
 import time
-
 
 class TestDeleteObject (object):
     
@@ -486,3 +486,29 @@ class TestGetObject (object):
         assert pr.getParent() ==  None
         assert len(pr.listParents()) ==  0
 
+    def testListOrphans(self, gatewaywrapper):
+        gatewaywrapper.loginAsUser()
+        eid = gatewaywrapper.gateway.getUserId()
+        
+        imageList = list()
+        for i in range(0,5):
+            imageList.append(gatewaywrapper.createTestImage(imageName=(str(uuid.uuid1()))).getName())
+        
+        findImages = list(gatewaywrapper.gateway.listOrphans("Image"))
+        assert len(findImages) == 5, "Did not find orphaned images"
+        
+        for p in findImages:
+            assert p.getName() in imageList, "All images should have queried name"
+        
+        params = omero.sys.ParametersI()
+        params.page(1, 3)
+        findImagesInPage = list(gatewaywrapper.gateway.listOrphans("Image", eid=eid, params=params))
+        assert len(findImagesInPage) == 3, "Did not find orphaned images in page"
+        
+        for p in findImages:
+            client = p._conn
+            handle = client.deleteObjects('Image', [p.getId()], deleteAnns=True)
+            try:
+                client._waitOnCmd(handle)
+            finally:
+                handle.close()
