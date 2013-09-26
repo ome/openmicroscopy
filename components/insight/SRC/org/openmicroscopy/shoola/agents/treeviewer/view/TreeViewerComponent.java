@@ -4495,7 +4495,7 @@ class TreeViewerComponent
 	    ExperimenterVisitor v = new ExperimenterVisitor(browser, -1);
 	    browser.accept(v, ExperimenterVisitor.TREEIMAGE_SET_ONLY);
 	    List<TreeImageDisplay> nodes = v.getNodes();
-        if (groups.size() == 1)
+        if (nodes.size() == 1)
             return (GroupData) nodes.get(0).getUserObject();
         return null;
 	}
