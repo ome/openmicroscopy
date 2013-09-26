@@ -375,7 +375,6 @@ public class DMRefreshLoader
                 Map<SecurityContext, Object> r = 
                         new HashMap<SecurityContext, Object>(nodes.size());
                 long userID;
-                Object result;
                 Entry<SecurityContext, List> entry;
                 Iterator<Entry<SecurityContext, List>>
                 j = nodes.entrySet().iterator();
@@ -461,42 +460,44 @@ public class DMRefreshLoader
             tag = (TagAnnotationData) k.next();
             if (tagResults != null) tagResults.add(tag);
             ns = tag.getNameSpace();
-            if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
-            {
+            if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
                 set = tag.getTags();
                 i = set.iterator();
                 while (i.hasNext()) {
                     child = i.next();
                     if (values.containsKey(child.getId())) {
-                        child.setDataObjects(
-                                (Set<DataObject>) values.get(
-                                        child.getId()));
+                        populateTag(child, values, mapForDataObject);
                     }
                 }
             } else {
                 if (values.containsKey(tag.getId())) {
-                    if (mapForDataObject.isEmpty()) {
-                        tag.setDataObjects(
-                                (Set<DataObject>) values.get(
-                                        tag.getId()));
-                    } else {
-                        Set<DataObject> objects =
-                                (Set<DataObject>) values.get(
-                                        tag.getId());
-                        Set<DataObject> newList =
-                                new HashSet<DataObject>(
-                                        objects.size());
-                        Iterator<DataObject> kk =
-                                objects.iterator();
-                        while (kk.hasNext()) {
-                            newList.add(getLoadedObject(
-                                    mapForDataObject,
-                                    kk.next()));
-                        }
-                        tag.setDataObjects(newList);
-                    }
+                    populateTag(tag, values, mapForDataObject);
                 }
             }
+        }
+    }
+    
+    /**
+     * Populates the specified tag with the passed value.
+     * 
+     * @param tag The tag to populate
+     * @param values Track the object.
+     * @param mapForDataObject The values to set.
+     */
+    private void populateTag(TagAnnotationData tag,
+            Map<Long, Collection<?>> values,
+            Map<DataObject, Set<?>> mapForDataObject)
+    {
+        if (mapForDataObject.isEmpty()) {
+            tag.setDataObjects((Set<DataObject>) values.get(tag.getId()));
+        } else {
+            Set<DataObject> objects = (Set<DataObject>) values.get(tag.getId());
+            Set<DataObject> newList = new HashSet<DataObject>(objects.size());
+            Iterator<DataObject> kk = objects.iterator();
+            while (kk.hasNext()) {
+                newList.add(getLoadedObject(mapForDataObject, kk.next()));
+            }
+            tag.setDataObjects(newList);
         }
     }
     
