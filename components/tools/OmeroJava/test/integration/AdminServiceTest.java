@@ -10,6 +10,7 @@ import static omero.rtypes.rstring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -42,6 +43,7 @@ import pojos.GroupData;
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
+ * @author m.t.b.carroll@dundee.ac.uk
  * @version 3.0 <small> (<b>Internal version:</b> $Revision: $Date: $) </small>
  * @since 3.0-Beta4
  */
@@ -942,11 +944,14 @@ public class AdminServiceTest extends AbstractServerTest {
     }
 
     /**
-     * Test the group removal prohibitions of {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
+     * Test the group removal prohibitions of
+     * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
+     * Specifically, test this claim from the Javadoc:
+     * <q>The root experimenter is required to be in both the user and system groups.</q>
      * @throws Exception unexpected
      */
     @Test
-    public void testGroupRemovalValidation() throws Exception {
+    public void testGroupRemovalValidationClaim1() throws Exception {
         IAdminPrx proxy;
         proxy = root.getSession().getAdminService();
 
@@ -955,33 +960,33 @@ public class AdminServiceTest extends AbstractServerTest {
         final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
         final ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
 
-        final String userName1 = UUID.randomUUID().toString();
-        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
-        experimenter1 = proxy.getExperimenter(proxy.createUser(experimenter1, roles.userGroupName));
-        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup));
-        experimenter1 = proxy.getExperimenter(experimenter1.getId().getValue());
-
-        final String userName2 = UUID.randomUUID().toString();
-        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
-        experimenter2 = proxy.getExperimenter(proxy.createUser(experimenter2, roles.userGroupName));
-        proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup));
-        experimenter2 = proxy.getExperimenter(experimenter2.getId().getValue());
-
-        final String groupName = UUID.randomUUID().toString();
+        final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
-        normalGroup.setName(omero.rtypes.rstring(groupName));
+        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
         normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
 
         proxy.addGroups(rootExperimenter, ImmutableList.of(normalGroup));
         rootExperimenter = proxy.getExperimenter(roles.rootId);
 
+        final String userName1 = UUID.randomUUID().toString();
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
+        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+
+        final String userName2 = UUID.randomUUID().toString();
+        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
+        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+
         final omero.client client = newOmeroClient();
 
         client.createSession(userName1, roles.userGroupName);
         proxy = client.getSession().getAdminService();
-        /* test that a non-system group can be removed from root */
-        proxy.removeGroups(rootExperimenter, ImmutableList.of(normalGroup));
-        rootExperimenter = proxy.getExperimenter(roles.rootId);
+
         try {
             /* test that the system group cannot be removed from root */
             proxy.removeGroups(rootExperimenter, ImmutableList.of(systemGroup));
@@ -992,23 +997,167 @@ public class AdminServiceTest extends AbstractServerTest {
             proxy.removeGroups(rootExperimenter, ImmutableList.of(userGroup));
             fail("the root experimenter may not be removed from the user group");
         } catch (ValidationException e) { }
-        try {
-            /* test that a user cannot remove themselves from the system group */
-            proxy.removeGroups(experimenter1, ImmutableList.of(systemGroup));
-            fail("users may not remove themselves from the system group");
-        } catch (ValidationException e) { }
-        /* test that a user can remove another user from the system group */
+        /* test that a non-system group can be removed from root */
+        proxy.removeGroups(rootExperimenter, ImmutableList.of(normalGroup));
+        rootExperimenter = proxy.getExperimenter(roles.rootId);
+        /* test that a user can remove a non-root user from the system group */
         proxy.removeGroups(experimenter2, ImmutableList.of(systemGroup));
-        experimenter2 = proxy.getExperimenter(experimenter2.getId().getValue());
-        try {
-            /* test that a user cannot remove a user from all groups */
-            proxy.removeGroups(experimenter2, ImmutableList.of(userGroup));
-            fail ("all users must be a member of some group: " + userName2);
-        } catch (ValidationException e) { }
-        /* test that a user can remove that same group from a user who is also in other groups */
-        proxy.removeGroups(experimenter1, ImmutableList.of(userGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        /* test that a user can remove a non-root user from the user group */
+        proxy.removeGroups(experimenter2, ImmutableList.of(userGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
 
         client.closeSession();
+    }
+
+    /**
+     * Test the group removal prohibitions of
+     * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
+     * Specifically, test this claim from the Javadoc:
+     * <q>An experimenter may not remove themself from the user or system group.</q>
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGroupRemovalValidationClaim2() throws Exception {
+        IAdminPrx proxy;
+        proxy = root.getSession().getAdminService();
+
+        final Roles roles = proxy.getSecurityRoles();
+        final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
+        final ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
+
+        final String normalGroupName = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup = new ExperimenterGroupI();
+        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
+
+        final String userName1 = UUID.randomUUID().toString();
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
+        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, systemGroup, normalGroup));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+
+        final String userName2 = UUID.randomUUID().toString();
+        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
+        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        proxy.addGroups(experimenter2, ImmutableList.of(userGroup, systemGroup, normalGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+
+        final omero.client client = newOmeroClient();
+
+        client.createSession(userName1, roles.userGroupName);
+        proxy = client.getSession().getAdminService();
+
+        try {
+            /* test that the system group cannot be removed from the current user */
+            proxy.removeGroups(experimenter1, ImmutableList.of(systemGroup));
+            fail("an experimenter may not remove themself from the system group");
+        } catch (ValidationException e) { }
+        try {
+            /* test that the user group cannot be removed from the current user */
+            proxy.removeGroups(experimenter1, ImmutableList.of(userGroup));
+            fail("an experimenter may not remove themself from the user group");
+        } catch (ValidationException e) { }
+        /* test that a different group can be removed from the current user */
+        proxy.removeGroups(experimenter1, ImmutableList.of(normalGroup));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        /* test that a user can remove a different user from the system group */
+        proxy.removeGroups(experimenter2, ImmutableList.of(systemGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        /* test that a user can remove a different user from the user group */
+        proxy.removeGroups(experimenter2, ImmutableList.of(userGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+
+        client.closeSession();
+    }
+
+    /**
+     * Test the group removal prohibitions of
+     * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
+     * Specifically, test this claim from the Javadoc:
+     * <q>An experimenter may not be a member of only the user group,
+     * some other group is also required as the default group.</q>
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGroupRemovalValidationClaim3() throws Exception {
+        IAdminPrx proxy;
+        proxy = root.getSession().getAdminService();
+
+        final Roles roles = proxy.getSecurityRoles();
+        final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
+
+        final String normalGroupName = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup = new ExperimenterGroupI();
+        normalGroup.setName(omero.rtypes.rstring(normalGroupName));
+        normalGroup = proxy.getGroup(proxy.createGroup(normalGroup));
+
+        final String userName1 = UUID.randomUUID().toString();
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
+        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, normalGroup));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+
+        final String userName2 = UUID.randomUUID().toString();
+        Experimenter experimenter2 = createExperimenterI(userName2, "2", "user");
+        final long experimenterId2 = proxy.createUser(experimenter2, roles.userGroupName);
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+        proxy.addGroups(experimenter2, ImmutableList.of(userGroup, normalGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+
+        try {
+            /* test that a user cannot be left in only the user group */
+            proxy.removeGroups(experimenter1, ImmutableList.of(normalGroup));
+            fail("an experimenter may not be a member of only the user group");
+        } catch (ValidationException e) { }
+        /* test that the user group can be removed from a user, leaving them in one group */
+        proxy.removeGroups(experimenter2, ImmutableList.of(userGroup));
+        experimenter2 = proxy.getExperimenter(experimenterId2);
+    }
+
+    /**
+     * Test the group removal prohibitions of
+     * {@link ome.api.IAdmin#removeGroups(ome.model.meta.Experimenter, ome.model.meta.ExperimenterGroup...)}.
+     * Specifically, test this claim from the Javadoc:
+     * <q>An experimenter must remain a member of some group.</q>
+     * @throws Exception unexpected
+     */
+    @Test
+    public void testGroupRemovalValidationClaim4() throws Exception {
+        IAdminPrx proxy;
+        proxy = root.getSession().getAdminService();
+
+        final Roles roles = proxy.getSecurityRoles();
+        final ExperimenterGroup userGroup = proxy.getGroup(roles.userGroupId);
+
+        final String normalGroupName1 = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup1 = new ExperimenterGroupI();
+        normalGroup1.setName(omero.rtypes.rstring(normalGroupName1));
+        normalGroup1 = proxy.getGroup(proxy.createGroup(normalGroup1));
+
+        final String normalGroupName2 = UUID.randomUUID().toString();
+        ExperimenterGroup normalGroup2 = new ExperimenterGroupI();
+        normalGroup2.setName(omero.rtypes.rstring(normalGroupName2));
+        normalGroup2 = proxy.getGroup(proxy.createGroup(normalGroup2));
+
+        final String userName1 = UUID.randomUUID().toString();
+        Experimenter experimenter1 = createExperimenterI(userName1, "1", "user");
+        final long experimenterId1 = proxy.createUser(experimenter1, roles.userGroupName);
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+        proxy.addGroups(experimenter1, ImmutableList.of(userGroup, normalGroup1, normalGroup2));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
+
+        try {
+            /* test that a user must be a member of some group */
+            proxy.removeGroups(experimenter1, ImmutableList.of(userGroup, normalGroup1, normalGroup2));
+            fail("an experimenter must remain a member of some group");
+        } catch (ValidationException e) { }
+        /* test that a user may be a member of only one group */
+        proxy.removeGroups(experimenter1, ImmutableList.of(userGroup, normalGroup1));
+        experimenter1 = proxy.getExperimenter(experimenterId1);
     }
 
     /**
@@ -1315,6 +1464,12 @@ public class AdminServiceTest extends AbstractServerTest {
         g.setName(omero.rtypes.rstring(uuid));
         g.getDetails().setPermissions(new PermissionsI("rw----"));
 
+        // needed because e cannot be left only in the user group
+        String uuid2 = UUID.randomUUID().toString();
+        ExperimenterGroup g2 = new ExperimenterGroupI();
+        g2.setName(omero.rtypes.rstring(uuid2));
+        g2.getDetails().setPermissions(new PermissionsI("rw----"));
+
         // create group.
         long groupId = svc.createGroup(g);
         g = svc.lookupGroup(uuid);
@@ -1325,10 +1480,13 @@ public class AdminServiceTest extends AbstractServerTest {
         svc.setGroupOwner(g, owner);
 
         // create another group and user
-        String uuid2 = UUID.randomUUID().toString();
-        e = createExperimenterI(uuid2, "user", "user");
+        String uuid3 = UUID.randomUUID().toString();
+        e = createExperimenterI(uuid3, "user", "user");
         expId = svc.createUser(e, uuid);
-        e = svc.lookupExperimenter(uuid2);
+        e = svc.lookupExperimenter(uuid3);
+        g2 = svc.getGroup(svc.createGroup(g2));
+        svc.addGroups(e, Collections.singletonList(g2));
+        e = svc.getExperimenter(e.getId().getValue());
         // owner logs in.
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
@@ -1337,6 +1495,7 @@ public class AdminServiceTest extends AbstractServerTest {
         List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
         groups.add(g);
         iAdmin.removeGroups(e, groups);
+        client.closeSession();
     }
 
     /**
