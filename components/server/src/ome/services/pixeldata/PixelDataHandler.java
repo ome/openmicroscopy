@@ -24,6 +24,7 @@ import ome.util.SqlAction;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -75,7 +76,7 @@ public class PixelDataHandler extends SimpleWork {
      *
      * @see ticket:5814
      */
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
     public Object doWork(Session session, ServiceFactory sf) {
 
         EventLog eventLog = loadNext();
