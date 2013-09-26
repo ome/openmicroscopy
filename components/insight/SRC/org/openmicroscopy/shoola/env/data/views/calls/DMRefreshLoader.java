@@ -442,6 +442,14 @@ public class DMRefreshLoader
         };
     }
     
+    /**
+     * Maps the tags to the correct objects.
+     * 
+     * @param tags The tags to handle.
+     * @param tagResults The tags loading for smart folder.
+     * @param values The value for the loaded objects.
+     * @param mapForDataObject The loaded values.
+     */
     private void handleTags(Collection<TagAnnotationData> tags,
             List<Object> tagResults, Map<Long, Collection<?>> values,
             Map<DataObject, Set<?>> mapForDataObject)
