@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010-2013 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
@@ -26,6 +26,7 @@ import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.services.blitz.repo.path.FsFile;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
@@ -61,6 +62,8 @@ import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Fileset;
+import omero.model.FilesetI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
@@ -112,7 +115,6 @@ import spec.AbstractTest;
  *
  * @since Beta4.2
  */
-@Test(groups = { "client", "integration", "blitz", "fs" })
 public class AbstractServerTest
 	extends AbstractTest
 {
@@ -164,8 +166,9 @@ public class AbstractServerTest
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
-    
- 
+
+    /* the managed repository directory for the user from test class setup */
+    private String userFsDir = null;
 
     /**
      * {@link omero.client} instances which are created via the newUser* methods.
@@ -211,7 +214,7 @@ public class AbstractServerTest
      * @throws Exception Thrown if an error occurred.
      */
     @Override
-    @BeforeClass
+    @BeforeClass(alwaysRun = true)
     protected void setUp() 
     	throws Exception
     {
@@ -221,7 +224,8 @@ public class AbstractServerTest
         root = newRootOmeroClient();
         tmp.__del__();
 
-        newUserAndGroup("rw----");
+        final EventContext ctx = newUserAndGroup("rw----");
+        this.userFsDir = ctx.userName + "_" + ctx.userId + FsFile.separatorChar;
     }
 
     /**
@@ -518,6 +522,17 @@ public class AbstractServerTest
     }
 
     /**
+     * Create a fileset with a template prefix appropriate for the user created by {@link #setUp()}.
+     * Does not access the OMERO API or persist the new fileset.
+     * @return a new fileset
+     */
+    protected Fileset newFileset() {
+        final Fileset fileset = new FilesetI();
+        fileset.setTemplatePrefix(omero.rtypes.rstring(this.userFsDir + System.currentTimeMillis() + FsFile.separatorChar));
+        return fileset;
+    }
+
+    /**
      * Logs in the user.
      *
      * @param ownerEc The context of the user.
@@ -618,7 +633,7 @@ public class AbstractServerTest
      */
     protected EventContext init(EventContext ec) throws Exception {
         omero.client c = newOmeroClient();
-        factoryEncrypted = c.createSession(ec.userName, "");
+        factoryEncrypted = c.createSession(ec.userName, null);
         return init(c);
     }
 

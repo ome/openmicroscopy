@@ -939,7 +939,7 @@ public class MetadataServiceTest
      * with a pump
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(groups = "broken")
     public void testLoadChannelAcquisitionData() 
     	throws Exception
     {

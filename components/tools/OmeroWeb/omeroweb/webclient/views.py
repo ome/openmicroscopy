@@ -1423,7 +1423,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, conn=None,
                 logger.debug("Create new: %s" % (str(form.cleaned_data)))
                 name = form.cleaned_data['name']                
                 description = form.cleaned_data['description']
-                oid = getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)
+                folder_type = request.REQUEST.get('folder_type')
+                if folder_type == "dataset":
+                    oid = manager.createDataset(name,description, img_ids=request.REQUEST.get('img_ids', None))
+                else:
+                    oid = getattr(manager, "create"+folder_type.capitalize())(name, description)
                 rdict = {'bad':'false', 'id': oid}
                 json = simplejson.dumps(rdict, ensure_ascii=False)
                 return HttpResponse( json, mimetype='application/javascript')

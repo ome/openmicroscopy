@@ -59,7 +59,6 @@ import ome.specification.XMLWriter;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class RenderingEngineTest
 	extends AbstractServerTest
 {

@@ -1597,7 +1597,7 @@ def full_viewer (request, iid, conn=None, **kwargs):
              'image': image,
              'opts': rid,
              'roiCount': image.getROICount(),
-             'viewport_server': kwargs.get('viewport_server', '/webgateway'),
+             'viewport_server': kwargs.get('viewport_server', reverse('webgateway')),
              'object': 'image:%i' % int(iid)}
 
         template = kwargs.get('template', "webgateway/viewport/omero_image.html")

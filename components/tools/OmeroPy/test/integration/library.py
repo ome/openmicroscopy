@@ -19,6 +19,7 @@ import unittest
 import tempfile
 import traceback
 import subprocess
+import Glacier2
 
 import omero, omero.gateway
 

@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.agents.editor.EditorAgent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -253,16 +253,17 @@ public class EditorAgent implements Agent, AgentEventListener {
 				Environment env = (Environment) getRegistry().lookup(
 						LookupNames.ENV);
 				DownloadAndLaunchActivityParam activity;
+				final long dataId = data.getId();
+				final File dir = new File(env.getOmeroFilesHome() + File.separatorChar + "file annotation " + dataId);
+				if (!dir.exists()) {
+				    dir.mkdir();
+				}
 				if (f != null && f.isLoaded()) {
-					activity = new DownloadAndLaunchActivityParam(f, new File(
-							env.getOmeroFilesHome()), null);
+					activity = new DownloadAndLaunchActivityParam(f, dir, null);
 				} else {
-					long id = data.getId();
-					String path = env.getOmeroFilesHome();
-					path += File.separator + name;
-					activity = new DownloadAndLaunchActivityParam(id,
+					activity = new DownloadAndLaunchActivityParam(dataId,
 							DownloadAndLaunchActivityParam.FILE_ANNOTATION,
-							new File(path), null);
+							new File(dir, name), null);
 				}
 				un.notifyActivity(event.getSecurityContext(), activity);
 				return;

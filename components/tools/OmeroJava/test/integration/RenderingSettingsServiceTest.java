@@ -55,7 +55,6 @@ import omero.sys.ParametersI;
  * </small>
  * @since 3.0-Beta4
  */
-@Test(groups = { "client", "integration", "blitz" })
 public class RenderingSettingsServiceTest 
 	extends AbstractServerTest
 {
@@ -546,7 +545,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ApplySettingsToSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testApplySettingsToSetForPlateAcquisition() 
     	throws Exception 
     {
@@ -698,7 +697,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetDefaultInSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testResetDefaultInSetForPlateAcquisition() 
     	throws Exception 
     {
@@ -985,7 +984,7 @@ public class RenderingSettingsServiceTest
      * Tests the <code>ResetMinMaxForSet</code> method.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test
     public void testResetMinMaxForSetForPlateAcquisition() 
     	throws Exception 
     {

@@ -4032,7 +4032,7 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @rtype:     Boolean
         """
-        return self._obj.boolValue.val
+        return unwrap(self._obj.boolValue)
 
     def setValue (self, val):
         """
@@ -4108,8 +4108,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4146,8 +4146,7 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.textValue.val
+        return unwrap(self._obj.textValue)
 
     def setValue (self, val):
         """
@@ -4184,7 +4183,7 @@ class LongAnnotationWrapper (AnnotationWrapper):
         @type:      Long
         """
         
-        return self._obj.longValue and self._obj.longValue.val or None
+        return unwrap(self._obj.longValue)
 
     def setValue (self, val):
         """
@@ -4220,8 +4219,7 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      Double
         """
-        
-        return self._obj.doubleValue.val
+        return unwrap(self._obj.doubleValue)
 
     def setValue (self, val):
         """
@@ -4259,8 +4257,8 @@ class TermAnnotationWrapper (AnnotationWrapper):
         @return:    Value
         @type:      String
         """
-        
-        return self._obj.termValue.val
+
+        return unwrap(self._obj.termValue)
 
     def setValue (self, val):
         """
@@ -7033,7 +7031,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     def _renderSplit_channelLabel (self, channel):
-        return str(channel.getEmissionWave())
+        return str(channel.getLabel())
 
     def renderSplitChannelImage (self, z, t, compression=0.9, border=2):
         """
@@ -7095,13 +7093,14 @@ class _ImageWrapper (BlitzObjectWrapper):
                 pxc = 0
                 px = border
                 py += self.getSizeY() + border
-        if not self.isGreyscaleRenderingModel():
-            self.setActiveChannels(cmap)
-            img = self.renderImage(z,t, compression)
-            if fsize > 0:
-                draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "merged", font=font, fill="#fff")
-            canvas.paste(img, (px, py))
+        # Render merged panel with all current channels in color
+        self.setActiveChannels(cmap)
+        self.setColorRenderingModel()
+        img = self.renderImage(z,t, compression)
+        if fsize > 0:
+            draw = ImageDraw.ImageDraw(img)
+            draw.text((2,2), "merged", font=font, fill="#fff")
+        canvas.paste(img, (px, py))
         return canvas
 
     LP_PALLETE = [0,0,0,0,0,0,255,255,255]
