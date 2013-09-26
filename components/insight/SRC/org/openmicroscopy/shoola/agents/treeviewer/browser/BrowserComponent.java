@@ -46,6 +46,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
+import org.apache.commons.collections.CollectionUtils;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.treeviewer.ExperimenterLoadedDataEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -1523,8 +1524,23 @@ class BrowserComponent
 							found = finder.getNodes();
 							if (found.size() > 0) {
 								k = found.iterator();
+								TreeImageDisplay n, c;
 								while (k.hasNext()) {
-									view.expandNode(k.next());
+								    n = k.next();
+									view.expandNode(n);
+									if (n.getUserObject() instanceof
+									        ProjectData) {
+									    List ll = n.getChildrenDisplay();
+									    if (!CollectionUtils.isEmpty(ll)) {
+									        Iterator w = ll.iterator();
+	                                        while (w.hasNext()) {
+	                                            c = (TreeImageDisplay) w.next();
+	                                            if (c.isExpanded())
+	                                                view.expandNode(c);
+	                                        }
+									    }
+									    
+									}
 								}
 							}
 						}
