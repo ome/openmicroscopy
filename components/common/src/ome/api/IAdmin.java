@@ -373,9 +373,13 @@ public interface IAdmin extends ServiceInterface {
 
     /**
      * Removes an experimenter from the given groups.
-     * The root experimenter is required to be in both the user and system groups.
-     * An experimenter may not remove themself from the system group.
-     * An experimenter must remain a member of some group.
+     * <ul>
+     * <li>The root experimenter is required to be in both the user and system groups.</li>
+     * <li>An experimenter may not remove themself from the user or system group.</li>
+     * <li>An experimenter may not be a member of only the user group,
+     * some other group is also required as the default group.</li>
+     * <li>An experimenter must remain a member of some group.</li>
+     * </ul>
      * 
      * @param user
      *            A currently managed entity. Not null.

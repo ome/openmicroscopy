@@ -9,6 +9,7 @@ package ome.logic;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -703,26 +704,30 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         adminOrPiOfGroups(null, groups);
 
         final Roles roles = getSecurityRoles();
-        if (roles.isRootUser(user) &&
-                Iterators.any(Iterators.forArray(groups), Predicates.or(roles.IS_SYSTEM_GROUP, roles.IS_USER_GROUP))) {
+        final boolean removeSystemOrUser =
+                Iterators.any(Iterators.forArray(groups),Predicates.or(roles.IS_SYSTEM_GROUP, roles.IS_USER_GROUP));
+        if (removeSystemOrUser && roles.isRootUser(user)) {
             throw new ValidationException("experimenter '" + roles.getRootName() + "' may not be removed from the '" +
                 roles.getSystemGroupName() + "' or '" + roles.getUserGroupName() + "' group");
         }
         final EventContext eventContext = getEventContext();
-        if (eventContext.isCurrentUserAdmin() && eventContext.getCurrentUserId().equals(user.getId()) &&
-                Iterators.any(Iterators.forArray(groups), roles.IS_SYSTEM_GROUP)) {
+        final boolean userOperatingOnThemself = eventContext.getCurrentUserId().equals(user.getId());
+        if (removeSystemOrUser && userOperatingOnThemself) {
             throw new ValidationException("experimenters may not remove themselves from the '" +
-                roles.getSystemGroupName() + "' group");
+                roles.getSystemGroupName() + "' or '" + roles.getUserGroupName() + "' group");
         }
-        final Set<Long> groupIds = new HashSet<Long>();
+        final Set<Long> resultingGroupIds = new HashSet<Long>();
         for (final GroupExperimenterMap map : user.<GroupExperimenterMap>collectGroupExperimenterMap(null)) {
-            groupIds.add(map.parent().getId());
+            resultingGroupIds.add(map.parent().getId());
         }
         for (final ExperimenterGroup group : groups) {
-            groupIds.remove(group.getId());
+            resultingGroupIds.remove(group.getId());
         }
-        if (groupIds.isEmpty()) {
+        if (resultingGroupIds.isEmpty()) {
             throw new ValidationException("experimenter must remain a member of some group");
+        } else if (resultingGroupIds.equals(Collections.singleton(roles.getUserGroupId()))) {
+            throw new ValidationException("experimenter cannot be a member of only the '" +
+                roles.getUserGroupName() + "' group, a different default group is also required");
         }
         roleProvider.removeGroups(user, groups);
 
