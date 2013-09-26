@@ -385,8 +385,6 @@ public class DMRefreshLoader
                 Iterator<TagAnnotationData> i;
                 TagAnnotationData tag, child;
                 Map<Long, Collection<?>> values;
-                String ns;
-                Set<TagAnnotationData> set;
                 SecurityContext ctx;
                 Map<DataObject, Set<?>> mapForDataObject;
                 while (j.hasNext()) {
