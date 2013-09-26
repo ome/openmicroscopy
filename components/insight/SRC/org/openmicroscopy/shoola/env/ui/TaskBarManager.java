@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.TaskBarManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import ij.IJ;
-
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +44,7 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 
 //Third-party libraries
-
+import ij.IJ;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
@@ -419,8 +417,9 @@ public class TaskBarManager
 	private void handleLogOff(LogOff evt)
 	{
 		if (evt == null) return;
+		SecurityContext ctx = evt.getSecurityContext();
 		if (!evt.isAskQuestion()) {
-			logOut();
+			logOut(ctx);
 			return;
 		}
 		IconManager icons = IconManager.getInstance(container.getRegistry());
@@ -444,7 +443,7 @@ public class TaskBarManager
 					nodes.add(info);
 				}
 			}
-			logOut();
+			logOut(ctx);
 		}
 	}
 	
@@ -531,9 +530,26 @@ public class TaskBarManager
 		UIUtilities.centerAndShow(reconnectDialog);
 	}
 	
-	/** Disconnects from the current server.*/
-	private void logOut()
+	/**
+	 * Disconnects from the current server.
+	 * 
+	 * @param ctx The security context.
+	 */
+	private void logOut(SecurityContext ctx)
 	{
+	    //Change group if context not null
+	    if (ctx != null) {
+	        try {
+	            AdminService svc = container.getRegistry().getAdminService();
+	            svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+	        } catch (Exception e) {
+	            if (isRunAsIJPlugin()) IJ.log(e.getMessage());
+	            Logger log = container.getRegistry().getLogger();
+	            LogMessage msg = new LogMessage();
+	            msg.print(e);
+	            log.error(this, msg);
+	        }
+	    }
 		try {
 			DataServicesFactory f =
 				DataServicesFactory.getInstance(container);
