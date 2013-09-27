@@ -74,7 +74,7 @@ class TestRand(lib.ITest):
             cb.close()
             try:
                 output = process.getResults(0)
-                self.assert_( output["x"].val == 3)
+                assert output["x"].val == 3
             except KeyError:
                 print "Key is not in returned dictionary. Is this a fail?"
         finally:

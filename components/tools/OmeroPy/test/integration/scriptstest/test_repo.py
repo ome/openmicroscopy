@@ -22,8 +22,7 @@ class TestScriptRepo(lib.ITest):
     def testScriptRepo(self):
         sr = self.client.sf.sharedResources()
         repo = sr.getScriptRepository()
-        self.assert_( repo )
-        return repo
+        assert repo
 
     def scriptPrx(self):
         return self.client.sf.getScriptService()
@@ -32,8 +31,7 @@ class TestScriptRepo(lib.ITest):
         prx = self.scriptPrx()
         officialScripts = prx.getScripts()
         count = len(officialScripts)
-        self.assert_(count > 0)
-        return officialScripts
+        assert count > 0
 
     def testGetUserScripts(self):
         prx = self.scriptPrx()
@@ -43,12 +41,12 @@ class TestScriptRepo(lib.ITest):
         OS.client("name")
         """)
         myUserScripts = prx.getUserScripts([])
-        self.assert_(sid in [x.id.val for x in myUserScripts])
+        assert sid in [x.id.val for x in myUserScripts]
 
         admin = self.client.sf.getAdminService()
         oid = admin.getEventContext().userId
         myUserScripts = prx.getUserScripts([omero.model.ExperimenterI(oid, False)])
-        self.assert_(sid in [x.id.val for x in myUserScripts])
+        assert sid in [x.id.val for x in myUserScripts]
 
     def testGetGroupScripts(self):
         prx = self.scriptPrx()
@@ -63,7 +61,7 @@ class TestScriptRepo(lib.ITest):
         OS.client("testGetGroupScripts")""")
 
         myGroupScripts = prx.getUserScripts([grp])
-        self.assert_(sid in [x.id.val for x in myGroupScripts])
+        assert sid in [x.id.val for x in myGroupScripts]
 
     def testCantUndulyLoadScriptRepoFromUuid(self):
         pass
