@@ -1527,20 +1527,20 @@ class BrowserComponent
 								TreeImageDisplay n, c;
 								while (k.hasNext()) {
 								    n = k.next();
-									view.expandNode(n);
-									if (n.getUserObject() instanceof
-									        ProjectData) {
-									    List ll = n.getChildrenDisplay();
-									    if (!CollectionUtils.isEmpty(ll)) {
-									        Iterator w = ll.iterator();
-	                                        while (w.hasNext()) {
-	                                            c = (TreeImageDisplay) w.next();
-	                                            if (c.isExpanded())
-	                                                view.expandNode(c);
-	                                        }
-									    }
-									    
-									}
+								    view.expandNode(n);
+								    if (n.getUserObject() instanceof
+								            ProjectData) {
+								        List ll = n.getChildrenDisplay();
+								        if (!CollectionUtils.isEmpty(ll)) {
+								            Iterator w = ll.iterator();
+								            while (w.hasNext()) {
+								                c = (TreeImageDisplay) w.next();
+								                if (c.isExpanded())
+								                    view.expandNode(c);
+								            }
+								        }
+
+								    }
 								}
 							}
 						}
