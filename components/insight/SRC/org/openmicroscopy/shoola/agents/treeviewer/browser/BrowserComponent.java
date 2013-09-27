@@ -287,7 +287,8 @@ class BrowserComponent
 		TreeImageSet node;
 		while (i.hasNext()) {
 			node = i.next();
-			if (node.getUserObject() instanceof ExperimenterData)
+			if (node.getUserObject() instanceof ExperimenterData
+			        && node.isExpanded())
 				countExperimenterImages(node);
 		}
     }

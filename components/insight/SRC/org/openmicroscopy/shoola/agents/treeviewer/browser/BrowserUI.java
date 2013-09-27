@@ -1979,7 +1979,6 @@ class BrowserUI
 		DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
 		if (model.getBrowserType() != Browser.TAGS_EXPLORER)
 			expNode.setChildrenLoaded(Boolean.valueOf(true));
-		expNode.setExpanded(true);
 		int n = expNode.getChildCount();
 		TreeImageSet node;
 		List l;
@@ -1991,7 +1990,7 @@ class BrowserUI
 		int number;
 		int total;
 		DefaultMutableTreeNode childNode;
-		List<DefaultMutableTreeNode> remove = 
+		List<DefaultMutableTreeNode> remove =
 			new ArrayList<DefaultMutableTreeNode>();
 		for (int j = 0; j < n; j++) {
 			childNode = (DefaultMutableTreeNode) expNode.getChildAt(j);
@@ -2034,7 +2033,7 @@ class BrowserUI
 						node.setNumberItems(total);
 						k = toKeep.iterator();
 						while (k.hasNext()) {
-							dtm.insertNodeInto((TreeImageTimeSet) k.next(), node, 
+							dtm.insertNodeInto((TreeImageTimeSet) k.next(), node,
 													node.getChildCount());
 						}
 					}
