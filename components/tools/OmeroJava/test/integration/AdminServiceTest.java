@@ -902,6 +902,7 @@ public class AdminServiceTest extends AbstractServerTest {
                 /* test that special users cannot be renamed */
                 specialExperimenter.setOmeName(newName);
                 proxy.updateExperimenter(specialExperimenter);
+                fail("Should not be able to rename special users.");
             } catch (ValidationException e) { }
         }
         /* test that normal users can be renamed */
@@ -921,7 +922,7 @@ public class AdminServiceTest extends AbstractServerTest {
         final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
         final ExperimenterGroup systemGroup = proxy.getGroup(roles.systemGroupId);
         /* TODO: in OMERO 5 add guestId, guestName, guestGroupId to omero.sys.Roles */
-        final ExperimenterGroup guestGroup = proxy.getGroup(new ome.system.Roles().getGuestGroupId());
+        final ExperimenterGroup guestGroup  = proxy.getGroup(new ome.system.Roles().getGuestGroupId());
 
         final String groupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
@@ -936,6 +937,7 @@ public class AdminServiceTest extends AbstractServerTest {
                 /* test that special groups cannot be renamed */
                 specialGroup.setName(newName);
                 proxy.updateGroup(specialGroup);
+                fail("Should not be able to rename special groups.");
             } catch (ValidationException e) { }
         }
         /* test that normal groups can be renamed */
@@ -1087,7 +1089,7 @@ public class AdminServiceTest extends AbstractServerTest {
         proxy = root.getSession().getAdminService();
 
         final Roles roles = proxy.getSecurityRoles();
-        final ExperimenterGroup userGroup   = proxy.getGroup(roles.userGroupId);
+        final ExperimenterGroup userGroup = proxy.getGroup(roles.userGroupId);
 
         final String normalGroupName = UUID.randomUUID().toString();
         ExperimenterGroup normalGroup = new ExperimenterGroupI();
