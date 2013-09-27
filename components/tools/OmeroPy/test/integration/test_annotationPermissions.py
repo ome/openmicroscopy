@@ -13,8 +13,8 @@ from omero_model_TagAnnotationI import TagAnnotationI
 from omero.rtypes import *
 
 class AnnotationPermissions(lib.ITest):
-    def setUp(self, perms):
-        lib.ITest.setUp(self)
+    def setup_method(self, method, perms):
+        lib.ITest.setup_method(self, method)
 
         # Tag names and namespaces
         uuid = self.uuid()
@@ -42,8 +42,8 @@ class AnnotationPermissions(lib.ITest):
             self.queryServices[user] = self.clients[user].sf.getQueryService()
             self.project[user] = self.createProjectAs(user)
 
-    def tearDown(self):
-        lib.ITest.tearDown(self)
+    def teardown_method(self, method):
+        lib.ITest.teardown_method(self, method)
         for user in self.users:
             self.clients[user].closeSession()
 
@@ -101,10 +101,10 @@ class AnnotationPermissions(lib.ITest):
         """ Gets a Tag via its id. """
         return self.queryServices[user].find("TagAnnotation", id)
 
-class PrivateGroup(AnnotationPermissions):
+class TestPrivateGroup(AnnotationPermissions):
 
-    def setUp(self):
-        AnnotationPermissions.setUp(self, 'rw----')
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method, 'rw----')
 
         self.canAdd =    { "member1":set(["member1"]),
                            "member2":set(["member2"]),
@@ -173,10 +173,10 @@ class PrivateGroup(AnnotationPermissions):
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() ==  self.tag_text
 
-class ReadOnlyGroup(AnnotationPermissions):
+class TestReadOnlyGroup(AnnotationPermissions):
 
-    def setUp(self):
-        AnnotationPermissions.setUp(self, 'rwr---')
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method, 'rwr---')
 
         self.canAdd =    { "member1":set(["member1", "owner", "admin"]),
                            "member2":set(["member2", "owner", "admin"]),
@@ -245,10 +245,10 @@ class ReadOnlyGroup(AnnotationPermissions):
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() ==  self.tag_text
 
-class ReadAnnotateGroup(AnnotationPermissions):
+class TestReadAnnotateGroup(AnnotationPermissions):
 
-    def setUp(self):
-        AnnotationPermissions.setUp(self, 'rwra--')
+    def setup_method(self, method):
+        AnnotationPermissions.setup_method(self, method, 'rwra--')
 
         self.canAdd =    { "member1":self.users,
                            "member2":self.users,
