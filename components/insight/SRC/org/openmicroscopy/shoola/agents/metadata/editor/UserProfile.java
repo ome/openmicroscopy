@@ -65,6 +65,7 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -333,24 +334,29 @@ class UserProfile
     	passwordButton.setEnabled(false);
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	changePassword(); 
+            public void actionPerformed(ActionEvent e) {
+            	changePassword();
             }
         });
     	saveButton = new JButton("Save");
     	saveButton.setEnabled(false);
     	saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	view.saveData(true); 
+            public void actionPerformed(ActionEvent e) {
+                GroupData g = getSelectedGroup();
+                ExperimenterData exp = (ExperimenterData)
+                        model.getRefObject();
+                if (exp.getDefaultGroup().getId() != g.getId())
+                    model.fireAdminSaving(g, true);
+            	view.saveData(true);
             }
         });
     	manageButton = new JButton("Group");
     	manageButton.setEnabled(false);
     	manageButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	manageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	manageGroup(); 
+            public void actionPerformed(ActionEvent e) {
+            	manageGroup();
             }
         });
     	passwordNew = new JPasswordField();
@@ -499,7 +505,12 @@ class UserProfile
 			            permissionsPane.resetPermissions(g.getPermissions());
 			            permissionsPane.disablePermissions();
 			            setGroupOwner(g);
-			            model.fireAdminSaving(g, true);
+			            ExperimenterData exp = (ExperimenterData)
+			                    model.getRefObject();
+			            saveButton.setEnabled(
+			                    exp.getDefaultGroup().getId() != g.getId());
+			            //
+			            //model.fireAdminSaving(g, true);
 			        }
 			    });
 			}
