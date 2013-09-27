@@ -363,7 +363,7 @@ class TestDelete(lib.ITest):
                         failure.append(traceback.format_exc())
 
         if len(failure) > 0:
-            self.fail(";".join(failure))
+            assert False, ";".join(failure)
         assert None ==  query_o.find('Dataset', dataset.id.val)
 
     def test5793(self):

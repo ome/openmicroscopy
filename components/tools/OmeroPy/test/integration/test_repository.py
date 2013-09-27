@@ -272,12 +272,8 @@ class TestRepository(AbstractRepoTest):
         remote_file = "%s/test.dv" % remote_base
 
         repoMap = self.client.sf.sharedResources().repositories()
-<<<<<<< HEAD
-        self.assert_(len(repoMap.descriptions) > 1)
-        self.assert_(len(repoMap.proxies) > 1)
-=======
+        assert  len(repoMap.descriptions) > 1
         assert  len(repoMap.proxies) > 1
->>>>>>> Change assertions semi-automatically.
 
         repoPrx = repoMap.proxies[0]
         self.assert_(repoPrx)  # Could be None

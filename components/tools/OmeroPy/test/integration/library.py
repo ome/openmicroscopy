@@ -98,7 +98,7 @@ class ITest(unittest.TestCase):
         if str(p.basename()) == "OmeroPy":
             return p
         else:
-            self.fail("Could not find OmeroPy/; searched %s" % searched)
+            assert False, "Could not find OmeroPy/; searched %s" % searched
 
     def uuid(self):
         import omero_ext.uuid as _uuid # see ticket:3774
@@ -438,10 +438,10 @@ class ITest(unittest.TestCase):
             name = group
             group = admin.lookupGroup(name)
         elif isinstance(group, omero.model.Experimenter):
-            self.fail(\
-                "group is a user! Try adding group= to your method invocation")
+            assert False,\
+                "group is a user! Try adding group= to your method invocation"
         else:
-            self.fail("Unknown type: %s=%s" % (type(group), group))
+            assert False, "Unknown type: %s=%s" % (type(group), group)
 
         return group, name
 
@@ -464,10 +464,10 @@ class ITest(unittest.TestCase):
             name = user
             user = admin.lookupExperimenter(name)
         elif isinstance(user, omero.model.ExperimenterGroup):
-            self.fail(\
-                "user is a group! Try adding user= to your method invocation")
+            assert False,\
+                "user is a group! Try adding user= to your method invocation"
         else:
-            self.fail("Unknown type: %s=%s" % (type(user), user))
+            assert False, "Unknown type: %s=%s" % (type(user), user)
 
         return user, name
 
@@ -599,7 +599,7 @@ class ITest(unittest.TestCase):
             try:
                 c.createSession(name, pw)
                 if pw == "BAD":
-                    self.fail("Should not reach this point")
+                    assert False, "Should not reach this point"
             except Glacier2.PermissionDeniedException:
                 if pw != "BAD":
                     raise
@@ -634,15 +634,14 @@ class ITest(unittest.TestCase):
         rsp = prx.getResponse()
 
         if test_should_pass:
-            if isinstance(rsp, omero.cmd.GraphConstraintERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s constraints=%s" \
-                              % (rsp.category, rsp.name, rsp.parameters, rsp.constraints))
-            elif isinstance(rsp, ERR):
-                self.fail("Found ERR when test_should_pass==true: %s (%s) params=%s" % (rsp.category, rsp.name, rsp.parameters))
+            if isinstance(rsp, ERR):
+                assert False,\
+                    "Found ERR when test_should_pass==true: %s (%s) params=%s" %\
+                    (rsp.category, rsp.name, rsp.parameters)
             assert not State.FAILURE in prx.getStatus().flags
         else:
             if isinstance(rsp, OK):
-                self.fail("Found OK when test_should_pass==false: %s", rsp)
+                assert False, "Found OK when test_should_pass==false: %s" % rsp
             assert State.FAILURE in prx.getStatus().flags
 
         return rsp

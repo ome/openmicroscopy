@@ -212,7 +212,7 @@ class TestScripts(lib.ITest):
                 results = proc.getResults(0)    # ms
             finally:
                 proc.close(False)
-            self.fail("ticket:2309 - should not run without processor")
+            assert False, "ticket:2309 - should not run without processor"
         except:
             pass
 
@@ -286,7 +286,7 @@ client.closeSession()
         try:
             # this should throw, since the script is invalid
             invalidId = scriptService.uploadOfficialScript(invalidPath, invalidScript)
-            self.fail("uploadOfficialScript() uploaded invalid script")
+            assert False, "uploadOfficialScript() uploaded invalid script"
         except omero.ValidationException, ve:
             pass
             
@@ -313,7 +313,7 @@ client.closeSession()
         try:
             # this should throw, since the script is invalid
             scriptService.editScript(omero.model.OriginalFileI(validId, False), invalidScript)
-            self.fail("editScript() failed to throw with invalid script")
+            assert False, "editScript() failed to throw with invalid script"
         except omero.ValidationException, ve:
             pass
         
@@ -389,7 +389,7 @@ client.closeSession()
         svc = self.client.sf.getScriptService()
         scriptID = svc.getScriptID("/omero/figure_scripts/Thumbnail_Figure.py")
         if scriptID == -1:
-            self.fail("Script not found")
+            assert False, "Script not found"
         pixID = self.import_image()[0]
         process = svc.runScript(scriptID, wrap({"Data_Type":"Image", "IDs": [long(pixID)]}).val, None)
         wait_time, ignore = self.timeit(omero.scripts.wait, self.client, process)
@@ -441,7 +441,7 @@ client.closeSession()
             while cb.block(500) is None:
                 count -= 1
                 if not count:
-                    self.fail("Took too long")
+                    assert False, "Took too long"
             """
 
         assertUploadAndReplace(clientA)

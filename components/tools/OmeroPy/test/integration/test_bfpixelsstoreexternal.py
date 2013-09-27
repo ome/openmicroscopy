@@ -48,7 +48,7 @@ class TestBfPixelsStore(lib.ITest):
             if repoMap.descriptions[r].name.val == dataDir.parent.name:
                 repoIndex = r
         if repoIndex == -1:
-            self.fail("Repository not found")
+            assert False, "Repository not found"
 
         repoPrx = repoMap.proxies[repoIndex]
         self.bf = repoPrx.pixels(self.repo_filename)

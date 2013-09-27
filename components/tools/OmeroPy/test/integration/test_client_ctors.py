@@ -91,7 +91,7 @@ class TestClientConstructors(unittest.TestCase):
     def testMainArgsGetsIceConfig(self):
         cfg = os.path.join(here, "client_ctors.cfg")
         if not os.path.exists(cfg):
-            self.fail(cfg + " does not exist")
+            assert False, cfg + " does not exist"
         args = ["--Ice.Config=" + cfg,"--omero.host=unimportant"]
         c = omero.client(args)
         try:
