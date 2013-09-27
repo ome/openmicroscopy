@@ -26,7 +26,7 @@ class TestMakeMovie(lib.ITest):
         makeMovieID = self.svc.getScriptID("/omero/export_scripts/Make_Movie.py")
         imported_pix = ",".join(self.import_image())
         imported_img = self.query.findByQuery("select i from Image i join fetch i.pixels pixels where pixels.id in (%s)" % imported_pix, None)
-        inputs = {"IDs": imported_img.id}
+        inputs = {"IDs": omero.rtypes.rlist([imported_img.id])}
         impl = omero.processor.usermode_processor(self.root)
         try:
             process = self.svc.runScript(makeMovieID, inputs, None)
