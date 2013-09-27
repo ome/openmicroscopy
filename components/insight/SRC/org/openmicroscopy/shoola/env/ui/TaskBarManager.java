@@ -541,7 +541,8 @@ public class TaskBarManager
 	    if (ctx != null) {
 	        try {
 	            AdminService svc = container.getRegistry().getAdminService();
-	            svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+	            //To be turned on when 
+	            //svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 	        } catch (Exception e) {
 	            if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 	            Logger log = container.getRegistry().getLogger();
@@ -654,7 +655,8 @@ public class TaskBarManager
 		if (ctx != null) {
 			try {
 				AdminService svc = container.getRegistry().getAdminService();
-				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+				//to be reviewed when preferences are available.
+				//svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 			} catch (Exception e) {
 				if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 				Logger log = container.getRegistry().getLogger();
