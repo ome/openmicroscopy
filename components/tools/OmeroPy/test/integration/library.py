@@ -15,8 +15,6 @@ import sys
 import time
 import weakref
 import logging
-import unittest
-import tempfile
 import traceback
 import subprocess
 import Glacier2
@@ -49,11 +47,11 @@ class Clients(object):
         self.__clients.add(weakref.ref(client))
 
 
-class ITest(unittest.TestCase):
+class ITest(object):
 
     log = logging.getLogger("ITest")
 
-    def setUp(self):
+    def setup_method(self, method):
 
         self.OmeroPy = self.omeropydir()
 
@@ -600,6 +598,6 @@ class ITest(unittest.TestCase):
         return rsp
 
 
-    def tearDown(self):
+    def teardown_method(self, method):
         failure = False
         self.__clients.__del__()
