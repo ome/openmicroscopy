@@ -2047,8 +2047,8 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		switch (menuID) {
 			case MANAGER_MENU:
-			case CREATE_MENU_CONTAINERS:  
-			case CREATE_MENU_TAGS:  
+			case CREATE_MENU_CONTAINERS:
+			case CREATE_MENU_TAGS:
 			case CREATE_MENU_ADMIN:
 			case PERSONAL_MENU:
 			case CREATE_MENU_SCREENS:
