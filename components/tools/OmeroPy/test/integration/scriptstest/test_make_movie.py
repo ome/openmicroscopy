@@ -18,8 +18,8 @@ class TestMakeMovie(lib.ITest):
     Requires PIL being installed
     """
 
-    def setUp(self):
-        lib.ITest.setUp(self)
+    def setup_method(self, method):
+        lib.ITest.setup_method(self, method)
         self.svc = self.client.sf.getScriptService()
 
     def testNoParams(self):

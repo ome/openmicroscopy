@@ -11,6 +11,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import os, sys
 
 import omero
@@ -120,12 +121,12 @@ class TestPing(lib.ITest):
     def _checkstd(self, output, which):
         rfile = output.val[which]
         ofile = rfile.val
-        self.assert_( ofile )
+        assert ofile
 
         tmppath = create_path("pingtest")
         try:
             self.client.download(ofile, str(tmppath))
-            self.assert_( os.path.getsize(str(tmppath)))
+            assert  os.path.getsize(str(tmppath))
             return tmppath.text()
         finally:
             remove_path(tmppath)
@@ -141,7 +142,7 @@ class TestPing(lib.ITest):
         output = processor.getResults(process)
         stdout, stderr = self.assertIO(output)
         if rc is None or rc.val != 0:
-            self.fail("STDOUT:\n%s\nSTDERR:\n%s\n" % (stdout, stderr))
+            assert False, "STDOUT:\n%s\nSTDERR:\n%s\n" % (stdout, stderr)
         return output
 
     #
@@ -155,21 +156,21 @@ class TestPing(lib.ITest):
         input.val["b"] = rstring("d")
         process = p.execute(input)
         output = self.assertSuccess(p, process)
-        self.assert_( 2 == output.val["a"].val )
+        assert output.val["a"].val == 2
 
     def testPingParametersViaISCript(self):
         p = self._getProcessor()
         params = p.params()
-        self.assert_( params )
-        self.assert_( params.inputs["a"] )
-        self.assert_( params.inputs["b"] )
-        self.assert_( params.outputs["a"] )
-        self.assert_( params.outputs["b"] )
+        assert params
+        assert params.inputs["a"]
+        assert params.inputs["b"]
+        assert params.outputs["a"]
+        assert params.outputs["b"]
 
     def testPingStdout(self):
         p = self._getProcessor()
         params = p.params()
-        self.assert_( params.stdoutFormat )
+        assert params.stdoutFormat
 
         process = p.execute(rmap({}))
         output = self.assertSuccess(p, process)
@@ -183,13 +184,13 @@ class TestPing(lib.ITest):
         cb = omero.grid.ProcessCallbackPrx.uncheckedCast(cb)
         p = self._getProcessor()
         params = p.params()
-        self.assert_( params.stdoutFormat )
+        assert params.stdoutFormat
 
         process = p.execute(rmap({}))
         process.registerCallback(cb)
         output = self.assertSuccess(p, process)
 
-        self.assertTrue( len(callback.finish) > 0 )
+        assert len(callback.finish) > 0
 
     def testProcessShutdown(self):
         p = self._getProcessor()
@@ -208,7 +209,7 @@ class TestPing(lib.ITest):
         # Depending on what's faster this may or may not throw
         try:
             p.getResults(process)
-            self.assert_(process.poll())
+            assert process.poll()
             output = p.getResults(process)
         except omero.ServerError:
             pass
@@ -219,7 +220,8 @@ class TestPing(lib.ITest):
     def testProcessorGetResultsBeforeFinished(self):
         p = self._getProcessor()
         process = p.execute(None)
-        self.assertRaises(omero.ServerError, p.getResults, process)
+        with pytest.raises(omero.ServerError):
+            p.getResults(process)
         output = self.assertSuccess(p, process)
 
     #
@@ -228,11 +230,11 @@ class TestPing(lib.ITest):
 
     def testProcessorExpires(self):
         p = self._getProcessor()
-        self.assertTrue( p.expires() > 0 )
+        assert p.expires() > 0
 
     def testProcessorGetJob(self):
         p = self._getProcessor()
-        self.assert_( p.getJob() )
+        assert p.getJob()
 
     def testProcessorStop(self):
         p = self._getProcessor()

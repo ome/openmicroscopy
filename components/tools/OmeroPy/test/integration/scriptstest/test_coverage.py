@@ -10,6 +10,7 @@
 """
 
 import test.integration.library as lib
+import pytest
 import os, sys
 
 import omero
@@ -17,23 +18,23 @@ import omero
 
 class TestCoverage(lib.ITest):
 
-    def setUp(self):
+    def setup_method(self, method):
         """
         getScripts returns official scripts, several of which are shipped with OMERO.
         """
-        lib.ITest.setUp(self)
+        lib.ITest.setup_method(self, method)
         self.rs = self.root.sf.getScriptService()
         self.us = self.client.sf.getScriptService()
-        self.assert_( len(self.rs.getScripts()) > 0 )
-        self.assert_( len(self.us.getScripts()) > 0 )
-        self.assertEquals(0, len(self.us.getUserScripts([]))) # New user. No scripts
+        assert len(self.rs.getScripts()) > 0
+        assert len(self.us.getScripts()) > 0
+        assert len(self.us.getUserScripts([])) == 0 # New user. No scripts
 
     def testGetScriptWithDetails(self):
         scriptList = self.us.getScripts()
         script = scriptList[0]
         scriptMap = self.us.getScriptWithDetails(script.id.val)
 
-        self.assertEquals(1, len(scriptMap))
+        assert len(scriptMap) == 1
         scriptText = scriptMap.keys()[0]
         scriptObj = scriptMap.values()[0]
 
@@ -50,8 +51,8 @@ class TestCoverage(lib.ITest):
 
 
     def testUserCantUploadOfficalScript(self):
-        self.assertRaises(omero.SecurityViolation,\
-            self.us.uploadOfficialScript,\
-            "/%s/fails.py" % self.uuid(), """if True:
-        import omero
-        """)
+        with pytest.raises(omero.SecurityViolation):
+            self.us.uploadOfficialScript( "/%s/fails.py" % self.uuid(),\
+            """if True:
+            import omero
+            """)
