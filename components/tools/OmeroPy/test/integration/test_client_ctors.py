@@ -10,14 +10,13 @@
 """
 
 import os
-import test.integration.library as lib
 import omero, Ice
 
 here = os.path.abspath( os.path.dirname(__file__) )
 
-class TestClientConstructors(libITest):
+class TestClientConstructors(object):
 
-    def setUp(self):
+    def setup_method(self, method):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
         try:
             self.host = c.ic.getProperties().getProperty('omero.host')
