@@ -13,6 +13,7 @@ import path
 import os
 import omero, omero.tables
 import test.integration.library as lib
+import pytest
 
 from omero.rtypes import *
 
@@ -37,27 +38,27 @@ class TestTables(lib.ITest):
             import tables
             return numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom())
 
-        self.assertEquals(1, test.imageId[0])
-        self.assertEquals(3, test.theZ[0])
-        self.assertEquals(5, test.theT[0])
-        self.assertEquals(7, test.x[0])
-        self.assertEquals(9, test.y[0])
-        self.assertEquals(11, test.w[0])
-        self.assertEquals(13, test.h[0])
-        self.assertEquals([15], arr(test.bytes[0]))
+        assert 1 == test.imageId[0]
+        assert 3 == test.theZ[0]
+        assert 5 == test.theT[0]
+        assert 7 == test.x[0]
+        assert 9 == test.y[0]
+        assert 11 == test.w[0]
+        assert 13 == test.h[0]
+        assert [15] == arr(test.bytes[0])
 
-        self.assertEquals(2, test.imageId[1])
-        self.assertEquals(4, test.theZ[1])
-        self.assertEquals(6, test.theT[1])
-        self.assertEquals(8, test.x[1])
-        self.assertEquals(10, test.y[1])
-        self.assertEquals(12, test.w[1])
-        self.assertEquals(14, test.h[1])
+        assert 2 == test.imageId[1]
+        assert 4 == test.theZ[1]
+        assert 6 == test.theT[1]
+        assert 8 == test.x[1]
+        assert 10 == test.y[1]
+        assert 12 == test.w[1]
+        assert 14 == test.h[1]
 
         x = [16,17,18,19,20]
         y = arr(test.bytes[1])
         for i in range(len(x)):
-            self.assertEquals(x[i], y[i])
+            assert x[i] == y[i]
 
     def testBlankTable(self):
         grid = self.client.sf.sharedResources()
@@ -65,14 +66,14 @@ class TestTables(lib.ITest):
         repoObj = repoMap.descriptions[0]
         repoPrx = repoMap.proxies[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         cols = []
         lc = omero.grid.LongColumn('lc',None,None)
         cols.append(lc)
         table.initialize(cols)
         lc.values = [1,2,3,4]
         table.addData(cols)
-        self.assertEquals([0],table.getWhereList('(lc==1)',None,0,0,0))
+        assert [0] == table.getWhereList('(lc==1)',None,0,0,0)
         return table.getOriginalFile()
 
     def testUpdate(self):
@@ -85,11 +86,11 @@ class TestTables(lib.ITest):
         table.update(data)
         data = table.slice([0],[0])
         next = data.columns[0].values[0]
-        self.assert_( prev != next )
-        self.assert_( next == 100 )
+        assert prev != next
+        assert next == 100
 
     def testTicket2175(self):
-        self.assert_(self.client.sf.sharedResources().areTablesEnabled())
+        assert self.client.sf.sharedResources().areTablesEnabled()
 
     def testMask(self):
         grid = self.client.sf.sharedResources()
@@ -97,7 +98,7 @@ class TestTables(lib.ITest):
         repoObj = repoMap.descriptions[0]
         repoPrx = repoMap.proxies[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         mask = self.createMaskCol()
 
         table.initialize([mask])
@@ -113,14 +114,14 @@ class TestTables(lib.ITest):
         """
         grid = self.client.sf.sharedResources()
         table = grid.newTable(1, "/test")
-        self.assert_( table )
+        assert table
 
         lc = omero.columns.LongColumnI('lc', 'desc', [1])
 
         file = None
         try:
             file = table.getOriginalFile()
-            self.assert_( file )
+            assert file
             table.initialize([lc])
             table.addData([lc])
         finally:
@@ -132,8 +133,8 @@ class TestTables(lib.ITest):
         # Check values
         p = path.path(self.tmpfile())
         self.client.download(file, str(p))
-        self.assertEquals(p.size, file.size.val)
-        self.assertEquals(self.client.sha1(p), file.hash.val)
+        assert p.size == file.size.val
+        assert self.client.sha1(p) == file.sha1.val
 
     def test2855MetadataMethods(self):
         """
@@ -141,7 +142,7 @@ class TestTables(lib.ITest):
         """
         grid = self.client.sf.sharedResources()
         table = grid.newTable(1, "/test")
-        self.assert_( table )
+        assert table
 
         def clean(m):
             """
@@ -158,22 +159,22 @@ class TestTables(lib.ITest):
             print table.getOriginalFile().id.val
             lc = omero.columns.LongColumnI('lc', 'desc', [1])
             table.initialize([lc])
-            self.assertEquals({}, clean(table.getAllMetadata()) )
+            assert len(clean(table.getAllMetadata())) == 0
 
             # Set a string
             table.setMetadata("s", rstring("b"))
-            self.assertEquals("b", unwrap(table.getMetadata("s")))
-            self.assertEquals({"s": "b"}, clean(table.getAllMetadata()))
+            assert "b" == unwrap(table.getMetadata("s"))
+            assert {"s": "b"} == clean(table.getAllMetadata())
 
             # Set an int
             table.setMetadata("i", rint(1))
-            self.assertEquals(1, unwrap(table.getMetadata("i")))
-            self.assertEquals({"s": "b", "i":1}, clean(table.getAllMetadata()))
+            assert 1 == unwrap(table.getMetadata("i"))
+            assert {"s": "b", "i":1} == clean(table.getAllMetadata())
 
             # Set a float
             table.setMetadata("f", rfloat(1))
-            self.assertEquals(1, unwrap(table.getMetadata("f")))
-            self.assertEquals({"s": "b", "i":1, "f": 1}, clean(table.getAllMetadata()))
+            assert 1 == unwrap(table.getMetadata("f"))
+            assert {"s": "b", "i":1, "f": 1} == clean(table.getAllMetadata())
 
         finally:
             table.close()
@@ -185,7 +186,7 @@ class TestTables(lib.ITest):
 
         # As the first user, create a file
         table = user1.sf.sharedResources().newTable(1, "test2910.h5")
-        self.assert_( table )
+        assert table
         lc = omero.grid.LongColumn("lc", None, None)
         file = table.getOriginalFile()
         table.initialize([lc])
@@ -193,23 +194,30 @@ class TestTables(lib.ITest):
 
         # As the second user, try to modify it
         table = user2.sf.sharedResources().openTable( file )
-        self.assert_( table )
+        assert table
         lc.values = [1]
 
-        self.assertRaises(omero.SecurityViolation, table.initialize, None)
-        self.assertRaises(omero.SecurityViolation, table.addColumn, None)
-        self.assertRaises(omero.SecurityViolation, table.addData, [lc])
-        self.assertRaises(omero.SecurityViolation, table.update, None)
-        self.assertRaises(omero.SecurityViolation, table.delete)
-        self.assertRaises(omero.SecurityViolation, table.setMetadata, "key", wrap(1))
-        self.assertRaises(omero.SecurityViolation, table.setAllMetadata, {})
+        with pytest.raises(omero.SecurityViolation):
+            table.initialize(None)
+        with pytest.raises(omero.SecurityViolation):
+            table.addColumn(None)
+        with pytest.raises(omero.SecurityViolation):
+            table.addData([lc])
+        with pytest.raises(omero.SecurityViolation):
+            table.update(None)
+        with pytest.raises(omero.SecurityViolation):
+            table.delete()
+        with pytest.raises(omero.SecurityViolation):
+            table.setMetadata("key", wrap(1))
+        with pytest.raises(omero.SecurityViolation):
+            table.setAllMetadata({})
 
     def testDelete(self):
         group = self.new_group(perms="rwr---")
         user1 = self.new_client(group)
 
         table = user1.sf.sharedResources().newTable(1, "testDelete.h5")
-        self.assert_( table )
+        assert table
         lc = omero.grid.LongColumn("lc", None, None)
         file = table.getOriginalFile()
         table.initialize([lc])
@@ -223,12 +231,12 @@ class TestTables(lib.ITest):
         """
         grid = self.client.sf.sharedResources()
         table = grid.newTable(1, "/test")
-        self.assert_( table )
+        assert table
 
         lc = omero.columns.LongColumnI('lc', 'desc', [1])
         table.initialize([lc])
         table.addData([lc])
-        self.assertEquals([0],table.getWhereList('(lc==var)',{"var":rlong(1)},0,0,0))
+        assert [0] == table.getWhereList('(lc==var)',{"var":rlong(1)},0,0,0)
 
     def test4000TableRead(self):
         """
@@ -237,12 +245,12 @@ class TestTables(lib.ITest):
         """
         grid = self.client.sf.sharedResources()
         table = grid.newTable(1, "/test")
-        self.assert_( table )
+        assert table
 
         lc = omero.columns.LongColumnI('lc', 'desc', [123])
         table.initialize([lc])
         table.addData([lc])
-        self.assertEquals([123], table.read([0], 0, 0).columns[0].values)
+        assert [123] == table.read([0], 0, 0).columns[0].values
 
     def testCallContext(self):
         """
@@ -257,7 +265,7 @@ class TestTables(lib.ITest):
         admin = client.sf.getAdminService()
         sr = client.sf.sharedResources()
         table = sr.newTable(1, "/test")
-        self.assert_( table )
+        assert table
         ofile = table.getOriginalFile()
 
         # Add the user to another group
@@ -283,7 +291,7 @@ class TestTables(lib.ITest):
         client1 = self.new_client(group1)
         sr1 = client1.sf.sharedResources()
         table = sr1.newTable(1, "/test")
-        self.assert_( table )
+        assert table
         ofile = table.getOriginalFile()
 
         # Create a second user and try to open the table
@@ -291,7 +299,8 @@ class TestTables(lib.ITest):
         client2 = self.new_client(group2)
         sr2 = client2.sf.sharedResources()
 
-        self.assertRaises(omero.SecurityViolation, sr2.openTable, ofile)
+        with pytest.raises(omero.SecurityViolation):
+            sr2.openTable(ofile)
 
     def test9971checkStringLength(self):
         """
@@ -302,7 +311,7 @@ class TestTables(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         scol = omero.columns.StringColumnI('stringcol', 'string col', 3)
         table.initialize([scol])
 
@@ -310,9 +319,10 @@ class TestTables(lib.ITest):
         scol.values = ['abc']
         table.addData([scol])
         data = table.readCoordinates(range(table.getNumberOfRows()))
-        self.assertEquals(['abc'], data.columns[0].values)
+        assert ['abc'] == data.columns[0].values
         scol.values = ['abcd']
-        self.assertRaises(omero.ValidationException, table.addData, [scol])
+        with pytest.raises(omero.ValidationException):
+            table.addData([scol])
 
 
     def testArrayColumn(self):
@@ -323,7 +333,7 @@ class TestTables(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         larr = omero.columns.LongArrayColumnI('longarr', 'desc', 2)
         larr.values = [[-2, -1], [1, 2]]
 
@@ -332,8 +342,8 @@ class TestTables(lib.ITest):
         data = table.readCoordinates([0,1])
 
         testl = data.columns[0].values
-        self.assertEquals([-2, -1], testl[0])
-        self.assertEquals([1, 2], testl[1])
+        assert [-2, -1] == testl[0]
+        assert [1, 2] == testl[1]
 
     def testArrayColumnSize1(self):
         """
@@ -343,7 +353,7 @@ class TestTables(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         darr = omero.columns.DoubleArrayColumnI('longarr', 'desc', 1)
         darr.values = [[0.5], [0.25]]
 
@@ -352,8 +362,8 @@ class TestTables(lib.ITest):
         data = table.readCoordinates([0,1])
 
         testl = data.columns[0].values
-        self.assertEquals([0.5], testl[0])
-        self.assertEquals([0.25], testl[1])
+        assert [0.5] == testl[0]
+        assert [0.25] == testl[1]
 
     def testAllColumnsSameTable(self):
         """
@@ -363,7 +373,7 @@ class TestTables(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
 
         fcol = omero.columns.FileColumnI('filecol', 'file col')
         fcol.values = [10, 20]
@@ -404,47 +414,47 @@ class TestTables(lib.ITest):
         data = table.readCoordinates([0,1])
 
         testf = data.columns[0].values
-        self.assertEquals(10, testf[0])
-        self.assertEquals(20, testf[1])
+        assert 10 == testf[0]
+        assert 20 == testf[1]
         testi = data.columns[1].values
-        self.assertEquals(30, testi[0])
-        self.assertEquals(40, testi[1])
+        assert 30 == testi[0]
+        assert 40 == testi[1]
         testr = data.columns[2].values
-        self.assertEquals(50, testr[0])
-        self.assertEquals(60, testr[1])
+        assert 50 == testr[0]
+        assert 60 == testr[1]
         testw = data.columns[3].values
-        self.assertEquals(70, testw[0])
-        self.assertEquals(80, testw[1])
+        assert 70 == testw[0]
+        assert 80 == testw[1]
         testp = data.columns[4].values
-        self.assertEquals(90, testp[0])
-        self.assertEquals(100, testp[1])
+        assert 90 == testp[0]
+        assert 100 == testp[1]
 
         testb = data.columns[5].values
-        self.assertEquals(True, testb[0])
-        self.assertEquals(False, testb[1])
+        assert testb[0]
+        assert not testb[1]
         testd = data.columns[6].values
-        self.assertEquals(0.25, testd[0])
-        self.assertEquals(0.5, testd[1])
+        assert 0.25 == testd[0]
+        assert 0.5 == testd[1]
         testl = data.columns[7].values
-        self.assertEquals(-1, testl[0])
-        self.assertEquals(-2, testl[1])
+        assert -1 == testl[0]
+        assert -2 == testl[1]
 
         tests = data.columns[8].values
-        self.assertEquals("abc", tests[0])
-        self.assertEquals("de", tests[1])
+        assert "abc" == tests[0]
+        assert "de" == tests[1]
 
         testm = data.columns[9]
         self.checkMaskCol(testm)
 
         testla = data.columns[10].values
-        self.assertEquals([-2, -1], testla[0])
-        self.assertEquals([1, 2], testla[1])
+        assert [-2, -1] == testla[0]
+        assert [1, 2] == testla[1]
         testfa = data.columns[11].values
-        self.assertEquals([-8.0, -4.0], testfa[0])
-        self.assertEquals([16.0, 32.0], testfa[1])
+        assert [-8.0, -4.0] == testfa[0]
+        assert [16.0, 32.0] == testfa[1]
         testda = data.columns[12].values
-        self.assertEquals([-0.25, -0.5], testda[0])
-        self.assertEquals([0.125, 0.0625], testda[1])
+        assert [-0.25, -0.5] == testda[0]
+        assert [0.125, 0.0625] == testda[1]
 
         ofile = table.getOriginalFile()
         print "testAllColumnsSameTable", "OriginalFile:", ofile.getId().val
@@ -456,19 +466,19 @@ class TestTables(lib.ITest):
             rowNumbers = [1], columns = [updatel, updatela])
         table.update(updateData)
 
-        self.assertEquals(table.getNumberOfRows(), 2)
+        assert table.getNumberOfRows() == 2
         data2 = table.readCoordinates([0,1])
 
         for n in [0, 1, 2, 3, 4, 5, 6, 8, 11, 12]:
-            self.assertEquals(data.columns[n].values, data2.columns[n].values)
+            assert data.columns[n].values == data2.columns[n].values
         self.checkMaskCol(data2.columns[9])
 
         testl2 = data2.columns[7].values
-        self.assertEquals(-1, testl2[0])
-        self.assertEquals(12345, testl2[1])
+        assert -1 == testl2[0]
+        assert 12345 == testl2[1]
         testla2 = data2.columns[10].values
-        self.assertEquals([-2, -1], testla2[0])
-        self.assertEquals([654, 321], testla2[1])
+        assert [-2, -1] == testla2[0]
+        assert [654, 321] == testla2[1]
 
 
     def test10431uninitialisedTableReadWrite(self):
@@ -479,21 +489,16 @@ class TestTables(lib.ITest):
         repoMap = grid.repositories()
         repoObj = repoMap.descriptions[0]
         table = grid.newTable(repoObj.id.val, "/test")
-        self.assert_( table )
+        assert table
         lcol = omero.columns.LongColumnI('longcol', 'long col')
 
-        self.assertRaises(omero.ApiUsageException, table.addData, [lcol])
-        self.assertRaises(omero.ApiUsageException, table.read, [0], 0, 0)
-        self.assertRaises(omero.ApiUsageException, table.slice, [], [])
-        self.assertRaises(omero.ApiUsageException, table.getWhereList,
-                          '', None, 0, 0, 0)
-
+        with pytest.raises(omero.ApiUsageException):
+            table.addData([lcol])
+        with pytest.raises(omero.ApiUsageException):
+            table.read([0], 0, 0)
+        with pytest.raises(omero.ApiUsageException):
+            table.slice([], [])
+        with pytest.raises(omero.ApiUsageException):
+            table.getWhereList('', None, 0, 0, 0)
 
     # TODO: Add tests for error conditions
-
-
-def test_suite():
-    return 1
-
-if __name__ == '__main__':
-    unittest.main()
