@@ -10,8 +10,8 @@
 
 """
 
-import integration.library as lib
-import omero, tempfile, unittest
+import test.integration.library as lib
+import omero
 import omero.processor
 import omero.scripts
 from omero.rtypes import *
@@ -79,6 +79,3 @@ class TestRand(lib.ITest):
                 print "Key is not in returned dictionary. Is this a fail?"
         finally:
             impl.cleanup()
-
-if __name__ == '__main__':
-    unittest.main()

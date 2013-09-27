@@ -9,7 +9,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
 import omero
 from omero.rtypes import *

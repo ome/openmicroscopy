@@ -10,7 +10,7 @@
 Integration tests for tickets between 4000 and 4999
 """
 
-import unittest, time
+import time
 import test.integration.library as lib
 import Glacier2
 

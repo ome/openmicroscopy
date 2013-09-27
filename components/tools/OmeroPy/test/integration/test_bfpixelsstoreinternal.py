@@ -14,8 +14,8 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest, time, shutil, hashlib, difflib, binascii
-import library as lib
+import time, shutil, hashlib, difflib, binascii
+import test.integration.library as lib
 import omero, omero.gateway
 from omero.rtypes import *
 from path import path

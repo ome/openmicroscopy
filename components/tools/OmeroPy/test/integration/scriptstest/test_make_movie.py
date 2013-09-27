@@ -9,8 +9,8 @@
 
 """
 
-import integration.library as lib
-import unittest, os, sys
+import test.integration.library as lib
+import os, sys
 import omero.processor
 
 class TestMakeMovie(lib.ITest):
@@ -32,6 +32,3 @@ class TestMakeMovie(lib.ITest):
             process = self.svc.runScript(makeMovieID, inputs, None)
         finally:
             impl.cleanup()
-
-if __name__ == '__main__':
-    unittest.main()

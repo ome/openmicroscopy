@@ -24,13 +24,12 @@ except that they should be able to delete users and data from their group."
 """
 
 import omero
-import unittest
+import test.integration.library as lib
 
-from integration.library import ITest
 from omero.callbacks import CmdCallbackI
 
 
-class ColumbusTest(unittest.TestCase):
+class ColumbusTest(lib.ITest):
     """
     The following tests all assume the following
     user configuration:
@@ -157,6 +156,3 @@ class ColumbusTest(unittest.TestCase):
         group admin b:D should not have access to data that is owned by A and
         only shared with users in group b but not with group b.
         """
-
-if __name__ == '__main__':
-    unittest.main()

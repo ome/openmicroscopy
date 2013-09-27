@@ -15,7 +15,7 @@
    PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/:/opt/Ice-3.3.1/python:.:test:build/lib ICE_CONFIG=/Users/will/Documents/workspace/Omero/etc/ice.config python test/integration/thumbnailPerms.py
 
 """
-import unittest, time
+import time
 import test.integration.library as lib
 import omero
 import omero.scripts

@@ -10,8 +10,8 @@
 
 """
 
-import integration.library as lib
-import unittest, os, sys
+import test.integration.library as lib
+import os, sys
 
 import omero
 import omero.clients
@@ -244,6 +244,3 @@ class TestPing(lib.ITest):
         process = p.execute(rmap({}))
         p.setDetach(True)
         p.stop()
-
-if __name__ == '__main__':
-    unittest.main()
