@@ -63,7 +63,7 @@ class TestRepository(lib.ITest):
         sha1_local = self.client.sha1(test_file)
 
 
-        self.fail("HOW ARE WE CHECKING SHA1 HERE")
+        assert False, "HOW ARE WE CHECKING SHA1 HERE"
 
 
         read_start = time.time()

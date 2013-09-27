@@ -166,11 +166,9 @@ class PrivateGroup(AnnotationPermissions):
                 self.linkTagAs(creator, self.project[creator], tag)
 
             for user in (self.users - self.canRemove[creator]):
-                try:
+                with pytest.raises(omero.SecurityViolation):
                     self.removeTagAs(user, self.project[creator], tag)
-                    self.fail("Should have thrown SecurityViolation")
-                except omero.SecurityViolation, sv:
-                    pass # good
+                    assert False, "Should have thrown SecurityViolation"
                 # Link and tag should still be there
                 tag = self.getTagViaLinkAs(creator, self.project[creator])
                 assert tag.getTextValue().getValue() ==  self.tag_text
@@ -222,7 +220,7 @@ class ReadOnlyGroup(AnnotationPermissions):
                 assert tag ==  None
                 with pytest.raises(omero.SecurityViolation):
                     self.getTagAs(user, tagId)
-                    self.fail("Should have thrown SecurityViolation")
+                    assert False, "Should have thrown SecurityViolation"
 
     def testRemoveTag(self):
         for creator in self.users:

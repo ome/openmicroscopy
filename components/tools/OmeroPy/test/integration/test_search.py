@@ -153,7 +153,7 @@ class TestSearch(lib.ITest):
             msg += """\nFAILED: `%s` returned %s""" % (k, failed[k])
 
         if msg:
-            self.fail("%s\n" % msg)
+            assert False, "%s\n" % msg
 
     def test8692(self):
         # Test that group admin and system admins can
@@ -184,7 +184,7 @@ class TestSearch(lib.ITest):
                 q = sf.getQueryService()
                 t = q.findAllByFullText("CommentAnnotation", uuid, None, all)
                 if not t or len(t) != 1:
-                    self.fail(msg % ("IQueryPrx", uuid, who, x))
+                    assert False, msg % ("IQueryPrx", uuid, who, x)
 
                 # Then see if search also works via SearchPrx
                 # Note: it's necessary to pass {"omero.group":"-1"}
@@ -193,7 +193,7 @@ class TestSearch(lib.ITest):
                 s.onlyType("CommentAnnotation")
                 s.byFullText(uuid)
                 if not s.hasNext(all) or len(s.results(all)) != 1:
-                    self.fail(msg % ("SearchPrx", uuid, who, x))
+                    assert False, msg % ("SearchPrx", uuid, who, x)
 
     def test8846(self):
         # Wildcard search

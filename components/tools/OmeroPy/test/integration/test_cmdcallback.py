@@ -73,12 +73,12 @@ class TestCB(omero.callbacks.CmdCallbackI):
             assert not self.isFailure()
             rsp = self.getResponse()
             if not rsp:
-                self.fail("null response")
+                assert False, "null response"
 
             elif isinstance(rsp, omero.cmd.ERR):
                 msg = "%s\ncat:%s\nname:%s\nparams:%s\n" % \
                         (err, err.category, err.name, err.parameters)
-                self.fail(msg)
+                assert False, msg
         finally:
             self.t_lock.release()
 

@@ -328,7 +328,7 @@ class TestIShare(lib.ITest):
               "where ds.id in (:ids) order by ds.name"
         try:
             res1 = query1.findAllByQuery(sql, p)
-            self.fail("This should throw an exception")
+            assert False, "This should throw an exception"
         except:
             pass
 
@@ -373,7 +373,7 @@ class TestIShare(lib.ITest):
         try:
             tb.setPixelsId(rdefs[0].pixels.id.val)
         except omero.SecurityViolation:
-            self.fail("Pixels was not in share")
+            assert False, "Pixels was not in share"
 
     def test1201(self):
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
@@ -459,7 +459,7 @@ class TestIShare(lib.ITest):
         res = None
         try:
             share = share3.getShare(sid)
-            self.fail("Share returned to non-member")
+            assert False, "Share returned to non-member"
         except:
             pass
 
@@ -869,7 +869,7 @@ class TestIShare(lib.ITest):
         except omero.SecurityViolation, sv:
             pass
         else:
-            self.fail("Error: Member shouldn't access image in share!")
+            assert False, "Error: Member shouldn't access image in share!"
 
         rv = member_query.find("Image", image.id.val, {'omero.share': str(sid), 'omero.group':str(image.details.group.id.val)})
         assert image.id.val ==  rv.id.val
@@ -941,7 +941,7 @@ class TestIShare(lib.ITest):
         except omero.SecurityViolation, sv:
             pass
         else:
-            self.fail("Error: Member shouldn't access image in share!")
+            assert False, "Error: Member shouldn't access image in share!"
 
         rv = member_query.find("Image", image.id.val, {'omero.share': str(sid)})
         # Not sure which group to set 'omero.group':str(image.details.group.id.val)
