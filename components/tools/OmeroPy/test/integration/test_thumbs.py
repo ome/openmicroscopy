@@ -10,12 +10,14 @@
 """
 
 import omero
+import pytest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong, rint, unwrap
 from omero.util.concurrency import get_event
 from binascii import hexlify as hex
 
+@pytest.mark.long_running
 class TestThumbs(lib.ITest):
 
     def assertTb(self, buf, x=64, y=64):

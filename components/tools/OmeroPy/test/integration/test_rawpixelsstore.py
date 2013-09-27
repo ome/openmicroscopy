@@ -10,6 +10,7 @@
 """
 
 import omero
+import pytest
 import test.integration.library as lib
 
 from omero.rtypes import rstring, rlong, rint
@@ -74,6 +75,7 @@ class TestRPS(lib.ITest):
             rps.close()
         self.check_pix(pix)
 
+    @pytest.mark.long_running
     def testRomioToPyramid(self):
         """
         Here we create a pixels that is not big,
@@ -109,6 +111,7 @@ class TestRPS(lib.ITest):
         finally:
             rps.close()
 
+    @pytest.mark.long_running
     def testRomioToPyramidWithNegOne(self):
         """
         Here we try the above but pass omero.group:-1
