@@ -10,11 +10,11 @@
 """
 
 import path
-import unittest, os
+import os
 import omero, omero.tables
+import test.integration.library as lib
 
 from omero.rtypes import *
-from test.integration import library as lib
 
 
 class TestTables(lib.ITest):

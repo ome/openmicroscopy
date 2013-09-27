@@ -11,8 +11,7 @@
 """
 
 import unittest
-import integration.library as lib
-import tempfile
+import test.integration.library as lib
 import omero
 import omero.all
 from omero_model_ScriptJobI import ScriptJobI
@@ -77,6 +76,3 @@ class TestScriptRepo(lib.ITest):
 
     def testUploadingViaNonOfficialScriptDoesntShowUpInRepo(self):
         pass
-
-if __name__ == '__main__':
-    unittest.main()

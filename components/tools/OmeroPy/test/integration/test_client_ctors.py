@@ -9,13 +9,13 @@
 
 """
 
-import unittest, os
+import os
 import test.integration.library as lib
 import omero, Ice
 
 here = os.path.abspath( os.path.dirname(__file__) )
 
-class TestClientConstructors(unittest.TestCase):
+class TestClientConstructors(libITest):
 
     def setUp(self):
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])

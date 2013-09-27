@@ -9,11 +9,10 @@
 
 """
 
-import integration.library as lib
-import unittest, os, sys
+import test.integration.library as lib
+import os, sys
 
 import omero
-import omero.rtypes as OR
 
 
 class TestCoverage(lib.ITest):
@@ -56,7 +55,3 @@ class TestCoverage(lib.ITest):
             "/%s/fails.py" % self.uuid(), """if True:
         import omero
         """)
-
-
-if __name__ == '__main__':
-    unittest.main()

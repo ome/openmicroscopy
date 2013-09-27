@@ -9,19 +9,19 @@
 
 """
 
-import unittest, os, subprocess, StringIO
+import os, subprocess, StringIO
 from path import path
 from omero.cli import Context, BaseControl, CLI
 from omero.plugins.script import ScriptControl
 from omero.plugins.sessions import SessionsControl
 from omero.plugins.upload import UploadControl
 from omero.util.temp_files import create_path
-from integration.library import ITest
+import test.integration.library as lib
 
 omeroDir = path(os.getcwd()) / "build"
 
 
-class TestScript(ITest):
+class TestScript(lib.ITest):
 
     def cli(self):
         cli = CLI()
@@ -100,6 +100,3 @@ client.closeSession()
         replaceArgs = args + ["replace", str(newId), str(p)]
         # print replaceArgs
         cli.invoke(replaceArgs, strict=True)
-        
-if __name__ == '__main__':
-    unittest.main()

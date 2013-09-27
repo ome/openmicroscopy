@@ -4,7 +4,7 @@
 """
    Integration test for adding annotations to Project. 
 """
-import unittest, time
+import time
 import test.integration.library as lib
 import omero
 import omero.scripts

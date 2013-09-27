@@ -11,7 +11,7 @@
 
 import test.integration.library as lib
 import pytest
-import omero, tempfile, unittest
+import omero
 from omero_sys_ParametersI import ParametersI
 from omero.rtypes import *
 
