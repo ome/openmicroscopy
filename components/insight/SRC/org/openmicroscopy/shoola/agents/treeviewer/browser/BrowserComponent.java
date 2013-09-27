@@ -1527,7 +1527,7 @@ class BrowserComponent
 								TreeImageDisplay n, c;
 								while (k.hasNext()) {
 								    n = k.next();
-								    view.expandNode(n);
+								    if (n.isExpanded()) view.expandNode(n);
 								    if (n.getUserObject() instanceof
 								            ProjectData) {
 								        List ll = n.getChildrenDisplay();
@@ -1544,7 +1544,7 @@ class BrowserComponent
 								}
 							}
 						}
-					} else view.expandNode(expNode);
+					}
 				}
 			}
 		}
