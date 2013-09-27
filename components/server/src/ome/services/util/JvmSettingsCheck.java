@@ -41,6 +41,17 @@ public class JvmSettingsCheck {
         final String fmt = "%s = %6s";
         final Runtime rt = Runtime.getRuntime();
         final int mb = 1024 * 1024;
+
+        StringBuilder version = new StringBuilder();
+        for (String key : new String[]{
+                "java.version", "os.name", "os.arch", "os.version"}) {
+            if (version.length() != 0) {
+                version.append("; ");
+            }
+            version.append(System.getProperty(key));
+        }
+
+        log.info("Java version: " + version);
         log.info(String.format(fmt, "Max Memory (MB):  ", (rt.maxMemory() / mb)));
         log.info(String.format(fmt, "OS Memory (MB):   ", (getPhysicalMemory() / mb)));
         log.info(String.format(fmt, "Processors:       ", rt.availableProcessors()));
