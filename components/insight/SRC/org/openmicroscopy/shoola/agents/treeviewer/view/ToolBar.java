@@ -67,7 +67,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+
 //Third-party libraries
+import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -83,7 +85,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.DataMenuItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.ScriptMenuItem;
-import org.openmicroscopy.shoola.agents.util.ui.ScriptSubMenu;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -984,14 +985,10 @@ class ToolBar
         	});
         	scriptsMenu.add(refresh);
         	scriptsMenu.add(new JSeparator());
-        	Iterator<ScriptObject> i = scripts.iterator();
+        	
         	ScriptObject so;
-        	Map<String, ScriptSubMenu>
-        		menus = new HashMap<String, ScriptSubMenu>();
+        	Map<String, JMenu> menus = new HashMap<String, JMenu>();
         	String path;
-        	ScriptSubMenu subMenu;
-        	List<ScriptSubMenu> others = new ArrayList<ScriptSubMenu>();
-        	List<String> formattedName = new ArrayList<String>();
         	
         	Icon icon = icons.getIcon(IconManager.ANALYSIS);
         	Icon largeIcon = icons.getIcon(IconManager.ANALYSIS_48);
@@ -1006,31 +1003,71 @@ class ToolBar
 					controller.handleScriptSelection(item.getScript());
 				}
 			};
-        	while (i.hasNext()) {
-        		so = i.next();
-        		if (so.getIcon() == null) {
-        			so.setIcon(icon);
-                	so.setIconLarge(largeIcon);
-        		}
-        		path = so.getPath();
-        		subMenu = menus.get(path);
-        		if (subMenu == null) {
-        			subMenu = new ScriptSubMenu(path, formattedName);
-        			menus.put(path, subMenu);
-        			if (so.isOfficialScript()) scriptsMenu.add(subMenu);
-        			else others.add(subMenu);
-        		}
-        		//if (!ScriptMenuItem.isScriptWithUI(so.getScriptLabel()))
-        		subMenu.addScript(so).addActionListener(listener);
-        	}
-        	if (others.size() > 0) {
-        		scriptsMenu.add(new JSeparator());
-        		JMenu uploadedMenu = new JMenu("User Scripts");
-        		scriptsMenu.add(uploadedMenu);
-        		Iterator<ScriptSubMenu> j = others.iterator();
-            	while (j.hasNext()) 
-            		uploadedMenu.add(j.next());
-        	}
+            String name ="";
+            //loop twice to check if we need to add the first element
+            String refString = null;
+            int count = 0;
+            Iterator<ScriptObject> i = scripts.iterator();
+            String sep;
+            String[] values;
+            String value;
+            while (i.hasNext()) {
+                so = i.next();
+                path = so.getPath();
+                sep = UIUtilities.getStringSeparator(path);
+                if (path.startsWith(sep))
+                    path = path.substring(1, path.length());
+                values = UIUtilities.splitString(path);
+                value = values[0];
+                if (refString == null) {
+                    refString = value;
+                    count++;
+                } else if (refString.equals(value)) count++;
+            }
+            int index = 0;
+            if (scripts.size() == count) index++;
+            i = scripts.iterator();
+            List<JMenu> topMenus = new ArrayList<JMenu>();
+            JMenu ref = null;
+            while (i.hasNext()) {
+                so = i.next();
+                path = so.getPath();
+                sep = UIUtilities.getStringSeparator(path);
+                if (path.startsWith(sep))
+                    path = path.substring(1, path.length());
+                values = UIUtilities.splitString(path);
+                for (int j = index; j < values.length; j++) {
+                    value = values[j];
+                    JMenu v;
+                    String text = name+value;
+                    if (menus.containsKey(text)) {
+                        v = menus.get(text);
+                    } else {
+                        value = value.replace(ScriptObject.PARAMETER_SEPARATOR,
+                                ScriptObject.PARAMETER_UI_SEPARATOR);
+                        v = new JMenu(WordUtils.capitalize(value));
+                    }
+                    if (ref == null) {
+                        topMenus.add(v);
+                    } else ref.add(v);
+                    ref = v;
+                    name+=values[j];
+                    menus.put(name, v);
+                }
+                ScriptMenuItem item = new ScriptMenuItem(so);
+                item.addActionListener(listener);
+                ref.add(item);
+                name = "";
+                ref = null;
+                if (so.getIcon() == null) {
+                    so.setIcon(icon);
+                    so.setIconLarge(largeIcon);
+                }
+            }
+            Iterator<JMenu> j = topMenus.iterator();
+            while (j.hasNext()) {
+                scriptsMenu.add(j.next());
+            }
         }
         scriptsMenu.show(c, p.x, p.y);
     }
