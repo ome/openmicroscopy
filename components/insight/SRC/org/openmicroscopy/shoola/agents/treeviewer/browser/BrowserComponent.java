@@ -1378,6 +1378,7 @@ class BrowserComponent
 					    	def = new RefreshExperimenterDef(expNode, 
 					    			v.getFoundNodes(),
 									v.getExpandedTopNodes());
+					    	
 					    	ctx = new SecurityContext(gid);
 					    	if (model.getDisplayMode() ==
 					    			TreeViewer.EXPERIMENTER_DISPLAY)
@@ -1512,9 +1513,10 @@ class BrowserComponent
 				expNode = node.getExperimenterNode();
 				if (expNode.isExpanded()) {
 					m = node.getExpandedTopNodes();
-					boolean b = node.getExpandedNodes().size() == 0;
+					List expandedNodes = node.getExpandedNodes();
+					boolean b = expandedNodes.size() == 0;
 					if (model.getBrowserType() == TAGS_EXPLORER)
-						b = node.getExpandedNodes().size() > 0;
+						b = expandedNodes.size() > 0;
 					if (m != null && m.size() > 0 && b) {
 						j = m.entrySet().iterator();
 						while (j.hasNext()) {
