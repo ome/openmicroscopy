@@ -1829,7 +1829,7 @@ class BrowserUI
 		expNode.removeAllChildren();
 		expNode.removeAllChildrenDisplay();
 		expNode.setChildrenLoaded(Boolean.valueOf(true));
-        dtm.reload();
+        dtm.reload(expNode);
         Iterator i;
         if (nodes.size() > 0) {
         	boolean createFolder = true;
@@ -1848,9 +1848,9 @@ class BrowserUI
                 		if (l.size() > 0) {
                 			createFolder = false;
                 			n = (TreeFileSet) node.copy();
-                			n.setExpanded(Boolean.valueOf(true));
                 			n.setChildrenLoaded(Boolean.valueOf(true));
                 			expNode.addChildDisplay(n);
+                			expandNode(n);
                 		}
             		} else {
             			toKeep.add(node);
