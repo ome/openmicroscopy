@@ -1876,7 +1876,6 @@ class BrowserUI
             	}
             }
         } else {
-        	expNode.setExpanded(false);
         	switch (model.getBrowserType()) {
 				case Browser.TAGS_EXPLORER:
 					createTagsElements(expNode);
@@ -1885,6 +1884,7 @@ class BrowserUI
 					buildOrphanImagesNode(expNode);
 					break;
 				default:
+				    expNode.setExpanded(false);
 					buildEmptyNode(expNode);
         	}
 		}

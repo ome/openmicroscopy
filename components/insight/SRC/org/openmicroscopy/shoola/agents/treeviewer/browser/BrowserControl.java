@@ -248,6 +248,7 @@ class BrowserControl
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
+        display.setExpanded(expanded);
     	Object ho = display.getUserObject();
     	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
     		if (ho instanceof FileData) {

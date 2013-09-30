@@ -1402,7 +1402,7 @@ class BrowserComponent
 							    	//reset the flag 
 							    	if (type == Browser.IMAGES_EXPLORER)
 							    		countExperimenterImages(expNode);
-							    	def = new RefreshExperimenterDef(expNode, 
+							    	def = new RefreshExperimenterDef(expNode,
 							    			v.getFoundNodes(),
 											v.getExpandedTopNodes());
 							    	ctx = new SecurityContext(gid);
