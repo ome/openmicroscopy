@@ -231,8 +231,7 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					selectedContainer, objects, type,
-					ImporterAgent.getAvailableUserGroups());
+					selectedContainer, objects, type);
 			chooser.addPropertyChangeListener(controller);
 			view.addComponent(chooser);
 		} else {

@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -64,11 +65,13 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.browser.DataNode;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -76,6 +79,8 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.ui.Selectable;
+import org.openmicroscopy.shoola.util.ui.SelectableComboBoxModel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -93,26 +98,26 @@ import pojos.GroupData;
  * </small>
  * @since OME3.0
  */
-class UserProfile 	
+class UserProfile
 	extends JPanel
-	implements ActionListener, ChangeListener, DocumentListener, 
+	implements ActionListener, ChangeListener, DocumentListener,
 	PropertyChangeListener
 {
     
 	/** Text of the label in front of the new password area. */
-	private static final String		PASSWORD_OLD = "Old password";
+	private static final String PASSWORD_OLD = "Old password";
 	
 	/** Text of the label in front of the new password area. */
-	private static final String		PASSWORD_NEW = "New password";
+	private static final String PASSWORD_NEW = "New password";
 	
 	/** Text of the label in front of the confirmation password area. */
-	private static final String		PASSWORD_CONFIRMATION = "Confirm password";
+	private static final String PASSWORD_CONFIRMATION = "Confirm password";
 	
 	/** The title of the dialog displayed if a problem occurs. */
-	private static final String		PASSWORD_CHANGE_TITLE = "Change Password";
+	private static final String PASSWORD_CHANGE_TITLE = "Change Password";
 	
 	/** The default user's photo.*/
-	private static final Image		USER_PHOTO;
+	private static final Image USER_PHOTO;
 	
 	static {
 		IconManager icons = IconManager.getInstance();
@@ -120,76 +125,74 @@ class UserProfile
 	}
 	
     /** The items that can be edited. */
-    private Map<String, JTextField>	items;
+    private Map<String, JTextField> items;
     
     /** UI component displaying the groups, the user is a member of. */
-    private JComboBox				groups;
+    private JComboBox groupsBox;
 
     /** Displayed the current group.*/
-    private JLabel					groupLabel;
+    //private JLabel groupLabel;
     
     /** Password field to enter the new password. */
-    private JPasswordField			passwordNew;
+    private JPasswordField passwordNew;
     
     /** Password field to confirm the new password. */
-    private JPasswordField			passwordConfirm;
+    private JPasswordField passwordConfirm;
     
     /** Hosts the old password. */
-    private JPasswordField			oldPassword;
+    private JPasswordField oldPassword;
 
     /** Modify password. */
-    private JButton					passwordButton;
+    private JButton passwordButton;
     
     /** Button to add the user to group. */
-    private JButton					manageButton;
+    private JButton manageButton;
     
     /** Box to make the selected user an administrator. */
-    private JCheckBox				adminBox;
+    private JCheckBox adminBox;
     
     /** Box to make the user active or not. */
-    private JCheckBox				activeBox;
+    private JCheckBox activeBox;
     
     /** Box to make the selected user the owner of the group is a member of. */
-    private JCheckBox				ownerBox;
+    private JCheckBox ownerBox;
     
 	/** Reference to the Model. */
-    private EditorModel				model;
+    private EditorModel model;
     
     /** Reference to the Model. */
-    private EditorUI			view;
+    private EditorUI view;
     
     /** The original index. */
-    private int						originalIndex;
+    private int originalIndex;
 
     /** The user's details. */
-    private Map						details;
-    
-    /** The groups the user is a member of. */
-    private GroupData[] 			groupData;
+    private Map<String, String> details;
+
 
     /** Flag indicating that the selected user is an owner of the group. */
-    private boolean					groupOwner;
+    private boolean groupOwner;
     
     /** Indicates that the user is an administrator. */
-    private boolean					admin;
+    private boolean admin;
     
     /** Indicates that the user is active or not. */
-    private boolean					active;
+    private boolean active;
  
     /** Component displaying the permissions status. */
-    private PermissionsPane			permissionsPane;
+    private PermissionsPane permissionsPane;
     
     /** The field hosting the login name. */
-    private JTextField				loginArea;
+    private JTextField loginArea;
     
     /** Component displaying the photo of the user. */
-    private UserProfileCanvas		userPicture;
+    private UserProfileCanvas userPicture;
     
     /** Component used to change the user's photo.*/
-    private JLabel					changePhoto;
+    private JLabel changePhoto;
     
     /** Component used to delete the user's photo.*/
-    private JButton					deletePhoto;
+    private JButton deletePhoto;
     
     /** Save the changes.*/
     private JButton saveButton;
@@ -204,7 +207,7 @@ class UserProfile
             String newPass = buf.toString();
             if (newPass == null || newPass.length() == 0) {
             	un = MetadataViewerAgent.getRegistry().getUserNotifier();
-            	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+            	un.notifyInfo(PASSWORD_CHANGE_TITLE,
             			"Please enter the new password.");
             	passwordNew.requestFocus();
             	return;
@@ -229,21 +232,21 @@ class UserProfile
         String old = buf.toString();
         if (old == null || old.trim().length() == 0) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE,
         				"Please specify your old password.");
         	oldPassword.requestFocus();
         	return;
         }
         if (newPass == null || newPass.length() == 0) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE,
         			"Please enter your new password.");
         	passwordNew.requestFocus();
         	return;
         }
         if (old.equals(newPass)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE,
         			"Your new and old passwords are the same.\n" +
         			"Please enter a new password.");
         	passwordNew.setText("");
@@ -255,7 +258,7 @@ class UserProfile
         if (pass == null || confirm == null || confirm.length() == 0 ||
         	!pass.equals(confirm)) {
         	un = MetadataViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+            un.notifyInfo(PASSWORD_CHANGE_TITLE,
             			"The passwords entered do not match.\n" +
             			"Please try again.");
             passwordNew.setText("");
@@ -276,7 +279,7 @@ class UserProfile
     }
     
     /**
-     * Returns <code>true</code> if the user can modify the photo, 
+     * Returns <code>true</code> if the user can modify the photo,
      * <code></code> otherwise.
      * 
      * @return See above.
@@ -331,24 +334,29 @@ class UserProfile
     	passwordButton.setEnabled(false);
     	passwordButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	passwordButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	changePassword(); 
+            public void actionPerformed(ActionEvent e) {
+            	changePassword();
             }
         });
     	saveButton = new JButton("Save");
     	saveButton.setEnabled(false);
     	saveButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	view.saveData(true); 
+            public void actionPerformed(ActionEvent e) {
+                GroupData g = getSelectedGroup();
+                ExperimenterData exp = (ExperimenterData)
+                        model.getRefObject();
+                if (exp.getDefaultGroup().getId() != g.getId())
+                    model.fireAdminSaving(g, true);
+            	view.saveData(true);
             }
         });
     	manageButton = new JButton("Group");
     	manageButton.setEnabled(false);
     	manageButton.setBackground(UIUtilities.BACKGROUND_COLOR);
     	manageButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	manageGroup(); 
+            public void actionPerformed(ActionEvent e) {
+            	manageGroup();
             }
         });
     	passwordNew = new JPasswordField();
@@ -359,67 +367,33 @@ class UserProfile
     	oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
+    	Collection<GroupData> groups = model.getAvailableGroups();
+    	
     	GroupData defaultGroup = user.getDefaultGroup();
 
-    	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
+    	groupsBox = new JComboBox();
+    	SelectableComboBoxModel m = new SelectableComboBoxModel();
+    	Iterator<GroupData> i = groups.iterator();
+    	GroupData g;
+    	Selectable<DataNode> node, selected = null;
+    	while (i.hasNext()) {
+    	    g = i.next();
+    	    node = new Selectable<DataNode>(new DataNode(g), true);
+    	    if (g.getId() == defaultGroup.getId())
+    	        selected = node;
+            m.addElement(node);
+        }
+    	groupsBox.setModel(m);
+    	if (selected != null) groupsBox.setSelectedItem(selected);
+    	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(),
     			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.disablePermissions();
-    	groupLabel = new JLabel(defaultGroup.getName());
-    	groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	
-    	
-		long groupID = defaultGroup.getId();
+
 		boolean owner = false;
-		/*
-		if (defaultGroup.getLeaders() != null)
-			owner = setGroupOwner(defaultGroup);
-		else {
-			GroupData g = model.loadGroup(groupID);
-			if (g != null)
-				owner = setGroupOwner(g);
-		}
-		*/
 		Object parentRootObject = model.getParentRootObject();
 		if (parentRootObject instanceof GroupData) {
 			owner = setGroupOwner((GroupData) parentRootObject);
 		}
-		//Build the array for box.
-		/*
-		Iterator i = userGroups.iterator();
-		GroupData g;
-		
-		List<GroupData> validGroups = new ArrayList<GroupData>();
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			if (model.isValidGroup(g))
-				validGroups.add(g);
-		}
-		groupData = new GroupData[validGroups.size()];
-		admin = false;
-		active = false;
-		int selectedIndex = 0;
-		int index = 0;
-		i = validGroups.iterator();
-		boolean owner = false;
-		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			groupData[index] = g;
-			if (g.getId() == groupID) {
-				if (g.getLeaders() != null) {
-					owner = setGroupOwner(g);
-					originalIndex = index;
-				}
-			}
-			index++;
-		}
-		selectedIndex = originalIndex;
-		groups = EditorUtil.createComboBox(groupData, 0);
-		groups.setEnabled(false);
-		groups.setRenderer(new GroupsRenderer());
-		if (groupData.length != 0)
-			groups.setSelectedIndex(selectedIndex);
-		*/
-		
 		if (MetadataViewerAgent.isAdministrator()) {
 			//Check that the user is not the one currently logged.
 			oldPassword.setVisible(false);
@@ -519,7 +493,40 @@ class UserProfile
 	            	setUserPhoto(null);
 	            }
 	        });
+			if (groups.size() > 1) {
+			    groupsBox.addActionListener(new ActionListener() {
+
+			        /**
+			         * Listens to the change of default group.
+			         */
+			        public void actionPerformed(ActionEvent evt) {
+			            GroupData g = getSelectedGroup();
+			            //update the default group
+			            permissionsPane.resetPermissions(g.getPermissions());
+			            permissionsPane.disablePermissions();
+			            setGroupOwner(g);
+			            ExperimenterData exp = (ExperimenterData)
+			                    model.getRefObject();
+			            saveButton.setEnabled(
+			                    exp.getDefaultGroup().getId() != g.getId());
+			            //
+			            //model.fireAdminSaving(g, true);
+			        }
+			    });
+			}
 		}
+    }
+    
+    /**
+     * Returns the selected group.
+     * 
+     * @return See above.
+     */
+    private GroupData getSelectedGroup()
+    {
+        Selectable<?> item = (Selectable<?>) groupsBox.getSelectedItem();
+        DataNode node = (DataNode) item.getObject();
+        return (GroupData) node.getDataObject();
     }
     
     /**
@@ -639,8 +646,8 @@ class UserProfile
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createTitledBorder("User"));
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	Entry entry;
-    	Iterator i = details.entrySet().iterator();
+    	Entry<String, String> entry;
+    	Iterator<Entry<String, String>> i = details.entrySet().iterator();
         JComponent label;
         JTextField area;
         String key, value;
@@ -664,7 +671,7 @@ class UserProfile
         c.weightx = 0.0;  
         content.add(label, c);
         c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
+        content.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
         c.gridwidth = GridBagConstraints.REMAINDER;//end row
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -675,9 +682,9 @@ class UserProfile
         while (i.hasNext()) {
             ++c.gridy;
             c.gridx = 0;
-            entry = (Entry) i.next();
-            key = (String) entry.getKey();
-            value = (String) entry.getValue();
+            entry = i.next();
+            key = entry.getKey();
+            value = entry.getValue();
             label = EditorUtil.getLabel(key, 
             		EditorUtil.FIRST_NAME.equals(key) ||
             		EditorUtil.LAST_NAME.equals(key));
@@ -694,12 +701,12 @@ class UserProfile
             c.weightx = 0.0;  
             content.add(label, c);
             c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
+            content.add(Box.createHorizontalStrut(5), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;//end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            content.add(area, c);  
+            content.add(area, c);
         }
         c.gridx = 0;
         c.gridy++;
@@ -709,12 +716,12 @@ class UserProfile
         c.weightx = 0.0;  
         content.add(label, c);
         c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c); 
+        content.add(Box.createHorizontalStrut(5), c);
         c.gridx++;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 1.0;
-        content.add(groupLabel, c);
+        content.add(groupsBox, c);
         c.gridy++;
         content.add(permissionsPane, c);
         
@@ -740,15 +747,15 @@ class UserProfile
             label = EditorUtil.getLabel(EditorUtil.ACTIVE, false);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;
-            c.weightx = 0.0;  
+            c.weightx = 0.0;
             content.add(label, c);
             c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
+            content.add(Box.createHorizontalStrut(5), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
-            content.add(activeBox, c);  
+            content.add(activeBox, c);
         }
         if (adminBox.isVisible()) {
         	c.gridx = 0;
@@ -756,10 +763,10 @@ class UserProfile
             label = EditorUtil.getLabel(EditorUtil.ADMINISTRATOR, false);
             c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
             c.fill = GridBagConstraints.NONE;
-            c.weightx = 0.0;  
+            c.weightx = 0.0;
             content.add(label, c);
             c.gridx++;
-            content.add(Box.createHorizontalStrut(5), c); 
+            content.add(Box.createHorizontalStrut(5), c);
             c.gridx++;
             c.gridwidth = GridBagConstraints.REMAINDER;
             c.fill = GridBagConstraints.HORIZONTAL;
@@ -773,7 +780,7 @@ class UserProfile
         label = UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
         		Font.ITALIC);
         label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
-        c.weightx = 0.0;  
+        c.weightx = 0.0;
         content.add(label, c);
         return content;
     }
@@ -946,8 +953,8 @@ class UserProfile
 		}
 		//if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
-		Entry entry;
-		Iterator i = details.entrySet().iterator();
+		Entry<String, String> entry;
+		Iterator<Entry<String, String>> i = details.entrySet().iterator();
 		String key;
 		String value;
 		JTextField field;
@@ -955,8 +962,8 @@ class UserProfile
 		if (items.size() > 0) {
 			i = details.entrySet().iterator();
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				key = (String) entry.getKey();
+				entry = i.next();
+				key = entry.getKey();
 				field = items.get(key);
 				if (field != null) {
 					v = field.getText();
@@ -975,8 +982,8 @@ class UserProfile
 			
 			i = details.entrySet().iterator();
 			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				key = (String) entry.getKey();
+				entry = i.next();
+				key = entry.getKey();
 				field = items.get(key);
 				if (field != null) {
 					v = field.getText();
