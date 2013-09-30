@@ -43,8 +43,6 @@ class TestFigureExportScripts(lib.ITest):
         Therefore this test is not 'Activated' currently. 
         """
 
-        print "testRenderRegion"
-
         session = self.root.sf
         
         sizeX = 4
@@ -52,9 +50,7 @@ class TestFigureExportScripts(lib.ITest):
         sizeZ = 1
         sizeC = 1
         sizeT = 1
-        print "sizeX", sizeX, "sizeY", sizeY
         image = self.createTestImage(sizeX, sizeY, sizeZ, sizeC, sizeT)
-        print "Image ID", image.getId().getValue()
         pixelsId = image.getPrimaryPixels().id.val
         
         renderingEngine = session.createRenderingEngine()
@@ -90,35 +86,24 @@ class TestFigureExportScripts(lib.ITest):
         # First, get the full rendered plane...
         img = renderingEngine.renderCompressed(planeDef)    # compressed String
         fullImage = Image.open(StringIO.StringIO(img))     # convert to numpy array...
-        #fullImage.show()
         img_array = asarray(fullImage)   # 3D array, since each pixel is [r,g,b]
-        print img_array.shape
-        print img_array
-        not_cropped = Image.fromarray(img_array)
-        not_cropped.show()
+
+        # get the cropped image
         cropped = img_array[y:y2, x:x2, :]      # ... so we can crop to region
         cropped_img = Image.fromarray(cropped)
-        cropped_img.show()
-        # print the cropped array and hash
-        print cropped.shape
-        print cropped
         h = hash_sha1()
         h.update(cropped_img.tostring())
-        hash = h.hexdigest()
-        print hash
+        hash_cropped = h.hexdigest()
         
         # now get the region
         planeDef.region = regionDef
         img = renderingEngine.renderCompressed(planeDef)
         regionImage = Image.open(StringIO.StringIO(img))
         region_array = asarray(regionImage)   # 3D array, since each pixel is [r,g,b]
-        # print the region and hash
-        print region_array.shape
-        print region_array
-        regionImage.show()
         h = hash_sha1()
         h.update(regionImage.tostring())
-        hash = h.hexdigest()
-        print hash
+        hash_region = h.hexdigest()
+
+        assert hash_cropped == hash_region
         
 
