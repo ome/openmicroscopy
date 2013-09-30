@@ -19,6 +19,7 @@ import ome.model.meta.Share;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
+import ome.services.util.IceUtil;
 import ome.system.EventContext;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import Ice.MarshalException;
 import Ice.ReadObjectCallback;
 import Ice.UnmarshalOutOfBoundsException;
 
@@ -96,7 +98,7 @@ public abstract class ShareStore {
     // =========================================================================
 
     public final byte[] parse(ShareData data) {
-        Ice.OutputStream os = Ice.Util.createOutputStream(ic);
+        Ice.OutputStream os = IceUtil.createSafeOutputStream(ic);
         byte[] bytes = null;
         try {
             os.writeObject(data);
@@ -114,7 +116,7 @@ public abstract class ShareStore {
             return null; // EARLY EXIT!
         }
 
-        Ice.InputStream is = Ice.Util.createInputStream(ic, data);
+        Ice.InputStream is = IceUtil.createSafeInputStream(ic, data);
         final ShareData[] shareData = new ShareData[1];
         try {
             is.readObject(new ReadObjectCallback() {
@@ -131,6 +133,11 @@ public abstract class ShareStore {
                     Collections.<String, List<Long>> emptyMap(), Collections
                             .<Obj> emptyList(), false, 0L);
             // Eventually we'll need to handle conversion, etc. here or above
+        } catch (MarshalException me) {
+            // Likely a encoding issue. Return a null and let handling code
+            // do what it can with that.
+            log.warn("Share " + id + " cannot be unmarshalled. Returning null.");
+            return null;
         } finally {
             is.destroy();
         }
