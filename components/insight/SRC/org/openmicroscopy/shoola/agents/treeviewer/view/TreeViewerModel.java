@@ -1413,6 +1413,16 @@ class TreeViewerModel
 	}
 	
 	/**
+	 * Returns the groups the user is a member of.
+	 * 
+	 * @return See above.
+	 */
+	Collection<GroupData> getAvailableGroups()
+	{
+	    return TreeViewerAgent.getAvailableUserGroups();
+	}
+	
+	/**
 	 * Returns the id of the group.
 	 * 
 	 * @return See above.

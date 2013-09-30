@@ -1168,9 +1168,8 @@ public class ImportDialog extends ClosableTabbedPaneComponent
 	 */
 	public ImportDialog(JFrame owner, FileFilter[] filters,
 			TreeImageDisplay selectedContainer,
-			Collection<TreeImageDisplay> objects, int type,
-			Collection<GroupData> groups) {
-		
+			Collection<TreeImageDisplay> objects, int type)
+	{
 		super(0, TITLE, TITLE);
 		
 		this.owner = owner;
