@@ -486,8 +486,8 @@ class TestPermissions(lib.ITest):
         # http://trac.openmicroscopy.org/ome/ticket/3136
         # is still valid. Does the ticket need re-opening
         # or does the test condition need relaxing?
-        self.assertTrue(elapsed1 < (0.1 * elapsed2),\
-            "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2))
+        assert elapsed1 < (0.1 * elapsed2),\
+            "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2)
 
     #
     # Different API usages of call context (#3529)
