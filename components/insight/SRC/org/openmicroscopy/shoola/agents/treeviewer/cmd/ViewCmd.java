@@ -110,7 +110,6 @@ public class ViewCmd
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		TreeImageDisplay d = browser.getLastSelectedDisplay();
-		if (d == null) return;
 		//add check for null node since we can browse specify null node
 		if (d != null && d.getUserObject() instanceof ImageData) {
 		    Object uo = d.getUserObject();
