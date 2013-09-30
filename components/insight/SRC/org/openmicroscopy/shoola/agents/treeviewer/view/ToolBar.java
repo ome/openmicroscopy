@@ -69,7 +69,6 @@ import javax.swing.event.PopupMenuListener;
 
 
 //Third-party libraries
-import org.apache.commons.lang.WordUtils;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
@@ -1027,7 +1026,7 @@ class ToolBar
             int index = 0;
             if (scripts.size() == count) index++;
             i = scripts.iterator();
-            List<JMenu> topMenus = new ArrayList<JMenu>();
+            List<JMenuItem> topMenus = new ArrayList<JMenuItem>();
             JMenu ref = null;
             while (i.hasNext()) {
                 so = i.next();
@@ -1045,18 +1044,18 @@ class ToolBar
                     } else {
                         value = value.replace(ScriptObject.PARAMETER_SEPARATOR,
                                 ScriptObject.PARAMETER_UI_SEPARATOR);
-                        v = new JMenu(WordUtils.capitalize(value));
+                        v = new JMenu(value);
                     }
-                    if (ref == null) {
-                        topMenus.add(v);
-                    } else ref.add(v);
+                    if (ref == null) topMenus.add(v);
+                    else ref.add(v);
                     ref = v;
                     name+=values[j];
                     menus.put(name, v);
                 }
                 ScriptMenuItem item = new ScriptMenuItem(so);
                 item.addActionListener(listener);
-                ref.add(item);
+                if (ref != null) ref.add(item);
+                else topMenus.add(item);
                 name = "";
                 ref = null;
                 if (so.getIcon() == null) {
@@ -1064,7 +1063,7 @@ class ToolBar
                     so.setIconLarge(largeIcon);
                 }
             }
-            Iterator<JMenu> j = topMenus.iterator();
+            Iterator<JMenuItem> j = topMenus.iterator();
             while (j.hasNext()) {
                 scriptsMenu.add(j.next());
             }
