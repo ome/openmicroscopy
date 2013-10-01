@@ -329,7 +329,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         users.add(ctx.userId);
         users.add(ctx2.userId);
 
-        // Create a private group with the 2 users.
+        // Create a RWRW-- group with the 2 users.
         ExperimenterGroup g = newGroupAddUser(permsDestination, users);
 
         // reconnect as user1
