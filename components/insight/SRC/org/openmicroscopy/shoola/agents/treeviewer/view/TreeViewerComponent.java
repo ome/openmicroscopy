@@ -881,6 +881,7 @@ class TreeViewerComponent
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new BrowserSelectionEvent(t));
 		view.updateMenuItems();
+		fireStateChange();
 	}
 
 	/**
