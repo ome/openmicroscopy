@@ -137,6 +137,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
                 .saveAndReturnObject(mmFactory.createImage());
         // Annotate the image.
         List<Long> annotationIds = createSharableAnnotation(img, null);
+        assertTrue(annotationIds.size() > 0);
         // now move the image.
         long id = img.getId().getValue();
         doChange(new Chgrp(DeleteServiceTest.REF_IMAGE, id,
