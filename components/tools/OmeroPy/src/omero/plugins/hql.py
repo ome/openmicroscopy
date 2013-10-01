@@ -12,24 +12,29 @@
 """
 
 from omero.cli import BaseControl, CLI
-import cmd
 import time
-import cmd
 import sys
 
 HELP = """Executes an HQL statement with the given parameters.
 If no query is given, then a shell is opened which
 will run any entered query with the current parameters."""
 
+
 class HqlControl(BaseControl):
 
     def _configure(self, parser):
         parser.set_defaults(func=self.__call__)
         parser.add_argument("query", nargs="?", help="Single query to run")
-        parser.add_argument("-q", "--quiet", action="store_true", help="No user input")
-        parser.add_argument("--limit", help="Maximum number of return values", type=int, default=25)
-        parser.add_argument("--offset", help="Number of entries to skip", type=int, default=0)
-        parser.add_argument("--admin", help="Run an admin query", default=False, action="store_true")
+        parser.add_argument(
+            "-q", "--quiet", action="store_true", help="No user input")
+        parser.add_argument(
+            "--limit", help="Maximum number of return values", type=int,
+            default=25)
+        parser.add_argument(
+            "--offset", help="Number of entries to skip", type=int, default=0)
+        parser.add_argument(
+            "--admin", help="Run an admin query", default=False,
+            action="store_true")
         parser.add_login_arguments()
 
     def __call__(self, args):
@@ -42,15 +47,15 @@ class HqlControl(BaseControl):
                 args.query = self.ctx.input("Enter query:")
                 if not args.query:
                     break
-                if not self.hql(args, loop = True):
+                if not self.hql(args, loop=True):
                     break
 
-    def hql(self, args, loop = False):
+    def hql(self, args, loop=False):
         from omero_sys_ParametersI import ParametersI
 
         ice_map = dict()
         if args.admin:
-            ice_map["omero.group"]="-1"
+            ice_map["omero.group"] = "-1"
 
         c = self.ctx.conn(args)
         q = c.sf.getQueryService()
@@ -83,7 +88,8 @@ To quit, enter 'q' or just enter.
             # Stay in loop
             if id.startswith("p"):
                 p.page(p.getOffset().val + p.getLimit().val, p.getLimit())
-                self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" % (p.theFilter.offset.val, p.theFilter.limit.val))
+                self.ctx.dbg("\nCurrent page: offset=%s, limit=%s\n" %
+                             (p.theFilter.offset.val, p.theFilter.limit.val))
                 rv = self.project(q, args.query, p, ice_map)
                 self.display(rv)
             elif id.startswith("r"):
@@ -96,7 +102,8 @@ To quit, enter 'q' or just enter.
                         self.ctx.out("No details available: %s" % id)
                         continue
                     else:
-                        obj = obj[0].val # Unwrap the object_list from IQuery.projection
+                        # Unwrap the object_list from IQuery.projection
+                        obj = obj[0].val
                 except:
                     self.ctx.out("Invalid choice: %s" % id)
                     continue
@@ -113,11 +120,9 @@ To quit, enter 'q' or just enter.
                     self.ctx.out("%s = %s" % (key, value))
             continue
 
-    def display(self, rv, cols = None):
+    def display(self, rv, cols=None):
         import omero.all
         import omero.rtypes
-        from omero.model import IObject
-        from omero.model import Details
         from omero.util.text import TableBuilder
 
         has_details = []
@@ -127,7 +132,8 @@ To quit, enter 'q' or just enter.
             id = ""
             values = {}
             # Handling for simple lookup
-            if len(object_list) == 1 and isinstance(object_list[0], omero.rtypes.RObjectI):
+            if len(object_list) == 1 and \
+                    isinstance(object_list[0], omero.rtypes.RObjectI):
                 has_details.append(idx)
                 o = object_list[0].val
                 if o:
@@ -151,9 +157,9 @@ To quit, enter 'q' or just enter.
         self.ctx.out(str(tb.build()))
         return has_details
 
-    def unwrap(self, object, cache = None):
+    def unwrap(self, object, cache=None):
 
-        if cache == None:
+        if cache is None:
             cache = {}
         elif object in cache:
             return cache[id(object)]
@@ -161,7 +167,6 @@ To quit, enter 'q' or just enter.
         from omero.rtypes import unwrap
         from omero.model import IObject
         from omero.model import Details
-        from omero.rtypes import RObjectI
         from omero.rtypes import RTimeI
         #if isinstance(object, list):
         #    return [self.unwrap(x, cache) for x in object]
@@ -184,7 +189,7 @@ To quit, enter 'q' or just enter.
             rv = unwrapped
 
         cache[id(object)] = rv
-        return rv;
+        return rv
 
     def filter(self, values):
         values = dict(values)
@@ -193,7 +198,8 @@ To quit, enter 'q' or just enter.
                 values.pop(x)
         if "owner=None;group=None" == values.get("_details"):
             values.pop("_details")
-        multi_valued = sorted([k for k in values if isinstance(values[k], list)])
+        multi_valued = sorted([k for k in values
+                               if isinstance(values[k], list)])
         false_valued = sorted([k for k in values if not values[k]])
         for x in multi_valued + false_valued:
             if x in values:
@@ -215,7 +221,8 @@ To quit, enter 'q' or just enter.
             return rv
         except omero.SecurityViolation, sv:
             if "omero.group" in ice_map:
-                self.ctx.die(53, "SecurityViolation: Current user is not an admin and cannot use '--admin'")
+                self.ctx.die(53, "SecurityViolation: Current user is not an"
+                                 " admin and cannot use '--admin'")
             else:
                 self.ctx.die(54, "SecurityViolation: %s" % sv)
         except omero.QueryException, qe:
