@@ -1,7 +1,7 @@
 /*
  * $Id$
  *
- * Copyright 2006-2011 University of Dundee. All rights reserved.
+ * Copyright 2006-2013 University of Dundee. All rights reserved.
  * Use is subject to license terms supplied in LICENSE.txt
  */
 package integration.chgrp;
@@ -10,11 +10,9 @@ import integration.AbstractServerTest;
 import integration.DeleteServiceTest;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import omero.cmd.Chgrp;
-import omero.model.Annotation;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Image;
@@ -41,12 +39,12 @@ public class AnnotationMoveTest extends AbstractServerTest {
     /**
      * Helper method uses to test the move of an image with annotation
      * added by 2 users. The annotations are not shared.
-     * 
+     *
      * @param src The permissions of the source group.
      * @param dest The permissions of the target group.
      * @param secondUserMemberOfTarget Indicates if the second user is a member
      * of the target group.
-     * @throws Exception Thrown if an error occurs.
+     * @throws Exception Thrown if an error occured.
      */
     private void moveImageWithNonSharedAnnotation(String src, String dest,
             boolean secondUserMemberOfTarget)
@@ -64,7 +62,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         EventContext ctx2 = newUserInGroup(ctx);
         init(ctx2);
         List<Long> annotationIdsUser2 = createNonSharableAnnotation(img, null);
-        omero.client clientUser2 = disconnect();
+        disconnect();
 
         List<Long> users = new ArrayList<Long>();
         users.add(ctx.userId);
@@ -92,7 +90,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         param = new ParametersI();
         param.addIds(annotationIdsUser2);
         assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), n);
-        
+
         loginUser(g);
         param = new ParametersI();
         param.addIds(annotationIdsUser1);
@@ -105,7 +103,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
         assertEquals("#9496? anns", iQuery.findAllByQuery(sb.toString(), param)
                 .size(), n);
     }
-    
+
     /**
      * Test to move an image with annotation.
      *
@@ -258,7 +256,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rwr---", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RW----
@@ -273,7 +271,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rw----", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRW--
@@ -303,7 +301,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwra--", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RW----
@@ -318,7 +316,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRA--
@@ -333,7 +331,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rwra--", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRA--
@@ -348,7 +346,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rwrw--", true);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRW--
@@ -364,7 +362,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwrw--", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRA--
@@ -380,7 +378,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwra--", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWR---
@@ -396,7 +394,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rwr---", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRA--
@@ -412,7 +410,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwrw--", "rw----", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RW----
@@ -428,7 +426,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rw----", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWR---
@@ -444,7 +442,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rwr---", false);
     }
-    
+
     /**
      * Test to move an image with annotation. Context: - 2 users annotate the
      * image with non sharable annotations. - Owner move the image to a RWRA--
@@ -476,7 +474,7 @@ public class AnnotationMoveTest extends AbstractServerTest {
             throws Exception {
         moveImageWithNonSharedAnnotation("rwra--", "rwrw--", false);
     }
-    
+
     /**
      * Test to move a tagged image, the tag is also used to tag another image.
      * The image will be moved and the tag should not be moved.
