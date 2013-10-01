@@ -43,8 +43,25 @@ import junit.framework.TestCase;
 public class TestUIUtilities extends TestCase
 {
 
-    public void testTicket11484StackOverflow()
+    public void testFindDecimalNegative()
     {
-        UIUtilities.findDecimal(-1.1, 2);
+        assertEquals(3, UIUtilities.findDecimal(-0.004, 1));
+        assertEquals(2, UIUtilities.findDecimal(-0.005, 1));
+        assertEquals(2, UIUtilities.findDecimal(-0.04, 1));
+        assertEquals(1, UIUtilities.findDecimal(-0.05, 1));
+        assertEquals(1, UIUtilities.findDecimal(-0.5, 1));
+        assertEquals(1, UIUtilities.findDecimal(-0.4, 1));
+        assertEquals(1, UIUtilities.findDecimal(-1.0, 1));
+    }
+
+    public void testFindDecimalPositive()
+    {
+        assertEquals(3, UIUtilities.findDecimal(0.004, 1));
+        assertEquals(2, UIUtilities.findDecimal(0.005, 1));
+        assertEquals(2, UIUtilities.findDecimal(0.04, 1));
+        assertEquals(1, UIUtilities.findDecimal(0.05, 1));
+        assertEquals(1, UIUtilities.findDecimal(0.5, 1));
+        assertEquals(1, UIUtilities.findDecimal(0.4, 1));
+        assertEquals(1, UIUtilities.findDecimal(1.0, 1));
     }
 }
