@@ -231,7 +231,7 @@ public class ImportLibraryTest
 	public void testImportImageRWByMember()
 		throws Throwable
 	{
-    	importImage("rw----", DATA_OWNER, "testImportImageRWByMember");
+    	importImage("rw----", MEMBER, "testImportImageRWByMember");
 	}
     
     /**
@@ -267,7 +267,7 @@ public class ImportLibraryTest
 	public void testImportImageRWRByMember()
 		throws Throwable
 	{
-    	importImage("rwr---", DATA_OWNER, "testImportImageRWRByMember");
+    	importImage("rwr---", MEMBER, "testImportImageRWRByMember");
 	}
     
     /**
@@ -303,7 +303,7 @@ public class ImportLibraryTest
 	public void testImportImageRWRAByMember()
 		throws Throwable
 	{
-    	importImage("rwra--", DATA_OWNER, "testImportImageRWRAByMember");
+    	importImage("rwra--", MEMBER, "testImportImageRWRAByMember");
 	}
     
     /**
@@ -339,7 +339,7 @@ public class ImportLibraryTest
 	public void testImportImageRWRWByMember()
 		throws Throwable
 	{
-    	importImage("rwrw--", DATA_OWNER, "testImportImageRWRWByMember");
+    	importImage("rwrw--", MEMBER, "testImportImageRWRWByMember");
 	}
     
     /**
@@ -376,7 +376,7 @@ public class ImportLibraryTest
 	public void testImportCandidatesRWRWByMember()
 		throws Throwable
 	{
-    	importCandidates("rwrw--", DATA_OWNER,
+    	importCandidates("rwrw--", MEMBER,
     			"testImportCandidatesRWRWByMember");
 	}
     
@@ -414,7 +414,7 @@ public class ImportLibraryTest
 	public void testImportCandidatesRWRAByMember()
 		throws Throwable
 	{
-    	importCandidates("rwra--", DATA_OWNER,
+    	importCandidates("rwra--", MEMBER,
     			"testImportCandidatesRWRAByMember");
 	}
     
@@ -452,7 +452,7 @@ public class ImportLibraryTest
 	public void testImportCandidatesRWRByMember()
 		throws Throwable
 	{
-    	importCandidates("rwr---", DATA_OWNER,
+    	importCandidates("rwr---", MEMBER,
     			"testImportCandidatesRWRByMember");
 	}
     
@@ -490,7 +490,7 @@ public class ImportLibraryTest
 	public void testImportCandidatesRWByMember()
 		throws Throwable
 	{
-    	importCandidates("rw----", DATA_OWNER,
+    	importCandidates("rw----", MEMBER,
     			"testImportCandidatesRWByMember");
 	}
     
@@ -529,7 +529,7 @@ public class ImportLibraryTest
 	public void testImportImageCreateImportContainerRWByMember()
 		throws Throwable
 	{
-    	importImageCreateImportContainer("rw----", DATA_OWNER, 
+    	importImageCreateImportContainer("rw----", MEMBER, 
     			"testImportImageCreateImportContainerRWByMember");
 	}
     
@@ -568,7 +568,7 @@ public class ImportLibraryTest
 	public void testImportImageCreateImportContainerRWRByMember()
 		throws Throwable
 	{
-    	importImageCreateImportContainer("rwr---", DATA_OWNER, 
+    	importImageCreateImportContainer("rwr---", MEMBER, 
     			"testImportImageCreateImportContainerRWRByMember");
 	}
     
@@ -607,7 +607,7 @@ public class ImportLibraryTest
 	public void testImportImageCreateImportContainerRWRAByMember()
 		throws Throwable
 	{
-    	importImageCreateImportContainer("rwra--", DATA_OWNER, 
+    	importImageCreateImportContainer("rwra--", MEMBER, 
     			"testImportImageCreateImportContainerRWRAByMember");
 	}
     
@@ -646,7 +646,7 @@ public class ImportLibraryTest
 	public void testImportImageCreateImportContainerRWRWByMember()
 		throws Throwable
 	{
-    	importImageCreateImportContainer("rwrw--", DATA_OWNER, 
+    	importImageCreateImportContainer("rwrw--", MEMBER, 
     			"testImportImageCreateImportContainerRWRWByMember");
 	}
     
@@ -715,7 +715,7 @@ public class ImportLibraryTest
 	public void testImportMetadataAfterUploadToRepositoryRWRWByMember()
 		throws Throwable
 	{
-    	importMetadataAfterUploadToRepository("rwrw--", DATA_OWNER, 
+    	importMetadataAfterUploadToRepository("rwrw--", MEMBER, 
     			"testImportMetadataAfterUploadToRepositoryRWRWByMember");
 	}
     
@@ -757,7 +757,7 @@ public class ImportLibraryTest
 	public void testImportMetadataAfterUploadToRepositoryRWRAByMember()
 		throws Throwable
 	{
-    	importMetadataAfterUploadToRepository("rwra--", DATA_OWNER, 
+    	importMetadataAfterUploadToRepository("rwra--", MEMBER, 
     			"testImportMetadataAfterUploadToRepositoryRWRAByMember");
 	}
     
@@ -799,7 +799,7 @@ public class ImportLibraryTest
 	public void testImportMetadataAfterUploadToRepositoryRWRByMember()
 		throws Throwable
 	{
-    	importMetadataAfterUploadToRepository("rwr---", DATA_OWNER, 
+    	importMetadataAfterUploadToRepository("rwr---", MEMBER, 
     			"testImportMetadataAfterUploadToRepositoryRWRByMember");
 	}
     
@@ -841,7 +841,7 @@ public class ImportLibraryTest
 	public void testImportMetadataAfterUploadToRepositoryRWByMember()
 		throws Throwable
 	{
-    	importMetadataAfterUploadToRepository("rw----", DATA_OWNER, 
+    	importMetadataAfterUploadToRepository("rw----", MEMBER, 
     			"testImportMetadataAfterUploadToRepositoryRWByMember");
 	}
 }
