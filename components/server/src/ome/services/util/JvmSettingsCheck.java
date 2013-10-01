@@ -28,8 +28,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Hook run by the context. This hook prints an informative message on
- * {@link #start()} and {@link #stop()}.
+ * Hook run by the context which prints out JVM-related
+ * information, primarily Java version, max heap size
+ * and available processors.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  */
