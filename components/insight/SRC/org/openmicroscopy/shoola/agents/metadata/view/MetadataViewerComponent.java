@@ -84,6 +84,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.PlateAcquisitionData;
@@ -1038,10 +1039,12 @@ class MetadataViewerComponent
 	 */
 	public void updateAdminObject(Object data, boolean async)
 	{
-		if (data instanceof ExperimenterData) {
+		if (data instanceof ExperimenterData)
 			model.fireExperimenterSaving((ExperimenterData) data, async);
-		} else if (data instanceof AdminObject)
+		else if (data instanceof AdminObject)
 			model.fireAdminSaving((AdminObject) data, async);
+		else if (data instanceof GroupData)
+		    model.fireChangeGroup((GroupData) data);
 	}
 
 	/**
@@ -1222,6 +1225,14 @@ class MetadataViewerComponent
 		model.getEditor().onUpdatedChannels(channels);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see MetadataViewer#getCurrentUser()
+	 */
+	public ExperimenterData getCurrentUser()
+	{
+	    return model.getCurrentUser();
+	}
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

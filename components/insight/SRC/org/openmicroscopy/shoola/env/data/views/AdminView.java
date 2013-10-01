@@ -248,4 +248,16 @@ public interface AdminView
 			ExperimenterData experimenter, File photo, String format, 
 			AgentEventListener observer);
 	
+	/**
+     * Changes the default group of the specified user or <code>null</code>.
+     * 
+     * @param ctx The security context.
+     * @param group The group to update. Mustn't be <code>null</code>.
+     * @param experimenter The user to handle or <code>null</code> to modify
+     * the default group of the logged in user.
+     * @param observer Call-back handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle changeGroup(SecurityContext ctx, GroupData group,
+            ExperimenterData experimenter, AgentEventListener observer);
 }
