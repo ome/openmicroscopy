@@ -287,15 +287,12 @@
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
-                <value>/Well/WellAnnotationLink;FORCE</value>
-                <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
-                <value>/Well/WellReagentLink;FORCE</value>
                 <value>/Well</value>
             </list>
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/Well+NotSamples">
+    <bean parent="delSpec" name="/Well">
         <constructor-arg>
             <list>
                 <value>/Well/WellAnnotationLink;FORCE</value>
@@ -338,7 +335,7 @@
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
                 <value>/Image;;/PlateAcquisition/WellSample</value>
-                <value>/Well+NotSamples;SOFT;/PlateAcquisition/WellSample</value>
+                <value>/Well;SOFT;/PlateAcquisition/WellSample</value>
                 <value>/PlateAcquisition</value>
             </list>
         </constructor-arg>
