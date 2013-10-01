@@ -54,9 +54,5 @@
     <dependency org="spring" name="spring-security-config" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-security-ldap" rev="${versions.spring-security}"/>
     <dependency org="spring" name="spring-ldap" rev="${versions.spring-ldap}-all"/>
-    <!-- Build dependencies for test -->
-    <dependency org="apacheds" name="apacheds-all" rev="${versions.apacheds}" conf="build->*"/>
-    <!--dependency org="apacheds" name="shared-ldap" rev="${versions.shared-ldap}" conf="build->*"/--><!--in apacheds-all -->
-    <dependency org="apacheds" name="shared-ldap-constants" rev="${versions.shared-ldap}" conf="build->*"/>
   </dependencies>
 </ivy-module>
