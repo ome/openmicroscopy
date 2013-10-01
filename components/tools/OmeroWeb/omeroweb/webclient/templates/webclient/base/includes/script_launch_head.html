@@ -56,14 +56,13 @@
             }
         });
 
-        // format script name by replacing '_' with ' ' and upper case first letters
+        // format script name by replacing '_' with ' '
         var format_script_name = function(name) {
-            var words = name.split("_"),
-                upper = [];
-            for (var i=0; i<words.length; i++) {
-                upper.push(words[i].capitalize());
+            name = name.replace(/_/g, " ");
+            if (name.endsWith(".py")) {
+                name = name.slice(0,-2) + "..";
             }
-            return upper.join(" ");
+            return name
         }
 
         $("#scriptButton").click(function(e){
