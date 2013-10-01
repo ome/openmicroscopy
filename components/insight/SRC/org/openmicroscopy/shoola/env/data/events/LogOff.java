@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.events.LogOff 
+ * org.openmicroscopy.shoola.env.data.events.LogOff
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2011 University of Dundee & Open Microscopy Environment.
+ *  Copyright (C) 2006-2013 University of Dundee & Open Microscopy Environment.
  *  All rights reserved.
  *
  *
@@ -28,7 +28,9 @@ package org.openmicroscopy.shoola.env.data.events;
 
 //Third-party libraries
 
+
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -47,25 +49,28 @@ public class LogOff
 	 * application.
 	 */
 	private boolean askQuestion;
+
+	/** The security context to use to modify the default group.*/
+	private SecurityContext ctx;
 	
     /** Creates a new instance. */
-    public LogOff() 
+    public LogOff()
     {
     	this(true);
     }
-    
+
     /**
      * Creates a new instance.
      * 
-     * @param askQuestion 	Pass <code>true</code> to ask a question before
+     * @param askQuestion Pass <code>true</code> to ask a question before
      * 						closing the application, <code>false</code>
      * 						otherwise.
      */
-    public LogOff(boolean askQuestion) 
+    public LogOff(boolean askQuestion)
     {
     	this.askQuestion = askQuestion;
     }
-    
+
     /**
      * Returns <code>true</code> to ask a question before closing the
      * application, <code>false</code> otherwise.
@@ -73,5 +78,19 @@ public class LogOff
      * @return See above.
      */
     public boolean isAskQuestion() { return askQuestion; }
-    
+
+    /**
+     * Sets the security context.
+     * 
+     * @param ctx The value to set.
+     */
+    public void setSecurityContext(SecurityContext ctx) { this.ctx = ctx; }
+
+    /**
+     * Returns the security context.
+     * 
+     * @return See above.
+     */
+    public SecurityContext getSecurityContext() { return ctx; }
+
 }

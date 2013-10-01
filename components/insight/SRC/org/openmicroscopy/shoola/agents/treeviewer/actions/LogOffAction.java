@@ -36,7 +36,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.LogOff;
+import org.openmicroscopy.shoola.env.data.util.SecurityContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.GroupData;
 /** 
  * Logs off from the current server.
  *
@@ -44,17 +47,17 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @since Beta4.4
  */
-public class LogOffAction 
+public class LogOffAction
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
     public static final String NAME = "Switch User...";
-    
+
     /** The description of the action. */
     public static final String DESCRIPTION = "Reconnect as another user.";
-    
-    /** 
+
+    /**
      * Enables the action if the browser is not ready.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
@@ -67,7 +70,7 @@ public class LogOffAction
     	if (browser != null)
     		setEnabled(browser.getState() == Browser.READY);
     }
-    
+
     /**
 	 * Creates a new instance.
 	 * 
@@ -78,20 +81,24 @@ public class LogOffAction
         super(model);
         name = NAME;
         putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
+		putValue(Action.SHORT_DESCRIPTION,
 				UIUtilities.formatToolTipText(DESCRIPTION));
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.LOGIN));
     }
-    
+
     /**
      * Logs off from the current server.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
-    { 
+    {
     	Registry reg = TreeViewerAgent.getRegistry();
-    	reg.getEventBus().post(new LogOff());
+    	GroupData group = model.getSingleGroupDisplayed();
+    	LogOff evt = new LogOff();
+    	if (group != null)
+    	    evt.setSecurityContext(new SecurityContext(group.getId()));
+    	reg.getEventBus().post(evt);
     }
-    
+
 }

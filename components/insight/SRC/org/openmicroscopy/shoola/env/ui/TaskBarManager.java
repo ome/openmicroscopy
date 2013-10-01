@@ -2,7 +2,7 @@
  * org.openmicroscopy.shoola.env.ui.TaskBarManager
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2013 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import ij.IJ;
-
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,7 +44,7 @@ import java.util.Map.Entry;
 import javax.swing.Icon;
 
 //Third-party libraries
-
+import ij.IJ;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
@@ -110,46 +108,43 @@ public class TaskBarManager
 {
 
 	/** The window's title. */
-	static final String				TITLE_ABOUT = "About";
+	static final String TITLE_ABOUT = "About";
 	
 	/** Bound property indicating to display the activity dialog. */
-	static final String				ACTIVITIES_PROPERTY = "activities";
-	
-	/** The value of the tag to find. */
-	private static final String		A_TAG = "a";
+	static final String ACTIVITIES_PROPERTY = "activities";
 
 	/** The title displayed before closing the application. */
-	private static final String		CLOSE_APP_TITLE = "Exit Application";
+	private static final String CLOSE_APP_TITLE = "Exit Application";
 		
 	/** The text displayed before closing the application. */
-	private static final String		CLOSE_APP_TEXT = 
+	private static final String CLOSE_APP_TEXT =
 		"Do you really want to close the application?";
 		
 	/** The title displayed before closing the application. */
-	private static final String		CLOSE_PLUGIN_TITLE = "Exit Plugin";
+	private static final String CLOSE_PLUGIN_TITLE = "Exit Plugin";
 		
 	/** The text displayed before closing the application. */
-	private static final String		CLOSE_PLUGIN_TEXT = 
+	private static final String CLOSE_PLUGIN_TEXT =
 		"Do you really want to close the plugin?";
 	
 	/** The title displayed before logging out. */
-	private static final String		LOGOUT_TITLE = "Log out";
+	private static final String LOGOUT_TITLE = "Log out";
 		
 	/** The text displayed before logging out. */
-	private static final String		LOGOUT_TEXT = 
+	private static final String LOGOUT_TEXT = 
 		"Do you really want to disconnect from the server?";
 	
 	/** The view this controller is managing. */
-	private TaskBarView				view;
+	private TaskBarView view;
 	
 	/** Reference to the container. */
-	private Container				container;
+	private Container container;
 
 	/** The software update dialog. */
-	private SoftwareUpdateDialog	suDialog;
+	private SoftwareUpdateDialog suDialog;
 	
     /** Login dialog. */
-    private ScreenLoginDialog 		login;
+    private ScreenLoginDialog login;
     
     /** Flag indicating if the connection was successful or not. */
     private boolean success;
@@ -187,7 +182,7 @@ public class TaskBarManager
 	/**
 	 * Reads the content of the specified file and returns it as a string.
 	 * 
-	 * @param file	Absolute pathname to the file.
+	 * @param file Absolute pathname to the file.
 	 * @return See above.
 	 */
 	private String loadAbout(String file)
@@ -232,7 +227,7 @@ public class TaskBarManager
 		view.getButton(TaskBarView.CONNECT_BTN).setEnabled(!connected);
 		view.getButton(TaskBarView.CONNECT_MI).setEnabled(!connected);
 		view.getButton(TaskBarView.DISCONNECT_BTN).setEnabled(connected);
-		view.getButton(TaskBarView.DISCONNECT_MI).setEnabled(connected);	
+		view.getButton(TaskBarView.DISCONNECT_MI).setEnabled(connected);
 	}
 	
 	/** The action associated to the connection-related buttons. */
@@ -250,7 +245,7 @@ public class TaskBarManager
 			}
 		} catch (DSOutOfServiceException oose) {
 			synchConnectionButtons();
-		} 
+		}
 	}
 	
 	/**
@@ -422,8 +417,9 @@ public class TaskBarManager
 	private void handleLogOff(LogOff evt)
 	{
 		if (evt == null) return;
-		if (!((LogOff) evt).isAskQuestion()) {
-			logOut();
+		SecurityContext ctx = evt.getSecurityContext();
+		if (!evt.isAskQuestion()) {
+			logOut(ctx);
 			return;
 		}
 		IconManager icons = IconManager.getInstance(container.getRegistry());
@@ -434,19 +430,20 @@ public class TaskBarManager
 			Map<Agent, AgentSaveInfo> map = msg.getInstancesToSave();
 			if (map != null && map.size() > 0) {
 				List<Object> nodes = new ArrayList<Object>();
-				Iterator i = map.entrySet().iterator();
-				Entry entry;
+				Iterator<Entry<Agent, AgentSaveInfo>>
+				i = map.entrySet().iterator();
+				Entry<Agent, AgentSaveInfo> entry;
 				Agent agent;
 				AgentSaveInfo info;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					agent = (Agent) entry.getKey();
-					info = (AgentSaveInfo) entry.getValue();
+					entry = i.next();
+					agent = entry.getKey();
+					info = entry.getValue();
 					agent.save(info.getInstances());
 					nodes.add(info);
 				}
 			}
-			logOut();
+			logOut(ctx);
 		}
 	}
 	
@@ -460,7 +457,7 @@ public class TaskBarManager
 		if (evt == null) return;
 		SecurityContext ctx = evt.getContext();
 		try {
-			DataServicesFactory f = 
+			DataServicesFactory f =
 				DataServicesFactory.getInstance(container);
 			f.removeGroup(ctx);
 		} catch (Exception e) {
@@ -509,7 +506,7 @@ public class TaskBarManager
     	String n = (String) container.getRegistry().lookup(
 				LookupNames.SPLASH_SCREEN_LOGO);
 
-		reconnectDialog = new ScreenLoginDialog(Container.TITLE, 
+		reconnectDialog = new ScreenLoginDialog(Container.TITLE,
 				getSplashScreen(Factory.createIcon(n, f)), img, v, port);
 		reconnectDialog.setStatusVisible(false);
 		reconnectDialog.showConnectionSpeed(true);
@@ -523,7 +520,7 @@ public class TaskBarManager
 					LoginCredentials lc = (LoginCredentials) evt.getNewValue();
 					
 					if (lc != null) {
-						collectCredentials(lc, 
+						collectCredentials(lc,
 								(ScreenLoginDialog) evt.getSource());
 					}
 				}
@@ -533,11 +530,29 @@ public class TaskBarManager
 		UIUtilities.centerAndShow(reconnectDialog);
 	}
 	
-	/** Disconnects from the current server.*/
-	private void logOut()
+	/**
+	 * Disconnects from the current server.
+	 * 
+	 * @param ctx The security context.
+	 */
+	private void logOut(SecurityContext ctx)
 	{
+	    //Change group if context not null
+	    if (ctx != null) {
+	        try {
+	            AdminService svc = container.getRegistry().getAdminService();
+	            //To be turned on when 
+	            //svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+	        } catch (Exception e) {
+	            if (isRunAsIJPlugin()) IJ.log(e.getMessage());
+	            Logger log = container.getRegistry().getLogger();
+	            LogMessage msg = new LogMessage();
+	            msg.print(e);
+	            log.error(this, msg);
+	        }
+	    }
 		try {
-			DataServicesFactory f = 
+			DataServicesFactory f =
 				DataServicesFactory.getInstance(container);
 			f.exitApplication(false, false);
 			reconnect();
@@ -564,7 +579,7 @@ public class TaskBarManager
 	private void doExit(boolean askQuestion, SecurityContext ctx)
     {
 		if (reconnectDialog != null) {
-			exitApplication(null);
+			exitApplication(ctx);
 			return;
 		}
 		Environment env = (Environment) 
@@ -576,7 +591,7 @@ public class TaskBarManager
 			message = CLOSE_PLUGIN_TEXT;
 		}
         IconManager icons = IconManager.getInstance(container.getRegistry());
-        int option = MessageBox.YES_OPTION; 
+        int option = MessageBox.YES_OPTION;
         Map<Agent, AgentSaveInfo> instances = getInstancesToSave();
         CheckoutBox msg = null;
         if (env.isRunAsPlugin()) askQuestion = false;
@@ -596,27 +611,19 @@ public class TaskBarManager
 					exitApplication(ctx);
 				} else {
 					List<Object> nodes = new ArrayList<Object>();
-					Iterator i = map.entrySet().iterator();
-					Entry entry;
+					Iterator<Entry<Agent, AgentSaveInfo>>
+					i = map.entrySet().iterator();
+					Entry<Agent, AgentSaveInfo> entry;
 					Agent agent;
 					AgentSaveInfo info;
 					while (i.hasNext()) {
-						entry = (Entry) i.next();
-						agent = (Agent) entry.getKey();
-						info = (AgentSaveInfo) entry.getValue();
+						entry = i.next();
+						agent = entry.getKey();
+						info = entry.getValue();
 						agent.save(info.getInstances());
 						nodes.add(info);
 					}
 					exitApplication(ctx);
-					//UserNotifierImpl un = (UserNotifierImpl) 
-					//container.getRegistry().getUserNotifier();
-					//un.notifySaving(nodes, this);
-					/*
-					Registry reg = container.getRegistry();
-					UserNotifierLoader loader = new SwitchUserLoader(
-							reg.getUserNotifier(), reg, null, -1);
-					loader.load();
-					*/
 				}
 			}
 		}
@@ -630,7 +637,7 @@ public class TaskBarManager
 	 */
 	private boolean isRunAsIJPlugin()
 	{
-		Environment env = (Environment) 
+		Environment env = (Environment)
 		container.getRegistry().lookup(LookupNames.ENV);
     	if (env == null) return false;
     	return env.runAsPlugin() >= 0;
@@ -648,7 +655,8 @@ public class TaskBarManager
 		if (ctx != null) {
 			try {
 				AdminService svc = container.getRegistry().getAdminService();
-				svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
+				//to be reviewed when preferences are available.
+				//svc.changeExperimenterGroup(ctx, null, ctx.getGroupID());
 			} catch (Exception e) {
 				if (isRunAsIJPlugin()) IJ.log(e.getMessage());
 				Logger log = container.getRegistry().getLogger();
@@ -658,9 +666,7 @@ public class TaskBarManager
 			}
 		}
 		try {
-			
-			DataServicesFactory f = 
-				DataServicesFactory.getInstance(container);
+			DataServicesFactory f = DataServicesFactory.getInstance(container);
 			f.exitApplication(false, true);
 		} catch (Exception e) {
 			if (isRunAsIJPlugin()) IJ.log(e.getMessage());
@@ -722,7 +728,7 @@ public class TaskBarManager
             url = url.replaceAll("^file:/", "file:///");
             openURL(url);
         } catch (Exception e) {
-        	container.getRegistry().getLogger().error(this, 
+        	container.getRegistry().getLogger().error(this,
         			"Unable to open log directory.");
         }
     }
@@ -733,46 +739,41 @@ public class TaskBarManager
 	 */
 	private void attachMIListeners()
 	{
-		ActionListener noOp = new ActionListener() {		
+		ActionListener noOp = new ActionListener() {
 			public void actionPerformed(ActionEvent ae) { notAvailable(); }
 		};
 		view.getButton(TaskBarView.WELCOME_MI).addActionListener(noOp);
-		//view.getButton(TaskBarView.HELP_MI).addActionListener(
-		//		new ActionListener() {       
-        //    public void actionPerformed(ActionEvent ae) { help(); }
-        //});
-		//view.getButton(TaskBarView.HELP_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_MI).addActionListener(
-				new ActionListener() {       
+				new ActionListener() {
             public void actionPerformed(ActionEvent ae) { help(); }
         });
 		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.UPDATES_MI).addActionListener(
-                new ActionListener() {       
+                new ActionListener() {
             public void actionPerformed(ActionEvent ae) { softwareAbout(); }
         });
 		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_BTN).addActionListener(
-				new ActionListener() {       
+				new ActionListener() {
             public void actionPerformed(ActionEvent ae) { help(); }
         });
 		view.getButton(TaskBarView.COMMENT_MI).addActionListener(
-                new ActionListener() {       
+                new ActionListener() {
             public void actionPerformed(ActionEvent ae) { sendComment(); }
         });
 		view.getButton(TaskBarView.FORUM_MI).addActionListener(
-				new ActionListener() {       
+				new ActionListener() {
             public void actionPerformed(ActionEvent ae) { forum(); }
         });
 		view.getButton(TaskBarView.ACTIVITY_MI).addActionListener(
-				new ActionListener() {       
-            public void actionPerformed(ActionEvent ae) { 
-            	((UserNotifierImpl) 
+				new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+            	((UserNotifierImpl)
             		container.getRegistry().getUserNotifier()).showActivity();
             }
         });
 		view.getButton(TaskBarView.LOG_FILE_MI).addActionListener(
-				new ActionListener() {       
+				new ActionListener() {
             public void actionPerformed(ActionEvent ae) { logFile(); }
         });
 	}
@@ -783,8 +784,8 @@ public class TaskBarManager
 	 */
 	private void attachConnectionListeners()
 	{
-		ActionListener conx = new ActionListener() {		
-			public void actionPerformed(ActionEvent ae) { 
+		ActionListener conx = new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {
 				doManageConnection();
 			}
 		};
@@ -802,17 +803,10 @@ public class TaskBarManager
 	{
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) { doExit(true, null); }
-			public void windowOpened(WindowEvent we) { 
+			public void windowOpened(WindowEvent we) {
 				synchConnectionButtons();
 			}
 		});
-		/*
-		ActionListener exit = new ActionListener() {		
-			public void actionPerformed(ActionEvent ae) { doExit(); }
-		};
-		*/
-		//view.getButton(TaskBarView.EXIT_MI).addActionListener(exit);
-		//view.getButton(TaskBarView.EXIT_BTN).addActionListener(exit);
 	}
 	
 	/**
@@ -856,7 +850,7 @@ public class TaskBarManager
     private void collectCredentials(LoginCredentials lc,
     		ScreenLoginDialog dialog)
     {
-    	UserCredentials uc = new UserCredentials(lc.getUserName(), 
+    	UserCredentials uc = new UserCredentials(lc.getUserName(),
 				lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 		uc.setPort(lc.getPort());
 		uc.setEncrypted(lc.isEncrypted());
@@ -900,7 +894,7 @@ public class TaskBarManager
 	 *  
 	 * @param c	Reference to the container.
 	 */
-	TaskBarManager(Container c) 
+	TaskBarManager(Container c)
 	{
 		container = c;
 		view = new TaskBarView(this, IconManager.getInstance(c.getRegistry()));
@@ -926,7 +920,7 @@ public class TaskBarManager
 	}
 	
 	/**
-	 * Opens the URL. 
+	 * Opens the URL.
 	 * 
 	 * @param url The URL to open.
 	 */
@@ -945,7 +939,7 @@ public class TaskBarManager
 	void sessionExpired(int index)
 	{
 		try {
-			DataServicesFactory factory = 
+			DataServicesFactory factory =
 				DataServicesFactory.getInstance(container);
 			factory.sessionExpiredExit(index, null);
 		} catch (Exception e) {}
@@ -960,7 +954,7 @@ public class TaskBarManager
 	boolean login()
 	{
 		try {
-			DataServicesFactory factory = 
+			DataServicesFactory factory =
 				DataServicesFactory.getInstance(container);
 			if (factory.isConnected()) return true;
 			if (login == null) {
@@ -995,7 +989,9 @@ public class TaskBarManager
 			UIUtilities.centerAndShow(login);
     		return success;
 		} catch (Exception e) {
-			// TODO: handle exception
+		    LogMessage msg = new LogMessage();
+		    msg.print(e);
+		    container.getRegistry().getLogger().debug(this, msg);
 		}
 		return success;
 	}
