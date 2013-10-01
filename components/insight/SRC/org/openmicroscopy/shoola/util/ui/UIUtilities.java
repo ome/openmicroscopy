@@ -1616,10 +1616,11 @@ public class UIUtilities
      */
     public static final int findDecimal(double value, int decimal)
     {
-    	double v = round(value, decimal);
+    	double testValue = Math.abs(value);
+    	double v = round(testValue, decimal);
     	if (v > 0) return decimal;
     	decimal++;
-    	return findDecimal(value, decimal);
+    	return findDecimal(testValue, decimal);
     }
 
     /**
